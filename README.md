@@ -1,6 +1,8 @@
 # elm-qdev
 
-(Eventually a) Frontend tool to plot live research data for KU center for quantum devices :sparkles:
+*Very unfinished*
+
+Frontend tool to plot live research data for KU center for quantum devices :sparkles:
 
 Can only scatter points at the moment
 
