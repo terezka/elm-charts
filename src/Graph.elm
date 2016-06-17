@@ -29,9 +29,7 @@ update msg model =
 
 view : Model -> Svg.Svg Msg
 view dataset =
-  Svg.svg
-    [ width "400", height "400" ]
-    (List.map viewPoint dataset)
+  Svg.g [] (List.map viewPoint dataset)
 
 
 viewPoint : Point -> Svg.Svg Msg
