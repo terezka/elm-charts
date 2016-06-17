@@ -44,8 +44,9 @@ update msg model =
 view : Model -> Svg.Svg Msg
 view model =
     let 
-        secondPoint = if model.isVertical then [ x2 "300", y2 "50" ] else [ x2 "50", y2 "300" ]
-        lineAttr =  [ x1 "50", y1 "50", stroke "red" ] ++ secondPoint  
+         firstPoint = if model.isVertical then [ x1 "50", y1 "300" ] else [ x1 "50", y1 "50" ]
+         secondPoint = if model.isVertical then [ x2 "300", y2 "300" ] else [ x2 "50", y2 "300" ]
+         lineAttr =  [ stroke "red" ] ++ firstPoint ++ secondPoint
     in
         Svg.g
           []
