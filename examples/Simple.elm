@@ -23,7 +23,7 @@ type alias Model =
 init =
   { dataset = [ { x = 120, y = 170 }, { x = 140, y = 180 } ] 
   , axisX = Axis.init |> Axis.setVertical True
-  , axisY = Axis.init
+  , axisY = Axis.init |> Axis.setScale 20
   }
 
 

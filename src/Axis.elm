@@ -16,7 +16,6 @@ point x y =
 
 type alias Model = 
     { isVertical : Bool
-    , min : Int
     , max : Int
     , scale : Int
     }
@@ -25,8 +24,7 @@ type alias Model =
 init : Model 
 init = 
     { isVertical = False
-    , min = 0
-    , max = 10
+    , max = 100
     , scale = 10
     }
 
@@ -34,11 +32,6 @@ init =
 setVertical : Bool -> Model -> Model
 setVertical bool model =
     { model | isVertical = bool }
-
-
-setMinRange : Int -> Model -> Model 
-setMinRange min model =
-    { model | min = min }
 
 setScale : Int -> Model -> Model 
 setScale scale model =
@@ -66,9 +59,11 @@ view model =
         moveA = if model.isVertical then (\point y -> { point | y = point.y + y }) else (\point x -> { point | x = point.x + x })
         moveP = if model.isVertical then (\point x -> { point | x = point.x + x }) else (\point y -> { point | y = point.y + y })
         axis = (base, moveA base length)
-        ticksNo = length / (toFloat model.scale) |> round
+
+        ticksNo = (toFloat model.max) / (toFloat model.scale) |> round
+        tickDiff = length / (toFloat ticksNo) |> round
         tickLength = if model.isVertical then -10 else 10
-        ticks = List.map (\i -> let start = moveA base (i*model.scale) in (moveP start tickLength, start)) [0..ticksNo]
+        ticks = List.map (\i -> let start = moveA base (i*tickDiff) in (moveP start tickLength, start)) [0..ticksNo]
     in
         Svg.g
           []
