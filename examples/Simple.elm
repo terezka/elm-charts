@@ -2,6 +2,7 @@ module Simple exposing (..)
 
 import Html.App as App
 import Html.Events exposing (onClick)
+import Html.Attributes exposing (style)
 import Html exposing (Html, button, div, text)
 
 import Graph
@@ -20,7 +21,7 @@ type alias Model =
 
 
 init =
-  { dataset = [ { x = 20, y = 70 }, { x = 40, y = 80 } ] 
+  { dataset = [ { x = 120, y = 170 }, { x = 140, y = 180 } ] 
   , axisX = Axis.init |> Axis.setVertical True
   , axisY = Axis.init
   }
@@ -44,7 +45,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
   div 
-    [] 
+    [ style [ ("padding", "3em") ] ] 
     [ Container.view
       [ App.map AxisEvent (Axis.view model.axisX)
       , App.map AxisEvent (Axis.view model.axisY)
