@@ -6,49 +6,34 @@ import Html.Attributes exposing (style)
 import Html exposing (Html, button, div, text)
 
 import Graph
-import Axis
-import Container
+import Types exposing (dataSet)
 
 main =
     App.beginnerProgram { model = init, view = view, update = update }
 
 
 type alias Model =
-    { dataset : Graph.Model
-    , axisX : Axis.Model
-    , axisY : Axis.Model
-    }
+    { graph : Graph.Model }
 
 
+init : Model 
 init =
-  { dataset = [ { x = 120, y = 170 }, { x = 140, y = 180 } ] 
-  , axisX = Axis.init |> Axis.setVertical True
-  , axisY = Axis.init |> Axis.setScale 20
-  }
+    let data = [ (-100, -20), (0, 300), (30, 50), (40, 40), (60, 75), (80, 60), (100, 63), (100, 300) ]
+    in
+        { graph = Graph.init data }
 
 
 type Msg
-  = GraphEvent Graph.Msg
-  | AxisEvent Axis.Msg
+  = GraphEvent
 
 
 update : Msg -> Model -> Model
 update msg model =
-  case msg of
-    GraphEvent graphMsg ->
-      { model | dataset = Graph.update graphMsg model.dataset }
-
-    AxisEvent axisMsg ->
-      model
+  model
 
 
 view : Model -> Html Msg
 view model =
   div 
     [ style [ ("padding", "3em") ] ] 
-    [ Container.view
-      [ App.map AxisEvent (Axis.view model.axisX)
-      , App.map AxisEvent (Axis.view model.axisY)
-      , App.map GraphEvent (Graph.view model.dataset)
-      ]
-    ]
+    [ Graph.view model.graph ]

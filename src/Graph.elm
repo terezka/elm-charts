@@ -1,43 +1,45 @@
 module Graph exposing (..)
 
-import Svg
-import Svg.Attributes exposing (cx, cy, r, color, fill, x, y, width, height)
-import Svg.Events exposing (onClick)
+import Svg exposing (g)
+import Svg.Attributes exposing (height, width, style)
 
-import Debug
-
-
-type alias Model
-  = List Point
+import Types exposing (DataSet, dataSet)
+import Axis
+import Data
+import Config
 
 
-type alias Point
-  = { x : Int, y: Int }
-
-type Msg
-  = Clicked Point
-
-
-update : Msg -> Model -> Model
-update msg model =
-  case msg of
-    Clicked clickedPoint ->
-      let dataset = List.filter (\point -> point /= clickedPoint) model
-      in
-        Debug.log "here" dataset
+type alias Model =
+    { data : Data.Model
+    , xAxis : Axis.Model
+    , yAxis : Axis.Model
+    , dimensions : Axis.Dimensions
+    , config : Config.Model
+    }
 
 
-view : Model -> Svg.Svg Msg
-view dataset =
-  Svg.g [] (List.map viewPoint dataset)
+init : List (Int, Int) -> Model
+init data =
+    let unzipped = List.unzip data
+        xAxis = Axis.init (fst unzipped)
+        yAxis = Axis.init (snd unzipped) |> Axis.setVertical True
+    in 
+        { data = Data.init (dataSet data)
+        , xAxis = xAxis
+        , yAxis = yAxis
+        , dimensions = Axis.initDimensions xAxis yAxis
+        , config = Config.init
+        }
 
 
-viewPoint : Point -> Svg.Svg Msg
-viewPoint point =
-  Svg.circle
-    [ cx (toString point.x)
-    , cy (toString point.y)
-    , r "2"
-    , fill "red"
-    , onClick (Clicked point) ]
-    []
+view : Model -> Svg.Svg a
+view model =
+    Svg.svg
+        [ width (toString model.xAxis.length)
+        , height (toString model.yAxis.length) 
+        , style "padding: 50px;"
+        ]
+        [ Axis.view model.xAxis model.dimensions
+        , Axis.view model.yAxis model.dimensions
+        , Data.view model.data model.dimensions
+        ]
