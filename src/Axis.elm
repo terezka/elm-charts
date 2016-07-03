@@ -29,7 +29,7 @@ init axisPoints =
         { isVertical = False
         , min = min
         , max = max
-        , scale = 10
+        , scale = 1
         , length = 400
         }
 
@@ -81,8 +81,12 @@ origin model =
 
 delta : Model -> Int
 delta model =
-     (toFloat model.length) / (toFloat (abs model.max + abs model.min)) |> round
+    (toFloat model.length) / (toFloat (total model)) |> round |> Debug.log "delta"
 
+
+total : Model -> Int
+total model =
+    abs model.max + abs model.min
 
 
 -- View
@@ -90,7 +94,7 @@ delta model =
 
 view : Model -> Dimensions -> Svg.Svg a
 view model dimensions =
-    Svg.g [] [ viewAxis model dimensions ]
+    Svg.g [] [ viewAxis model dimensions, viewTicks model dimensions ]
 
 
 viewAxis : Model -> Dimensions -> Svg.Svg a
@@ -103,18 +107,39 @@ viewAxis model dimensions =
         Svg.g [] [ viewLine points ] 
 
 
-viewTick : Model -> Int -> Svg.Svg a
-viewTick model index = 
-    let scale = (toFloat model.length) / (toFloat model.scale) |> round
-        coorX = index * scale
-        value = index * model.scale
+viewTicks : Model -> Dimensions -> Svg.Svg a
+viewTicks model dimensions =
+    let amount = (toFloat (total model)) / (toFloat model.scale) |> round
+    in
+        Svg.g [] (List.map (viewTick model dimensions) [0..amount])
+
+
+viewTick : Model -> Dimensions -> Int -> Svg.Svg a
+viewTick model dimensions index = 
+    let value = 
+            if model.isVertical
+            then model.max - index * model.scale
+            else model.min + index * model.scale
+
+        movement =
+            if model.isVertical
+            then index * model.scale * dimensions.deltaY
+            else index * model.scale * dimensions.deltaX
+
+        coords = 
+            if model.isVertical 
+            then (point dimensions.originX movement, point (dimensions.originX-10) movement)
+            else (point movement dimensions.originY, point movement (dimensions.originY+10))
+        --value = index * model.scale
+
+        displaced = snd coords
     in
         Svg.g 
           [] 
-          [ viewLine (point coorX 0, point coorX 10)
+          [ viewLine coords
           , Svg.text' 
-              [ x (toString coorX), y "20" ] 
-              [ Svg.tspan [] [ Svg.text (toString coorX) ] ]
+              [ x (toString displaced.x), y (toString displaced.y) ] 
+              [ Svg.tspan [] [ Svg.text (toString value) ] ]
           ]
 
 
