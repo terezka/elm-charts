@@ -4,7 +4,7 @@
 
 Frontend tool to plot live research data for KU center for quantum devices :sparkles:
 
-Can only scatter points at the moment
+Can draw graph, but a little off :clap:
 
 ## Development
 
