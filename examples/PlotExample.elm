@@ -3,45 +3,65 @@ module PlotExample exposing (..)
 import Html exposing (Html, button, div, text)
 import Debug
 
-type alias Serie =
+type alias SerieConfig data =
     { color : String
-    , xValues : List Int
-    , yValues : List Int
+    , areaColor : String
+    , toX : data -> List Int
+    , toY : data -> List Int
     }
 
+
+type alias PlotConfig data =
+  { name: String
+  , height : Int
+  , width : Int
+  , series : List (SerieConfig data)
+  }
+
+
 main =
-  viewPlot
-    "Great name"
-    [ { color = "blue", xValues = [ 0, 2, 3, 4 ], yValues = [ 2, 4, 6, 7 ] }
-    , { color = "red", xValues = [ 4, 3, 2, 9 ], yValues = [ 8, 4, 6, 7 ] }
-    ]
+  viewPlot plotConfig dataHere
+
+type alias SeriesData =
+  { x : List Int, y : List Int }
+
+dataHere : List SeriesData
+dataHere =
+  [ { x = [ 0, 2, 3, 4 ], y = [ 2, 4, 6, 7 ] }
+  , { x = [ 15, 3, 9, 4 ], y = [ 10, 6, 1, 8 ] }
+  ]
 
 
-maxValue : (Serie -> List Int) -> List Serie -> Int
-maxValue toValues series =
-  List.map toValues series
-    |> List.concat
-    |> List.maximum
+plotConfig : PlotConfig SeriesData
+plotConfig =
+  PlotConfig "Great plot" 200 400 serieConfigs
 
 
-viewPlot : String -> List Serie -> Html a
-viewPlot name series =
+serieConfigs : List (SerieConfig SeriesData)
+serieConfigs =
+  [ SerieConfig "red" "magneta" .x .y
+  , SerieConfig "blue" "ariel" .x .y
+  ]
+
+
+viewPlot : PlotConfig data -> List data -> Html msg
+viewPlot { name, series } data =
   let
-    highestX = maxValue .xValues series
-
+    highestX = maxValue .toX series data
+    highestY = maxValue .toY series data
   in
     div []
       [ div [] [ text name ]
       , div [] [ text (toString highestX) ]
-      , div [] (List.map viewSerie series)
+      , div [] (List.map2 viewSerie series data)
       ]
 
 
-viewSerie : Serie -> Html a
-viewSerie { color, xValues, yValues } =
+viewSerie : SerieConfig data -> data -> Html msg
+viewSerie { color, toX, toY } data =
   div []
-    [ div [] [ text (viewValues xValues) ]
-    , div [] [ text (viewValues yValues) ]
+    [ div [] [ text (viewValues (toX data)) ]
+    , div [] [ text (viewValues (toY data)) ]
     ]
 
 
@@ -50,3 +70,11 @@ viewValues values =
   List.head values
     |> Maybe.withDefault 0
     |> toString
+
+
+maxValue : (SerieConfig data -> data -> List Int) -> List (SerieConfig data) -> List data -> Int
+maxValue toValues series data =
+  List.map2 toValues series data
+    |> List.concat
+    |> List.maximum
+    |> Maybe.withDefault 0
