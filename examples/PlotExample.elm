@@ -17,13 +17,18 @@ main =
     ]
 
 
+maxValue : (Serie -> List Int) -> List Serie -> Int
+maxValue toValues series =
+  List.map toValues series
+    |> List.concat
+    |> List.maximum
+
+
 viewPlot : String -> List Serie -> Html a
 viewPlot name series =
   let
-    highestX =
-      List.map .xValues series
-        |> List.concat
-        |> List.maximum
+    highestX = maxValue .xValues series
+
   in
     div []
       [ div [] [ text name ]
