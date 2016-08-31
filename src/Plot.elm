@@ -27,6 +27,7 @@ type alias PlotConfig data =
 
 type Direction = AlongX | AlongY
 
+
 viewPlot : PlotConfig data -> List data -> Html msg
 viewPlot config data =
   let
@@ -43,6 +44,8 @@ viewPlot config data =
       ]
 
 
+-- TODO: Instead of these props, save function to parse data coords into
+-- svg coords, and the highest x/y values
 type alias PlotProps =
   { originX : Float
   , originY : Float
@@ -105,9 +108,11 @@ toSvgCoord { originX, deltaX, originY, deltaY } direction value =
     toString (originY + (toFloat value) * deltaY * -1)
 
 
+{- Parse data coordinates to svg path instruction -}
 toInstruction : PlotProps -> Int -> Int -> String
 toInstruction props x y =
   "L " ++ (toSvgCoord props AlongX x) ++ " " ++ (toSvgCoord props AlongY y)
+
 
 {- Draw series -}
 viewSeries : PlotProps -> SerieConfig data -> data -> Svg.Svg a
