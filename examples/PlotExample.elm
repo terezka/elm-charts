@@ -24,6 +24,6 @@ plotConfig =
 
 serieConfigs : List (Plot.SerieConfig SeriesData)
 serieConfigs =
-  [ Plot.SerieConfig "red" "magneta" .x .y
-  , Plot.SerieConfig "blue" "ariel" .x .y
+  [ Plot.SerieConfig "mediumvioletred" "red" .x .y
+  , Plot.SerieConfig "cornflowerblue" "blue" .x .y
   ]

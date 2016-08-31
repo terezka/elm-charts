@@ -113,8 +113,11 @@ toInstruction props x y =
 viewSeries : PlotProps -> SerieConfig data -> data -> Svg.Svg a
 viewSeries props config data =
   let
+    style' =
+      "fill: none; stroke: " ++ config.color ++ ";"
+
     instructions =
       List.map2 (toInstruction props) (config.toX data) (config.toY data)
         |> String.join ","
   in
-    Svg.path [ d ("M 0 0" ++ instructions), style "fill: none; stroke: red;" ] []
+    Svg.path [ d ("M 0 0" ++ instructions), style style' ] []
