@@ -2,7 +2,8 @@ module Plot exposing (..)
 
 import Html exposing (Html, button, div, text)
 import Svg exposing (g)
-import Svg.Attributes exposing (height, width, style)
+import Svg.Attributes exposing (height, width, style, d)
+import String
 
 import Helpers exposing (viewLine)
 
@@ -38,6 +39,7 @@ viewPlot config data =
       ]
       [ viewAxis AlongX props
       , viewAxis AlongY props
+      , Svg.g [] (List.map2 (viewSeries props) config.series data)
       ]
 
 
@@ -92,3 +94,27 @@ viewAxis direction { originX, originY, width, height } =
         viewLine originX 0 originX height
   in
      Svg.g [] [ axis ]
+
+
+{- Translate data coordinates into Svg coordinates -}
+toSvgCoord : PlotProps -> Direction -> Int -> String
+toSvgCoord { originX, deltaX, originY, deltaY } direction value =
+  if direction == AlongX then
+    toString (originX + (toFloat value) * deltaX)
+  else
+    toString (originY + (toFloat value) * deltaY * -1)
+
+
+toInstruction : PlotProps -> Int -> Int -> String
+toInstruction props x y =
+  "L " ++ (toSvgCoord props AlongX x) ++ " " ++ (toSvgCoord props AlongY y)
+
+{- Draw series -}
+viewSeries : PlotProps -> SerieConfig data -> data -> Svg.Svg a
+viewSeries props config data =
+  let
+    instructions =
+      List.map2 (toInstruction props) (config.toX data) (config.toY data)
+        |> String.join ","
+  in
+    Svg.path [ d ("M 0 0" ++ instructions), style "fill: none; stroke: red;" ] []
