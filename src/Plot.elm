@@ -5,15 +5,14 @@ import Svg exposing (g)
 import Svg.Attributes exposing (height, width, style, d)
 import String
 
-import Helpers exposing (viewLine)
-
+import Helpers exposing (viewSvgLine)
 import Debug
+
 
 type alias SerieConfig data =
     { color : String
     , areaColor : String
-    , toX : data -> List Int
-    , toY : data -> List Int
+    , toCoords : data -> List (Float, Float)
     }
 
 
@@ -25,104 +24,81 @@ type alias PlotConfig data =
   }
 
 
-type Direction = AlongX | AlongY
-
-
 viewPlot : PlotConfig data -> List data -> Html msg
 viewPlot config data =
   let
-    props = plotProps config data
+    axisProps' = axisProps config.series data
+    toSvgCoords' = toSvgCoords config axisProps' data
+    { lowestX, lowestY, highestX, highestY } = axisProps'
   in
     Svg.svg
       [ Svg.Attributes.height (toString config.height)
       , Svg.Attributes.width (toString config.width)
       , style "padding: 50px;"
       ]
-      [ viewAxis AlongX props
-      , viewAxis AlongY props
-      , Svg.g [] (List.map2 (viewSeries props) config.series data)
+      [ Svg.g [] [ viewLine toSvgCoords' (lowestX, 0, highestX, 0) ]
+      , Svg.g [] [ viewLine toSvgCoords' (0, lowestY, 0, highestY) ]
+      , Svg.g [] (List.map2 (viewSeries toSvgCoords') config.series data)
       ]
 
 
--- TODO: Instead of these props, save function to parse data coords into
--- svg coords, and the highest x/y values
-type alias PlotProps =
-  { originX : Float
-  , originY : Float
-  , deltaX : Float
-  , deltaY : Float
-  , width : Float
-  , height : Float
-  }
-
-
-{- Calculate the origin and scale -}
-plotProps : PlotConfig data -> List data -> PlotProps
-plotProps config data =
+toSvgCoords : PlotConfig data -> AxisProps -> List data -> (Float, Float) -> (String, String)
+toSvgCoords config { lowestX, lowestY, highestX, highestY } data  =
   let
-    (lowestX, highestX) = axisProps AlongX config.series data
-    (lowestY, highestY) = axisProps AlongY config.series data
-
     totalX =  abs highestX + abs lowestX
     originX = (toFloat config.width) * (abs lowestX / totalX)
     totalY =  (abs highestY + abs lowestY)
     originY = (toFloat config.height) * (abs highestY / totalY)
-
     deltaX = (toFloat config.width) / totalX
     deltaY = (toFloat config.height) / totalY
-  in
-    PlotProps originX originY deltaX deltaY (toFloat config.width) (toFloat config.height)
 
+    toSvgX = (\x -> toString (originX + x * deltaX))
+    toSvgY = (\y -> toString (originY + y * deltaY * -1))
+  in
+    (\(x, y) -> (toSvgX x, toSvgY y))
+
+
+type alias AxisProps =
+  { highestX : Float
+  , highestY : Float
+  , lowestX : Float
+  , lowestY : Float
+  }
 
 {- Retrive range of axis from data -}
-axisProps : Direction -> List (SerieConfig data) -> List data -> (Float, Float)
-axisProps direction series data =
+axisProps : List (SerieConfig data) -> List data -> AxisProps
+axisProps series data =
   let
-    toValues = if direction == AlongX then .toX else .toY
-    allValues = List.concat (List.map2 toValues series data)
-    highest = toFloat (Maybe.withDefault 1 (List.maximum allValues))
-    lowest = toFloat (Maybe.withDefault 0 (List.minimum allValues))
+    allCoords = List.concat (List.map2 .toCoords series data)
+    allX = List.map fst allCoords
+    allY = List.map snd allCoords
+    highest = (\values -> Maybe.withDefault 1 (List.maximum values))
+    lowest = (\values -> min 0 (Maybe.withDefault 0 (List.minimum values)))
   in
-    if lowest > 0 then (0, highest) else (lowest, highest)
+    AxisProps (lowest allX) (lowest allY) (highest allX) (highest allY)
 
 
-{- Draw axis -}
-viewAxis : Direction -> PlotProps -> Svg.Svg a
-viewAxis direction { originX, originY, width, height } =
+{- Draw line -}
+viewLine : ((Float, Float) -> (String, String)) -> (Float, Float, Float, Float) -> Svg.Svg a
+viewLine toSvgCoords' (x1, y1, x2, y2) =
   let
-    axis =
-      if direction == AlongX then
-        viewLine 0 originY width originY
-      else
-        viewLine originX 0 originX height
+    (svgX1, svgY1) = toSvgCoords' (x1, y1)
+    (svgX2, svgY2) = toSvgCoords' (x2, y2)
   in
-     Svg.g [] [ axis ]
-
-
-{- Translate data coordinates into Svg coordinates -}
-toSvgCoord : PlotProps -> Direction -> Int -> String
-toSvgCoord { originX, deltaX, originY, deltaY } direction value =
-  if direction == AlongX then
-    toString (originX + (toFloat value) * deltaX)
-  else
-    toString (originY + (toFloat value) * deltaY * -1)
-
-
-{- Parse data coordinates to svg path instruction -}
-toInstruction : PlotProps -> Int -> Int -> String
-toInstruction props x y =
-  "L " ++ (toSvgCoord props AlongX x) ++ " " ++ (toSvgCoord props AlongY y)
+    viewSvgLine svgX1 svgY1 svgX2 svgY2
 
 
 {- Draw series -}
-viewSeries : PlotProps -> SerieConfig data -> data -> Svg.Svg a
-viewSeries props config data =
+viewSeries : ((Float, Float) -> (String, String)) -> SerieConfig data -> data -> Svg.Svg a
+viewSeries toSvgCoords' config data =
   let
     style' =
       "fill: none; stroke: " ++ config.color ++ ";"
 
     instructions =
-      List.map2 (toInstruction props) (config.toX data) (config.toY data)
-        |> String.join ","
+      config.toCoords data
+      |> List.map toSvgCoords'
+      |> List.map (\(x, y) -> "L " ++ x ++ " " ++ y)
+      |> String.join ","
   in
     Svg.path [ d ("M 0 0" ++ instructions), style style' ] []
