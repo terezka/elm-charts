@@ -29,7 +29,7 @@ viewPlot config data =
   let
     axisProps' = axisProps config.series data
     toSvgCoords' = toSvgCoords config axisProps' data
-    { lowestX, lowestY, highestX, highestY } = axisProps'
+    { lowestX, lowestY, highestX, highestY } = Debug.log "lowest" axisProps'
   in
     Svg.svg
       [ Svg.Attributes.height (toString config.height)
@@ -59,10 +59,10 @@ toSvgCoords config { lowestX, lowestY, highestX, highestY } data  =
 
 
 type alias AxisProps =
-  { highestX : Float
-  , highestY : Float
-  , lowestX : Float
+  { lowestX : Float
   , lowestY : Float
+  , highestX : Float
+  , highestY : Float
   }
 
 {- Retrive range of axis from data -}
