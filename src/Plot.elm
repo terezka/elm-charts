@@ -5,7 +5,7 @@ import Svg exposing (g)
 import Svg.Attributes exposing (height, width, style, d)
 import String
 
-import Helpers exposing (viewSvgLine)
+import Helpers exposing (viewSvgLine, startPath, toInstruction)
 import Debug
 
 
@@ -29,7 +29,7 @@ viewPlot config data =
   let
     axisProps' = axisProps config.series data
     toSvgCoords' = toSvgCoords config axisProps' data
-    { lowestX, lowestY, highestX, highestY } = Debug.log "lowest" axisProps'
+    { lowestX, lowestY, highestX, highestY } = axisProps'
   in
     Svg.svg
       [ Svg.Attributes.height (toString config.height)
@@ -95,10 +95,15 @@ viewSeries toSvgCoords' config data =
     style' =
       "fill: none; stroke: " ++ config.color ++ ";"
 
-    instructions =
+    coords =
       config.toCoords data
       |> List.map toSvgCoords'
-      |> List.map (\(x, y) -> "L " ++ x ++ " " ++ y)
+
+    (startInstruction, tail) = startPath coords
+
+    instructions =
+      tail
+      |> List.map (\(x, y) -> toInstruction "L" [x, y])
       |> String.join ","
   in
-    Svg.path [ d ("M 0 0" ++ instructions), style style' ] []
+    Svg.path [ d (startInstruction ++ instructions), style style' ] []
