@@ -1,4 +1,4 @@
-# elm-qdev
+# elm-plot
 
 *Pretty unfinished*
 
