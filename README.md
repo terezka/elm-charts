@@ -1,10 +1,12 @@
 # elm-qdev
 
-*Very unfinished*
+*Pretty unfinished*
 
-Frontend tool to plot live research data for KU center for quantum devices :sparkles:
+Plot series in Svgs! Right now it can draw lines and areas.
 
-Can draw graph, but a little off :clap:
+TODO:
+  - Ticks and labels on axis'
+  - Many unspecified tasks
 
 ## Development
 
