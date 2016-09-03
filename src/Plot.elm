@@ -8,9 +8,11 @@ import String
 import Helpers exposing (viewSvgLine, startPath, toInstruction)
 import Debug
 
+type SerieType = Line | Area
 
 type alias SerieConfig data =
-    { color : String
+    { serieType : SerieType
+    , color : String
     , areaColor : String
     , toCoords : data -> List (Float, Float)
     }
@@ -36,12 +38,14 @@ viewPlot config data =
       , Svg.Attributes.width (toString config.width)
       , style "padding: 50px;"
       ]
-      [ Svg.g [] [ viewLine toSvgCoords' (lowestX, 0, highestX, 0) ]
+      [ Svg.g [] (List.map2 (viewSeries toSvgCoords' axisProps') config.series data)
+      , Svg.g [] [ viewLine toSvgCoords' (lowestX, 0, highestX, 0) ]
       , Svg.g [] [ viewLine toSvgCoords' (0, lowestY, 0, highestY) ]
-      , Svg.g [] (List.map2 (viewSeries toSvgCoords') config.series data)
       ]
 
 
+-- TODO: Consider whether or not it's possible to imp some sort of
+-- implicit highest/lowest axis value
 toSvgCoords : PlotConfig data -> AxisProps -> List data -> (Float, Float) -> (String, String)
 toSvgCoords config { lowestX, lowestY, highestX, highestY } data  =
   let
@@ -89,21 +93,33 @@ viewLine toSvgCoords' (x1, y1, x2, y2) =
 
 
 {- Draw series -}
-viewSeries : ((Float, Float) -> (String, String)) -> SerieConfig data -> data -> Svg.Svg a
-viewSeries toSvgCoords' config data =
+-- TODO: It is wrong to use the highest X, use the start and and of series
+viewSeries : ((Float, Float) -> (String, String)) -> AxisProps -> SerieConfig data -> data -> Svg.Svg a
+viewSeries toSvgCoords' { highestX } config data =
   let
     style' =
-      "fill: none; stroke: " ++ config.color ++ ";"
+      "fill: none; stroke: " ++ config.color ++ "; fill:" ++ config.areaColor
 
     coords =
       config.toCoords data
       |> List.map toSvgCoords'
 
-    (startInstruction, tail) = startPath coords
+    (endX, originY) = toSvgCoords' (highestX, 0)
+
+    (startInstruction, tail) =
+      if config.serieType == Line then
+        startPath coords
+      else
+        (toInstruction "M" ["0", originY], coords)
+
+    endInstruction =
+      if config.serieType == Line then ""
+      else
+        (toInstruction "L" [endX, originY]) ++ " Z"
 
     instructions =
       tail
       |> List.map (\(x, y) -> toInstruction "L" [x, y])
-      |> String.join ","
+      |> String.join ""
   in
-    Svg.path [ d (startInstruction ++ instructions), style style' ] []
+    Svg.path [ d (startInstruction ++ instructions ++ endInstruction), style style' ] []
