@@ -1,12 +1,8 @@
 # elm-plot
 
-*Pretty unfinished*
+![alt tag](https://raw.githubusercontent.com/terezka/elm-plot/master/plot-example1.png)
 
 Plot series in Svgs! Right now it can draw lines and areas.
-
-TODO:
-  - Ticks and labels on axis'
-  - Many unspecified tasks
 
 ## Development
 
@@ -22,4 +18,4 @@ elm package install
 elm-reactor
 ```
 
-and open http://localhost:8000/examples/Simple.elm
+and open http://localhost:8000/examples/PlotExample.elm
