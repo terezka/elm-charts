@@ -5,7 +5,7 @@ import Svg exposing (g)
 import Svg.Attributes exposing (height, width, style, d)
 import String
 
-import Helpers exposing (viewSvgContainer, viewSvgLine, viewSvgText, startPath, toInstruction, getLowest, getHighest, byPrecision)
+import Helpers exposing (viewSvgContainer, viewAxisPath, viewSvgLine, viewSvgText, startPath, toInstruction, getLowest, getHighest, byPrecision)
 import Debug
 
 type SerieType = Line | Area
@@ -26,8 +26,6 @@ type alias PlotConfig data =
   }
 
 
-type Axis = XAxis | YAxis
-
 type alias Coord =
   (Float, Float)
 
@@ -35,7 +33,7 @@ type alias DoubleCoords =
   (Float, Float, Float, Float)
 
 totalTicksX = 12
-totalTicksY = 16
+totalTicksY = 8
 
 
 viewPlot : PlotConfig data -> List data -> Html msg
@@ -67,8 +65,8 @@ viewPlot config data =
     -- Prepare axis' coordinates and path for line
     axisPositionX = (0, originY)
     axisPositionY = (originX, 0)
-    axisPathX = "M0.5, 0H" ++ (toString width)
-    axisPathY = "M0.5, 0V" ++ (toString height)
+    axisPathX = toInstruction "H" [width]
+    axisPathY = toInstruction "V" [height]
 
     -- and their ticks coordinates
     dtX = toFloat (floor (totalX / totalTicksX))
@@ -95,10 +93,10 @@ viewPlot config data =
 viewAxis : Coord -> String -> (Float -> Coord) -> List Float -> Svg.Svg a
 viewAxis (x, y) axisPath toTickCoords ticks =
   viewSvgContainer x y
-    [ Svg.path [ d axisPath, style "stroke: #757575;" ] []
-    , Svg.g []
-      (List.map (\tick -> viewSvgLine (toTickCoords tick)) ticks)
-    , Svg.g []
+    [ viewAxisPath axisPath -- Line
+    , Svg.g [] -- Ticks
+      (List.map (toTickCoords >> viewSvgLine) ticks)
+    , Svg.g [] -- Labels
       (List.map (\tick -> viewSvgText (toTickCoords tick) (toString tick)) ticks)
     ]
 
@@ -107,35 +105,29 @@ viewAxis (x, y) axisPath toTickCoords ticks =
 viewSeries : (Coord -> Coord) -> SerieConfig data -> data -> Svg.Svg a
 viewSeries toSvgCoords config data =
   let
-    style' =
-      "stroke: " ++ config.color ++ "; fill:" ++ config.areaColor
-
     allCoords = config.toCoords data
     allX = List.map fst allCoords
     (lowestX, highestX) = (getLowest allX, getHighest allX)
 
-    coords =
-      config.toCoords data
-      |> List.map toSvgCoords
-      |> List.map (\(x, y) -> (toString x, toString y))
-
+    svgCoords = List.map toSvgCoords allCoords
     (highestSvgX, originY) = toSvgCoords (highestX, 0)
     (lowestSvgX, _) = toSvgCoords (lowestX, 0)
 
     (startInstruction, tail) =
-      if config.serieType == Line then
-        startPath coords
-      else
-        (toInstruction "M" [toString lowestSvgX, toString originY], coords)
+      if config.serieType == Line then startPath svgCoords
+      else (toInstruction "M" [lowestSvgX, originY], svgCoords)
 
-    endInstruction =
-      if config.serieType == Line then ""
-      else
-        (toInstruction "L" [toString highestSvgX, toString originY]) ++ " Z"
+    moveInstructions =
+      List.map (\(x, y) -> toInstruction "L" [x, y]) tail
+
+    endInstructions =
+      if config.serieType == Line then []
+      else [toInstruction "L" [highestSvgX, originY], "Z"]
 
     instructions =
-      tail
-      |> List.map (\(x, y) -> toInstruction "L" [x, y])
-      |> String.join ""
+      List.concat [[startInstruction], moveInstructions, endInstructions]
+
+    style' =
+      String.join "" ["stroke: ", config.color, "; fill:", config.areaColor]
   in
-    Svg.path [ d (startInstruction ++ instructions ++ endInstruction), style style' ] []
+    Svg.path [ d (String.join "" instructions), style style' ] []

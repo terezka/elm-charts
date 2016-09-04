@@ -1,7 +1,7 @@
 module Helpers exposing (..)
 
 import Svg exposing (g)
-import Svg.Attributes exposing (transform, height, width, style, x, y, x1, x2, y1, y2)
+import Svg.Attributes exposing (transform, height, width, style, d, x, y, x1, x2, y1, y2)
 import String
 
 modulus : Float -> Float -> Float
@@ -27,6 +27,11 @@ getLowest values =
 viewSvgContainer : Float -> Float -> List (Svg.Svg a) -> Svg.Svg a
 viewSvgContainer x y children =
   Svg.g [ transform (toTranslate x y)] children
+
+
+viewAxisPath : String -> Svg.Svg a
+viewAxisPath path =
+  Svg.path [ d ("M0.5, 0" ++ path), style "stroke: #757575;" ] []
 
 
 viewSvgLine : (Float, Float) -> Svg.Svg a
@@ -58,19 +63,20 @@ toTranslate x y =
    "translate(" ++ (toString x) ++ ", " ++ (toString y) ++ ")"
 
 
-toInstruction : String -> List String -> String
+toInstruction : String -> List Float -> String
 toInstruction instructionType coords =
   let
     coordsString =
-      String.join "," coords
+      List.map toString coords
+      |> String.join ","
   in
     instructionType ++ " " ++ coordsString
 
 
-startPath : List (String, String) -> (String, List (String, String))
+startPath : List (Float, Float) -> (String, List (Float, Float))
 startPath data =
   let
-    (x, y) = Maybe.withDefault ("0","0") (List.head data)
+    (x, y) = Maybe.withDefault (0, 0) (List.head data)
     tail = Maybe.withDefault [] (List.tail data)
   in
     (toInstruction "M" [x, y], tail)
