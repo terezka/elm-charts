@@ -5,7 +5,7 @@ import Svg exposing (g)
 import Svg.Attributes exposing (height, width, style, d)
 import String
 
-import Helpers exposing (viewSvgLine, startPath, toInstruction)
+import Helpers exposing (viewSvgLine, startPath, toInstruction, getLowest, getHighest)
 import Debug
 
 type SerieType = Line | Area
@@ -26,76 +26,76 @@ type alias PlotConfig data =
   }
 
 
+type alias Coords =
+  (Float, Float)
+
+type alias DoubleCoords =
+  (Float, Float, Float, Float)
+
+
+totalTicksX = 10
+totalTicksY = 5
+
+
 viewPlot : PlotConfig data -> List data -> Html msg
 viewPlot config data =
   let
-    axisProps = toAxisProps config.series data
-    toSvgCoords = toSvgFn config axisProps
-    { lowestX, lowestY, highestX, highestY } = axisProps
-  in
-    Svg.svg
-      [ Svg.Attributes.height (toString config.height)
-      , Svg.Attributes.width (toString config.width)
-      , style "padding: 50px;"
-      ]
-      [ Svg.g [] (List.map2 (viewSeries toSvgCoords axisProps) config.series data)
-      , Svg.g [] [ viewLine toSvgCoords (lowestX, 0, highestX, 0) ]
-      , Svg.g [] [ viewLine toSvgCoords (0, lowestY, 0, highestY) ]
-      ]
+    (width, height) = (toFloat config.width, toFloat config.height)
+    series = config.series
 
-
--- TODO: Consider whether or not it's possible to imp some sort of
--- implicit highest/lowest axis value
-toSvgFn : PlotConfig data -> AxisProps -> (Float, Float) -> (String, String)
-toSvgFn config { lowestX, lowestY, highestX, highestY }  =
-  let
-    totalX =  abs highestX + abs lowestX
-    originX = (toFloat config.width) * (abs lowestX / totalX)
-    totalY =  (abs highestY + abs lowestY)
-    originY = (toFloat config.height) * (abs highestY / totalY)
-    deltaX = (toFloat config.width) / totalX
-    deltaY = (toFloat config.height) / totalY
-
-    toSvgX = (\x -> toString (originX + x * deltaX))
-    toSvgY = (\y -> toString (originY + y * deltaY * -1))
-  in
-    (\(x, y) -> (toSvgX x, toSvgY y))
-
-
-type alias AxisProps =
-  { lowestX : Float
-  , lowestY : Float
-  , highestX : Float
-  , highestY : Float
-  }
-
-{- Retrive range of axis from data -}
-toAxisProps : List (SerieConfig data) -> List data -> AxisProps
-toAxisProps series data =
-  let
+    -- Get axis' ranges
     allCoords = List.concat (List.map2 .toCoords series data)
     allX = List.map fst allCoords
+    (lowestX, highestX) = (getLowest allX, getHighest allX)
     allY = List.map snd allCoords
-    highest = (\values -> Maybe.withDefault 1 (List.maximum values))
-    lowest = (\values -> min 0 (Maybe.withDefault 0 (List.minimum values)))
+    (lowestY, highestY) = (getLowest allY, getHighest allY)
+
+    -- Calculate the origin in terms of svg coordinates
+    totalX = abs highestX + abs lowestX
+    totalY = abs highestY + abs lowestY
+    originX = width * (abs lowestX / totalX)
+    originY = height * (abs highestY / totalY)
+    deltaX = width / totalX
+    deltaY = height / totalY
+
+    -- Provide translators from cartesian coordinates to svg coordinates
+    toSvgX = (\x -> toString (originX + x * deltaX))
+    toSvgY = (\y -> toString (originY + y * deltaY * -1))
+    toSvgCoords = (\(x, y) -> (toSvgX x, toSvgY y))
+
+    -- Prepare axis' coordinates and their ticks coordinates
+    axisCoordsX = (0, originY, width, originY)
+    dtx = width / totalTicksX
+    toTickCoordsX = (\index -> (index * dtx, originY, index * dtx, originY + 5))
+
+    axisCoordsY = (originX, 0, originX, height)
+    dty = height / totalTicksY
+    toTickCoordsY = (\index -> (originX, index * dty, originX - 5, index * dty))
   in
-    AxisProps (lowest allX) (lowest allY) (highest allX) (highest allY)
+    Svg.svg
+      [ Svg.Attributes.height (toString height)
+      , Svg.Attributes.width (toString width)
+      , style "padding: 50px;"
+      ]
+      [ Svg.g [] (List.map2 (viewSeries toSvgCoords highestX) series data)
+      , viewAxis axisCoordsX toTickCoordsX totalTicksX
+      , viewAxis axisCoordsY toTickCoordsY totalTicksY
+      ]
 
 
-{- Draw line -}
-viewLine : ((Float, Float) -> (String, String)) -> (Float, Float, Float, Float) -> Svg.Svg a
-viewLine toSvgCoords (x1, y1, x2, y2) =
-  let
-    (svgX1, svgY1) = toSvgCoords (x1, y1)
-    (svgX2, svgY2) = toSvgCoords (x2, y2)
-  in
-    viewSvgLine svgX1 svgY1 svgX2 svgY2
+viewAxis : DoubleCoords -> (Float -> DoubleCoords) -> Int -> Svg.Svg a
+viewAxis axisCoords toTickCoords amountOfTicks =
+  Svg.g []
+    [ viewSvgLine axisCoords
+    , Svg.g []
+      (List.map (\index -> viewSvgLine (toTickCoords (toFloat index))) [0..amountOfTicks])
+    ]
 
 
 {- Draw series -}
 -- TODO: It is wrong to use the highest X, use the start and and of series
-viewSeries : ((Float, Float) -> (String, String)) -> AxisProps -> SerieConfig data -> data -> Svg.Svg a
-viewSeries toSvgCoords { highestX } config data =
+viewSeries : ((Float, Float) -> (String, String)) -> Float -> SerieConfig data -> data -> Svg.Svg a
+viewSeries toSvgCoords highestX config data =
   let
     style' =
       "fill: none; stroke: " ++ config.color ++ "; fill:" ++ config.areaColor
