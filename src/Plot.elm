@@ -92,7 +92,7 @@ viewPlot config data =
       , Svg.Attributes.width (toString width)
       , style "padding: 50px;"
       ]
-      [ Svg.g [] (List.map2 (viewSeries toSvgCoords highestX) series data)
+      [ Svg.g [] (List.map2 (viewSeries toSvgCoords) series data)
       , viewAxis axisCoordsX toTickCoordsX totalTicksX
       , viewAxis axisCoordsY toTickCoordsY totalTicksY
       ]
@@ -108,30 +108,34 @@ viewAxis axisCoords toTickCoords amountOfTicks =
 
 
 {- Draw series -}
--- TODO: It is wrong to use the highest X, use the start and and of series
-viewSeries : (Coord -> Coord) -> Float -> SerieConfig data -> data -> Svg.Svg a
-viewSeries toSvgCoords highestX config data =
+viewSeries : (Coord -> Coord) -> SerieConfig data -> data -> Svg.Svg a
+viewSeries toSvgCoords config data =
   let
     style' =
-      "fill: none; stroke: " ++ config.color ++ "; fill:" ++ config.areaColor
+      "stroke: " ++ config.color ++ "; fill:" ++ config.areaColor
+
+    allCoords = config.toCoords data
+    allX = List.map fst allCoords
+    (lowestX, highestX) = (getLowest allX, getHighest allX)
 
     coords =
       config.toCoords data
       |> List.map toSvgCoords
       |> List.map (\(x, y) -> (toString x, toString y))
 
-    (endX, originY) = toSvgCoords (highestX, 0)
+    (highestSvgX, originY) = toSvgCoords (highestX, 0)
+    (lowestSvgX, _) = toSvgCoords (lowestX, 0)
 
     (startInstruction, tail) =
       if config.serieType == Line then
         startPath coords
       else
-        (toInstruction "M" ["0", toString originY], coords)
+        (toInstruction "M" [toString lowestSvgX, toString originY], coords)
 
     endInstruction =
       if config.serieType == Line then ""
       else
-        (toInstruction "L" [toString endX, toString originY]) ++ " Z"
+        (toInstruction "L" [toString highestSvgX, toString originY]) ++ " Z"
 
     instructions =
       tail
