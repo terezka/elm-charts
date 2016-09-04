@@ -71,14 +71,14 @@ viewPlot config data =
     dtX = toFloat (floor (totalX / totalTicksX))
     dtY = toFloat (floor (totalY / totalTicksY))
     lowestTickX = byPrecision dtX ceiling lowestX
-    ticksX = List.map (\i -> toSvgX (lowestTickX + (toFloat i) * dtX)) [0..totalTicksX]
     lowestTickY = byPrecision dtY floor lowestY
-    ticksY = List.map (\i -> toSvgY (lowestTickY + (toFloat i) * dtY)) [0..totalTicksY]
+    ticksX = List.map (\i -> (lowestTickX + (toFloat i) * dtX)) [0..totalTicksX]
+    ticksY = List.map (\i -> (lowestTickY + (toFloat i) * dtY)) [0..totalTicksY]
 
     toTickCoordsX =
-      (\tickX -> (tickX, originY, tickX, originY + 5))
+      (\tickX -> (toSvgX tickX, originY, toSvgX tickX, originY + 5))
     toTickCoordsY =
-      (\tickY -> (originX, tickY, originX - 5, tickY))
+      (\tickY -> (originX, toSvgY tickY, originX - 5, toSvgY tickY))
 
   in
     Svg.svg
@@ -98,6 +98,8 @@ viewAxis axisCoords toTickCoords ticks =
     [ viewSvgLine axisCoords
     , Svg.g []
       (List.map (\tick -> viewSvgLine (toTickCoords tick)) ticks)
+    , Svg.g []
+      (List.map (\tick -> viewSvgText (toTickCoords tick) (toString tick)) ticks)
     ]
 
 
