@@ -35,7 +35,7 @@ type alias DoubleCoords =
   (Float, Float, Float, Float)
 
 totalTicksX = 12
-totalTicksY = 13
+totalTicksY = 16
 
 
 viewPlot : PlotConfig data -> List data -> Html msg
