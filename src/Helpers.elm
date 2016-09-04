@@ -31,7 +31,7 @@ viewSvgLine (x1', y1', x2', y2') =
     , y1 (toString y1')
     , x2 (toString x2')
     , y2 (toString y2')
-    , style "stroke:red;"
+    , style "stroke: #757575;"
     ]
     []
 
