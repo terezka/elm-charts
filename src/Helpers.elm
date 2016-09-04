@@ -1,7 +1,7 @@
 module Helpers exposing (..)
 
 import Svg exposing (g)
-import Svg.Attributes exposing (height, width, style, x, y, x1, x2, y1, y2)
+import Svg.Attributes exposing (transform, height, width, style, x, y, x1, x2, y1, y2)
 import String
 
 modulus : Float -> Float -> Float
@@ -24,6 +24,11 @@ getLowest values =
   min 0 (Maybe.withDefault 0 (List.minimum values))
 
 
+viewSvgContainer : Float -> Float -> List (Svg.Svg a) -> Svg.Svg a
+viewSvgContainer x y children =
+  Svg.g [ transform (toTranslate x y)] children
+
+
 viewSvgLine : (Float, Float, Float, Float) -> Svg.Svg a
 viewSvgLine (x1', y1', x2', y2') =
   Svg.line
@@ -38,12 +43,19 @@ viewSvgLine (x1', y1', x2', y2') =
 
 viewSvgText : (Float, Float, Float, Float) -> String -> Svg.Svg a
 viewSvgText (x1', y1', x2', y2') label =
-  Svg.text'
-    [ x (toString x2')
-    , y (toString y2')
-    , style "stroke: #757575;"
+  viewSvgContainer  x2' y2'
+    [ Svg.text'
+      [ x (toString 0)
+      , y (toString 10)
+      , style "stroke: #757575;"
+      ]
+      [ Svg.tspan [] [ Svg.text label ] ]
     ]
-    [ Svg.tspan [] [ Svg.text label ] ]
+
+
+toTranslate : Float -> Float -> String
+toTranslate x y =
+   "translate(" ++ (toString x) ++ ", " ++ (toString y) ++ ")"
 
 
 toInstruction : String -> List String -> String
