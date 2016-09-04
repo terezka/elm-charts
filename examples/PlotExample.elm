@@ -12,14 +12,14 @@ type alias SeriesData =
 
 dataHere : List SeriesData
 dataHere =
-  [ { x = [ -1, 1, 3, 9, 12 ], y = [ -2, 10, 6, 1, 3 ] }
-  , { x = [ -4, 0, 2, 3, 10, 14 ], y = [ -7, 2, 4, 6, 5, 7 ] }
+  [ { x = [ -10, 10, 30, 90, 120 ], y = [ -20, 100, 60, 10, 30 ] }
+  , { x = [ -40, 0, 20, 30, 100, 140 ], y = [ -70, 20, 40, 60, 50, 70 ] }
   ]
 
 
 plotConfig : Plot.PlotConfig SeriesData
 plotConfig =
-  Plot.PlotConfig "Great plot" 200 400 serieConfigs
+  Plot.PlotConfig "Great plot" 800 500 serieConfigs
 
 
 serieConfigs : List (Plot.SerieConfig SeriesData)

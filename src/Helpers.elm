@@ -4,6 +4,16 @@ import Svg exposing (g)
 import Svg.Attributes exposing (height, width, style, x1, x2, y1, y2)
 import String
 
+modulus : Float -> Float -> Float
+modulus divider value =
+  value - (toFloat (round (value / divider)))
+
+
+byPrecision : Float -> (Float -> Int) -> Float -> Float
+byPrecision precision operation value =
+  toFloat (operation (value / precision)) * precision
+
+
 getHighest : List Float -> Float
 getHighest values =
   Maybe.withDefault 1 (List.maximum values)

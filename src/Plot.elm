@@ -5,7 +5,7 @@ import Svg exposing (g)
 import Svg.Attributes exposing (height, width, style, d)
 import String
 
-import Helpers exposing (viewSvgLine, startPath, toInstruction, getLowest, getHighest)
+import Helpers exposing (viewSvgLine, startPath, toInstruction, getLowest, getHighest, byPrecision)
 import Debug
 
 type SerieType = Line | Area
@@ -20,21 +20,21 @@ type alias SerieConfig data =
 
 type alias PlotConfig data =
   { name : String
-  , height : Int
   , width : Int
+  , height : Int
   , series : List (SerieConfig data)
   }
 
 
-type alias Coords =
+type alias Coord =
   (Float, Float)
 
 type alias DoubleCoords =
   (Float, Float, Float, Float)
 
 
-totalTicksX = 10
-totalTicksY = 5
+totalTicksX = 18
+totalTicksY = 15
 
 
 viewPlot : PlotConfig data -> List data -> Html msg
@@ -46,8 +46,8 @@ viewPlot config data =
     -- Get axis' ranges
     allCoords = List.concat (List.map2 .toCoords series data)
     allX = List.map fst allCoords
-    (lowestX, highestX) = (getLowest allX, getHighest allX)
     allY = List.map snd allCoords
+    (lowestX, highestX) = (getLowest allX, getHighest allX)
     (lowestY, highestY) = (getLowest allY, getHighest allY)
 
     -- Calculate the origin in terms of svg coordinates
@@ -59,18 +59,33 @@ viewPlot config data =
     deltaY = height / totalY
 
     -- Provide translators from cartesian coordinates to svg coordinates
-    toSvgX = (\x -> toString (originX + x * deltaX))
-    toSvgY = (\y -> toString (originY + y * deltaY * -1))
+    toSvgX = (\x -> (originX + x * deltaX))
+    toSvgY = (\y -> (originY + y * deltaY * -1))
     toSvgCoords = (\(x, y) -> (toSvgX x, toSvgY y))
 
-    -- Prepare axis' coordinates and their ticks coordinates
+    -- Prepare axis' coordinates
     axisCoordsX = (0, originY, width, originY)
-    dtx = width / totalTicksX
-    toTickCoordsX = (\index -> (index * dtx, originY, index * dtx, originY + 5))
-
     axisCoordsY = (originX, 0, originX, height)
-    dty = height / totalTicksY
-    toTickCoordsY = (\index -> (originX, index * dty, originX - 5, index * dty))
+
+    -- and their ticks coordinates
+    dtX = toFloat (floor (totalX / totalTicksX))
+    dtY = toFloat (floor (totalY / totalTicksY))
+    offsetX = originX + (deltaX * (byPrecision dtX ceiling lowestX))
+    offsetY = originY - (deltaY * (byPrecision dtY floor highestY))
+    dtSvgX = deltaX * dtX
+    dtSvgY = deltaY * dtY
+
+    toTickCoordsX =
+      (\index ->
+        let tickX = offsetX + index * dtSvgX
+        in (tickX, originY, tickX, originY + 5)
+      )
+    toTickCoordsY =
+      (\index ->
+        let tickY = offsetY + index * dtSvgY
+        in (originX, tickY, originX - 5, tickY)
+      )
+
   in
     Svg.svg
       [ Svg.Attributes.height (toString height)
@@ -94,7 +109,7 @@ viewAxis axisCoords toTickCoords amountOfTicks =
 
 {- Draw series -}
 -- TODO: It is wrong to use the highest X, use the start and and of series
-viewSeries : ((Float, Float) -> (String, String)) -> Float -> SerieConfig data -> data -> Svg.Svg a
+viewSeries : (Coord -> Coord) -> Float -> SerieConfig data -> data -> Svg.Svg a
 viewSeries toSvgCoords highestX config data =
   let
     style' =
@@ -103,6 +118,7 @@ viewSeries toSvgCoords highestX config data =
     coords =
       config.toCoords data
       |> List.map toSvgCoords
+      |> List.map (\(x, y) -> (toString x, toString y))
 
     (endX, originY) = toSvgCoords (highestX, 0)
 
@@ -110,12 +126,12 @@ viewSeries toSvgCoords highestX config data =
       if config.serieType == Line then
         startPath coords
       else
-        (toInstruction "M" ["0", originY], coords)
+        (toInstruction "M" ["0", toString originY], coords)
 
     endInstruction =
       if config.serieType == Line then ""
       else
-        (toInstruction "L" [endX, originY]) ++ " Z"
+        (toInstruction "L" [toString endX, toString originY]) ++ " Z"
 
     instructions =
       tail
