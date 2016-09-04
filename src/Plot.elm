@@ -5,7 +5,7 @@ import Svg exposing (g)
 import Svg.Attributes exposing (height, width, style, d)
 import String
 
-import Helpers exposing (viewSvgContainer, viewAxisPath, viewSvgLine, viewSvgText, startPath, toInstruction, getLowest, getHighest, byPrecision)
+import Helpers exposing (viewSvgContainer, viewAxisPath, viewSvgLine, viewSvgText, startPath, toInstruction, getLowest, getHighest, byPrecision, coordToInstruction)
 import Debug
 
 type SerieType = Line | Area
@@ -101,9 +101,16 @@ viewAxis (x, y) axisPath toTickCoords ticks =
     ]
 
 
-{- Draw series -}
 viewSeries : (Coord -> Coord) -> SerieConfig data -> data -> Svg.Svg a
 viewSeries toSvgCoords config data =
+  case config.serieType of
+    Line -> viewSeriesLine toSvgCoords config data
+    Area -> viewSeriesArea toSvgCoords config data
+
+
+{- Draw area series -}
+viewSeriesArea : (Coord -> Coord) -> SerieConfig data -> data -> Svg.Svg a
+viewSeriesArea toSvgCoords config data =
   let
     allCoords = config.toCoords data
     allX = List.map fst allCoords
@@ -113,21 +120,26 @@ viewSeries toSvgCoords config data =
     (highestSvgX, originY) = toSvgCoords (highestX, 0)
     (lowestSvgX, _) = toSvgCoords (lowestX, 0)
 
-    (startInstruction, tail) =
-      if config.serieType == Line then startPath svgCoords
-      else (toInstruction "M" [lowestSvgX, originY], svgCoords)
-
-    moveInstructions =
-      List.map (\(x, y) -> toInstruction "L" [x, y]) tail
-
-    endInstructions =
-      if config.serieType == Line then []
-      else [toInstruction "L" [highestSvgX, originY], "Z"]
-
-    instructions =
-      List.concat [[startInstruction], moveInstructions, endInstructions]
+    startInstruction = toInstruction "M" [lowestSvgX, originY]
+    endInstructions = toInstruction "L" [highestSvgX, originY]
+    instructions = coordToInstruction "L" svgCoords
 
     style' =
       String.join "" ["stroke: ", config.color, "; fill:", config.areaColor]
   in
-    Svg.path [ d (String.join "" instructions), style style' ] []
+    Svg.path
+      [ d (startInstruction ++ instructions ++ endInstructions ++ "Z"), style style' ]
+      []
+
+
+{- Draw line series -}
+viewSeriesLine : (Coord -> Coord) -> SerieConfig data -> data -> Svg.Svg a
+viewSeriesLine toSvgCoords config data =
+  let
+    svgCoords = List.map toSvgCoords (config.toCoords data)
+    (startInstruction, tail) = startPath svgCoords
+    instructions = coordToInstruction "L" svgCoords
+
+    style' = String.join "" ["stroke: ", config.color, "; fill: none;"]
+  in
+    Svg.path [ d (startInstruction ++ instructions), style style' ] []

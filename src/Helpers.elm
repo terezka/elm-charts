@@ -63,6 +63,11 @@ toTranslate x y =
    "translate(" ++ (toString x) ++ ", " ++ (toString y) ++ ")"
 
 
+coordToInstruction : String -> List (Float, Float) -> String
+coordToInstruction instructionType coords =
+  List.map (\(x, y) -> toInstruction instructionType [x, y]) coords |> String.join ""
+
+
 toInstruction : String -> List Float -> String
 toInstruction instructionType coords =
   let
