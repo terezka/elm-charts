@@ -18,4 +18,4 @@ elm package install
 elm-reactor
 ```
 
-and open [Example](http://localhost:8000/examples/PlotExample.elm)
+and open [example](http://localhost:8000/examples/PlotExample.elm)
