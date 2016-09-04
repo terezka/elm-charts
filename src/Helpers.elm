@@ -29,28 +29,28 @@ viewSvgContainer x y children =
   Svg.g [ transform (toTranslate x y)] children
 
 
-viewSvgLine : (Float, Float, Float, Float) -> Svg.Svg a
-viewSvgLine (x1', y1', x2', y2') =
-  Svg.line
-    [ x1 (toString x1')
-    , y1 (toString y1')
-    , x2 (toString x2')
-    , y2 (toString y2')
-    , style "stroke: #757575;"
-    ]
-    []
-
-
-viewSvgText : (Float, Float, Float, Float) -> String -> Svg.Svg a
-viewSvgText (x1', y1', x2', y2') label =
-  viewSvgContainer  x2' y2'
-    [ Svg.text'
-      [ x (toString 0)
-      , y (toString 10)
-      , style "stroke: #757575;"
+viewSvgLine : (Float, Float) -> Svg.Svg a
+viewSvgLine (x, y) =
+  let
+    attrs = if x == 0 then [ x2 "-7" ] else [ y2 "6" ]
+  in
+    viewSvgContainer x y
+      [ Svg.line
+        (attrs ++ [ style "stroke: #757575;" ])
+        []
       ]
-      [ Svg.tspan [] [ Svg.text label ] ]
-    ]
+
+
+viewSvgText : (Float, Float) -> String -> Svg.Svg a
+viewSvgText (x', y') label =
+  let
+    attrs = if x' == 0 then [ x "-20", y "5" ] else [ y "20" ]
+  in
+    viewSvgContainer x' y'
+      [ Svg.text'
+        (attrs ++ [ style "stroke: #757575; text-anchor: middle;" ])
+        [ Svg.tspan [] [ Svg.text label ] ]
+      ]
 
 
 toTranslate : Float -> Float -> String

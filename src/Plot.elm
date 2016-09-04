@@ -5,7 +5,7 @@ import Svg exposing (g)
 import Svg.Attributes exposing (height, width, style, d)
 import String
 
-import Helpers exposing (viewSvgLine, viewSvgText, startPath, toInstruction, getLowest, getHighest, byPrecision)
+import Helpers exposing (viewSvgContainer, viewSvgLine, viewSvgText, startPath, toInstruction, getLowest, getHighest, byPrecision)
 import Debug
 
 type SerieType = Line | Area
@@ -26,14 +26,15 @@ type alias PlotConfig data =
   }
 
 
+type Axis = XAxis | YAxis
+
 type alias Coord =
   (Float, Float)
 
 type alias DoubleCoords =
   (Float, Float, Float, Float)
 
-
-totalTicksX = 18
+totalTicksX = 12
 totalTicksY = 13
 
 
@@ -63,9 +64,11 @@ viewPlot config data =
     toSvgY = (\y -> (originY + y * deltaY * -1))
     toSvgCoords = (\(x, y) -> (toSvgX x, toSvgY y))
 
-    -- Prepare axis' coordinates
-    axisCoordsX = (0, originY, width, originY)
-    axisCoordsY = (originX, 0, originX, height)
+    -- Prepare axis' coordinates and path for line
+    axisPositionX = (0, originY)
+    axisPositionY = (originX, 0)
+    axisPathX = "M0.5, 0H" ++ (toString width)
+    axisPathY = "M0.5, 0V" ++ (toString height)
 
     -- and their ticks coordinates
     dtX = toFloat (floor (totalX / totalTicksX))
@@ -75,11 +78,8 @@ viewPlot config data =
     ticksX = List.map (\i -> (lowestTickX + (toFloat i) * dtX)) [0..totalTicksX]
     ticksY = List.map (\i -> (lowestTickY + (toFloat i) * dtY)) [0..totalTicksY]
 
-    toTickCoordsX =
-      (\tickX -> (toSvgX tickX, originY, toSvgX tickX, originY + 5))
-    toTickCoordsY =
-      (\tickY -> (originX, toSvgY tickY, originX - 5, toSvgY tickY))
-
+    toTickCoordsX = (\tickX -> (toSvgX tickX, 0))
+    toTickCoordsY = (\tickY -> (0, toSvgY tickY))
   in
     Svg.svg
       [ Svg.Attributes.height (toString height)
@@ -87,15 +87,15 @@ viewPlot config data =
       , style "padding: 50px;"
       ]
       [ Svg.g [] (List.map2 (viewSeries toSvgCoords) series data)
-      , viewAxis axisCoordsX toTickCoordsX ticksX
-      , viewAxis axisCoordsY toTickCoordsY ticksY
+      , viewAxis axisPositionX axisPathX toTickCoordsX ticksX
+      , viewAxis axisPositionY axisPathY toTickCoordsY ticksY
       ]
 
 
-viewAxis : DoubleCoords -> (Float -> DoubleCoords) -> List Float -> Svg.Svg a
-viewAxis axisCoords toTickCoords ticks =
-  Svg.g []
-    [ viewSvgLine axisCoords
+viewAxis : Coord -> String -> (Float -> Coord) -> List Float -> Svg.Svg a
+viewAxis (x, y) axisPath toTickCoords ticks =
+  viewSvgContainer x y
+    [ Svg.path [ d axisPath, style "stroke: #757575;" ] []
     , Svg.g []
       (List.map (\tick -> viewSvgLine (toTickCoords tick)) ticks)
     , Svg.g []
