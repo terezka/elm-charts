@@ -35,21 +35,16 @@ viewAxisPath path =
   Svg.path [ d ("M0.5, 0" ++ path), style "stroke: #757575;" ] []
 
 
-viewSvgLine : (Float, Float) -> Svg.Svg a
-viewSvgLine (x, y) =
-  let
-    attrs = if x == 0 then [ x2 "-6" ] else [ y2 "6" ]
-  in
-    viewSvgContainer (x, y)
-      [ Svg.line
-        (attrs ++ [ style "stroke: #757575;" ])
-        []
-      ]
+viewSvgLine : (Float, Float, Int, Int) -> Svg.Svg a
+viewSvgLine (x1', y1', x2', y2') =
+  viewSvgContainer (x1', y1')
+    [ Svg.line [ x2 (toString x2'), y2 (toString y2'),  style "stroke: #757575;" ] [] ]
 
 
-viewSvgText : (Float, Float) -> String -> Svg.Svg a
-viewSvgText position label =
-  viewSvgContainer position
+-- text-anchor for yAxis should be end
+viewSvgText : (Float, Float, Int, Int) -> String -> Svg.Svg a
+viewSvgText (x, y, _, _) label =
+  viewSvgContainer (x, y)
     [ Svg.text'
       ([ style "stroke: #757575; text-anchor: middle;" ])
       [ Svg.tspan [] [ Svg.text label ] ]

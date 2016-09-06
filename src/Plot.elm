@@ -24,6 +24,7 @@ type alias PlotConfig data =
   { name : String
   , width : Int
   , height : Int
+  , tickHeight : Int
   , series : List (SerieConfig data)
   }
 
@@ -93,27 +94,33 @@ viewPlot config data =
 
 
 viewAxis : Axis -> PlotConfig data -> Coord -> (Float -> Float) -> List Float -> Svg.Svg a
-viewAxis axis config position toSvgValue ticks =
+viewAxis axis { tickHeight, width, height } position toSvgValue ticks =
   let
+    toTickCoords =
+      case axis of
+        XAxis -> (\x -> (toSvgValue x, 0, 0, tickHeight))
+        YAxis -> (\y -> (0, toSvgValue y, -tickHeight, 0))
+
+    ticksView =
+      Svg.g [] (List.map (toTickCoords >> viewSvgLine) ticks)
+
     labelDisplacement =
       if axis == XAxis then (0, 20) else (-20, 5)
 
+    labelsView =
+      viewSvgContainer labelDisplacement
+        (List.map (\tick -> viewSvgText (toTickCoords tick) (toString tick)) ticks)
+
     axisPath =
       case axis of
-        XAxis -> toInstruction "H" [toFloat config.width]
-        YAxis -> toInstruction "V" [toFloat config.height]
+        XAxis -> toInstruction "H" [toFloat width]
+        YAxis -> toInstruction "V" [toFloat height]
 
-    toTickCoords =
-      case axis of
-        XAxis -> (\x -> (toSvgValue x, 0))
-        YAxis -> (\y -> (0, toSvgValue y))
   in
     viewSvgContainer position
-      [ viewAxisPath axisPath -- Line
-      , Svg.g [] -- Ticks
-        (List.map (toTickCoords >> viewSvgLine) ticks)
-      , viewSvgContainer labelDisplacement -- Labels
-        (List.map (\tick -> viewSvgText (toTickCoords tick) (toString tick)) ticks)
+      [ viewAxisPath axisPath
+      , ticksView
+      , labelsView
       ]
 
 
