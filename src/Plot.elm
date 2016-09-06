@@ -43,6 +43,7 @@ totalTicksY = 8
 
 -- VIEW
 
+
 viewPlot : PlotConfig data -> List data -> Html msg
 viewPlot config data =
   let
@@ -51,18 +52,18 @@ viewPlot config data =
 
     -- Get axis' ranges
     allCoords = List.concat (List.map2 .toCoords series data)
-    allX = List.map fst allCoords
-    allY = List.map snd allCoords
-    (lowestX, highestX) = (getLowest allX, getHighest allX)
-    (lowestY, highestY) = (getLowest allY, getHighest allY)
+    range = List.map fst allCoords
+    domain = List.map snd allCoords
+    (lowestX, highestX) = (getLowest range, getHighest range)
+    (lowestY, highestY) = (getLowest domain, getHighest domain)
 
     -- Calculate the origin in terms of svg coordinates
-    totalX = abs highestX + abs lowestX
-    totalY = abs highestY + abs lowestY
-    originX = width * (abs lowestX / totalX)
-    originY = height * (abs highestY / totalY)
-    deltaX = width / totalX
-    deltaY = height / totalY
+    spanX = abs highestX + abs lowestX
+    spanY = abs highestY + abs lowestY
+    deltaX = width / spanX
+    deltaY = height / spanY
+    originX = abs lowestX * deltaX
+    originY = abs highestY * deltaY
 
     -- Provide translators from cartesian coordinates to svg coordinates
     toSvgX = (\x -> (originX + x * deltaX))
@@ -74,12 +75,12 @@ viewPlot config data =
     axisPositionY = (originX, 0)
 
     -- and their ticks coordinates
-    dtX = toFloat (floor (totalX / totalTicksX))
-    dtY = toFloat (floor (totalY / totalTicksY))
-    lowestTickX = byPrecision dtX ceiling lowestX
-    lowestTickY = byPrecision dtY floor lowestY
-    ticksX = List.map (\i -> (lowestTickX + (toFloat i) * dtX)) [0..totalTicksX]
-    ticksY = List.map (\i -> (lowestTickY + (toFloat i) * dtY)) [0..totalTicksY]
+    tickDeltaX = toFloat (floor (spanX / totalTicksX))
+    tickDeltaY = toFloat (floor (spanY / totalTicksY))
+    lowestTickX = byPrecision tickDeltaX ceiling lowestX
+    lowestTickY = byPrecision tickDeltaY floor lowestY
+    ticksX = List.map (\i -> (lowestTickX + (toFloat i) * tickDeltaX)) [0..totalTicksX]
+    ticksY = List.map (\i -> (lowestTickY + (toFloat i) * tickDeltaY)) [0..totalTicksY]
 
   in
     Svg.svg
@@ -136,8 +137,8 @@ viewSeriesArea : (Coord -> Coord) -> SerieConfig data -> data -> Svg.Svg a
 viewSeriesArea toSvgCoords config data =
   let
     allCoords = config.toCoords data
-    allX = List.map fst allCoords
-    (lowestX, highestX) = (getLowest allX, getHighest allX)
+    range = List.map fst allCoords
+    (lowestX, highestX) = (getLowest range, getHighest range)
 
     svgCoords = List.map toSvgCoords allCoords
     (highestSvgX, originY) = toSvgCoords (highestX, 0)
