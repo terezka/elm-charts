@@ -4,6 +4,7 @@ import Svg exposing (g)
 import Svg.Attributes exposing (transform, height, width, style, d, x, y, x1, x2, y1, y2)
 import String
 
+
 modulus : Float -> Float -> Float
 modulus divider value =
   value - (toFloat (round (value / divider)))
@@ -24,8 +25,8 @@ getLowest values =
   min 0 (Maybe.withDefault 0 (List.minimum values))
 
 
-viewSvgContainer : Float -> Float -> List (Svg.Svg a) -> Svg.Svg a
-viewSvgContainer x y children =
+viewSvgContainer : (Float, Float) -> List (Svg.Svg a) -> Svg.Svg a
+viewSvgContainer (x, y) children =
   Svg.g [ transform (toTranslate x y)] children
 
 
@@ -37,9 +38,9 @@ viewAxisPath path =
 viewSvgLine : (Float, Float) -> Svg.Svg a
 viewSvgLine (x, y) =
   let
-    attrs = if x == 0 then [ x2 "-7" ] else [ y2 "6" ]
+    attrs = if x == 0 then [ x2 "-6" ] else [ y2 "6" ]
   in
-    viewSvgContainer x y
+    viewSvgContainer (x, y)
       [ Svg.line
         (attrs ++ [ style "stroke: #757575;" ])
         []
@@ -47,15 +48,12 @@ viewSvgLine (x, y) =
 
 
 viewSvgText : (Float, Float) -> String -> Svg.Svg a
-viewSvgText (x', y') label =
-  let
-    attrs = if x' == 0 then [ x "-20", y "5" ] else [ y "20" ]
-  in
-    viewSvgContainer x' y'
-      [ Svg.text'
-        (attrs ++ [ style "stroke: #757575; text-anchor: middle;" ])
-        [ Svg.tspan [] [ Svg.text label ] ]
-      ]
+viewSvgText position label =
+  viewSvgContainer position
+    [ Svg.text'
+      ([ style "stroke: #757575; text-anchor: middle;" ])
+      [ Svg.tspan [] [ Svg.text label ] ]
+    ]
 
 
 toTranslate : Float -> Float -> String
