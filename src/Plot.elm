@@ -83,15 +83,21 @@ viewPlot config data =
     ticksY = List.map (\i -> (lowestTickY + (toFloat i) * tickDeltaY)) [0..totalTicksY]
 
   in
-    Svg.svg
-      [ Svg.Attributes.height (toString height)
-      , Svg.Attributes.width (toString width)
-      , style "padding: 50px;"
-      ]
+    viewFrame config
       [ Svg.g [] (List.map2 (viewSeries toSvgCoords) series data)
       , viewAxis XAxis config axisPositionX toSvgX ticksX
       , viewAxis YAxis config axisPositionY toSvgY ticksY
       ]
+
+
+viewFrame : PlotConfig data -> List (Svg.Svg a) -> Svg.Svg a
+viewFrame { width, height } children =
+  Svg.svg
+    [ Svg.Attributes.height (toString height)
+    , Svg.Attributes.width (toString width)
+    , style "padding: 50px;"
+    ]
+    children
 
 
 viewAxis : Axis -> PlotConfig data -> Coord -> (Float -> Float) -> List Float -> Svg.Svg a
