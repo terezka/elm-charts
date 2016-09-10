@@ -78,7 +78,7 @@ viewPlot config data =
     tickDeltaX = toFloat (floor (spanX / totalTicksX))
     tickDeltaY = toFloat (floor (spanY / totalTicksY))
     lowestTickX = byPrecision tickDeltaX ceiling lowestX
-    lowestTickY = byPrecision tickDeltaY floor lowestY
+    lowestTickY = byPrecision tickDeltaY ceiling lowestY
     ticksX = List.map (\i -> (lowestTickX + (toFloat i) * tickDeltaX)) [0..totalTicksX]
     ticksY = List.map (\i -> (lowestTickY + (toFloat i) * tickDeltaY)) [0..totalTicksY]
 
@@ -111,11 +111,11 @@ viewAxis axis { tickHeight, width, height } position toSvgValue ticks =
     ticksView =
       Svg.g [] (List.map (toTickCoords >> viewSvgLine) ticks)
 
-    labelDisplacement =
+    displacement =
       if axis == XAxis then (0, 20) else (-20, 5)
 
     labelsView =
-      viewSvgContainer labelDisplacement
+      viewSvgContainer displacement
         (List.map (\tick -> viewSvgText (toTickCoords tick) (toString tick)) ticks)
 
     axisPath =
