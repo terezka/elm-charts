@@ -22,8 +22,7 @@ type alias SerieConfig data =
 
 type alias PlotConfig data =
   { name : String
-  , width : Int
-  , height : Int
+  , dimensions : (Int, Int)
   , tickHeight : Int
   , series : List (SerieConfig data)
   }
@@ -42,6 +41,38 @@ totalTicksY = 8
 
 
 -- VIEW
+
+
+edgeValues : Axis -> List Coord -> Coord
+edgeValues axis coords =
+  case axis of
+    XAxis ->
+      let range = List.map fst coords
+      in (getLowest range, getHighest range)
+    YAxis ->
+      let domain = List.map snd coords
+      in (getLowest domain, getHighest domain)
+
+
+axisSpan : Axis -> Coord -> Coord -> Float
+axisSpan axis (lowestX, lowestY) (highestX, highestY) =
+  case axis of
+    XAxis -> abs highestX + abs lowestX
+    YAxis -> abs highestY + abs lowestY
+
+
+type alias AxisProps =
+  { getValue : Coord -> Float
+  , lowestValue : Float
+  , highestValue : Float
+  , span : Float
+  , origin : Float
+  , toSvg : Float -> Float
+  }
+
+
+getAxisProps : Axis -> PlotConfig data -> List data -> AxisProps
+getAxisProps axis { width, }
 
 
 viewPlot : PlotConfig data -> List data -> Html msg

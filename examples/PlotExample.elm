@@ -19,7 +19,7 @@ dataHere =
 
 plotConfig : Plot.PlotConfig SeriesData
 plotConfig =
-  Plot.PlotConfig "Great plot" 800 500 6 serieConfigs
+  Plot.PlotConfig "Great plot" (800, 500) 6 serieConfigs
 
 
 serieConfigs : List (Plot.SerieConfig SeriesData)
