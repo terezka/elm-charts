@@ -77,7 +77,7 @@ getAxisProps axis { dimensions, series } data =
       abs lowestValue + abs highestValue
 
     delta =
-      (toFloat (getValue dimensions)) / span |> Debug.log "delta"
+      (toFloat (getValue dimensions)) / span
 
     origin =
       abs (getValue edgeValues) * delta
@@ -97,7 +97,6 @@ getAxisProps axis { dimensions, series } data =
       span
       origin
       toSvg
-        |> Debug.log "axis"
 
 
 
