@@ -36,33 +36,16 @@ type alias Coord =
 type alias DoubleCoords =
   (Float, Float, Float, Float)
 
-totalTicksX = 12
-totalTicksY = 8
+totalTicks = 
+  (12, 8)
 
 
 -- VIEW
 
 
-edgeValues : Axis -> List Coord -> Coord
-edgeValues axis coords =
-  case axis of
-    XAxis ->
-      let range = List.map fst coords
-      in (getLowest range, getHighest range)
-    YAxis ->
-      let domain = List.map snd coords
-      in (getLowest domain, getHighest domain)
-
-
-axisSpan : Axis -> Coord -> Coord -> Float
-axisSpan axis (lowestX, lowestY) (highestX, highestY) =
-  case axis of
-    XAxis -> abs highestX + abs lowestX
-    YAxis -> abs highestY + abs lowestY
-
-
 type alias AxisProps =
-  { getValue : Coord -> Float
+  { axis : Axis
+  , getValue : Coord -> Float
   , lowestValue : Float
   , highestValue : Float
   , span : Float
@@ -72,72 +55,107 @@ type alias AxisProps =
 
 
 getAxisProps : Axis -> PlotConfig data -> List data -> AxisProps
-getAxisProps axis { width, }
+getAxisProps axis { dimensions, series } data =
+  let
+    getValue = 
+      case axis of
+        XAxis -> fst
+        YAxis -> snd
+
+    values =
+      List.map2 .toCoords series data
+      |> List.concat
+      |> List.map getValue
+
+    edgeValues = 
+      (getLowest values, getHighest values)
+
+    (lowestValue, highestValue) =
+      edgeValues
+  
+    span =
+      abs lowestValue + abs highestValue
+
+    delta =
+      (toFloat (getValue dimensions)) / span |> Debug.log "delta"
+
+    origin =
+      abs (getValue edgeValues) * delta
+
+    toSvg =
+      case axis of
+        XAxis ->
+          (\x -> origin + delta * x)
+        YAxis ->
+          (\y -> origin - delta * y)
+  in
+    AxisProps
+      axis
+      getValue
+      lowestValue
+      highestValue
+      span
+      origin
+      toSvg
+        |> Debug.log "axis"
+
 
 
 viewPlot : PlotConfig data -> List data -> Html msg
 viewPlot config data =
   let
-    (width, height) = (toFloat config.width, toFloat config.height)
-    series = config.series
+    xAxis =
+      getAxisProps XAxis config data
 
-    -- Get axis' ranges
-    allCoords = List.concat (List.map2 .toCoords series data)
-    range = List.map fst allCoords
-    domain = List.map snd allCoords
-    (lowestX, highestX) = (getLowest range, getHighest range)
-    (lowestY, highestY) = (getLowest domain, getHighest domain)
+    yAxis =
+      getAxisProps YAxis config data
 
-    -- Calculate the origin in terms of svg coordinates
-    spanX = abs highestX + abs lowestX
-    spanY = abs highestY + abs lowestY
-    deltaX = width / spanX
-    deltaY = height / spanY
-    originX = abs lowestX * deltaX
-    originY = abs highestY * deltaY
+    toSvgCoords =
+      (\(x, y) -> (xAxis.toSvg x, yAxis.toSvg y))
 
-    -- Provide translators from cartesian coordinates to svg coordinates
-    toSvgX = (\x -> (originX + x * deltaX))
-    toSvgY = (\y -> (originY + y * deltaY * -1))
-    toSvgCoords = (\(x, y) -> (toSvgX x, toSvgY y))
-
-    -- Prepare axis' coordinates
-    axisPositionX = (0, originY)
-    axisPositionY = (originX, 0)
-
-    -- and their ticks coordinates
-    tickDeltaX = toFloat (floor (spanX / totalTicksX))
-    tickDeltaY = toFloat (floor (spanY / totalTicksY))
-    lowestTickX = byPrecision tickDeltaX ceiling lowestX
-    lowestTickY = byPrecision tickDeltaY ceiling lowestY
-    ticksX = List.map (\i -> (lowestTickX + (toFloat i) * tickDeltaX)) [0..totalTicksX]
-    ticksY = List.map (\i -> (lowestTickY + (toFloat i) * tickDeltaY)) [0..totalTicksY]
+    axisPositionX = (0, yAxis.origin)
+    axisPositionY = (xAxis.origin, 0)
 
   in
     viewFrame config
-      [ Svg.g [] (List.map2 (viewSeries toSvgCoords) series data)
-      , viewAxis XAxis config axisPositionX toSvgX ticksX
-      , viewAxis YAxis config axisPositionY toSvgY ticksY
+      [ Svg.g [] (List.map2 (viewSeries toSvgCoords) config.series data)
+      , viewAxis xAxis config axisPositionX 
+      , viewAxis yAxis config axisPositionY
       ]
 
 
 viewFrame : PlotConfig data -> List (Svg.Svg a) -> Svg.Svg a
-viewFrame { width, height } children =
-  Svg.svg
-    [ Svg.Attributes.height (toString height)
-    , Svg.Attributes.width (toString width)
-    , style "padding: 50px;"
-    ]
-    children
-
-
-viewAxis : Axis -> PlotConfig data -> Coord -> (Float -> Float) -> List Float -> Svg.Svg a
-viewAxis axis { tickHeight, width, height } position toSvgValue ticks =
+viewFrame { dimensions } children =
   let
+    (width, height) = dimensions
+  in
+    Svg.svg
+      [ Svg.Attributes.height (toString height)
+      , Svg.Attributes.width (toString width)
+      , style "padding: 50px;"
+      ]
+      children
+
+
+viewAxis : AxisProps -> PlotConfig data -> Coord -> Svg.Svg a
+viewAxis { axis, getValue, span, lowestValue, toSvg } { tickHeight, dimensions } position =
+  let
+    tickDelta = 
+      toFloat (floor (span / (getValue totalTicks)))
+
+    lowestTick =
+      byPrecision tickDelta ceiling lowestValue
+
+    tickIndexes =
+      [0..(getValue totalTicks)]
+
+    ticks =
+      List.map (\i -> (lowestTick + i * tickDelta)) tickIndexes 
+
     toTickCoords =
       case axis of
-        XAxis -> (\x -> (toSvgValue x, 0, 0, tickHeight))
-        YAxis -> (\y -> (0, toSvgValue y, -tickHeight, 0))
+        XAxis -> (\x -> (toSvg x, 0, 0, tickHeight))
+        YAxis -> (\y -> (0, toSvg y, -tickHeight, 0))
 
     ticksView =
       Svg.g [] (List.map (toTickCoords >> viewSvgLine) ticks)
@@ -148,6 +166,9 @@ viewAxis axis { tickHeight, width, height } position toSvgValue ticks =
     labelsView =
       viewSvgContainer displacement
         (List.map (\tick -> viewSvgText (toTickCoords tick) (toString tick)) ticks)
+
+    (width, height) =
+      dimensions
 
     axisPath =
       case axis of
