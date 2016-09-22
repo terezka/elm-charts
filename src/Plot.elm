@@ -5,8 +5,18 @@ import Svg exposing (g)
 import Svg.Attributes exposing (height, width, style, d)
 import String
 
-import Helpers exposing (viewSvgContainer, viewAxisPath, viewSvgLine, viewSvgText, startPath, toInstruction, getLowest, getHighest, byPrecision, coordToInstruction)
-import Debug
+import Helpers exposing (
+  viewSvgContainer,
+  viewAxisPath,
+  viewSvgLine,
+  viewSvgText,
+  startPath,
+  toInstruction,
+  getLowest,
+  getHighest,
+  byPrecision,
+  coordToInstruction)
+
 
 -- TYPES
 
@@ -21,23 +31,22 @@ type alias SerieConfig data =
 
 
 type alias PlotConfig data =
-  { name : String
-  , dimensions : (Int, Int)
+  { dimensions : (Int, Int)
   , tickHeight : Int
   , series : List (SerieConfig data)
   }
 
 
-type Axis = XAxis | YAxis
-
 type alias Coord =
   (Float, Float)
 
-type alias DoubleCoords =
-  (Float, Float, Float, Float)
 
+type Axis = XAxis | YAxis
+
+
+-- TODO: Move to config
 totalTicks = 
-  (12, 8)
+  (12, 6)
 
 
 -- VIEW
