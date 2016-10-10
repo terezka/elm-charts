@@ -4,17 +4,13 @@ import Html exposing (Html, button, div, text)
 import Svg exposing (g)
 import Svg.Attributes exposing (height, width, style, d)
 import String
+import Debug
 import Helpers
     exposing
-        ( viewSvgContainer
-        , viewAxisPath
-        , viewSvgLine
-        , viewSvgText
-        , startPath
+        ( startPath
         , toInstruction
         , getLowest
         , getHighest
-        , byPrecision
         , coordToInstruction
         )
 
@@ -56,7 +52,7 @@ type Axis
 
 
 totalTicks =
-    ( 12, 6 )
+    ( 7, 6 )
 
 
 
@@ -65,12 +61,13 @@ totalTicks =
 
 type alias AxisProps =
     { axis : Axis
-    , getValue : Coord -> Float
-    , lowestValue : Float
-    , highestValue : Float
+    , lowest : Float
+    , highest : Float
+    , amountOfTicks : Int
+    , tickHeight : Float
     , span : Float
-    , origin : Float
     , toSvg : Float -> Float
+    , addSvg : Coord -> Coord -> Coord
     }
 
 
@@ -112,15 +109,31 @@ getAxisProps axis { dimensions, series } data =
 
                 YAxis ->
                     (\y -> origin - delta * y)
+
+        addSvg =
+            case axis of
+                XAxis ->
+                    (\( x, y ) ( dx, dy ) -> ( x + dx, y + dy ))
+
+                YAxis ->
+                    (\( y, x ) ( dx, dy ) -> ( y - dy, x + dx ))
+
+        amountOfTicks =
+            getValue totalTicks
     in
         AxisProps
             axis
-            getValue
             lowestValue
             highestValue
+            amountOfTicks
+            7
             span
-            origin
             toSvg
+            addSvg
+
+
+
+-- View plot
 
 
 viewPlot : PlotConfig data -> List data -> Html msg
@@ -132,88 +145,135 @@ viewPlot config data =
         yAxis =
             getAxisProps YAxis config data
 
-        toSvgCoords =
+        toSvgCoordsX =
             (\( x, y ) -> ( xAxis.toSvg x, yAxis.toSvg y ))
 
-        axisPositionX =
-            ( 0, yAxis.origin )
+        toSvgCoordsY =
+            (\( y, x ) -> ( xAxis.toSvg x, yAxis.toSvg y ))
 
-        axisPositionY =
-            ( xAxis.origin, 0 )
-    in
-        viewFrame config
-            [ Svg.g [] (List.map2 (viewSeries toSvgCoords) config.series data)
-            , viewAxis xAxis config axisPositionX
-            , viewAxis yAxis config axisPositionY
-            ]
+        toSvgCoordsOk =
+            toSvgCoordsX
 
-
-viewFrame : PlotConfig data -> List (Svg.Svg a) -> Svg.Svg a
-viewFrame { dimensions } children =
-    let
+        -- The yAxis is switched, so cannot be used
         ( width, height ) =
-            dimensions
+            config.dimensions
     in
         Svg.svg
             [ Svg.Attributes.height (toString height)
             , Svg.Attributes.width (toString width)
             , style "padding: 50px;"
             ]
-            children
+            [ Svg.g [] (List.map2 (viewSeries toSvgCoordsOk) config.series data)
+            , viewAxis xAxis toSvgCoordsX
+            , viewAxis yAxis toSvgCoordsY
+            ]
 
 
-viewAxis : AxisProps -> PlotConfig data -> Coord -> Svg.Svg a
-viewAxis { axis, getValue, span, lowestValue, toSvg } { tickHeight, dimensions } position =
+
+-- View axis
+
+
+viewAxis : AxisProps -> (Coord -> Coord) -> Svg.Svg a
+viewAxis axis toSvgCoords =
     let
-        tickDelta =
-            toFloat (floor (span / (getValue totalTicks)))
+        { span, amountOfTicks, lowest, highest } =
+            axis
 
+        delta =
+            span / (toFloat amountOfTicks)
+
+        -- round up to nearest delta
         lowestTick =
-            byPrecision tickDelta ceiling lowestValue
+            toFloat (ceiling (lowest / delta)) * delta
 
-        tickIndexes =
-            [0..(getValue totalTicks)]
+        indexes =
+            [0..amountOfTicks]
 
         ticks =
-            List.map (\i -> (lowestTick + i * tickDelta)) tickIndexes
+            List.map (\i -> lowestTick + (toFloat i) * delta) indexes
 
-        toTickCoords =
-            case axis of
-                XAxis ->
-                    (\x -> ( toSvg x, 0, 0, tickHeight ))
+        -- for x: (-l, 0), for y: (0, -l)
+        ( x1, y1 ) =
+            toSvgCoords ( lowest, 0 )
 
-                YAxis ->
-                    (\y -> ( 0, toSvg y, -tickHeight, 0 ))
-
-        ticksView =
-            Svg.g [] (List.map (toTickCoords >> viewSvgLine) ticks)
-
-        displacement =
-            if axis == XAxis then
-                ( 0, 20 )
-            else
-                ( -20, 5 )
-
-        labelsView =
-            viewSvgContainer displacement
-                (List.map (\tick -> viewSvgText (toTickCoords tick) (toString tick)) ticks)
-
-        ( width, height ) =
-            dimensions
-
-        axisPath =
-            case axis of
-                XAxis ->
-                    toInstruction "H" [ toFloat width ]
-
-                YAxis ->
-                    toInstruction "V" [ toFloat height ]
+        -- for x: (h, 0), for y: (0, h)
+        ( x2, y2 ) =
+            toSvgCoords ( highest, 0 )
     in
-        viewSvgContainer position
-            [ viewAxisPath axisPath
-            , ticksView
-            , labelsView
+        Svg.g []
+            [ Svg.g [] (List.map (viewTick axis toSvgCoords) ticks)
+            , Svg.g
+                [ Svg.Attributes.transform "translate(0, 5)" ]
+                (List.map (viewLabel axis toSvgCoords) ticks)
+            , Svg.g []
+                [ Svg.line
+                    (toPositionAttr x1 y1 x2 y2)
+                    []
+                ]
             ]
+
+
+
+-- View tick
+
+
+viewTick : AxisProps -> (Coord -> Coord) -> Float -> Svg.Svg a
+viewTick { addSvg, tickHeight } toSvgCoords tick =
+    let
+        -- for x: (v, 0), for y: (0, v)
+        ( x1, y1 ) =
+            toSvgCoords ( tick, 0 )
+
+        -- for x: (v, -h), for y: (-h, v)
+        ( x2, y2 ) =
+            addSvg ( x1, y1 ) ( 0, tickHeight )
+    in
+        Svg.g []
+            [ Svg.line
+                (toPositionAttr x1 y1 x2 y2)
+                []
+            ]
+
+
+
+-- View Label
+
+
+viewLabel : AxisProps -> (Coord -> Coord) -> Float -> Svg.Svg a
+viewLabel { addSvg, tickHeight } toSvgCoords tick =
+    let
+        -- for x: (v, 0), for y: (0, v)
+        ( x0, y0 ) =
+            toSvgCoords ( tick, 0 )
+
+        -- for x: (v, -h), for y: (-h, v)
+        ( x, y ) =
+            addSvg ( x0, y0 ) ( 0, 20 )
+    in
+        Svg.text'
+            [ Svg.Attributes.x (toString x)
+            , Svg.Attributes.y (toString y)
+            , Svg.Attributes.style "stroke: #757575; text-anchor: middle;"
+            ]
+            [ Svg.tspan [] [ Svg.text (toString (round tick)) ] ]
+
+
+
+-- Make line coords
+
+
+toPositionAttr : Float -> Float -> Float -> Float -> List (Svg.Attribute a)
+toPositionAttr x1 y1 x2 y2 =
+    [ Svg.Attributes.style "stroke: #757575;"
+    , Svg.Attributes.x1 (toString x1)
+    , Svg.Attributes.y1 (toString y1)
+    , Svg.Attributes.x2 (toString x2)
+    , Svg.Attributes.y2 (toString y2)
+    ]
+
+
+
+-- VIEW SERIES
 
 
 viewSeries : (Coord -> Coord) -> SerieConfig data -> data -> Svg.Svg a

@@ -5,16 +5,6 @@ import Svg.Attributes exposing (transform, height, width, style, d, x, y, x1, x2
 import String
 
 
-modulus : Float -> Float -> Float
-modulus divider value =
-    value - (toFloat (round (value / divider)))
-
-
-byPrecision : Float -> (Float -> Int) -> Float -> Float
-byPrecision precision operation value =
-    toFloat (operation (value / precision)) * precision
-
-
 getHighest : List Float -> Float
 getHighest values =
     Maybe.withDefault 1 (List.maximum values)
@@ -23,40 +13,6 @@ getHighest values =
 getLowest : List Float -> Float
 getLowest values =
     min 0 (Maybe.withDefault 0 (List.minimum values))
-
-
-viewSvgContainer : ( Float, Float ) -> List (Svg.Svg a) -> Svg.Svg a
-viewSvgContainer ( x, y ) children =
-    Svg.g [ transform (toTranslate x y) ] children
-
-
-viewAxisPath : String -> Svg.Svg a
-viewAxisPath path =
-    Svg.path [ d ("M0.5, 0" ++ path), style "stroke: #757575;" ] []
-
-
-viewSvgLine : ( Float, Float, Int, Int ) -> Svg.Svg a
-viewSvgLine ( x1', y1', x2', y2' ) =
-    viewSvgContainer ( x1', y1' )
-        [ Svg.line [ x2 (toString x2'), y2 (toString y2'), style "stroke: #757575;" ] [] ]
-
-
-
--- text-anchor for yAxis should be end
-
-
-viewSvgText : ( Float, Float, Int, Int ) -> String -> Svg.Svg a
-viewSvgText ( x, y, _, _ ) label =
-    viewSvgContainer ( x, y )
-        [ Svg.text'
-            ([ style "stroke: #757575; text-anchor: middle;" ])
-            [ Svg.tspan [] [ Svg.text label ] ]
-        ]
-
-
-toTranslate : Float -> Float -> String
-toTranslate x y =
-    "translate(" ++ (toString x) ++ ", " ++ (toString y) ++ ")"
 
 
 coordToInstruction : String -> List ( Float, Float ) -> String
