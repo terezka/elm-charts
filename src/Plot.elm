@@ -164,8 +164,8 @@ viewPlot config data =
             , style "padding: 50px;"
             ]
             [ Svg.g [] (List.map2 (viewSeries toSvgCoordsOk) config.series data)
-            , viewAxis xAxis toSvgCoordsX
-            , viewAxis yAxis toSvgCoordsY
+            , viewAxis [ (ViewTick viewTickHtmlSpecial) ] xAxis toSvgCoordsX
+            , viewAxis [] yAxis toSvgCoordsY
             ]
 
 
@@ -173,9 +173,31 @@ viewPlot config data =
 -- View axis
 
 
-viewAxis : AxisProps -> (Coord -> Coord) -> Svg.Svg a
-viewAxis axis toSvgCoords =
+type AxisAttrs a
+    = ViewTick (Coord -> Coord -> Svg.Svg a)
+    | ViewLabel (Float -> Coord -> Svg.Svg a)
+
+
+buildAxisConfig config attrs =
+    case attrs of
+        [] ->
+            config
+
+        attr :: rest ->
+            case attr of
+                ViewTick viewTick ->
+                    buildAxisConfig { config | viewTickHtml = viewTick } rest
+                ViewLabel viewLabel ->
+                    buildAxisConfig { config | viewLabelHtml = viewLabel } rest
+
+
+viewAxis : List (AxisAttrs a) -> AxisProps -> (Coord -> Coord) -> Svg.Svg a
+viewAxis attrs axis toSvgCoords =
     let
+        default = { viewTickHtml = viewTickHtmlDefault, viewLabelHtml = viewLabelHtmlDefault }
+        
+        { viewTickHtml, viewLabelHtml } = buildAxisConfig default attrs
+
         { span, amountOfTicks, lowest, highest } =
             axis
 
@@ -201,10 +223,10 @@ viewAxis axis toSvgCoords =
             toSvgCoords ( highest, 0 )
     in
         Svg.g []
-            [ Svg.g [] (List.map (viewTick axis toSvgCoords) ticks)
+            [ Svg.g [] (List.map (viewTick axis toSvgCoords viewTickHtml) ticks)
             , Svg.g
                 [ Svg.Attributes.transform "translate(0, 5)" ]
-                (List.map (viewLabel axis toSvgCoords) ticks)
+                (List.map (viewLabel axis toSvgCoords viewLabelHtml) ticks)
             , Svg.g []
                 [ Svg.line
                     (toPositionAttr x1 y1 x2 y2)
@@ -217,30 +239,46 @@ viewAxis axis toSvgCoords =
 -- View tick
 
 
-viewTick : AxisProps -> (Coord -> Coord) -> Float -> Svg.Svg a
-viewTick { addSvg, tickHeight } toSvgCoords tick =
+viewTick : AxisProps -> (Coord -> Coord) -> (Coord -> Coord -> Svg.Svg a) -> Float -> Svg.Svg a
+viewTick { addSvg, tickHeight } toSvgCoords viewTickHtml tick =
     let
         -- for x: (v, 0), for y: (0, v)
-        ( x1, y1 ) =
+        positionA =
             toSvgCoords ( tick, 0 )
 
         -- for x: (v, -h), for y: (-h, v)
-        ( x2, y2 ) =
-            addSvg ( x1, y1 ) ( 0, tickHeight )
+        positionB =
+            addSvg positionA ( 0, tickHeight )
     in
-        Svg.g []
-            [ Svg.line
-                (toPositionAttr x1 y1 x2 y2)
-                []
-            ]
+        viewTickHtml positionA positionB
+
+
+viewTickHtmlDefault : Coord -> Coord -> Svg.Svg a
+viewTickHtmlDefault (x1, y1) (x2, y2) =
+    Svg.g []
+        [ Svg.line
+            (toPositionAttr x1 y1 x2 y2)
+            []
+        ]
+
+
+
+viewTickHtmlSpecial : Coord -> Coord -> Svg.Svg a
+viewTickHtmlSpecial (x1, y1) (x2, y2) =
+    Svg.g []
+        [ Svg.line
+            ((toPositionAttr x1 y1 x2 y2) ++ [(Svg.Attributes.style "stroke: red;")] )
+            []
+        ]
+        
 
 
 
 -- View Label
 
 
-viewLabel : AxisProps -> (Coord -> Coord) -> Float -> Svg.Svg a
-viewLabel { addSvg, tickHeight } toSvgCoords tick =
+viewLabel : AxisProps -> (Coord -> Coord) -> (Float -> Coord -> Svg.Svg a) -> Float -> Svg.Svg a
+viewLabel { addSvg, tickHeight } toSvgCoords viewLabelHtml tick =
     let
         -- for x: (v, 0), for y: (0, v)
         ( x0, y0 ) =
@@ -250,13 +288,18 @@ viewLabel { addSvg, tickHeight } toSvgCoords tick =
         ( x, y ) =
             addSvg ( x0, y0 ) ( 0, 20 )
     in
-        Svg.text'
-            [ Svg.Attributes.x (toString x)
-            , Svg.Attributes.y (toString y)
-            , Svg.Attributes.style "stroke: #757575; text-anchor: middle;"
-            ]
-            [ Svg.tspan [] [ Svg.text (toString (round tick)) ] ]
+        viewLabelHtml tick (x, y)
 
+
+viewLabelHtmlDefault : Float -> Coord -> Svg.Svg a
+viewLabelHtmlDefault tick (x, y) =
+    Svg.text'
+        [ Svg.Attributes.x (toString x)
+        , Svg.Attributes.y (toString y)
+        , Svg.Attributes.style "stroke: #757575; text-anchor: middle;"
+        ]
+        [ Svg.tspan [] [ Svg.text (toString (round tick)) ] ]
+        
 
 
 -- Make line coords
