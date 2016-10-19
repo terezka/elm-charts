@@ -31,11 +31,8 @@ type alias SerieConfig data =
     }
 
 
-type alias PlotConfig data =
-    { dimensions : ( Int, Int )
-    , tickHeight : Int
-    , series : List (SerieConfig data)
-    }
+type alias PlotConfig =
+    { dimensions : ( Int, Int ) }
 
 
 type alias Coord =
@@ -47,6 +44,18 @@ type Axis
     | YAxis
 
 
+{--
+
+type alias Tranformator =
+    Coord -> Coord
+
+
+type Element
+    = Axis Orientation (Tranformator -> Calculations -> AxisAttrs -> Svg.Svg a)
+    | LineSerie (Tranformator -> Calculations -> SerieAttrs -> Svg.Svg a)
+    | AreaSerie (Tranformator -> Calculations -> SerieAttrs -> Svg.Svg a)
+
+--}
 
 -- TODO: Move to config
 
@@ -63,16 +72,14 @@ type alias AxisProps =
     { axis : Axis
     , lowest : Float
     , highest : Float
-    , amountOfTicks : Int
-    , tickHeight : Float
     , span : Float
     , toSvg : Float -> Float
     , addSvg : Coord -> Coord -> Coord
     }
 
 
-getAxisProps : Axis -> PlotConfig data -> List data -> AxisProps
-getAxisProps axis { dimensions, series } data =
+getAxisProps : Axis -> PlotConfig -> List (SerieConfig data, data) -> AxisProps
+getAxisProps axis { dimensions } series =
     let
         getValue =
             case axis of
@@ -83,7 +90,7 @@ getAxisProps axis { dimensions, series } data =
                     snd
 
         values =
-            List.map2 .toCoords series data
+            List.map (\(config, data) -> config.toCoords data) series
                 |> List.concat
                 |> List.map getValue
 
@@ -102,13 +109,7 @@ getAxisProps axis { dimensions, series } data =
         origin =
             abs (getValue edgeValues) * delta
 
-        toSvg =
-            case axis of
-                XAxis ->
-                    (\x -> origin + delta * x)
-
-                YAxis ->
-                    (\y -> origin - delta * y)
+        toSvg = (\a -> origin + delta * a)
 
         addSvg =
             case axis of
@@ -117,57 +118,61 @@ getAxisProps axis { dimensions, series } data =
 
                 YAxis ->
                     (\( y, x ) ( dx, dy ) -> ( y - dy, x + dx ))
-
-        amountOfTicks =
-            getValue totalTicks
     in
         AxisProps
             axis
             lowestValue
             highestValue
-            amountOfTicks
-            7
             span
             toSvg
             addSvg
 
 
+flipToY : Coord -> Coord
+flipToY (x, y) =
+    (y, x)
+
 
 -- View plot
 
 
-viewPlot : PlotConfig data -> List data -> Html msg
-viewPlot config data =
+type alias Calculations data =
+    { xAxis : AxisProps
+    , yAxis : AxisProps
+    , toSvgCoordsX : Coord -> Coord
+    , toSvgCoordsY : Coord -> Coord
+    , series : List (SerieConfig data, data)
+    }
+
+
+viewPlot : (PlotConfig -> Calculations data -> Html msg) -> PlotConfig -> List (SerieConfig data, data) -> Html msg
+viewPlot customView config series =
     let
         xAxis =
-            getAxisProps XAxis config data
+            getAxisProps XAxis config series
 
         yAxis =
-            getAxisProps YAxis config data
+            getAxisProps YAxis config series
 
-        toSvgCoordsX =
-            (\( x, y ) -> ( xAxis.toSvg x, yAxis.toSvg y ))
+        toSvgCoords =
+            (\( x, y ) -> ( xAxis.toSvg x, yAxis.toSvg -y ))
 
-        toSvgCoordsY =
-            (\( y, x ) -> ( xAxis.toSvg x, yAxis.toSvg y ))
-
-        toSvgCoordsOk =
-            toSvgCoordsX
-
-        -- The yAxis is switched, so cannot be used
-        ( width, height ) =
-            config.dimensions
+        calculations =
+            Calculations xAxis yAxis toSvgCoords (toSvgCoords << flipToY) series
     in
-        Svg.svg
-            [ Svg.Attributes.height (toString height)
-            , Svg.Attributes.width (toString width)
-            , style "padding: 50px;"
-            ]
-            [ Svg.g [] (List.map2 (viewSeries toSvgCoordsOk) config.series data)
-            , viewAxis [ (ViewTick viewTickHtmlSpecial) ] xAxis toSvgCoordsX
-            , viewAxis [] yAxis toSvgCoordsY
-            ]
+        customView config calculations
 
+
+-- View frame 
+
+viewPlotFrame : (Int, Int) -> List (Svg.Svg msg) -> Svg.Svg msg
+viewPlotFrame ( width, height ) children =
+    Svg.svg
+        [ Svg.Attributes.height (toString height)
+        , Svg.Attributes.width (toString width)
+        , style "padding: 50px;"
+        ]
+        children
 
 
 -- View axis
@@ -191,15 +196,16 @@ buildAxisConfig config attrs =
                     buildAxisConfig { config | viewLabelHtml = viewLabel } rest
 
 
-viewAxis : List (AxisAttrs a) -> AxisProps -> (Coord -> Coord) -> Svg.Svg a
-viewAxis attrs axis toSvgCoords =
+viewAxis : (Coord -> Coord) -> List (AxisAttrs a) -> AxisProps -> Svg.Svg a
+viewAxis toSvgCoords attrs axis =
     let
         default = { viewTickHtml = viewTickHtmlDefault, viewLabelHtml = viewLabelHtmlDefault }
         
         { viewTickHtml, viewLabelHtml } = buildAxisConfig default attrs
 
-        { span, amountOfTicks, lowest, highest } =
-            axis
+        { span, lowest, highest } = axis
+
+        amountOfTicks = 10
 
         delta =
             span / (toFloat amountOfTicks)
@@ -240,7 +246,7 @@ viewAxis attrs axis toSvgCoords =
 
 
 viewTick : AxisProps -> (Coord -> Coord) -> (Coord -> Coord -> Svg.Svg a) -> Float -> Svg.Svg a
-viewTick { addSvg, tickHeight } toSvgCoords viewTickHtml tick =
+viewTick { addSvg } toSvgCoords viewTickHtml tick =
     let
         -- for x: (v, 0), for y: (0, v)
         positionA =
@@ -248,7 +254,7 @@ viewTick { addSvg, tickHeight } toSvgCoords viewTickHtml tick =
 
         -- for x: (v, -h), for y: (-h, v)
         positionB =
-            addSvg positionA ( 0, tickHeight )
+            addSvg positionA ( 0, 7 )
     in
         viewTickHtml positionA positionB
 
@@ -263,14 +269,9 @@ viewTickHtmlDefault (x1, y1) (x2, y2) =
 
 
 
-viewTickHtmlSpecial : Coord -> Coord -> Svg.Svg a
-viewTickHtmlSpecial (x1, y1) (x2, y2) =
-    Svg.g []
-        [ Svg.line
-            ((toPositionAttr x1 y1 x2 y2) ++ [(Svg.Attributes.style "stroke: red;")] )
-            []
-        ]
-        
+customTick : (Coord -> Coord -> Svg.Svg a) -> AxisAttrs a
+customTick customTickView =
+    ViewTick customTickView
 
 
 
@@ -278,7 +279,7 @@ viewTickHtmlSpecial (x1, y1) (x2, y2) =
 
 
 viewLabel : AxisProps -> (Coord -> Coord) -> (Float -> Coord -> Svg.Svg a) -> Float -> Svg.Svg a
-viewLabel { addSvg, tickHeight } toSvgCoords viewLabelHtml tick =
+viewLabel { addSvg } toSvgCoords viewLabelHtml tick =
     let
         -- for x: (v, 0), for y: (0, v)
         ( x0, y0 ) =
@@ -319,22 +320,22 @@ toPositionAttr x1 y1 x2 y2 =
 -- VIEW SERIES
 
 
-viewSeries : (Coord -> Coord) -> SerieConfig data -> data -> Svg.Svg a
-viewSeries toSvgCoords config data =
+viewSeries : (Coord -> Coord) -> (SerieConfig data, data) -> Svg.Svg a
+viewSeries toSvgCoords (config, data) =
     case config.serieType of
         Line ->
-            viewSeriesLine toSvgCoords config data
+            Svg.g [] [(viewSeriesLine toSvgCoords (config, data))]
 
         Area ->
-            viewSeriesArea toSvgCoords config data
+            Svg.g [] [(viewSeriesArea toSvgCoords (config, data))]
 
 
 
 {- Draw area series -}
 
 
-viewSeriesArea : (Coord -> Coord) -> SerieConfig data -> data -> Svg.Svg a
-viewSeriesArea toSvgCoords config data =
+viewSeriesArea : (Coord -> Coord) -> (SerieConfig data, data) -> Svg.Svg a
+viewSeriesArea toSvgCoords (config, data) =
     let
         allCoords =
             config.toCoords data
@@ -375,8 +376,8 @@ viewSeriesArea toSvgCoords config data =
 {- Draw line series -}
 
 
-viewSeriesLine : (Coord -> Coord) -> SerieConfig data -> data -> Svg.Svg a
-viewSeriesLine toSvgCoords config data =
+viewSeriesLine : (Coord -> Coord) -> (SerieConfig data, data) -> Svg.Svg a
+viewSeriesLine toSvgCoords (config, data) =
     let
         svgCoords =
             List.map toSvgCoords (config.toCoords data)
