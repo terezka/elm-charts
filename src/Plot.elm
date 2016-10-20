@@ -28,6 +28,7 @@ type Element msg
     | Line LineConfig
 
 
+-- Plot config
 
 type alias PlotConfig =
     { dimensions : (Int, Int)
@@ -39,6 +40,32 @@ type PlotAttr
     = Dimensions (Int, Int)
     | Id String
 
+
+defaultPlotConfig =
+    { dimensions = (800, 500)
+    , id = "elm-plot"
+    }
+
+
+dimensions dimensions =
+    Dimensions dimensions
+
+
+id id =
+    Id id
+
+
+toPlotConfig : PlotAttr -> PlotConfig -> PlotConfig
+toPlotConfig attr config =
+    case attr of
+        Dimensions dimensions -> 
+            { config | dimensions = dimensions }
+
+        Id id ->  -- TODO: Should eventually not be optional
+            { config | id = id }
+
+
+-- Axis config
 
 type Orientation
     = X
@@ -59,15 +86,54 @@ type AxisAttr msg
     | ViewLabel (Point -> Float -> Svg.Svg msg)
 
 
-type alias AreaConfig =
-    { fill : String
-    , stroke : String
-    , points : List Point
+defaultAxisConfig =
+    { amountOfTicks = 10
+    , viewTick = viewTickDefault
+    , viewLabel = viewLabelDefault
+    , orientation = X
     }
 
 
-type alias LineConfig =
-    { stroke : String
+amountOfTicks amount =
+    AmountOfTicks amount
+
+
+viewTick view =
+    ViewTick view
+
+
+viewLabel view =
+    ViewLabel view
+
+
+toAxisConfig : AxisAttr msg -> AxisConfig msg -> AxisConfig msg
+toAxisConfig attr config =
+    case attr of
+        AmountOfTicks amountOfTicks ->
+            { config | amountOfTicks = amountOfTicks }
+
+        ViewTick viewTick ->
+            { config | viewTick = viewTick }
+
+        ViewLabel viewLabel ->
+            { config | viewLabel = viewLabel }
+
+
+xAxis : List (AxisAttr msg) -> Element msg
+xAxis attrs =
+    Axis (List.foldr toAxisConfig defaultAxisConfig attrs)
+
+
+yAxis : List (AxisAttr msg) -> Element msg
+yAxis attrs =
+    Axis (List.foldr toAxisConfig { defaultAxisConfig | orientation = Y } attrs)
+
+
+-- Serie config
+
+type alias AreaConfig =
+    { fill : String
+    , stroke : String
     , points : List Point
     }
 
@@ -77,43 +143,70 @@ type SerieAttr
     | Fill String
 
 
+stroke stroke =
+    Stroke stroke
 
--- VIEW
+
+fill fill =
+    Fill fill
 
 
-
-defaultPlotConfig =
-    { dimensions = (800, 500)
-    , id = "elm-plot"
+defaultAreaConfig =
+    { fill = "#444444"
+    , stroke = "#000000"
+    , points = []
     }
 
 
-dimensions dimensions =
-    Dimensions dimensions
-
-
-buildPlotConfig : PlotConfig -> List PlotAttr -> PlotConfig
-buildPlotConfig config attrs =
-    case attrs of
-        [] -> config
-
-        attr :: rest ->
-            case attr of
-                Dimensions dimensions -> 
-                    buildPlotConfig { config | dimensions = dimensions } rest
-
-                Id id ->  -- TODO: Should eventually not be optional
-                    buildPlotConfig { config | id = id } rest
-
-
-toPlotConfig : PlotAttr -> PlotConfig -> PlotConfig
-toPlotConfig attr config =
+toAreaConfig : SerieAttr -> AreaConfig -> AreaConfig
+toAreaConfig attr config =
     case attr of
-        Dimensions dimensions -> 
-            { config | dimensions = dimensions }
+        Stroke stroke ->
+            { config | stroke = stroke }
 
-        Id id ->  -- TODO: Should eventually not be optional
-            { config | id = id }
+        Fill fill ->
+            { config | fill = fill }
+
+
+area : List SerieAttr -> List Point -> Element msg
+area attrs points =
+    let 
+        config = List.foldr toAreaConfig defaultAreaConfig attrs
+    in
+        Area { config | points = points }
+
+
+type alias LineConfig =
+    { stroke : String
+    , points : List Point
+    }
+
+
+defaultLineConfig =
+    { stroke = "#444444"
+    , points = []
+    }
+
+
+toLineConfig : SerieAttr -> LineConfig -> LineConfig
+toLineConfig attr config =
+    case attr of
+        Stroke stroke ->
+            { config | stroke = stroke }
+
+        _ ->
+            config
+
+
+line : List SerieAttr -> List Point -> Element msg
+line attrs points =
+    let 
+        config = List.foldr toLineConfig defaultLineConfig attrs
+    in
+        Line { config | points = points }
+
+
+-- VIEW
 
 
 collectPoints : Element msg -> List Point -> List Point
@@ -263,48 +356,6 @@ viewFrame config elements =
 -- View axis
 
 
-amountOfTicks amount =
-    AmountOfTicks amount
-
-
-viewTick view =
-    ViewTick view
-
-
-viewLabel view =
-    ViewLabel view
-
-
-defaultAxisConfig =
-    { amountOfTicks = 10
-    , viewTick = viewTickDefault
-    , viewLabel = viewLabelDefault
-    , orientation = X
-    }
-
-
-toAxisConfig : AxisAttr msg -> AxisConfig msg -> AxisConfig msg
-toAxisConfig attr config =
-    case attr of
-        AmountOfTicks amountOfTicks ->
-            { config | amountOfTicks = amountOfTicks }
-
-        ViewTick viewTick ->
-            { config | viewTick = viewTick }
-
-        ViewLabel viewLabel ->
-            { config | viewLabel = viewLabel }
-
-
-xAxis : List (AxisAttr msg) -> Element msg
-xAxis attrs =
-    Axis (List.foldr toAxisConfig defaultAxisConfig attrs)
-
-
-yAxis : List (AxisAttr msg) -> Element msg
-yAxis attrs =
-    Axis (List.foldr toAxisConfig { defaultAxisConfig | orientation = Y } attrs)
-
 
 viewAxis : (Point -> Point) -> AxisCalulation -> AxisConfig msg -> Svg.Svg msg
 viewAxis toSvgCoords calculations { amountOfTicks, viewTick, viewLabel } =
@@ -378,7 +429,6 @@ viewTickDefault (x1, y1) (x2, y2) =
         ]
 
 
-
 -- View Label
 
 
@@ -424,39 +474,6 @@ toPositionAttr x1 y1 x2 y2 =
 -- VIEW SERIES
 
 
-stroke stroke =
-    Stroke stroke
-
-
-fill fill =
-    Fill fill
-
-
-defaultAreaConfig =
-    { fill = "#444444"
-    , stroke = "#000000"
-    , points = []
-    }
-
-
-toAreaConfig : SerieAttr -> AreaConfig -> AreaConfig
-toAreaConfig attr config =
-    case attr of
-        Stroke stroke ->
-            { config | stroke = stroke }
-
-        Fill fill ->
-            { config | fill = fill }
-
-
-area : List SerieAttr -> List Point -> Element msg
-area attrs points =
-    let 
-        config = List.foldr toAreaConfig defaultAreaConfig attrs
-    in
-        Area { config | points = points }
-
-
 viewArea : (Point -> Point) -> AreaConfig -> Svg.Svg a
 viewArea toSvgCoords { points, stroke, fill } =
     let
@@ -492,31 +509,6 @@ viewArea toSvgCoords { points, stroke, fill } =
             []
 
 
-defaultLineConfig =
-    { stroke = "#444444"
-    , points = []
-    }
-
-
-toLineConfig : SerieAttr -> LineConfig -> LineConfig
-toLineConfig attr config =
-    case attr of
-        Stroke stroke ->
-            { config | stroke = stroke }
-
-        _ ->
-            config
-
-
-line : List SerieAttr -> List Point -> Element msg
-line attrs points =
-    let 
-        config = List.foldr toLineConfig defaultLineConfig attrs
-    in
-        Line { config | points = points }
-
-
-
 viewLine : (Point -> Point) -> LineConfig -> Svg.Svg a
 viewLine toSvgCoords { points, stroke } =
     let
@@ -541,4 +533,3 @@ viewLine toSvgCoords { points, stroke } =
 flipToY : Point -> Point
 flipToY (x, y) =
     (y, x)
-    
