@@ -13,7 +13,7 @@ Plot.plot
     [ Plot.area [ Plot.stroke "cornflowerblue", Plot.fill "#ccdeff" ] areaData
     , Plot.line [ Plot.stroke "mediumvioletred" ] lineData
     , Plot.xAxis [ Plot.viewTick myCustomTick ]
-    , Plot.yAxis []
+    , Plot.yAxis [ Plot.amountOfTicks 5 ]
     ]
 ```
 
