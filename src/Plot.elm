@@ -1,8 +1,11 @@
 module Plot exposing (..)
 
 import Html exposing (Html, button, div, text)
+import Html.Attributes exposing (id)
+import Html.Events exposing (on, onMouseOut)
+import Json.Decode as Json exposing ((:=))
 import Svg exposing (g)
-import Svg.Attributes exposing (height, width, style, d)
+import Svg.Attributes exposing (height, width, d, style)
 import String
 import Debug
 import Helpers
@@ -17,6 +20,9 @@ import Helpers
 
 type alias Point = (Float, Float)
 
+
+type alias Position =
+    { x : Int, y : Int }
 
 
 -- CONFIGS
@@ -119,12 +125,12 @@ toAxisConfig attr config =
             { config | viewLabel = viewLabel }
 
 
-xAxis : List (AxisAttr msg) -> Element msg
+xAxis : List (AxisAttr Msg) -> Element Msg
 xAxis attrs =
     Axis (List.foldr toAxisConfig defaultAxisConfig attrs)
 
 
-yAxis : List (AxisAttr msg) -> Element msg
+yAxis : List (AxisAttr Msg) -> Element Msg
 yAxis attrs =
     Axis (List.foldr toAxisConfig { defaultAxisConfig | orientation = Y } attrs)
 
@@ -168,7 +174,7 @@ toAreaConfig attr config =
             { config | fill = fill }
 
 
-area : List SerieAttr -> List Point -> Element msg
+area : List SerieAttr -> List Point -> Element Msg
 area attrs points =
     let 
         config = List.foldr toAreaConfig defaultAreaConfig attrs
@@ -198,7 +204,7 @@ toLineConfig attr config =
             config
 
 
-line : List SerieAttr -> List Point -> Element msg
+line : List SerieAttr -> List Point -> Element Msg
 line attrs points =
     let 
         config = List.foldr toLineConfig defaultLineConfig attrs
@@ -206,10 +212,37 @@ line attrs points =
         Line { config | points = points }
 
 
+
+-- STATE
+
+
+type State =
+    State (Maybe Position)
+
+
+init =
+    State Nothing
+
+
+type Msg
+    = Hover Position
+    | Unhover
+
+
+update : Msg -> State -> State
+update msg (State state) =
+    case msg of
+        Hover coords ->
+            State (Just coords)
+
+        Unhover ->
+            State Nothing
+
+
 -- VIEW
 
 
-collectPoints : Element msg -> List Point -> List Point
+collectPoints : Element Msg -> List Point -> List Point
 collectPoints element points =
     case element of
         Area config -> 
@@ -223,8 +256,8 @@ collectPoints element points =
             
 
 
-plot : List PlotAttr -> List (Element msg) -> Svg.Svg msg
-plot attrs elements =
+plot : State -> List PlotAttr -> List (Element Msg) -> Svg.Svg Msg
+plot state attrs elements =
     let
         plotConfig =
             List.foldr toPlotConfig defaultPlotConfig attrs
@@ -244,7 +277,7 @@ plot attrs elements =
         elementViews =
             List.foldl (viewElements xAxis yAxis toSvgCoords) [] elements
     in
-        viewFrame plotConfig elementViews
+        viewFrame plotConfig state elementViews
 
 
 
@@ -302,7 +335,7 @@ calculateAxis (width, height) orientation points =
 -- Elements
 
 
-viewElements : AxisCalulation -> AxisCalulation -> (Point -> Point) -> Element msg -> List (Svg.Svg msg) -> List (Svg.Svg msg)
+viewElements : AxisCalulation -> AxisCalulation -> (Point -> Point) -> Element Msg -> List (Svg.Svg Msg) -> List (Svg.Svg Msg)
 viewElements xAxis yAxis toSvgCoords element views =
     case element of
         Area config -> 
@@ -337,19 +370,44 @@ viewElements xAxis yAxis toSvgCoords element views =
 
 -- View frame 
 
+getPosition : Json.Decoder Position
+getPosition =
+    Json.object2
+        (\x y -> Position x y) 
+        ("offsetX" := Json.int)
+        ("offsetY" := Json.int)
 
-viewFrame : PlotConfig -> List (Svg.Svg msg) -> Svg.Svg msg
-viewFrame config elements =
+
+viewFrame : PlotConfig -> State -> List (Svg.Svg Msg) -> Svg.Svg Msg
+viewFrame config (State state) elements =
     let 
         ( width, height ) = config.dimensions
+
+        tooltip =
+            case state of
+                Nothing ->
+                    Html.div [] []
+
+                Just { x, y } ->
+                    Html.div
+                        [ Html.Attributes.style
+                            [ ("left", (toString x) ++ "px"), ("top", (toString y) ++ "px"), ("position", "absolute") ]
+                        ]
+                        [ Html.text "here" ]
     in
-        Svg.svg
-            [ Svg.Attributes.height (toString height)
-            , Svg.Attributes.width (toString width)
-            , Svg.Attributes.id config.id
-            , style "padding: 50px;"
+        Html.div
+            [ Html.Attributes.id config.id
+            , Html.Attributes.style [ ("margin", "50px"), ("position", "absolute") ]
+            , Html.Events.onMouseOut Unhover 
+            , on "mousemove" (Json.map Hover getPosition)
             ]
-            elements
+            [ Svg.svg
+                [ Svg.Attributes.height (toString height)
+                , Svg.Attributes.width (toString width)
+                ]
+                elements
+            , tooltip
+            ]
 
 
 
@@ -357,7 +415,7 @@ viewFrame config elements =
 
 
 
-viewAxis : (Point -> Point) -> AxisCalulation -> AxisConfig msg -> Svg.Svg msg
+viewAxis : (Point -> Point) -> AxisCalulation -> AxisConfig Msg -> Svg.Svg Msg
 viewAxis toSvgCoords calculations { amountOfTicks, viewTick, viewLabel } =
     let
         { span, lowest, highest } = calculations
@@ -406,7 +464,7 @@ viewAxis toSvgCoords calculations { amountOfTicks, viewTick, viewLabel } =
 -- View tick
 
 
-viewTickWrap : (Point -> Point) -> AxisCalulation -> (Point -> Point -> Svg.Svg a) -> Float -> Svg.Svg a
+viewTickWrap : (Point -> Point) -> AxisCalulation -> (Point -> Point -> Svg.Svg Msg) -> Float -> Svg.Svg Msg
 viewTickWrap toSvgCoords { addSvg } viewTick tick =
     let
         -- for x: (v, 0), for y: (0, v)
@@ -420,7 +478,7 @@ viewTickWrap toSvgCoords { addSvg } viewTick tick =
         viewTick positionA positionB
 
 
-viewTickDefault : Point -> Point -> Svg.Svg a
+viewTickDefault : Point -> Point -> Svg.Svg Msg
 viewTickDefault (x1, y1) (x2, y2) =
     Svg.g []
         [ Svg.line
@@ -432,7 +490,7 @@ viewTickDefault (x1, y1) (x2, y2) =
 -- View Label
 
 
-viewLabelWrap : (Point -> Point) -> AxisCalulation -> (Point -> Float -> Svg.Svg a) -> Float -> Svg.Svg a
+viewLabelWrap : (Point -> Point) -> AxisCalulation -> (Point -> Float -> Svg.Svg Msg) -> Float -> Svg.Svg Msg
 viewLabelWrap toSvgCoords { addSvg } viewLabel tick =
     let
         -- for x: (v, 0), for y: (0, v)
@@ -460,7 +518,7 @@ viewLabelDefault (x, y) tick =
 -- Make line coords
 
 
-toPositionAttr : Float -> Float -> Float -> Float -> List (Svg.Attribute a)
+toPositionAttr : Float -> Float -> Float -> Float -> List (Svg.Attribute Msg)
 toPositionAttr x1 y1 x2 y2 =
     [ Svg.Attributes.style "stroke: #757575;"
     , Svg.Attributes.x1 (toString x1)

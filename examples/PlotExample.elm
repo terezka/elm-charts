@@ -4,7 +4,7 @@ import Plot
 import Svg
 import Svg.Attributes
 import Html exposing (Html)
-
+import Html.App as App
 
 
 myCustomTick : Plot.Point -> Plot.Point -> Svg.Svg a
@@ -29,12 +29,21 @@ lineData =
     [ (-50, 34), (-30, 32), (-20, 5), (2, -46), (10, -99), (30, -136), (90, -67), (120, 10) ]
 
 
-main =
+view : Plot.State -> Html Plot.Msg
+view state =
     Plot.plot
+        state
         [ Plot.dimensions (800, 500) ]
         [ Plot.area [ Plot.stroke "cornflowerblue", Plot.fill "#ccdeff" ] areaData
         , Plot.line [ Plot.stroke "mediumvioletred" ] lineData
         , Plot.xAxis [ Plot.viewTick myCustomTick ]
         , Plot.yAxis [ Plot.amountOfTicks 5 ]
         ]
-        
+   
+
+main =
+  App.beginnerProgram
+    { model = Plot.init
+    , update = Plot.update
+    , view = view
+    }     
