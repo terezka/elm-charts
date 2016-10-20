@@ -106,31 +106,38 @@ buildPlotConfig config attrs =
                     buildPlotConfig { config | id = id } rest
 
 
-collectPoints : List Point -> List (Element msg) -> List Point
-collectPoints points elements =
-    case elements of
-        [] -> points
+toPlotConfig : PlotAttr -> PlotConfig -> PlotConfig
+toPlotConfig attr config =
+    case attr of
+        Dimensions dimensions -> 
+            { config | dimensions = dimensions }
 
-        element :: rest ->
-            case element of
-                Area config -> 
-                    collectPoints (points ++ config.points) rest
+        Id id ->  -- TODO: Should eventually not be optional
+            { config | id = id }
 
-                Line config -> 
-                    collectPoints (points ++ config.points) rest
 
-                _ ->
-                    collectPoints points rest
+collectPoints : Element msg -> List Point -> List Point
+collectPoints element points =
+    case element of
+        Area config -> 
+            points ++ config.points
+
+        Line config -> 
+            points ++ config.points
+
+        _ ->
+            points
+            
 
 
 plot : List PlotAttr -> List (Element msg) -> Svg.Svg msg
-plot attrs elementConfigs =
+plot attrs elements =
     let
         plotConfig =
-            buildPlotConfig defaultPlotConfig attrs
+            List.foldr toPlotConfig defaultPlotConfig attrs
 
         points =
-            collectPoints [] elementConfigs
+            List.foldr collectPoints [] elements
 
         xAxis =
             calculateAxis plotConfig.dimensions X points
@@ -141,10 +148,10 @@ plot attrs elementConfigs =
         toSvgCoords (x, y) =
             ( xAxis.toSvg x, yAxis.toSvg -y )
 
-        elements =
-            viewElements xAxis yAxis toSvgCoords elementConfigs []
+        elementViews =
+            List.foldl (viewElements xAxis yAxis toSvgCoords) [] elements
     in
-        viewFrame plotConfig elements
+        viewFrame plotConfig elementViews
 
 
 
@@ -202,44 +209,37 @@ calculateAxis (width, height) orientation points =
 -- Elements
 
 
-viewElements : AxisCalulation -> AxisCalulation -> (Point -> Point) -> List (Element msg) -> List (Svg.Svg msg) -> List (Svg.Svg msg)
-viewElements xAxis yAxis toSvgCoords elements views =
-    let
-        nextViewElements =
-            viewElements xAxis yAxis toSvgCoords
-    in
-        case elements of
-            [] -> views
+viewElements : AxisCalulation -> AxisCalulation -> (Point -> Point) -> Element msg -> List (Svg.Svg msg) -> List (Svg.Svg msg)
+viewElements xAxis yAxis toSvgCoords element views =
+    case element of
+        Area config -> 
+            let
+                view = viewArea toSvgCoords config
+            in
+                views ++ [view]
 
-            element :: rest ->
-                case element of
-                    Area config -> 
-                        let
-                            view = viewArea toSvgCoords config
-                        in
-                            nextViewElements rest (views ++ [view])
+        Line config -> 
+            let
+                view = viewLine toSvgCoords config
+            in
+                views ++ [view]
 
-                    Line config -> 
-                        let
-                            view = viewLine toSvgCoords config
-                        in
-                            nextViewElements rest (views ++ [view])
+        Axis config ->
+            let
+                calculations =
+                    case config.orientation of
+                        X -> xAxis
+                        Y -> yAxis
 
-                    Axis config ->
-                        let
-                            calculations =
-                                case config.orientation of
-                                    X -> xAxis
-                                    Y -> yAxis
+                toSvgCoordsAxis =
+                    case config.orientation of
+                        X -> toSvgCoords
+                        Y -> toSvgCoords << flipToY
 
-                            toSvgCoordsAxis =
-                                case config.orientation of
-                                    X -> toSvgCoords
-                                    Y -> toSvgCoords << flipToY
-
-                            view = viewAxis toSvgCoordsAxis calculations config
-                        in
-                            nextViewElements rest (views ++ [view])
+                view = viewAxis toSvgCoordsAxis calculations config
+            in
+                views ++ [view]
+                
 
 
 -- View frame 
@@ -283,33 +283,27 @@ defaultAxisConfig =
     }
 
 
-buildAxisConfig : AxisConfig msg -> List (AxisAttr msg) -> AxisConfig msg
-buildAxisConfig config attrs =
-    case attrs of
-        [] ->
-            config
+toAxisConfig : AxisAttr msg -> AxisConfig msg -> AxisConfig msg
+toAxisConfig attr config =
+    case attr of
+        AmountOfTicks amountOfTicks ->
+            { config | amountOfTicks = amountOfTicks }
 
-        attr :: rest ->
-            case attr of
-                AmountOfTicks amountOfTicks ->
-                    buildAxisConfig { config | amountOfTicks = amountOfTicks } rest
+        ViewTick viewTick ->
+            { config | viewTick = viewTick }
 
-                ViewTick viewTick ->
-                    buildAxisConfig { config | viewTick = viewTick } rest
-
-                ViewLabel viewLabel ->
-                    buildAxisConfig { config | viewLabel = viewLabel } rest
-
+        ViewLabel viewLabel ->
+            { config | viewLabel = viewLabel }
 
 
 xAxis : List (AxisAttr msg) -> Element msg
 xAxis attrs =
-    Axis (buildAxisConfig defaultAxisConfig attrs)
+    Axis (List.foldr toAxisConfig defaultAxisConfig attrs)
 
 
 yAxis : List (AxisAttr msg) -> Element msg
 yAxis attrs =
-    Axis (buildAxisConfig { defaultAxisConfig | orientation = Y } attrs)
+    Axis (List.foldr toAxisConfig { defaultAxisConfig | orientation = Y } attrs)
 
 
 viewAxis : (Point -> Point) -> AxisCalulation -> AxisConfig msg -> Svg.Svg msg
@@ -445,25 +439,20 @@ defaultAreaConfig =
     }
 
 
-buildAreaConfig : AreaConfig -> List SerieAttr -> AreaConfig
-buildAreaConfig config attrs =
-    case attrs of
-        [] ->
-            config
+toAreaConfig : SerieAttr -> AreaConfig -> AreaConfig
+toAreaConfig attr config =
+    case attr of
+        Stroke stroke ->
+            { config | stroke = stroke }
 
-        attr :: rest ->
-            case attr of
-                Stroke stroke ->
-                    buildAreaConfig { config | stroke = stroke } rest
-
-                Fill fill ->
-                    buildAreaConfig { config | fill = fill } rest
+        Fill fill ->
+            { config | fill = fill }
 
 
 area : List SerieAttr -> List Point -> Element msg
 area attrs points =
     let 
-        config = buildAreaConfig defaultAreaConfig attrs
+        config = List.foldr toAreaConfig defaultAreaConfig attrs
     in
         Area { config | points = points }
 
@@ -509,25 +498,20 @@ defaultLineConfig =
     }
 
 
-buildLineConfig : LineConfig -> List SerieAttr -> LineConfig
-buildLineConfig config attrs =
-    case attrs of
-        [] ->
+toLineConfig : SerieAttr -> LineConfig -> LineConfig
+toLineConfig attr config =
+    case attr of
+        Stroke stroke ->
+            { config | stroke = stroke }
+
+        _ ->
             config
-
-        attr :: rest ->
-            case attr of
-                Stroke stroke ->
-                    buildLineConfig { config | stroke = stroke } rest
-
-                Fill _ ->
-                    buildLineConfig config rest
 
 
 line : List SerieAttr -> List Point -> Element msg
 line attrs points =
     let 
-        config = buildLineConfig defaultLineConfig attrs
+        config = List.foldr toLineConfig defaultLineConfig attrs
     in
         Line { config | points = points }
 
@@ -557,3 +541,4 @@ viewLine toSvgCoords { points, stroke } =
 flipToY : Point -> Point
 flipToY (x, y) =
     (y, x)
+    
