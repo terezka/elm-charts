@@ -22,7 +22,7 @@ type alias Point = (Float, Float)
 -- CONFIGS
 
 
-type ElementConfig msg
+type Element msg
     = Axis (AxisConfig msg)
     | Area AreaConfig
     | Line LineConfig
@@ -106,7 +106,7 @@ buildPlotConfig config attrs =
                     buildPlotConfig { config | id = id } rest
 
 
-collectPoints : List Point -> List (ElementConfig msg) -> List Point
+collectPoints : List Point -> List (Element msg) -> List Point
 collectPoints points elements =
     case elements of
         [] -> points
@@ -123,7 +123,7 @@ collectPoints points elements =
                     collectPoints points rest
 
 
-plot : List PlotAttr -> List (ElementConfig msg) -> Svg.Svg msg
+plot : List PlotAttr -> List (Element msg) -> Svg.Svg msg
 plot attrs elementConfigs =
     let
         plotConfig =
@@ -202,7 +202,7 @@ calculateAxis (width, height) orientation points =
 -- Elements
 
 
-viewElements : AxisCalulation -> AxisCalulation -> (Point -> Point) -> List (ElementConfig msg) -> List (Svg.Svg msg) -> List (Svg.Svg msg)
+viewElements : AxisCalulation -> AxisCalulation -> (Point -> Point) -> List (Element msg) -> List (Svg.Svg msg) -> List (Svg.Svg msg)
 viewElements xAxis yAxis toSvgCoords elements views =
     let
         nextViewElements =
@@ -294,12 +294,12 @@ buildAxisConfig config attrs =
 
 
 
-xAxis : List (AxisAttr msg) -> ElementConfig msg
+xAxis : List (AxisAttr msg) -> Element msg
 xAxis attrs =
     Axis (buildAxisConfig defaultAxisConfig attrs)
 
 
-yAxis : List (AxisAttr msg) -> ElementConfig msg
+yAxis : List (AxisAttr msg) -> Element msg
 yAxis attrs =
     Axis (buildAxisConfig { defaultAxisConfig | orientation = Y } attrs)
 
@@ -452,7 +452,7 @@ buildAreaConfig config attrs =
                     buildAreaConfig { config | fill = fill } rest
 
 
-area : List SerieAttr -> List Point -> ElementConfig msg
+area : List SerieAttr -> List Point -> Element msg
 area attrs points =
     let 
         config = buildAreaConfig defaultAreaConfig attrs
@@ -516,7 +516,7 @@ buildLineConfig config attrs =
                     buildLineConfig config rest
 
 
-line : List SerieAttr -> List Point -> ElementConfig msg
+line : List SerieAttr -> List Point -> Element msg
 line attrs points =
     let 
         config = buildLineConfig defaultLineConfig attrs
