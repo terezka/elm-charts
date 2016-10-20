@@ -263,8 +263,16 @@ viewFrame config elements =
 -- View axis
 
 
+amountOfTicks amount =
+    AmountOfTicks amount
+
+
 viewTick view =
     ViewTick view
+
+
+viewLabel view =
+    ViewLabel view
 
 
 defaultAxisConfig =
@@ -310,7 +318,7 @@ viewAxis toSvgCoords calculations { amountOfTicks, viewTick, viewLabel } =
         { span, lowest, highest } = calculations
 
         delta =
-            span / (toFloat amountOfTicks)
+            span / (toFloat amountOfTicks + 1)
 
         -- round up to nearest delta
         lowestTick =

@@ -26,7 +26,7 @@ areaData =
 
 
 lineData =
-    [ (-50, -34), (-30, 42), (-20, -35), (2, -46), (10, -45), (30, -42), (90, -67), (120, 50) ]
+    [ (-50, -34), (-30, 42), (-20, -35), (2, -46), (10, -45), (30, -42), (90, -167), (120, 50) ]
 
 
 main =
@@ -35,6 +35,6 @@ main =
         [ Plot.area [ Plot.stroke "cornflowerblue", Plot.fill "#ccdeff" ] areaData
         , Plot.line [ Plot.stroke "mediumvioletred" ] lineData
         , Plot.xAxis [ Plot.viewTick myCustomTick ]
-        , Plot.yAxis []
+        , Plot.yAxis [ Plot.amountOfTicks 5 ]
         ]
         
