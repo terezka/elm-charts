@@ -15,174 +15,267 @@ import Helpers
         )
 
 
--- TYPES
+type alias Point = (Float, Float)
 
 
-type SerieType
-    = Line
-    | Area
+
+-- CONFIGS
 
 
-type alias SerieConfig data =
-    { serieType : SerieType
-    , color : String
-    , areaColor : String
-    , toCoords : data -> List ( Float, Float )
-    }
+type ElementConfig msg
+    = Axis (AxisConfig msg)
+    | Area AreaConfig
+    | Line LineConfig
+
 
 
 type alias PlotConfig =
-    { dimensions : ( Int, Int ) }
+    { dimensions : (Int, Int)
+    , id : String
+    }
 
 
-type alias Coord =
-    ( Float, Float )
+type PlotAttr
+    = Dimensions (Int, Int)
+    | Id String
 
 
-type Axis
-    = XAxis
-    | YAxis
+type Orientation
+    = X
+    | Y
 
 
-{--
-
-type alias Tranformator =
-    Coord -> Coord
-
-
-type Element
-    = Axis Orientation (Tranformator -> Calculations -> AxisAttrs -> Svg.Svg a)
-    | LineSerie (Tranformator -> Calculations -> SerieAttrs -> Svg.Svg a)
-    | AreaSerie (Tranformator -> Calculations -> SerieAttrs -> Svg.Svg a)
-
---}
-
--- TODO: Move to config
+type alias AxisConfig msg =
+    { amountOfTicks : Int
+    , viewTick : Point -> Point -> Svg.Svg msg
+    , viewLabel : Point -> Float -> Svg.Svg msg
+    , orientation : Orientation
+    } 
 
 
-totalTicks =
-    ( 7, 6 )
+type AxisAttr msg
+    = AmountOfTicks Int
+    | ViewTick (Point -> Point -> Svg.Svg msg)
+    | ViewLabel (Point -> Float -> Svg.Svg msg)
+
+
+type alias AreaConfig =
+    { fill : String
+    , stroke : String
+    , points : List Point
+    }
+
+
+type alias LineConfig =
+    { stroke : String
+    , points : List Point
+    }
+
+
+type SerieAttr
+    = Stroke String
+    | Fill String
 
 
 
 -- VIEW
 
 
-type alias AxisProps =
-    { axis : Axis
-    , lowest : Float
-    , highest : Float
-    , span : Float
-    , toSvg : Float -> Float
-    , addSvg : Coord -> Coord -> Coord
+
+defaultPlotConfig =
+    { dimensions = (800, 500)
+    , id = "elm-plot"
     }
 
 
-getAxisProps : Axis -> PlotConfig -> List (SerieConfig data, data) -> AxisProps
-getAxisProps axis { dimensions } series =
+dimensions dimensions =
+    Dimensions dimensions
+
+
+buildPlotConfig : PlotConfig -> List PlotAttr -> PlotConfig
+buildPlotConfig config attrs =
+    case attrs of
+        [] -> config
+
+        attr :: rest ->
+            case attr of
+                Dimensions dimensions -> 
+                    buildPlotConfig { config | dimensions = dimensions } rest
+
+                Id id ->  -- TODO: Should eventually not be optional
+                    buildPlotConfig { config | id = id } rest
+
+
+collectPoints : List Point -> List (ElementConfig msg) -> List Point
+collectPoints points elements =
+    case elements of
+        [] -> points
+
+        element :: rest ->
+            case element of
+                Area config -> 
+                    collectPoints (points ++ config.points) rest
+
+                Line config -> 
+                    collectPoints (points ++ config.points) rest
+
+                _ ->
+                    collectPoints points rest
+
+
+plot : List PlotAttr -> List (ElementConfig msg) -> Svg.Svg msg
+plot attrs elementConfigs =
     let
-        getValue =
-            case axis of
-                XAxis ->
-                    fst
+        plotConfig =
+            buildPlotConfig defaultPlotConfig attrs
 
-                YAxis ->
-                    snd
+        points =
+            collectPoints [] elementConfigs
 
-        values =
-            List.map (\(config, data) -> config.toCoords data) series
-                |> List.concat
-                |> List.map getValue
-
-        edgeValues =
-            ( getLowest values, getHighest values )
-
-        ( lowestValue, highestValue ) =
-            edgeValues
-
-        span =
-            abs lowestValue + abs highestValue
-
-        delta =
-            (toFloat (getValue dimensions)) / span
-
-        origin =
-            abs (getValue edgeValues) * delta
-
-        toSvg = (\a -> origin + delta * a)
-
-        addSvg =
-            case axis of
-                XAxis ->
-                    (\( x, y ) ( dx, dy ) -> ( x + dx, y + dy ))
-
-                YAxis ->
-                    (\( y, x ) ( dx, dy ) -> ( y - dy, x + dx ))
-    in
-        AxisProps
-            axis
-            lowestValue
-            highestValue
-            span
-            toSvg
-            addSvg
-
-
-flipToY : Coord -> Coord
-flipToY (x, y) =
-    (y, x)
-
-
--- View plot
-
-
-type alias Calculations data =
-    { xAxis : AxisProps
-    , yAxis : AxisProps
-    , toSvgCoordsX : Coord -> Coord
-    , toSvgCoordsY : Coord -> Coord
-    , series : List (SerieConfig data, data)
-    }
-
-
-viewPlot : (PlotConfig -> Calculations data -> Html msg) -> PlotConfig -> List (SerieConfig data, data) -> Html msg
-viewPlot customView config series =
-    let
         xAxis =
-            getAxisProps XAxis config series
+            calculateAxis plotConfig.dimensions X points
 
         yAxis =
-            getAxisProps YAxis config series
+            calculateAxis plotConfig.dimensions Y points
 
-        toSvgCoords =
-            (\( x, y ) -> ( xAxis.toSvg x, yAxis.toSvg -y ))
+        toSvgCoords (x, y) =
+            ( xAxis.toSvg x, yAxis.toSvg -y )
 
-        calculations =
-            Calculations xAxis yAxis toSvgCoords (toSvgCoords << flipToY) series
+        elements =
+            viewElements xAxis yAxis toSvgCoords elementConfigs []
     in
-        customView config calculations
+        viewFrame plotConfig elements
+
+
+
+-- Calculations
+
+
+type alias AxisCalulation =
+    { span : Float
+    , lowest : Float
+    , highest : Float
+    , toSvg : Float -> Float
+    , addSvg : Point -> Point -> Point
+    }
+
+
+calculateAxis : (Int, Int) -> Orientation -> List Point -> AxisCalulation
+calculateAxis (width, height) orientation points =
+    let
+        values =
+            case orientation of
+                X -> List.map fst points 
+                Y -> List.map snd points 
+
+        lowest =
+            getLowest values
+
+        highest =
+            getHighest values
+
+        span =
+            abs lowest + abs highest
+
+        delta =
+            case orientation of
+                X -> (toFloat width) / span
+                Y -> (toFloat height) / span
+
+        value0 =
+            case orientation of
+                X -> abs lowest * delta
+                Y -> abs highest * delta
+
+        toSvg a = 
+            value0 + delta * a
+
+        addSvg ( x, y ) ( dx, dy ) =
+            case orientation of
+                X -> ( x + dx, y + dy )
+                Y -> ( x - dy, y + dx )
+    in
+        AxisCalulation span lowest highest toSvg addSvg
+
+
+
+-- Elements
+
+
+viewElements : AxisCalulation -> AxisCalulation -> (Point -> Point) -> List (ElementConfig msg) -> List (Svg.Svg msg) -> List (Svg.Svg msg)
+viewElements xAxis yAxis toSvgCoords elements views =
+    let
+        nextViewElements =
+            viewElements xAxis yAxis toSvgCoords
+    in
+        case elements of
+            [] -> views
+
+            element :: rest ->
+                case element of
+                    Area config -> 
+                        let
+                            view = viewArea toSvgCoords config
+                        in
+                            nextViewElements rest (views ++ [view])
+
+                    Line config -> 
+                        let
+                            view = viewLine toSvgCoords config
+                        in
+                            nextViewElements rest (views ++ [view])
+
+                    Axis config ->
+                        let
+                            calculations =
+                                case config.orientation of
+                                    X -> xAxis
+                                    Y -> yAxis
+
+                            toSvgCoordsAxis =
+                                case config.orientation of
+                                    X -> toSvgCoords
+                                    Y -> toSvgCoords << flipToY
+
+                            view = viewAxis toSvgCoordsAxis calculations config
+                        in
+                            nextViewElements rest (views ++ [view])
 
 
 -- View frame 
 
-viewPlotFrame : (Int, Int) -> List (Svg.Svg msg) -> Svg.Svg msg
-viewPlotFrame ( width, height ) children =
-    Svg.svg
-        [ Svg.Attributes.height (toString height)
-        , Svg.Attributes.width (toString width)
-        , style "padding: 50px;"
-        ]
-        children
+
+viewFrame : PlotConfig -> List (Svg.Svg msg) -> Svg.Svg msg
+viewFrame config elements =
+    let 
+        ( width, height ) = config.dimensions
+    in
+        Svg.svg
+            [ Svg.Attributes.height (toString height)
+            , Svg.Attributes.width (toString width)
+            , Svg.Attributes.id config.id
+            , style "padding: 50px;"
+            ]
+            elements
+
 
 
 -- View axis
 
 
-type AxisAttrs a
-    = ViewTick (Coord -> Coord -> Svg.Svg a)
-    | ViewLabel (Float -> Coord -> Svg.Svg a)
+viewTick view =
+    ViewTick view
 
 
+defaultAxisConfig =
+    { amountOfTicks = 10
+    , viewTick = viewTickDefault
+    , viewLabel = viewLabelDefault
+    , orientation = X
+    }
+
+
+buildAxisConfig : AxisConfig msg -> List (AxisAttr msg) -> AxisConfig msg
 buildAxisConfig config attrs =
     case attrs of
         [] ->
@@ -190,22 +283,31 @@ buildAxisConfig config attrs =
 
         attr :: rest ->
             case attr of
+                AmountOfTicks amountOfTicks ->
+                    buildAxisConfig { config | amountOfTicks = amountOfTicks } rest
+
                 ViewTick viewTick ->
-                    buildAxisConfig { config | viewTickHtml = viewTick } rest
+                    buildAxisConfig { config | viewTick = viewTick } rest
+
                 ViewLabel viewLabel ->
-                    buildAxisConfig { config | viewLabelHtml = viewLabel } rest
+                    buildAxisConfig { config | viewLabel = viewLabel } rest
 
 
-viewAxis : (Coord -> Coord) -> List (AxisAttrs a) -> AxisProps -> Svg.Svg a
-viewAxis toSvgCoords attrs axis =
+
+xAxis : List (AxisAttr msg) -> ElementConfig msg
+xAxis attrs =
+    Axis (buildAxisConfig defaultAxisConfig attrs)
+
+
+yAxis : List (AxisAttr msg) -> ElementConfig msg
+yAxis attrs =
+    Axis (buildAxisConfig { defaultAxisConfig | orientation = Y } attrs)
+
+
+viewAxis : (Point -> Point) -> AxisCalulation -> AxisConfig msg -> Svg.Svg msg
+viewAxis toSvgCoords calculations { amountOfTicks, viewTick, viewLabel } =
     let
-        default = { viewTickHtml = viewTickHtmlDefault, viewLabelHtml = viewLabelHtmlDefault }
-        
-        { viewTickHtml, viewLabelHtml } = buildAxisConfig default attrs
-
-        { span, lowest, highest } = axis
-
-        amountOfTicks = 10
+        { span, lowest, highest } = calculations
 
         delta =
             span / (toFloat amountOfTicks)
@@ -227,12 +329,18 @@ viewAxis toSvgCoords attrs axis =
         -- for x: (h, 0), for y: (0, h)
         ( x2, y2 ) =
             toSvgCoords ( highest, 0 )
+
+        toTick =
+            viewTickWrap toSvgCoords calculations viewTick
+
+        toLabel =
+            viewLabelWrap toSvgCoords calculations viewLabel
     in
         Svg.g []
-            [ Svg.g [] (List.map (viewTick axis toSvgCoords viewTickHtml) ticks)
+            [ Svg.g [] (List.map toTick ticks)
             , Svg.g
                 [ Svg.Attributes.transform "translate(0, 5)" ]
-                (List.map (viewLabel axis toSvgCoords viewLabelHtml) ticks)
+                (List.map toLabel ticks)
             , Svg.g []
                 [ Svg.line
                     (toPositionAttr x1 y1 x2 y2)
@@ -245,8 +353,8 @@ viewAxis toSvgCoords attrs axis =
 -- View tick
 
 
-viewTick : AxisProps -> (Coord -> Coord) -> (Coord -> Coord -> Svg.Svg a) -> Float -> Svg.Svg a
-viewTick { addSvg } toSvgCoords viewTickHtml tick =
+viewTickWrap : (Point -> Point) -> AxisCalulation -> (Point -> Point -> Svg.Svg a) -> Float -> Svg.Svg a
+viewTickWrap toSvgCoords { addSvg } viewTick tick =
     let
         -- for x: (v, 0), for y: (0, v)
         positionA =
@@ -256,11 +364,11 @@ viewTick { addSvg } toSvgCoords viewTickHtml tick =
         positionB =
             addSvg positionA ( 0, 7 )
     in
-        viewTickHtml positionA positionB
+        viewTick positionA positionB
 
 
-viewTickHtmlDefault : Coord -> Coord -> Svg.Svg a
-viewTickHtmlDefault (x1, y1) (x2, y2) =
+viewTickDefault : Point -> Point -> Svg.Svg a
+viewTickDefault (x1, y1) (x2, y2) =
     Svg.g []
         [ Svg.line
             (toPositionAttr x1 y1 x2 y2)
@@ -269,17 +377,11 @@ viewTickHtmlDefault (x1, y1) (x2, y2) =
 
 
 
-customTick : (Coord -> Coord -> Svg.Svg a) -> AxisAttrs a
-customTick customTickView =
-    ViewTick customTickView
-
-
-
 -- View Label
 
 
-viewLabel : AxisProps -> (Coord -> Coord) -> (Float -> Coord -> Svg.Svg a) -> Float -> Svg.Svg a
-viewLabel { addSvg } toSvgCoords viewLabelHtml tick =
+viewLabelWrap : (Point -> Point) -> AxisCalulation -> (Point -> Float -> Svg.Svg a) -> Float -> Svg.Svg a
+viewLabelWrap toSvgCoords { addSvg } viewLabel tick =
     let
         -- for x: (v, 0), for y: (0, v)
         ( x0, y0 ) =
@@ -289,11 +391,11 @@ viewLabel { addSvg } toSvgCoords viewLabelHtml tick =
         ( x, y ) =
             addSvg ( x0, y0 ) ( 0, 20 )
     in
-        viewLabelHtml tick (x, y)
+        viewLabel (x, y) tick
 
 
-viewLabelHtmlDefault : Float -> Coord -> Svg.Svg a
-viewLabelHtmlDefault tick (x, y) =
+viewLabelDefault : Point -> Float -> Svg.Svg a
+viewLabelDefault (x, y) tick =
     Svg.text'
         [ Svg.Attributes.x (toString x)
         , Svg.Attributes.y (toString y)
@@ -320,34 +422,55 @@ toPositionAttr x1 y1 x2 y2 =
 -- VIEW SERIES
 
 
-viewSeries : (Coord -> Coord) -> (SerieConfig data, data) -> Svg.Svg a
-viewSeries toSvgCoords (config, data) =
-    case config.serieType of
-        Line ->
-            Svg.g [] [(viewSeriesLine toSvgCoords (config, data))]
-
-        Area ->
-            Svg.g [] [(viewSeriesArea toSvgCoords (config, data))]
+stroke stroke =
+    Stroke stroke
 
 
+fill fill =
+    Fill fill
 
-{- Draw area series -}
+
+defaultAreaConfig =
+    { fill = "#444444"
+    , stroke = "#000000"
+    , points = []
+    }
 
 
-viewSeriesArea : (Coord -> Coord) -> (SerieConfig data, data) -> Svg.Svg a
-viewSeriesArea toSvgCoords (config, data) =
+buildAreaConfig : AreaConfig -> List SerieAttr -> AreaConfig
+buildAreaConfig config attrs =
+    case attrs of
+        [] ->
+            config
+
+        attr :: rest ->
+            case attr of
+                Stroke stroke ->
+                    buildAreaConfig { config | stroke = stroke } rest
+
+                Fill fill ->
+                    buildAreaConfig { config | fill = fill } rest
+
+
+area : List SerieAttr -> List Point -> ElementConfig msg
+area attrs points =
+    let 
+        config = buildAreaConfig defaultAreaConfig attrs
+    in
+        Area { config | points = points }
+
+
+viewArea : (Point -> Point) -> AreaConfig -> Svg.Svg a
+viewArea toSvgCoords { points, stroke, fill } =
     let
-        allCoords =
-            config.toCoords data
-
         range =
-            List.map fst allCoords
+            List.map fst points
 
         ( lowestX, highestX ) =
             ( getLowest range, getHighest range )
 
         svgCoords =
-            List.map toSvgCoords allCoords
+            List.map toSvgCoords points
 
         ( highestSvgX, originY ) =
             toSvgCoords ( highestX, 0 )
@@ -365,30 +488,64 @@ viewSeriesArea toSvgCoords (config, data) =
             coordToInstruction "L" svgCoords
 
         style' =
-            String.join "" [ "stroke: ", config.color, "; fill:", config.areaColor ]
+            String.join "" [ "stroke: ", stroke, "; fill:", fill ]
     in
         Svg.path
             [ d (startInstruction ++ instructions ++ endInstructions ++ "Z"), style style' ]
             []
 
 
+defaultLineConfig =
+    { stroke = "#444444"
+    , points = []
+    }
 
-{- Draw line series -}
+
+buildLineConfig : LineConfig -> List SerieAttr -> LineConfig
+buildLineConfig config attrs =
+    case attrs of
+        [] ->
+            config
+
+        attr :: rest ->
+            case attr of
+                Stroke stroke ->
+                    buildLineConfig { config | stroke = stroke } rest
+
+                Fill _ ->
+                    buildLineConfig config rest
 
 
-viewSeriesLine : (Coord -> Coord) -> (SerieConfig data, data) -> Svg.Svg a
-viewSeriesLine toSvgCoords (config, data) =
+line : List SerieAttr -> List Point -> ElementConfig msg
+line attrs points =
+    let 
+        config = buildLineConfig defaultLineConfig attrs
+    in
+        Line { config | points = points }
+
+
+
+viewLine : (Point -> Point) -> LineConfig -> Svg.Svg a
+viewLine toSvgCoords { points, stroke } =
     let
-        svgCoords =
-            List.map toSvgCoords (config.toCoords data)
+        svgPoints =
+            List.map toSvgCoords points
 
         ( startInstruction, tail ) =
-            startPath svgCoords
+            startPath svgPoints
 
         instructions =
-            coordToInstruction "L" svgCoords
+            coordToInstruction "L" svgPoints
 
         style' =
-            String.join "" [ "stroke: ", config.color, "; fill: none;" ]
+            String.join "" [ "stroke: ", stroke, "; fill: none;" ]
     in
         Svg.path [ d (startInstruction ++ instructions), style style' ] []
+
+
+
+-- Helpers
+
+flipToY : Point -> Point
+flipToY (x, y) =
+    (y, x)

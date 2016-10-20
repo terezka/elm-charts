@@ -7,7 +7,7 @@ import Html exposing (Html)
 
 
 
-myCustomTick : Plot.Coord -> Plot.Coord -> Svg.Svg a
+myCustomTick : Plot.Point -> Plot.Point -> Svg.Svg a
 myCustomTick (x1, y1) (x2, y2) =
     Svg.g []
         [ Svg.line
@@ -21,25 +21,8 @@ myCustomTick (x1, y1) (x2, y2) =
         ]
 
 
-viewCustomPlot : Plot.PlotConfig -> Plot.Calculations data -> Html a
-viewCustomPlot { dimensions } { xAxis, yAxis, toSvgCoordsX, toSvgCoordsY, series } =
-    Plot.viewPlotFrame dimensions
-        [ Svg.g [] (List.map (Plot.viewSeries toSvgCoordsX) series)
-        , Plot.viewAxis toSvgCoordsX [ Plot.customTick myCustomTick ] xAxis
-        , Plot.viewAxis toSvgCoordsY [ Plot.customTick myCustomTick ] yAxis
-        ]
-
-
-areaConfig =
-    Plot.SerieConfig Plot.Area "cornflowerblue" "#ccdeff" identity
-
-
 areaData =
     [ (-50, 34), (-30, 432), (-20, 35), (2, 546), (10, 345), (30, 42), (90, 67), (120, 50) ]
-
-
-lineConfig =
-    Plot.SerieConfig Plot.Line "mediumvioletred" "transparent" identity
 
 
 lineData =
@@ -47,8 +30,11 @@ lineData =
 
 
 main =
-    let
-        series = [ (areaConfig, areaData), (lineConfig, lineData) ]
-    in
-        Plot.viewPlot viewCustomPlot { dimensions = (800, 500) } series
-
+    Plot.plot
+        [ Plot.dimensions (800, 500) ]
+        [ Plot.area [ Plot.stroke "cornflowerblue", Plot.fill "#ccdeff" ] areaData
+        , Plot.line [ Plot.stroke "mediumvioletred" ] lineData
+        , Plot.xAxis [ Plot.viewTick myCustomTick ]
+        , Plot.yAxis []
+        ]
+        
