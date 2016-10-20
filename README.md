@@ -17,6 +17,13 @@ Plot.plot
     ]
 ```
 
+The api is inspired by the elm-html attributes to create a more flexible configuration, allowing you
+to pass down only your needs changing the default configuration. 
+
+Also, in my experience, what you would really like from a plotting library is the calculations
+of the positions as so on, not really the styling. Base on this, I've allowed your to pass down a function producing
+the svg html to use for e.g. the tick (see `myCustomTick` in [the example](https://github.com/terezka/elm-plot/blob/master/examples/PlotExample.elm)). There is of course a default as well!
+
 ## Development
 
 ### Setup
