@@ -5,8 +5,8 @@ import Svg.Attributes
 import Plot exposing (plot, dimensions, area, line, xAxis, yAxis, amountOfTicks, customViewTick, customViewLabel, stroke, fill)
 
 
-myCustomTick : Plot.Point -> Float -> Svg.Svg a
-myCustomTick ( x, y ) tick =
+myCustomXTick : Plot.Point -> Float -> Svg.Svg a
+myCustomXTick ( x, y ) tick =
     Svg.g []
         [ Svg.line
             [ Svg.Attributes.style "stroke: red;"
@@ -49,6 +49,6 @@ main =
         [ dimensions ( 800, 500 ) ]
         [ area [ stroke "cornflowerblue", fill "#ccdeff" ] areaData
         , line [ stroke "mediumvioletred" ] lineData
-        , xAxis [ customViewTick myCustomTick ]
+        , xAxis [ customViewTick myCustomXTick ]
         , yAxis [ customViewLabel myCustomLabel, amountOfTicks 5 ]
         ]

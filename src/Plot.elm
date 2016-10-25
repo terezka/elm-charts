@@ -104,7 +104,7 @@ defaultTickHtml axis ( x1, y1 ) tick =
     let
         ( x2, y2 ) =
             case axis of
-                X -> (x1, y1 - 7)
+                X -> (x1, y1 + 7)
                 Y -> (x1 - 7, y1)
     in
         Svg.g []
@@ -208,8 +208,8 @@ fill fill =
 
 
 defaultAreaConfig =
-    { fill = "#444444"
-    , stroke = "#000000"
+    { fill = "#ddd"
+    , stroke = "#737373"
     , points = []
     }
 
@@ -240,7 +240,7 @@ type alias LineConfig =
 
 
 defaultLineConfig =
-    { stroke = "#444444"
+    { stroke = "#737373"
     , points = []
     }
 
