@@ -1,14 +1,12 @@
 module PlotExample exposing (..)
 
-import Plot
 import Svg
 import Svg.Attributes
-import Html exposing (Html)
-import Html.App as App
+import Plot exposing (plot, dimensions, area, line, xAxis, yAxis, amountOfTicks, viewTick, stroke, fill)
 
 
 myCustomTick : Plot.Point -> Plot.Point -> Svg.Svg a
-myCustomTick (x1, y1) (x2, y2) =
+myCustomTick ( x1, y1 ) ( x2, y2 ) =
     Svg.g []
         [ Svg.line
             [ Svg.Attributes.style "stroke: red;"
@@ -22,18 +20,18 @@ myCustomTick (x1, y1) (x2, y2) =
 
 
 areaData =
-    [ (-50, 34), (-30, 432), (-20, 35), (2, 546), (10, 345), (30, 42), (90, 67), (120, 50) ]
+    [ ( -50, 34 ), ( -30, 432 ), ( -20, 35 ), ( 2, 546 ), ( 10, 345 ), ( 30, 42 ), ( 90, 67 ), ( 120, 50 ) ]
 
 
 lineData =
-    [ (-50, 34), (-30, 32), (-20, 5), (2, -46), (10, -99), (30, -136), (90, -67), (120, 10) ]
+    [ ( -50, 34 ), ( -30, 32 ), ( -20, 5 ), ( 2, -46 ), ( 10, -99 ), ( 30, -136 ), ( 90, -67 ), ( 120, 10 ) ]
 
 
 main =
-    Plot.plot
-        [ Plot.dimensions (800, 500) ]
-        [ Plot.area [ Plot.stroke "cornflowerblue", Plot.fill "#ccdeff" ] areaData
-        , Plot.line [ Plot.stroke "mediumvioletred" ] lineData
-        , Plot.xAxis [ Plot.viewTick myCustomTick ]
-        , Plot.yAxis [ Plot.amountOfTicks 5 ]
+    plot
+        [ dimensions ( 800, 500 ) ]
+        [ area [ stroke "cornflowerblue", fill "#ccdeff" ] areaData
+        , line [ stroke "mediumvioletred" ] lineData
+        , xAxis [ viewTick myCustomTick ]
+        , yAxis [ amountOfTicks 5 ]
         ]

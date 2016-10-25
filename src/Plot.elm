@@ -1,9 +1,8 @@
-module Plot exposing (..)
+module Plot exposing (plot, dimensions, area, line, xAxis, yAxis, amountOfTicks, viewTick, stroke, fill, Point)
 
 import Html exposing (Html, button, div, text)
-import Html.Attributes exposing (id)
 import Html.Events exposing (on, onMouseOut)
-import Json.Decode as Json exposing ((:=))
+import Html.Attributes exposing (id)
 import Svg exposing (g)
 import Svg.Attributes exposing (height, width, d, style)
 import String
@@ -18,11 +17,13 @@ import Helpers
         )
 
 
-type alias Point = (Float, Float)
+type alias Point =
+    ( Float, Float )
 
 
 type alias Position =
     { x : Int, y : Int }
+
 
 
 -- CONFIGS
@@ -34,21 +35,23 @@ type Element msg
     | Line LineConfig
 
 
+
 -- Plot config
 
+
 type alias PlotConfig =
-    { dimensions : (Int, Int)
+    { dimensions : ( Int, Int )
     , id : String
     }
 
 
 type PlotAttr
-    = Dimensions (Int, Int)
+    = Dimensions ( Int, Int )
     | Id String
 
 
 defaultPlotConfig =
-    { dimensions = (800, 500)
+    { dimensions = ( 800, 500 )
     , id = "elm-plot"
     }
 
@@ -64,14 +67,17 @@ id id =
 toPlotConfig : PlotAttr -> PlotConfig -> PlotConfig
 toPlotConfig attr config =
     case attr of
-        Dimensions dimensions -> 
+        Dimensions dimensions ->
             { config | dimensions = dimensions }
 
-        Id id ->  -- TODO: Should eventually not be optional
+        Id id ->
+            -- TODO: Should eventually not be optional
             { config | id = id }
 
 
+
 -- Axis config
+
 
 type Orientation
     = X
@@ -83,7 +89,7 @@ type alias AxisConfig msg =
     , viewTick : Point -> Point -> Svg.Svg msg
     , viewLabel : Point -> Float -> Svg.Svg msg
     , orientation : Orientation
-    } 
+    }
 
 
 type AxisAttr msg
@@ -135,7 +141,9 @@ yAxis attrs =
     Axis (List.foldr toAxisConfig { defaultAxisConfig | orientation = Y } attrs)
 
 
+
 -- Serie config
+
 
 type alias AreaConfig =
     { fill : String
@@ -176,8 +184,9 @@ toAreaConfig attr config =
 
 area : List SerieAttr -> List Point -> Element msg
 area attrs points =
-    let 
-        config = List.foldr toAreaConfig defaultAreaConfig attrs
+    let
+        config =
+            List.foldr toAreaConfig defaultAreaConfig attrs
     in
         Area { config | points = points }
 
@@ -206,10 +215,12 @@ toLineConfig attr config =
 
 line : List SerieAttr -> List Point -> Element msg
 line attrs points =
-    let 
-        config = List.foldr toLineConfig defaultLineConfig attrs
+    let
+        config =
+            List.foldr toLineConfig defaultLineConfig attrs
     in
         Line { config | points = points }
+
 
 
 -- VIEW
@@ -218,15 +229,14 @@ line attrs points =
 collectPoints : Element msg -> List Point -> List Point
 collectPoints element points =
     case element of
-        Area config -> 
+        Area config ->
             points ++ config.points
 
-        Line config -> 
+        Line config ->
             points ++ config.points
 
         _ ->
             points
-            
 
 
 plot : List PlotAttr -> List (Element msg) -> Svg.Svg msg
@@ -244,7 +254,7 @@ plot attrs elements =
         yAxis =
             calculateAxis plotConfig.dimensions Y points
 
-        toSvgCoords (x, y) =
+        toSvgCoords ( x, y ) =
             ( xAxis.toSvg x, yAxis.toSvg -y )
 
         elementViews =
@@ -266,13 +276,16 @@ type alias AxisCalulation =
     }
 
 
-calculateAxis : (Int, Int) -> Orientation -> List Point -> AxisCalulation
-calculateAxis (width, height) orientation points =
+calculateAxis : ( Int, Int ) -> Orientation -> List Point -> AxisCalulation
+calculateAxis ( width, height ) orientation points =
     let
         values =
             case orientation of
-                X -> List.map fst points 
-                Y -> List.map snd points 
+                X ->
+                    List.map fst points
+
+                Y ->
+                    List.map snd points
 
         lowest =
             getLowest values
@@ -285,21 +298,30 @@ calculateAxis (width, height) orientation points =
 
         delta =
             case orientation of
-                X -> (toFloat width) / span
-                Y -> (toFloat height) / span
+                X ->
+                    (toFloat width) / span
+
+                Y ->
+                    (toFloat height) / span
 
         value0 =
             case orientation of
-                X -> abs lowest * delta
-                Y -> abs highest * delta
+                X ->
+                    abs lowest * delta
 
-        toSvg a = 
+                Y ->
+                    abs highest * delta
+
+        toSvg a =
             value0 + delta * a
 
         addSvg ( x, y ) ( dx, dy ) =
             case orientation of
-                X -> ( x + dx, y + dy )
-                Y -> ( x - dy, y + dx )
+                X ->
+                    ( x + dx, y + dy )
+
+                Y ->
+                    ( x - dy, y + dx )
     in
         AxisCalulation span lowest highest toSvg addSvg
 
@@ -311,54 +333,57 @@ calculateAxis (width, height) orientation points =
 viewElements : AxisCalulation -> AxisCalulation -> (Point -> Point) -> Element msg -> List (Svg.Svg msg) -> List (Svg.Svg msg)
 viewElements xAxis yAxis toSvgCoords element views =
     case element of
-        Area config -> 
+        Area config ->
             let
-                view = viewArea toSvgCoords config
+                view =
+                    viewArea toSvgCoords config
             in
-                views ++ [view]
+                views ++ [ view ]
 
-        Line config -> 
+        Line config ->
             let
-                view = viewLine toSvgCoords config
+                view =
+                    viewLine toSvgCoords config
             in
-                views ++ [view]
+                views ++ [ view ]
 
         Axis config ->
             let
                 calculations =
                     case config.orientation of
-                        X -> xAxis
-                        Y -> yAxis
+                        X ->
+                            xAxis
+
+                        Y ->
+                            yAxis
 
                 toSvgCoordsAxis =
                     case config.orientation of
-                        X -> toSvgCoords
-                        Y -> toSvgCoords << flipToY
+                        X ->
+                            toSvgCoords
 
-                view = viewAxis toSvgCoordsAxis calculations config
+                        Y ->
+                            toSvgCoords << flipToY
+
+                view =
+                    viewAxis toSvgCoordsAxis calculations config
             in
-                views ++ [view]
-                
+                views ++ [ view ]
 
 
--- View frame 
 
-getPosition : Json.Decoder Position
-getPosition =
-    Json.object2
-        (\x y -> Position x y) 
-        ("offsetX" := Json.int)
-        ("offsetY" := Json.int)
+-- View frame
 
 
 viewFrame : PlotConfig -> List (Svg.Svg msg) -> Svg.Svg msg
 viewFrame config elements =
-    let 
-        ( width, height ) = config.dimensions
+    let
+        ( width, height ) =
+            config.dimensions
     in
         Html.div
             [ Html.Attributes.id config.id
-            , Html.Attributes.style [ ("margin", "50px"), ("position", "absolute") ]
+            , Html.Attributes.style [ ( "margin", "50px" ), ( "position", "absolute" ) ]
             ]
             [ Svg.svg
                 [ Svg.Attributes.height (toString height)
@@ -372,11 +397,11 @@ viewFrame config elements =
 -- View axis
 
 
-
 viewAxis : (Point -> Point) -> AxisCalulation -> AxisConfig msg -> Svg.Svg msg
 viewAxis toSvgCoords calculations { amountOfTicks, viewTick, viewLabel } =
     let
-        { span, lowest, highest } = calculations
+        { span, lowest, highest } =
+            calculations
 
         delta =
             span / (toFloat amountOfTicks + 1)
@@ -437,12 +462,13 @@ viewTickWrap toSvgCoords { addSvg } viewTick tick =
 
 
 viewTickDefault : Point -> Point -> Svg.Svg msg
-viewTickDefault (x1, y1) (x2, y2) =
+viewTickDefault ( x1, y1 ) ( x2, y2 ) =
     Svg.g []
         [ Svg.line
             (toPositionAttr x1 y1 x2 y2)
             []
         ]
+
 
 
 -- View Label
@@ -459,18 +485,18 @@ viewLabelWrap toSvgCoords { addSvg } viewLabel tick =
         ( x, y ) =
             addSvg ( x0, y0 ) ( 0, 20 )
     in
-        viewLabel (x, y) tick
+        viewLabel ( x, y ) tick
 
 
 viewLabelDefault : Point -> Float -> Svg.Svg a
-viewLabelDefault (x, y) tick =
+viewLabelDefault ( x, y ) tick =
     Svg.text'
         [ Svg.Attributes.x (toString x)
         , Svg.Attributes.y (toString y)
         , Svg.Attributes.style "stroke: #757575; text-anchor: middle;"
         ]
         [ Svg.tspan [] [ Svg.text (toString (round tick)) ] ]
-        
+
 
 
 -- Make line coords
@@ -546,6 +572,7 @@ viewLine toSvgCoords { points, stroke } =
 
 -- Helpers
 
+
 flipToY : Point -> Point
-flipToY (x, y) =
-    (y, x)
+flipToY ( x, y ) =
+    ( y, x )
