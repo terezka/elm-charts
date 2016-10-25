@@ -2,7 +2,7 @@ module PlotExample exposing (..)
 
 import Svg
 import Svg.Attributes
-import Plot exposing (plot, dimensions, area, line, xAxis, yAxis, amountOfTicks, customViewTick, customViewLabel, stroke, fill)
+import Plot exposing (plot, dimensions, area, line, xAxis, yAxis, amountOfTicks, tickList, customViewTick, customViewLabel, stroke, fill)
 
 
 myCustomXTick : Plot.Point -> Float -> Svg.Svg a
@@ -49,6 +49,6 @@ main =
         [ dimensions ( 800, 500 ) ]
         [ area [ stroke "cornflowerblue", fill "#ccdeff" ] areaData
         , line [ stroke "mediumvioletred" ] lineData
-        , xAxis [ customViewTick myCustomXTick ]
+        , xAxis [ customViewTick myCustomXTick, tickList [ -20, 20, 40, 80 ] ]
         , yAxis [ customViewLabel myCustomLabel, amountOfTicks 5 ]
         ]

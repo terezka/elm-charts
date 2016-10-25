@@ -1,4 +1,19 @@
-module Plot exposing (plot, dimensions, area, line, xAxis, yAxis, amountOfTicks, customViewTick, customViewLabel, stroke, fill, Point)
+module Plot
+    exposing 
+        ( plot
+        , dimensions
+        , area
+        , line
+        , xAxis
+        , yAxis
+        , amountOfTicks
+        , tickList
+        , customViewTick
+        , customViewLabel
+        , stroke
+        , fill
+        , Point
+        )
 
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (on, onMouseOut)
@@ -85,8 +100,13 @@ type Orientation
     | Y
 
 
+type TickConfig
+    = TickAmount Int
+    | TickList (List Float)
+
+
 type alias AxisConfig msg =
-    { amountOfTicks : Int
+    { tickConfig : TickConfig
     , customViewTick : Point -> Float -> Svg.Svg msg
     , customViewLabel : Point -> Float -> Svg.Svg msg
     , orientation : Orientation
@@ -94,7 +114,7 @@ type alias AxisConfig msg =
 
 
 type AxisAttr msg
-    = AmountOfTicks Int
+    = TickConfigAttr TickConfig
     | ViewTick (Point -> Float -> Svg.Svg msg)
     | ViewLabel (Point -> Float -> Svg.Svg msg)
 
@@ -137,7 +157,7 @@ defaultLabelHtml axis ( x, y ) tick =
 
 
 defaultAxisConfig =
-    { amountOfTicks = 10
+    { tickConfig = (TickAmount 10)
     , customViewTick = defaultTickHtml X
     , customViewLabel = defaultLabelHtml X
     , orientation = X
@@ -145,7 +165,11 @@ defaultAxisConfig =
 
 
 amountOfTicks amount =
-    AmountOfTicks amount
+    TickConfigAttr (TickAmount amount)
+
+
+tickList ticks =
+    TickConfigAttr (TickList ticks)
 
 
 customViewTick view =
@@ -159,8 +183,8 @@ customViewLabel view =
 toAxisConfig : AxisAttr msg -> AxisConfig msg -> AxisConfig msg
 toAxisConfig attr config =
     case attr of
-        AmountOfTicks amountOfTicks ->
-            { config | amountOfTicks = amountOfTicks }
+        TickConfigAttr tickConfig ->
+            { config | tickConfig = tickConfig }
 
         ViewTick viewTick ->
             { config | customViewTick = viewTick }
@@ -438,13 +462,9 @@ viewFrame config elements =
 
 -- View axis
 
-
-viewAxis : (Point -> Point) -> AxisCalulation -> AxisConfig msg -> Svg.Svg msg
-viewAxis toSvgCoords calculations { amountOfTicks, customViewTick, customViewLabel } =
+calulateTicks : AxisCalulation -> Int -> List Float
+calulateTicks { span, lowest, highest } amountOfTicks =
     let
-        { span, lowest, highest } =
-            calculations
-
         delta =
             span / (toFloat amountOfTicks + 1)
 
@@ -454,9 +474,19 @@ viewAxis toSvgCoords calculations { amountOfTicks, customViewTick, customViewLab
 
         toTick i =
             lowestTick + (toFloat i) * delta
+    in
+        List.map toTick [0..amountOfTicks]
 
+
+viewAxis : (Point -> Point) -> AxisCalulation -> AxisConfig msg -> Svg.Svg msg
+viewAxis toSvgCoords calculations { tickConfig, customViewTick, customViewLabel } =
+    let
         ticks =
-            List.map toTick [0..amountOfTicks]
+            case tickConfig of
+                TickAmount amount ->
+                    calulateTicks calculations amount
+                TickList ticks ->
+                    ticks
 
         tickViews =
             List.map (viewTick toSvgCoords calculations customViewTick) ticks
