@@ -531,7 +531,10 @@ calulateTicks : AxisCalulation -> Int -> List Float
 calulateTicks { span, lowest, highest } amountOfTicks =
     let
         delta =
-            span / (toFloat amountOfTicks + 1)
+            calculateStep highest amountOfTicks
+
+        steps =
+            round (span / delta)
 
         -- round up to nearest delta
         lowestTick =
@@ -540,7 +543,7 @@ calulateTicks { span, lowest, highest } amountOfTicks =
         toTick i =
             lowestTick + (toFloat i) * delta
     in
-        List.map toTick [0..amountOfTicks]
+        List.map toTick [0..steps]
 
 
 viewAxis : (Point -> Point) -> AxisCalulation -> AxisConfig msg -> Svg.Svg msg

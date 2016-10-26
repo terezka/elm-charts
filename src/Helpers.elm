@@ -3,6 +3,7 @@ module Helpers exposing (..)
 import Svg exposing (g)
 import Svg.Attributes exposing (transform, height, width, style, d, x, y, x1, x2, y1, y2)
 import String
+import Debug
 
 
 getHighest : List Float -> Float
@@ -64,3 +65,27 @@ toRotate d x y =
 toStyle : List (String, String) -> String
 toStyle styles =
     List.foldr (\(p, v) r -> r ++ p ++ ":" ++ v ++ "; ") "" styles
+
+
+calculateStep : Float -> Int -> Float
+calculateStep range targetSteps =
+    let
+        -- calculate an initial guess at step size
+        tempStep = range / (toFloat targetSteps)
+
+        -- get the magnitude of the step size
+        mag = floor (logBase 10 tempStep)
+        magPow = toFloat (10^mag)
+
+        -- calculate most significant digit of the new step size
+        magMsd = round (tempStep / (magPow + 0.5))
+
+        -- promote the MSD to either 1, 2, or 5
+        magMsdFinal =
+            if magMsd > 5 then 10
+            else if magMsd > 2 then 5
+            else if magMsd > 1 then 2
+            else 1
+    in
+        (toFloat magMsdFinal) * magPow
+
