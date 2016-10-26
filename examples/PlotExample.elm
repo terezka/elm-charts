@@ -2,7 +2,7 @@ module PlotExample exposing (..)
 
 import Svg
 import Svg.Attributes
-import Plot exposing (plot, dimensions, area, line, xAxis, yAxis, amountOfTicks, tickList, customViewTick, customViewLabel, stroke, fill)
+import Plot exposing (..)
 
 
 myCustomXTick : Float -> Svg.Svg a
@@ -15,18 +15,11 @@ myCustomXTick tick =
 
 myCustomLabel : Float -> Svg.Svg a
 myCustomLabel tick =
-    let
-        label =
-            if tick == 0 then
-                ""
-            else
-                (toString (round tick)) ++ " ms"
-    in
-        Svg.text'
-            [ Svg.Attributes.transform "translate(0, 4)"
-            , Svg.Attributes.style "stroke: purple; text-anchor: end;"
-            ]
-            [ Svg.tspan [] [ Svg.text label ] ]
+    Svg.text'
+        [ Svg.Attributes.transform "translate(0, 4)"
+        , Svg.Attributes.style "stroke: purple; text-anchor: end;"
+        ]
+        [ Svg.tspan [] [ Svg.text ((toString (round tick)) ++ " ms") ] ]
 
 
 areaData =
@@ -40,10 +33,12 @@ lineData =
 main =
     plot
         [ dimensions ( 800, 500 ) ]
-        [ area [ stroke "cornflowerblue", fill "#ccdeff" ] areaData
+        [ horizontalGrid [ gridTicks (Just [ -40, -20, 20, 40, 60, 80, 100 ]), gridStyle [ ("stroke", "chartreuse")] ]
+        , area [ stroke "cornflowerblue", fill "#ccdeff" ] areaData
         , line [ stroke "mediumvioletred" ] lineData
         , xAxis
             [ customViewTick myCustomXTick
+            , axisLineStyle [ ( "stroke", "red" ) ]
             , tickList [ -20, 20, 40, 82 ]
             ]
         , yAxis

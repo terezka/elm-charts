@@ -4,12 +4,17 @@ module Plot
         , dimensions
         , area
         , line
+        , horizontalGrid
+        , verticalGrid
         , xAxis
         , yAxis
         , tickList
         , amountOfTicks
         , customViewTick
         , customViewLabel
+        , axisLineStyle
+        , gridStyle
+        , gridTicks
         , stroke
         , fill
         , Point
@@ -29,6 +34,10 @@ type alias Point =
     ( Float, Float )
 
 
+type alias Style =
+    List ( String, String )
+
+
 type alias Position =
     { x : Int, y : Int }
 
@@ -39,6 +48,7 @@ type alias Position =
 
 type Element msg
     = Axis (AxisConfig msg)
+    | Grid GridConfig
     | Area AreaConfig
     | Line LineConfig
 
@@ -101,6 +111,7 @@ type alias AxisConfig msg =
     { tickConfig : TickConfig
     , customViewTick : Float -> Svg.Svg msg
     , customViewLabel : Float -> Svg.Svg msg
+    , axisLineStyle : Style
     , orientation : Orientation
     }
 
@@ -109,6 +120,7 @@ type AxisAttr msg
     = TickConfigAttr TickConfig
     | ViewTick (Float -> Svg.Svg msg)
     | ViewLabel (Float -> Svg.Svg msg)
+    | AxisLineStyle Style
 
 
 defaultTickHtml : Orientation -> Float -> Svg.Svg msg
@@ -158,6 +170,7 @@ defaultAxisConfig =
     { tickConfig = (TickAmount 10)
     , customViewTick = defaultTickHtml X
     , customViewLabel = defaultLabelHtml X
+    , axisLineStyle = [ ("stroke", "#757575" ) ]
     , orientation = X
     }
 
@@ -178,6 +191,10 @@ customViewLabel view =
     ViewLabel view
 
 
+axisLineStyle styles =
+    AxisLineStyle styles
+
+
 toAxisConfig : AxisAttr msg -> AxisConfig msg -> AxisConfig msg
 toAxisConfig attr config =
     case attr of
@@ -189,6 +206,9 @@ toAxisConfig attr config =
 
         ViewLabel viewLabel ->
             { config | customViewLabel = viewLabel }
+
+        AxisLineStyle styles ->
+            { config | axisLineStyle = styles }
 
 
 xAxis : List (AxisAttr msg) -> Element msg
@@ -204,6 +224,59 @@ yAxis attrs =
     in
         Axis (List.foldr toAxisConfig defaultAxisConfigY attrs)
 
+
+
+-- Grid config
+
+
+type alias GridConfig =
+    { ticks : Maybe (List Float)
+    , styles : Style
+    , orientation : Orientation
+    }
+
+
+type GridAttr
+    = GridStyle Style
+    | GridTicks (Maybe (List Float))
+
+
+defaultGridConfig =
+    { ticks = Nothing
+    , styles = [ ("stroke", "#757575" ) ]
+    , orientation = X
+    }
+
+
+gridStyle style =
+    GridStyle style
+
+
+gridTicks ticks =
+    GridTicks ticks
+
+
+toGridConfig : GridAttr -> GridConfig -> GridConfig
+toGridConfig attr config =
+    case attr of
+        GridStyle styles ->
+            { config | styles = styles }
+
+        GridTicks ticks ->
+            { config | ticks = ticks }
+
+
+verticalGrid : List GridAttr -> Element msg
+verticalGrid attrs =
+    Grid (List.foldr toGridConfig defaultGridConfig attrs)
+
+
+horizontalGrid : List GridAttr -> Element msg
+horizontalGrid attrs =
+    let
+        defaultGridConfigY = { defaultGridConfig | orientation = Y }
+    in
+        Grid (List.foldr toGridConfig defaultGridConfigY attrs)
 
 
 -- Serie config
@@ -411,6 +484,21 @@ viewElements xAxis yAxis toSvgCoords element views =
             in
                 views ++ [ view ]
 
+        Grid config ->
+            let
+                (calculations, toSvgCoordsAxis) =
+                    case config.orientation of
+                        X ->
+                            (xAxis, toSvgCoords)
+
+                        Y ->
+                            (yAxis, toSvgCoords << flipToY)
+
+                view =
+                    viewGrid toSvgCoordsAxis calculations config
+            in
+                views ++ [ view ]
+
         Axis config ->
             let
                 (calculations, toSvgCoordsAxis) =
@@ -470,8 +558,14 @@ calulateTicks { span, lowest, highest } amountOfTicks =
 
 
 viewAxis : (Point -> Point) -> AxisCalulation -> AxisConfig msg -> Svg.Svg msg
-viewAxis toSvgCoords calculations { tickConfig, customViewTick, customViewLabel } =
+viewAxis toSvgCoords calculations config =
     let
+        { tickConfig
+        , customViewTick
+        , customViewLabel
+        , axisLineStyle
+        } = config
+
         ticks =
             case tickConfig of
                 TickAmount amount ->
@@ -487,24 +581,10 @@ viewAxis toSvgCoords calculations { tickConfig, customViewTick, customViewLabel 
             List.map (viewLabel toSvgCoords calculations customViewLabel) ticks
     in
         Svg.g []
-            [ viewAxisLine toSvgCoords calculations
+            [ viewGridLine toSvgCoords calculations axisLineStyle 0
             , Svg.g [] tickViews
             , Svg.g [] labelViews
             ]
-
-
-viewAxisLine : (Point -> Point) -> AxisCalulation -> Svg.Svg msg
-viewAxisLine toSvgCoords { lowest, highest } =
-    let
-        ( x1, y1 ) =
-            toSvgCoords ( lowest, 0 )
-
-        ( x2, y2 ) =
-            toSvgCoords ( highest, 0 )
-    in
-        Svg.line
-            (toPositionAttr x1 y1 x2 y2)
-            []
 
 
 
@@ -529,17 +609,46 @@ viewTick toSvgCoords { addSvg } customViewTick tick =
 viewLabel : (Point -> Point) -> AxisCalulation -> (Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
 viewLabel toSvgCoords { addSvg } viewLabel tick =
     let
-        -- for x: (v, 0), for y: (0, v)
         ( x0, y0 ) =
             toSvgCoords ( tick, 0 )
 
-        -- for x: (v, -h), for y: (-h, v)
         position =
             addSvg ( x0, y0 ) ( 0, 10 )
     in
         Svg.g 
             [ Svg.Attributes.transform (toTranslate position) ]
             [ viewLabel tick ]
+
+
+
+-- View grid
+
+
+viewGrid : (Point -> Point) -> AxisCalulation -> GridConfig -> Svg.Svg msg
+viewGrid toSvgCoords calculations { ticks, styles } =
+    let
+        positions =
+            Maybe.withDefault [] ticks
+
+        lines =
+            List.map (viewGridLine toSvgCoords calculations styles) positions
+    in
+        Svg.g [] lines
+
+
+viewGridLine : (Point -> Point) -> AxisCalulation -> List (String, String) -> Float -> Svg.Svg msg
+viewGridLine toSvgCoords { addSvg, lowest, highest } styles tick =
+    let
+        ( x1, y1 ) =
+            toSvgCoords ( lowest, tick )
+
+        ( x2, y2 ) =
+            toSvgCoords ( highest, tick )
+
+        attrs =
+            Svg.Attributes.style (toStyle styles) :: (toPositionAttr x1 y1 x2 y2)
+    in
+        Svg.line attrs []
 
 
 

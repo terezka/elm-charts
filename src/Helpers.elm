@@ -44,8 +44,7 @@ startPath data =
 
 toPositionAttr : Float -> Float -> Float -> Float -> List (Svg.Attribute msg)
 toPositionAttr x1 y1 x2 y2 =
-    [ Svg.Attributes.style "stroke: #757575;"
-    , Svg.Attributes.x1 (toString x1)
+    [ Svg.Attributes.x1 (toString x1)
     , Svg.Attributes.y1 (toString y1)
     , Svg.Attributes.x2 (toString x2)
     , Svg.Attributes.y2 (toString y2)
