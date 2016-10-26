@@ -395,7 +395,7 @@ plot attrs elements =
             ( xAxis.toSvg x, yAxis.toSvg -y )
 
         elementViews =
-            List.foldl (viewElements xAxis yAxis toSvgCoords) [] elements
+            List.foldr (viewElements xAxis yAxis toSvgCoords) [] elements
     in
         viewFrame plotConfig elementViews
 
@@ -471,18 +471,10 @@ viewElements : AxisCalulation -> AxisCalulation -> (Point -> Point) -> Element m
 viewElements xAxis yAxis toSvgCoords element views =
     case element of
         Area config ->
-            let
-                view =
-                    viewArea toSvgCoords config
-            in
-                views ++ [ view ]
+            (viewArea toSvgCoords config) :: views
 
         Line config ->
-            let
-                view =
-                    viewLine toSvgCoords config
-            in
-                views ++ [ view ]
+            (viewLine toSvgCoords config) :: views
 
         Grid config ->
             let
@@ -493,11 +485,8 @@ viewElements xAxis yAxis toSvgCoords element views =
 
                         Y ->
                             (yAxis, toSvgCoords << flipToY)
-
-                view =
-                    viewGrid toSvgCoordsAxis calculations config
             in
-                views ++ [ view ]
+                (viewGrid toSvgCoordsAxis calculations config) :: views
 
         Axis config ->
             let
@@ -508,11 +497,8 @@ viewElements xAxis yAxis toSvgCoords element views =
 
                         Y ->
                             (yAxis, toSvgCoords << flipToY)
-
-                view =
-                    viewAxis toSvgCoordsAxis calculations config
             in
-                views ++ [ view ]
+                (viewAxis toSvgCoordsAxis calculations config) :: views
 
 
 
