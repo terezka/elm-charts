@@ -7,7 +7,7 @@ Plot series in Svgs! Right now it can draw lines and areas. _In active developme
 
 ## What does the api look like?
 
-```
+```elm
 Plot.plot
     [ Plot.dimensions (800, 500) ]
     [ Plot.area [ Plot.stroke "cornflowerblue", Plot.fill "#ccdeff" ] areaData
@@ -28,7 +28,7 @@ the svg html to use for e.g. the tick (see `myCustomTick` in [the example](https
 
 ### Setup
 
-```
+```elm
 elm package install
 ```
 
