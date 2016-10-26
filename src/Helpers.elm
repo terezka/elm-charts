@@ -50,3 +50,18 @@ toPositionAttr x1 y1 x2 y2 =
     , Svg.Attributes.x2 (toString x2)
     , Svg.Attributes.y2 (toString y2)
     ]
+
+
+toTranslate : (Float, Float) -> String 
+toTranslate (x, y) =
+    "translate(" ++ (toString x) ++ "," ++ (toString y) ++ ")"
+
+
+toRotate : Float -> Float -> Float -> String 
+toRotate d x y =
+    "rotate(" ++ (toString d) ++ " "  ++ (toString x) ++ " " ++ (toString y) ++ ")"
+
+
+toStyle : List (String, String) -> String
+toStyle styles =
+    List.foldr (\(p, v) r -> r ++ p ++ ":" ++ v ++ "; ") "" styles

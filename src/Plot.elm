@@ -1,13 +1,13 @@
 module Plot
-    exposing 
+    exposing
         ( plot
         , dimensions
         , area
         , line
         , xAxis
         , yAxis
-        , amountOfTicks
         , tickList
+        , amountOfTicks
         , customViewTick
         , customViewLabel
         , stroke
@@ -22,15 +22,7 @@ import Svg exposing (g)
 import Svg.Attributes exposing (height, width, d, style)
 import String
 import Debug
-import Helpers
-    exposing
-        ( startPath
-        , toInstruction
-        , getLowest
-        , getHighest
-        , coordToInstruction
-        , toPositionAttr
-        )
+import Helpers exposing (..)
 
 
 type alias Point =
@@ -87,7 +79,7 @@ toPlotConfig attr config =
             { config | dimensions = dimensions }
 
         Id id ->
-            -- TODO: Should eventually not be optional
+            -- TODO: Should not be optional
             { config | id = id }
 
 
@@ -107,51 +99,57 @@ type TickConfig
 
 type alias AxisConfig msg =
     { tickConfig : TickConfig
-    , customViewTick : Point -> Float -> Svg.Svg msg
-    , customViewLabel : Point -> Float -> Svg.Svg msg
+    , customViewTick : Float -> Svg.Svg msg
+    , customViewLabel : Float -> Svg.Svg msg
     , orientation : Orientation
     }
 
 
 type AxisAttr msg
     = TickConfigAttr TickConfig
-    | ViewTick (Point -> Float -> Svg.Svg msg)
-    | ViewLabel (Point -> Float -> Svg.Svg msg)
+    | ViewTick (Float -> Svg.Svg msg)
+    | ViewLabel (Float -> Svg.Svg msg)
 
 
-defaultTickHtml : Orientation -> Point -> Float -> Svg.Svg msg
-defaultTickHtml axis ( x1, y1 ) tick =
+defaultTickHtml : Orientation -> Float -> Svg.Svg msg
+defaultTickHtml axis tick =
     let
-        ( x2, y2 ) =
-            case axis of
-                X -> (x1, y1 + 7)
-                Y -> (x1 - 7, y1)
+        displacement =
+            if axis == Y then toRotate 90 0 0 else ""
     in
-        Svg.g []
-            [ Svg.line
-                (toPositionAttr x1 y1 x2 y2)
-                []
+        Svg.line
+            [ Svg.Attributes.style "stroke: #757575;"
+            , Svg.Attributes.y2 "7"
+            , Svg.Attributes.transform displacement
             ]
+            []
 
 
-defaultLabelHtml : Orientation -> Point -> Float -> Svg.Svg a
-defaultLabelHtml axis ( x, y ) tick =
+defaultLabelHtml : Orientation -> Float -> Svg.Svg a
+defaultLabelHtml axis tick =
     let
+        commonStyle =
+            [ ("stroke", "#757575") ]
+
         style =
             case axis of
-                X -> "stroke: #757575; text-anchor: middle;"
-                Y -> "stroke: #757575; text-anchor: end;"
+                X ->
+                    ("text-anchor", "middle") :: commonStyle
+
+                Y ->
+                    ("text-anchor", "end") :: commonStyle
 
         displacement =
             case axis of
-                X -> "translate(0, 12)"
-                Y -> "translate(0, 5)"
+                X ->
+                    toTranslate (0, 12)
+
+                Y ->
+                    toTranslate (0, 5)
     in
         Svg.text'
             [ Svg.Attributes.transform displacement
-            , Svg.Attributes.x (toString x)
-            , Svg.Attributes.y (toString y)
-            , Svg.Attributes.style style
+            , Svg.Attributes.style (toStyle style)
             ]
             [ Svg.tspan [] [ Svg.text (toString (round tick)) ] ]
 
@@ -415,21 +413,13 @@ viewElements xAxis yAxis toSvgCoords element views =
 
         Axis config ->
             let
-                calculations =
+                (calculations, toSvgCoordsAxis) =
                     case config.orientation of
                         X ->
-                            xAxis
+                            (xAxis, toSvgCoords)
 
                         Y ->
-                            yAxis
-
-                toSvgCoordsAxis =
-                    case config.orientation of
-                        X ->
-                            toSvgCoords
-
-                        Y ->
-                            toSvgCoords << flipToY
+                            (yAxis, toSvgCoords << flipToY)
 
                 view =
                     viewAxis toSvgCoordsAxis calculations config
@@ -462,6 +452,7 @@ viewFrame config elements =
 
 -- View axis
 
+
 calulateTicks : AxisCalulation -> Int -> List Float
 calulateTicks { span, lowest, highest } amountOfTicks =
     let
@@ -485,6 +476,7 @@ viewAxis toSvgCoords calculations { tickConfig, customViewTick, customViewLabel 
             case tickConfig of
                 TickAmount amount ->
                     calulateTicks calculations amount
+
                 TickList ticks ->
                     ticks
 
@@ -515,24 +507,26 @@ viewAxisLine toSvgCoords { lowest, highest } =
             []
 
 
+
 -- View tick
 
 
-viewTick : (Point -> Point) -> AxisCalulation -> (Point -> Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
+viewTick : (Point -> Point) -> AxisCalulation -> (Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
 viewTick toSvgCoords { addSvg } customViewTick tick =
     let
-        -- for x: (v, 0), for y: (0, v)
-        positionA =
+        position =
             toSvgCoords ( tick, 0 )
     in
-        customViewTick positionA tick
+        Svg.g 
+            [ Svg.Attributes.transform (toTranslate position) ]
+            [ customViewTick tick ]
 
 
 
 -- View Label
 
 
-viewLabel : (Point -> Point) -> AxisCalulation -> (Point -> Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
+viewLabel : (Point -> Point) -> AxisCalulation -> (Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
 viewLabel toSvgCoords { addSvg } viewLabel tick =
     let
         -- for x: (v, 0), for y: (0, v)
@@ -540,10 +534,12 @@ viewLabel toSvgCoords { addSvg } viewLabel tick =
             toSvgCoords ( tick, 0 )
 
         -- for x: (v, -h), for y: (-h, v)
-        ( x, y ) =
+        position =
             addSvg ( x0, y0 ) ( 0, 10 )
     in
-        viewLabel ( x, y ) tick
+        Svg.g 
+            [ Svg.Attributes.transform (toTranslate position) ]
+            [ viewLabel tick ]
 
 
 
@@ -610,4 +606,5 @@ viewLine toSvgCoords { points, stroke } =
 flipToY : Point -> Point
 flipToY ( x, y ) =
     ( y, x )
+
 
