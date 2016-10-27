@@ -478,11 +478,14 @@ plot attrs elements =
         yAxis =
             calculateAxis Y height yValues
 
-        toSvgCoords ( x, y ) =
+        toSvgCoordsX ( x, y ) =
             ( xAxis.toSvg x, yAxis.toSvg -y )
 
+        toSvgCoordsY =
+            toSvgCoordsX << flipToY
+
         elementViews =
-            List.foldr (viewElements xAxis yAxis toSvgCoords) [] elements
+            List.foldr (viewElements xAxis yAxis toSvgCoordsX toSvgCoordsY) [] elements
     in
         viewFrame plotConfig elementViews
 
@@ -491,38 +494,28 @@ plot attrs elements =
 -- Elements
 
 
-viewElements : AxisCalulation -> AxisCalulation -> (Point -> Point) -> Element msg -> List (Svg.Svg msg) -> List (Svg.Svg msg)
-viewElements xAxis yAxis toSvgCoords element views =
+viewElements : AxisCalulation -> AxisCalulation -> (Point -> Point) -> (Point -> Point) -> Element msg -> List (Svg.Svg msg) -> List (Svg.Svg msg)
+viewElements xAxis yAxis toSvgCoordsX toSvgCoordsY element views =
     case element of
         Area config ->
-            (viewArea toSvgCoords config) :: views
+            (viewArea toSvgCoordsX config) :: views
 
         Line config ->
-            (viewLine toSvgCoords config) :: views
+            (viewLine toSvgCoordsX config) :: views
 
         Grid config ->
             let
-                ( calculations, toSvgCoordsAxis ) =
-                    case config.orientation of
-                        X ->
-                            ( xAxis, toSvgCoords )
-
-                        Y ->
-                            ( yAxis, toSvgCoords << flipToY )
+                ( calculations, toSvgCoords ) =
+                    fromOrientation config.orientation ( xAxis, toSvgCoordsX ) ( yAxis, toSvgCoordsY )
             in
-                (viewGrid toSvgCoordsAxis calculations config) :: views
+                (viewGrid toSvgCoords calculations config) :: views
 
         Axis config ->
             let
-                ( calculations, toSvgCoordsAxis ) =
-                    case config.orientation of
-                        X ->
-                            ( xAxis, toSvgCoords )
-
-                        Y ->
-                            ( yAxis, toSvgCoords << flipToY )
+                ( calculations, toSvgCoords ) =
+                    fromOrientation config.orientation ( xAxis, toSvgCoordsX ) ( yAxis, toSvgCoordsY )
             in
-                (viewAxis toSvgCoordsAxis calculations config) :: views
+                (viewAxis toSvgCoords calculations config) :: views
 
 
 
