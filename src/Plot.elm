@@ -129,10 +129,7 @@ defaultTickHtml : Orientation -> Float -> Svg.Svg msg
 defaultTickHtml axis tick =
     let
         displacement =
-            if axis == Y then
-                toRotate 90 0 0
-            else
-                ""
+            fromOrientation axis "" (toRotate 90 0 0)
     in
         Svg.line
             [ Svg.Attributes.style "stroke: #757575;"
@@ -149,24 +146,14 @@ defaultLabelHtml axis tick =
             [ ( "stroke", "#757575" ) ]
 
         style =
-            case axis of
-                X ->
-                    ( "text-anchor", "middle" ) :: commonStyle
-
-                Y ->
-                    ( "text-anchor", "end" ) :: commonStyle
+            fromOrientation axis ( "text-anchor", "middle" ) ( "text-anchor", "end" )
 
         displacement =
-            case axis of
-                X ->
-                    toTranslate ( 0, 22 )
-
-                Y ->
-                    toTranslate ( -10, 5 )
+            fromOrientation axis ( 0, 22 ) ( -10, 5 )
     in
         Svg.text'
-            [ Svg.Attributes.transform displacement
-            , Svg.Attributes.style (toStyle style)
+            [ Svg.Attributes.transform (toTranslate displacement)
+            , Svg.Attributes.style (toStyle (style :: commonStyle))
             ]
             [ Svg.tspan [] [ Svg.text (toString (round tick)) ] ]
 
