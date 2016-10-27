@@ -74,12 +74,14 @@ defaultPlotConfig =
     }
 
 
-dimensions dimensions =
-    Dimensions dimensions
+dimensions : (Int, Int) -> PlotAttr
+dimensions =
+    Dimensions
 
 
-id id =
-    Id id
+id : String -> PlotAttr
+id =
+    Id
 
 
 toPlotConfig : PlotAttr -> PlotConfig -> PlotConfig
@@ -178,24 +180,29 @@ defaultAxisConfig =
     }
 
 
+amountOfTicks : Int -> AxisAttr msg
 amountOfTicks amount =
     TickConfigAttr (TickAmount amount)
 
 
+tickList : List Float -> AxisAttr msg
 tickList ticks =
     TickConfigAttr (TickList ticks)
 
 
-customViewTick view =
-    ViewTick view
+customViewTick : (Float -> Svg.Svg msg) -> AxisAttr msg
+customViewTick =
+    ViewTick
 
 
-customViewLabel view =
-    ViewLabel view
+customViewLabel : (Float -> Svg.Svg msg) -> AxisAttr msg
+customViewLabel =
+    ViewLabel
 
 
-axisLineStyle styles =
-    AxisLineStyle styles
+axisLineStyle : List (String, String) -> AxisAttr msg
+axisLineStyle =
+    AxisLineStyle
 
 
 toAxisConfig : AxisAttr msg -> AxisConfig msg -> AxisConfig msg
@@ -251,12 +258,14 @@ defaultGridConfig =
     }
 
 
-gridStyle style =
-    GridStyle style
+gridStyle : List (String, String) -> GridAttr
+gridStyle =
+    GridStyle
 
 
-gridTicks ticks =
-    GridTicks ticks
+gridTicks : Maybe (List Float) -> GridAttr
+gridTicks =
+    GridTicks
 
 
 toGridConfig : GridAttr -> GridConfig -> GridConfig
@@ -299,12 +308,14 @@ type SerieAttr
     | Fill String
 
 
-stroke stroke =
-    Stroke stroke
+stroke : String -> SerieAttr
+stroke =
+    Stroke
 
 
-fill fill =
-    Fill fill
+fill : String -> SerieAttr
+fill =
+    Fill
 
 
 defaultAreaConfig =
@@ -437,16 +448,16 @@ calculateAxis orientation length values =
 
 
 collectPoints : Element msg -> List Point -> List Point
-collectPoints element points =
+collectPoints element allPoints =
     case element of
-        Area config ->
-            points ++ config.points
+        Area { points } ->
+            allPoints ++ points
 
-        Line config ->
-            points ++ config.points
+        Line { points } ->
+            allPoints ++ points
 
         _ ->
-            points
+            allPoints
 
 
 plot : List PlotAttr -> List (Element msg) -> Svg.Svg msg
