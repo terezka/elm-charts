@@ -159,10 +159,10 @@ defaultLabelHtml axis tick =
         displacement =
             case axis of
                 X ->
-                    toTranslate ( 0, 12 )
+                    toTranslate ( 0, 22 )
 
                 Y ->
-                    toTranslate ( 0, 5 )
+                    toTranslate ( -10, 5 )
     in
         Svg.text'
             [ Svg.Attributes.transform displacement
@@ -384,13 +384,12 @@ type alias AxisCalulation =
     , lowest : Float
     , highest : Float
     , toSvg : Float -> Float
-    , displaceSvg : Point -> Point -> Point
     }
 
 
 axisCalulationInit : AxisCalulation
 axisCalulationInit =
-    AxisCalulation 0 0 0 identity (\a b -> a)
+    AxisCalulation 0 0 0 identity
 
 
 addEdgeValues : List Float -> AxisCalulation -> AxisCalulation
@@ -426,21 +425,11 @@ addToSvg orientation length calculations =
         { calculations | toSvg = toSvg }
 
 
-addDisplaceSvg : Orientation -> AxisCalulation -> AxisCalulation
-addDisplaceSvg orientation calculations =
-    let
-        displaceSvg ( x, y ) ( dx, dy ) =
-            fromOrientation orientation ( x + dx, y + dy ) ( x - dy, y + dx )
-    in
-        { calculations | displaceSvg = displaceSvg }
-
-
 calculateAxis : Orientation -> Int -> List Float -> AxisCalulation
 calculateAxis orientation length values =
     axisCalulationInit
         |> addEdgeValues values
         |> addToSvg orientation length
-        |> addDisplaceSvg orientation
 
 
 
@@ -563,6 +552,16 @@ calulateTicks { span, lowest, highest } amountOfTicks =
         List.map toTick [0..steps]
 
 
+getTicks : AxisCalulation -> TickConfig -> List Float
+getTicks calculations tickConfig =
+    case tickConfig of
+        TickAmount amount ->
+            calulateTicks calculations amount
+
+        TickList ticks ->
+            ticks
+
+
 viewAxis : (Point -> Point) -> AxisCalulation -> AxisConfig msg -> Svg.Svg msg
 viewAxis toSvgCoords calculations config =
     let
@@ -570,18 +569,13 @@ viewAxis toSvgCoords calculations config =
             config
 
         ticks =
-            case tickConfig of
-                TickAmount amount ->
-                    calulateTicks calculations amount
-
-                TickList ticks ->
-                    ticks
+            getTicks calculations tickConfig
 
         tickViews =
-            List.map (viewTick toSvgCoords calculations customViewTick) ticks
+            List.map (viewTick toSvgCoords customViewTick) ticks
 
         labelViews =
-            List.map (viewLabel toSvgCoords calculations customViewLabel) ticks
+            List.map (viewLabel toSvgCoords customViewLabel) ticks
     in
         Svg.g []
             [ viewGridLine toSvgCoords calculations axisLineStyle 0
@@ -594,8 +588,8 @@ viewAxis toSvgCoords calculations config =
 -- View tick
 
 
-viewTick : (Point -> Point) -> AxisCalulation -> (Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
-viewTick toSvgCoords { displaceSvg } customViewTick tick =
+viewTick : (Point -> Point) -> (Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
+viewTick toSvgCoords customViewTick tick =
     let
         position =
             toSvgCoords ( tick, 0 )
@@ -609,14 +603,11 @@ viewTick toSvgCoords { displaceSvg } customViewTick tick =
 -- View Label
 
 
-viewLabel : (Point -> Point) -> AxisCalulation -> (Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
-viewLabel toSvgCoords { displaceSvg } viewLabel tick =
+viewLabel : (Point -> Point) -> (Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
+viewLabel toSvgCoords viewLabel tick =
     let
-        ( x0, y0 ) =
-            toSvgCoords ( tick, 0 )
-
         position =
-            displaceSvg ( x0, y0 ) ( 0, 10 )
+            toSvgCoords ( tick, 0 )
     in
         Svg.g
             [ Svg.Attributes.transform (toTranslate position) ]
@@ -640,7 +631,7 @@ viewGrid toSvgCoords calculations { ticks, styles } =
 
 
 viewGridLine : (Point -> Point) -> AxisCalulation -> List ( String, String ) -> Float -> Svg.Svg msg
-viewGridLine toSvgCoords { displaceSvg, lowest, highest } styles tick =
+viewGridLine toSvgCoords { lowest, highest } styles tick =
     let
         ( x1, y1 ) =
             toSvgCoords ( lowest, tick )

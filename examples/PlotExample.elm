@@ -17,7 +17,7 @@ myCustomXTick tick =
 myCustomLabel : Float -> Svg.Svg a
 myCustomLabel tick =
     Svg.text'
-        [ Svg.Attributes.transform "translate(0, 4)"
+        [ Svg.Attributes.transform "translate(-10, 4)"
         , Svg.Attributes.style "stroke: purple; text-anchor: end;"
         ]
         [ Svg.tspan [] [ Svg.text ((toString (round tick)) ++ " ms") ] ]
