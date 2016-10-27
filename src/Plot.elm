@@ -382,11 +382,6 @@ axisCalulationInit =
     AxisCalulation 0 0 0 identity (\a b -> a)
 
 
-getAxisValues : Orientation -> List Point -> List Float
-getAxisValues orientation points =
-    List.map (fromOrientation orientation fst snd) points
-
-
 addEdgeValues : List Float -> AxisCalulation -> AxisCalulation
 addEdgeValues values calculations =
     let
@@ -402,14 +397,14 @@ addEdgeValues values calculations =
         { calculations | lowest = lowest, highest = highest, span = span }
 
 
-addToSvg : Orientation -> ( Int, Int ) -> AxisCalulation -> AxisCalulation
-addToSvg orientation ( width, height ) calculations =
+addToSvg : Orientation -> Int -> AxisCalulation -> AxisCalulation
+addToSvg orientation length calculations =
     let
         { span, lowest, highest } =
             calculations
 
-        ( length, smallestValue ) =
-            fromOrientation orientation ( width, lowest ) ( height, highest )
+        smallestValue =
+            fromOrientation orientation lowest highest
 
         delta =
             toFloat length / span
@@ -429,16 +424,12 @@ addDisplaceSvg orientation calculations =
         { calculations | displaceSvg = displaceSvg }
 
 
-calculateAxis : Orientation -> ( Int, Int ) -> List Point -> AxisCalulation
-calculateAxis orientation dimensions points =
-    let
-        values =
-            getAxisValues orientation points
-    in
-        axisCalulationInit
-            |> addEdgeValues values
-            |> addToSvg orientation dimensions
-            |> addDisplaceSvg orientation
+calculateAxis : Orientation -> Int -> List Float -> AxisCalulation
+calculateAxis orientation length values =
+    axisCalulationInit
+        |> addEdgeValues values
+        |> addToSvg orientation length
+        |> addDisplaceSvg orientation
 
 
 
@@ -464,14 +455,17 @@ plot attrs elements =
         plotConfig =
             List.foldr toPlotConfig defaultPlotConfig attrs
 
-        points =
-            List.foldr collectPoints [] elements
+        (width, height) =
+            plotConfig.dimensions
+
+        (xValues, yValues) =
+            List.unzip (List.foldr collectPoints [] elements)
 
         xAxis =
-            calculateAxis X plotConfig.dimensions points
+            calculateAxis X width xValues
 
         yAxis =
-            calculateAxis Y plotConfig.dimensions points
+            calculateAxis Y height yValues
 
         toSvgCoords ( x, y ) =
             ( xAxis.toSvg x, yAxis.toSvg -y )
