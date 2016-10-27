@@ -365,47 +365,6 @@ line attrs points =
 
 
 
--- VIEW
-
-
-collectPoints : Element msg -> List Point -> List Point
-collectPoints element points =
-    case element of
-        Area config ->
-            points ++ config.points
-
-        Line config ->
-            points ++ config.points
-
-        _ ->
-            points
-
-
-plot : List PlotAttr -> List (Element msg) -> Svg.Svg msg
-plot attrs elements =
-    let
-        plotConfig =
-            List.foldr toPlotConfig defaultPlotConfig attrs
-
-        points =
-            List.foldr collectPoints [] elements
-
-        xAxis =
-            calculateAxis plotConfig.dimensions X points
-
-        yAxis =
-            calculateAxis plotConfig.dimensions Y points
-
-        toSvgCoords ( x, y ) =
-            ( xAxis.toSvg x, yAxis.toSvg -y )
-
-        elementViews =
-            List.foldr (viewElements xAxis yAxis toSvgCoords) [] elements
-    in
-        viewFrame plotConfig elementViews
-
-
-
 -- Calculations
 
 
@@ -470,8 +429,8 @@ addDisplaceSvg orientation calculations =
         { calculations | displaceSvg = displaceSvg }
 
 
-calculateAxis : ( Int, Int ) -> Orientation -> List Point -> AxisCalulation
-calculateAxis dimensions orientation points =
+calculateAxis : Orientation -> ( Int, Int ) -> List Point -> AxisCalulation
+calculateAxis orientation dimensions points =
     let
         values =
             getAxisValues orientation points
@@ -480,6 +439,47 @@ calculateAxis dimensions orientation points =
             |> addEdgeValues values
             |> addToSvg orientation dimensions
             |> addDisplaceSvg orientation
+
+
+
+-- VIEW
+
+
+collectPoints : Element msg -> List Point -> List Point
+collectPoints element points =
+    case element of
+        Area config ->
+            points ++ config.points
+
+        Line config ->
+            points ++ config.points
+
+        _ ->
+            points
+
+
+plot : List PlotAttr -> List (Element msg) -> Svg.Svg msg
+plot attrs elements =
+    let
+        plotConfig =
+            List.foldr toPlotConfig defaultPlotConfig attrs
+
+        points =
+            List.foldr collectPoints [] elements
+
+        xAxis =
+            calculateAxis X plotConfig.dimensions points
+
+        yAxis =
+            calculateAxis Y plotConfig.dimensions points
+
+        toSvgCoords ( x, y ) =
+            ( xAxis.toSvg x, yAxis.toSvg -y )
+
+        elementViews =
+            List.foldr (viewElements xAxis yAxis toSvgCoords) [] elements
+    in
+        viewFrame plotConfig elementViews
 
 
 
