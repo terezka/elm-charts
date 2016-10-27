@@ -409,58 +409,73 @@ type alias AxisCalulation =
     , lowest : Float
     , highest : Float
     , toSvg : Float -> Float
-    , addSvg : Point -> Point -> Point
+    , displaceSvg : Point -> Point -> Point
     }
 
 
-calculateAxis : ( Int, Int ) -> Orientation -> List Point -> AxisCalulation
-calculateAxis ( width, height ) orientation points =
+axisCalulationInit : AxisCalulation
+axisCalulationInit =
+    AxisCalulation 0 0 0 identity (\a b -> a)
+
+
+getAxisValues : Orientation -> List Point -> List Float
+getAxisValues orientation points =
+    List.map (fromOrientation orientation fst snd) points
+
+
+addEdgeValues : List Float -> AxisCalulation -> AxisCalulation
+addEdgeValues values calculations =
     let
-        values =
-            case orientation of
-                X ->
-                    List.map fst points
-
-                Y ->
-                    List.map snd points
-
         lowest =
             getLowest values
 
         highest =
             getHighest values
+    in
+        { calculations | lowest = lowest, highest = highest, span = abs lowest + abs highest }
 
-        span =
-            abs lowest + abs highest
+
+getDelta : Orientation -> (Int, Int) -> Float -> Float
+getDelta orientation (width, height) span =
+    toFloat (fromOrientation orientation width height) / span
+
+
+addToSvg : Orientation -> (Int, Int) -> AxisCalulation -> AxisCalulation
+addToSvg orientation dimensions calculations =
+    let
+        { span, lowest, highest } =
+            calculations
 
         delta =
-            case orientation of
-                X ->
-                    (toFloat width) / span
+            getDelta orientation dimensions span
 
-                Y ->
-                    (toFloat height) / span
+        smallestValue =
+            abs (fromOrientation orientation lowest highest) * delta
 
-        value0 =
-            case orientation of
-                X ->
-                    abs lowest * delta
-
-                Y ->
-                    abs highest * delta
-
-        toSvg a =
-            value0 + delta * a
-
-        addSvg ( x, y ) ( dx, dy ) =
-            case orientation of
-                X ->
-                    ( x + dx, y + dy )
-
-                Y ->
-                    ( x - dy, y + dx )
+        toSvg v =
+            smallestValue + delta * v
     in
-        AxisCalulation span lowest highest toSvg addSvg
+        { calculations | toSvg = toSvg }
+
+
+addDisplaceSvg : Orientation -> AxisCalulation -> AxisCalulation
+addDisplaceSvg orientation calculations =
+    let
+        displaceSvg ( x, y ) ( dx, dy ) =
+            fromOrientation orientation ( x + dx, y + dy ) ( x - dy, y + dx )
+    in
+        { calculations | displaceSvg = displaceSvg }
+
+
+calculateAxis : ( Int, Int ) -> Orientation -> List Point -> AxisCalulation
+calculateAxis dimensions orientation points =
+    let
+        values = getAxisValues orientation points
+    in
+        axisCalulationInit
+        |> addEdgeValues values
+        |> addToSvg orientation dimensions
+        |> addDisplaceSvg orientation
 
 
 
@@ -581,7 +596,7 @@ viewAxis toSvgCoords calculations config =
 
 
 viewTick : (Point -> Point) -> AxisCalulation -> (Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
-viewTick toSvgCoords { addSvg } customViewTick tick =
+viewTick toSvgCoords { displaceSvg } customViewTick tick =
     let
         position =
             toSvgCoords ( tick, 0 )
@@ -596,13 +611,13 @@ viewTick toSvgCoords { addSvg } customViewTick tick =
 
 
 viewLabel : (Point -> Point) -> AxisCalulation -> (Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
-viewLabel toSvgCoords { addSvg } viewLabel tick =
+viewLabel toSvgCoords { displaceSvg } viewLabel tick =
     let
         ( x0, y0 ) =
             toSvgCoords ( tick, 0 )
 
         position =
-            addSvg ( x0, y0 ) ( 0, 10 )
+            displaceSvg ( x0, y0 ) ( 0, 10 )
     in
         Svg.g 
             [ Svg.Attributes.transform (toTranslate position) ]
@@ -626,7 +641,7 @@ viewGrid toSvgCoords calculations { ticks, styles } =
 
 
 viewGridLine : (Point -> Point) -> AxisCalulation -> List (String, String) -> Float -> Svg.Svg msg
-viewGridLine toSvgCoords { addSvg, lowest, highest } styles tick =
+viewGridLine toSvgCoords { displaceSvg, lowest, highest } styles tick =
     let
         ( x1, y1 ) =
             toSvgCoords ( lowest, tick )
@@ -706,3 +721,11 @@ flipToY ( x, y ) =
     ( y, x )
 
 
+fromOrientation : Orientation -> a -> a -> a
+fromOrientation orientation x y =
+    case orientation of
+        X ->
+            x
+
+        Y ->
+            y
