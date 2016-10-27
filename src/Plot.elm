@@ -127,7 +127,10 @@ defaultTickHtml : Orientation -> Float -> Svg.Svg msg
 defaultTickHtml axis tick =
     let
         displacement =
-            if axis == Y then toRotate 90 0 0 else ""
+            if axis == Y then
+                toRotate 90 0 0
+            else
+                ""
     in
         Svg.line
             [ Svg.Attributes.style "stroke: #757575;"
@@ -141,23 +144,23 @@ defaultLabelHtml : Orientation -> Float -> Svg.Svg a
 defaultLabelHtml axis tick =
     let
         commonStyle =
-            [ ("stroke", "#757575") ]
+            [ ( "stroke", "#757575" ) ]
 
         style =
             case axis of
                 X ->
-                    ("text-anchor", "middle") :: commonStyle
+                    ( "text-anchor", "middle" ) :: commonStyle
 
                 Y ->
-                    ("text-anchor", "end") :: commonStyle
+                    ( "text-anchor", "end" ) :: commonStyle
 
         displacement =
             case axis of
                 X ->
-                    toTranslate (0, 12)
+                    toTranslate ( 0, 12 )
 
                 Y ->
-                    toTranslate (0, 5)
+                    toTranslate ( 0, 5 )
     in
         Svg.text'
             [ Svg.Attributes.transform displacement
@@ -170,7 +173,7 @@ defaultAxisConfig =
     { tickConfig = (TickAmount 10)
     , customViewTick = defaultTickHtml X
     , customViewLabel = defaultLabelHtml X
-    , axisLineStyle = [ ("stroke", "#757575" ) ]
+    , axisLineStyle = [ ( "stroke", "#757575" ) ]
     , orientation = X
     }
 
@@ -243,7 +246,7 @@ type GridAttr
 
 defaultGridConfig =
     { ticks = Nothing
-    , styles = [ ("stroke", "#757575" ) ]
+    , styles = [ ( "stroke", "#757575" ) ]
     , orientation = X
     }
 
@@ -274,9 +277,11 @@ verticalGrid attrs =
 horizontalGrid : List GridAttr -> Element msg
 horizontalGrid attrs =
     let
-        defaultGridConfigY = { defaultGridConfig | orientation = Y }
+        defaultGridConfigY =
+            { defaultGridConfig | orientation = Y }
     in
         Grid (List.foldr toGridConfig defaultGridConfigY attrs)
+
 
 
 -- Serie config
@@ -431,29 +436,27 @@ addEdgeValues values calculations =
 
         highest =
             getHighest values
+
+        span =
+            abs lowest + abs highest
     in
-        { calculations | lowest = lowest, highest = highest, span = abs lowest + abs highest }
+        { calculations | lowest = lowest, highest = highest, span = span }
 
 
-getDelta : Orientation -> (Int, Int) -> Float -> Float
-getDelta orientation (width, height) span =
-    toFloat (fromOrientation orientation width height) / span
-
-
-addToSvg : Orientation -> (Int, Int) -> AxisCalulation -> AxisCalulation
-addToSvg orientation dimensions calculations =
+addToSvg : Orientation -> ( Int, Int ) -> AxisCalulation -> AxisCalulation
+addToSvg orientation ( width, height ) calculations =
     let
         { span, lowest, highest } =
             calculations
 
-        delta =
-            getDelta orientation dimensions span
+        ( length, smallestValue ) =
+            fromOrientation orientation ( width, lowest ) ( height, highest )
 
-        smallestValue =
-            abs (fromOrientation orientation lowest highest) * delta
+        delta =
+            toFloat length / span
 
         toSvg v =
-            smallestValue + delta * v
+            (abs smallestValue * delta) + delta * v
     in
         { calculations | toSvg = toSvg }
 
@@ -470,12 +473,13 @@ addDisplaceSvg orientation calculations =
 calculateAxis : ( Int, Int ) -> Orientation -> List Point -> AxisCalulation
 calculateAxis dimensions orientation points =
     let
-        values = getAxisValues orientation points
+        values =
+            getAxisValues orientation points
     in
         axisCalulationInit
-        |> addEdgeValues values
-        |> addToSvg orientation dimensions
-        |> addDisplaceSvg orientation
+            |> addEdgeValues values
+            |> addToSvg orientation dimensions
+            |> addDisplaceSvg orientation
 
 
 
@@ -493,25 +497,25 @@ viewElements xAxis yAxis toSvgCoords element views =
 
         Grid config ->
             let
-                (calculations, toSvgCoordsAxis) =
+                ( calculations, toSvgCoordsAxis ) =
                     case config.orientation of
                         X ->
-                            (xAxis, toSvgCoords)
+                            ( xAxis, toSvgCoords )
 
                         Y ->
-                            (yAxis, toSvgCoords << flipToY)
+                            ( yAxis, toSvgCoords << flipToY )
             in
                 (viewGrid toSvgCoordsAxis calculations config) :: views
 
         Axis config ->
             let
-                (calculations, toSvgCoordsAxis) =
+                ( calculations, toSvgCoordsAxis ) =
                     case config.orientation of
                         X ->
-                            (xAxis, toSvgCoords)
+                            ( xAxis, toSvgCoords )
 
                         Y ->
-                            (yAxis, toSvgCoords << flipToY)
+                            ( yAxis, toSvgCoords << flipToY )
             in
                 (viewAxis toSvgCoordsAxis calculations config) :: views
 
@@ -564,11 +568,8 @@ calulateTicks { span, lowest, highest } amountOfTicks =
 viewAxis : (Point -> Point) -> AxisCalulation -> AxisConfig msg -> Svg.Svg msg
 viewAxis toSvgCoords calculations config =
     let
-        { tickConfig
-        , customViewTick
-        , customViewLabel
-        , axisLineStyle
-        } = config
+        { tickConfig, customViewTick, customViewLabel, axisLineStyle } =
+            config
 
         ticks =
             case tickConfig of
@@ -601,7 +602,7 @@ viewTick toSvgCoords { displaceSvg } customViewTick tick =
         position =
             toSvgCoords ( tick, 0 )
     in
-        Svg.g 
+        Svg.g
             [ Svg.Attributes.transform (toTranslate position) ]
             [ customViewTick tick ]
 
@@ -619,7 +620,7 @@ viewLabel toSvgCoords { displaceSvg } viewLabel tick =
         position =
             displaceSvg ( x0, y0 ) ( 0, 10 )
     in
-        Svg.g 
+        Svg.g
             [ Svg.Attributes.transform (toTranslate position) ]
             [ viewLabel tick ]
 
@@ -640,7 +641,7 @@ viewGrid toSvgCoords calculations { ticks, styles } =
         Svg.g [] lines
 
 
-viewGridLine : (Point -> Point) -> AxisCalulation -> List (String, String) -> Float -> Svg.Svg msg
+viewGridLine : (Point -> Point) -> AxisCalulation -> List ( String, String ) -> Float -> Svg.Svg msg
 viewGridLine toSvgCoords { displaceSvg, lowest, highest } styles tick =
     let
         ( x1, y1 ) =

@@ -9,7 +9,8 @@ myCustomXTick : Float -> Svg.Svg a
 myCustomXTick tick =
     Svg.text'
         [ Svg.Attributes.transform "translate(0, 8)"
-        , Svg.Attributes.style "text-anchor: middle;" ]
+        , Svg.Attributes.style "text-anchor: middle;"
+        ]
         [ Svg.tspan [] [ Svg.text "⚡️" ] ]
 
 
@@ -33,8 +34,8 @@ lineData =
 main =
     plot
         [ dimensions ( 800, 500 ) ]
-        [ horizontalGrid [ gridTicks (Just [ -40, -20, 20, 40, 60, 80, 100 ]), gridStyle [ ("stroke", "#cee0e2")] ]
-        , verticalGrid [ gridTicks (Just [ 200, 400, 600 ]), gridStyle [ ("stroke", "#cee0e2")] ]
+        [ horizontalGrid [ gridTicks (Just [ -40, -20, 20, 40, 60, 80, 100 ]), gridStyle [ ( "stroke", "#cee0e2" ) ] ]
+        , verticalGrid [ gridTicks (Just [ 200, 400, 600 ]), gridStyle [ ( "stroke", "#cee0e2" ) ] ]
         , area [ stroke "cornflowerblue", fill "#ccdeff" ] areaData
         , line [ stroke "mediumvioletred" ] lineData
         , xAxis

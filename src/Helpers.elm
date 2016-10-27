@@ -52,40 +52,48 @@ toPositionAttr x1 y1 x2 y2 =
     ]
 
 
-toTranslate : (Float, Float) -> String 
-toTranslate (x, y) =
+toTranslate : ( Float, Float ) -> String
+toTranslate ( x, y ) =
     "translate(" ++ (toString x) ++ "," ++ (toString y) ++ ")"
 
 
-toRotate : Float -> Float -> Float -> String 
+toRotate : Float -> Float -> Float -> String
 toRotate d x y =
-    "rotate(" ++ (toString d) ++ " "  ++ (toString x) ++ " " ++ (toString y) ++ ")"
+    "rotate(" ++ (toString d) ++ " " ++ (toString x) ++ " " ++ (toString y) ++ ")"
 
 
-toStyle : List (String, String) -> String
+toStyle : List ( String, String ) -> String
 toStyle styles =
-    List.foldr (\(p, v) r -> r ++ p ++ ":" ++ v ++ "; ") "" styles
+    List.foldr (\( p, v ) r -> r ++ p ++ ":" ++ v ++ "; ") "" styles
 
 
 calculateStep : Float -> Int -> Float
 calculateStep range targetSteps =
     let
         -- calculate an initial guess at step size
-        tempStep = range / (toFloat targetSteps)
+        tempStep =
+            range / (toFloat targetSteps)
 
         -- get the magnitude of the step size
-        mag = floor (logBase 10 tempStep)
-        magPow = toFloat (10^mag)
+        mag =
+            floor (logBase 10 tempStep)
+
+        magPow =
+            toFloat (10 ^ mag)
 
         -- calculate most significant digit of the new step size
-        magMsd = round (tempStep / (magPow + 0.5))
+        magMsd =
+            round (tempStep / (magPow + 0.5))
 
         -- promote the MSD to either 1, 2, or 5
         magMsdFinal =
-            if magMsd > 5 then 10
-            else if magMsd > 2 then 5
-            else if magMsd > 1 then 2
-            else 1
+            if magMsd > 5 then
+                10
+            else if magMsd > 2 then
+                5
+            else if magMsd > 1 then
+                2
+            else
+                1
     in
         (toFloat magMsdFinal) * magPow
-
