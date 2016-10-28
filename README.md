@@ -1,8 +1,6 @@
 # elm-plot
 
-Plot series in Svgs! Right now it can draw lines and areas. _In active development!_
-
-![alt plot](https://raw.githubusercontent.com/terezka/elm-plot/master/example.png)
+Plot series in Svgs! Right now it can draw lines and areas.
 
 ## What does the api look like?
 
