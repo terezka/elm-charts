@@ -16,8 +16,8 @@ multiAreaChart : Svg.Svg a
 multiAreaChart =
   plot
     [ size ( 600, 250 ) ]
-    [ area [ serieStyle [ ( "stroke", "#cfd8ea" ), ( "fill", "#e4eeff") ] ] data1
-    , area [ serieStyle [ ( "stroke", "#e6d7ce" ), ( "fill", "#feefe5") ] ] data2
+    [ area [ areaStyle [ ( "stroke", "#cfd8ea" ), ( "fill", "#e4eeff") ] ] data1
+    , area [ areaStyle [ ( "stroke", "#e6d7ce" ), ( "fill", "#feefe5") ] ] data2
     , xAxis
         [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
         , amountOfTicks 6

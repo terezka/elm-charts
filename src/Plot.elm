@@ -18,7 +18,8 @@ module Plot
         , axisLineStyle
         , gridStyle
         , gridTickList
-        , serieStyle
+        , lineStyle
+        , areaStyle
         , Point
         , PlotAttr
         , Element
@@ -60,7 +61,7 @@ module Plot
 @docs Point, area, line
 
 ## Attributes
-@docs serieStyle
+@docs lineStyle, areaStyle
 
 # Axis
 @docs xAxis, yAxis
@@ -473,12 +474,12 @@ type SerieAttr
     = SerieStyle Style
 
 
-{-| Specify the stroke color.
+{-| Specify the area serie style.
 
-    line [ serieStyle [ ( "stroke", "blue" ) ] ]
+    area [ areaStyle [ ( "stroke", "blue", "fill", "green" ) ] ]
 -}
-serieStyle : List ( String, String ) -> SerieAttr
-serieStyle =
+areaStyle : List ( String, String ) -> SerieAttr
+areaStyle =
     SerieStyle
 
 
@@ -518,6 +519,15 @@ defaultLineConfig =
     { style = [ ( "stroke", "#737373" ) ]
     , points = []
     }
+
+
+{-| Specify the area serie style.
+
+    line [ lineStyle [ ( "stroke", "blue" ) ] ]
+-}
+lineStyle : List ( String, String ) -> SerieAttr
+lineStyle style =
+    SerieStyle (style ++ [ ( "fill", "transparent" ) ])
 
 
 toLineConfig : SerieAttr -> LineConfig -> LineConfig
@@ -570,10 +580,10 @@ addEdgeValues length ( paddingBottom, paddingTop ) values calculations =
             abs lowestReal + abs highestReal
 
         paddingTopRelative =
-            (spanReal * ((toFloat paddingTop) / (toFloat length)))
+            spanReal * (toFloat paddingTop) / (toFloat length)
 
         paddingBottomRelative =
-            (spanReal * ((toFloat paddingBottom) / (toFloat length)))
+            spanReal * (toFloat paddingBottom) / (toFloat length)
 
         lowest =
             lowestReal - paddingBottomRelative
@@ -727,11 +737,11 @@ viewFrame { size, style } elements =
 calulateTicks : AxisCalulation -> Float -> List Float
 calulateTicks { span, lowest, highest } stepSize =
     let
-        steps =
-            floor (span / stepSize)
-
         lowestTick =
             toFloat (ceiling (lowest / stepSize)) * stepSize
+
+        steps =
+            ceiling ((span - abs lowestTick - stepSize) / stepSize)
 
         toTick i =
             lowestTick + (toFloat i) * stepSize
@@ -888,7 +898,7 @@ viewLine toSvgCoords { points, style } =
     in
         Svg.path
             [ Svg.Attributes.d (startInstruction ++ instructions)
-            , Svg.Attributes.style (toStyle (( "fill", "transparent" ) :: style))
+            , Svg.Attributes.style (toStyle style)
             ]
             []
 
