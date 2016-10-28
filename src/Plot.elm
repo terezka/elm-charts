@@ -74,7 +74,7 @@ module Plot
 
 -}
 
-import Html exposing (Html, button, div, text)
+import Html exposing (Html, button, text)
 import Html.Events exposing (on, onMouseOut)
 import Svg exposing (g)
 import Svg.Attributes exposing (height, width, d, style)
@@ -647,21 +647,16 @@ viewElements xAxis yAxis toSvgCoordsX toSvgCoordsY element views =
 
 
 viewFrame : PlotConfig -> List (Svg.Svg msg) -> Svg.Svg msg
-viewFrame { dimensions, id } elements =
+viewFrame { dimensions } elements =
     let
         ( width, height ) =
             dimensions
     in
-        Html.div
-            [ Html.Attributes.id id
-            , Html.Attributes.style [ ( "margin", "50px" ), ( "position", "absolute" ) ]
-            ]
-            [ Svg.svg
-                [ Svg.Attributes.height (toString height)
-                , Svg.Attributes.width (toString width)
-                ]
-                elements
-            ]
+      Svg.svg
+        [ Svg.Attributes.height (toString height)
+        , Svg.Attributes.width (toString width)
+        ]
+        elements
 
 
 
