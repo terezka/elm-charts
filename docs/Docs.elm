@@ -7,6 +7,11 @@ import Svg.Attributes
 import Plot exposing (..)
 import AreaChart exposing (areaChart)
 import MultiAreaChart exposing (multiAreaChart)
+import GridChart exposing (gridChart)
+
+
+viewTitle title =
+    div [ style [ ( "margin", "60px auto 10px" ) ] ] [ text title ]
 
 
 myCustomXTick : Float -> Svg.Svg a
@@ -80,11 +85,13 @@ main =
                 ]
                 [ text "https://github.com/terezka/elm-plot" ]
             ]
-        , div [ style [ ( "margin", "60px auto 10px" ) ] ] [ text "Simple Area Chart" ]
+        , viewTitle "Simple Area Chart"
         , areaChart
-        , div [ style [ ( "margin", "60px auto 10px" ) ] ] [ text "Multi Area Chart" ]
+        , viewTitle "Multi Area Chart"
         , multiAreaChart
-        , div [ style [ ( "margin", "60px auto 10px" ) ] ] [ text "Line Chart" ]
+        , viewTitle "Grid"
+        , gridChart
+        , viewTitle "Line Chart"
         , plot
             [ size ( 600, 250 ) ]
             [ line [ lineStyle [ ( "stroke", "#828da2" ) ] ] data1

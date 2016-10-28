@@ -265,7 +265,7 @@ defaultLabelHtml axis tick =
 
 
 defaultAxisConfig =
-    { tickConfig = (TickStep 10)
+    { tickConfig = (TickAmount 10)
     , customViewTick = defaultTickHtml X
     , customViewLabel = defaultLabelHtml X
     , axisLineStyle = [ ( "stroke", "#757575" ) ]
@@ -547,7 +547,7 @@ toLineConfig attr config =
 -}
 lineStyle : List ( String, String ) -> LineAttr
 lineStyle style =
-    LineStyle (style ++ [ ( "fill", "transparent" ) ])
+    LineStyle (( "fill", "transparent" ) :: style)
 
 
 {-| Draws a line serie.
@@ -753,8 +753,9 @@ calulateTicks { span, lowest, highest } stepSize =
         lowestTick =
             toFloat (ceiling (lowest / stepSize)) * stepSize
 
+        -- Prevent overflow
         steps =
-            ceiling ((span - abs lowestTick - stepSize) / stepSize)
+            ceiling ((span - abs lowestTick - stepSize + 1) / stepSize)
 
         toTick i =
             lowestTick + (toFloat i) * stepSize
