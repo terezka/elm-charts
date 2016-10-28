@@ -37,7 +37,7 @@ lineData =
 
 firstExampleAreaData : List ( Float, Float )
 firstExampleAreaData =
-    [ ( 0, 12 ), ( 1, 15 ), ( 2, 16 ), ( 3, 14 ), ( 4, 11 ), ( 5, 13 ), ( 6, 20 ), ( 7, 24 ) ]
+    [ ( 0, 8 ), ( 1, 13 ), ( 2, 14 ), ( 3, 12 ), ( 4, 11 ), ( 5, 16 ), ( 6, 22 ), ( 7, 32 ) ]
 
 
 main =
