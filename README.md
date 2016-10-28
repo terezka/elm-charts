@@ -18,7 +18,7 @@ Plot.plot
 ```
 
 The api is inspired by the elm-html attributes to create a more flexible configuration, allowing you
-to pass down only your needs changing the default configuration. 
+to pass down only your needs changing the default configuration.
 
 Also, in my experience, what you would really like from a plotting library is the calculations
 of the positions and so on, not really the styling. Based on this, I've allowed you to pass down a function producing
@@ -39,3 +39,9 @@ elm-reactor
 ```
 
 and open [example](http://localhost:8000/examples/PlotExample.elm)
+
+### Compile the Docs
+
+```
+elm-make docs/Docs.elm --output=docs/index.html
+```
