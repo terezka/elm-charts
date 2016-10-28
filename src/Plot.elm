@@ -76,7 +76,6 @@ module Plot
 
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (on, onMouseOut)
-import Html.Attributes exposing (id)
 import Svg exposing (g)
 import Svg.Attributes exposing (height, width, d, style)
 import String
@@ -112,22 +111,17 @@ type Element msg
 
 
 type alias PlotConfig =
-    { dimensions : ( Int, Int )
-    , id : String
-    }
+    { dimensions : ( Int, Int ) }
 
 
 {-| Represents an attribute for the plot.
 -}
 type PlotAttr
     = Dimensions ( Int, Int )
-    | Id String
 
 
 defaultPlotConfig =
-    { dimensions = ( 800, 500 )
-    , id = "elm-plot"
-    }
+    { dimensions = ( 800, 500 ) }
 
 
 {-| Specify the dimensions of your plot.
@@ -137,22 +131,11 @@ dimensions =
     Dimensions
 
 
-{-| Specify an id to the div wrapper of your plot.
--}
-id : String -> PlotAttr
-id =
-    Id
-
-
 toPlotConfig : PlotAttr -> PlotConfig -> PlotConfig
 toPlotConfig attr config =
     case attr of
         Dimensions dimensions ->
             { config | dimensions = dimensions }
-
-        Id id ->
-            -- TODO: Should not be optional
-            { config | id = id }
 
 
 
