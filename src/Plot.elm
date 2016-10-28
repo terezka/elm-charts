@@ -3,6 +3,7 @@ module Plot
         ( plot
         , size
         , padding
+        , plotStyle
         , area
         , line
         , horizontalGrid
@@ -17,8 +18,7 @@ module Plot
         , axisLineStyle
         , gridStyle
         , gridTickList
-        , stroke
-        , fill
+        , serieStyle
         , Point
         , PlotAttr
         , Element
@@ -54,13 +54,13 @@ module Plot
 @docs plot
 
 ## Attributes
-@docs size, padding
+@docs size, padding, plotStyle
 
 # Series
 @docs Point, area, line
 
 ## Attributes
-@docs stroke, fill
+@docs serieStyle
 
 # Axis
 @docs xAxis, yAxis
@@ -114,8 +114,9 @@ type Element msg
 
 type alias PlotConfig =
     { size : ( Int, Int )
-    , dimensions : Maybe (Float, Float)
-    , padding : (Int, Int)
+    , dimensions : Maybe ( Float, Float )
+    , padding : ( Int, Int )
+    , style : Style
     }
 
 
@@ -123,14 +124,16 @@ type alias PlotConfig =
 -}
 type PlotAttr
     = Dimensions (Maybe ( Float, Float ))
-    | Padding (Int, Int)
+    | Padding ( Int, Int )
     | Size ( Int, Int )
+    | PlotStyle Style
 
 
 defaultPlotConfig =
     { size = ( 800, 500 )
     , dimensions = Nothing
-    , padding = (10, 10)
+    , padding = ( 10, 10 )
+    , style = [ ( "padding", "30px" ), ( "overflow", "hidden" ) ]
     }
 
 
@@ -156,16 +159,23 @@ dimensions =
         plot [ padding (paddingBottom, paddingTop) ] []
 
 -}
-padding : (Int, Int) -> PlotAttr
+padding : ( Int, Int ) -> PlotAttr
 padding =
     Padding
 
 
 {-| Specify the width and height in pixels.
 -}
-size : (Int, Int) -> PlotAttr
+size : ( Int, Int ) -> PlotAttr
 size =
     Size
+
+
+{-| Specify a list of styles to set on the svg element.
+-}
+plotStyle : List ( String, String ) -> PlotAttr
+plotStyle =
+    PlotStyle
 
 
 toPlotConfig : PlotAttr -> PlotConfig -> PlotConfig
@@ -176,10 +186,13 @@ toPlotConfig attr config =
 
         Dimensions dimensions ->
             { config | dimensions = dimensions }
-        
+
         Padding padding ->
             { config | padding = padding }
-        
+
+        PlotStyle style ->
+            { config | style = style }
+
 
 
 -- Axis config
@@ -449,8 +462,7 @@ horizontalGrid attrs =
 
 
 type alias AreaConfig =
-    { fill : String
-    , stroke : String
+    { style : Style
     , points : List Point
     }
 
@@ -458,32 +470,20 @@ type alias AreaConfig =
 {-| Represents an attribute for the serie.
 -}
 type SerieAttr
-    = Stroke String
-    | Fill String
+    = SerieStyle Style
 
 
 {-| Specify the stroke color.
 
-    line [ stroke "blue" ]
+    line [ serieStyle [ ( "stroke", "blue" ) ] ]
 -}
-stroke : String -> SerieAttr
-stroke =
-    Stroke
-
-
-{-| Specify the area fill color.
-
-    area [ fill "red" ]
-
--}
-fill : String -> SerieAttr
-fill =
-    Fill
+serieStyle : List ( String, String ) -> SerieAttr
+serieStyle =
+    SerieStyle
 
 
 defaultAreaConfig =
-    { fill = "#ddd"
-    , stroke = "#737373"
+    { style = [ ( "stroke", "#737373" ), ( "fill", "#ddd" ) ]
     , points = []
     }
 
@@ -491,11 +491,8 @@ defaultAreaConfig =
 toAreaConfig : SerieAttr -> AreaConfig -> AreaConfig
 toAreaConfig attr config =
     case attr of
-        Stroke stroke ->
-            { config | stroke = stroke }
-
-        Fill fill ->
-            { config | fill = fill }
+        SerieStyle style ->
+            { config | style = style }
 
 
 {-| Draws a area serie.
@@ -512,13 +509,13 @@ area attrs points =
 
 
 type alias LineConfig =
-    { stroke : String
+    { style : Style
     , points : List Point
     }
 
 
 defaultLineConfig =
-    { stroke = "#737373"
+    { style = [ ( "stroke", "#737373" ) ]
     , points = []
     }
 
@@ -526,11 +523,8 @@ defaultLineConfig =
 toLineConfig : SerieAttr -> LineConfig -> LineConfig
 toLineConfig attr config =
     case attr of
-        Stroke stroke ->
-            { config | stroke = stroke }
-
-        _ ->
-            config
+        SerieStyle style ->
+            { config | style = style }
 
 
 {-| Draws a line serie.
@@ -563,12 +557,12 @@ axisCalulationInit =
     AxisCalulation 0 0 0 identity
 
 
-addEdgeValues : Int -> (Int, Int) -> List Float -> AxisCalulation -> AxisCalulation
-addEdgeValues length (paddingBottom, paddingTop) values calculations =
+addEdgeValues : Int -> ( Int, Int ) -> List Float -> AxisCalulation -> AxisCalulation
+addEdgeValues length ( paddingBottom, paddingTop ) values calculations =
     let
         lowestReal =
             getLowest values
-            
+
         highestReal =
             getHighest values
 
@@ -611,7 +605,7 @@ addToSvg orientation length calculations =
         { calculations | toSvg = toSvg }
 
 
-calculateAxis : Orientation -> Int -> (Int, Int) -> List Float -> AxisCalulation
+calculateAxis : Orientation -> Int -> ( Int, Int ) -> List Float -> AxisCalulation
 calculateAxis orientation length padding values =
     axisCalulationInit
         |> addEdgeValues length padding values
@@ -663,7 +657,7 @@ plot attrs elements =
             List.unzip (List.foldr collectPoints [] elements)
 
         xAxis =
-            calculateAxis X width (0, 0) xValues
+            calculateAxis X width ( 0, 0 ) xValues
 
         yAxis =
             calculateAxis Y height plotConfig.padding yValues
@@ -713,7 +707,7 @@ viewElements xAxis yAxis toSvgCoordsX toSvgCoordsY element views =
 
 
 viewFrame : PlotConfig -> List (Svg.Svg msg) -> Svg.Svg msg
-viewFrame { size } elements =
+viewFrame { size, style } elements =
     let
         ( width, height ) =
             size
@@ -721,6 +715,7 @@ viewFrame { size } elements =
         Svg.svg
             [ Svg.Attributes.height (toString height)
             , Svg.Attributes.width (toString width)
+            , Svg.Attributes.style (toStyle style)
             ]
             elements
 
@@ -733,7 +728,7 @@ calulateTicks : AxisCalulation -> Float -> List Float
 calulateTicks { span, lowest, highest } stepSize =
     let
         steps =
-            round (span / stepSize)
+            floor (span / stepSize)
 
         lowestTick =
             toFloat (ceiling (lowest / stepSize)) * stepSize
@@ -846,7 +841,7 @@ viewGridLine toSvgCoords { lowest, highest } styles tick =
 
 
 viewArea : (Point -> Point) -> AreaConfig -> Svg.Svg a
-viewArea toSvgCoords { points, stroke, fill } =
+viewArea toSvgCoords { points, style } =
     let
         range =
             List.map fst points
@@ -871,17 +866,16 @@ viewArea toSvgCoords { points, stroke, fill } =
 
         instructions =
             coordToInstruction "L" svgCoords
-
-        style' =
-            String.join "" [ "stroke: ", stroke, "; fill:", fill ]
     in
         Svg.path
-            [ d (startInstruction ++ instructions ++ endInstructions ++ "Z"), style style' ]
+            [ Svg.Attributes.d (startInstruction ++ instructions ++ endInstructions ++ "Z")
+            , Svg.Attributes.style (toStyle style)
+            ]
             []
 
 
 viewLine : (Point -> Point) -> LineConfig -> Svg.Svg a
-viewLine toSvgCoords { points, stroke } =
+viewLine toSvgCoords { points, style } =
     let
         svgPoints =
             List.map toSvgCoords points
@@ -891,11 +885,12 @@ viewLine toSvgCoords { points, stroke } =
 
         instructions =
             coordToInstruction "L" svgPoints
-
-        style' =
-            String.join "" [ "stroke: ", stroke, "; fill: none;" ]
     in
-        Svg.path [ d (startInstruction ++ instructions), style style' ] []
+        Svg.path
+            [ Svg.Attributes.d (startInstruction ++ instructions)
+            , Svg.Attributes.style (toStyle (( "fill", "transparent" ) :: style))
+            ]
+            []
 
 
 

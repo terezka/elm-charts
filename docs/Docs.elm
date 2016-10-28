@@ -34,7 +34,6 @@ lineData : List ( Float, Float )
 lineData =
     [ ( -50, 34 ), ( -30, 32 ), ( -20, 5 ), ( 2, -46 ), ( 10, -99 ), ( 30, -136 ), ( 90, -67 ), ( 120, 10 ) ]
 
-
 data1 : List ( Float, Float )
 data1 =
     [ ( 0, 8 ), ( 1, 13 ), ( 2, 14 ), ( 3, 12 ), ( 4, 11 ), ( 5, 16 ), ( 6, 22 ), ( 7, 32 ) ]
@@ -52,12 +51,16 @@ data4 =
     [ ( 0, 3 ), ( 1, 1 ), ( 2, 8 ), ( 3, 20 ), ( 4, 18 ), ( 5, 16 ), ( 6, 12 ), ( 7, 16 ) ]
 
 main =
-    div [ style [ ( "width", "600px" )
-                , ( "margin", "80px auto" )
-                , ( "font-family", "sans-serif" )
-                , ( "color", "#7F7F7F" )
-                , ( "font-weight", "200" )
-                , ( "text-align", "center" ) ] ]
+    div
+        [ style
+            [ ( "width", "800px" )
+            , ( "margin", "80px auto" )
+            , ( "font-family", "sans-serif" )
+            , ( "color", "#7F7F7F" )
+            , ( "font-weight", "200" )
+            , ( "text-align", "center" )
+            ]
+        ]
         [ img [ src "logo.png", style [ ( "width", "100px" ), ( "height", "100px" ) ] ] []
         , h1 [ style [ ( "font-weight", "200" ) ] ] [ text "Elm Plot" ]
         , div
@@ -73,7 +76,7 @@ main =
         , div [ style [ ( "margin", "60px auto 10px" ) ] ] [ text "Simple Area Chart" ]
         , plot
           [ size ( 600, 250 ) ]
-          [ area [ stroke "#cfd8ea", fill "#e4eeff" ] data1
+          [ area [ serieStyle [ ( "stroke", "#cfd8ea" ), ( "fill", "#e4eeff") ] ] data1
           , xAxis
               [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
               , tickList [ 0, 1, 2, 3, 4, 5, 6, 7 ]
@@ -82,8 +85,8 @@ main =
         , div [ style [ ( "margin", "60px auto 10px" ) ] ] [ text "Multi Area Chart" ]
         , plot
           [ size ( 600, 250 ) ]
-          [ area [ stroke "#cfd8ea", fill "#e4eeff" ] data2
-          , area [ stroke "#e6d7ce", fill "#feefe5" ] data3
+          [ area [ serieStyle [ ( "stroke", "#cfd8ea" ), ( "fill", "#e4eeff") ] ] data2
+          , area [ serieStyle [ ( "stroke", "#e6d7ce" ), ( "fill", "#feefe5") ] ] data3
           , xAxis
               [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
               , amountOfTicks 6
@@ -92,8 +95,8 @@ main =
         , div [ style [ ( "margin", "60px auto 10px" ) ] ] [ text "Line Chart" ]
         , plot
           [ size ( 600, 250 ) ]
-          [ line [ stroke "#828da2" ] data1
-          , line [ stroke "#c7978f" ] data4
+          [ line [ serieStyle [ ( "stroke", "#828da2" ) ] ] data1
+          , line [ serieStyle [ ( "stroke", "#c7978f" ) ] ] data4
           , xAxis
               [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
               , amountOfTicks 6
@@ -103,8 +106,8 @@ main =
             [ size ( 800, 500 ) ]
             [ horizontalGrid [ gridTickList [ -40, -20, 20, 40, 60, 80, 100 ], gridStyle [ ( "stroke", "#cee0e2" ) ] ]
             , verticalGrid [ gridTickList [ 200, 400, 600 ], gridStyle [ ( "stroke", "#cee0e2" ) ] ]
-            , area [ stroke "cornflowerblue", fill "#ccdeff" ] areaData
-            , line [ stroke "mediumvioletred" ] lineData
+            , area [ serieStyle [ ( "stroke", "cornflowerblue" ), ( "fill", "#ccdeff" ) ] ] areaData
+            , line [ serieStyle [ ( "stroke", "mediumvioletred" ) ] ] lineData
             , xAxis
                 [ customViewTick myCustomXTick
                 , axisLineStyle [ ( "stroke", "red" ) ]
