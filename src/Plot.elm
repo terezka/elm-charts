@@ -570,10 +570,10 @@ addEdgeValues length ( paddingBottom, paddingTop ) values calculations =
             abs lowestReal + abs highestReal
 
         paddingTopRelative =
-            (spanReal * ((toFloat paddingTop) / (toFloat length)))
+            spanReal * (toFloat paddingTop) / (toFloat length)
 
         paddingBottomRelative =
-            (spanReal * ((toFloat paddingBottom) / (toFloat length)))
+            spanReal * (toFloat paddingBottom) / (toFloat length)
 
         lowest =
             lowestReal - paddingBottomRelative
@@ -727,11 +727,11 @@ viewFrame { size, style } elements =
 calulateTicks : AxisCalulation -> Float -> List Float
 calulateTicks { span, lowest, highest } stepSize =
     let
-        steps =
-            floor (span / stepSize)
-
         lowestTick =
             toFloat (ceiling (lowest / stepSize)) * stepSize
+
+        steps =
+            ceiling ((span - abs lowestTick - stepSize) / stepSize)
 
         toTick i =
             lowestTick + (toFloat i) * stepSize
