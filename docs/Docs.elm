@@ -40,7 +40,7 @@ firstExampleAreaData =
 
 main =
     div [ style [ ( "width", "600px" )
-                , ( "padding", "80px auto" )
+                , ( "margin", "80px auto" )
                 , ( "font-family", "sans-serif" )
                 , ( "color", "#7F7F7F" )
                 , ( "text-align", "center" ) ] ]
@@ -48,7 +48,7 @@ main =
         , h1 [ style [ ( "font-weight", "200" ) ] ] [ text "Elm Plot" ]
         , plot
           [ dimensions ( 600, 250 ) ]
-          [ area [ stroke "6A6A6A", fill "#ccdeff" ] firstExampleAreaData
+          [ area [ stroke "#c3cbdc", fill "#dce8ff" ] firstExampleAreaData
           , xAxis
               [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
               , tickList [ 0, 1, 2, 3, 4, 5, 6, 7 ]
