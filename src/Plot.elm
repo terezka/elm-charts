@@ -755,7 +755,7 @@ calulateTicks { span, lowest, highest } stepSize =
 
         -- Prevent overflow
         steps =
-            ceiling ((span - abs lowestTick - stepSize + 1) / stepSize)
+            ceiling ((span - (abs lowest - abs lowestTick) - stepSize + 1) / stepSize)
 
         toTick i =
             lowestTick + (toFloat i) * stepSize

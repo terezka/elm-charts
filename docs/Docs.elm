@@ -10,6 +10,7 @@ import MultiAreaChart exposing (multiAreaChart)
 import GridChart exposing (gridChart)
 import MultiLineChart exposing (multiLineChart)
 import CustomTickChart exposing (customTickChart)
+import ComposedChart exposing (composedChart)
 
 
 viewTitle title =
@@ -97,4 +98,6 @@ main =
         , gridChart
         , viewTitle "Custom ticks and labels"
         , customTickChart
+        , viewTitle "Composable"
+        , composedChart
         ]
