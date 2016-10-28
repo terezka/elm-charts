@@ -7,13 +7,14 @@ Plot series in Svgs! Right now it can draw lines and areas. _In active developme
 ## What does the api look like?
 
 ```elm
-Plot.plot
-    [ Plot.dimensions (800, 500) ]
-    [ Plot.area [ Plot.stroke "cornflowerblue", Plot.fill "#ccdeff" ] areaData
-    , Plot.line [ Plot.stroke "mediumvioletred" ] lineData
-    , Plot.xAxis [ Plot.viewTick myCustomTick ]
-    , Plot.yAxis [ Plot.amountOfTicks 5 ]
-    ]
+	plot
+        [ size ( 600, 250 ), padding ( 40, 60 ) ]
+        [ verticalGrid [ gridTickList [ -30, 30, 70 ], gridStyle [ ( "stroke", "#e2e2e2" ) ] ]
+        , area [ areaStyle [ ( "stroke", "#e6d7ce" ), ( "fill", "#feefe5" ) ] ] areaData
+        , line [ lineStyle [ ( "stroke", "#b6c9ef" ) ] ] lineData
+        , yAxis [ axisLineStyle [ ( "stroke", "#b9b9b9" ) ], stepSize 20, customViewLabel customLabelY ]
+        , xAxis [ axisLineStyle [ ( "stroke", "#b9b9b9" ) ], customViewTick customTick, customViewLabel customLabelX ]
+        ]
 ```
 
 The api is inspired by the elm-html attributes to create a more flexible configuration, allowing you
