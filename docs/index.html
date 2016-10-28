@@ -9154,7 +9154,7 @@ var _terezka$elm_plot$ComposedChart$formatTickX = function (tick) {
 			var abbrivated = _elm_lang$core$Native_Utils.cmp(
 				_elm_lang$core$Basics$abs(tick) * 2,
 				10) > 0;
-			var formatted = abbrivated ? (tick * 2) : (tick * 200);
+			var formatted = abbrivated ? ((tick / 10) * 2) : (tick * 200);
 			var abbrivation = abbrivated ? 'k t' : ' t';
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
