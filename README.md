@@ -2,6 +2,8 @@
 
 Plot series in Svgs! Right now it can draw lines and areas. _In active development!_
 
+![alt plot](https://github.com/terezka/elm-plot/blob/master/example.png)
+
 ## What does the api look like?
 
 ```elm
