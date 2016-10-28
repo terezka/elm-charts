@@ -76,7 +76,7 @@ main =
         , div [ style [ ( "margin", "60px auto 10px" ) ] ] [ text "Simple Area Chart" ]
         , plot
           [ size ( 600, 250 ) ]
-          [ area [ serieStyle [ ( "stroke", "#cfd8ea" ), ( "fill", "#e4eeff") ] ] data1
+          [ area [ areaStyle [ ( "stroke", "#cfd8ea" ), ( "fill", "#e4eeff") ] ] data1
           , xAxis
               [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
               , tickList [ 0, 1, 2, 3, 4, 5, 6, 7 ]
@@ -85,8 +85,8 @@ main =
         , div [ style [ ( "margin", "60px auto 10px" ) ] ] [ text "Multi Area Chart" ]
         , plot
           [ size ( 600, 250 ) ]
-          [ area [ serieStyle [ ( "stroke", "#cfd8ea" ), ( "fill", "#e4eeff") ] ] data2
-          , area [ serieStyle [ ( "stroke", "#e6d7ce" ), ( "fill", "#feefe5") ] ] data3
+          [ area [ areaStyle [ ( "stroke", "#cfd8ea" ), ( "fill", "#e4eeff") ] ] data2
+          , area [ areaStyle [ ( "stroke", "#e6d7ce" ), ( "fill", "#feefe5") ] ] data3
           , xAxis
               [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
               , amountOfTicks 6
@@ -95,8 +95,8 @@ main =
         , div [ style [ ( "margin", "60px auto 10px" ) ] ] [ text "Line Chart" ]
         , plot
           [ size ( 600, 250 ) ]
-          [ line [ serieStyle [ ( "stroke", "#828da2" ) ] ] data1
-          , line [ serieStyle [ ( "stroke", "#c7978f" ) ] ] data4
+          [ line [ lineStyle [ ( "stroke", "#828da2" ) ] ] data1
+          , line [ lineStyle [ ( "stroke", "#c7978f" ) ] ] data4
           , xAxis
               [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
               , amountOfTicks 6
