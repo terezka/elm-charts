@@ -57,5 +57,5 @@ main =
         [ dimensions ( 800, 500 ) ]
         [ line [ stroke "mediumvioletred" ] lineData
         , xAxis [ stepSize 10 ]
-        , yAxis [ amountOfTicks 5  ]
+        , yAxis [ amountOfTicks 5 ]
         ]

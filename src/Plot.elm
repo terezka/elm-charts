@@ -716,7 +716,8 @@ getTicks calculations tickConfig =
     case tickConfig of
         TickAmount amount ->
             let
-                stepSize = calculateStep (calculations.span / (toFloat amount))
+                stepSize =
+                    calculateStep (calculations.span / (toFloat amount))
             in
                 calulateTicks calculations stepSize
 

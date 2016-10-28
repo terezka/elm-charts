@@ -71,7 +71,8 @@ calculateStep : Float -> Float
 calculateStep targetStep =
     let
         -- calculate an initial guess at step size
-        tempStep = targetStep
+        tempStep =
+            targetStep
 
         -- get the magnitude of the step size
         mag =
