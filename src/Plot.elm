@@ -255,7 +255,7 @@ defaultLabelHtml axis tick =
             fromOrientation axis ( "text-anchor", "middle" ) ( "text-anchor", "end" )
 
         displacement =
-            fromOrientation axis ( 0, 22 ) ( -10, 5 )
+            fromOrientation axis ( 0, 24 ) ( -10, 5 )
     in
         Svg.text'
             [ Svg.Attributes.transform (toTranslate displacement)
