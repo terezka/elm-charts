@@ -83,7 +83,7 @@ calculateStep range targetSteps =
 
         -- calculate most significant digit of the new step size
         magMsd =
-            round (tempStep / (magPow + 0.5))
+            round (tempStep / magPow)
 
         -- promote the MSD to either 1, 2, or 5
         magMsdFinal =
@@ -92,8 +92,8 @@ calculateStep range targetSteps =
             else if magMsd > 2 then
                 5
             else if magMsd > 1 then
-                2
-            else
                 1
+            else
+                magMsd
     in
         (toFloat magMsdFinal) * magPow

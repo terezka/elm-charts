@@ -23,10 +23,12 @@ myCustomLabel tick =
         [ Svg.tspan [] [ Svg.text ((toString (round tick)) ++ " ms") ] ]
 
 
+areaData : List ( Float, Float )
 areaData =
     [ ( -50, 34 ), ( -30, 432 ), ( -20, 35 ), ( 2, 546 ), ( 10, 345 ), ( 30, -42 ), ( 90, 67 ), ( 120, 50 ) ]
 
 
+lineData : List ( Float, Float )
 lineData =
     [ ( -50, 34 ), ( -30, 32 ), ( -20, 5 ), ( 2, -46 ), ( 10, -99 ), ( 30, -136 ), ( 90, -67 ), ( 120, 10 ) ]
 
@@ -34,8 +36,8 @@ lineData =
 main =
     plot
         [ dimensions ( 800, 500 ) ]
-        [ horizontalGrid [ gridTicks (Just [ -40, -20, 20, 40, 60, 80, 100 ]), gridStyle [ ( "stroke", "#cee0e2" ) ] ]
-        , verticalGrid [ gridTicks (Just [ 200, 400, 600 ]), gridStyle [ ( "stroke", "#cee0e2" ) ] ]
+        [ horizontalGrid [ gridTickList [ -40, -20, 20, 40, 60, 80, 100 ], gridStyle [ ( "stroke", "#cee0e2" ) ] ]
+        , verticalGrid [ gridTickList [ 200, 400, 600 ], gridStyle [ ( "stroke", "#cee0e2" ) ] ]
         , area [ stroke "cornflowerblue", fill "#ccdeff" ] areaData
         , line [ stroke "mediumvioletred" ] lineData
         , xAxis

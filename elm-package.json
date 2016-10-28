@@ -1,12 +1,14 @@
 {
     "version": "1.0.0",
-    "summary": "Frontend tool to plot live research data for KU center for quantum devices",
-    "repository": "https://github.com/terezka/elm-qdev.git",
+    "summary": "Customizable svg ploting elements",
+    "repository": "https://github.com/terezka/elm-plot.git",
     "license": "BSD3",
     "source-directories": [
         "./src"
     ],
-    "exposed-modules": [],
+    "exposed-modules": [
+        "Plot"
+    ],
     "dependencies": {
         "elm-lang/core": "4.0.1 <= v < 5.0.0",
         "elm-lang/html": "1.0.0 <= v < 2.0.0",

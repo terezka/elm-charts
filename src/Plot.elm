@@ -14,11 +14,65 @@ module Plot
         , customViewLabel
         , axisLineStyle
         , gridStyle
-        , gridTicks
+        , gridTickList
         , stroke
         , fill
         , Point
+        , PlotAttr
+        , Element
+        , AxisAttr
+        , GridAttr
+        , SerieAttr
         )
+
+{-|
+ This is a library to build configurable plots in svg. It aims to
+ have sane defaults without compromising flexibility in custom styling.
+
+ The api is inspired by the standard elm-html library, resulting in the
+ following structure.
+
+    view =
+        plot
+            [ dimensions ( 300, 400 ) ]
+            [ line [ stroke "red" ] points
+            , xAxis [ customViewTick myCustomTick ]
+            , yAxis [ tickList [ -20, 20, 40, 82 ] ]
+            ]
+
+ You always have the top element `plot` and its first argument is its attributes
+ and its second argument is its children elements. Similarily, the child elements'
+ first argument is always a list of attributes.
+
+
+# Definitions
+@docs Element, PlotAttr, AxisAttr, GridAttr, SerieAttr
+
+# Plot
+@docs plot
+
+## Attributes
+@docs dimensions
+
+# Series
+@docs Point, area, line
+
+## Attributes
+@docs stroke, fill
+
+# Axis
+@docs xAxis, yAxis
+
+## Attributes
+@docs tickList, amountOfTicks, customViewTick, customViewLabel, axisLineStyle
+
+# Grid
+@docs horizontalGrid, verticalGrid
+
+## Attributes
+@docs gridStyle, gridTickList
+
+-}
 
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (on, onMouseOut)
@@ -30,6 +84,8 @@ import Debug
 import Helpers exposing (..)
 
 
+{-| Convinience type to represent coordinates
+-}
 type alias Point =
     ( Float, Float )
 
@@ -38,14 +94,12 @@ type alias Style =
     List ( String, String )
 
 
-type alias Position =
-    { x : Int, y : Int }
-
-
 
 -- CONFIGS
 
 
+{-| Represents the type which are allowed in the plots list of children.
+-}
 type Element msg
     = Axis (AxisConfig msg)
     | Grid GridConfig
@@ -63,6 +117,8 @@ type alias PlotConfig =
     }
 
 
+{-| Represents an attribute for the plot.
+-}
 type PlotAttr
     = Dimensions ( Int, Int )
     | Id String
@@ -74,11 +130,15 @@ defaultPlotConfig =
     }
 
 
-dimensions : (Int, Int) -> PlotAttr
+{-| Specify the dimensions of your plot.
+-}
+dimensions : ( Int, Int ) -> PlotAttr
 dimensions =
     Dimensions
 
 
+{-| Specify an id to the div wrapper of your plot.
+-}
 id : String -> PlotAttr
 id =
     Id
@@ -118,6 +178,8 @@ type alias AxisConfig msg =
     }
 
 
+{-| Represents an attribute for the axis.
+-}
 type AxisAttr msg
     = TickConfigAttr TickConfig
     | ViewTick (Float -> Svg.Svg msg)
@@ -167,27 +229,68 @@ defaultAxisConfig =
     }
 
 
+{-| Specify a _guiding_ amount of ticks which the library will use
+to calculate "nice" axis values.
+
+    xAxis [ amountOfTicks 5 ]
+
+-}
 amountOfTicks : Int -> AxisAttr msg
 amountOfTicks amount =
     TickConfigAttr (TickAmount amount)
 
 
+{-| Specify the list of ticks to be show in on the axis.
+
+    xAxis [ tickList [ 10 25 32 47 ] ]
+
+-}
 tickList : List Float -> AxisAttr msg
 tickList ticks =
     TickConfigAttr (TickList ticks)
 
 
+{-| Specify the html to use for each tick. If you want to displace the tick, it
+ can be recommended to use `Svg.Attributes.transform` in your tick view.
+
+    myCustomTick : Float -> Svg.Svg a
+    myCustomTick tick =
+        Svg.text' [] [ Svg.tspan [] [ Svg.text "⚡️" ] ]
+
+
+    view : Html msg
+    view =
+        plot [] [ xAxis [ customViewTick myCustomTick ] ]
+
+-}
 customViewTick : (Float -> Svg.Svg msg) -> AxisAttr msg
 customViewTick =
     ViewTick
 
 
+{-| Specify the html to use for each label.
+
+    myCustomLabel : Float -> Svg.Svg a
+    myCustomLabel tick =
+        Svg.text' [] [ Svg.tspan [] [ Svg.text ((toString tick) ++ " ms") ] ]
+
+
+    view : Html msg
+    view =
+        plot [] [ xAxis [ customViewLabel myCustomTick ] ]
+
+-}
 customViewLabel : (Float -> Svg.Svg msg) -> AxisAttr msg
 customViewLabel =
     ViewLabel
 
 
-axisLineStyle : List (String, String) -> AxisAttr msg
+{-| Specify style of the axis.
+
+    yAxis [ axisLineStyle [ ( "stroke", "red" ) ] ]
+
+-}
+axisLineStyle : List ( String, String ) -> AxisAttr msg
 axisLineStyle =
     AxisLineStyle
 
@@ -208,11 +311,15 @@ toAxisConfig attr config =
             { config | axisLineStyle = styles }
 
 
+{-| Draws a x-axis.
+-}
 xAxis : List (AxisAttr msg) -> Element msg
 xAxis attrs =
     Axis (List.foldr toAxisConfig defaultAxisConfig attrs)
 
 
+{-| Draws a y-axis.
+-}
 yAxis : List (AxisAttr msg) -> Element msg
 yAxis attrs =
     let
@@ -227,31 +334,45 @@ yAxis attrs =
 
 
 type alias GridConfig =
-    { ticks : Maybe (List Float)
+    { ticks : List Float
     , styles : Style
     , orientation : Orientation
     }
 
 
+{-| Represents an attribute for the grid.
+-}
 type GridAttr
     = GridStyle Style
-    | GridTicks (Maybe (List Float))
+    | GridTicks (List Float)
 
 
 defaultGridConfig =
-    { ticks = Nothing
+    { ticks = []
     , styles = [ ( "stroke", "#757575" ) ]
     , orientation = X
     }
 
 
-gridStyle : List (String, String) -> GridAttr
+{-| Specify the styling for the grid.
+
+    verticalGrid [ gridStyle [ ( "stroke", "#cee0e2" ) ] ]
+
+-}
+gridStyle : List ( String, String ) -> GridAttr
 gridStyle =
     GridStyle
 
 
-gridTicks : Maybe (List Float) -> GridAttr
-gridTicks =
+{-| Specify the styling for the grid.
+
+    verticalGrid [ gridTickList [ 200, 400, 600 ] ]
+
+**Note:** This will _eventually_ be changed to a Maybe type and will default to
+align with whatever ticks are on your axis.
+-}
+gridTickList : List Float -> GridAttr
+gridTickList =
     GridTicks
 
 
@@ -265,11 +386,19 @@ toGridConfig attr config =
             { config | ticks = ticks }
 
 
+{-| Draws a vertical grid.
+
+    verticalGrid [ gridTickList [ 10 40 90 ] ]
+-}
 verticalGrid : List GridAttr -> Element msg
 verticalGrid attrs =
     Grid (List.foldr toGridConfig defaultGridConfig attrs)
 
 
+{-| Draws  a horizontal grid.
+
+    horizontalGrid [ gridTickList [ 20 30 40 ] ]
+-}
 horizontalGrid : List GridAttr -> Element msg
 horizontalGrid attrs =
     let
@@ -290,16 +419,27 @@ type alias AreaConfig =
     }
 
 
+{-| Represents an attribute for the serie.
+-}
 type SerieAttr
     = Stroke String
     | Fill String
 
 
+{-| Specify the stroke color.
+
+    line [ stroke "blue" ]
+-}
 stroke : String -> SerieAttr
 stroke =
     Stroke
 
 
+{-| Specify the area fill color.
+
+    area [ fill "red" ]
+
+-}
 fill : String -> SerieAttr
 fill =
     Fill
@@ -322,6 +462,10 @@ toAreaConfig attr config =
             { config | fill = fill }
 
 
+{-| Draws a area serie.
+
+    area [] [ (2, 4), (3, 6), (5, 3.4) ]
+-}
 area : List SerieAttr -> List Point -> Element msg
 area attrs points =
     let
@@ -353,6 +497,10 @@ toLineConfig attr config =
             config
 
 
+{-| Draws a line serie.
+
+    area [] [ (2, 3), (3, 8), (5, 7) ]
+-}
 line : List SerieAttr -> List Point -> Element msg
 line attrs points =
     let
@@ -419,10 +567,6 @@ calculateAxis orientation length values =
         |> addToSvg orientation length
 
 
-
--- VIEW
-
-
 collectPoints : Element msg -> List Point -> List Point
 collectPoints element allPoints =
     case element of
@@ -436,16 +580,37 @@ collectPoints element allPoints =
             allPoints
 
 
+{-| The parent to all your plot elements. Specify a list attributes as the first argument and a list
+of plot elements as the second.
+
+
+    attributes : List PlotAttr
+    attributes =
+        [ dimensions ( 300, 400 ) ]
+
+    children : List (Element msg)
+    children =
+        [ line [ stroke "red" ] points
+        , xAxis [ customViewTick myCustomTick ]
+        , yAxis []
+        ]
+
+    view =
+        plot attributes children
+
+
+
+-}
 plot : List PlotAttr -> List (Element msg) -> Svg.Svg msg
 plot attrs elements =
     let
         plotConfig =
             List.foldr toPlotConfig defaultPlotConfig attrs
 
-        (width, height) =
+        ( width, height ) =
             plotConfig.dimensions
 
-        (xValues, yValues) =
+        ( xValues, yValues ) =
             List.unzip (List.foldr collectPoints [] elements)
 
         xAxis =
@@ -467,7 +632,7 @@ plot attrs elements =
 
 
 
--- Elements
+-- VIEW
 
 
 viewElements : AxisCalulation -> AxisCalulation -> (Point -> Point) -> (Point -> Point) -> Element msg -> List (Svg.Svg msg) -> List (Svg.Svg msg)
@@ -499,13 +664,13 @@ viewElements xAxis yAxis toSvgCoordsX toSvgCoordsY element views =
 
 
 viewFrame : PlotConfig -> List (Svg.Svg msg) -> Svg.Svg msg
-viewFrame config elements =
+viewFrame { dimensions, id } elements =
     let
         ( width, height ) =
-            config.dimensions
+            dimensions
     in
         Html.div
-            [ Html.Attributes.id config.id
+            [ Html.Attributes.id id
             , Html.Attributes.style [ ( "margin", "50px" ), ( "position", "absolute" ) ]
             ]
             [ Svg.svg
@@ -529,7 +694,6 @@ calulateTicks { span, lowest, highest } amountOfTicks =
         steps =
             round (span / delta)
 
-        -- round up to nearest delta
         lowestTick =
             toFloat (ceiling (lowest / delta)) * delta
 
@@ -608,11 +772,8 @@ viewLabel toSvgCoords viewLabel tick =
 viewGrid : (Point -> Point) -> AxisCalulation -> GridConfig -> Svg.Svg msg
 viewGrid toSvgCoords calculations { ticks, styles } =
     let
-        positions =
-            Maybe.withDefault [] ticks
-
         lines =
-            List.map (viewGridLine toSvgCoords calculations styles) positions
+            List.map (viewGridLine toSvgCoords calculations styles) ticks
     in
         Svg.g [] lines
 
