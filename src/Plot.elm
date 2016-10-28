@@ -18,8 +18,7 @@ module Plot
         , axisLineStyle
         , gridStyle
         , gridTickList
-        , stroke
-        , fill
+        , serieStyle
         , Point
         , PlotAttr
         , Element
@@ -61,7 +60,7 @@ module Plot
 @docs Point, area, line
 
 ## Attributes
-@docs stroke, fill
+@docs serieStyle
 
 # Axis
 @docs xAxis, yAxis
@@ -463,8 +462,7 @@ horizontalGrid attrs =
 
 
 type alias AreaConfig =
-    { fill : String
-    , stroke : String
+    { style : Style
     , points : List Point
     }
 
@@ -472,32 +470,20 @@ type alias AreaConfig =
 {-| Represents an attribute for the serie.
 -}
 type SerieAttr
-    = Stroke String
-    | Fill String
+    = SerieStyle Style
 
 
 {-| Specify the stroke color.
 
-    line [ stroke "blue" ]
+    line [ serieStyle [ ( "stroke", "blue" ) ] ]
 -}
-stroke : String -> SerieAttr
-stroke =
-    Stroke
-
-
-{-| Specify the area fill color.
-
-    area [ fill "red" ]
-
--}
-fill : String -> SerieAttr
-fill =
-    Fill
+serieStyle : List (String, String) -> SerieAttr
+serieStyle =
+    SerieStyle
 
 
 defaultAreaConfig =
-    { fill = "#ddd"
-    , stroke = "#737373"
+    { style = [ ( "stroke", "#737373" ), ( "fill", "#ddd" ) ]
     , points = []
     }
 
@@ -505,11 +491,8 @@ defaultAreaConfig =
 toAreaConfig : SerieAttr -> AreaConfig -> AreaConfig
 toAreaConfig attr config =
     case attr of
-        Stroke stroke ->
-            { config | stroke = stroke }
-
-        Fill fill ->
-            { config | fill = fill }
+        SerieStyle style ->
+            { config | style = style }
 
 
 {-| Draws a area serie.
@@ -526,13 +509,13 @@ area attrs points =
 
 
 type alias LineConfig =
-    { stroke : String
+    { style : Style
     , points : List Point
     }
 
 
 defaultLineConfig =
-    { stroke = "#737373"
+    { style = [ ( "stroke", "#737373" ) ]
     , points = []
     }
 
@@ -540,11 +523,8 @@ defaultLineConfig =
 toLineConfig : SerieAttr -> LineConfig -> LineConfig
 toLineConfig attr config =
     case attr of
-        Stroke stroke ->
-            { config | stroke = stroke }
-
-        _ ->
-            config
+        SerieStyle style ->
+            { config | style = style }
 
 
 {-| Draws a line serie.
@@ -861,7 +841,7 @@ viewGridLine toSvgCoords { lowest, highest } styles tick =
 
 
 viewArea : (Point -> Point) -> AreaConfig -> Svg.Svg a
-viewArea toSvgCoords { points, stroke, fill } =
+viewArea toSvgCoords { points, style } =
     let
         range =
             List.map fst points
@@ -886,17 +866,16 @@ viewArea toSvgCoords { points, stroke, fill } =
 
         instructions =
             coordToInstruction "L" svgCoords
-
-        style' =
-            String.join "" [ "stroke: ", stroke, "; fill:", fill ]
     in
         Svg.path
-            [ d (startInstruction ++ instructions ++ endInstructions ++ "Z"), style style' ]
+            [ Svg.Attributes.d (startInstruction ++ instructions ++ endInstructions ++ "Z")
+            , Svg.Attributes.style (toStyle style)
+            ]
             []
 
 
 viewLine : (Point -> Point) -> LineConfig -> Svg.Svg a
-viewLine toSvgCoords { points, stroke } =
+viewLine toSvgCoords { points, style } =
     let
         svgPoints =
             List.map toSvgCoords points
@@ -906,11 +885,12 @@ viewLine toSvgCoords { points, stroke } =
 
         instructions =
             coordToInstruction "L" svgPoints
-
-        style' =
-            String.join "" [ "stroke: ", stroke, "; fill: none;" ]
     in
-        Svg.path [ d (startInstruction ++ instructions), style style' ] []
+        Svg.path 
+            [ Svg.Attributes.d (startInstruction ++ instructions)
+            , Svg.Attributes.style (toStyle (("fill", "transparent") :: style))
+            ]
+            []
 
 
 

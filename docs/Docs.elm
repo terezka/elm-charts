@@ -44,9 +44,9 @@ main =
         , plot
             [ size ( 800, 500 ) ]
             [ horizontalGrid [ gridTickList [ -40, -20, 20, 40, 60, 80, 100 ], gridStyle [ ( "stroke", "#cee0e2" ) ] ]
-            , verticalGrid [ gridTickList [ 200, 400 ], gridStyle [ ( "stroke", "#cee0e2" ) ] ]
-            , area [ stroke "cornflowerblue", fill "#ccdeff" ] areaData
-            , line [ stroke "mediumvioletred" ] lineData
+            , verticalGrid [ gridTickList [ 200, 400, 600 ], gridStyle [ ( "stroke", "#cee0e2" ) ] ]
+            , area [ serieStyle [("stroke", "cornflowerblue"), ("fill", "#ccdeff")] ] areaData
+            , line [ serieStyle [("stroke", "mediumvioletred")] ] lineData
             , xAxis
                 [ customViewTick myCustomXTick
                 , axisLineStyle [ ( "stroke", "red" ) ]
