@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html><head><meta charset="UTF-8"><title>Docs</title><style>html,head,body { padding:0; margin:0; }
+<html><head><meta charset="UTF-8"><title>Plotting in Elm!</title><style>html,head,body { padding:0; margin:0; }
 body { font-family: calibri, helvetica, arial, sans-serif; }</style><script type="text/javascript">
 (function() {
 'use strict';
@@ -8177,6 +8177,9 @@ var _elm_lang$svg$Svg_Attributes$additive = _elm_lang$virtual_dom$VirtualDom$att
 var _elm_lang$svg$Svg_Attributes$accumulate = _elm_lang$virtual_dom$VirtualDom$attribute('accumulate');
 var _elm_lang$svg$Svg_Attributes$accelerate = _elm_lang$virtual_dom$VirtualDom$attribute('accelerate');
 var _elm_lang$svg$Svg_Attributes$accentHeight = _elm_lang$virtual_dom$VirtualDom$attribute('accent-height');
+var _elm_lang$svg$Svg_Lazy$lazy3 = _elm_lang$virtual_dom$VirtualDom$lazy3;
+var _elm_lang$svg$Svg_Lazy$lazy2 = _elm_lang$virtual_dom$VirtualDom$lazy2;
+var _elm_lang$svg$Svg_Lazy$lazy = _elm_lang$virtual_dom$VirtualDom$lazy;
 var _terezka$elm_plot$Helpers$calculateStep = function (targetStep) {
 	var tempStep = targetStep;
 	var mag = _elm_lang$core$Basics$floor(
@@ -8895,7 +8898,7 @@ var _terezka$elm_plot$Plot$horizontalGrid = function (attrs) {
 	return _terezka$elm_plot$Plot$Grid(
 		A3(_elm_lang$core$List$foldr, _terezka$elm_plot$Plot$toGridConfig, defaultGridConfigY, attrs));
 };
-var _terezka$elm_plot$Plot$plot = F2(
+var _terezka$elm_plot$Plot$viewPlot = F2(
 	function (attrs, elements) {
 		var _p40 = _elm_lang$core$List$unzip(
 			A3(
@@ -8936,6 +8939,10 @@ var _terezka$elm_plot$Plot$plot = F2(
 				[]),
 			elements);
 		return A2(_terezka$elm_plot$Plot$viewFrame, plotConfig, elementViews);
+	});
+var _terezka$elm_plot$Plot$plot = F2(
+	function (attrs, elements) {
+		return A3(_elm_lang$svg$Svg_Lazy$lazy2, _terezka$elm_plot$Plot$viewPlot, attrs, elements);
 	});
 var _terezka$elm_plot$Plot$TickList = function (a) {
 	return {ctor: 'TickList', _0: a};
@@ -9556,22 +9563,53 @@ var _terezka$elm_plot$MultiLineChart$multiLineChart = A2(
 					_terezka$elm_plot$Plot$amountOfTicks(6)
 				]))
 		]));
-var _terezka$elm_plot$Docs$viewTitle = function (title) {
+var _terezka$elm_plot$Docs$toUrl = function (end) {
 	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html_Attributes$style(
-				_elm_lang$core$Native_List.fromArray(
-					[
-						{ctor: '_Tuple2', _0: 'margin', _1: '70px auto 10px'}
-					]))
-			]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html$text(title)
-			]));
+		_elm_lang$core$Basics_ops['++'],
+		'https://github.com/terezka/elm-plot/blob/master/docs/',
+		A2(_elm_lang$core$Basics_ops['++'], end, '.elm'));
 };
+var _terezka$elm_plot$Docs$viewTitle = F2(
+	function (title, url) {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$style(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							{ctor: '_Tuple2', _0: 'margin', _1: '70px auto 10px'}
+						]))
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$html$Html$div,
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text(title)
+						])),
+					A2(
+					_elm_lang$html$Html$a,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$href(
+							_terezka$elm_plot$Docs$toUrl(url)),
+							_elm_lang$html$Html_Attributes$style(
+							_elm_lang$core$Native_List.fromArray(
+								[
+									{ctor: '_Tuple2', _0: 'color', _1: '#9ea0a2'},
+									{ctor: '_Tuple2', _0: 'font-size', _1: '12px'}
+								]))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text('See code')
+						]))
+				]));
+	});
 var _terezka$elm_plot$Docs$main = {
 	main: A2(
 		_elm_lang$html$Html$div,
@@ -9653,17 +9691,17 @@ var _terezka$elm_plot$Docs$main = {
 								_elm_lang$html$Html$text('https://github.com/terezka/elm-plot')
 							]))
 					])),
-				_terezka$elm_plot$Docs$viewTitle('Simple Area Chart'),
+				A2(_terezka$elm_plot$Docs$viewTitle, 'Simple Area Chart', 'AreaChart'),
 				_terezka$elm_plot$AreaChart$areaChart,
-				_terezka$elm_plot$Docs$viewTitle('Multi Area Chart'),
+				A2(_terezka$elm_plot$Docs$viewTitle, 'Multi Area Chart', 'MultiAreaChart'),
 				_terezka$elm_plot$MultiAreaChart$multiAreaChart,
-				_terezka$elm_plot$Docs$viewTitle('Line Chart'),
+				A2(_terezka$elm_plot$Docs$viewTitle, 'Line Chart', 'MultiLineChart'),
 				_terezka$elm_plot$MultiLineChart$multiLineChart,
-				_terezka$elm_plot$Docs$viewTitle('Grid'),
+				A2(_terezka$elm_plot$Docs$viewTitle, 'Grid', 'GridChart'),
 				_terezka$elm_plot$GridChart$gridChart,
-				_terezka$elm_plot$Docs$viewTitle('Custom ticks and labels'),
+				A2(_terezka$elm_plot$Docs$viewTitle, 'Custom ticks and labels', 'CustomTickChart'),
 				_terezka$elm_plot$CustomTickChart$customTickChart,
-				_terezka$elm_plot$Docs$viewTitle('Composable'),
+				A2(_terezka$elm_plot$Docs$viewTitle, 'Composable', 'ComposedChart'),
 				_terezka$elm_plot$ComposedChart$composedChart
 			]))
 };

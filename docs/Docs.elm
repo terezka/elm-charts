@@ -1,6 +1,6 @@
 module Docs exposing (..)
 
-import Html exposing (div, text, h1, img, a, br)
+import Html exposing (div, text, h1, img, a, br, span)
 import Html.Attributes exposing (style, src, href)
 import Svg
 import Svg.Attributes
@@ -12,9 +12,17 @@ import MultiLineChart exposing (multiLineChart)
 import CustomTickChart exposing (customTickChart)
 import ComposedChart exposing (composedChart)
 
+toUrl end =
+    "https://github.com/terezka/elm-plot/blob/master/docs/" ++ end ++ ".elm"
 
-viewTitle title =
-    div [ style [ ( "margin", "70px auto 10px" ) ] ] [ text title ]
+
+viewTitle title url =
+    div [ style [ ( "margin", "70px auto 10px" ) ] ]
+        [ div [] [ text title ]
+        , a
+            [ href (toUrl url), style [ ( "color", "#9ea0a2" ), ( "font-size", "12px" ) ] ]
+            [ text "See code" ]
+        ]
 
 main =
     div
@@ -39,16 +47,16 @@ main =
                 ]
                 [ text "https://github.com/terezka/elm-plot" ]
             ]
-        , viewTitle "Simple Area Chart"
+        , viewTitle "Simple Area Chart" "AreaChart"
         , areaChart
-        , viewTitle "Multi Area Chart"
+        , viewTitle "Multi Area Chart" "MultiAreaChart"
         , multiAreaChart
-        , viewTitle "Line Chart"
+        , viewTitle "Line Chart" "MultiLineChart"
         , multiLineChart
-        , viewTitle "Grid"
+        , viewTitle "Grid" "GridChart"
         , gridChart
-        , viewTitle "Custom ticks and labels"
+        , viewTitle "Custom ticks and labels" "CustomTickChart"
         , customTickChart
-        , viewTitle "Composable"
+        , viewTitle "Composable" "ComposedChart"
         , composedChart
         ]
