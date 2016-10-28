@@ -141,7 +141,20 @@ dimensions =
     Dimensions
 
 
-{-| Specify additional top padding on the y axis (in pixels)
+{-| Specify padding on the y axis (in pixels)
+
+    paddingTop : Int
+    paddingTop =
+        40
+
+    paddingBottom : Int
+    paddingBottom =
+        30
+
+    view : Html msg
+    view =
+        plot [ padding (paddingBottom, paddingTop) ] []
+
 -}
 padding : (Int, Int) -> PlotAttr
 padding =
