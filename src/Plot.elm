@@ -25,7 +25,8 @@ module Plot
         , Element
         , AxisAttr
         , GridAttr
-        , SerieAttr
+        , AreaAttr
+        , LineAttr
         )
 
 {-|
@@ -49,7 +50,7 @@ module Plot
 
 
 # Definitions
-@docs Element, PlotAttr, AxisAttr, GridAttr, SerieAttr
+@docs Element, PlotAttr, AxisAttr, GridAttr, AreaAttr, LineAttr
 
 # Plot
 @docs plot
@@ -92,6 +93,8 @@ type alias Point =
     ( Float, Float )
 
 
+{-| Convinience type to represent style
+-}
 type alias Style =
     List ( String, String )
 
@@ -172,7 +175,7 @@ size =
     Size
 
 
-{-| Specify a list of styles to set on the svg element.
+{-| Specify a list of styles to apply to the svg element.
 -}
 plotStyle : List ( String, String ) -> PlotAttr
 plotStyle =
@@ -270,6 +273,23 @@ defaultAxisConfig =
     }
 
 
+toAxisConfig : AxisAttr msg -> AxisConfig msg -> AxisConfig msg
+toAxisConfig attr config =
+    case attr of
+        TickConfigAttr tickConfig ->
+            { config | tickConfig = tickConfig }
+
+        ViewTick viewTick ->
+            { config | customViewTick = viewTick }
+
+        ViewLabel viewLabel ->
+            { config | customViewLabel = viewLabel }
+
+        AxisLineStyle styles ->
+            { config | axisLineStyle = styles }
+
+
+
 {-| Specify a _guiding_ amount of ticks which the library will use to calculate "nice" axis values.
 
     xAxis [ amountOfTicks 5 ]
@@ -345,22 +365,6 @@ axisLineStyle =
     AxisLineStyle
 
 
-toAxisConfig : AxisAttr msg -> AxisConfig msg -> AxisConfig msg
-toAxisConfig attr config =
-    case attr of
-        TickConfigAttr tickConfig ->
-            { config | tickConfig = tickConfig }
-
-        ViewTick viewTick ->
-            { config | customViewTick = viewTick }
-
-        ViewLabel viewLabel ->
-            { config | customViewLabel = viewLabel }
-
-        AxisLineStyle styles ->
-            { config | axisLineStyle = styles }
-
-
 {-| Draws a x-axis.
 -}
 xAxis : List (AxisAttr msg) -> Element msg
@@ -404,6 +408,16 @@ defaultGridConfig =
     }
 
 
+toGridConfig : GridAttr -> GridConfig -> GridConfig
+toGridConfig attr config =
+    case attr of
+        GridStyle styles ->
+            { config | styles = styles }
+
+        GridTicks ticks ->
+            { config | ticks = ticks }
+
+
 {-| Specify the styling for the grid.
 
     verticalGrid [ gridStyle [ ( "stroke", "#cee0e2" ) ] ]
@@ -424,16 +438,6 @@ align with whatever ticks are on your axis.
 gridTickList : List Float -> GridAttr
 gridTickList =
     GridTicks
-
-
-toGridConfig : GridAttr -> GridConfig -> GridConfig
-toGridConfig attr config =
-    case attr of
-        GridStyle styles ->
-            { config | styles = styles }
-
-        GridTicks ticks ->
-            { config | ticks = ticks }
 
 
 {-| Draws a vertical grid.
@@ -459,7 +463,7 @@ horizontalGrid attrs =
 
 
 
--- Serie config
+-- Area config
 
 
 type alias AreaConfig =
@@ -470,17 +474,8 @@ type alias AreaConfig =
 
 {-| Represents an attribute for the serie.
 -}
-type SerieAttr
-    = SerieStyle Style
-
-
-{-| Specify the area serie style.
-
-    area [ areaStyle [ ( "stroke", "blue", "fill", "green" ) ] ]
--}
-areaStyle : List ( String, String ) -> SerieAttr
-areaStyle =
-    SerieStyle
+type AreaAttr
+    = AreaStyle Style
 
 
 defaultAreaConfig =
@@ -489,24 +484,37 @@ defaultAreaConfig =
     }
 
 
-toAreaConfig : SerieAttr -> AreaConfig -> AreaConfig
+toAreaConfig : AreaAttr -> AreaConfig -> AreaConfig
 toAreaConfig attr config =
     case attr of
-        SerieStyle style ->
+        AreaStyle style ->
             { config | style = style }
+
+
+{-| Specify the area serie style.
+
+    area [ areaStyle [ ( "stroke", "blue", "fill", "green" ) ] ]
+-}
+areaStyle : List ( String, String ) -> AreaAttr
+areaStyle =
+    AreaStyle
 
 
 {-| Draws a area serie.
 
     area [] [ (2, 4), (3, 6), (5, 3.4) ]
 -}
-area : List SerieAttr -> List Point -> Element msg
+area : List AreaAttr -> List Point -> Element msg
 area attrs points =
     let
         config =
             List.foldr toAreaConfig defaultAreaConfig attrs
     in
         Area { config | points = points }
+
+
+
+-- Line config
 
 
 type alias LineConfig =
@@ -521,27 +529,33 @@ defaultLineConfig =
     }
 
 
+{-| Represents an attribute for the serie.
+-}
+type LineAttr
+    = LineStyle Style
+
+
+toLineConfig : LineAttr -> LineConfig -> LineConfig
+toLineConfig attr config =
+    case attr of
+        LineStyle style ->
+            { config | style = style }
+
+
 {-| Specify the area serie style.
 
     line [ lineStyle [ ( "stroke", "blue" ) ] ]
 -}
-lineStyle : List ( String, String ) -> SerieAttr
+lineStyle : List ( String, String ) -> LineAttr
 lineStyle style =
-    SerieStyle (style ++ [ ( "fill", "transparent" ) ])
-
-
-toLineConfig : SerieAttr -> LineConfig -> LineConfig
-toLineConfig attr config =
-    case attr of
-        SerieStyle style ->
-            { config | style = style }
+    LineStyle (style ++ [ ( "fill", "transparent" ) ])
 
 
 {-| Draws a line serie.
 
     area [] [ (2, 3), (3, 8), (5, 7) ]
 -}
-line : List SerieAttr -> List Point -> Element msg
+line : List LineAttr -> List Point -> Element msg
 line attrs points =
     let
         config =
