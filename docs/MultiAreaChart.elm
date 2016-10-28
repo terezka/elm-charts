@@ -7,7 +7,7 @@ import Plot exposing (..)
 
 data1 : List ( Float, Float )
 data1 =
-    [ ( 0, 10 ), ( 10, 90 ), ( 20, 25 ), ( 30, 12 ), ( 40, 66 ), ( 50, 16 ) ]
+    [ ( 0, 10 ), ( 10, 90 ), ( 20, 25 ), ( 30, 15 ), ( 40, 66 ), ( 50, 16 ) ]
 
 
 data2 : List ( Float, Float )
