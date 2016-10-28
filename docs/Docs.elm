@@ -32,7 +32,6 @@ areaData =
 lineData =
     [ ( -50, 34 ), ( -30, 32 ), ( -20, 5 ), ( 2, -46 ), ( 10, -99 ), ( 30, -136 ), ( 90, -67 ), ( 120, 10 ) ]
 
-
 main =
     div [ style [ ( "width", "800px" )
                 , ( "margin", "80px auto" )
@@ -42,9 +41,9 @@ main =
         [ img [ src "logo.png", style [ ( "width", "100px" ), ( "height", "100px" ) ] ] []
         , h1 [ style [ ( "font-weight", "200" ) ] ] [ text "Elm Plot" ]
         , plot
-            [ dimensions ( 800, 500 ) ]
-            [ horizontalGrid [ gridTicks (Just [ -40, -20, 20, 40, 60, 80, 100 ]), gridStyle [ ( "stroke", "#cee0e2" ) ] ]
-            , verticalGrid [ gridTicks (Just [ 200, 400, 600 ]), gridStyle [ ( "stroke", "#cee0e2" ) ] ]
+            [ size ( 800, 500 ) ]
+            [ horizontalGrid [ gridTickList [ -40, -20, 20, 40, 60, 80, 100 ], gridStyle [ ( "stroke", "#cee0e2" ) ] ]
+            , verticalGrid [ gridTickList [ 200, 400, 600 ], gridStyle [ ( "stroke", "#cee0e2" ) ] ]
             , area [ stroke "cornflowerblue", fill "#ccdeff" ] areaData
             , line [ stroke "mediumvioletred" ] lineData
             , xAxis
