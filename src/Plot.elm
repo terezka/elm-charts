@@ -3,6 +3,7 @@ module Plot
         ( plot
         , size
         , padding
+        , plotStyle
         , area
         , line
         , horizontalGrid
@@ -54,7 +55,7 @@ module Plot
 @docs plot
 
 ## Attributes
-@docs size, padding
+@docs size, padding, plotStyle
 
 # Series
 @docs Point, area, line
@@ -116,6 +117,7 @@ type alias PlotConfig =
     { size : ( Int, Int )
     , dimensions : Maybe (Float, Float)
     , padding : (Int, Int)
+    , style : Style
     }
 
 
@@ -125,12 +127,14 @@ type PlotAttr
     = Dimensions (Maybe ( Float, Float ))
     | Padding (Int, Int)
     | Size ( Int, Int )
+    | PlotStyle Style
 
 
 defaultPlotConfig =
     { size = ( 800, 500 )
     , dimensions = Nothing
-    , padding = (10, 10)
+    , padding = ( 10, 10 )
+    , style = [ ( "padding", "30px" ), ( "overflow", "hidden" ) ]
     }
 
 
@@ -168,6 +172,13 @@ size =
     Size
 
 
+{-| Specify a list of styles to set on the svg element.
+-}
+plotStyle : List (String, String) -> PlotAttr
+plotStyle =
+    PlotStyle
+
+
 toPlotConfig : PlotAttr -> PlotConfig -> PlotConfig
 toPlotConfig attr config =
     case attr of
@@ -179,6 +190,9 @@ toPlotConfig attr config =
         
         Padding padding ->
             { config | padding = padding }
+
+        PlotStyle style ->
+            { config | style = style }
         
 
 
@@ -713,7 +727,7 @@ viewElements xAxis yAxis toSvgCoordsX toSvgCoordsY element views =
 
 
 viewFrame : PlotConfig -> List (Svg.Svg msg) -> Svg.Svg msg
-viewFrame { size } elements =
+viewFrame { size, style } elements =
     let
         ( width, height ) =
             size
@@ -721,6 +735,7 @@ viewFrame { size } elements =
         Svg.svg
             [ Svg.Attributes.height (toString height)
             , Svg.Attributes.width (toString width)
+            , Svg.Attributes.style (toStyle style)
             ]
             elements
 
@@ -733,7 +748,7 @@ calulateTicks : AxisCalulation -> Float -> List Float
 calulateTicks { span, lowest, highest } stepSize =
     let
         steps =
-            round (span / stepSize)
+            floor (span / stepSize)
 
         lowestTick =
             toFloat (ceiling (lowest / stepSize)) * stepSize
