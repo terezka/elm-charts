@@ -1,7 +1,8 @@
 module Plot
     exposing
         ( plot
-        , dimensions
+        , size
+        , padding
         , area
         , line
         , horizontalGrid
@@ -9,6 +10,7 @@ module Plot
         , xAxis
         , yAxis
         , tickList
+        , stepSize
         , amountOfTicks
         , customViewTick
         , customViewLabel
@@ -52,7 +54,7 @@ module Plot
 @docs plot
 
 ## Attributes
-@docs dimensions
+@docs size, padding
 
 # Series
 @docs Point, area, line
@@ -64,7 +66,7 @@ module Plot
 @docs xAxis, yAxis
 
 ## Attributes
-@docs tickList, amountOfTicks, customViewTick, customViewLabel, axisLineStyle
+@docs tickList, stepSize, amountOfTicks, customViewTick, customViewLabel, axisLineStyle
 
 # Grid
 @docs horizontalGrid, verticalGrid
@@ -74,7 +76,7 @@ module Plot
 
 -}
 
-import Html exposing (Html, button, text)
+import Html exposing (Html)
 import Html.Events exposing (on, onMouseOut)
 import Svg exposing (g)
 import Svg.Attributes exposing (height, width, d, style)
@@ -111,32 +113,73 @@ type Element msg
 
 
 type alias PlotConfig =
-    { dimensions : ( Int, Int ) }
+    { size : ( Int, Int )
+    , dimensions : Maybe (Float, Float)
+    , padding : (Int, Int)
+    }
 
 
 {-| Represents an attribute for the plot.
 -}
 type PlotAttr
-    = Dimensions ( Int, Int )
+    = Dimensions (Maybe ( Float, Float ))
+    | Padding (Int, Int)
+    | Size ( Int, Int )
 
 
 defaultPlotConfig =
-    { dimensions = ( 800, 500 ) }
+    { size = ( 800, 500 )
+    , dimensions = Nothing
+    , padding = (10, 10)
+    }
 
 
-{-| Specify the dimensions of your plot.
+{-| Specify the coordinate dimensions of your plot.
 -}
-dimensions : ( Int, Int ) -> PlotAttr
+dimensions : Maybe ( Float, Float ) -> PlotAttr
 dimensions =
     Dimensions
+
+
+{-| Specify padding on the y axis (in pixels)
+
+    paddingTop : Int
+    paddingTop =
+        40
+
+    paddingBottom : Int
+    paddingBottom =
+        30
+
+    view : Html msg
+    view =
+        plot [ padding (paddingBottom, paddingTop) ] []
+
+-}
+padding : (Int, Int) -> PlotAttr
+padding =
+    Padding
+
+
+{-| Specify the width and height in pixels.
+-}
+size : (Int, Int) -> PlotAttr
+size =
+    Size
 
 
 toPlotConfig : PlotAttr -> PlotConfig -> PlotConfig
 toPlotConfig attr config =
     case attr of
+        Size size ->
+            { config | size = size }
+
         Dimensions dimensions ->
             { config | dimensions = dimensions }
-
+        
+        Padding padding ->
+            { config | padding = padding }
+        
 
 
 -- Axis config
@@ -148,7 +191,8 @@ type Orientation
 
 
 type TickConfig
-    = TickAmount Int
+    = TickStep Float
+    | TickAmount Int
     | TickList (List Float)
 
 
@@ -200,11 +244,11 @@ defaultLabelHtml axis tick =
             [ Svg.Attributes.transform (toTranslate displacement)
             , Svg.Attributes.style (toStyle (style :: commonStyle))
             ]
-            [ Svg.tspan [] [ Svg.text (toString (round tick)) ] ]
+            [ Svg.tspan [] [ Svg.text (toString tick) ] ]
 
 
 defaultAxisConfig =
-    { tickConfig = (TickAmount 10)
+    { tickConfig = (TickStep 10)
     , customViewTick = defaultTickHtml X
     , customViewLabel = defaultLabelHtml X
     , axisLineStyle = [ ( "stroke", "#757575" ) ]
@@ -212,8 +256,7 @@ defaultAxisConfig =
     }
 
 
-{-| Specify a _guiding_ amount of ticks which the library will use
-to calculate "nice" axis values.
+{-| Specify a _guiding_ amount of ticks which the library will use to calculate "nice" axis values.
 
     xAxis [ amountOfTicks 5 ]
 
@@ -221,6 +264,16 @@ to calculate "nice" axis values.
 amountOfTicks : Int -> AxisAttr msg
 amountOfTicks amount =
     TickConfigAttr (TickAmount amount)
+
+
+{-| Specify the step size between the ticks.
+
+    xAxis [ stepSize 5 ]
+
+-}
+stepSize : Float -> AxisAttr msg
+stepSize stepSize =
+    TickConfigAttr (TickStep stepSize)
 
 
 {-| Specify the list of ticks to be show in on the axis.
@@ -510,17 +563,32 @@ axisCalulationInit =
     AxisCalulation 0 0 0 identity
 
 
-addEdgeValues : List Float -> AxisCalulation -> AxisCalulation
-addEdgeValues values calculations =
+addEdgeValues : Int -> (Int, Int) -> List Float -> AxisCalulation -> AxisCalulation
+addEdgeValues length (paddingBottom, paddingTop) values calculations =
     let
-        lowest =
+        lowestReal =
             getLowest values
-
-        highest =
+            
+        highestReal =
             getHighest values
 
+        spanReal =
+            abs lowestReal + abs highestReal
+
+        paddingTopRelative =
+            (spanReal * ((toFloat paddingTop) / (toFloat length)))
+
+        paddingBottomRelative =
+            (spanReal * ((toFloat paddingBottom) / (toFloat length)))
+
+        lowest =
+            lowestReal - paddingBottomRelative
+
+        highest =
+            highestReal + paddingTopRelative
+
         span =
-            abs lowest + abs highest
+            spanReal + paddingBottomRelative + paddingTopRelative
     in
         { calculations | lowest = lowest, highest = highest, span = span }
 
@@ -543,10 +611,10 @@ addToSvg orientation length calculations =
         { calculations | toSvg = toSvg }
 
 
-calculateAxis : Orientation -> Int -> List Float -> AxisCalulation
-calculateAxis orientation length values =
+calculateAxis : Orientation -> Int -> (Int, Int) -> List Float -> AxisCalulation
+calculateAxis orientation length padding values =
     axisCalulationInit
-        |> addEdgeValues values
+        |> addEdgeValues length padding values
         |> addToSvg orientation length
 
 
@@ -581,8 +649,6 @@ of plot elements as the second.
     view =
         plot attributes children
 
-
-
 -}
 plot : List PlotAttr -> List (Element msg) -> Svg.Svg msg
 plot attrs elements =
@@ -591,16 +657,16 @@ plot attrs elements =
             List.foldr toPlotConfig defaultPlotConfig attrs
 
         ( width, height ) =
-            plotConfig.dimensions
+            plotConfig.size
 
         ( xValues, yValues ) =
             List.unzip (List.foldr collectPoints [] elements)
 
         xAxis =
-            calculateAxis X width xValues
+            calculateAxis X width (0, 0) xValues
 
         yAxis =
-            calculateAxis Y height yValues
+            calculateAxis Y height plotConfig.padding yValues
 
         toSvgCoordsX ( x, y ) =
             ( xAxis.toSvg x, yAxis.toSvg -y )
@@ -647,36 +713,33 @@ viewElements xAxis yAxis toSvgCoordsX toSvgCoordsY element views =
 
 
 viewFrame : PlotConfig -> List (Svg.Svg msg) -> Svg.Svg msg
-viewFrame { dimensions } elements =
+viewFrame { size } elements =
     let
         ( width, height ) =
-            dimensions
+            size
     in
-      Svg.svg
-        [ Svg.Attributes.height (toString height)
-        , Svg.Attributes.width (toString width)
-        ]
-        elements
+        Svg.svg
+            [ Svg.Attributes.height (toString height)
+            , Svg.Attributes.width (toString width)
+            ]
+            elements
 
 
 
 -- View axis
 
 
-calulateTicks : AxisCalulation -> Int -> List Float
-calulateTicks { span, lowest, highest } amountOfTicks =
+calulateTicks : AxisCalulation -> Float -> List Float
+calulateTicks { span, lowest, highest } stepSize =
     let
-        delta =
-            calculateStep highest amountOfTicks
-
         steps =
-            round (span / delta)
+            round (span / stepSize)
 
         lowestTick =
-            toFloat (ceiling (lowest / delta)) * delta
+            toFloat (ceiling (lowest / stepSize)) * stepSize
 
         toTick i =
-            lowestTick + (toFloat i) * delta
+            lowestTick + (toFloat i) * stepSize
     in
         List.map toTick [0..steps]
 
@@ -685,7 +748,14 @@ getTicks : AxisCalulation -> TickConfig -> List Float
 getTicks calculations tickConfig =
     case tickConfig of
         TickAmount amount ->
-            calulateTicks calculations amount
+            let
+                stepSize =
+                    calculateStep (calculations.span / (toFloat amount))
+            in
+                calulateTicks calculations stepSize
+
+        TickStep stepSize ->
+            calulateTicks calculations stepSize
 
         TickList ticks ->
             ticks

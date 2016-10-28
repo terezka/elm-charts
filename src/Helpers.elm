@@ -67,12 +67,12 @@ toStyle styles =
     List.foldr (\( p, v ) r -> r ++ p ++ ":" ++ v ++ "; ") "" styles
 
 
-calculateStep : Float -> Int -> Float
-calculateStep range targetSteps =
+calculateStep : Float -> Float
+calculateStep targetStep =
     let
         -- calculate an initial guess at step size
         tempStep =
-            range / (toFloat targetSteps)
+            targetStep
 
         -- get the magnitude of the step size
         mag =

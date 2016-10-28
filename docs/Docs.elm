@@ -34,9 +34,11 @@ lineData : List ( Float, Float )
 lineData =
     [ ( -50, 34 ), ( -30, 32 ), ( -20, 5 ), ( 2, -46 ), ( 10, -99 ), ( 30, -136 ), ( 90, -67 ), ( 120, 10 ) ]
 
+
 firstExampleAreaData : List ( Float, Float )
 firstExampleAreaData =
     [ ( 0, 12 ), ( 1, 15 ), ( 2, 16 ), ( 3, 14 ), ( 4, 11 ), ( 5, 13 ), ( 6, 20 ), ( 7, 24 ) ]
+
 
 main =
     div [ style [ ( "width", "600px" )
@@ -47,7 +49,7 @@ main =
         [ img [ src "logo.png", style [ ( "width", "100px" ), ( "height", "100px" ) ] ] []
         , h1 [ style [ ( "font-weight", "200" ) ] ] [ text "Elm Plot" ]
         , plot
-          [ dimensions ( 600, 250 ) ]
+          [ size ( 600, 250 ) ]
           [ area [ stroke "#c3cbdc", fill "#dce8ff" ] firstExampleAreaData
           , xAxis
               [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
@@ -57,4 +59,20 @@ main =
               [ amountOfTicks 6
               ]
           ]
+        , plot
+            [ size ( 800, 500 ) ]
+            [ horizontalGrid [ gridTickList [ -40, -20, 20, 40, 60, 80, 100 ], gridStyle [ ( "stroke", "#cee0e2" ) ] ]
+            , verticalGrid [ gridTickList [ 200, 400, 600 ], gridStyle [ ( "stroke", "#cee0e2" ) ] ]
+            , area [ stroke "cornflowerblue", fill "#ccdeff" ] areaData
+            , line [ stroke "mediumvioletred" ] lineData
+            , xAxis
+                [ customViewTick myCustomXTick
+                , axisLineStyle [ ( "stroke", "red" ) ]
+                , tickList [ -20, 20, 40, 82 ]
+                ]
+            , yAxis
+                [ customViewLabel myCustomLabel
+                , amountOfTicks 5
+                ]
+            ]
         ]
