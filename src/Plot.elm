@@ -82,6 +82,7 @@ import Html exposing (Html)
 import Html.Events exposing (on, onMouseOut)
 import Svg exposing (g)
 import Svg.Attributes exposing (height, width, d, style)
+import Svg.Lazy
 import String
 import Debug
 import Helpers exposing (..)
@@ -667,8 +668,14 @@ of plot elements as the second.
         plot attributes children
 
 -}
+
 plot : List PlotAttr -> List (Element msg) -> Svg.Svg msg
 plot attrs elements =
+    Svg.Lazy.lazy2 viewPlot attrs elements
+
+
+viewPlot : List PlotAttr -> List (Element msg) -> Svg.Svg msg
+viewPlot attrs elements =
     let
         plotConfig =
             List.foldr toPlotConfig defaultPlotConfig attrs
