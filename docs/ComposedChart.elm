@@ -45,7 +45,17 @@ formatTickX tick =
     else if isOdd tick then
         ""
     else
-        (toString tick) ++ " t"
+        let
+            abbrivated =
+                (abs tick * 2) > 10 
+
+            formatted =
+                if abbrivated then tick * 2 else tick * 200
+
+            abbrivation =
+                if abbrivated then "k t" else " t"
+        in
+            (toString formatted) ++ abbrivation
 
 
 formatTickY : Float -> String
