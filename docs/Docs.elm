@@ -8,6 +8,7 @@ import Plot exposing (..)
 import AreaChart exposing (areaChart)
 import MultiAreaChart exposing (multiAreaChart)
 import GridChart exposing (gridChart)
+import MultiLineChart exposing (multiLineChart)
 
 
 viewTitle title =
@@ -92,15 +93,7 @@ main =
         , viewTitle "Grid"
         , gridChart
         , viewTitle "Line Chart"
-        , plot
-            [ size ( 600, 250 ) ]
-            [ line [ lineStyle [ ( "stroke", "#828da2" ) ] ] data1
-            , line [ lineStyle [ ( "stroke", "#c7978f" ) ] ] data4
-            , xAxis
-                [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
-                , amountOfTicks 6
-                ]
-            ]
+        , multiLineChart
         , plot
             [ size ( 800, 500 ) ]
             [ horizontalGrid [ gridTickList [ -40, -20, 20, 40, 60, 80, 100 ], gridStyle [ ( "stroke", "#cee0e2" ) ] ]
