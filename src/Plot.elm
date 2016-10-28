@@ -76,9 +76,8 @@ module Plot
 
 -}
 
-import Html exposing (Html, button, div, text)
+import Html exposing (Html)
 import Html.Events exposing (on, onMouseOut)
-import Html.Attributes exposing (id)
 import Svg exposing (g)
 import Svg.Attributes exposing (height, width, d, style)
 import String
@@ -117,7 +116,6 @@ type alias PlotConfig =
     { size : ( Int, Int )
     , dimensions : Maybe (Float, Float)
     , padding : (Int, Int)
-    , id : String
     }
 
 
@@ -127,14 +125,12 @@ type PlotAttr
     = Dimensions (Maybe ( Float, Float ))
     | Padding (Int, Int)
     | Size ( Int, Int )
-    | Id String
 
 
 defaultPlotConfig =
     { size = ( 800, 500 )
     , dimensions = Nothing
     , padding = (10, 10)
-    , id = "elm-plot"
     }
 
 
@@ -159,13 +155,6 @@ size =
     Size
 
 
-{-| Specify an id to the div wrapper of your plot.
--}
-id : String -> PlotAttr
-id =
-    Id
-
-
 toPlotConfig : PlotAttr -> PlotConfig -> PlotConfig
 toPlotConfig attr config =
     case attr of
@@ -178,10 +167,6 @@ toPlotConfig attr config =
         Padding padding ->
             { config | padding = padding }
         
-        Id id ->
-            -- TODO: Should not be optional
-            { config | id = id }
-
 
 
 -- Axis config
@@ -715,21 +700,16 @@ viewElements xAxis yAxis toSvgCoordsX toSvgCoordsY element views =
 
 
 viewFrame : PlotConfig -> List (Svg.Svg msg) -> Svg.Svg msg
-viewFrame { size, id } elements =
+viewFrame { size } elements =
     let
         ( width, height ) =
             size
     in
-        Html.div
-            [ Html.Attributes.id id
-            , Html.Attributes.style [ ( "margin", "50px" ), ( "position", "absolute" ) ]
+        Svg.svg
+            [ Svg.Attributes.height (toString height)
+            , Svg.Attributes.width (toString width)
             ]
-            [ Svg.svg
-                [ Svg.Attributes.height (toString height)
-                , Svg.Attributes.width (toString width)
-                ]
-                elements
-            ]
+            elements
 
 
 
