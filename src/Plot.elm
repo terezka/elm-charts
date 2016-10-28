@@ -18,7 +18,8 @@ module Plot
         , axisLineStyle
         , gridStyle
         , gridTickList
-        , serieStyle
+        , lineStyle
+        , areaStyle
         , Point
         , PlotAttr
         , Element
@@ -60,7 +61,7 @@ module Plot
 @docs Point, area, line
 
 ## Attributes
-@docs serieStyle
+@docs lineStyle, areaStyle
 
 # Axis
 @docs xAxis, yAxis
@@ -473,12 +474,12 @@ type SerieAttr
     = SerieStyle Style
 
 
-{-| Specify the stroke color.
+{-| Specify the area serie style.
 
-    line [ serieStyle [ ( "stroke", "blue" ) ] ]
+    area [ areaStyle [ ( "stroke", "blue", "fill", "green" ) ] ]
 -}
-serieStyle : List ( String, String ) -> SerieAttr
-serieStyle =
+areaStyle : List ( String, String ) -> SerieAttr
+areaStyle =
     SerieStyle
 
 
@@ -518,6 +519,15 @@ defaultLineConfig =
     { style = [ ( "stroke", "#737373" ) ]
     , points = []
     }
+
+
+{-| Specify the area serie style.
+
+    line [ lineStyle [ ( "stroke", "blue" ) ] ]
+-}
+lineStyle : List ( String, String ) -> SerieAttr
+lineStyle style =
+    SerieStyle (style ++ [ ( "fill", "transparent" ) ])
 
 
 toLineConfig : SerieAttr -> LineConfig -> LineConfig
@@ -888,7 +898,7 @@ viewLine toSvgCoords { points, style } =
     in
         Svg.path
             [ Svg.Attributes.d (startInstruction ++ instructions)
-            , Svg.Attributes.style (toStyle (( "fill", "transparent" ) :: style))
+            , Svg.Attributes.style (toStyle style)
             ]
             []
 
