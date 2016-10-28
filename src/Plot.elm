@@ -289,7 +289,6 @@ toAxisConfig attr config =
             { config | axisLineStyle = styles }
 
 
-
 {-| Specify a _guiding_ amount of ticks which the library will use to calculate "nice" axis values.
 
     xAxis [ amountOfTicks 5 ]
