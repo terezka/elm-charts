@@ -5,6 +5,8 @@ import Html.Attributes exposing (style, src, href)
 import Svg
 import Svg.Attributes
 import Plot exposing (..)
+import AreaChart exposing (areaChart)
+import MultiAreaChart exposing (multiAreaChart)
 
 
 myCustomXTick : Float -> Svg.Svg a
@@ -74,24 +76,9 @@ main =
             [ text "https://github.com/terezka/elm-plot" ]
           ]
         , div [ style [ ( "margin", "60px auto 10px" ) ] ] [ text "Simple Area Chart" ]
-        , plot
-          [ size ( 600, 250 ) ]
-          [ area [ areaStyle [ ( "stroke", "#cfd8ea" ), ( "fill", "#e4eeff") ] ] data1
-          , xAxis
-              [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
-              , tickList [ 0, 1, 2, 3, 4, 5, 6, 7 ]
-              ]
-          ]
+        , areaChart
         , div [ style [ ( "margin", "60px auto 10px" ) ] ] [ text "Multi Area Chart" ]
-        , plot
-          [ size ( 600, 250 ) ]
-          [ area [ areaStyle [ ( "stroke", "#cfd8ea" ), ( "fill", "#e4eeff") ] ] data2
-          , area [ areaStyle [ ( "stroke", "#e6d7ce" ), ( "fill", "#feefe5") ] ] data3
-          , xAxis
-              [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
-              , amountOfTicks 6
-              ]
-          ]
+        , multiAreaChart
         , div [ style [ ( "margin", "60px auto 10px" ) ] ] [ text "Line Chart" ]
         , plot
           [ size ( 600, 250 ) ]
