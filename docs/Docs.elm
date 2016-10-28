@@ -1,5 +1,7 @@
-module PlotExample exposing (..)
+module Docs exposing (..)
 
+import Html exposing (div, text, h1, img)
+import Html.Attributes exposing (style, src)
 import Svg
 import Svg.Attributes
 import Plot exposing (..)
@@ -32,19 +34,27 @@ lineData =
 
 
 main =
-    plot
-        [ dimensions ( 800, 500 ) ]
-        [ horizontalGrid [ gridTicks (Just [ -40, -20, 20, 40, 60, 80, 100 ]), gridStyle [ ( "stroke", "#cee0e2" ) ] ]
-        , verticalGrid [ gridTicks (Just [ 200, 400, 600 ]), gridStyle [ ( "stroke", "#cee0e2" ) ] ]
-        , area [ stroke "cornflowerblue", fill "#ccdeff" ] areaData
-        , line [ stroke "mediumvioletred" ] lineData
-        , xAxis
-            [ customViewTick myCustomXTick
-            , axisLineStyle [ ( "stroke", "red" ) ]
-            , tickList [ -20, 20, 40, 82 ]
-            ]
-        , yAxis
-            [ customViewLabel myCustomLabel
-            , amountOfTicks 5
+    div [ style [ ( "width", "800px" )
+                , ( "margin", "80px auto" )
+                , ( "font-family", "sans-serif" )
+                , ( "color", "#7F7F7F" )
+                , ( "text-align", "center" ) ] ]
+        [ img [ src "logo.png", style [ ( "width", "100px" ), ( "height", "100px" ) ] ] []
+        , h1 [ style [ ( "font-weight", "200" ) ] ] [ text "Elm Plot" ]
+        , plot
+            [ dimensions ( 800, 500 ) ]
+            [ horizontalGrid [ gridTicks (Just [ -40, -20, 20, 40, 60, 80, 100 ]), gridStyle [ ( "stroke", "#cee0e2" ) ] ]
+            , verticalGrid [ gridTicks (Just [ 200, 400, 600 ]), gridStyle [ ( "stroke", "#cee0e2" ) ] ]
+            , area [ stroke "cornflowerblue", fill "#ccdeff" ] areaData
+            , line [ stroke "mediumvioletred" ] lineData
+            , xAxis
+                [ customViewTick myCustomXTick
+                , axisLineStyle [ ( "stroke", "red" ) ]
+                , tickList [ -20, 20, 40, 82 ]
+                ]
+            , yAxis
+                [ customViewLabel myCustomLabel
+                , amountOfTicks 5
+                ]
             ]
         ]
