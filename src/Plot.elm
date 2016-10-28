@@ -9,6 +9,7 @@ module Plot
         , xAxis
         , yAxis
         , tickList
+        , stepSize
         , amountOfTicks
         , customViewTick
         , customViewLabel
@@ -64,7 +65,7 @@ module Plot
 @docs xAxis, yAxis
 
 ## Attributes
-@docs tickList, amountOfTicks, customViewTick, customViewLabel, axisLineStyle
+@docs tickList, stepSize, amountOfTicks, customViewTick, customViewLabel, axisLineStyle
 
 # Grid
 @docs horizontalGrid, verticalGrid
@@ -165,7 +166,8 @@ type Orientation
 
 
 type TickConfig
-    = TickAmount Int
+    = TickStep Float
+    | TickAmount Int
     | TickList (List Float)
 
 
@@ -217,11 +219,11 @@ defaultLabelHtml axis tick =
             [ Svg.Attributes.transform (toTranslate displacement)
             , Svg.Attributes.style (toStyle (style :: commonStyle))
             ]
-            [ Svg.tspan [] [ Svg.text (toString (round tick)) ] ]
+            [ Svg.tspan [] [ Svg.text (toString tick) ] ]
 
 
 defaultAxisConfig =
-    { tickConfig = (TickAmount 10)
+    { tickConfig = (TickStep 10)
     , customViewTick = defaultTickHtml X
     , customViewLabel = defaultLabelHtml X
     , axisLineStyle = [ ( "stroke", "#757575" ) ]
@@ -229,8 +231,7 @@ defaultAxisConfig =
     }
 
 
-{-| Specify a _guiding_ amount of ticks which the library will use
-to calculate "nice" axis values.
+{-| Specify a _guiding_ amount of ticks which the library will use to calculate "nice" axis values.
 
     xAxis [ amountOfTicks 5 ]
 
@@ -238,6 +239,16 @@ to calculate "nice" axis values.
 amountOfTicks : Int -> AxisAttr msg
 amountOfTicks amount =
     TickConfigAttr (TickAmount amount)
+
+
+{-| Specify the step size between the ticks.
+
+    xAxis [ stepSize 5 ]
+
+-}
+stepSize : Float -> AxisAttr msg
+stepSize stepSize =
+    TickConfigAttr (TickStep stepSize)
 
 
 {-| Specify the list of ticks to be show in on the axis.
@@ -685,20 +696,17 @@ viewFrame { dimensions, id } elements =
 -- View axis
 
 
-calulateTicks : AxisCalulation -> Int -> List Float
-calulateTicks { span, lowest, highest } amountOfTicks =
+calulateTicks : AxisCalulation -> Float -> List Float
+calulateTicks { span, lowest, highest } stepSize =
     let
-        delta =
-            calculateStep highest amountOfTicks
-
         steps =
-            round (span / delta)
+            round (span / stepSize)
 
         lowestTick =
-            toFloat (ceiling (lowest / delta)) * delta
+            toFloat (ceiling (lowest / stepSize)) * stepSize
 
         toTick i =
-            lowestTick + (toFloat i) * delta
+            lowestTick + (toFloat i) * stepSize
     in
         List.map toTick [0..steps]
 
@@ -707,7 +715,13 @@ getTicks : AxisCalulation -> TickConfig -> List Float
 getTicks calculations tickConfig =
     case tickConfig of
         TickAmount amount ->
-            calulateTicks calculations amount
+            let
+                stepSize = calculateStep (calculations.span / (toFloat amount))
+            in
+                calulateTicks calculations stepSize
+
+        TickStep stepSize ->
+            calulateTicks calculations stepSize
 
         TickList ticks ->
             ticks

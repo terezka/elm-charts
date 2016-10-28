@@ -20,7 +20,7 @@ myCustomLabel tick =
         [ Svg.Attributes.transform "translate(-10, 4)"
         , Svg.Attributes.style "stroke: purple; text-anchor: end;"
         ]
-        [ Svg.tspan [] [ Svg.text ((toString (round tick)) ++ " ms") ] ]
+        [ Svg.tspan [] [ Svg.text ((toString tick) ++ " ms") ] ]
 
 
 areaData : List ( Float, Float )
@@ -33,7 +33,7 @@ lineData =
     [ ( -50, 34 ), ( -30, 32 ), ( -20, 5 ), ( 2, -46 ), ( 10, -99 ), ( 30, -136 ), ( 90, -67 ), ( 120, 10 ) ]
 
 
-main =
+example1 =
     plot
         [ dimensions ( 800, 500 ) ]
         [ horizontalGrid [ gridTickList [ -40, -20, 20, 40, 60, 80, 100 ], gridStyle [ ( "stroke", "#cee0e2" ) ] ]
@@ -47,6 +47,15 @@ main =
             ]
         , yAxis
             [ customViewLabel myCustomLabel
-            , amountOfTicks 5
+            , stepSize 5
             ]
+        ]
+
+
+main =
+    plot
+        [ dimensions ( 800, 500 ) ]
+        [ line [ stroke "mediumvioletred" ] lineData
+        , xAxis [ stepSize 10 ]
+        , yAxis [ amountOfTicks 5  ]
         ]
