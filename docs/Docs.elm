@@ -14,7 +14,7 @@ import ComposedChart exposing (composedChart)
 
 
 viewTitle title =
-    div [ style [ ( "margin", "60px auto 10px" ) ] ] [ text title ]
+    div [ style [ ( "margin", "70px auto 10px" ) ] ] [ text title ]
 
 
 myCustomXTick : Float -> Svg.Svg a
