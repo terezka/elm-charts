@@ -113,8 +113,8 @@ data2 =
 composedChart : Svg.Svg a
 composedChart =
     plot
-        [ size ( 600, 250 ), padding ( 40, 10 ) ]
-        [ verticalGrid [ gridTickList [ -30, -10, 10, 30, 50 ], gridStyle [ ( "stroke", "#e2e2e2" ) ] ]
+        [ size ( 600, 250 ), padding ( 40, 60 ) ]
+        [ verticalGrid [ gridTickList [ -30, 30, 70 ], gridStyle [ ( "stroke", "#e2e2e2" ) ] ]
         , area [ areaStyle [ ( "stroke", "#e6d7ce" ), ( "fill", "#feefe5" ) ] ] data1
         , line [ lineStyle [ ( "stroke", "#b6c9ef" ) ] ] data2
         , yAxis [ axisLineStyle [ ( "stroke", "#b9b9b9" ) ], stepSize 20, customViewLabel (customLabel Y) ]
