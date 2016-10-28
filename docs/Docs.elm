@@ -16,55 +16,6 @@ import ComposedChart exposing (composedChart)
 viewTitle title =
     div [ style [ ( "margin", "70px auto 10px" ) ] ] [ text title ]
 
-
-myCustomXTick : Float -> Svg.Svg a
-myCustomXTick tick =
-    Svg.text'
-        [ Svg.Attributes.transform "translate(0, 8)"
-        , Svg.Attributes.style "text-anchor: middle;"
-        ]
-        [ Svg.tspan [] [ Svg.text "⚡️" ] ]
-
-
-myCustomLabel : Float -> Svg.Svg a
-myCustomLabel tick =
-    Svg.text'
-        [ Svg.Attributes.transform "translate(-10, 4)"
-        , Svg.Attributes.style "stroke: purple; text-anchor: end;"
-        ]
-        [ Svg.tspan [] [ Svg.text ((toString (round tick)) ++ " ms") ] ]
-
-
-areaData : List ( Float, Float )
-areaData =
-    [ ( -50, 34 ), ( -30, 432 ), ( -20, 35 ), ( 2, 546 ), ( 10, 345 ), ( 30, -42 ), ( 90, 67 ), ( 120, 50 ) ]
-
-
-lineData : List ( Float, Float )
-lineData =
-    [ ( -50, 34 ), ( -30, 32 ), ( -20, 5 ), ( 2, -46 ), ( 10, -99 ), ( 30, -136 ), ( 90, -67 ), ( 120, 10 ) ]
-
-
-data1 : List ( Float, Float )
-data1 =
-    [ ( 0, 8 ), ( 1, 13 ), ( 2, 14 ), ( 3, 12 ), ( 4, 11 ), ( 5, 16 ), ( 6, 22 ), ( 7, 32 ) ]
-
-
-data2 : List ( Float, Float )
-data2 =
-    [ ( 0, 10 ), ( 10, 90 ), ( 20, 25 ), ( 30, 12 ), ( 40, 66 ), ( 50, 16 ) ]
-
-
-data3 : List ( Float, Float )
-data3 =
-    [ ( 0, 5 ), ( 10, 20 ), ( 20, 10 ), ( 30, 12 ), ( 40, 20 ), ( 50, 0 ) ]
-
-
-data4 : List ( Float, Float )
-data4 =
-    [ ( 0, 3 ), ( 1, 1 ), ( 2, 8 ), ( 3, 20 ), ( 4, 18 ), ( 5, 16 ), ( 6, 12 ), ( 7, 16 ) ]
-
-
 main =
     div
         [ style
