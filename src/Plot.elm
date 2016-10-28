@@ -1,7 +1,8 @@
 module Plot
     exposing
         ( plot
-        , dimensions
+        , size
+        , padding
         , area
         , line
         , horizontalGrid
@@ -53,7 +54,7 @@ module Plot
 @docs plot
 
 ## Attributes
-@docs dimensions
+@docs size, padding
 
 # Series
 @docs Point, area, line
@@ -113,7 +114,9 @@ type Element msg
 
 
 type alias PlotConfig =
-    { dimensions : ( Int, Int )
+    { size : ( Int, Int )
+    , dimensions : Maybe (Float, Float)
+    , padding : (Int, Int)
     , id : String
     }
 
@@ -121,21 +124,39 @@ type alias PlotConfig =
 {-| Represents an attribute for the plot.
 -}
 type PlotAttr
-    = Dimensions ( Int, Int )
+    = Dimensions (Maybe ( Float, Float ))
+    | Padding (Int, Int)
+    | Size ( Int, Int )
     | Id String
 
 
 defaultPlotConfig =
-    { dimensions = ( 800, 500 )
+    { size = ( 800, 500 )
+    , dimensions = Nothing
+    , padding = (10, 10)
     , id = "elm-plot"
     }
 
 
-{-| Specify the dimensions of your plot.
+{-| Specify the coordinate dimensions of your plot.
 -}
-dimensions : ( Int, Int ) -> PlotAttr
+dimensions : Maybe ( Float, Float ) -> PlotAttr
 dimensions =
     Dimensions
+
+
+{-| Specify additional top padding on the y axis (in pixels)
+-}
+padding : (Int, Int) -> PlotAttr
+padding =
+    Padding
+
+
+{-| Specify the width and height in pixels.
+-}
+size : (Int, Int) -> PlotAttr
+size =
+    Size
 
 
 {-| Specify an id to the div wrapper of your plot.
@@ -148,9 +169,15 @@ id =
 toPlotConfig : PlotAttr -> PlotConfig -> PlotConfig
 toPlotConfig attr config =
     case attr of
+        Size size ->
+            { config | size = size }
+
         Dimensions dimensions ->
             { config | dimensions = dimensions }
-
+        
+        Padding padding ->
+            { config | padding = padding }
+        
         Id id ->
             -- TODO: Should not be optional
             { config | id = id }
@@ -538,17 +565,32 @@ axisCalulationInit =
     AxisCalulation 0 0 0 identity
 
 
-addEdgeValues : List Float -> AxisCalulation -> AxisCalulation
-addEdgeValues values calculations =
+addEdgeValues : Int -> (Int, Int) -> List Float -> AxisCalulation -> AxisCalulation
+addEdgeValues length (paddingBottom, paddingTop) values calculations =
     let
-        lowest =
+        lowestReal =
             getLowest values
-
-        highest =
+            
+        highestReal =
             getHighest values
 
+        spanReal =
+            abs lowestReal + abs highestReal
+
+        paddingTopRelative =
+            (spanReal * ((toFloat paddingTop) / (toFloat length)))
+
+        paddingBottomRelative =
+            (spanReal * ((toFloat paddingBottom) / (toFloat length)))
+
+        lowest =
+            lowestReal - paddingBottomRelative
+
+        highest =
+            highestReal + paddingTopRelative
+
         span =
-            abs lowest + abs highest
+            spanReal + paddingBottomRelative + paddingTopRelative
     in
         { calculations | lowest = lowest, highest = highest, span = span }
 
@@ -571,10 +613,10 @@ addToSvg orientation length calculations =
         { calculations | toSvg = toSvg }
 
 
-calculateAxis : Orientation -> Int -> List Float -> AxisCalulation
-calculateAxis orientation length values =
+calculateAxis : Orientation -> Int -> (Int, Int) -> List Float -> AxisCalulation
+calculateAxis orientation length padding values =
     axisCalulationInit
-        |> addEdgeValues values
+        |> addEdgeValues length padding values
         |> addToSvg orientation length
 
 
@@ -609,8 +651,6 @@ of plot elements as the second.
     view =
         plot attributes children
 
-
-
 -}
 plot : List PlotAttr -> List (Element msg) -> Svg.Svg msg
 plot attrs elements =
@@ -619,16 +659,16 @@ plot attrs elements =
             List.foldr toPlotConfig defaultPlotConfig attrs
 
         ( width, height ) =
-            plotConfig.dimensions
+            plotConfig.size
 
         ( xValues, yValues ) =
             List.unzip (List.foldr collectPoints [] elements)
 
         xAxis =
-            calculateAxis X width xValues
+            calculateAxis X width (0, 0) xValues
 
         yAxis =
-            calculateAxis Y height yValues
+            calculateAxis Y height plotConfig.padding yValues
 
         toSvgCoordsX ( x, y ) =
             ( xAxis.toSvg x, yAxis.toSvg -y )
@@ -675,10 +715,10 @@ viewElements xAxis yAxis toSvgCoordsX toSvgCoordsY element views =
 
 
 viewFrame : PlotConfig -> List (Svg.Svg msg) -> Svg.Svg msg
-viewFrame { dimensions, id } elements =
+viewFrame { size, id } elements =
     let
         ( width, height ) =
-            dimensions
+            size
     in
         Html.div
             [ Html.Attributes.id id

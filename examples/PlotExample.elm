@@ -35,7 +35,7 @@ lineData =
 
 example1 =
     plot
-        [ dimensions ( 800, 500 ) ]
+        [ size ( 800, 500 ) ]
         [ horizontalGrid [ gridTickList [ -40, -20, 20, 40, 60, 80, 100 ], gridStyle [ ( "stroke", "#cee0e2" ) ] ]
         , verticalGrid [ gridTickList [ 200, 400, 600 ], gridStyle [ ( "stroke", "#cee0e2" ) ] ]
         , area [ stroke "cornflowerblue", fill "#ccdeff" ] areaData
@@ -54,7 +54,7 @@ example1 =
 
 main =
     plot
-        [ dimensions ( 800, 500 ) ]
+        [ size ( 800, 500 ) ]
         [ line [ stroke "mediumvioletred" ] lineData
         , xAxis [ stepSize 10 ]
         , yAxis [ amountOfTicks 5 ]
