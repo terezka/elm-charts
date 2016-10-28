@@ -1,5 +1,5 @@
 {
-    "version": "1.0.2",
+    "version": "1.0.3",
     "summary": "Customizable svg ploting elements",
     "repository": "https://github.com/terezka/elm-plot.git",
     "license": "BSD3",
