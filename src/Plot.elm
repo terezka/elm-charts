@@ -114,8 +114,8 @@ type Element msg
 
 type alias PlotConfig =
     { size : ( Int, Int )
-    , dimensions : Maybe (Float, Float)
-    , padding : (Int, Int)
+    , dimensions : Maybe ( Float, Float )
+    , padding : ( Int, Int )
     , style : Style
     }
 
@@ -124,7 +124,7 @@ type alias PlotConfig =
 -}
 type PlotAttr
     = Dimensions (Maybe ( Float, Float ))
-    | Padding (Int, Int)
+    | Padding ( Int, Int )
     | Size ( Int, Int )
     | PlotStyle Style
 
@@ -159,21 +159,21 @@ dimensions =
         plot [ padding (paddingBottom, paddingTop) ] []
 
 -}
-padding : (Int, Int) -> PlotAttr
+padding : ( Int, Int ) -> PlotAttr
 padding =
     Padding
 
 
 {-| Specify the width and height in pixels.
 -}
-size : (Int, Int) -> PlotAttr
+size : ( Int, Int ) -> PlotAttr
 size =
     Size
 
 
 {-| Specify a list of styles to set on the svg element.
 -}
-plotStyle : List (String, String) -> PlotAttr
+plotStyle : List ( String, String ) -> PlotAttr
 plotStyle =
     PlotStyle
 
@@ -186,13 +186,13 @@ toPlotConfig attr config =
 
         Dimensions dimensions ->
             { config | dimensions = dimensions }
-        
+
         Padding padding ->
             { config | padding = padding }
 
         PlotStyle style ->
             { config | style = style }
-        
+
 
 
 -- Axis config
@@ -477,7 +477,7 @@ type SerieAttr
 
     line [ serieStyle [ ( "stroke", "blue" ) ] ]
 -}
-serieStyle : List (String, String) -> SerieAttr
+serieStyle : List ( String, String ) -> SerieAttr
 serieStyle =
     SerieStyle
 
@@ -557,12 +557,12 @@ axisCalulationInit =
     AxisCalulation 0 0 0 identity
 
 
-addEdgeValues : Int -> (Int, Int) -> List Float -> AxisCalulation -> AxisCalulation
-addEdgeValues length (paddingBottom, paddingTop) values calculations =
+addEdgeValues : Int -> ( Int, Int ) -> List Float -> AxisCalulation -> AxisCalulation
+addEdgeValues length ( paddingBottom, paddingTop ) values calculations =
     let
         lowestReal =
             getLowest values
-            
+
         highestReal =
             getHighest values
 
@@ -605,7 +605,7 @@ addToSvg orientation length calculations =
         { calculations | toSvg = toSvg }
 
 
-calculateAxis : Orientation -> Int -> (Int, Int) -> List Float -> AxisCalulation
+calculateAxis : Orientation -> Int -> ( Int, Int ) -> List Float -> AxisCalulation
 calculateAxis orientation length padding values =
     axisCalulationInit
         |> addEdgeValues length padding values
@@ -657,7 +657,7 @@ plot attrs elements =
             List.unzip (List.foldr collectPoints [] elements)
 
         xAxis =
-            calculateAxis X width (0, 0) xValues
+            calculateAxis X width ( 0, 0 ) xValues
 
         yAxis =
             calculateAxis Y height plotConfig.padding yValues
@@ -886,9 +886,9 @@ viewLine toSvgCoords { points, style } =
         instructions =
             coordToInstruction "L" svgPoints
     in
-        Svg.path 
+        Svg.path
             [ Svg.Attributes.d (startInstruction ++ instructions)
-            , Svg.Attributes.style (toStyle (("fill", "transparent") :: style))
+            , Svg.Attributes.style (toStyle (( "fill", "transparent" ) :: style))
             ]
             []
 
