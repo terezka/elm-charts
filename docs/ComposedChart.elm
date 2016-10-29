@@ -47,13 +47,19 @@ formatTickX tick =
     else
         let
             abbrivated =
-                (abs tick * 2) > 10 
+                (abs tick * 2) > 10
 
             formatted =
-                if abbrivated then tick / 10 * 2 else tick * 200
+                if abbrivated then
+                    tick / 10 * 2
+                else
+                    tick * 200
 
             abbrivation =
-                if abbrivated then "k t" else " t"
+                if abbrivated then
+                    "k t"
+                else
+                    " t"
         in
             (toString formatted) ++ abbrivation
 

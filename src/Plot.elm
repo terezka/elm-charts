@@ -668,7 +668,6 @@ of plot elements as the second.
         plot attributes children
 
 -}
-
 plot : List PlotAttr -> List (Element msg) -> Svg.Svg msg
 plot attrs elements =
     Svg.Lazy.lazy2 viewPlot attrs elements

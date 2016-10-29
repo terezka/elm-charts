@@ -12,6 +12,7 @@ import MultiLineChart exposing (multiLineChart)
 import CustomTickChart exposing (customTickChart)
 import ComposedChart exposing (composedChart)
 
+
 toUrl end =
     "https://github.com/terezka/elm-plot/blob/master/docs/" ++ end ++ ".elm"
 
@@ -23,6 +24,7 @@ viewTitle title url =
             [ href (toUrl url), style [ ( "color", "#9ea0a2" ), ( "font-size", "12px" ) ] ]
             [ text "See code" ]
         ]
+
 
 main =
     div
