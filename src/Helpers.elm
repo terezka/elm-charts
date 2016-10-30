@@ -97,3 +97,8 @@ calculateStep targetStep =
                 magMsd
     in
         (toFloat magMsdFinal) * magPow
+
+
+
+
+

@@ -16,7 +16,7 @@ areaChart =
         [ size ( 600, 250 ) ]
         [ area [ areaStyle [ ( "stroke", "#cfd8ea" ), ( "fill", "#e4eeff" ) ] ] data
         , xAxis
-            [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
-            , tickList [ 0, 1, 2, 3, 4, 5, 6, 7 ]
+            [ axisStyle [ ( "stroke", "#7F7F7F" ) ]
+            , tickValues [ 0, 1, 2, 3, 4, 5, 6, 7 ]
             ]
         ]

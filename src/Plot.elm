@@ -128,7 +128,7 @@ type alias PlotConfig =
 {-| Represents an attribute for the plot.
 -}
 type alias PlotAttr =
-    (PlotConfig -> PlotConfig)
+    PlotConfig -> PlotConfig
 
 
 defaultPlotConfig =
@@ -146,7 +146,7 @@ dimensions dimensions config =
     { config | dimensions = dimensions }
 
 
-{-| Specify extra space outside your datas lowest 
+{-| Specify extra space outside your datas lowest
  and highest y-coordinates. Units are in pixels.
 
     paddingTop : Int
@@ -185,7 +185,7 @@ plotStyle style config =
 -- Axis config
 
 
-type Orientation
+type Direction
     = X
     | Y
 
@@ -201,21 +201,21 @@ type alias AxisConfig msg =
     , viewTick : Float -> Svg.Svg msg
     , viewLabel : Float -> Svg.Svg msg
     , axisStyle : Style
-    , orientation : Orientation
+    , direction : Direction
     }
 
 
 {-| Represents an attribute for the axis.
 -}
-type alias AxisAttr msg
-    = AxisConfig msg -> AxisConfig msg
+type alias AxisAttr msg =
+    AxisConfig msg -> AxisConfig msg
 
 
-defaultTickHtml : Orientation -> Float -> Svg.Svg msg
+defaultTickHtml : Direction -> Float -> Svg.Svg msg
 defaultTickHtml axis tick =
     let
         displacement =
-            fromOrientation axis "" (toRotate 90 0 0)
+            fromDirection axis "" (toRotate 90 0 0)
     in
         Svg.line
             [ Svg.Attributes.style "stroke: #757575;"
@@ -225,31 +225,44 @@ defaultTickHtml axis tick =
             []
 
 
-defaultLabelHtml : Orientation -> Float -> Svg.Svg a
-defaultLabelHtml axis tick =
+defaultLabelStyleX : Style
+defaultLabelStyleX =
+    [ ( "stroke", "#757575" ), ( "text-anchor", "middle" ) ]
+
+
+defaultLabelStyleY : Style
+defaultLabelStyleY =
+    [ ( "stroke", "#757575" ), ( "text-anchor", "end" ) ]
+
+
+defaultLabelHtml : Direction -> Float -> Svg.Svg a
+defaultLabelHtml direction tick =
     let
-        commonStyle =
-            [ ( "stroke", "#757575" ) ]
-
-        style =
-            fromOrientation axis ( "text-anchor", "middle" ) ( "text-anchor", "end" )
-
-        displacement =
-            fromOrientation axis ( 0, 24 ) ( -10, 5 )
+        ( style, displacement ) =
+            fromDirection direction ( defaultLabelStyleX, ( 0, 24 ) ) ( defaultLabelStyleY, ( -10, 5 ) )
     in
         Svg.text'
             [ Svg.Attributes.transform (toTranslate displacement)
-            , Svg.Attributes.style (toStyle (style :: commonStyle))
+            , Svg.Attributes.style (toStyle style)
             ]
             [ Svg.tspan [] [ Svg.text (toString tick) ] ]
 
 
-defaultAxisConfig =
+defaultAxisConfigX =
     { tickConfig = (TickTotal 10)
     , viewTick = defaultTickHtml X
     , viewLabel = defaultLabelHtml X
     , axisStyle = [ ( "stroke", "#757575" ) ]
-    , orientation = X
+    , direction = X
+    }
+
+
+defaultAxisConfigY =
+    { tickConfig = (TickTotal 10)
+    , viewTick = defaultTickHtml Y
+    , viewLabel = defaultLabelHtml Y
+    , axisStyle = [ ( "stroke", "#757575" ) ]
+    , direction = Y
     }
 
 
@@ -332,18 +345,14 @@ axisStyle style config =
 -}
 xAxis : List (AxisAttr msg) -> Element msg
 xAxis attrs =
-    Axis (List.foldr (<|) defaultAxisConfig attrs)
+    Axis (List.foldr (<|) defaultAxisConfigX attrs)
 
 
 {-| Draws a y-axis.
 -}
 yAxis : List (AxisAttr msg) -> Element msg
 yAxis attrs =
-    let
-        defaultAxisConfigY =
-            { defaultAxisConfig | orientation = Y, viewLabel = defaultLabelHtml Y, viewTick = defaultTickHtml Y }
-    in
-        Axis (List.foldr (<|) defaultAxisConfigY attrs)
+    Axis (List.foldr (<|) defaultAxisConfigY attrs)
 
 
 
@@ -352,7 +361,7 @@ yAxis attrs =
 
 type alias GridConfig =
     { tickValues : List Float
-    , orientation : Orientation
+    , direction : Direction
     , style : Style
     }
 
@@ -360,12 +369,12 @@ type alias GridConfig =
 {-| Represents an attribute for the grid.
 -}
 type alias GridAttr =
-    (GridConfig -> GridConfig)
+    GridConfig -> GridConfig
 
 
 defaultGridConfig =
     { tickValues = []
-    , orientation = X
+    , direction = X
     , style = [ ( "stroke", "#737373" ) ]
     }
 
@@ -409,7 +418,7 @@ horizontalGridLines : List GridAttr -> Element msg
 horizontalGridLines attrs =
     let
         defaultGridConfigY =
-            { defaultGridConfig | orientation = Y }
+            { defaultGridConfig | direction = Y }
     in
         Grid (List.foldr (<|) defaultGridConfigY attrs)
 
@@ -427,7 +436,7 @@ type alias AreaConfig =
 {-| Represents an attribute for the serie.
 -}
 type alias AreaAttr =
-    (AreaConfig -> AreaConfig)
+    AreaConfig -> AreaConfig
 
 
 defaultAreaConfig =
@@ -476,8 +485,8 @@ defaultLineConfig =
 
 {-| Represents an attribute for the serie.
 -}
-type alias LineAttr
-    = (LineConfig -> LineConfig)
+type alias LineAttr =
+    LineConfig -> LineConfig
 
 
 {-| Specify the area serie style.
@@ -486,7 +495,7 @@ type alias LineAttr
 -}
 lineStyle : List ( String, String ) -> LineConfig -> LineConfig
 lineStyle style config =
-    { config | style = ( "fill", "transparent" ) :: style } 
+    { config | style = ( "fill", "transparent" ) :: style }
 
 
 {-| Draws a line serie.
@@ -549,14 +558,14 @@ addEdgeValues length ( paddingBottom, paddingTop ) values calculations =
         { calculations | lowest = lowest, highest = highest, span = span }
 
 
-addToSvg : Orientation -> Int -> AxisCalulation -> AxisCalulation
-addToSvg orientation length calculations =
+addToSvg : Direction -> Int -> AxisCalulation -> AxisCalulation
+addToSvg direction length calculations =
     let
         { span, lowest, highest } =
             calculations
 
         smallestValue =
-            fromOrientation orientation lowest highest
+            fromDirection direction lowest highest
 
         delta =
             toFloat length / span
@@ -567,11 +576,11 @@ addToSvg orientation length calculations =
         { calculations | toSvg = toSvg }
 
 
-calculateAxis : Orientation -> Int -> ( Int, Int ) -> List Float -> AxisCalulation
-calculateAxis orientation length padding values =
+calculateAxis : Direction -> Int -> ( Int, Int ) -> List Float -> AxisCalulation
+calculateAxis direction length padding values =
     axisCalulationInit
         |> addEdgeValues length padding values
-        |> addToSvg orientation length
+        |> addToSvg direction length
 
 
 collectPoints : Element msg -> List Point -> List Point
@@ -606,7 +615,6 @@ of plot elements as the second.
         plot attributes children
 
 -}
-
 plot : List PlotAttr -> List (Element msg) -> Svg.Svg msg
 plot attrs elements =
     Svg.Lazy.lazy2 viewPlot attrs elements
@@ -658,14 +666,14 @@ viewElements xAxis yAxis toSvgCoordsX toSvgCoordsY element views =
         Grid config ->
             let
                 ( calculations, toSvgCoords ) =
-                    fromOrientation config.orientation ( xAxis, toSvgCoordsX ) ( yAxis, toSvgCoordsY )
+                    fromDirection config.direction ( xAxis, toSvgCoordsX ) ( yAxis, toSvgCoordsY )
             in
                 (viewGrid toSvgCoords calculations config) :: views
 
         Axis config ->
             let
                 ( calculations, toSvgCoords ) =
-                    fromOrientation config.orientation ( xAxis, toSvgCoordsX ) ( yAxis, toSvgCoordsY )
+                    fromDirection config.direction ( xAxis, toSvgCoordsX ) ( yAxis, toSvgCoordsY )
             in
                 (viewAxis toSvgCoords calculations config) :: views
 
@@ -871,9 +879,9 @@ flipToY ( x, y ) =
     ( y, x )
 
 
-fromOrientation : Orientation -> a -> a -> a
-fromOrientation orientation x y =
-    case orientation of
+fromDirection : Direction -> a -> a -> a
+fromDirection direction x y =
+    case direction of
         X ->
             x
 

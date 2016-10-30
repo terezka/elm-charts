@@ -47,13 +47,19 @@ formatTickX tick =
     else
         let
             abbrivated =
-                (abs tick * 2) > 10 
+                (abs tick * 2) > 10
 
             formatted =
-                if abbrivated then tick / 10 * 2 else tick * 200
+                if abbrivated then
+                    tick / 10 * 2
+                else
+                    tick * 200
 
             abbrivation =
-                if abbrivated then "k t" else " t"
+                if abbrivated then
+                    "k t"
+                else
+                    " t"
         in
             (toString formatted) ++ abbrivation
 
@@ -114,9 +120,9 @@ composedChart : Svg.Svg a
 composedChart =
     plot
         [ size ( 600, 250 ), padding ( 40, 60 ) ]
-        [ verticalGrid [ gridTickList [ -30, 30, 70 ], gridStyle [ ( "stroke", "#e2e2e2" ) ] ]
+        [ verticalGridLines [ gridTickValues [ -30, 30, 70 ], gridStyle [ ( "stroke", "#e2e2e2" ) ] ]
         , area [ areaStyle [ ( "stroke", "#e6d7ce" ), ( "fill", "#feefe5" ) ] ] data1
         , line [ lineStyle [ ( "stroke", "#b6c9ef" ) ] ] data2
-        , yAxis [ axisLineStyle [ ( "stroke", "#b9b9b9" ) ], stepSize 20, customViewLabel (customLabel Y) ]
-        , xAxis [ axisLineStyle [ ( "stroke", "#b9b9b9" ) ], customViewTick customTick, customViewLabel (customLabel X) ]
+        , yAxis [ axisStyle [ ( "stroke", "#b9b9b9" ) ], tickDelta 20, viewLabel (customLabel Y) ]
+        , xAxis [ axisStyle [ ( "stroke", "#b9b9b9" ) ], viewTick customTick, viewLabel (customLabel X) ]
         ]

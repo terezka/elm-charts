@@ -64,5 +64,5 @@ customTickChart =
     plot
         [ size ( 600, 250 ) ]
         [ line [ lineStyle [ ( "stroke", "#b6c9ef" ), ( "stroke-width", "2px" ) ] ] data
-        , xAxis [ axisLineStyle [ ( "stroke", "#b9b9b9" ) ], customViewTick customTick, customViewLabel customLabel ]
+        , xAxis [ axisStyle [ ( "stroke", "#b9b9b9" ) ], viewTick customTick, viewLabel customLabel ]
         ]

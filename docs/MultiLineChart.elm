@@ -22,7 +22,7 @@ multiLineChart =
         [ line [ lineStyle [ ( "stroke", "#828da2" ) ] ] data1
         , line [ lineStyle [ ( "stroke", "#c7978f" ) ] ] data2
         , xAxis
-            [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
-            , amountOfTicks 6
+            [ axisStyle [ ( "stroke", "#7F7F7F" ) ]
+            , tickTotal 6
             ]
         ]

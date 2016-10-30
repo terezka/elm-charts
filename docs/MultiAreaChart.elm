@@ -22,7 +22,7 @@ multiAreaChart =
         [ area [ areaStyle [ ( "stroke", "#cfd8ea" ), ( "fill", "#e4eeff" ) ] ] data1
         , area [ areaStyle [ ( "stroke", "#e6d7ce" ), ( "fill", "#feefe5" ) ] ] data2
         , xAxis
-            [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
-            , amountOfTicks 6
+            [ axisStyle [ ( "stroke", "#7F7F7F" ) ]
+            , tickTotal 6
             ]
         ]
