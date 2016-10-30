@@ -88,13 +88,13 @@ import Debug
 import Helpers exposing (..)
 
 
-{-| Convinience type to represent coordinates
+{-| Convenience type to represent coordinates
 -}
 type alias Point =
     ( Float, Float )
 
 
-{-| Convinience type to represent style
+{-| Convenience type to represent style
 -}
 type alias Style =
     List ( String, String )
