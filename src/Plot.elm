@@ -127,11 +127,8 @@ type alias PlotConfig =
 
 {-| Represents an attribute for the plot.
 -}
-type PlotAttr
-    = Dimensions (Maybe ( Float, Float ))
-    | Padding ( Int, Int )
-    | Size ( Int, Int )
-    | PlotStyle Style
+type PlotAttr =
+    PlotAttr (PlotConfig -> PlotConfig)
 
 
 defaultPlotConfig =
@@ -145,8 +142,8 @@ defaultPlotConfig =
 {-| Specify the coordinate dimensions of your plot.
 -}
 dimensions : Maybe ( Float, Float ) -> PlotAttr
-dimensions =
-    Dimensions
+dimensions dimensions =
+    PlotAttr (\config -> { config | dimensions = dimensions })
 
 
 {-| Specify padding on the y axis (in pixels)
@@ -165,38 +162,22 @@ dimensions =
 
 -}
 padding : ( Int, Int ) -> PlotAttr
-padding =
-    Padding
+padding padding =
+    PlotAttr (\config -> { config | padding = padding })
 
 
 {-| Specify the width and height in pixels.
 -}
 size : ( Int, Int ) -> PlotAttr
-size =
-    Size
+size size =
+    PlotAttr (\config -> { config | size = size })
 
 
 {-| Specify a list of styles to apply to the svg element.
 -}
 plotStyle : List ( String, String ) -> PlotAttr
-plotStyle =
-    PlotStyle
-
-
-toPlotConfig : PlotAttr -> PlotConfig -> PlotConfig
-toPlotConfig attr config =
-    case attr of
-        Size size ->
-            { config | size = size }
-
-        Dimensions dimensions ->
-            { config | dimensions = dimensions }
-
-        Padding padding ->
-            { config | padding = padding }
-
-        PlotStyle style ->
-            { config | style = style }
+plotStyle style =
+    PlotAttr (\config -> { config | style = style })
 
 
 
@@ -678,7 +659,7 @@ viewPlot : List PlotAttr -> List (Element msg) -> Svg.Svg msg
 viewPlot attrs elements =
     let
         plotConfig =
-            List.foldr toPlotConfig defaultPlotConfig attrs
+            List.foldr (\(PlotAttr attr) config -> attr config) defaultPlotConfig attrs
 
         ( width, height ) =
             plotConfig.size
