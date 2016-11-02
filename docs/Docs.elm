@@ -22,7 +22,7 @@ viewTitle title url =
         [ div [] [ text title ]
         , a
             [ href (toUrl url), style [ ( "color", "#9ea0a2" ), ( "font-size", "12px" ) ] ]
-            [ text "See code" ]
+            [ text "code" ]
         ]
 
 

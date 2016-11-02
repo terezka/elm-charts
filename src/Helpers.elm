@@ -6,6 +6,10 @@ import String
 import Debug
 
 
+
+-- Calculate scales
+
+
 getHighest : List Float -> Float
 getHighest values =
     Maybe.withDefault 1 (List.maximum values)
@@ -14,6 +18,20 @@ getHighest values =
 getLowest : List Float -> Float
 getLowest values =
     min 0 (Maybe.withDefault 0 (List.minimum values))
+
+
+getRange : Float -> Float -> Float
+getRange lowest highest =
+    abs lowest + abs highest
+
+
+pixelsToValue : Int -> Float -> Int -> Float
+pixelsToValue length range pixels =
+    range * (toFloat pixels) / (toFloat length)
+
+
+
+-- Svg helpers
 
 
 coordToInstruction : String -> List ( Float, Float ) -> String

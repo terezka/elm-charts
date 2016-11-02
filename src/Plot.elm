@@ -515,72 +515,54 @@ line attrs points =
 -- Calculations
 
 
-type alias AxisCalulation =
-    { span : Float
+type alias AxisScale =
+    { range : Float
     , lowest : Float
     , highest : Float
-    , toSvg : Float -> Float
+    , length : Float
     }
 
 
-axisCalulationInit : AxisCalulation
-axisCalulationInit =
-    AxisCalulation 0 0 0 identity
-
-
-addEdgeValues : Int -> ( Int, Int ) -> List Float -> AxisCalulation -> AxisCalulation
-addEdgeValues length ( paddingBottom, paddingTop ) values calculations =
+getScales : Int -> ( Int, Int ) -> List Float -> AxisScale
+getScales length (paddingBottomPx, paddingTopPx) values =
     let
-        lowestReal =
+        lowest =
             getLowest values
 
-        highestReal =
+        highest =
             getHighest values
 
-        spanReal =
-            abs lowestReal + abs highestReal
+        range =
+            getRange lowest highest
 
-        paddingTopRelative =
-            spanReal * (toFloat paddingTop) / (toFloat length)
+        paddingTop =
+            pixelsToValue length range paddingTopPx
 
-        paddingBottomRelative =
-            spanReal * (toFloat paddingBottom) / (toFloat length)
-
-        lowest =
-            lowestReal - paddingBottomRelative
-
-        highest =
-            highestReal + paddingTopRelative
-
-        span =
-            spanReal + paddingBottomRelative + paddingTopRelative
+        paddingBottom =
+            pixelsToValue length range paddingBottomPx
     in
-        { calculations | lowest = lowest, highest = highest, span = span }
+        { lowest = lowest - paddingBottom
+        , highest = highest + paddingTop
+        , range = range + paddingBottom + paddingTop
+        , length = toFloat length
+        }
 
 
-addToSvg : Direction -> Int -> AxisCalulation -> AxisCalulation
-addToSvg direction length calculations =
+toScale : AxisScale -> Float -> Float
+toScale { length, range } v =
+    v * length / range
+
+
+toSvgCoords : AxisScale -> AxisScale -> Point -> Point
+toSvgCoords xScale yScale ( x, y ) =
     let
-        { span, lowest, highest } =
-            calculations
+        xValue =
+            abs xScale.lowest + x
 
-        smallestValue =
-            fromDirection direction lowest highest
-
-        delta =
-            toFloat length / span
-
-        toSvg v =
-            (abs smallestValue * delta) + delta * v
+        yValue =
+            yScale.highest - y
     in
-        { calculations | toSvg = toSvg }
-
-
-calculateAxis : Direction -> Int -> ( Int, Int ) -> List Float -> AxisCalulation
-calculateAxis direction length padding values =
-    axisCalulationInit
-        |> addEdgeValues length padding values
-        |> addToSvg direction length
+        ( toScale xScale xValue, toScale yScale yValue )
 
 
 collectPoints : Element msg -> List Point -> List Point
@@ -632,20 +614,20 @@ viewPlot attrs elements =
         ( xValues, yValues ) =
             List.unzip (List.foldr collectPoints [] elements)
 
-        xAxis =
-            calculateAxis X width ( 0, 0 ) xValues
+        xScale =
+            getScales width ( 0, 0 ) xValues
 
-        yAxis =
-            calculateAxis Y height plotConfig.padding yValues
+        yScale =
+            getScales height plotConfig.padding yValues
 
-        toSvgCoordsX ( x, y ) =
-            ( xAxis.toSvg x, yAxis.toSvg -y )
+        toSvgCoordsX =
+            toSvgCoords xScale yScale
 
         toSvgCoordsY =
             toSvgCoordsX << flipToY
 
         elementViews =
-            List.foldr (viewElements xAxis yAxis toSvgCoordsX toSvgCoordsY) [] elements
+            List.foldr (viewElements xScale yScale toSvgCoordsX toSvgCoordsY) [] elements
     in
         viewFrame plotConfig elementViews
 
@@ -654,8 +636,8 @@ viewPlot attrs elements =
 -- VIEW
 
 
-viewElements : AxisCalulation -> AxisCalulation -> (Point -> Point) -> (Point -> Point) -> Element msg -> List (Svg.Svg msg) -> List (Svg.Svg msg)
-viewElements xAxis yAxis toSvgCoordsX toSvgCoordsY element views =
+viewElements : AxisScale -> AxisScale -> (Point -> Point) -> (Point -> Point) -> Element msg -> List (Svg.Svg msg) -> List (Svg.Svg msg)
+viewElements xScale yScale toSvgCoordsX toSvgCoordsY element views =
     case element of
         Area config ->
             (viewArea toSvgCoordsX config) :: views
@@ -666,14 +648,14 @@ viewElements xAxis yAxis toSvgCoordsX toSvgCoordsY element views =
         Grid config ->
             let
                 ( calculations, toSvgCoords ) =
-                    fromDirection config.direction ( xAxis, toSvgCoordsX ) ( yAxis, toSvgCoordsY )
+                    fromDirection config.direction ( xScale, toSvgCoordsX ) ( yScale, toSvgCoordsY )
             in
                 (viewGrid toSvgCoords calculations config) :: views
 
         Axis config ->
             let
                 ( calculations, toSvgCoords ) =
-                    fromDirection config.direction ( xAxis, toSvgCoordsX ) ( yAxis, toSvgCoordsY )
+                    fromDirection config.direction ( xScale, toSvgCoordsX ) ( yScale, toSvgCoordsY )
             in
                 (viewAxis toSvgCoords calculations config) :: views
 
@@ -700,15 +682,15 @@ viewFrame { size, style } elements =
 -- View axis
 
 
-calulateTicks : AxisCalulation -> Float -> List Float
-calulateTicks { span, lowest, highest } tickDelta =
+calulateTicks : AxisScale -> Float -> List Float
+calulateTicks { highest, lowest } tickDelta =
     let
         lowestTick =
             toFloat (ceiling (lowest / tickDelta)) * tickDelta
 
         -- Prevent overflow
         steps =
-            ceiling ((span - (abs lowest - abs lowestTick) - tickDelta + 1) / tickDelta)
+            ceiling ((highest + abs lowestTick - tickDelta + 1) / tickDelta)
 
         toTick i =
             lowestTick + (toFloat i) * tickDelta
@@ -716,31 +698,31 @@ calulateTicks { span, lowest, highest } tickDelta =
         List.map toTick [0..steps]
 
 
-getTicks : AxisCalulation -> TickConfig -> List Float
-getTicks calculations tickConfig =
+getTicks : AxisScale -> TickConfig -> List Float
+getTicks scale tickConfig =
     case tickConfig of
         TickTotal total ->
             let
                 tickDelta =
-                    calculateStep (calculations.span / (toFloat total))
+                    calculateStep (scale.range / (toFloat total))
             in
-                calulateTicks calculations tickDelta
+                calulateTicks scale tickDelta
 
         TickDelta tickDelta ->
-            calulateTicks calculations tickDelta
+            calulateTicks scale tickDelta
 
         TickValues tickValues ->
             tickValues
 
 
-viewAxis : (Point -> Point) -> AxisCalulation -> AxisConfig msg -> Svg.Svg msg
-viewAxis toSvgCoords calculations config =
+viewAxis : (Point -> Point) -> AxisScale -> AxisConfig msg -> Svg.Svg msg
+viewAxis toSvgCoords scale config =
     let
         { tickConfig, viewTick, viewLabel, axisStyle } =
             config
 
         ticks =
-            getTicks calculations tickConfig
+            getTicks scale tickConfig
 
         tickViews =
             List.map (viewTickInternal toSvgCoords viewTick) ticks
@@ -749,7 +731,7 @@ viewAxis toSvgCoords calculations config =
             List.map (viewLabelInternal toSvgCoords viewLabel) ticks
     in
         Svg.g []
-            [ viewGridLine toSvgCoords calculations axisStyle 0
+            [ viewGridLine toSvgCoords scale axisStyle 0
             , Svg.g [] tickViews
             , Svg.g [] labelViews
             ]
@@ -789,7 +771,7 @@ viewLabelInternal toSvgCoords viewLabel tick =
 -- View grid
 
 
-viewGrid : (Point -> Point) -> AxisCalulation -> GridConfig -> Svg.Svg msg
+viewGrid : (Point -> Point) -> AxisScale -> GridConfig -> Svg.Svg msg
 viewGrid toSvgCoords calculations { tickValues, style } =
     let
         lines =
@@ -798,7 +780,7 @@ viewGrid toSvgCoords calculations { tickValues, style } =
         Svg.g [] lines
 
 
-viewGridLine : (Point -> Point) -> AxisCalulation -> List ( String, String ) -> Float -> Svg.Svg msg
+viewGridLine : (Point -> Point) -> AxisScale -> List ( String, String ) -> Float -> Svg.Svg msg
 viewGridLine toSvgCoords { lowest, highest } style tick =
     let
         ( x1, y1 ) =
