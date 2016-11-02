@@ -681,18 +681,26 @@ viewFrame { size, style } elements =
 -- View axis
 
 
-calulateTicks : AxisScale -> Float -> List Float
-calulateTicks { highest, lowest } tickDelta =
+clampSteps : Float -> Float -> Float -> Float -> Int
+clampSteps range lowest firstTick tickDelta =
     let
-        lowestTick =
-            toFloat (ceiling (lowest / tickDelta)) * tickDelta
+        displacement =
+            abs lowest - abs firstTick
+    in
+        floor ((range - displacement) / tickDelta)
 
-        -- Prevent overflow
+
+calulateTicks : AxisScale -> Float -> List Float
+calulateTicks { range, lowest } tickDelta =
+    let
+        firstTick =
+            roundBy tickDelta lowest
+
         steps =
-            ceiling ((highest + abs lowestTick - tickDelta + 1) / tickDelta)
+            clampSteps range lowest firstTick tickDelta
 
         toTick i =
-            lowestTick + (toFloat i) * tickDelta
+            firstTick + (toFloat i) * tickDelta
     in
         List.map toTick [0..steps]
 

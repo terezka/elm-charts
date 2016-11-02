@@ -30,6 +30,11 @@ pixelsToValue length range pixels =
     range * (toFloat pixels) / (toFloat length)
 
 
+roundBy : Float -> Float -> Float
+roundBy precision value =
+    toFloat (ceiling (value / precision)) * precision
+
+
 
 -- Svg helpers
 
