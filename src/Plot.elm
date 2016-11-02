@@ -512,7 +512,7 @@ line attrs points =
 
 
 
--- Calculations
+-- Scales
 
 
 type alias AxisScale =
@@ -548,21 +548,24 @@ getScales length (paddingBottomPx, paddingTopPx) values =
         }
 
 
-toScale : AxisScale -> Float -> Float
-toScale { length, range } v =
+scaleValue : AxisScale -> Float -> Float
+scaleValue { length, range } v =
     v * length / range
 
 
-toSvgCoords : AxisScale -> AxisScale -> Point -> Point
-toSvgCoords xScale yScale ( x, y ) =
+getTranslator : AxisScale -> AxisScale -> Direction -> Point -> Point
+getTranslator xScale yScale direction ( v1, v2 ) =
     let
+        ( x, y ) =
+            fromDirection direction ( v1, v2 ) ( v2, v1 )
+
         xValue =
             abs xScale.lowest + x
 
         yValue =
             yScale.highest - y
     in
-        ( toScale xScale xValue, toScale yScale yValue )
+        ( scaleValue xScale xValue, scaleValue yScale yValue )
 
 
 collectPoints : Element msg -> List Point -> List Point
@@ -620,14 +623,8 @@ viewPlot attrs elements =
         yScale =
             getScales height plotConfig.padding yValues
 
-        toSvgCoordsX =
-            toSvgCoords xScale yScale
-
-        toSvgCoordsY =
-            toSvgCoordsX << flipToY
-
         elementViews =
-            List.foldr (viewElements xScale yScale toSvgCoordsX toSvgCoordsY) [] elements
+            List.foldr (viewElements xScale yScale) [] elements
     in
         viewFrame plotConfig elementViews
 
@@ -636,28 +633,30 @@ viewPlot attrs elements =
 -- VIEW
 
 
-viewElements : AxisScale -> AxisScale -> (Point -> Point) -> (Point -> Point) -> Element msg -> List (Svg.Svg msg) -> List (Svg.Svg msg)
-viewElements xScale yScale toSvgCoordsX toSvgCoordsY element views =
-    case element of
-        Area config ->
-            (viewArea toSvgCoordsX config) :: views
+viewElements : AxisScale -> AxisScale -> Element msg -> List (Svg.Svg msg) -> List (Svg.Svg msg)
+viewElements xScale yScale element views =
+    let
+        getScale direction =
+            fromDirection direction xScale yScale
 
-        Line config ->
-            (viewLine toSvgCoordsX config) :: views
+        toSvgCoords direction =
+            getTranslator xScale yScale direction
 
-        Grid config ->
-            let
-                ( calculations, toSvgCoords ) =
-                    fromDirection config.direction ( xScale, toSvgCoordsX ) ( yScale, toSvgCoordsY )
-            in
-                (viewGrid toSvgCoords calculations config) :: views
+        view =
+            case element of
+                Area config ->
+                    viewArea (toSvgCoords X) config
 
-        Axis config ->
-            let
-                ( calculations, toSvgCoords ) =
-                    fromDirection config.direction ( xScale, toSvgCoordsX ) ( yScale, toSvgCoordsY )
-            in
-                (viewAxis toSvgCoords calculations config) :: views
+                Line config ->
+                    viewLine (toSvgCoords X) config
+
+                Grid config ->
+                    viewGrid (toSvgCoords config.direction) (getScale config.direction) config
+
+                Axis config ->
+                    viewAxis (toSvgCoords config.direction) (getScale config.direction) config
+    in
+        view :: views
 
 
 
@@ -772,10 +771,10 @@ viewLabelInternal toSvgCoords viewLabel tick =
 
 
 viewGrid : (Point -> Point) -> AxisScale -> GridConfig -> Svg.Svg msg
-viewGrid toSvgCoords calculations { tickValues, style } =
+viewGrid toSvgCoords scale { tickValues, style } =
     let
         lines =
-            List.map (viewGridLine toSvgCoords calculations style) tickValues
+            List.map (viewGridLine toSvgCoords scale style) tickValues
     in
         Svg.g [] lines
 
