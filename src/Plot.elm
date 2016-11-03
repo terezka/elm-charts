@@ -113,8 +113,8 @@ type alias MetaAttr =
 
 defaultMetaConfig =
     { size = ( 800, 500 )
-    , padding = ( 20, 20 )
-    , style = [ ( "padding", "30px" ), ( "overflow", "hidden" ), ( "stroke", "#aaa" ), ( "fill", "#aaa" ) ]
+    , padding = ( 40, 40 )
+    , style = [ ( "padding", "30px" ), ( "overflow", "hidden" ), ( "stroke", "#000" ) ]
     }
 
 
@@ -181,7 +181,14 @@ type alias TicksAttr msg =
     TicksConfig msg -> TicksConfig msg
 
 
-defaultTickStyle =
+defaultTickStyleX =
+    { length = 7
+    , width = 1
+    , style = []
+    }
+
+
+defaultTickStyleY =
     { length = 7
     , width = 1
     , style = []
@@ -191,7 +198,7 @@ defaultTickStyle =
 defaultTickConfig =
     { values = TickAutoValues
     , labelView = TickLabelFormat toString
-    , tickView = TickConfigView defaultTickStyle
+    , tickView = TickConfigView defaultTickStyleX
     }
 
 
@@ -459,11 +466,27 @@ viewTicks plotProps config =
         { tickView, labelView } =
             config
 
+        innerTick =
+            case tickView of
+                TickConfigView viewConfig ->
+                    defaultTickView viewConfig
+
+                TickCustomView view ->
+                    view
+
+        innerLabel =
+            case labelView of
+                TickLabelFormat format ->
+                    defaultLabelView format
+
+                TickLabelCustomView view ->
+                    view
+
         tickViews =
-            List.map (viewTick plotProps tickView) plotProps.tickValues
+            List.map (viewTick plotProps innerTick) plotProps.tickValues
 
         labelViews =
-            List.map (viewLabel plotProps labelView) plotProps.tickValues
+            List.map (viewLabel plotProps innerLabel) plotProps.tickValues
     in
         Svg.g []
             [ Svg.g [] tickViews
@@ -485,19 +508,11 @@ defaultTickView { length, width, style } _ =
         []
 
 
-viewTick : PlotScales -> TickView msg -> Float -> Svg.Svg msg
-viewTick { toSvgCoords } viewTick tick =
+viewTick : PlotScales -> (Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
+viewTick { toSvgCoords } innerTick tick =
     let
         position =
             toSvgCoords ( tick, 0 )
-
-        innerTick =
-            case viewTick of
-                TickConfigView config ->
-                    defaultTickView config
-
-                TickCustomView view ->
-                    view
     in
         Svg.g
             [ Svg.Attributes.transform (toTranslate position) ]
@@ -513,19 +528,11 @@ defaultLabelView format tick =
     Svg.text' [] [ Svg.tspan [] [ Svg.text (format tick) ] ]
 
 
-viewLabel : PlotScales -> TickLabelView msg -> Float -> Svg.Svg msg
-viewLabel { toSvgCoords } viewLabel tick =
+viewLabel : PlotScales -> (Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
+viewLabel { toSvgCoords } innerLabel tick =
     let
         position =
             toSvgCoords ( tick, 0 )
-
-        innerLabel =
-            case viewLabel of
-                TickLabelFormat format ->
-                    defaultLabelView format
-
-                TickLabelCustomView view ->
-                    view
     in
         Svg.g
             [ Svg.Attributes.transform (toTranslate position) ]

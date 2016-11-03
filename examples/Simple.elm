@@ -13,7 +13,7 @@ main =
         { meta = []
         , xTicks = []
         , yTicks = []
-        , xGrid = [ gridAutoValues ]
-        , yGrid = [ gridZeroLineStyle [ ( "stroke", "purple" ) ] ]
+        , xGrid = []
+        , yGrid = []
         , series = [ line [ lineStyle [ ( "stroke", "mediumvioletred" ) ] ] lineData ]
         }
