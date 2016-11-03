@@ -13,11 +13,10 @@ data =
 gridChart : Svg.Svg a
 gridChart =
     plot
-        [ size ( 600, 250 ) ]
-        [ verticalGridLines [ gridTickValues [ 10, 20, 30, 40 ], gridStyle [ ( "stroke", "#e2e2e2" ) ] ]
-        , horizontalGridLines [ gridTickValues [ 1, 3, 5, 7, 9 ], gridStyle [ ( "stroke", "#e2e2e2" ) ] ]
-        , line [ lineStyle [ ( "stroke", "#b6c9ef" ), ( "stroke-width", "2px" ) ] ] data
-        , xAxis
-            [ axisStyle [ ( "stroke", "#7F7F7F" ) ]
-            ]
-        ]
+        { meta = [ size ( 600, 250 ) ]
+        , xGrid = [ gridAutoValues ]
+        , yGrid = []
+        , xTicks = [ autoTickValues, tickValues [], tickSequence (0, 0.25), tickStyle (2, 4, []), tickCustomView view ]
+        , yTicks = [ autoTickValues, tickValues [], tickSequence (0, 0.25), tickStyle (2, 4, []), tickCustomView view ]
+        , series = [ line [ lineStyle [ ( "stroke", "#b6c9ef" ), ( "stroke-width", "2px" ) ] ] data ]
+        }

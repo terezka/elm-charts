@@ -90,8 +90,8 @@ toStyle styles =
     List.foldr (\( p, v ) r -> r ++ p ++ ":" ++ v ++ "; ") "" styles
 
 
-calculateStep : Float -> Float
-calculateStep targetStep =
+getTickDelta : Float -> Float
+getTickDelta targetStep =
     let
         -- calculate an initial guess at step size
         tempStep =
@@ -120,8 +120,6 @@ calculateStep targetStep =
                 magMsd
     in
         (toFloat magMsdFinal) * magPow
-
-
 
 
 
