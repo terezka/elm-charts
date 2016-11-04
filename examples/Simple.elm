@@ -10,10 +10,10 @@ lineData =
 
 main =
     plot
-        { meta = []
-        , xTicks = []
-        , yTicks = []
-        , xGrid = []
-        , yGrid = []
-        , series = [ line [ lineStyle [ ( "stroke", "mediumvioletred" ) ] ] lineData ]
-        }
+        [ ]
+        [ xAxis
+            [ gridMirrorTicks, gridStyle [ ( "stroke", "#ddd" ) ] ]
+        , yAxis 
+            [ gridValues [ -60, -30, 30, 60, 90, 120, 150, 180 ], gridStyle [ ( "stroke", "#ddd" ) ] ]
+        , line [ lineStyle [ ( "stroke", "mediumvioletred" ) ] ] lineData 
+        ]

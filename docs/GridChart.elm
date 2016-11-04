@@ -16,7 +16,7 @@ gridChart =
         { meta = [ size ( 600, 250 ) ]
         , xGrid = [ gridAutoValues ]
         , yGrid = []
-        , xTicks = [ autoTickValues, tickValues [], tickSequence (0, 0.25), tickStyle (2, 4, []), tickCustomView view ]
-        , yTicks = [ autoTickValues, tickValues [], tickSequence (0, 0.25), tickStyle (2, 4, []), tickCustomView view ]
+        , xTicks = [ autoTickValues, tickValues [], tickSequence ( 0, 0.25 ), tickStyle ( 2, 4, [] ), tickCustomView view ]
+        , yTicks = [ autoTickValues, tickValues [], tickSequence ( 0, 0.25 ), tickStyle ( 2, 4, [] ), tickCustomView view ]
         , series = [ line [ lineStyle [ ( "stroke", "#b6c9ef" ), ( "stroke-width", "2px" ) ] ] data ]
         }

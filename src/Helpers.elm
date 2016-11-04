@@ -6,7 +6,6 @@ import String
 import Debug
 
 
-
 -- Calculate scales
 
 
@@ -120,6 +119,3 @@ getTickDelta targetStep =
                 magMsd
     in
         (toFloat magMsdFinal) * magPow
-
-
-
