@@ -1,14 +1,11 @@
 module Plot
     exposing
         ( plot
-
         , size
         , padding
         , plotStyle
-
         , xAxis
         , yAxis
-
         , axisStyle
         , tickValues
         , tickSequence
@@ -16,19 +13,15 @@ module Plot
         , tickViewConfig
         , tickCustomView
         , tickRemoveZero
-
         , labelFormat
         , labelCustomView
-
         , gridValues
         , gridStyle
         , gridMirrorTicks
-
         , area
         , areaStyle
         , line
         , lineStyle
-
         , Element
         , MetaAttr
         , AxisAttr
@@ -38,7 +31,10 @@ module Plot
         , Style
         )
 
-{-| Elm-Plot
+{-|
+ This library aims to allow you to visualize a variety of graphs in
+ an intuitve manner without comprimising flexibility regarding configuration.
+ It is insprired by the elm-html api, using the `element attrs children` pattern.
 
 # Elements
 @docs Element, plot, line, area, xAxis, yAxis, Point, Style
@@ -172,7 +168,7 @@ type TickView msg
 
 type TickValues
     = TickSequence ( Float, Float )
-    | TickCustomValues ( List Float )
+    | TickCustomValues (List Float)
     | TickAppxTotal Int
     | TickAutoValues
 
@@ -187,7 +183,9 @@ type GridValues
     | GridCustomValues (List Float)
 
 
-type Orientation = X | Y
+type Orientation
+    = X
+    | Y
 
 
 type alias AxisConfig msg =
@@ -226,7 +224,6 @@ defaultAxisConfig =
     }
 
 
-
 {-| Add styling to the axis line.
 -}
 axisStyle : Style -> AxisConfig msg -> AxisConfig msg
@@ -255,7 +252,8 @@ tickSequence sequenceConfig config =
     { config | tickValues = TickSequence sequenceConfig }
 
 
-{-| Specify lenght, width and style of your ticks. -}
+{-| Specify lenght, width and style of your ticks.
+-}
 tickViewConfig : ( Int, Int, Style ) -> AxisConfig msg -> AxisConfig msg
 tickViewConfig ( length, width, style ) config =
     { config | tickView = TickConfigView { length = length, width = width, style = style } }
@@ -325,8 +323,6 @@ yAxis attrs =
 
 
 -- SERIES CONFIG
-
-
 -- Area config
 
 
@@ -482,7 +478,10 @@ viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style,
             getTickValues scales.scale tickValues
 
         tickPositions =
-            if axisCrossing then List.filter (\p -> p /= 0) positions else positions
+            if axisCrossing then
+                List.filter (\p -> p /= 0) positions
+            else
+                positions
 
         gridPositions =
             getGridPositions tickPositions gridValues
@@ -784,7 +783,7 @@ getTicksFromSequence lowest range tick0 delta =
         tickTotal =
             getTickTotal range lowest tick0 delta
     in
-         List.map (\v -> tick0 + (toFloat v) * delta) [0..tickTotal]
+        List.map (\v -> tick0 + (toFloat v) * delta) [0..tickTotal]
 
 
 getTickValues : AxisScale -> TickValues -> List Float
@@ -815,7 +814,6 @@ getTickValues { lowest, range } tickValues =
                     getTick0 lowest delta
             in
                 getTicksFromSequence lowest range tick0 delta
-    
 
 
 
@@ -847,4 +845,3 @@ fromOrientation orientation x y =
 
         Y ->
             y
-
