@@ -13,6 +13,7 @@ module Plot
         , tickAutoValues
         , tickViewConfig
         , tickCustomView
+        , tickRemoveZero
 
         , labelFormat
         , labelCustomView
@@ -39,7 +40,7 @@ module Plot
 @docs plot
 
 # Rest
-@docs xAxis, yAxis, size, padding, plotStyle, tickValues, tickSequence, tickAutoValues, tickViewConfig, tickCustomView, labelFormat, labelCustomView, gridValues, gridStyle, gridMirrorTicks, area, areaStyle, line, lineStyle, Point, MetaAttr, AxisAttr, AreaAttr, LineAttr
+@docs xAxis, yAxis, size, padding, plotStyle, tickValues, tickRemoveZero, tickSequence, tickAutoValues, tickViewConfig, tickCustomView, labelFormat, labelCustomView, gridValues, gridStyle, gridMirrorTicks, area, areaStyle, line, lineStyle, Point, MetaAttr, AxisAttr, AreaAttr, LineAttr
 
 -}
 
@@ -171,6 +172,7 @@ type alias AxisConfig msg =
     , gridStyle : Style
     , style : Style
     , orientation : Orientation
+    , axisCrossing : Bool
     }
 
 
@@ -193,6 +195,7 @@ defaultAxisConfig =
     , gridValues = GridCustomValues []
     , gridStyle = []
     , style = []
+    , axisCrossing = False
     , orientation = X
     }
 
@@ -237,6 +240,14 @@ tickViewConfig ( length, width, style ) config =
 tickCustomView : (Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
 tickCustomView view config =
     { config | tickView = TickCustomView view }
+
+
+{-| Remove tick at origin. Useful when two axis' are crossing and you do not
+ want the origin the be cluttered with labels.
+-}
+tickRemoveZero : AxisConfig msg -> AxisConfig msg
+tickRemoveZero config =
+    { config | axisCrossing = True }
 
 
 {-| Specify a format for label.
@@ -423,7 +434,7 @@ viewElement scales element views =
                             scales
 
                         Y ->
-                            flipToY scales |> Debug.log "flipped"
+                            flipToY scales
             in
                 (viewAxis axisScales config) :: views
 
@@ -439,10 +450,13 @@ viewElement scales element views =
 
 
 viewAxis : PlotScales -> AxisConfig msg -> Svg.Svg msg
-viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style, orientation } =
+viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style, axisCrossing, orientation } =
     let
-        tickPositions =
+        positions =
             getTickValues scales.scale tickValues
+
+        tickPositions =
+            if axisCrossing then List.filter (\p -> p /= 0) positions else positions
 
         gridPositions =
             getGridPositions tickPositions gridValues
@@ -728,64 +742,54 @@ flipToY { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords } =
 -- TICKS
 
 
-getTick0 : AxisScale -> Float -> Float
-getTick0 { lowest } delta =
+getTick0 : Float -> Float -> Float
+getTick0 lowest delta =
     roundBy delta lowest
 
 
-getTotalSteps : AxisScale -> Float -> Float -> Int
-getTotalSteps { range, lowest } tick0 delta =
+getTickTotal : Float -> Float -> Float -> Float -> Int
+getTickTotal range lowest tick0 delta =
     floor ((range - (abs lowest - abs tick0)) / delta)
 
 
-getAppxStep : AxisScale -> Int -> Float
-getAppxStep { range } total =
-    range / (toFloat total)
-
-
-getTickFromSteps : Int -> Float -> Float -> List Float
-getTickFromSteps steps tick0 delta =
-    List.map (\v -> tick0 + (toFloat v) * delta) [0..steps]
+getTicksFromSequence : Float -> Float -> Float -> Float -> List Float
+getTicksFromSequence lowest range tick0 delta =
+    let
+        tickTotal =
+            getTickTotal range lowest tick0 delta
+    in
+         List.map (\v -> tick0 + (toFloat v) * delta) [0..tickTotal]
 
 
 getTickValues : AxisScale -> TickValues -> List Float
-getTickValues scale tickValues =
+getTickValues { lowest, range } tickValues =
     case tickValues of
-        TickSequence ( tick0, delta ) ->
-            let
-                steps =
-                    getTotalSteps scale tick0 delta
-            in
-                getTickFromSteps steps tick0 delta
-
         TickCustomValues ticks ->
             ticks
+
+        TickSequence ( tick0, delta ) ->
+            getTicksFromSequence lowest range tick0 delta
 
         TickAppxTotal total ->
             let
                 delta =
-                    getTickDelta (getAppxStep scale total)
+                    getTickDelta range total
 
                 tick0 =
-                    getTick0 scale delta
-
-                steps =
-                    getTotalSteps scale tick0 delta
+                    getTick0 lowest delta
             in
-                getTickFromSteps steps tick0 delta
+                getTicksFromSequence lowest range tick0 delta
 
         TickAutoValues ->
             let
                 delta =
-                    getTickDelta (getAppxStep scale 10)
+                    getTickDelta range 10
 
                 tick0 =
-                    getTick0 scale delta
-
-                steps =
-                    getTotalSteps scale tick0 delta
+                    getTick0 lowest delta
             in
-                getTickFromSteps steps tick0 delta
+                getTicksFromSequence lowest range tick0 delta
+    
 
 
 
