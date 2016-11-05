@@ -1,6 +1,7 @@
 module Plot
     exposing
         ( plot
+
         , size
         , padding
         , plotStyle
@@ -8,6 +9,7 @@ module Plot
         , xAxis
         , yAxis
 
+        , axisStyle
         , tickValues
         , tickSequence
         , tickAutoValues
@@ -27,20 +29,42 @@ module Plot
         , line
         , lineStyle
 
-        , Point
+        , Element
         , MetaAttr
         , AxisAttr
         , AreaAttr
         , LineAttr
+        , Point
+        , Style
         )
 
 {-| Elm-Plot
 
-# Definition
-@docs plot
+# Elements
+@docs Element, plot, line, area, xAxis, yAxis, Point, Style
 
-# Rest
-@docs xAxis, yAxis, size, padding, plotStyle, tickValues, tickRemoveZero, tickSequence, tickAutoValues, tickViewConfig, tickCustomView, labelFormat, labelCustomView, gridValues, gridStyle, gridMirrorTicks, area, areaStyle, line, lineStyle, Point, MetaAttr, AxisAttr, AreaAttr, LineAttr
+# Configuration
+
+## Meta configuration
+@docs MetaAttr, size, padding, plotStyle
+
+## Line configuration
+@docs LineAttr, lineStyle
+
+## Area configuration
+@docs AreaAttr, areaStyle
+
+## Axis configuration
+@docs AxisAttr, axisStyle
+
+### Tick configuration
+@docs tickValues, tickSequence, tickAutoValues, tickRemoveZero, tickViewConfig, tickCustomView
+
+### Label configuration
+@docs labelFormat, labelCustomView
+
+### Grid configuration
+@docs gridValues, gridStyle, gridMirrorTicks
 
 -}
 
@@ -54,13 +78,13 @@ import Debug
 import Helpers exposing (..)
 
 
-{-| Convinience type to represent coordinates
+{-| Convinience type to represent coordinates.
 -}
 type alias Point =
     ( Float, Float )
 
 
-{-| Convinience type to represent style
+{-| Convinience type to represent style.
 -}
 type alias Style =
     List ( String, String )
@@ -70,6 +94,8 @@ type alias Style =
 -- CONFIGS
 
 
+{-| Represents child element of the plot.
+-}
 type Element msg
     = Axis (AxisConfig msg)
     | Line LineConfig
@@ -118,7 +144,7 @@ size size config =
 
 {-| Add styles to the svg element.
 -}
-plotStyle : List ( String, String ) -> MetaConfig -> MetaConfig
+plotStyle : Style -> MetaConfig -> MetaConfig
 plotStyle style config =
     { config | style = style }
 
@@ -208,7 +234,7 @@ axisStyle style config =
     { config | style = style }
 
 
-{-| Set the library to make some nice round values for you.
+{-| Lets the library calculate some nice round values.
 -}
 tickAutoValues : AxisConfig msg -> AxisConfig msg
 tickAutoValues config =
@@ -322,7 +348,7 @@ defaultAreaConfig =
 
 
 {-| -}
-areaStyle : List ( String, String ) -> AreaConfig -> AreaConfig
+areaStyle : Style -> AreaConfig -> AreaConfig
 areaStyle style config =
     { config | style = style }
 
@@ -359,7 +385,7 @@ type alias LineAttr =
 
 
 {-| -}
-lineStyle : List ( String, String ) -> LineConfig -> LineConfig
+lineStyle : Style -> LineConfig -> LineConfig
 lineStyle style config =
     { config | style = ( "fill", "transparent" ) :: style }
 

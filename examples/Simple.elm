@@ -24,6 +24,7 @@ plot2 =
             [ gridMirrorTicks
             , gridStyle [ ( "stroke", "#ddd" ) ]
             , tickRemoveZero
+            , axisStyle [ ( "stroke", "purple" ) ]
             ]
         , yAxis
             [ gridMirrorTicks
