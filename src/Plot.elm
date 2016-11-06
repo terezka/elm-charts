@@ -205,7 +205,7 @@ type alias AxisAttr msg =
     AxisConfig msg -> AxisConfig msg
 
 
-defaultTickStyleX =
+defaultTickStyle =
     { length = 7
     , width = 1
     , style = []
@@ -214,7 +214,7 @@ defaultTickStyleX =
 
 defaultAxisConfig =
     { tickValues = TickAutoValues
-    , tickView = TickConfigView defaultTickStyleX
+    , tickView = TickConfigView defaultTickStyle
     , labelView = LabelFormat toString
     , gridValues = GridCustomValues []
     , gridStyle = []
@@ -309,7 +309,10 @@ gridStyle style config =
     { config | gridStyle = style }
 
 
-{-| -}
+{-| Adds an x-axis to your plot.
+
+    plot [] [ xAxis [] ]
+-}
 xAxis : List (AxisAttr msg) -> Element msg
 xAxis attrs =
     Axis (List.foldr (<|) defaultAxisConfig attrs)
@@ -322,8 +325,7 @@ yAxis attrs =
 
 
 
--- SERIES CONFIG
--- Area config
+-- AREA CONFIG
 
 
 type alias AreaConfig =
@@ -338,7 +340,7 @@ type alias AreaAttr =
 
 
 defaultAreaConfig =
-    { style = [ ( "stroke", "#737373" ), ( "fill", "#ddd" ) ]
+    { style = []
     , points = []
     }
 
@@ -360,7 +362,7 @@ area attrs points =
 
 
 
--- Line config
+-- LINE CONFIG
 
 
 type alias LineConfig =
@@ -370,7 +372,7 @@ type alias LineConfig =
 
 
 defaultLineConfig =
-    { style = [ ( "stroke", "#737373" ) ]
+    { style = []
     , points = []
     }
 
@@ -474,8 +476,11 @@ viewElement scales element views =
 viewAxis : PlotScales -> AxisConfig msg -> Svg.Svg msg
 viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style, axisCrossing, orientation } =
     let
+        { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords } =
+            scales
+            
         positions =
-            getTickValues scales.scale tickValues
+            getTickValues scale tickValues
 
         tickPositions =
             if axisCrossing then
@@ -503,8 +508,8 @@ viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style,
                     view
     in
         Svg.g []
-            [ Svg.g [] (List.map (viewGridLine scales gridStyle) gridPositions)
-            , viewGridLine scales style 0
+            [ Svg.g [] (List.map (viewGridLine oppositeToSvgCoords oppositeScale gridStyle) gridPositions)
+            , viewGridLine toSvgCoords scale style 0
             , Svg.g [] (List.map (viewTickWrap scales innerTick) tickPositions)
             , Svg.g [] (List.map (viewLabelWrap scales innerLabel) tickPositions)
             ]
@@ -589,17 +594,17 @@ getGridPositions tickValues values =
             customValues
 
 
-viewGridLine : PlotScales -> Style -> Float -> Svg.Svg msg
-viewGridLine { oppositeToSvgCoords, oppositeScale } style position =
+viewGridLine : (Point -> Point) -> AxisScale -> Style -> Float -> Svg.Svg msg
+viewGridLine toSvgCoords scale style position =
     let
         { lowest, highest } =
-            oppositeScale
+            scale
 
         ( x1, y1 ) =
-            oppositeToSvgCoords ( lowest, position )
+            toSvgCoords ( lowest, position )
 
         ( x2, y2 ) =
-            oppositeToSvgCoords ( highest, position )
+            toSvgCoords ( highest, position )
 
         attrs =
             Svg.Attributes.style (toStyle style) :: (toPositionAttr x1 y1 x2 y2)
