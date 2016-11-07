@@ -118,13 +118,15 @@ type alias MetaAttr =
 defaultMetaConfig =
     { size = ( 800, 500 )
     , padding = ( 40, 40 )
-    , style = [ ( "padding", "30px" ), ( "overflow", "hidden" ), ( "stroke", "#000" ) ]
+    , style = [ ( "padding", "30px" ), ( "stroke", "#000" ) ]
     }
 
 
 {-| Add padding to your plot, meaning extra space below
  and above the lowest and highest point in your plot.
  The unit is pixels.
+
+ Default: `( 40, 40 )`
 -}
 padding : ( Int, Int ) -> MetaConfig -> MetaConfig
 padding padding config =
@@ -132,6 +134,8 @@ padding padding config =
 
 
 {-| Specify the size of your plot in pixels.
+
+ Default: `( 800, 500 )`
 -}
 size : ( Int, Int ) -> MetaConfig -> MetaConfig
 size size config =
@@ -139,6 +143,8 @@ size size config =
 
 
 {-| Add styles to the svg element.
+
+ Default: `[ ( "padding", "30px" ), ( "stroke", "#000" ) ]`
 -}
 plotStyle : Style -> MetaConfig -> MetaConfig
 plotStyle style config =
@@ -225,41 +231,64 @@ defaultAxisConfig =
 
 
 {-| Add styling to the axis line.
+
+ Default: `[]`
 -}
 axisStyle : Style -> AxisConfig msg -> AxisConfig msg
 axisStyle style config =
     { config | style = style }
 
 
-{-| Lets the library calculate some nice round values.
+{-| Defines what ticks will be shown on the axis by letting the library calculate some "nice" values.
+
+ This is the default setting for the ticks.
+
+ **Note:** If in the list of axis attributes, this attribute is preceeded with
+ `tickSequence` or `tickValues`, then it will be overwritten.
 -}
 tickAutoValues : AxisConfig msg -> AxisConfig msg
 tickAutoValues config =
     { config | tickValues = TickAutoValues }
 
 
-{-| Specify a list of ticks.
+{-| Defines what ticks will be shown on the axis by specifying a list of values.
+
+ **Note:** If in the list of axis attributes, this attribute is preceeded with
+ `tickSequence` or `tickAutoValues`, then it will be overwritten.
 -}
 tickValues : List Float -> AxisConfig msg -> AxisConfig msg
 tickValues values config =
     { config | tickValues = TickCustomValues values }
 
 
-{-| Specify the ( firstTick, delta ) to define a sequence.
+{-| Defines what ticks will be shown on the axis by specifying the ( firstTick, delta ) to define a sequence.
+
+ **Note:** If in the list of axis attributes, this attribute is preceeded with
+ `tickAutoValues` or `tickValues`, then it will be overwritten.
 -}
 tickSequence : ( Float, Float ) -> AxisConfig msg -> AxisConfig msg
 tickSequence sequenceConfig config =
     { config | tickValues = TickSequence sequenceConfig }
 
 
-{-| Specify lenght, width and style of your ticks.
+{-| Defines how the tick will be displayed by specifying lenght, width and style of your ticks.
+
+ Default: `{ length = 7, width = 1, style = [] }`
+
+ If you do not define another view configuration, this will be the default.
+
+ **Note:** If in the list of axis attributes, this attribute is preceeded with
+ `tickCustomView`, then it will be overwritten.
 -}
-tickViewConfig : ( Int, Int, Style ) -> AxisConfig msg -> AxisConfig msg
-tickViewConfig ( length, width, style ) config =
-    { config | tickView = TickConfigView { length = length, width = width, style = style } }
+tickViewConfig : TickStyleConfig -> AxisConfig msg -> AxisConfig msg
+tickViewConfig styleConfig config =
+    { config | tickView = TickConfigView styleConfig }
 
 
-{-| Specify how the tick should be rendered.
+{-| Defines how the tick will be displayed by specifying a function which returns your tick html.
+
+ **Note:** If in the list of axis attributes, this attribute is preceeded with
+ `tickViewConfig`, then it will be overwritten.
 -}
 tickCustomView : (Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
 tickCustomView view config =
@@ -268,6 +297,8 @@ tickCustomView view config =
 
 {-| Remove tick at origin. Useful when two axis' are crossing and you do not
  want the origin the be cluttered with labels.
+
+ Default: `False`
 -}
 tickRemoveZero : AxisConfig msg -> AxisConfig msg
 tickRemoveZero config =
@@ -275,6 +306,11 @@ tickRemoveZero config =
 
 
 {-| Specify a format for label.
+
+ Default: `toString`
+
+ **Note:** If in the list of axis attributes, this attribute is preceeded with
+ `labelCustomView`, then it will be overwritten.
 -}
 labelFormat : (Float -> String) -> AxisConfig msg -> AxisConfig msg
 labelFormat formatter config =
@@ -282,6 +318,9 @@ labelFormat formatter config =
 
 
 {-| Add a custom view for rendering your label.
+
+ **Note:** If in the list of axis attributes, this attribute is preceeded with
+ `labelFormat`, then it will be overwritten.
 -}
 labelCustomView : (Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
 labelCustomView view config =
@@ -289,6 +328,9 @@ labelCustomView view config =
 
 
 {-| Adds grid lines where the ticks on the corresponding axis are.
+
+ **Note:** If in the list of axis attributes, this attribute is preceeded with
+ `gridValues`, then it will be overwritten.
 -}
 gridMirrorTicks : AxisConfig msg -> AxisConfig msg
 gridMirrorTicks config =
@@ -296,6 +338,9 @@ gridMirrorTicks config =
 
 
 {-| Specify a list of ticks where you want grid lines drawn.
+
+ **Note:** If in the list of axis attributes, this attribute is preceeded with
+ `gridMirrorTicks`, then it will be overwritten.
 -}
 gridValues : List Float -> AxisConfig msg -> AxisConfig msg
 gridValues values config =
@@ -318,7 +363,10 @@ xAxis attrs =
     Axis (List.foldr (<|) defaultAxisConfig attrs)
 
 
-{-| -}
+{-| Adds an y-axis to your plot.
+
+    plot [] [ yAxis [] ]
+-}
 yAxis : List (AxisAttr msg) -> Element msg
 yAxis attrs =
     Axis (List.foldr (<|) { defaultAxisConfig | orientation = Y } attrs)
@@ -754,7 +802,7 @@ flipToY { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords } =
 
 getTick0 : Float -> Float -> Float
 getTick0 lowest delta =
-    roundBy delta lowest
+    ceilToNearest delta lowest
 
 
 getTickTotal : Float -> Float -> Float -> Float -> Int
@@ -764,8 +812,8 @@ getTickTotal range lowest tick0 delta =
 
 getTickNum : Float -> Float -> Int -> Float
 getTickNum tick0 delta index =
-    tick0 + (toFloat index) * (delta |> Debug.log "her")
-
+    tick0 + (toFloat index) * delta
+        
 
 getTicksFromSequence : Float -> Float -> Float -> Float -> List Float
 getTicksFromSequence lowest range tick0 delta =

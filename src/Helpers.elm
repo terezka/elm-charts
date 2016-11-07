@@ -29,9 +29,10 @@ pixelsToValue length range pixels =
     range * (toFloat pixels) / (toFloat length)
 
 
-roundBy : Float -> Float -> Float
-roundBy precision value =
+ceilToNearest : Float -> Float -> Float
+ceilToNearest precision value =
     toFloat (ceiling (value / precision)) * precision
+
 
 
 
