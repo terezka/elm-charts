@@ -506,7 +506,6 @@ viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style,
 
                 LabelCustomView view ->
                     view
-
     in
         Svg.g []
             [ Svg.g [] (List.map (viewGridLine oppositeToSvgCoords oppositeScale gridStyle) gridPositions)
@@ -528,7 +527,7 @@ defaultTickView orientation { length, width, style } _ =
             fromOrientation orientation "" (toRotate 90 0 0)
 
         styleFinal =
-            style ++ [ ("stroke-width", (toString width) ++ "px")]
+            style ++ [ ( "stroke-width", (toString width) ++ "px" ) ]
     in
         Svg.line
             [ Svg.Attributes.style (toStyle styleFinal)
@@ -559,6 +558,7 @@ defaultLabelView orientation format tick =
             , Svg.Attributes.style (toStyle style)
             ]
             [ Svg.tspan [] [ Svg.text (format tick) ] ]
+
 
 
 -- View Grid

@@ -37,9 +37,10 @@ plot2 =
         , line [ lineStyle [ ( "stroke", "mediumvioletred" ) ] ] lineData
         ]
 
+
 plot3 =
     plot [] [ xAxis [] ]
-            
+
 
 main =
     plot3
