@@ -478,7 +478,7 @@ viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style,
     let
         { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords } =
             scales
-            
+
         positions =
             getTickValues scale tickValues
 
@@ -506,17 +506,19 @@ viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style,
 
                 LabelCustomView view ->
                     view
+
     in
         Svg.g []
             [ Svg.g [] (List.map (viewGridLine oppositeToSvgCoords oppositeScale gridStyle) gridPositions)
             , viewGridLine toSvgCoords scale style 0
-            , Svg.g [] (List.map (viewTickWrap scales innerTick) tickPositions)
-            , Svg.g [] (List.map (viewLabelWrap scales innerLabel) tickPositions)
+            , Svg.g [] (List.map (placeTick scales innerTick) tickPositions)
+            , Svg.g [] (List.map (placeTick scales innerLabel) tickPositions)
             ]
 
 
-
--- View tick
+placeTick : PlotScales -> (Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
+placeTick { toSvgCoords } view tick =
+    Svg.g [ Svg.Attributes.transform (toTranslate (toSvgCoords ( tick, 0 ))) ] [ view tick ]
 
 
 defaultTickView : Orientation -> TickStyleConfig -> Float -> Svg.Svg msg
@@ -524,61 +526,39 @@ defaultTickView orientation { length, width, style } _ =
     let
         displacement =
             fromOrientation orientation "" (toRotate 90 0 0)
+
+        styleFinal =
+            style ++ [ ("stroke-width", (toString width) ++ "px")]
     in
         Svg.line
-            [ Svg.Attributes.style (toStyle style)
-            , Svg.Attributes.x1 (toString width)
-            , Svg.Attributes.x2 (toString width)
+            [ Svg.Attributes.style (toStyle styleFinal)
             , Svg.Attributes.y2 (toString length)
             , Svg.Attributes.transform displacement
             ]
             []
 
 
-viewTickWrap : PlotScales -> (Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
-viewTickWrap { toSvgCoords } innerTick tick =
-    let
-        position =
-            toSvgCoords ( tick, 0 )
-    in
-        Svg.g
-            [ Svg.Attributes.transform (toTranslate position) ]
-            [ innerTick tick ]
+defaultLabelStyleX : ( Style, ( Float, Float ) )
+defaultLabelStyleX =
+    ( [ ( "text-anchor", "middle" ) ], ( 0, 24 ) )
 
 
-
--- View label
+defaultLabelStyleY : ( Style, ( Float, Float ) )
+defaultLabelStyleY =
+    ( [ ( "text-anchor", "end" ) ], ( -10, 5 ) )
 
 
 defaultLabelView : Orientation -> (Float -> String) -> Float -> Svg.Svg msg
 defaultLabelView orientation format tick =
     let
-        commonStyle =
-            [ ( "stroke", "#757575" ) ]
-
-        style =
-            fromOrientation orientation ( "text-anchor", "middle" ) ( "text-anchor", "end" )
-
-        displacement =
-            fromOrientation orientation ( 0, 24 ) ( -10, 5 )
+        ( style, displacement ) =
+            fromOrientation orientation defaultLabelStyleX defaultLabelStyleY
     in
         Svg.text'
             [ Svg.Attributes.transform (toTranslate displacement)
-            , Svg.Attributes.style (toStyle (style :: commonStyle))
+            , Svg.Attributes.style (toStyle style)
             ]
             [ Svg.tspan [] [ Svg.text (format tick) ] ]
-
-
-viewLabelWrap : PlotScales -> (Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
-viewLabelWrap { toSvgCoords } innerLabel tick =
-    let
-        position =
-            toSvgCoords ( tick, 0 )
-    in
-        Svg.g
-            [ Svg.Attributes.transform (toTranslate position) ]
-            [ innerLabel tick ]
-
 
 
 -- View Grid
@@ -782,13 +762,18 @@ getTickTotal range lowest tick0 delta =
     floor ((range - (abs lowest - abs tick0)) / delta)
 
 
+getTickNum : Float -> Float -> Int -> Float
+getTickNum tick0 delta index =
+    tick0 + (toFloat index) * (delta |> Debug.log "her")
+
+
 getTicksFromSequence : Float -> Float -> Float -> Float -> List Float
 getTicksFromSequence lowest range tick0 delta =
     let
         tickTotal =
             getTickTotal range lowest tick0 delta
     in
-        List.map (\v -> tick0 + (toFloat v) * delta) [0..tickTotal]
+        List.map (getTickNum tick0 delta) [0..tickTotal]
 
 
 getTickValues : AxisScale -> TickValues -> List Float
