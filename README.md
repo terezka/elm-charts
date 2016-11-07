@@ -43,3 +43,13 @@ and open [example](http://localhost:8000/examples/PlotExample.elm)
 ```
 elm-make docs/Docs.elm --output=docs/index.html
 ```
+
+### Tests
+
+Tests are written with [elm-test](https://github.com/elm-community/elm-test).
+For further information on elm-test check the documentation.
+All required dependencies are downloaded and installed when initially running the command.
+
+```
+elm-test
+```
