@@ -120,9 +120,18 @@ composedChart : Svg.Svg a
 composedChart =
     plot
         [ size ( 600, 250 ), padding ( 40, 60 ) ]
-        [ verticalGridLines [ gridTickValues [ -30, 30, 70 ], gridStyle [ ( "stroke", "#e2e2e2" ) ] ]
-        , area [ areaStyle [ ( "stroke", "#e6d7ce" ), ( "fill", "#feefe5" ) ] ] data1
+        [ area [ areaStyle [ ( "stroke", "#e6d7ce" ), ( "fill", "#feefe5" ) ] ] data1
         , line [ lineStyle [ ( "stroke", "#b6c9ef" ) ] ] data2
-        , yAxis [ axisStyle [ ( "stroke", "#b9b9b9" ) ], tickDelta 20, viewLabel (customLabel Y) ]
-        , xAxis [ axisStyle [ ( "stroke", "#b9b9b9" ) ], viewTick customTick, viewLabel (customLabel X) ]
+        , yAxis
+            [ axisStyle [ ( "stroke", "#b9b9b9" ) ]
+            , tickDelta 20
+            , labelCustomView (customLabel Y)
+            , gridMirrorTicks
+            , gridStyle [ ( "stroke", "#e2e2e2" ) ]
+            ]
+        , xAxis
+            [ axisStyle [ ( "stroke", "#b9b9b9" ) ]
+            , tickCustomView customTick
+            , labelCustomView (customLabel X)
+            ]
         ]

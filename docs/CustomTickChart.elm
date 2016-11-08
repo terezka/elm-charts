@@ -3,6 +3,7 @@ module CustomTickChart exposing (customTickChart)
 import Svg
 import Svg.Attributes
 import Plot exposing (..)
+import Colors
 
 
 isOdd : Float -> Bool
@@ -63,6 +64,15 @@ customTickChart : Svg.Svg a
 customTickChart =
     plot
         [ size ( 600, 250 ) ]
-        [ line [ lineStyle [ ( "stroke", "#b6c9ef" ), ( "stroke-width", "2px" ) ] ] data
-        , xAxis [ axisStyle [ ( "stroke", "#b9b9b9" ) ], viewTick customTick, viewLabel customLabel ]
+        [ line
+            [ lineStyle 
+                [ ( "stroke", Colors.blueStroke )
+                , ( "stroke-width", "2px" ) ]
+            ]
+            data
+        , xAxis
+            [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+            , tickCustomView customTick
+            , labelCustomView customLabel
+            ]
         ]

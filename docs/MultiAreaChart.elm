@@ -3,6 +3,7 @@ module MultiAreaChart exposing (multiAreaChart)
 import Svg
 import Svg.Attributes
 import Plot exposing (..)
+import Colors
 
 
 data1 : List ( Float, Float )
@@ -19,10 +20,8 @@ multiAreaChart : Svg.Svg a
 multiAreaChart =
     plot
         [ size ( 600, 250 ) ]
-        [ area [ areaStyle [ ( "stroke", "#cfd8ea" ), ( "fill", "#e4eeff" ) ] ] data1
-        , area [ areaStyle [ ( "stroke", "#e6d7ce" ), ( "fill", "#feefe5" ) ] ] data2
+        [ area [ areaStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data1
+        , area [ areaStyle [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ] data2
         , xAxis
-            [ axisStyle [ ( "stroke", "#7F7F7F" ) ]
-            , tickTotal 6
-            ]
+            [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
         ]

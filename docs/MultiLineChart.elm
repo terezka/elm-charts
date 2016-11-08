@@ -3,6 +3,7 @@ module MultiLineChart exposing (multiLineChart)
 import Svg
 import Svg.Attributes
 import Plot exposing (..)
+import Colors
 
 
 data1 : List ( Float, Float )
@@ -19,10 +20,9 @@ multiLineChart : Svg.Svg a
 multiLineChart =
     plot
         [ size ( 600, 250 ) ]
-        [ line [ lineStyle [ ( "stroke", "#828da2" ) ] ] data1
-        , line [ lineStyle [ ( "stroke", "#c7978f" ) ] ] data2
+        [ line [ lineStyle [ ( "stroke", Colors.blueStroke ) ] ] data1
+        , line [ lineStyle [ ( "stroke", Colors.skinStroke ) ] ] data2
         , xAxis
-            [ axisStyle [ ( "stroke", "#7F7F7F" ) ]
-            , tickTotal 6
+            [ axisStyle [ ( "stroke",  Colors.axisColor ) ]
             ]
         ]

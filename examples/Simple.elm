@@ -42,8 +42,8 @@ plot2 =
 
 plot3 =
     plot [ padding ( 0, 0 ) ]
-        [ xAxis [ tickRemoveZero ]
-        , yAxis []
+        [ xAxis [  ]
+        , yAxis [ tickRemoveZero ]
         , area [ areaStyle [ ( "fill", "mediumvioletred" ), ( "opacity", "0.5" ), ( "stroke", "mediumvioletred" ) ] ] lineData2
         ]
 

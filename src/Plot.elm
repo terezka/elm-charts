@@ -7,8 +7,9 @@ module Plot
         , xAxis
         , yAxis
         , axisStyle
+        , axisLineStyle
         , tickValues
-        , tickSequence
+        , tickDelta
         , tickViewConfig
         , tickCustomView
         , tickRemoveZero
@@ -50,10 +51,10 @@ module Plot
 @docs AreaAttr, areaStyle
 
 ## Axis configuration
-@docs AxisAttr, axisStyle
+@docs AxisAttr, axisStyle, axisLineStyle
 
 ### Tick configuration
-@docs tickValues, tickSequence, tickRemoveZero, tickViewConfig, tickCustomView
+@docs tickValues, tickDelta, tickRemoveZero, tickViewConfig, tickCustomView
 
 ### Label configuration
 @docs labelFormat, labelCustomView
@@ -173,7 +174,7 @@ type TickView msg
 
 
 type TickValues
-    = TickSequence ( Float, Float )
+    = TickDelta Float
     | TickCustomValues (List Float)
     | TickAppxTotal Int
     | TickAutoValues
@@ -201,6 +202,7 @@ type alias AxisConfig msg =
     , gridValues : GridValues
     , gridStyle : Style
     , style : Style
+    , axisLineStyle : Style
     , orientation : Orientation
     , axisCrossing : Bool
     }
@@ -226,12 +228,14 @@ defaultAxisConfig =
     , gridValues = GridCustomValues []
     , gridStyle = []
     , style = []
+    , axisLineStyle = []
     , axisCrossing = False
     , orientation = X
     }
 
 
-{-| Add styling to the axis line.
+{-| Add style to the container holding your axis. Most properties are
+ conveniently inherited by your ticks and labels.
 
     main =
         plot
@@ -245,6 +249,20 @@ axisStyle style config =
     { config | style = style }
 
 
+{-| Add styling to the axis line.
+
+    main =
+        plot
+            [] 
+            [ xAxis [ axisLineStyle [ ( "stroke", "blue" ) ] ] ]
+
+ Default: `[]`
+-}
+axisLineStyle : Style -> AxisConfig msg -> AxisConfig msg
+axisLineStyle style config =
+    { config | axisLineStyle = style }
+
+
 {-| Defines what ticks will be shown on the axis by specifying a list of values.
 
     main =
@@ -253,26 +271,27 @@ axisStyle style config =
             [ xAxis [ tickValues [ 0, 1, 2, 4, 8 ] ] ]
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickSequence` attribute, then this attribute will have no effect.
+ `tickDelta` attribute, then this attribute will have no effect.
 -}
 tickValues : List Float -> AxisConfig msg -> AxisConfig msg
 tickValues values config =
     { config | tickValues = TickCustomValues values }
 
 
-{-| Defines what ticks will be shown on the axis by specifying the ( firstTick, delta ) to define a sequence.
+{-| Defines what ticks will be shown on the axis by specifying the delta between the ticks.
+ The delta will be added from zero.
 
     main =
         plot
             []
-            [ xAxis [ tickSequence ( 0, 4 ) ] ]
+            [ xAxis [ tickDelta 4 ] ]
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
  `tickValues` attribute, then this attribute will have no effect.
 -}
-tickSequence : ( Float, Float ) -> AxisConfig msg -> AxisConfig msg
-tickSequence sequenceConfig config =
-    { config | tickValues = TickSequence sequenceConfig }
+tickDelta : Float -> AxisConfig msg -> AxisConfig msg
+tickDelta delta config =
+    { config | tickValues = TickDelta delta }
 
 
 {-| Defines how the tick will be displayed by specifying lenght, width and style of your ticks.
@@ -628,20 +647,24 @@ viewElement scales element views =
 -- VIEW AXIS
 
 
+filterTicks : Bool -> List Float -> List Float
+filterTicks axisCrossing ticks =
+    if axisCrossing then
+        List.filter (\p -> p /= 0) ticks
+    else
+        ticks
+
+
 viewAxis : PlotScales -> AxisConfig msg -> Svg.Svg msg
-viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style, axisCrossing, orientation } =
+viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style, axisLineStyle, axisCrossing, orientation } =
     let
         { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords } =
             scales
 
-        positions =
-            getTickValues scale tickValues
-
         tickPositions =
-            if axisCrossing then
-                List.filter (\p -> p /= 0) positions
-            else
-                positions
+            getTickValues scale tickValues
+            |> filterTicks axisCrossing
+
 
         gridPositions =
             getGridPositions tickPositions gridValues
@@ -662,9 +685,10 @@ viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style,
                 LabelCustomView view ->
                     view
     in
-        Svg.g []
+        Svg.g
+            [ Svg.Attributes.style (toStyle style)]
             [ Svg.g [] (List.map (viewGridLine oppositeToSvgCoords oppositeScale gridStyle) gridPositions)
-            , viewGridLine toSvgCoords scale style 0
+            , viewGridLine toSvgCoords scale axisLineStyle 0
             , Svg.g [] (List.map (placeTick scales innerTick) tickPositions)
             , Svg.g [] (List.map (placeTick scales innerLabel) tickPositions)
             ]
@@ -952,8 +976,12 @@ getTickValues { lowest, range } tickValues =
         TickCustomValues ticks ->
             ticks
 
-        TickSequence ( tick0, delta ) ->
-            getTicksFromSequence lowest range tick0 delta
+        TickDelta delta ->
+            let
+                tick0 =
+                    getTick0 lowest delta
+            in
+                getTicksFromSequence lowest range tick0 delta
 
         TickAppxTotal total ->
             let
