@@ -12,9 +12,11 @@ module Plot
         , tickDelta
         , tickViewConfig
         , tickCustomView
+        , tickCustomViewIndexed
         , tickRemoveZero
         , labelFormat
         , labelCustomView
+        , labelCustomViewIndexed
         , gridValues
         , gridStyle
         , gridMirrorTicks
@@ -54,10 +56,10 @@ module Plot
 @docs AxisAttr, axisStyle, axisLineStyle
 
 ### Tick configuration
-@docs tickValues, tickDelta, tickRemoveZero, tickViewConfig, tickCustomView
+@docs tickValues, tickDelta, tickRemoveZero, tickViewConfig, tickCustomView, tickCustomViewIndexed
 
 ### Label configuration
-@docs labelFormat, labelCustomView
+@docs labelFormat, labelCustomView, labelCustomViewIndexed
 
 ### Grid configuration
 @docs gridMirrorTicks, gridValues, gridStyle
@@ -169,7 +171,7 @@ type alias TickStyleConfig =
 
 
 type TickView msg
-    = TickCustomView (Float -> Svg.Svg msg)
+    = TickCustomView (Int -> Float -> Svg.Svg msg)
     | TickConfigView TickStyleConfig
 
 
@@ -182,7 +184,7 @@ type TickValues
 
 type LabelView msg
     = LabelFormat (Float -> String)
-    | LabelCustomView (Float -> Svg.Svg msg)
+    | LabelCustomView (Int -> Float -> Svg.Svg msg)
 
 
 type GridValues
@@ -338,6 +340,29 @@ tickViewConfig styleConfig config =
 -}
 tickCustomView : (Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
 tickCustomView view config =
+    { config | tickView = TickCustomView (\_ t -> view t) }
+
+
+{-| Same as `tickCustomConfig`, but the functions is also passed a value
+ which is how many ticks away the tick is from the zero tick.
+
+    viewTick : Int -> Float -> Svg.Svg a
+    viewTick fromZero tick =
+        text'
+            [ transform ("translate(-5, 10)") ]
+            [ tspan
+                []
+                [ text (if isOdd fromZero then "🌟" else "⭐") ]
+            ]
+
+    main =
+        plot [] [ xAxis [ tickCustomViewIndexed viewTick ] ]
+
+ **Note:** If in the list of axis attributes, this attribute is followed by a
+ `tickViewConfig` attribute, then this attribute will have no effect.
+-}
+tickCustomViewIndexed : (Int -> Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
+tickCustomViewIndexed view config =
     { config | tickView = TickCustomView view }
 
 
@@ -383,7 +408,6 @@ labelFormat formatter config =
     viewLabel tick =
         text' mySpecialAttributes mySpecialLabelDisplay
 
-
     main =
         plot
             [] 
@@ -394,6 +418,32 @@ labelFormat formatter config =
 -}
 labelCustomView : (Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
 labelCustomView view config =
+    { config | labelView = LabelCustomView (\_ t -> view t) }
+
+
+{-| Same as `labelCustomView`, except this view is also passed the value being
+ the amount of ticks the current is away from zero.
+
+    viewLabel : Int -> Float -> Svg.Svg a
+    viewLabel fromZero tick =
+        let
+            attrs =
+                if isOdd fromZero then oddAttrs 
+                else evenAttrs
+        in
+            text' attrs labelHtml
+
+
+    main =
+        plot
+            [] 
+            [ xAxis [ labelCustomViewIndexed viewLabel ] ]
+
+ **Note:** If in the list of axis attributes, this attribute is followed by a
+ `labelFormat` attribute, then this attribute will have no effect.
+-}
+labelCustomViewIndexed : (Int -> Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
+labelCustomViewIndexed view config =
     { config | labelView = LabelCustomView view }
 
 
@@ -655,6 +705,31 @@ filterTicks axisCrossing ticks =
         ticks
 
 
+getDistance : Bool -> Int -> Int -> Float -> (Int, Float)
+getDistance hasZero lowerThanZero index tick =
+    let
+        distance =
+            if tick == 0 then 0 
+            else if tick > 0 && hasZero then index - lowerThanZero
+            else if tick > 0 then index - lowerThanZero + 1
+            else lowerThanZero - index
+    in
+        ( distance, tick )
+
+
+indexTicks : List Float -> List (Int, Float)
+indexTicks ticks =
+    let
+        lowerThanZero =
+            List.length (List.filter (\i -> i < 0) ticks)
+
+        hasZero =
+            List.any (\t -> t == 0) ticks
+    in
+        List.indexedMap (getDistance hasZero lowerThanZero) ticks
+
+
+
 viewAxis : PlotScales -> AxisConfig msg -> Svg.Svg msg
 viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style, axisLineStyle, axisCrossing, orientation } =
     let
@@ -665,6 +740,8 @@ viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style,
             getTickValues scale tickValues
             |> filterTicks axisCrossing
 
+        indexedTicksPositions =
+            indexTicks tickPositions
 
         gridPositions =
             getGridPositions tickPositions gridValues
@@ -689,18 +766,18 @@ viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style,
             [ Svg.Attributes.style (toStyle style)]
             [ Svg.g [] (List.map (viewGridLine oppositeToSvgCoords oppositeScale gridStyle) gridPositions)
             , viewGridLine toSvgCoords scale axisLineStyle 0
-            , Svg.g [] (List.map (placeTick scales innerTick) tickPositions)
-            , Svg.g [] (List.map (placeTick scales innerLabel) tickPositions)
+            , Svg.g [] (List.map (placeTick scales innerTick) indexedTicksPositions )
+            , Svg.g [] (List.map (placeTick scales innerLabel) indexedTicksPositions )
             ]
 
 
-placeTick : PlotScales -> (Float -> Svg.Svg msg) -> Float -> Svg.Svg msg
-placeTick { toSvgCoords } view tick =
-    Svg.g [ Svg.Attributes.transform (toTranslate (toSvgCoords ( tick, 0 ))) ] [ view tick ]
+placeTick : PlotScales -> (Int -> Float -> Svg.Svg msg) -> (Int, Float) -> Svg.Svg msg
+placeTick { toSvgCoords } view (index, tick) =
+    Svg.g [ Svg.Attributes.transform (toTranslate (toSvgCoords ( tick, 0 ))) ] [ view index tick ]
 
 
-defaultTickView : Orientation -> TickStyleConfig -> Float -> Svg.Svg msg
-defaultTickView orientation { length, width, style } _ =
+defaultTickView : Orientation -> TickStyleConfig -> Int -> Float -> Svg.Svg msg
+defaultTickView orientation { length, width, style } _ _ =
     let
         displacement =
             fromOrientation orientation "" (toRotate 90 0 0)
@@ -726,8 +803,8 @@ defaultLabelStyleY =
     ( [ ( "text-anchor", "end" ) ], ( -10, 5 ) )
 
 
-defaultLabelView : Orientation -> (Float -> String) -> Float -> Svg.Svg msg
-defaultLabelView orientation format tick =
+defaultLabelView : Orientation -> (Float -> String) -> Int -> Float -> Svg.Svg msg
+defaultLabelView orientation format _ tick =
     let
         ( style, displacement ) =
             fromOrientation orientation defaultLabelStyleX defaultLabelStyleY

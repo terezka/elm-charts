@@ -6,9 +6,9 @@ import Plot exposing (..)
 import Debug
 
 
-isOdd : Float -> Bool
+isOdd : Int -> Bool
 isOdd n =
-    rem (round (abs n)) 2 > 0
+    rem (abs n) 2 > 0
 
 
 type Orientation
@@ -16,17 +16,17 @@ type Orientation
     | Y
 
 
-customTick : Float -> Svg.Svg a
-customTick tick =
+customTick : Int -> Float -> Svg.Svg a
+customTick indexFromZero tick =
     let
         length =
-            if isOdd tick then
+            if isOdd indexFromZero then
                 7
             else
                 10
 
         color =
-            if isOdd tick then
+            if isOdd indexFromZero then
                 "#e4e3e3"
             else
                 "#b9b9b9"
@@ -38,11 +38,11 @@ customTick tick =
             []
 
 
-formatTickX : Float -> String
-formatTickX tick =
+formatTickX : Int -> Float -> String
+formatTickX indexFromZero tick =
     if tick == 0 then
         ""
-    else if isOdd tick then
+    else if isOdd indexFromZero then
         ""
     else
         let
@@ -72,18 +72,18 @@ formatTickY tick =
         (toString tick) ++ " °C"
 
 
-customLabel : Orientation -> Float -> Svg.Svg a
-customLabel orientation tick =
+customLabel : Orientation -> Int -> Float -> Svg.Svg a
+customLabel orientation indexFromZero tick =
     let
         length =
-            if isOdd tick then
+            if isOdd indexFromZero then
                 7
             else
                 10
 
         text =
             if orientation == X then
-                formatTickX tick
+                formatTickX indexFromZero tick
             else
                 formatTickY tick
 
@@ -125,13 +125,13 @@ composedChart =
         , yAxis
             [ axisStyle [ ( "stroke", "#b9b9b9" ) ]
             , tickDelta 20
-            , labelCustomView (customLabel Y)
+            , labelCustomViewIndexed (customLabel Y)
             , gridMirrorTicks
             , gridStyle [ ( "stroke", "#e2e2e2" ) ]
             ]
         , xAxis
             [ axisStyle [ ( "stroke", "#b9b9b9" ) ]
-            , tickCustomView customTick
-            , labelCustomView (customLabel X)
+            , tickCustomViewIndexed customTick
+            , labelCustomViewIndexed (customLabel X)
             ]
         ]

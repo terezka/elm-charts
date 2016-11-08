@@ -66,6 +66,15 @@ tickView tick =
             [ Svg.text "✨" ]
         ]
 
+viewTick2 : Int -> Float -> Svg.Svg a
+viewTick2 fromZero tick =
+    Svg.text'
+        [ Svg.Attributes.transform ("translate(-5, 10)") ]
+        [ Svg.tspan
+            []
+            [ Svg.text (if rem (abs fromZero) 2 > 0 then "🌟" else "⭐") ]
+        ]
 
 main =
-    plot3
+    plot [] [ xAxis [ tickCustomViewIndexed viewTick2 ] ]
+

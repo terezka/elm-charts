@@ -11,8 +11,8 @@ isOdd n =
     rem (round n) 2 > 0
 
 
-customTick : Float -> Svg.Svg a
-customTick tick =
+customTick : Int -> Float -> Svg.Svg a
+customTick _ tick =
     let
         length =
             if isOdd tick then
@@ -72,7 +72,7 @@ customTickChart =
             data
         , xAxis
             [ axisStyle [ ( "stroke", Colors.axisColor ) ]
-            , tickCustomView customTick
+            , tickCustomViewIndexed customTick
             , labelCustomView customLabel
             ]
         ]
