@@ -70,6 +70,7 @@ import Svg exposing (g)
 import Svg.Attributes exposing (height, width, d, style)
 import Svg.Lazy
 import String
+import Round
 import Debug
 import Helpers exposing (..)
 
@@ -812,7 +813,17 @@ getTickTotal range lowest tick0 delta =
 
 getTickNum : Float -> Float -> Int -> Float
 getTickNum tick0 delta index =
-    tick0 + (toFloat index) * delta
+    let
+        mag =
+            floor (logBase 10 delta)
+
+        precision =
+            if mag < 0 then abs mag else 0
+    in
+        tick0 + (toFloat index) * delta
+        |> Round.round precision
+        |> String.toFloat
+        |> Result.withDefault 0
         
 
 getTicksFromSequence : Float -> Float -> Float -> Float -> List Float

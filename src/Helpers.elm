@@ -11,7 +11,7 @@ import Debug
 
 getHighest : List Float -> Float
 getHighest values =
-    Maybe.withDefault 1 (List.maximum values)
+    Maybe.withDefault 10 (List.maximum values)
 
 
 getLowest : List Float -> Float
