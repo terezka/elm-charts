@@ -35,7 +35,6 @@ ceilToNearest precision value =
 
 
 
-
 -- Svg helpers
 
 

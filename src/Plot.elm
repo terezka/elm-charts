@@ -9,7 +9,6 @@ module Plot
         , axisStyle
         , tickValues
         , tickSequence
-        , tickAutoValues
         , tickViewConfig
         , tickCustomView
         , tickRemoveZero
@@ -54,13 +53,13 @@ module Plot
 @docs AxisAttr, axisStyle
 
 ### Tick configuration
-@docs tickValues, tickSequence, tickAutoValues, tickRemoveZero, tickViewConfig, tickCustomView
+@docs tickValues, tickSequence, tickRemoveZero, tickViewConfig, tickCustomView
 
 ### Label configuration
 @docs labelFormat, labelCustomView
 
 ### Grid configuration
-@docs gridValues, gridStyle, gridMirrorTicks
+@docs gridMirrorTicks, gridValues, gridStyle
 
 -}
 
@@ -118,7 +117,7 @@ type alias MetaAttr =
 
 defaultMetaConfig =
     { size = ( 800, 500 )
-    , padding = ( 40, 40 )
+    , padding = ( 0, 0 )
     , style = [ ( "padding", "30px" ), ( "stroke", "#000" ) ]
     }
 
@@ -127,7 +126,7 @@ defaultMetaConfig =
  and above the lowest and highest point in your plot.
  The unit is pixels.
 
- Default: `( 40, 40 )`
+ Default: `( 0, 0 )`
 -}
 padding : ( Int, Int ) -> MetaConfig -> MetaConfig
 padding padding config =
@@ -207,7 +206,8 @@ type alias AxisConfig msg =
     }
 
 
-{-| -}
+{-| The type representing an axis configuration.
+-}
 type alias AxisAttr msg =
     AxisConfig msg -> AxisConfig msg
 
@@ -233,6 +233,11 @@ defaultAxisConfig =
 
 {-| Add styling to the axis line.
 
+    main =
+        plot
+            [] 
+            [ xAxis [ axisStyle [ ( "stroke", "red" ) ] ] ]
+
  Default: `[]`
 -}
 axisStyle : Style -> AxisConfig msg -> AxisConfig msg
@@ -240,22 +245,15 @@ axisStyle style config =
     { config | style = style }
 
 
-{-| Defines what ticks will be shown on the axis by letting the library calculate some "nice" values.
-
- This is the default setting for the ticks.
-
- **Note:** If in the list of axis attributes, this attribute is preceeded with
- `tickSequence` or `tickValues`, then it will be overwritten.
--}
-tickAutoValues : AxisConfig msg -> AxisConfig msg
-tickAutoValues config =
-    { config | tickValues = TickAutoValues }
-
-
 {-| Defines what ticks will be shown on the axis by specifying a list of values.
 
- **Note:** If in the list of axis attributes, this attribute is preceeded with
- `tickSequence` or `tickAutoValues`, then it will be overwritten.
+    main =
+        plot
+            []
+            [ xAxis [ tickValues [ 0, 1, 2, 4, 8 ] ] ]
+
+ **Note:** If in the list of axis attributes, this attribute is followed by a
+ `tickSequence` attribute, then this attribute will have no effect.
 -}
 tickValues : List Float -> AxisConfig msg -> AxisConfig msg
 tickValues values config =
@@ -264,8 +262,13 @@ tickValues values config =
 
 {-| Defines what ticks will be shown on the axis by specifying the ( firstTick, delta ) to define a sequence.
 
- **Note:** If in the list of axis attributes, this attribute is preceeded with
- `tickAutoValues` or `tickValues`, then it will be overwritten.
+    main =
+        plot
+            []
+            [ xAxis [ tickSequence ( 0, 4 ) ] ]
+
+ **Note:** If in the list of axis attributes, this attribute is followed by a
+ `tickValues` attribute, then this attribute will have no effect.
 -}
 tickSequence : ( Float, Float ) -> AxisConfig msg -> AxisConfig msg
 tickSequence sequenceConfig config =
@@ -274,12 +277,23 @@ tickSequence sequenceConfig config =
 
 {-| Defines how the tick will be displayed by specifying lenght, width and style of your ticks.
 
+    axisStyleAttr : AxisAttr msg
+    axisStyleAttr =
+        tickViewConfig
+            { length = 5
+            , width = 2
+            , style = [ ( "stroke", "red" ) ]
+            }
+
+    main =
+        plot [] [ xAxis [ axisStyleAttr ] ]
+
  Default: `{ length = 7, width = 1, style = [] }`
 
  If you do not define another view configuration, this will be the default.
 
- **Note:** If in the list of axis attributes, this attribute is preceeded with
- `tickCustomView`, then it will be overwritten.
+ **Note:** If in the list of axis attributes, this attribute is followed by a
+ `tickCustomView` attribute, then this attribute will have no effect.
 -}
 tickViewConfig : TickStyleConfig -> AxisConfig msg -> AxisConfig msg
 tickViewConfig styleConfig config =
@@ -288,8 +302,20 @@ tickViewConfig styleConfig config =
 
 {-| Defines how the tick will be displayed by specifying a function which returns your tick html.
 
- **Note:** If in the list of axis attributes, this attribute is preceeded with
- `tickViewConfig`, then it will be overwritten.
+    viewTick : Float -> Svg.Svg a
+    viewTick tick =
+        text'
+            [ transform ("translate(-5, 10)") ]
+            [ tspan
+                []
+                [ text "✨" ]
+            ]
+
+    main =
+        plot [] [ xAxis [ tickCustomView viewTick ] ]
+
+ **Note:** If in the list of axis attributes, this attribute is followed by a
+ `tickViewConfig` attribute, then this attribute will have no effect.
 -}
 tickCustomView : (Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
 tickCustomView view config =
@@ -298,6 +324,11 @@ tickCustomView view config =
 
 {-| Remove tick at origin. Useful when two axis' are crossing and you do not
  want the origin the be cluttered with labels.
+
+    main =
+        plot
+            []
+            [ xAxis [ tickRemoveZero ] ]
 
  Default: `False`
 -}
@@ -308,10 +339,19 @@ tickRemoveZero config =
 
 {-| Specify a format for label.
 
+    labelFormatter : Float -> String
+    labelFormatter tick =
+        (toString tick) ++ "$"
+
+    main =
+        plot
+            []
+            [ xAxis [ labelFormat labelFormatter ] ]
+
  Default: `toString`
 
- **Note:** If in the list of axis attributes, this attribute is preceeded with
- `labelCustomView`, then it will be overwritten.
+ **Note:** If in the list of axis attributes, this attribute is followed by a
+ `labelCustomView` attribute, then this attribute will have no effect.
 -}
 labelFormat : (Float -> String) -> AxisConfig msg -> AxisConfig msg
 labelFormat formatter config =
@@ -320,8 +360,18 @@ labelFormat formatter config =
 
 {-| Add a custom view for rendering your label.
 
- **Note:** If in the list of axis attributes, this attribute is preceeded with
- `labelFormat`, then it will be overwritten.
+    viewLabel : Float -> Svg.Svg a
+    viewLabel tick =
+        text' mySpecialAttributes mySpecialLabelDisplay
+
+
+    main =
+        plot
+            [] 
+            [ xAxis [ labelCustomView viewLabel ] ]
+
+ **Note:** If in the list of axis attributes, this attribute is followed by a
+ `labelFormat` attribute, then this attribute will have no effect.
 -}
 labelCustomView : (Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
 labelCustomView view config =
@@ -330,8 +380,13 @@ labelCustomView view config =
 
 {-| Adds grid lines where the ticks on the corresponding axis are.
 
- **Note:** If in the list of axis attributes, this attribute is preceeded with
- `gridValues`, then it will be overwritten.
+    main =
+        plot
+            []
+            [ xAxis [ gridMirrorTicks ] ]
+
+ **Note:** If in the list of axis attributes, this attribute is followed by a
+ `gridValues` attribute, then this attribute will have no effect.
 -}
 gridMirrorTicks : AxisConfig msg -> AxisConfig msg
 gridMirrorTicks config =
@@ -340,8 +395,10 @@ gridMirrorTicks config =
 
 {-| Specify a list of ticks where you want grid lines drawn.
 
- **Note:** If in the list of axis attributes, this attribute is preceeded with
- `gridMirrorTicks`, then it will be overwritten.
+    plot [] [ xAxis [ gridValues [ 1, 2, 4, 8 ] ] ]
+
+ **Note:** If in the list of axis attributes, this attribute is followed by a
+ `gridMirrorTicks` attribute, then this attribute will have no effect.
 -}
 gridValues : List Float -> AxisConfig msg -> AxisConfig msg
 gridValues values config =
@@ -349,24 +406,37 @@ gridValues values config =
 
 
 {-| Specify styles for the gridlines.
+
+    plot
+        []
+        [ xAxis
+            [ gridMirrorTicks
+            , gridStyle myGridStyles
+            ]
+        ]
+
+ Remember that if you do not specify either `gridMirrorTicks`
+ or `gridValues`, then we will default to not showing any grid lines.
 -}
 gridStyle : Style -> AxisConfig msg -> AxisConfig msg
 gridStyle style config =
     { config | gridStyle = style }
 
 
-{-| Adds an x-axis to your plot.
+{-| This returns an axis element resulting in an x-axis being rendered in your plot.
 
-    plot [] [ xAxis [] ]
+    main =
+        plot [] [ xAxis [] ]
 -}
 xAxis : List (AxisAttr msg) -> Element msg
 xAxis attrs =
     Axis (List.foldr (<|) defaultAxisConfig attrs)
 
 
-{-| Adds an y-axis to your plot.
+{-| This returns an axis element resulting in an y-axis being rendered in your plot.
 
-    plot [] [ yAxis [] ]
+    main =
+        plot [] [ yAxis [] ]
 -}
 yAxis : List (AxisAttr msg) -> Element msg
 yAxis attrs =
@@ -383,7 +453,8 @@ type alias AreaConfig =
     }
 
 
-{-| -}
+{-| The type representing an area configuration.
+-}
 type alias AreaAttr =
     AreaConfig -> AreaConfig
 
@@ -394,13 +465,31 @@ defaultAreaConfig =
     }
 
 
-{-| -}
+{-| Add styles to your area serie.
+
+    main =
+        plot
+            []
+            [ area
+                [ areaStyle
+                    [ ( "fill", "deeppink" )
+                    , ( "stroke", "deeppink" )
+                    , ( "opacity", "0.5" ) ]
+                    ]
+                ]
+                areaDataPoints
+            ]
+-}
 areaStyle : Style -> AreaConfig -> AreaConfig
 areaStyle style config =
     { config | style = style }
 
 
-{-| -}
+{-| This returns an area element resulting in an area serie rendered in your plot.
+
+    main =
+        plot [] [ area []  [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
+-}
 area : List AreaAttr -> List Point -> Element msg
 area attrs points =
     let
@@ -426,18 +515,32 @@ defaultLineConfig =
     }
 
 
-{-| -}
+{-| The type representing a line configuration.
+-}
 type alias LineAttr =
     LineConfig -> LineConfig
 
 
-{-| -}
+{-| Add styles to your line serie.
+
+    main =
+        plot
+            []
+            [ line
+                [ lineStyle [ ( "fill", "deeppink" ) ] ]
+                lineDataPoints
+            ]
+-}
 lineStyle : Style -> LineConfig -> LineConfig
 lineStyle style config =
     { config | style = ( "fill", "transparent" ) :: style }
 
 
-{-| -}
+{-| This returns a line element resulting in an line serie rendered in your plot.
+
+    main =
+        plot [] [ line [] [ ( 0, 1 ), ( 2, 2 ), ( 3, 4 ) ] ]
+-}
 line : List LineAttr -> List Point -> Element msg
 line attrs points =
     let
@@ -451,7 +554,10 @@ line attrs points =
 -- PARSE PLOT
 
 
-{-| -}
+{-| This is the function processing your entire plot configuration.
+ Pass your meta attributes and plot elements to this function and
+ a svg plot will be returned!
+-}
 plot : List MetaAttr -> List (Element msg) -> Svg.Svg msg
 plot attr elements =
     Svg.Lazy.lazy2 parsePlot attr elements
@@ -818,13 +924,18 @@ getTickNum tick0 delta index =
             floor (logBase 10 delta)
 
         precision =
-            if mag < 0 then abs mag else 0
+            if mag < 0 then
+                abs mag
+            else
+                0
     in
-        tick0 + (toFloat index) * delta
-        |> Round.round precision
-        |> String.toFloat
-        |> Result.withDefault 0
-        
+        tick0
+            + (toFloat index)
+            * delta
+            |> Round.round precision
+            |> String.toFloat
+            |> Result.withDefault 0
+
 
 getTicksFromSequence : Float -> Float -> Float -> Float -> List Float
 getTicksFromSequence lowest range tick0 delta =

@@ -1,6 +1,8 @@
 module Simple exposing (..)
 
 import Plot exposing (..)
+import Svg
+import Svg.Attributes
 
 
 lineData : List ( Float, Float )
@@ -39,7 +41,30 @@ plot2 =
 
 
 plot3 =
-    plot [] [ xAxis [] ]
+    plot [ padding ( 0, 0 ) ]
+        [ xAxis [ tickRemoveZero ]
+        , yAxis []
+        , area [ areaStyle [ ( "fill", "mediumvioletred" ), ( "opacity", "0.5" ), ( "stroke", "mediumvioletred" ) ] ] lineData2
+        ]
+
+
+axisStyleAttr : AxisAttr msg
+axisStyleAttr =
+    tickViewConfig
+        { length = 5
+        , width = 2
+        , style = [ ( "stroke", "red" ) ]
+        }
+
+
+tickView : Float -> Svg.Svg a
+tickView tick =
+    Svg.text'
+        [ Svg.Attributes.transform ("translate(-5, 10)") ]
+        [ Svg.tspan
+            []
+            [ Svg.text "✨" ]
+        ]
 
 
 main =
