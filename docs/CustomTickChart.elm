@@ -6,58 +6,51 @@ import Plot exposing (..)
 import Colors
 
 
-isOdd : Float -> Bool
+isOdd : Int -> Bool
 isOdd n =
-    rem (round n) 2 > 0
+    rem n 2 > 0
 
 
-customTick : Int -> Float -> Svg.Svg a
-customTick _ tick =
-    let
-        length =
-            if isOdd tick then
-                7
-            else
-                10
-
-        color =
-            if isOdd tick then
-                "#e4e3e3"
-            else
-                "#b9b9b9"
-    in
-        Svg.line
-            [ Svg.Attributes.style ("stroke: " ++ color)
-            , Svg.Attributes.y2 (toString length)
-            ]
-            []
+getTickColor : Int -> String
+getTickColor fromZero =
+    if isOdd fromZero then
+        "#e4e3e3"
+    else
+        "#b9b9b9"
 
 
-customLabel : Float -> Svg.Svg a
-customLabel tick =
-    let
-        length =
-            if isOdd tick then
-                7
-            else
-                10
-
-        text =
-            if isOdd tick then
-                ""
-            else
-                ((toString tick) ++ " s")
-    in
-        Svg.text'
-            [ Svg.Attributes.transform ("translate(0, 27)")
-            , Svg.Attributes.style "text-anchor: middle; stroke: #969696;"
-            ]
-            [ Svg.tspan [] [ Svg.text text ] ]
+getTickLength : Int -> Int
+getTickLength fromZero =
+    if isOdd fromZero then
+        7
+    else
+        10
 
 
-data : List ( Float, Float )
-data =
-    [ ( 0, 14 ), ( 1, 16 ), ( 2, 26 ), ( 3, 32 ), ( 4, 28 ), ( 5, 32 ), ( 6, 29 ), ( 7, 46 ), ( 8, 52 ), ( 9, 53 ), ( 10, 59 ) ]
+viewTick : Int -> Float -> Svg.Svg a
+viewTick fromZero _ =
+    Svg.line
+        [ Svg.Attributes.style ("stroke: " ++ getTickColor fromZero)
+        , Svg.Attributes.y2 (toString (getTickLength fromZero))
+        ]
+        []
+
+
+viewLabelEven : Float -> Svg.Svg a
+viewLabelEven tick =
+    Svg.text'
+        [ Svg.Attributes.transform "translate(0, 27)"
+        , Svg.Attributes.style "text-anchor: middle; stroke: #969696;"
+        ]
+        [ Svg.tspan [] [ Svg.text ((toString tick) ++ " s") ] ]
+
+
+viewLabel : Int -> Float -> Svg.Svg a
+viewLabel fromZero tick =
+    if isOdd fromZero then
+        Svg.text ""
+    else
+        viewLabelEven tick
 
 
 customTickChart : Svg.Svg a
@@ -65,14 +58,20 @@ customTickChart =
     plot
         [ size ( 600, 250 ) ]
         [ line
-            [ lineStyle 
-                [ ( "stroke", Colors.blueStroke )
-                , ( "stroke-width", "2px" ) ]
+            [ lineStyle
+                [ ( "stroke", Colors.skinStroke )
+                , ( "stroke-width", "2px" )
+                ]
             ]
             data
         , xAxis
             [ axisStyle [ ( "stroke", Colors.axisColor ) ]
-            , tickCustomViewIndexed customTick
-            , labelCustomView customLabel
+            , tickCustomViewIndexed viewTick
+            , labelCustomViewIndexed viewLabel
             ]
         ]
+
+
+data : List ( Float, Float )
+data =
+    [ ( 0, 14 ), ( 1, 16 ), ( 2, 26 ), ( 3, 32 ), ( 4, 28 ), ( 5, 32 ), ( 6, 29 ), ( 7, 46 ), ( 8, 52 ), ( 9, 53 ), ( 10, 59 ) ]

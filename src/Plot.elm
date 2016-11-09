@@ -241,7 +241,7 @@ defaultAxisConfig =
 
     main =
         plot
-            [] 
+            []
             [ xAxis [ axisStyle [ ( "stroke", "red" ) ] ] ]
 
  Default: `[]`
@@ -255,7 +255,7 @@ axisStyle style config =
 
     main =
         plot
-            [] 
+            []
             [ xAxis [ axisLineStyle [ ( "stroke", "blue" ) ] ] ]
 
  Default: `[]`
@@ -314,7 +314,7 @@ tickDelta delta config =
  If you do not define another view configuration, this will be the default.
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickCustomView` attribute, then this attribute will have no effect.
+ `tickCustomView` or a `tickCustomViewIndexed` attribute, then this attribute will have no effect.
 -}
 tickViewConfig : TickStyleConfig -> AxisConfig msg -> AxisConfig msg
 tickViewConfig styleConfig config =
@@ -336,7 +336,7 @@ tickViewConfig styleConfig config =
         plot [] [ xAxis [ tickCustomView viewTick ] ]
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickViewConfig` attribute, then this attribute will have no effect.
+ `tickViewConfig` or a `tickCustomViewIndexed` attribute, then this attribute will have no effect.
 -}
 tickCustomView : (Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
 tickCustomView view config =
@@ -344,7 +344,7 @@ tickCustomView view config =
 
 
 {-| Same as `tickCustomConfig`, but the functions is also passed a value
- which is how many ticks away the tick is from the zero tick.
+ which is how many ticks away the current tick is from the zero tick.
 
     viewTick : Int -> Float -> Svg.Svg a
     viewTick fromZero tick =
@@ -359,7 +359,7 @@ tickCustomView view config =
         plot [] [ xAxis [ tickCustomViewIndexed viewTick ] ]
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickViewConfig` attribute, then this attribute will have no effect.
+ `tickViewConfig` or a `tickCustomView` attribute, then this attribute will have no effect.
 -}
 tickCustomViewIndexed : (Int -> Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
 tickCustomViewIndexed view config =
@@ -410,7 +410,7 @@ labelFormat formatter config =
 
     main =
         plot
-            [] 
+            []
             [ xAxis [ labelCustomView viewLabel ] ]
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
@@ -422,13 +422,13 @@ labelCustomView view config =
 
 
 {-| Same as `labelCustomView`, except this view is also passed the value being
- the amount of ticks the current is away from zero.
+ the amount of ticks the current tick is away from zero.
 
     viewLabel : Int -> Float -> Svg.Svg a
     viewLabel fromZero tick =
         let
             attrs =
-                if isOdd fromZero then oddAttrs 
+                if isOdd fromZero then oddAttrs
                 else evenAttrs
         in
             text' attrs labelHtml
@@ -436,7 +436,7 @@ labelCustomView view config =
 
     main =
         plot
-            [] 
+            []
             [ xAxis [ labelCustomViewIndexed viewLabel ] ]
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
@@ -705,19 +705,23 @@ filterTicks axisCrossing ticks =
         ticks
 
 
-getDistance : Bool -> Int -> Int -> Float -> (Int, Float)
+getDistance : Bool -> Int -> Int -> Float -> ( Int, Float )
 getDistance hasZero lowerThanZero index tick =
     let
         distance =
-            if tick == 0 then 0 
-            else if tick > 0 && hasZero then index - lowerThanZero
-            else if tick > 0 then index - lowerThanZero + 1
-            else lowerThanZero - index
+            if tick == 0 then
+                0
+            else if tick > 0 && hasZero then
+                index - lowerThanZero
+            else if tick > 0 then
+                index - lowerThanZero + 1
+            else
+                lowerThanZero - index
     in
         ( distance, tick )
 
 
-indexTicks : List Float -> List (Int, Float)
+indexTicks : List Float -> List ( Int, Float )
 indexTicks ticks =
     let
         lowerThanZero =
@@ -729,7 +733,6 @@ indexTicks ticks =
         List.indexedMap (getDistance hasZero lowerThanZero) ticks
 
 
-
 viewAxis : PlotScales -> AxisConfig msg -> Svg.Svg msg
 viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style, axisLineStyle, axisCrossing, orientation } =
     let
@@ -738,7 +741,7 @@ viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style,
 
         tickPositions =
             getTickValues scale tickValues
-            |> filterTicks axisCrossing
+                |> filterTicks axisCrossing
 
         indexedTicksPositions =
             indexTicks tickPositions
@@ -763,16 +766,16 @@ viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style,
                     view
     in
         Svg.g
-            [ Svg.Attributes.style (toStyle style)]
+            [ Svg.Attributes.style (toStyle style) ]
             [ Svg.g [] (List.map (viewGridLine oppositeToSvgCoords oppositeScale gridStyle) gridPositions)
             , viewGridLine toSvgCoords scale axisLineStyle 0
-            , Svg.g [] (List.map (placeTick scales innerTick) indexedTicksPositions )
-            , Svg.g [] (List.map (placeTick scales innerLabel) indexedTicksPositions )
+            , Svg.g [] (List.map (placeTick scales innerTick) indexedTicksPositions)
+            , Svg.g [] (List.map (placeTick scales innerLabel) indexedTicksPositions)
             ]
 
 
-placeTick : PlotScales -> (Int -> Float -> Svg.Svg msg) -> (Int, Float) -> Svg.Svg msg
-placeTick { toSvgCoords } view (index, tick) =
+placeTick : PlotScales -> (Int -> Float -> Svg.Svg msg) -> ( Int, Float ) -> Svg.Svg msg
+placeTick { toSvgCoords } view ( index, tick ) =
     Svg.g [ Svg.Attributes.transform (toTranslate (toSvgCoords ( tick, 0 ))) ] [ view index tick ]
 
 

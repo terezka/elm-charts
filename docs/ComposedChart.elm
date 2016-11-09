@@ -4,11 +4,12 @@ import Svg
 import Svg.Attributes
 import Plot exposing (..)
 import Debug
+import Colors
 
 
 isOdd : Int -> Bool
 isOdd n =
-    rem (abs n) 2 > 0
+    rem n 2 > 0
 
 
 type Orientation
@@ -16,94 +17,78 @@ type Orientation
     | Y
 
 
-customTick : Int -> Float -> Svg.Svg a
-customTick indexFromZero tick =
-    let
-        length =
-            if isOdd indexFromZero then
-                7
-            else
-                10
+getTickLenght : Int -> Int
+getTickLenght fromZero =
+    if isOdd fromZero then
+        7
+    else
+        10
 
-        color =
-            if isOdd indexFromZero then
-                "#e4e3e3"
-            else
-                "#b9b9b9"
-    in
-        Svg.line
-            [ Svg.Attributes.style ("stroke: " ++ color)
-            , Svg.Attributes.y2 (toString length)
-            ]
-            []
+
+getTickColor : Int -> String
+getTickColor fromZero =
+    if isOdd fromZero then
+        "#c7c7c7"
+    else
+        "#b9b9b9"
+
+
+customTick : Int -> Float -> Svg.Svg a
+customTick fromZero tick =
+    Svg.line
+        [ Svg.Attributes.style ("stroke: " ++ getTickColor fromZero)
+        , Svg.Attributes.y2 (toString (getTickLenght fromZero))
+        ]
+        []
 
 
 formatTickX : Int -> Float -> String
-formatTickX indexFromZero tick =
-    if tick == 0 then
-        ""
-    else if isOdd indexFromZero then
+formatTickX fromZero tick =
+    if isOdd fromZero then
         ""
     else
-        let
-            abbrivated =
-                (abs tick * 2) > 10
-
-            formatted =
-                if abbrivated then
-                    tick / 10 * 2
-                else
-                    tick * 200
-
-            abbrivation =
-                if abbrivated then
-                    "k t"
-                else
-                    " t"
-        in
-            (toString formatted) ++ abbrivation
+        toString tick ++ " t"
 
 
 formatTickY : Float -> String
 formatTickY tick =
-    if tick == 0 then
-        ""
+    toString tick ++ " °C"
+
+
+getLabelStyle : Orientation -> String
+getLabelStyle orientation =
+    if orientation == X then
+        "text-anchor: middle;"
     else
-        (toString tick) ++ " °C"
+        "text-anchor: end;"
 
 
-customLabel : Orientation -> Int -> Float -> Svg.Svg a
-customLabel orientation indexFromZero tick =
-    let
-        length =
-            if isOdd indexFromZero then
-                7
-            else
-                10
+getLabelText : Orientation -> Int -> Float -> String
+getLabelText orientation fromZero tick =
+    if orientation == X then
+        formatTickX fromZero tick
+    else
+        formatTickY tick
 
-        text =
-            if orientation == X then
-                formatTickX indexFromZero tick
-            else
-                formatTickY tick
 
-        style =
-            if orientation == X then
-                "text-anchor: middle;"
-            else
-                "text-anchor: end;"
-
-        displacement =
-            if orientation == X then
+getLabelDisplacement : Orientation -> String
+getLabelDisplacement orientation =
+    "translate("
+        ++ (if orientation == X then
                 "0, 27"
             else
                 "-10, 5"
-    in
-        Svg.text'
-            [ Svg.Attributes.transform ("translate(" ++ displacement ++ ")")
-            , Svg.Attributes.style (style ++ " stroke: #969696; font-size: 12px;")
-            ]
-            [ Svg.tspan [] [ Svg.text text ] ]
+           )
+        ++ ")"
+
+
+customLabel : Orientation -> Int -> Float -> Svg.Svg a
+customLabel orientation fromZero tick =
+    Svg.text'
+        [ Svg.Attributes.transform (getLabelDisplacement orientation)
+        , Svg.Attributes.style (getLabelStyle orientation ++ " stroke: #969696; font-size: 12px;")
+        ]
+        [ Svg.tspan [] [ Svg.text (getLabelText orientation fromZero tick) ] ]
 
 
 data1 : List ( Float, Float )
@@ -119,18 +104,40 @@ data2 =
 composedChart : Svg.Svg a
 composedChart =
     plot
-        [ size ( 600, 250 ), padding ( 40, 60 ) ]
-        [ area [ areaStyle [ ( "stroke", "#e6d7ce" ), ( "fill", "#feefe5" ) ] ] data1
-        , line [ lineStyle [ ( "stroke", "#b6c9ef" ) ] ] data2
+        [ size ( 600, 300 ), padding ( 40, 40 ) ]
+        [ area
+            [ areaStyle
+                [ ( "stroke", Colors.skinStroke )
+                , ( "fill", Colors.skinFill )
+                , ( "opacity", "0.5" )
+                ]
+            ]
+            (List.map (\( x, y ) -> ( x, y * 2.1 )) data1)
+        , area
+            [ areaStyle
+                [ ( "stroke", Colors.blueStroke )
+                , ( "fill", Colors.blueFill )
+                ]
+            ]
+            data1
+        , line
+            [ lineStyle
+                [ ( "stroke", Colors.skinStroke )
+                , ( "stroke-width", "3px" )
+                ]
+            ]
+            (List.map (\( x, y ) -> ( x, y * 1.2 )) data2)
         , yAxis
             [ axisStyle [ ( "stroke", "#b9b9b9" ) ]
-            , tickDelta 20
+            , tickRemoveZero
+            , tickDelta 50
             , labelCustomViewIndexed (customLabel Y)
             , gridMirrorTicks
-            , gridStyle [ ( "stroke", "#e2e2e2" ) ]
+            , gridStyle [ ( "stroke", "#e2e2e2" ), ( "opacity", "0.5" ) ]
             ]
         , xAxis
             [ axisStyle [ ( "stroke", "#b9b9b9" ) ]
+            , tickRemoveZero
             , tickCustomViewIndexed customTick
             , labelCustomViewIndexed (customLabel X)
             ]

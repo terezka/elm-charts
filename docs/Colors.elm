@@ -1,8 +1,14 @@
 module Colors exposing (..)
 
+
 axisColor : String
 axisColor =
-    "#b9b9b9"
+    "#949494"
+
+
+axisColorLight : String
+axisColorLight =
+    "#e4e4e4"
 
 
 blueFill : String
@@ -17,9 +23,9 @@ blueStroke =
 
 skinFill : String
 skinFill =
-    "#feefe5"
+    "#fdb9e7"
 
 
 skinStroke : String
 skinStroke =
-    "#e6d7ce"
+    "#ff9edf"

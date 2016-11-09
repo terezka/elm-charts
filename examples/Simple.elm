@@ -42,7 +42,7 @@ plot2 =
 
 plot3 =
     plot [ padding ( 0, 0 ) ]
-        [ xAxis [  ]
+        [ xAxis []
         , yAxis [ tickRemoveZero ]
         , area [ areaStyle [ ( "fill", "mediumvioletred" ), ( "opacity", "0.5" ), ( "stroke", "mediumvioletred" ) ] ] lineData2
         ]
@@ -66,15 +66,22 @@ tickView tick =
             [ Svg.text "✨" ]
         ]
 
+
 viewTick2 : Int -> Float -> Svg.Svg a
 viewTick2 fromZero tick =
     Svg.text'
         [ Svg.Attributes.transform ("translate(-5, 10)") ]
         [ Svg.tspan
             []
-            [ Svg.text (if rem (abs fromZero) 2 > 0 then "🌟" else "⭐") ]
+            [ Svg.text
+                (if rem (abs fromZero) 2 > 0 then
+                    "🌟"
+                 else
+                    "⭐"
+                )
+            ]
         ]
+
 
 main =
     plot [] [ xAxis [ tickCustomViewIndexed viewTick2 ] ]
-
