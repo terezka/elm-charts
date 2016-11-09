@@ -21,7 +21,7 @@ multiLineChart =
     plot
         [ size ( 600, 250 ) ]
         [ line [ lineStyle [ ( "stroke", Colors.blueStroke ), ( "stroke-width", "2px" ) ] ] data2
-        , line [ lineStyle [ ( "stroke", Colors.skinStroke ), ( "stroke-width", "2px" ) ] ] data1
+        , line [ lineStyle [ ( "stroke", Colors.pinkStroke ), ( "stroke-width", "2px" ) ] ] data1
         , xAxis
             [ axisStyle [ ( "stroke", Colors.axisColor ) ]
             ]

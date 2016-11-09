@@ -59,7 +59,7 @@ customTickChart =
         [ size ( 600, 250 ) ]
         [ line
             [ lineStyle
-                [ ( "stroke", Colors.skinStroke )
+                [ ( "stroke", Colors.pinkStroke )
                 , ( "stroke-width", "2px" )
                 ]
             ]

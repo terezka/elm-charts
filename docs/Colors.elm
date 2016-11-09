@@ -23,9 +23,19 @@ blueStroke =
 
 skinFill : String
 skinFill =
-    "#fdb9e7"
+    "#feefe5"
 
 
 skinStroke : String
 skinStroke =
+    "#f7e0d2"
+    
+
+pinkFill : String
+pinkFill =
+    "#fdb9e7"
+
+
+pinkStroke : String
+pinkStroke =
     "#ff9edf"

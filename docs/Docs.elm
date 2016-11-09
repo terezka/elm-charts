@@ -18,7 +18,7 @@ toUrl end =
 
 
 viewTitle title url =
-    div [ style [ ( "margin", "70px auto 10px" ) ] ]
+    div [ style [ ( "margin", "100px auto 10px" ) ] ]
         [ div [] [ text title ]
         , a
             [ href (toUrl url), style [ ( "color", "#9ea0a2" ), ( "font-size", "12px" ) ] ]

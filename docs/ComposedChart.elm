@@ -104,8 +104,8 @@ data2 =
 composedChart : Svg.Svg a
 composedChart =
     plot
-        [ size ( 600, 300 ), padding ( 40, 40 ) ]
-        [ verticalGrid [ gridMirrorTicks, gridStyle [ ( "stroke", "#e2e2e2" ) ] ]
+        [ size ( 600, 350 ), padding ( 40, 40 ) ]
+        [ horizontalGrid [ gridMirrorTicks, gridStyle [ ( "stroke", "#f2f2f2" ) ] ]
         , area
             [ areaStyle
                 [ ( "stroke", Colors.skinStroke )
@@ -123,11 +123,11 @@ composedChart =
             data1
         , line
             [ lineStyle
-                [ ( "stroke", Colors.skinStroke )
-                , ( "stroke-width", "3px" )
+                [ ( "stroke", Colors.pinkStroke )
+                , ( "stroke-width", "2px" )
                 ]
             ]
-            (List.map (\( x, y ) -> ( x, y * 1.2 )) data2)
+            (List.map (\( x, y ) -> ( x, y * 3 )) data1)
         , yAxis
             [ axisStyle [ ( "stroke", "#b9b9b9" ) ]
             , tickRemoveZero
