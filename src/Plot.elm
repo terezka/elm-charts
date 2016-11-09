@@ -203,7 +203,7 @@ type LabelView msg
 
 
 type alias AxisConfig msg =
-    { tickValues : TickValues
+    { getTickValues : AxisScale -> List Float
     , tickView : TickView msg
     , labelValues : LabelValues
     , labelView : LabelView msg
@@ -228,7 +228,7 @@ defaultTickStyle =
 
 
 defaultAxisConfig =
-    { tickValues = TickAutoValues
+    { getTickValues = getTickValuesAuto
     , tickView = TickConfigView defaultTickStyle
     , labelValues = LabelCustomFilter (\a b -> True)
     , labelView = LabelFormat toString
@@ -280,7 +280,7 @@ axisLineStyle style config =
 -}
 tickValues : List Float -> AxisConfig msg -> AxisConfig msg
 tickValues values config =
-    { config | tickValues = TickCustomValues values }
+    { config | getTickValues = getTickValuesFromList values }
 
 
 {-| Defines what ticks will be shown on the axis by specifying the delta between the ticks.
@@ -296,7 +296,7 @@ tickValues values config =
 -}
 tickDelta : Float -> AxisConfig msg -> AxisConfig msg
 tickDelta delta config =
-    { config | tickValues = TickDelta delta }
+    { config | getTickValues = getTickValuesFromDelta delta }
 
 
 {-| Defines how the tick will be displayed by specifying lenght, width and style of your ticks.
@@ -721,6 +721,10 @@ plot attr elements =
     Svg.Lazy.lazy2 parsePlot attr elements
 
 
+
+-- VIEW
+
+
 parsePlot : List MetaAttr -> List (Element msg) -> Svg.Svg msg
 parsePlot attr elements =
     let
@@ -731,10 +735,6 @@ parsePlot attr elements =
             getPlotProps metaConfig elements
     in
         viewPlot metaConfig (viewElements plotProps elements)
-
-
-
--- VIEW
 
 
 viewPlot : MetaConfig -> List (Svg.Svg msg) -> Svg.Svg msg
@@ -806,8 +806,8 @@ filterTicks axisCrossing ticks =
         ticks
 
 
-getDistance : Bool -> Int -> Int -> Float -> ( Int, Float )
-getDistance hasZero lowerThanZero index tick =
+zipWithDistance : Bool -> Int -> Int -> Float -> ( Int, Float )
+zipWithDistance hasZero lowerThanZero index tick =
     let
         distance =
             if tick == 0 then
@@ -831,19 +831,19 @@ indexTicks ticks =
         hasZero =
             List.any (\t -> t == 0) ticks
     in
-        List.indexedMap (getDistance hasZero lowerThanZero) ticks
+        List.indexedMap (zipWithDistance hasZero lowerThanZero) ticks
 
 
 viewAxis : PlotProps -> AxisConfig msg -> Svg.Svg msg
-viewAxis plotProps { tickValues, tickView, labelView, labelValues, style, axisLineStyle, axisCrossing, orientation } =
+viewAxis plotProps { getTickValues, tickView, labelView, labelValues, style, axisLineStyle, axisCrossing, orientation } =
     let
         { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords } =
             plotProps
 
         tickPositions =
-            getTickValues scale tickValues
-            |> filterTicks axisCrossing
-            |> indexTicks
+            getTickValues scale
+                |> filterTicks axisCrossing
+                |> indexTicks
 
         labelPositions =
             case labelValues of
@@ -851,7 +851,7 @@ viewAxis plotProps { tickValues, tickView, labelView, labelValues, style, axisLi
                     indexTicks values
 
                 LabelCustomFilter filter ->
-                    List.filter (\(a, b) -> filter a b) tickPositions
+                    List.filter (\( a, b ) -> filter a b) tickPositions
 
         innerTick =
             case tickView of
@@ -1025,8 +1025,7 @@ viewLine { toSvgCoords } { points, style } =
 
 
 
--- CALCULATIONS
--- SCALES
+-- CALCULATE SCALES
 
 
 type alias AxisScale =
@@ -1093,9 +1092,6 @@ getPlotProps { size, padding } elements =
         ( xValues, yValues ) =
             List.unzip (List.foldr collectPoints [] elements)
 
-        ( xTickValueConfig, yTickValueConfig ) =
-            collectTickValues elements
-
         ( width, height ) =
             size
 
@@ -1106,10 +1102,10 @@ getPlotProps { size, padding } elements =
             getScales height padding yValues
 
         xTicks =
-            getTickValues xScale xTickValueConfig
+            getLastGetTickValues X elements <| xScale
 
         yTicks =
-            getTickValues yScale yTickValueConfig
+            getLastGetTickValues Y elements <| yScale
     in
         { scale = xScale
         , oppositeScale = yScale
@@ -1132,111 +1128,86 @@ flipToY { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, opposit
 
 
 
--- TICKS
+-- CALCULATE TICKS
 
 
-getTick0 : Float -> Float -> Float
-getTick0 lowest delta =
+getFirstTickValue : Float -> Float -> Float
+getFirstTickValue delta lowest =
     ceilToNearest delta lowest
 
 
-getTickTotal : Float -> Float -> Float -> Float -> Int
-getTickTotal range lowest tick0 delta =
-    floor ((range - (abs lowest - abs tick0)) / delta)
+getTickCount : Float -> Float -> Float -> Float -> Int
+getTickCount delta lowest range firstValue =
+    floor ((range - (abs lowest - abs firstValue)) / delta)
 
 
-getTickNum : Float -> Float -> Int -> Float
-getTickNum tick0 delta index =
+getDeltaPrecision : Float -> Int
+getDeltaPrecision delta =
+    logBase 10 delta
+        |> floor
+        |> min 0
+        |> abs
+
+
+toTickValue : Float -> Float -> Int -> Float
+toTickValue delta firstValue index =
+    firstValue
+        + (toFloat index)
+        * delta
+        |> Round.round (getDeltaPrecision delta)
+        |> String.toFloat
+        |> Result.withDefault 0
+
+
+getTickValuesFromDelta : Float -> AxisScale -> List Float
+getTickValuesFromDelta delta { lowest, range } =
     let
-        mag =
-            floor (logBase 10 delta)
+        firstValue =
+            getFirstTickValue delta lowest
 
-        precision =
-            if mag < 0 then
-                abs mag
-            else
-                0
+        tickCount =
+            getTickCount delta lowest range firstValue
     in
-        tick0
-            + (toFloat index)
-            * delta
-            |> Round.round precision
-            |> String.toFloat
-            |> Result.withDefault 0
+        List.map (toTickValue delta firstValue) [0..tickCount]
 
 
-getTicksFromSequence : Float -> Float -> Float -> Float -> List Float
-getTicksFromSequence lowest range tick0 delta =
-    let
-        tickTotal =
-            getTickTotal range lowest tick0 delta
-    in
-        List.map (getTickNum tick0 delta) [0..tickTotal]
+getTickValuesFromCount : Int -> AxisScale -> List Float
+getTickValuesFromCount appxCount scale =
+    getTickValuesFromDelta (getTickDelta scale.range appxCount) scale
 
 
-getTickValues : AxisScale -> TickValues -> List Float
-getTickValues { lowest, range } tickValues =
-    case tickValues of
-        TickCustomValues ticks ->
-            ticks
+getTickValuesFromList : List Float -> AxisScale -> List Float
+getTickValuesFromList values _ =
+    values
 
-        TickDelta delta ->
-            let
-                tick0 =
-                    getTick0 lowest delta
-            in
-                getTicksFromSequence lowest range tick0 delta
 
-        TickAppxTotal total ->
-            let
-                delta =
-                    getTickDelta range total
-
-                tick0 =
-                    getTick0 lowest delta
-            in
-                getTicksFromSequence lowest range tick0 delta
-
-        TickAutoValues ->
-            let
-                delta =
-                    getTickDelta range 10
-
-                tick0 =
-                    getTick0 lowest delta
-            in
-                getTicksFromSequence lowest range tick0 delta
+getTickValuesAuto : AxisScale -> List Float
+getTickValuesAuto =
+    getTickValuesFromCount 10
 
 
 
--- Collect axis
+-- GET LAST AXIS TICK CONFIG
 
 
-getTickValuesConfig : Maybe (AxisConfig msg) -> TickValues
-getTickValuesConfig axisConfig =
-    Maybe.withDefault defaultAxisConfig axisConfig |> .tickValues
-
-
-collectAxis : Element msg -> ( Maybe (AxisConfig msg), Maybe (AxisConfig msg) ) -> ( Maybe (AxisConfig msg), Maybe (AxisConfig msg) )
-collectAxis element ( xAxisConfig, yAxisConfig ) =
+getAxisConfig : Orientation -> Element msg -> Maybe (AxisConfig msg) -> Maybe (AxisConfig msg)
+getAxisConfig orientation element lastConfig =
     case element of
         Axis config ->
-            if config.orientation == X then
-                ( Just config, yAxisConfig )
+            if config.orientation == orientation then
+                Just config
             else
-                ( xAxisConfig, Just config )
+                lastConfig
 
         _ ->
-            ( xAxisConfig, yAxisConfig )
+            lastConfig
 
 
-collectTickValues : List (Element msg) -> ( TickValues, TickValues )
-collectTickValues elements =
-    let
-        ( xTickConfig, yTickConfig ) =
-            List.foldl collectAxis ( Nothing, Nothing ) elements
-    in
-        ( getTickValuesConfig xTickConfig, getTickValuesConfig yTickConfig )
+getLastGetTickValues : Orientation -> List (Element msg) -> AxisScale -> List Float
+getLastGetTickValues orientation elements =
+    List.foldl (getAxisConfig orientation) Nothing elements
+    |> Maybe.withDefault defaultAxisConfig
+    |> .getTickValues
 
 
 

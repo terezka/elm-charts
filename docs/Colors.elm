@@ -29,7 +29,7 @@ skinFill =
 skinStroke : String
 skinStroke =
     "#f7e0d2"
-    
+
 
 pinkFill : String
 pinkFill =

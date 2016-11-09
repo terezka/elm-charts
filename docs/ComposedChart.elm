@@ -50,7 +50,6 @@ customTick fromZero tick =
 formatTickX : Float -> String
 formatTickX tick =
     toString tick ++ " t"
-        
 
 
 formatTickY : Float -> String
