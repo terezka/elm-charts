@@ -14,6 +14,8 @@ module Plot
         , tickCustomView
         , tickCustomViewIndexed
         , tickRemoveZero
+        , labelValues
+        , labelFilter
         , labelFormat
         , labelCustomView
         , labelCustomViewIndexed
@@ -61,7 +63,7 @@ module Plot
 @docs tickValues, tickDelta, tickRemoveZero, tickViewConfig, tickCustomView, tickCustomViewIndexed
 
 ### Label configuration
-@docs labelFormat, labelCustomView, labelCustomViewIndexed
+@docs labelValues, labelFilter, labelFormat, labelCustomView, labelCustomViewIndexed
 
 ## Grid configuration
 @docs verticalGrid, horizontalGrid, gridMirrorTicks, gridValues, gridStyle
@@ -190,6 +192,11 @@ type TickValues
     | TickAutoValues
 
 
+type LabelValues
+    = LabelCustomValues (List Float)
+    | LabelCustomFilter (Int -> Float -> Bool)
+
+
 type LabelView msg
     = LabelFormat (Float -> String)
     | LabelCustomView (Int -> Float -> Svg.Svg msg)
@@ -198,11 +205,12 @@ type LabelView msg
 type alias AxisConfig msg =
     { tickValues : TickValues
     , tickView : TickView msg
+    , labelValues : LabelValues
     , labelView : LabelView msg
-    , style : Style
     , axisLineStyle : Style
-    , orientation : Orientation
     , axisCrossing : Bool
+    , style : Style
+    , orientation : Orientation
     }
 
 
@@ -222,6 +230,7 @@ defaultTickStyle =
 defaultAxisConfig =
     { tickValues = TickAutoValues
     , tickView = TickConfigView defaultTickStyle
+    , labelValues = LabelCustomFilter (\a b -> True)
     , labelView = LabelFormat toString
     , style = []
     , axisLineStyle = []
@@ -373,6 +382,41 @@ tickCustomViewIndexed view config =
 tickRemoveZero : AxisConfig msg -> AxisConfig msg
 tickRemoveZero config =
     { config | axisCrossing = True }
+
+
+{-| Add a filter to the ticks which added a label.
+
+    main =
+        plot
+            []
+            [ xAxis [ labelValues onlyOddTicks ] ]
+-}
+labelValues : List Float -> AxisConfig msg -> AxisConfig msg
+labelValues filter config =
+    { config | labelValues = LabelCustomValues filter }
+
+
+{-| Add a filter determining which of the ticks are added a label. The first argument passed
+ to the filter is a number describing how many ticks a way the current tick is. The second argument
+ is the value of the tick.
+
+    onlyEvenTicks : Int -> Float -> Bool
+    onlyEvenTicks index value =
+        rem 2 index == 0
+
+    main =
+        plot
+            []
+            [ xAxis [ labelValues onlyEvenTicks ] ]
+
+ Default: `(\a b -> True)`
+
+ **Note:** If in the list of axis attributes, this attribute is followed by a
+ `labelValues` attribute, then this attribute will have no effect.
+-}
+labelFilter : (Int -> Float -> Bool) -> AxisConfig msg -> AxisConfig msg
+labelFilter filter config =
+    { config | labelValues = LabelCustomFilter filter }
 
 
 {-| Specify a format for label.
@@ -791,17 +835,23 @@ indexTicks ticks =
 
 
 viewAxis : PlotProps -> AxisConfig msg -> Svg.Svg msg
-viewAxis plotProps { tickValues, tickView, labelView, style, axisLineStyle, axisCrossing, orientation } =
+viewAxis plotProps { tickValues, tickView, labelView, labelValues, style, axisLineStyle, axisCrossing, orientation } =
     let
         { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords } =
             plotProps
 
         tickPositions =
             getTickValues scale tickValues
-                |> filterTicks axisCrossing
+            |> filterTicks axisCrossing
+            |> indexTicks
 
-        indexedTicksPositions =
-            indexTicks tickPositions
+        labelPositions =
+            case labelValues of
+                LabelCustomValues values ->
+                    indexTicks values
+
+                LabelCustomFilter filter ->
+                    List.filter (\(a, b) -> filter a b) tickPositions
 
         innerTick =
             case tickView of
@@ -822,8 +872,8 @@ viewAxis plotProps { tickValues, tickView, labelView, style, axisLineStyle, axis
         Svg.g
             [ Svg.Attributes.style (toStyle style) ]
             [ viewGridLine toSvgCoords scale axisLineStyle 0
-            , Svg.g [] (List.map (placeTick plotProps innerTick) indexedTicksPositions)
-            , Svg.g [] (List.map (placeTick plotProps innerLabel) indexedTicksPositions)
+            , Svg.g [] (List.map (placeTick plotProps innerTick) tickPositions)
+            , Svg.g [] (List.map (placeTick plotProps innerLabel) labelPositions)
             ]
 
 

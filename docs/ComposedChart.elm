@@ -7,14 +7,19 @@ import Debug
 import Colors
 
 
+type Orientation
+    = X
+    | Y
+
+
 isOdd : Int -> Bool
 isOdd n =
     rem n 2 > 0
 
 
-type Orientation
-    = X
-    | Y
+filterLabels : Int -> Float -> Bool
+filterLabels index _ =
+    not (isOdd index)
 
 
 getTickLenght : Int -> Int
@@ -42,12 +47,10 @@ customTick fromZero tick =
         []
 
 
-formatTickX : Int -> Float -> String
-formatTickX fromZero tick =
-    if isOdd fromZero then
-        ""
-    else
-        toString tick ++ " t"
+formatTickX : Float -> String
+formatTickX tick =
+    toString tick ++ " t"
+        
 
 
 formatTickY : Float -> String
@@ -63,10 +66,10 @@ getLabelStyle orientation =
         "text-anchor: end;"
 
 
-getLabelText : Orientation -> Int -> Float -> String
-getLabelText orientation fromZero tick =
+getLabelText : Orientation -> Float -> String
+getLabelText orientation tick =
     if orientation == X then
-        formatTickX fromZero tick
+        formatTickX tick
     else
         formatTickY tick
 
@@ -82,13 +85,13 @@ getLabelDisplacement orientation =
         ++ ")"
 
 
-customLabel : Orientation -> Int -> Float -> Svg.Svg a
-customLabel orientation fromZero tick =
+customLabel : Orientation -> Float -> Svg.Svg a
+customLabel orientation tick =
     Svg.text'
         [ Svg.Attributes.transform (getLabelDisplacement orientation)
         , Svg.Attributes.style (getLabelStyle orientation ++ " stroke: #969696; font-size: 12px;")
         ]
-        [ Svg.tspan [] [ Svg.text (getLabelText orientation fromZero tick) ] ]
+        [ Svg.tspan [] [ Svg.text (getLabelText orientation tick) ] ]
 
 
 data1 : List ( Float, Float )
@@ -132,12 +135,13 @@ composedChart =
             [ axisStyle [ ( "stroke", "#b9b9b9" ) ]
             , tickRemoveZero
             , tickDelta 50
-            , labelCustomViewIndexed (customLabel Y)
+            , labelCustomView (customLabel Y)
             ]
         , xAxis
             [ axisStyle [ ( "stroke", "#b9b9b9" ) ]
             , tickRemoveZero
             , tickCustomViewIndexed customTick
-            , labelCustomViewIndexed (customLabel X)
+            , labelCustomView (customLabel X)
+            , labelFilter filterLabels
             ]
         ]
