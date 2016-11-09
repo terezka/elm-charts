@@ -185,13 +185,6 @@ type TickView msg
     | TickConfigView TickStyleConfig
 
 
-type TickValues
-    = TickDelta Float
-    | TickCustomValues (List Float)
-    | TickAppxTotal Int
-    | TickAutoValues
-
-
 type LabelValues
     = LabelCustomValues (List Float)
     | LabelCustomFilter (Int -> Float -> Bool)
