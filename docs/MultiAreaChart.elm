@@ -13,15 +13,15 @@ data1 =
 
 data2 : List ( Float, Float )
 data2 =
-    [ ( 0, 5 ), ( 10, 20 ), ( 20, 10 ), ( 30, 12 ), ( 40, 20 ), ( 45, 25 ), ( 50, 36 ) ]
+    [ ( 0, 5 ), ( 10, 20 ), ( 20, 10 ), ( 30, 12 ), ( 40, 20 ), ( 45, 25 ), ( 50, 3 ) ]
 
 
 multiAreaChart : Svg.Svg a
 multiAreaChart =
     plot
         [ size ( 600, 250 ) ]
-        [ area [ areaStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data1
-        , area [ areaStyle [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ), ( "opacity", "0.5" ) ] ] data2
+        [ area [ areaStyle [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ] data1
+        , area [ areaStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data2
         , xAxis
             [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
         ]

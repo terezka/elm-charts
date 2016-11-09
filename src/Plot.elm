@@ -17,6 +17,8 @@ module Plot
         , labelFormat
         , labelCustomView
         , labelCustomViewIndexed
+        , verticalGrid
+        , horizontalGrid
         , gridValues
         , gridStyle
         , gridMirrorTicks
@@ -61,8 +63,8 @@ module Plot
 ### Label configuration
 @docs labelFormat, labelCustomView, labelCustomViewIndexed
 
-### Grid configuration
-@docs gridMirrorTicks, gridValues, gridStyle
+## Grid configuration
+@docs verticalGrid, horizontalGrid, gridMirrorTicks, gridValues, gridStyle
 
 -}
 
@@ -89,6 +91,11 @@ type alias Style =
     List ( String, String )
 
 
+type Orientation
+    = X
+    | Y
+
+
 
 -- CONFIGS
 
@@ -97,6 +104,7 @@ type alias Style =
 -}
 type Element msg
     = Axis (AxisConfig msg)
+    | Grid GridConfig
     | Line LineConfig
     | Area AreaConfig
 
@@ -187,22 +195,10 @@ type LabelView msg
     | LabelCustomView (Int -> Float -> Svg.Svg msg)
 
 
-type GridValues
-    = GridMirrorTicks
-    | GridCustomValues (List Float)
-
-
-type Orientation
-    = X
-    | Y
-
-
 type alias AxisConfig msg =
     { tickValues : TickValues
     , tickView : TickView msg
     , labelView : LabelView msg
-    , gridValues : GridValues
-    , gridStyle : Style
     , style : Style
     , axisLineStyle : Style
     , orientation : Orientation
@@ -227,8 +223,6 @@ defaultAxisConfig =
     { tickValues = TickAutoValues
     , tickView = TickConfigView defaultTickStyle
     , labelView = LabelFormat toString
-    , gridValues = GridCustomValues []
-    , gridStyle = []
     , style = []
     , axisLineStyle = []
     , axisCrossing = False
@@ -447,51 +441,6 @@ labelCustomViewIndexed view config =
     { config | labelView = LabelCustomView view }
 
 
-{-| Adds grid lines where the ticks on the corresponding axis are.
-
-    main =
-        plot
-            []
-            [ xAxis [ gridMirrorTicks ] ]
-
- **Note:** If in the list of axis attributes, this attribute is followed by a
- `gridValues` attribute, then this attribute will have no effect.
--}
-gridMirrorTicks : AxisConfig msg -> AxisConfig msg
-gridMirrorTicks config =
-    { config | gridValues = GridMirrorTicks }
-
-
-{-| Specify a list of ticks where you want grid lines drawn.
-
-    plot [] [ xAxis [ gridValues [ 1, 2, 4, 8 ] ] ]
-
- **Note:** If in the list of axis attributes, this attribute is followed by a
- `gridMirrorTicks` attribute, then this attribute will have no effect.
--}
-gridValues : List Float -> AxisConfig msg -> AxisConfig msg
-gridValues values config =
-    { config | gridValues = GridCustomValues values }
-
-
-{-| Specify styles for the gridlines.
-
-    plot
-        []
-        [ xAxis
-            [ gridMirrorTicks
-            , gridStyle myGridStyles
-            ]
-        ]
-
- Remember that if you do not specify either `gridMirrorTicks`
- or `gridValues`, then we will default to not showing any grid lines.
--}
-gridStyle : Style -> AxisConfig msg -> AxisConfig msg
-gridStyle style config =
-    { config | gridStyle = style }
-
-
 {-| This returns an axis element resulting in an x-axis being rendered in your plot.
 
     main =
@@ -510,6 +459,102 @@ xAxis attrs =
 yAxis : List (AxisAttr msg) -> Element msg
 yAxis attrs =
     Axis (List.foldr (<|) { defaultAxisConfig | orientation = Y } attrs)
+
+
+
+-- GRID CONFIG
+
+
+type GridValues
+    = GridMirrorTicks
+    | GridCustomValues (List Float)
+
+
+type alias GridConfig =
+    { gridValues : GridValues
+    , gridStyle : Style
+    , orientation : Orientation
+    }
+
+
+{-| The type representing an grid configuration.
+-}
+type alias GridAttr =
+    GridConfig -> GridConfig
+
+
+defaultGridConfig =
+    { gridValues = GridMirrorTicks
+    , gridStyle = []
+    , orientation = X
+    }
+
+
+{-| Adds grid lines where the ticks on the corresponding axis are.
+
+    main =
+        plot
+            []
+            [ verticalGrid [ gridMirrorTicks ]
+            , xAxis []
+            ]
+
+ **Note:** If in the list of axis attributes, this attribute is followed by a
+ `gridValues` attribute, then this attribute will have no effect.
+-}
+gridMirrorTicks : GridConfig -> GridConfig
+gridMirrorTicks config =
+    { config | gridValues = GridMirrorTicks }
+
+
+{-| Specify a list of ticks where you want grid lines drawn.
+
+    plot [] [ verticalGrid [ gridValues [ 1, 2, 4, 8 ] ] ]
+
+ **Note:** If in the list of axis attributes, this attribute is followed by a
+ `gridMirrorTicks` attribute, then this attribute will have no effect.
+-}
+gridValues : List Float -> GridConfig -> GridConfig
+gridValues values config =
+    { config | gridValues = GridCustomValues values }
+
+
+{-| Specify styles for the gridlines.
+
+    plot
+        []
+        [ verticalGrid
+            [ gridMirrorTicks
+            , gridStyle myGridStyles
+            ]
+        ]
+
+ Remember that if you do not specify either `gridMirrorTicks`
+ or `gridValues`, then we will default to not showing any grid lines.
+-}
+gridStyle : Style -> GridConfig -> GridConfig
+gridStyle style config =
+    { config | gridStyle = style }
+
+
+{-| This returns an grid element resulting in vertical grid lines being rendered in your plot.
+
+    main =
+        plot [] [ horizontalGrid [] ]
+-}
+horizontalGrid : List GridAttr -> Element msg
+horizontalGrid attrs =
+    Grid (List.foldr (<|) defaultGridConfig attrs)
+
+
+{-| This returns an axis element resulting in horizontal grid lines being rendered in your plot.
+
+    main =
+        plot [] [ verticalGrid [] ]
+-}
+verticalGrid : List GridAttr -> Element msg
+verticalGrid attrs =
+    Grid (List.foldr (<|) { defaultGridConfig | orientation = Y } attrs)
 
 
 
@@ -638,10 +683,10 @@ parsePlot attr elements =
         metaConfig =
             toMetaConfig attr
 
-        scales =
-            getPlotScales metaConfig elements
+        plotProps =
+            getPlotProps metaConfig elements
     in
-        viewPlot metaConfig (viewElements scales elements)
+        viewPlot metaConfig (viewElements plotProps elements)
 
 
 
@@ -666,31 +711,43 @@ viewPlot { size, style } children =
 -- VIEW ELEMENTS
 
 
-viewElements : PlotScales -> List (Element msg) -> List (Svg.Svg msg)
-viewElements scales elements =
-    List.foldr (viewElement scales) [] elements
+viewElements : PlotProps -> List (Element msg) -> List (Svg.Svg msg)
+viewElements plotProps elements =
+    List.foldr (viewElement plotProps) [] elements
 
 
-viewElement : PlotScales -> Element msg -> List (Svg.Svg msg) -> List (Svg.Svg msg)
-viewElement scales element views =
+viewElement : PlotProps -> Element msg -> List (Svg.Svg msg) -> List (Svg.Svg msg)
+viewElement plotProps element views =
     case element of
         Axis config ->
             let
-                axisScales =
+                plotPropsFitted =
                     case config.orientation of
                         X ->
-                            scales
+                            plotProps
 
                         Y ->
-                            flipToY scales
+                            flipToY plotProps
             in
-                (viewAxis axisScales config) :: views
+                (viewAxis plotPropsFitted config) :: views
+
+        Grid config ->
+            let
+                plotPropsFitted =
+                    case config.orientation of
+                        X ->
+                            plotProps
+
+                        Y ->
+                            flipToY plotProps
+            in
+                (viewGrid plotPropsFitted config) :: views
 
         Line config ->
-            (viewLine scales config) :: views
+            (viewLine plotProps config) :: views
 
         Area config ->
-            (viewArea scales config) :: views
+            (viewArea plotProps config) :: views
 
 
 
@@ -733,11 +790,11 @@ indexTicks ticks =
         List.indexedMap (getDistance hasZero lowerThanZero) ticks
 
 
-viewAxis : PlotScales -> AxisConfig msg -> Svg.Svg msg
-viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style, axisLineStyle, axisCrossing, orientation } =
+viewAxis : PlotProps -> AxisConfig msg -> Svg.Svg msg
+viewAxis plotProps { tickValues, tickView, labelView, style, axisLineStyle, axisCrossing, orientation } =
     let
         { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords } =
-            scales
+            plotProps
 
         tickPositions =
             getTickValues scale tickValues
@@ -745,9 +802,6 @@ viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style,
 
         indexedTicksPositions =
             indexTicks tickPositions
-
-        gridPositions =
-            getGridPositions tickPositions gridValues
 
         innerTick =
             case tickView of
@@ -767,14 +821,13 @@ viewAxis scales { tickValues, tickView, labelView, gridStyle, gridValues, style,
     in
         Svg.g
             [ Svg.Attributes.style (toStyle style) ]
-            [ Svg.g [] (List.map (viewGridLine oppositeToSvgCoords oppositeScale gridStyle) gridPositions)
-            , viewGridLine toSvgCoords scale axisLineStyle 0
-            , Svg.g [] (List.map (placeTick scales innerTick) indexedTicksPositions)
-            , Svg.g [] (List.map (placeTick scales innerLabel) indexedTicksPositions)
+            [ viewGridLine toSvgCoords scale axisLineStyle 0
+            , Svg.g [] (List.map (placeTick plotProps innerTick) indexedTicksPositions)
+            , Svg.g [] (List.map (placeTick plotProps innerLabel) indexedTicksPositions)
             ]
 
 
-placeTick : PlotScales -> (Int -> Float -> Svg.Svg msg) -> ( Int, Float ) -> Svg.Svg msg
+placeTick : PlotProps -> (Int -> Float -> Svg.Svg msg) -> ( Int, Float ) -> Svg.Svg msg
 placeTick { toSvgCoords } view ( index, tick ) =
     Svg.g [ Svg.Attributes.transform (toTranslate (toSvgCoords ( tick, 0 ))) ] [ view index tick ]
 
@@ -820,7 +873,7 @@ defaultLabelView orientation format _ tick =
 
 
 
--- View Grid
+-- VIEW GRID
 
 
 getGridPositions : List Float -> GridValues -> List Float
@@ -831,6 +884,15 @@ getGridPositions tickValues values =
 
         GridCustomValues customValues ->
             customValues
+
+
+viewGrid : PlotProps -> GridConfig -> Svg.Svg msg
+viewGrid { scale, toSvgCoords, oppositeTicks } { gridValues, gridStyle } =
+    let
+        positions =
+            getGridPositions oppositeTicks gridValues
+    in
+        Svg.g [] (List.map (viewGridLine toSvgCoords scale gridStyle) positions)
 
 
 viewGridLine : (Point -> Point) -> AxisScale -> Style -> Float -> Svg.Svg msg
@@ -855,7 +917,7 @@ viewGridLine toSvgCoords scale style position =
 -- VIEW AREA
 
 
-viewArea : PlotScales -> AreaConfig -> Svg.Svg a
+viewArea : PlotProps -> AreaConfig -> Svg.Svg a
 viewArea { toSvgCoords } { points, style } =
     let
         range =
@@ -893,7 +955,7 @@ viewArea { toSvgCoords } { points, style } =
 -- VIEW LINE
 
 
-viewLine : PlotScales -> LineConfig -> Svg.Svg a
+viewLine : PlotProps -> LineConfig -> Svg.Svg a
 viewLine { toSvgCoords } { points, style } =
     let
         svgPoints =
@@ -914,6 +976,7 @@ viewLine { toSvgCoords } { points, style } =
 
 
 -- CALCULATIONS
+-- SCALES
 
 
 type alias AxisScale =
@@ -924,16 +987,14 @@ type alias AxisScale =
     }
 
 
-type alias PlotScales =
+type alias PlotProps =
     { scale : AxisScale
     , oppositeScale : AxisScale
     , toSvgCoords : Point -> Point
     , oppositeToSvgCoords : Point -> Point
+    , ticks : List Float
+    , oppositeTicks : List Float
     }
-
-
-
--- SCALES
 
 
 getScales : Int -> ( Int, Int ) -> List Float -> AxisScale
@@ -976,11 +1037,14 @@ toSvgCoordsY xScale yScale ( x, y ) =
     toSvgCoordsX xScale yScale ( y, x )
 
 
-getPlotScales : MetaConfig -> List (Element msg) -> PlotScales
-getPlotScales { size, padding } elements =
+getPlotProps : MetaConfig -> List (Element msg) -> PlotProps
+getPlotProps { size, padding } elements =
     let
         ( xValues, yValues ) =
             List.unzip (List.foldr collectPoints [] elements)
+
+        ( xTickValueConfig, yTickValueConfig ) =
+            collectTickValues elements
 
         ( width, height ) =
             size
@@ -990,20 +1054,30 @@ getPlotScales { size, padding } elements =
 
         yScale =
             getScales height padding yValues
+
+        xTicks =
+            getTickValues xScale xTickValueConfig
+
+        yTicks =
+            getTickValues yScale yTickValueConfig
     in
         { scale = xScale
         , oppositeScale = yScale
         , toSvgCoords = toSvgCoordsX xScale yScale
         , oppositeToSvgCoords = toSvgCoordsY xScale yScale
+        , ticks = xTicks
+        , oppositeTicks = yTicks
         }
 
 
-flipToY : PlotScales -> PlotScales
-flipToY { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords } =
+flipToY : PlotProps -> PlotProps
+flipToY { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, oppositeTicks } =
     { scale = oppositeScale
     , oppositeScale = scale
     , toSvgCoords = oppositeToSvgCoords
     , oppositeToSvgCoords = toSvgCoords
+    , ticks = oppositeTicks
+    , oppositeTicks = ticks
     }
 
 
@@ -1085,12 +1159,43 @@ getTickValues { lowest, range } tickValues =
 
 
 
+-- Collect axis
+
+
+getTickValuesConfig : Maybe (AxisConfig msg) -> TickValues
+getTickValuesConfig axisConfig =
+    Maybe.withDefault defaultAxisConfig axisConfig |> .tickValues
+
+
+collectAxis : Element msg -> ( Maybe (AxisConfig msg), Maybe (AxisConfig msg) ) -> ( Maybe (AxisConfig msg), Maybe (AxisConfig msg) )
+collectAxis element ( xAxisConfig, yAxisConfig ) =
+    case element of
+        Axis config ->
+            if config.orientation == X then
+                ( Just config, yAxisConfig )
+            else
+                ( xAxisConfig, Just config )
+
+        _ ->
+            ( xAxisConfig, yAxisConfig )
+
+
+collectTickValues : List (Element msg) -> ( TickValues, TickValues )
+collectTickValues elements =
+    let
+        ( xTickConfig, yTickConfig ) =
+            List.foldl collectAxis ( Nothing, Nothing ) elements
+    in
+        ( getTickValuesConfig xTickConfig, getTickValuesConfig yTickConfig )
+
+
+
 -- Collect points
 
 
 collectPoints : Element msg -> List Point -> List Point
-collectPoints serie allPoints =
-    case serie of
+collectPoints element allPoints =
+    case element of
         Area { points } ->
             allPoints ++ points
 

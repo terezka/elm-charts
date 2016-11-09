@@ -15,15 +15,17 @@ gridChart : Svg.Svg a
 gridChart =
     plot
         [ size ( 600, 250 ) ]
-        [ yAxis
+        [ verticalGrid
             [ gridMirrorTicks
             , gridStyle [ ( "stroke", Colors.axisColorLight ) ]
-            , axisStyle [ ( "stroke", "transparent" ), ( "fill", "transparent" ) ]
             ]
-        , xAxis
-            [ axisStyle [ ( "stroke", Colors.axisColor ) ]
-            , gridMirrorTicks
+        , horizontalGrid
+            [ gridMirrorTicks
             , gridStyle [ ( "stroke", Colors.axisColorLight ) ]
             ]
+        , yAxis
+            [ axisStyle [ ( "stroke", "transparent" ), ( "fill", "transparent" ) ] ]
+        , xAxis
+            [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
         , line [ lineStyle [ ( "stroke", Colors.blueStroke ), ( "stroke-width", "2px" ) ] ] data
         ]

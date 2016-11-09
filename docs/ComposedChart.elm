@@ -105,7 +105,8 @@ composedChart : Svg.Svg a
 composedChart =
     plot
         [ size ( 600, 300 ), padding ( 40, 40 ) ]
-        [ area
+        [ verticalGrid [ gridMirrorTicks, gridStyle [ ( "stroke", "#e2e2e2" ) ] ]
+        , area
             [ areaStyle
                 [ ( "stroke", Colors.skinStroke )
                 , ( "fill", Colors.skinFill )
@@ -132,8 +133,6 @@ composedChart =
             , tickRemoveZero
             , tickDelta 50
             , labelCustomViewIndexed (customLabel Y)
-            , gridMirrorTicks
-            , gridStyle [ ( "stroke", "#e2e2e2" ), ( "opacity", "0.5" ) ]
             ]
         , xAxis
             [ axisStyle [ ( "stroke", "#b9b9b9" ) ]
