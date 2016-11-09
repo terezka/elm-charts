@@ -196,7 +196,7 @@ type LabelView msg
 
 
 type alias AxisConfig msg =
-    { getTickValues : AxisScale -> List Float
+    { toTickValues : AxisScale -> List Float
     , tickView : TickView msg
     , labelValues : LabelValues
     , labelView : LabelView msg
@@ -221,7 +221,7 @@ defaultTickStyle =
 
 
 defaultAxisConfig =
-    { getTickValues = getTickValuesAuto
+    { toTickValues = toTickValuesAuto
     , tickView = TickConfigView defaultTickStyle
     , labelValues = LabelCustomFilter (\a b -> True)
     , labelView = LabelFormat toString
@@ -273,7 +273,7 @@ axisLineStyle style config =
 -}
 tickValues : List Float -> AxisConfig msg -> AxisConfig msg
 tickValues values config =
-    { config | getTickValues = getTickValuesFromList values }
+    { config | toTickValues = toTickValuesFromList values }
 
 
 {-| Defines what ticks will be shown on the axis by specifying the delta between the ticks.
@@ -289,7 +289,7 @@ tickValues values config =
 -}
 tickDelta : Float -> AxisConfig msg -> AxisConfig msg
 tickDelta delta config =
-    { config | getTickValues = getTickValuesFromDelta delta }
+    { config | toTickValues = toTickValuesFromDelta delta }
 
 
 {-| Defines how the tick will be displayed by specifying lenght, width and style of your ticks.
@@ -828,13 +828,13 @@ indexTicks ticks =
 
 
 viewAxis : PlotProps -> AxisConfig msg -> Svg.Svg msg
-viewAxis plotProps { getTickValues, tickView, labelView, labelValues, style, axisLineStyle, axisCrossing, orientation } =
+viewAxis plotProps { toTickValues, tickView, labelView, labelValues, style, axisLineStyle, axisCrossing, orientation } =
     let
         { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords } =
             plotProps
 
         tickPositions =
-            getTickValues scale
+            toTickValues scale
                 |> filterTicks axisCrossing
                 |> indexTicks
 
@@ -1152,8 +1152,8 @@ toTickValue delta firstValue index =
         |> Result.withDefault 0
 
 
-getTickValuesFromDelta : Float -> AxisScale -> List Float
-getTickValuesFromDelta delta { lowest, range } =
+toTickValuesFromDelta : Float -> AxisScale -> List Float
+toTickValuesFromDelta delta { lowest, range } =
     let
         firstValue =
             getFirstTickValue delta lowest
@@ -1164,19 +1164,19 @@ getTickValuesFromDelta delta { lowest, range } =
         List.map (toTickValue delta firstValue) [0..tickCount]
 
 
-getTickValuesFromCount : Int -> AxisScale -> List Float
-getTickValuesFromCount appxCount scale =
-    getTickValuesFromDelta (getTickDelta scale.range appxCount) scale
+toTickValuesFromCount : Int -> AxisScale -> List Float
+toTickValuesFromCount appxCount scale =
+    toTickValuesFromDelta (getTickDelta scale.range appxCount) scale
 
 
-getTickValuesFromList : List Float -> AxisScale -> List Float
-getTickValuesFromList values _ =
+toTickValuesFromList : List Float -> AxisScale -> List Float
+toTickValuesFromList values _ =
     values
 
 
-getTickValuesAuto : AxisScale -> List Float
-getTickValuesAuto =
-    getTickValuesFromCount 10
+toTickValuesAuto : AxisScale -> List Float
+toTickValuesAuto =
+    toTickValuesFromCount 10
 
 
 
@@ -1200,7 +1200,7 @@ getLastGetTickValues : Orientation -> List (Element msg) -> AxisScale -> List Fl
 getLastGetTickValues orientation elements =
     List.foldl (getAxisConfig orientation) Nothing elements
     |> Maybe.withDefault defaultAxisConfig
-    |> .getTickValues
+    |> .toTickValues
 
 
 
