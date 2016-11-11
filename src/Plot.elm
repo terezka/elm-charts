@@ -542,7 +542,7 @@ toLineConfig attr config =
             { config | style = style }
 
 
-{-| Specify the area serie style.
+{-| Specify the line serie style.
 
     line [ lineStyle [ ( "stroke", "blue" ) ] ]
 -}
