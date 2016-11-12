@@ -69,11 +69,17 @@ module Plot
 ## Axis configuration
 @docs AxisAttr, axisStyle, axisLineStyle
 
-### Tick configuration
-@docs tickValues, tickDelta, tickRemoveZero, tickConfigView, tickConfigViewFunc, TickViewAttr, tickLength, tickWidth, tickStyle, tickCustomView, tickCustomViewIndexed
+### Tick values configuration
+@docs tickValues, tickDelta, tickRemoveZero
 
-### Label configuration
-@docs labelValues, labelFilter, labelConfigView, labelConfigViewFunc, LabelViewAttr, labelFormat, labelDisplace, labelStyle, labelCustomView, labelCustomViewIndexed
+### Tick view configuration
+@docs TickViewAttr, tickConfigView, tickConfigViewFunc, tickLength, tickWidth, tickStyle, tickCustomView, tickCustomViewIndexed
+
+### Label values configuration
+@docs labelValues, labelFilter
+
+### Label values configuration
+@docs LabelViewAttr, labelConfigView, labelConfigViewFunc, labelFormat, labelDisplace, labelStyle, labelCustomView, labelCustomViewIndexed
 
 ## Grid configuration
 @docs verticalGrid, horizontalGrid, gridMirrorTicks, gridValues, gridStyle
@@ -202,7 +208,8 @@ type alias TickAttrFunc =
     Int -> Float -> List TickViewAttr
 
 
-{-| -}
+{-| Type representing a tick view configuration attribute.
+-}
 type alias TickViewAttr =
     TickViewConfig -> TickViewConfig
 
@@ -215,19 +222,45 @@ defaultTickViewConfig =
     }
 
 
-{-| -}
+{-| Set the length of the tick.
+
+    main =
+        plot
+            []
+            [ xAxis
+                [ tickConfigView [ tickLength 10 ] ]
+            ]
+-}
 tickLength : Int -> TickViewConfig -> TickViewConfig
 tickLength length config =
     { config | length = length }
 
 
-{-| -}
+{-| Set the width of the tick.
+
+    main =
+        plot
+            []
+            [ xAxis
+                [ tickConfigView [ tickWidth 2 ] ]
+            ]
+-}
 tickWidth : Int -> TickViewConfig -> TickViewConfig
 tickWidth width config =
     { config | width = width }
 
 
-{-| -}
+{-| Sets the style of the tick
+
+    main =
+        plot
+            []
+            [ xAxis
+                [ tickConfigView
+                    [ tickStyle [ ( "stroke", "blue" ) ] ]
+                ]
+            ]
+-}
 tickStyle : Style -> TickViewConfig -> TickViewConfig
 tickStyle style config =
     { config | style = style }
@@ -267,7 +300,8 @@ type alias LabelAttrFunc =
     Int -> Float -> List LabelViewAttr
 
 
-{-| -}
+{-| Type representing a label view configuration attribute.
+-}
 type alias LabelViewAttr =
     LabelViewConfig -> LabelViewConfig
 
@@ -280,25 +314,68 @@ defaultLabelViewConfig =
     }
 
 
-{-| -}
+{-| Move the position of the label.
+
+    main =
+        plot
+            []
+            [ xAxis
+                [ labelConfigView [ labelDisplace ( 0, 27 ) ] ]
+            ]
+-}
 labelDisplace : ( Int, Int ) -> LabelViewConfig -> LabelViewConfig
 labelDisplace displace config =
     { config | displace = Just displace }
 
 
-{-| -}
+{-| Format the label based on its value.
+
+    main =
+        plot
+            []
+            [ xAxis
+                [ labelConfigView
+                    [ labelFormat (\l -> toString l ++ " DKK") ]
+                ]
+            ]
+-}
 labelFormat : (Float -> String) -> LabelViewConfig -> LabelViewConfig
 labelFormat format config =
     { config | format = always format }
 
 
-{-| -}
+{-| Format the label based on its value and/or index.
+
+    formatter : Int -> Float -> String
+    formatter index value =
+        if isOdd index then
+            toString l ++ " DKK"
+        else
+            ""
+
+    main =
+        plot
+            []
+            [ xAxis
+                [ labelConfigView [ labelFormat formatter ] ]
+            ]
+-}
 labelFormatIndexed : (Int -> Float -> String) -> LabelViewConfig -> LabelViewConfig
 labelFormatIndexed format config =
     { config | format = format }
 
 
-{-| -}
+{-| Move the position of the label.
+
+    main =
+        plot
+            []
+            [ xAxis
+                [ labelConfigView
+                    [ labelStyle [ ("stroke", "blue" ) ] ]
+                ]
+            ]
+-}
 labelStyle : Style -> LabelViewConfig -> LabelViewConfig
 labelStyle style config =
     { config | style = style }
@@ -408,48 +485,55 @@ tickDelta delta config =
     { config | toTickValues = toTickValuesFromDelta delta }
 
 
-{-| Defines how the tick will be displayed by specifying lenght, width and style of your ticks.
-
-    axisStyleAttr : AxisAttr msg
-    axisStyleAttr =
-        tickConfigView
-            { length = 5
-            , width = 2
-            , style = [ ( "stroke", "red" ) ]
-            }
+{-| Defines how the tick will be displayed by specifying a list of tick view attributes.
 
     main =
-        plot [] [ xAxis [ axisStyleAttr ] ]
+        plot
+            []
+            [ xAxis
+                [ tickConfigView
+                    [ tickLength 10
+                    , tickWidth 2
+                    , tickStyle [ ( "stroke", "red" ) ]
+                    ]
+                ]
+            ]
 
- Default: `{ length = 7, width = 1, style = [] }`
-
- If you do not define another view configuration, this will be the default.
+ If you do not define another view configuration,
+ the default will be `[ tickLength 7, tickWidth 1, tickStyle [] ]`
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickCustomView` or a `tickCustomViewIndexed` attribute, then this attribute will have no effect.
+ `tickCustomView`, `tickConfigViewFunc` or a `tickCustomViewIndexed` attribute,
+ then this attribute will have no effect.
 -}
 tickConfigView : List TickViewAttr -> AxisConfig msg -> AxisConfig msg
 tickConfigView tickAttrs config =
     { config | tickView = toTickView tickAttrs }
 
 
-{-| Defines a function which specifies how the tick will be displayed (lenght, width and style) based
- on the amount of ticks away from zero it is and the tick value.
+{-| Defines how the tick will be displayed by specifying a list of tick view attributes.
 
-    axisStyleAttr : AxisAttr msg
-    axisStyleAttr =
-        tickConfigViewFunc
-            (\index tick ->
-                if isOdd index
-                then longTickConfig
-                else shortTickConfig
-            )
+    toTickConfig : Int -> Float -> List TickViewAttr
+    toTickConfig index tick =
+        if isOdd index then
+            [ tickLength 7
+            , tickStyle [ ( "stroke", "#e4e3e3" ) ]
+            ]
+        else
+            [ tickLength 10
+            , tickStyle [ ( "stroke", "#b9b9b9" ) ]
+            ]
 
     main =
-        plot [] [ xAxis [ axisStyleAttr ] ]
+        plot
+            []
+            [ xAxis
+                [ tickConfigViewFunc toTickConfig ]
+            ]
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickCustomView` or a `tickCustomViewIndexed` attribute, then this attribute will have no effect.
+ `tickConfigView`, `tickCustomView` or a `tickCustomViewIndexed` attribute,
+ then this attribute will have no effect.
 -}
 tickConfigViewFunc : TickAttrFunc -> AxisConfig msg -> AxisConfig msg
 tickConfigViewFunc toTickAttrs config =
@@ -462,10 +546,7 @@ tickConfigViewFunc toTickAttrs config =
     viewTick tick =
         text'
             [ transform ("translate(-5, 10)") ]
-            [ tspan
-                []
-                [ text "✨" ]
-            ]
+            [ tspan [] [ text "✨" ] ]
 
     main =
         plot [] [ xAxis [ tickCustomView viewTick ] ]
@@ -482,12 +563,12 @@ tickCustomView view config =
  which is how many ticks away the current tick is from the zero tick.
 
     viewTick : Int -> Float -> Svg.Svg a
-    viewTick fromZero tick =
+    viewTick index tick =
         text'
             [ transform ("translate(-5, 10)") ]
             [ tspan
                 []
-                [ text (if isOdd fromZero then "🌟" else "⭐") ]
+                [ text (if isOdd index then "🌟" else "⭐") ]
             ]
 
     main =
@@ -508,20 +589,18 @@ tickCustomViewIndexed view config =
         plot
             []
             [ xAxis [ tickRemoveZero ] ]
-
- Default: `False`
 -}
 tickRemoveZero : AxisConfig msg -> AxisConfig msg
 tickRemoveZero config =
     { config | axisCrossing = True }
 
 
-{-| Add a filter to the ticks which added a label.
+{-| Add a list of values where labels will be added.
 
     main =
         plot
             []
-            [ xAxis [ labelValues onlyOddTicks ] ]
+            [ xAxis [ labelValues [ 20, 40, 60 ] ] ]
 -}
 labelValues : List Float -> AxisConfig msg -> AxisConfig msg
 labelValues filter config =
@@ -551,13 +630,41 @@ labelFilter filter config =
     { config | labelValues = LabelCustomFilter filter }
 
 
-{-| -}
+{-| Configure the label view specifying a list of label view attributes.
+
+    main =
+        plot
+            []
+            [ xAxis
+                [ labelConfigView
+                    [ labelFormat (\t -> toString t ++ " s") ]
+                ]
+            ]
+-}
 labelConfigView : List LabelViewAttr -> AxisConfig msg -> AxisConfig msg
 labelConfigView attrs config =
     { config | labelView = toLabelView attrs }
 
 
-{-| -}
+{-| Configure the label view specifying a function returning a list of label view attributes.
+ The function will be passed:
+ 1) An integer representing the amount of ticks away from the origin, the current tick is.
+ 2) A float value represeting the value of the tick.
+    
+    toLabelConfig : Int -> Float -> List TickViewAttr
+    toLabelConfig index tick =
+        if isOdd index then
+            [ labelFormat (\t -> toString t ++ " s") ]
+        else
+            [ labelFormat (always "") ]
+
+    main =
+        plot
+            []
+            [ xAxis
+                [ labelConfigViewFunc toLabelConfig ]
+            ]
+-}
 labelConfigViewFunc : LabelAttrFunc -> AxisConfig msg -> AxisConfig msg
 labelConfigViewFunc toAttrs config =
     { config | labelView = toLabelViewDynamic toAttrs }
@@ -593,7 +700,6 @@ labelCustomView view config =
                 else evenAttrs
         in
             text' attrs labelHtml
-
 
     main =
         plot
