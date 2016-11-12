@@ -24,6 +24,7 @@ module Plot
         , labelDisplace
         , labelStyle
         , labelConfigView
+        , labelConfigViewFunc
         , labelCustomView
         , labelCustomViewIndexed
         , verticalGrid
@@ -37,6 +38,8 @@ module Plot
         , lineStyle
         , Element
         , MetaAttr
+        , TickViewAttr
+        , LabelViewAttr
         , AxisAttr
         , AreaAttr
         , LineAttr
@@ -67,10 +70,10 @@ module Plot
 @docs AxisAttr, axisStyle, axisLineStyle
 
 ### Tick configuration
-@docs tickValues, tickDelta, tickRemoveZero, tickConfigView, tickConfigViewFunc, tickLength, tickWidth, tickStyle, tickCustomView, tickCustomViewIndexed
+@docs tickValues, tickDelta, tickRemoveZero, tickConfigView, tickConfigViewFunc, TickViewAttr, tickLength, tickWidth, tickStyle, tickCustomView, tickCustomViewIndexed
 
 ### Label configuration
-@docs labelValues, labelFilter, labelConfigView, labelFormat, labelDisplace, labelStyle, labelCustomView, labelCustomViewIndexed
+@docs labelValues, labelFilter, labelConfigView, labelConfigViewFunc, LabelViewAttr, labelFormat, labelDisplace, labelStyle, labelCustomView, labelCustomViewIndexed
 
 ## Grid configuration
 @docs verticalGrid, horizontalGrid, gridMirrorTicks, gridValues, gridStyle
@@ -246,7 +249,7 @@ toTickViewDynamic toTickConfig =
 
 type alias LabelViewConfig =
     { displace : Maybe ( Int, Int )
-    , format : (Int -> Float -> String)
+    , format : Int -> Float -> String
     , style : Style
     }
 
@@ -1014,12 +1017,12 @@ defaultTickViewDynamic toTickAttrs orientation index float =
 
 defaultLabelStyleX : ( Style, ( Int, Int ) )
 defaultLabelStyleX =
-    ( [ ( "text-anchor", "middle" ) ], ( 0, 24 ))
+    ( [ ( "text-anchor", "middle" ) ], ( 0, 24 ) )
 
 
 defaultLabelStyleY : ( Style, ( Int, Int ) )
 defaultLabelStyleY =
-    ( [ ( "text-anchor", "end" ) ], ( -10, 5 ))
+    ( [ ( "text-anchor", "end" ) ], ( -10, 5 ) )
 
 
 defaultLabelView : LabelViewConfig -> Orientation -> Int -> Float -> Svg.Svg msg
@@ -1028,11 +1031,11 @@ defaultLabelView { displace, format, style } orientation index tick =
         ( defaultStyle, defaultDisplacement ) =
             (?) orientation defaultLabelStyleX defaultLabelStyleY
 
-        (dx, dy) =
+        ( dx, dy ) =
             Maybe.withDefault defaultDisplacement displace
     in
         Svg.text'
-            [ Svg.Attributes.transform (toTranslate (toFloat dx, toFloat dy))
+            [ Svg.Attributes.transform (toTranslate ( toFloat dx, toFloat dy ))
             , Svg.Attributes.style (toStyle (defaultStyle ++ style))
             ]
             [ Svg.tspan [] [ Svg.text (format index tick) ] ]
@@ -1331,8 +1334,8 @@ getAxisConfig orientation element lastConfig =
 getLastGetTickValues : Orientation -> List (Element msg) -> AxisScale -> List Float
 getLastGetTickValues orientation elements =
     List.foldl (getAxisConfig orientation) Nothing elements
-    |> Maybe.withDefault defaultAxisConfig
-    |> .toTickValues
+        |> Maybe.withDefault defaultAxisConfig
+        |> .toTickValues
 
 
 

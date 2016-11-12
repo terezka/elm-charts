@@ -34,7 +34,7 @@ plot1 =
         [ verticalGrid [ gridMirrorTicks, gridStyle [ ( "stroke", "#ddd" ) ] ]
         , horizontalGrid [ gridMirrorTicks, gridStyle [ ( "stroke", "#ddd" ) ] ]
         , line [ lineStyle [ ( "stroke", "mediumvioletred" ) ] ] lineData
-        , yAxis [ tickRemoveZero ] 
+        , yAxis [ tickRemoveZero ]
         , xAxis
             [ tickRemoveZero
             , tickValues [ 20, 30, 40 ]
@@ -43,9 +43,15 @@ plot1 =
                 , tickWidth 2
                 , tickStyle [ ( "stroke", "red" ) ]
                 ]
-            , tickConfigViewFunc (\i _ -> if isEven i then [ tickLength 20 ] else [ tickLength 40 ])
+            , tickConfigViewFunc
+                (\i _ ->
+                    if isEven i then
+                        [ tickLength 20 ]
+                    else
+                        [ tickLength 40 ]
+                )
             , tickCustomViewIndexed customTick
-            , labelConfigView [ labelDisplace ( 0, 20 ), labelFormat (\t -> toString t ++ "ms"), labelStyle [ ("stroke", "blue")] ]
+            , labelConfigView [ labelDisplace ( 0, 20 ), labelFormat (\t -> toString t ++ "ms"), labelStyle [ ( "stroke", "blue" ) ] ]
             ]
         ]
 

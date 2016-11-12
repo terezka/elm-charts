@@ -23,5 +23,7 @@ multiAreaChart =
         [ area [ areaStyle [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ] data1
         , area [ areaStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data2
         , xAxis
-            [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
+            [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+            , tickDelta 10
+            ]
         ]
