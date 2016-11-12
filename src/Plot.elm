@@ -286,7 +286,7 @@ labelDisplace displace config =
 {-| -}
 labelFormat : (Float -> String) -> LabelViewConfig -> LabelViewConfig
 labelFormat format config =
-    { config | format = (\_ -> format) }
+    { config | format = always format }
 
 
 {-| -}
@@ -990,7 +990,7 @@ defaultTickView : TickViewConfig -> Orientation -> Int -> Float -> Svg.Svg msg
 defaultTickView { length, width, style } orientation _ _ =
     let
         displacement =
-            fromOrientation orientation "" (toRotate 90 0 0)
+            (?) orientation "" (toRotate 90 0 0)
 
         styleFinal =
             style ++ [ ( "stroke-width", (toString width) ++ "px" ) ]
@@ -1026,7 +1026,7 @@ defaultLabelView : LabelViewConfig -> Orientation -> Int -> Float -> Svg.Svg msg
 defaultLabelView { displace, format, style } orientation index tick =
     let
         ( defaultStyle, defaultDisplacement ) =
-            fromOrientation orientation defaultLabelStyleX defaultLabelStyleY
+            (?) orientation defaultLabelStyleX defaultLabelStyleY
 
         (dx, dy) =
             Maybe.withDefault defaultDisplacement displace
@@ -1356,8 +1356,8 @@ collectPoints element allPoints =
 -- Helpers
 
 
-fromOrientation : Orientation -> a -> a -> a
-fromOrientation orientation x y =
+(?) : Orientation -> a -> a -> a
+(?) orientation x y =
     case orientation of
         X ->
             x
