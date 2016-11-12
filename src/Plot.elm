@@ -21,6 +21,9 @@ module Plot
         , labelValues
         , labelFilter
         , labelFormat
+        , labelDisplace
+        , labelStyle
+        , labelConfigView
         , labelCustomView
         , labelCustomViewIndexed
         , verticalGrid
@@ -67,7 +70,7 @@ module Plot
 @docs tickValues, tickDelta, tickRemoveZero, tickConfigView, tickConfigViewFunc, tickLength, tickWidth, tickStyle, tickCustomView, tickCustomViewIndexed
 
 ### Label configuration
-@docs labelValues, labelFilter, labelFormat, labelCustomView, labelCustomViewIndexed
+@docs labelValues, labelFilter, labelConfigView, labelFormat, labelDisplace, labelStyle, labelCustomView, labelCustomViewIndexed
 
 ## Grid configuration
 @docs verticalGrid, horizontalGrid, gridMirrorTicks, gridValues, gridStyle
@@ -188,6 +191,10 @@ type alias TickView msg =
     Orientation -> Int -> Float -> Svg.Svg msg
 
 
+type alias TickValues =
+    AxisScale -> List Float
+
+
 type alias TickAttrFunc =
     Int -> Float -> List TickViewAttr
 
@@ -223,20 +230,29 @@ tickStyle style config =
     { config | style = style }
 
 
-{-| -}
 toTickView : List TickViewAttr -> TickView msg
 toTickView attrs =
     defaultTickView (List.foldl (<|) defaultTickViewConfig attrs)
 
 
-{-| -}
 toTickViewDynamic : TickAttrFunc -> TickView msg
 toTickViewDynamic toTickConfig =
     defaultTickViewDynamic toTickConfig
 
 
 
--- AXIS CONFIG
+-- LABEL CONFIG
+
+
+type alias LabelViewConfig =
+    { displace : Maybe ( Int, Int )
+    , format : (Int -> Float -> String)
+    , style : Style
+    }
+
+
+type alias LabelView msg =
+    Orientation -> Int -> Float -> Svg.Svg msg
 
 
 type LabelValues
@@ -244,13 +260,63 @@ type LabelValues
     | LabelCustomFilter (Int -> Float -> Bool)
 
 
-type LabelView msg
-    = LabelFormat (Float -> String)
-    | LabelCustomView (Int -> Float -> Svg.Svg msg)
+type alias LabelAttrFunc =
+    Int -> Float -> List LabelViewAttr
+
+
+{-| -}
+type alias LabelViewAttr =
+    LabelViewConfig -> LabelViewConfig
+
+
+defaultLabelViewConfig : LabelViewConfig
+defaultLabelViewConfig =
+    { displace = Nothing
+    , format = (\_ -> toString)
+    , style = []
+    }
+
+
+{-| -}
+labelDisplace : ( Int, Int ) -> LabelViewConfig -> LabelViewConfig
+labelDisplace displace config =
+    { config | displace = Just displace }
+
+
+{-| -}
+labelFormat : (Float -> String) -> LabelViewConfig -> LabelViewConfig
+labelFormat format config =
+    { config | format = (\_ -> format) }
+
+
+{-| -}
+labelFormatIndexed : (Int -> Float -> String) -> LabelViewConfig -> LabelViewConfig
+labelFormatIndexed format config =
+    { config | format = format }
+
+
+{-| -}
+labelStyle : Style -> LabelViewConfig -> LabelViewConfig
+labelStyle style config =
+    { config | style = style }
+
+
+toLabelView : List LabelViewAttr -> LabelView msg
+toLabelView attrs =
+    defaultLabelView (List.foldl (<|) defaultLabelViewConfig attrs)
+
+
+toLabelViewDynamic : LabelAttrFunc -> LabelView msg
+toLabelViewDynamic toLabelConfig =
+    defaultLabelViewDynamic toLabelConfig
+
+
+
+-- AXIS CONFIG
 
 
 type alias AxisConfig msg =
-    { toTickValues : AxisScale -> List Float
+    { toTickValues : TickValues
     , tickView : TickView msg
     , labelValues : LabelValues
     , labelView : LabelView msg
@@ -271,7 +337,7 @@ defaultAxisConfig =
     { toTickValues = toTickValuesAuto
     , tickView = defaultTickView defaultTickViewConfig
     , labelValues = LabelCustomFilter (\a b -> True)
-    , labelView = LabelFormat toString
+    , labelView = defaultLabelView defaultLabelViewConfig
     , style = []
     , axisLineStyle = []
     , axisCrossing = False
@@ -482,25 +548,16 @@ labelFilter filter config =
     { config | labelValues = LabelCustomFilter filter }
 
 
-{-| Specify a format for label.
+{-| -}
+labelConfigView : List LabelViewAttr -> AxisConfig msg -> AxisConfig msg
+labelConfigView attrs config =
+    { config | labelView = toLabelView attrs }
 
-    labelFormatter : Float -> String
-    labelFormatter tick =
-        (toString tick) ++ "$"
 
-    main =
-        plot
-            []
-            [ xAxis [ labelFormat labelFormatter ] ]
-
- Default: `toString`
-
- **Note:** If in the list of axis attributes, this attribute is followed by a
- `labelCustomView` attribute, then this attribute will have no effect.
--}
-labelFormat : (Float -> String) -> AxisConfig msg -> AxisConfig msg
-labelFormat formatter config =
-    { config | labelView = LabelFormat formatter }
+{-| -}
+labelConfigViewFunc : LabelAttrFunc -> AxisConfig msg -> AxisConfig msg
+labelConfigViewFunc toAttrs config =
+    { config | labelView = toLabelViewDynamic toAttrs }
 
 
 {-| Add a custom view for rendering your label.
@@ -519,7 +576,7 @@ labelFormat formatter config =
 -}
 labelCustomView : (Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
 labelCustomView view config =
-    { config | labelView = LabelCustomView (\_ t -> view t) }
+    { config | labelView = (\_ _ -> view) }
 
 
 {-| Same as `labelCustomView`, except this view is also passed the value being
@@ -545,7 +602,7 @@ labelCustomView view config =
 -}
 labelCustomViewIndexed : (Int -> Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
 labelCustomViewIndexed view config =
-    { config | labelView = LabelCustomView view }
+    { config | labelView = (\_ -> view) }
 
 
 {-| This returns an axis element resulting in an x-axis being rendered in your plot.
@@ -915,20 +972,12 @@ viewAxis plotProps { toTickValues, tickView, labelView, labelValues, style, axis
 
                 LabelCustomFilter filter ->
                     List.filter (\( a, b ) -> filter a b) tickPositions
-
-        innerLabel =
-            case labelView of
-                LabelFormat format ->
-                    defaultLabelView orientation format
-
-                LabelCustomView view ->
-                    view
     in
         Svg.g
             [ Svg.Attributes.style (toStyle style) ]
             [ viewGridLine toSvgCoords scale axisLineStyle 0
             , Svg.g [] (List.map (placeTick plotProps (tickView orientation)) tickPositions)
-            , Svg.g [] (List.map (placeTick plotProps innerLabel) labelPositions)
+            , Svg.g [] (List.map (placeTick plotProps (labelView orientation)) labelPositions)
             ]
 
 
@@ -963,27 +1012,39 @@ defaultTickViewDynamic toTickAttrs orientation index float =
         tickView orientation index float
 
 
-defaultLabelStyleX : ( Style, ( Float, Float ) )
+defaultLabelStyleX : ( Style, ( Int, Int ) )
 defaultLabelStyleX =
-    ( [ ( "text-anchor", "middle" ) ], ( 0, 24 ) )
+    ( [ ( "text-anchor", "middle" ) ], ( 0, 24 ))
 
 
-defaultLabelStyleY : ( Style, ( Float, Float ) )
+defaultLabelStyleY : ( Style, ( Int, Int ) )
 defaultLabelStyleY =
-    ( [ ( "text-anchor", "end" ) ], ( -10, 5 ) )
+    ( [ ( "text-anchor", "end" ) ], ( -10, 5 ))
 
 
-defaultLabelView : Orientation -> (Float -> String) -> Int -> Float -> Svg.Svg msg
-defaultLabelView orientation format _ tick =
+defaultLabelView : LabelViewConfig -> Orientation -> Int -> Float -> Svg.Svg msg
+defaultLabelView { displace, format, style } orientation index tick =
     let
-        ( style, displacement ) =
+        ( defaultStyle, defaultDisplacement ) =
             fromOrientation orientation defaultLabelStyleX defaultLabelStyleY
+
+        (dx, dy) =
+            Maybe.withDefault defaultDisplacement displace
     in
         Svg.text'
-            [ Svg.Attributes.transform (toTranslate displacement)
-            , Svg.Attributes.style (toStyle style)
+            [ Svg.Attributes.transform (toTranslate (toFloat dx, toFloat dy))
+            , Svg.Attributes.style (toStyle (defaultStyle ++ style))
             ]
-            [ Svg.tspan [] [ Svg.text (format tick) ] ]
+            [ Svg.tspan [] [ Svg.text (format index tick) ] ]
+
+
+defaultLabelViewDynamic : LabelAttrFunc -> Orientation -> Int -> Float -> Svg.Svg msg
+defaultLabelViewDynamic toLabelAttrs orientation index float =
+    let
+        labelView =
+            toLabelView (toLabelAttrs index float)
+    in
+        labelView orientation index float
 
 
 

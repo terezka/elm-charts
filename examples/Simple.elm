@@ -19,6 +19,15 @@ isEven index =
     rem index 2 == 0
 
 
+customTick : Int -> Float -> Svg.Svg a
+customTick fromZero tick =
+    Svg.line
+        [ Svg.Attributes.style ("stroke: red")
+        , Svg.Attributes.y2 (toString 5)
+        ]
+        []
+
+
 plot1 =
     plot
         [ padding ( 40, 40 ) ]
@@ -28,8 +37,15 @@ plot1 =
         , yAxis [ tickRemoveZero ] 
         , xAxis
             [ tickRemoveZero
-            , tickConfigView [ tickLength 7, tickWidth 2, tickStyle [ ( "stroke", "red" ) ] ]
-            , tickConfigViewFunc (\i _ -> if isEven i then [ tickLength 7 ] else [ tickLength 10 ] )
+            , tickValues [ 20, 30, 40 ]
+            , tickConfigView
+                [ tickLength 7
+                , tickWidth 2
+                , tickStyle [ ( "stroke", "red" ) ]
+                ]
+            , tickConfigViewFunc (\i _ -> if isEven i then [ tickLength 20 ] else [ tickLength 40 ])
+            , tickCustomViewIndexed customTick
+            , labelConfigView [ labelDisplace ( 0, 20 ), labelFormat (\t -> toString t ++ "ms"), labelStyle [ ("stroke", "blue")] ]
             ]
         ]
 
