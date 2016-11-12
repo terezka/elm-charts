@@ -14,14 +14,23 @@ lineData2 =
     [ ( -1, 2 ), ( 0, 3 ), ( 4, 5 ), ( 5, 3 ) ]
 
 
+isEven : Int -> Bool
+isEven index =
+    rem index 2 == 0
+
+
 plot1 =
     plot
         [ padding ( 40, 40 ) ]
         [ verticalGrid [ gridMirrorTicks, gridStyle [ ( "stroke", "#ddd" ) ] ]
         , horizontalGrid [ gridMirrorTicks, gridStyle [ ( "stroke", "#ddd" ) ] ]
         , line [ lineStyle [ ( "stroke", "mediumvioletred" ) ] ] lineData
-        , yAxis []
-        , xAxis []
+        , yAxis [ tickRemoveZero ] 
+        , xAxis
+            [ tickRemoveZero
+            , tickConfigView [ tickLength 7, tickWidth 2, tickStyle [ ( "stroke", "red" ) ] ]
+            , tickConfigViewFunc (\i _ -> if isEven i then [ tickLength 7 ] else [ tickLength 10 ] )
+            ]
         ]
 
 

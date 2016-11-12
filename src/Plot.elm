@@ -10,7 +10,11 @@ module Plot
         , axisLineStyle
         , tickValues
         , tickDelta
-        , tickViewConfig
+        , tickLength
+        , tickWidth
+        , tickStyle
+        , tickConfigView
+        , tickConfigViewFunc
         , tickCustomView
         , tickCustomViewIndexed
         , tickRemoveZero
@@ -60,7 +64,7 @@ module Plot
 @docs AxisAttr, axisStyle, axisLineStyle
 
 ### Tick configuration
-@docs tickValues, tickDelta, tickRemoveZero, tickViewConfig, tickCustomView, tickCustomViewIndexed
+@docs tickValues, tickDelta, tickRemoveZero, tickConfigView, tickConfigViewFunc, tickLength, tickWidth, tickStyle, tickCustomView, tickCustomViewIndexed
 
 ### Label configuration
 @docs labelValues, labelFilter, labelFormat, labelCustomView, labelCustomViewIndexed
@@ -170,19 +174,69 @@ toMetaConfig attrs =
 
 
 
--- AXIS CONFIG
+-- TICK CONFIG
 
 
-type alias TickStyleConfig =
+type alias TickViewConfig =
     { length : Int
     , width : Int
     , style : Style
     }
 
 
-type TickView msg
-    = TickCustomView (Int -> Float -> Svg.Svg msg)
-    | TickConfigView TickStyleConfig
+type alias TickView msg =
+    Orientation -> Int -> Float -> Svg.Svg msg
+
+
+type alias TickAttrFunc =
+    Int -> Float -> List TickViewAttr
+
+
+{-| -}
+type alias TickViewAttr =
+    TickViewConfig -> TickViewConfig
+
+
+defaultTickViewConfig : TickViewConfig
+defaultTickViewConfig =
+    { length = 7
+    , width = 1
+    , style = []
+    }
+
+
+{-| -}
+tickLength : Int -> TickViewConfig -> TickViewConfig
+tickLength length config =
+    { config | length = length }
+
+
+{-| -}
+tickWidth : Int -> TickViewConfig -> TickViewConfig
+tickWidth width config =
+    { config | width = width }
+
+
+{-| -}
+tickStyle : Style -> TickViewConfig -> TickViewConfig
+tickStyle style config =
+    { config | style = style }
+
+
+{-| -}
+toTickView : List TickViewAttr -> TickView msg
+toTickView attrs =
+    defaultTickView (List.foldl (<|) defaultTickViewConfig attrs)
+
+
+{-| -}
+toTickViewDynamic : TickAttrFunc -> TickView msg
+toTickViewDynamic toTickConfig =
+    defaultTickViewDynamic toTickConfig
+
+
+
+-- AXIS CONFIG
 
 
 type LabelValues
@@ -213,16 +267,9 @@ type alias AxisAttr msg =
     AxisConfig msg -> AxisConfig msg
 
 
-defaultTickStyle =
-    { length = 7
-    , width = 1
-    , style = []
-    }
-
-
 defaultAxisConfig =
     { toTickValues = toTickValuesAuto
-    , tickView = TickConfigView defaultTickStyle
+    , tickView = defaultTickView defaultTickViewConfig
     , labelValues = LabelCustomFilter (\a b -> True)
     , labelView = LabelFormat toString
     , style = []
@@ -296,7 +343,7 @@ tickDelta delta config =
 
     axisStyleAttr : AxisAttr msg
     axisStyleAttr =
-        tickViewConfig
+        tickConfigView
             { length = 5
             , width = 2
             , style = [ ( "stroke", "red" ) ]
@@ -312,9 +359,32 @@ tickDelta delta config =
  **Note:** If in the list of axis attributes, this attribute is followed by a
  `tickCustomView` or a `tickCustomViewIndexed` attribute, then this attribute will have no effect.
 -}
-tickViewConfig : TickStyleConfig -> AxisConfig msg -> AxisConfig msg
-tickViewConfig styleConfig config =
-    { config | tickView = TickConfigView styleConfig }
+tickConfigView : List TickViewAttr -> AxisConfig msg -> AxisConfig msg
+tickConfigView tickAttrs config =
+    { config | tickView = toTickView tickAttrs }
+
+
+{-| Defines a function which specifies how the tick will be displayed (lenght, width and style) based
+ on the amount of ticks away from zero it is and the tick value.
+
+    axisStyleAttr : AxisAttr msg
+    axisStyleAttr =
+        tickConfigViewFunc
+            (\index tick ->
+                if isOdd index
+                then longTickConfig
+                else shortTickConfig
+            )
+
+    main =
+        plot [] [ xAxis [ axisStyleAttr ] ]
+
+ **Note:** If in the list of axis attributes, this attribute is followed by a
+ `tickCustomView` or a `tickCustomViewIndexed` attribute, then this attribute will have no effect.
+-}
+tickConfigViewFunc : TickAttrFunc -> AxisConfig msg -> AxisConfig msg
+tickConfigViewFunc toTickAttrs config =
+    { config | tickView = toTickViewDynamic toTickAttrs }
 
 
 {-| Defines how the tick will be displayed by specifying a function which returns your tick html.
@@ -332,11 +402,11 @@ tickViewConfig styleConfig config =
         plot [] [ xAxis [ tickCustomView viewTick ] ]
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickViewConfig` or a `tickCustomViewIndexed` attribute, then this attribute will have no effect.
+ `tickConfigView` or a `tickCustomViewIndexed` attribute, then this attribute will have no effect.
 -}
 tickCustomView : (Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
 tickCustomView view config =
-    { config | tickView = TickCustomView (\_ t -> view t) }
+    { config | tickView = (\_ _ -> view) }
 
 
 {-| Same as `tickCustomConfig`, but the functions is also passed a value
@@ -355,11 +425,11 @@ tickCustomView view config =
         plot [] [ xAxis [ tickCustomViewIndexed viewTick ] ]
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickViewConfig` or a `tickCustomView` attribute, then this attribute will have no effect.
+ `tickConfigView` or a `tickCustomView` attribute, then this attribute will have no effect.
 -}
 tickCustomViewIndexed : (Int -> Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
 tickCustomViewIndexed view config =
-    { config | tickView = TickCustomView view }
+    { config | tickView = (\_ -> view) }
 
 
 {-| Remove tick at origin. Useful when two axis' are crossing and you do not
@@ -485,7 +555,7 @@ labelCustomViewIndexed view config =
 -}
 xAxis : List (AxisAttr msg) -> Element msg
 xAxis attrs =
-    Axis (List.foldr (<|) defaultAxisConfig attrs)
+    Axis (List.foldl (<|) defaultAxisConfig attrs)
 
 
 {-| This returns an axis element resulting in an y-axis being rendered in your plot.
@@ -495,7 +565,7 @@ xAxis attrs =
 -}
 yAxis : List (AxisAttr msg) -> Element msg
 yAxis attrs =
-    Axis (List.foldr (<|) { defaultAxisConfig | orientation = Y } attrs)
+    Axis (List.foldl (<|) { defaultAxisConfig | orientation = Y } attrs)
 
 
 
@@ -846,14 +916,6 @@ viewAxis plotProps { toTickValues, tickView, labelView, labelValues, style, axis
                 LabelCustomFilter filter ->
                     List.filter (\( a, b ) -> filter a b) tickPositions
 
-        innerTick =
-            case tickView of
-                TickConfigView viewConfig ->
-                    defaultTickView orientation viewConfig
-
-                TickCustomView view ->
-                    view
-
         innerLabel =
             case labelView of
                 LabelFormat format ->
@@ -865,7 +927,7 @@ viewAxis plotProps { toTickValues, tickView, labelView, labelValues, style, axis
         Svg.g
             [ Svg.Attributes.style (toStyle style) ]
             [ viewGridLine toSvgCoords scale axisLineStyle 0
-            , Svg.g [] (List.map (placeTick plotProps innerTick) tickPositions)
+            , Svg.g [] (List.map (placeTick plotProps (tickView orientation)) tickPositions)
             , Svg.g [] (List.map (placeTick plotProps innerLabel) labelPositions)
             ]
 
@@ -875,8 +937,8 @@ placeTick { toSvgCoords } view ( index, tick ) =
     Svg.g [ Svg.Attributes.transform (toTranslate (toSvgCoords ( tick, 0 ))) ] [ view index tick ]
 
 
-defaultTickView : Orientation -> TickStyleConfig -> Int -> Float -> Svg.Svg msg
-defaultTickView orientation { length, width, style } _ _ =
+defaultTickView : TickViewConfig -> Orientation -> Int -> Float -> Svg.Svg msg
+defaultTickView { length, width, style } orientation _ _ =
     let
         displacement =
             fromOrientation orientation "" (toRotate 90 0 0)
@@ -890,6 +952,15 @@ defaultTickView orientation { length, width, style } _ _ =
             , Svg.Attributes.transform displacement
             ]
             []
+
+
+defaultTickViewDynamic : TickAttrFunc -> Orientation -> Int -> Float -> Svg.Svg msg
+defaultTickViewDynamic toTickAttrs orientation index float =
+    let
+        tickView =
+            toTickView (toTickAttrs index float)
+    in
+        tickView orientation index float
 
 
 defaultLabelStyleX : ( Style, ( Float, Float ) )
