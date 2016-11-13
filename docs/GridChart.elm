@@ -31,26 +31,26 @@ chart =
 
 code =
     """
-        chart : Svg.Svg a
-        chart =
-            plot
-                [ size ( 600, 250 ), padding ( 0, 40 ) ]
-                [ verticalGrid
-                    [ gridMirrorTicks
-                    , gridStyle [ ( "stroke", Colors.axisColorLight ) ]
-                    ]
-                , horizontalGrid
-                    [ gridValues [ 10, 20, 30, 40 ]
-                    , gridStyle [ ( "stroke", Colors.axisColorLight ) ]
-                    ]
-                , xAxis
-                    [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
-                , line
-                    [ lineStyle
-                        [ ( "stroke", Colors.blueStroke )
-                        , ( "stroke-width", "2px" )
-                        ]
-                    ]
-                    data
+    chart : Svg.Svg a
+    chart =
+        plot
+            [ size ( 600, 250 ), padding ( 0, 40 ) ]
+            [ verticalGrid
+                [ gridMirrorTicks
+                , gridStyle [ ( "stroke", Colors.axisColorLight ) ]
                 ]
+            , horizontalGrid
+                [ gridValues [ 10, 20, 30, 40 ]
+                , gridStyle [ ( "stroke", Colors.axisColorLight ) ]
+                ]
+            , xAxis
+                [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
+            , line
+                [ lineStyle
+                    [ ( "stroke", Colors.blueStroke )
+                    , ( "stroke-width", "2px" )
+                    ]
+                ]
+                data
+            ]
     """
