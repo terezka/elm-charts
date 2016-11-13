@@ -1,4 +1,4 @@
-module ComposedChart exposing (composedChart)
+module ComposedChart exposing (chart, code)
 
 import Svg
 import Svg.Attributes
@@ -35,8 +35,8 @@ customLabelStyle =
     [ ( "stroke", "#969696" ), ( "font-size", "12px" ) ]
 
 
-composedChart : Svg.Svg a
-composedChart =
+chart : Svg.Svg a
+chart =
     plot
         [ size ( 600, 350 ), padding ( 40, 40 ) ]
         [ horizontalGrid [ gridMirrorTicks, gridStyle [ ( "stroke", "#f2f2f2" ) ] ]
@@ -82,3 +82,79 @@ composedChart =
             , labelFilter filterLabels
             ]
         ]
+
+
+code =
+    """
+    isOdd : Int -> Bool
+    isOdd n =
+        rem n 2 > 0
+
+
+    filterLabels : Int -> Float -> Bool
+    filterLabels index _ =
+        not (isOdd index)
+
+
+    toTickConfig : Int -> Float -> List TickViewAttr
+    toTickConfig index tick =
+        if isOdd index then
+            [ tickLength 7, tickStyle [ ( "stroke", "#c7c7c7" ) ] ]
+        else
+            [ tickLength 10, tickStyle [ ( "stroke", "#b9b9b9" ) ] ]
+
+
+    customLabelStyle : List ( String, String )
+    customLabelStyle =
+        [ ( "stroke", "#969696" ), ( "font-size", "12px" ) ]
+
+    chart =
+        plot
+            [ size ( 600, 350 ), padding ( 40, 40 ) ]
+            [ horizontalGrid
+                [ gridMirrorTicks
+                , gridStyle [ ( "stroke", "#f2f2f2" ) ]
+                ]
+            , area
+                [ areaStyle
+                    [ ( "stroke", Colors.skinStroke )
+                    , ( "fill", Colors.skinFill )
+                    , ( "opacity", "0.5" )
+                    ]
+                ]
+                data1
+            , area
+                [ areaStyle
+                    [ ( "stroke", Colors.blueStroke )
+                    , ( "fill", Colors.blueFill )
+                    ]
+                ]
+                data2
+            , line
+                [ lineStyle
+                    [ ( "stroke", Colors.pinkStroke )
+                    , ( "stroke-width", "2px" )
+                    ]
+                ]
+                data3
+            , yAxis
+                [ axisStyle [ ( "stroke", "#b9b9b9" ) ]
+                , tickRemoveZero
+                , tickDelta 50
+                , labelConfigView
+                    [ labelFormat (\\l -> toString l ++ " °C")
+                    , labelStyle customLabelStyle
+                    ]
+                ]
+            , xAxis
+                [ axisStyle [ ( "stroke", "#b9b9b9" ) ]
+                , tickRemoveZero
+                , tickConfigViewFunc toTickConfig
+                , labelConfigView
+                    [ labelFormat (\\l -> toString l ++ " t")
+                    , labelStyle customLabelStyle
+                    ]
+                , labelFilter filterLabels
+                ]
+            ]
+    """

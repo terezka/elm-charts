@@ -1,4 +1,4 @@
-module MultiLineChart exposing (multiLineChart)
+module MultiLineChart exposing (chart, code)
 
 import Svg
 import Svg.Attributes
@@ -16,8 +16,8 @@ data2 =
     [ ( 0, 3 ), ( 1, 2 ), ( 2, 8 ), ( 2.5, 15 ), ( 3, 18 ), ( 4, 17 ), ( 5, 16 ), ( 5.5, 15 ), ( 6.5, 14 ), ( 7.5, 13 ), ( 8, 12 ) ]
 
 
-multiLineChart : Svg.Svg a
-multiLineChart =
+chart : Svg.Svg a
+chart =
     plot
         [ size ( 600, 250 ) ]
         [ line [ lineStyle [ ( "stroke", Colors.blueStroke ), ( "stroke-width", "2px" ) ] ] data2
@@ -26,3 +26,29 @@ multiLineChart =
             [ axisStyle [ ( "stroke", Colors.axisColor ) ]
             ]
         ]
+
+code =
+    """
+    chart : Svg.Svg a
+    chart =
+        plot
+            [ size ( 600, 250 ) ]
+            [ line
+                [ lineStyle
+                    [ ( "stroke", Colors.blueStroke )
+                    , ( "stroke-width", "2px" )
+                    ]
+                ]
+                data2
+            , line
+                [ lineStyle
+                    [ ( "stroke", Colors.pinkStroke )
+                    , ( "stroke-width", "2px" )
+                    ]
+                ]
+                data1
+            , xAxis
+                [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+                ]
+            ]
+    """

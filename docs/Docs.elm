@@ -1,32 +1,82 @@
-module Docs exposing (..)
+port module Docs exposing (..)
 
-import Html exposing (div, text, h1, img, a, br, span)
-import Html.Attributes exposing (style, src, href)
+import Html.App as App
+import Html exposing (Html, div, text, h1, img, a, br, span, code, pre, p)
+import Html.Attributes exposing (style, src, href, class)
+import Html.Events exposing (onClick)
 import Svg
 import Svg.Attributes
+
 import Plot exposing (..)
-import AreaChart exposing (areaChart)
-import MultiAreaChart exposing (multiAreaChart)
-import GridChart exposing (gridChart)
-import MultiLineChart exposing (multiLineChart)
-import CustomTickChart exposing (customTickChart)
-import ComposedChart exposing (composedChart)
+import AreaChart exposing (..)
+import MultiAreaChart exposing (..)
+import GridChart exposing (..)
+import MultiLineChart exposing (..)
+import CustomTickChart exposing (..)
+import ComposedChart exposing (..)
 
 
-toUrl end =
-    "https://github.com/terezka/elm-plot/blob/master/docs/" ++ end ++ ".elm"
+-- MODEL
+
+type alias Model = Maybe String
 
 
-viewTitle title url =
-    div [ style [ ( "margin", "100px auto 10px" ) ] ]
-        [ div [] [ text title ]
-        , a
-            [ href (toUrl url), style [ ( "color", "#9ea0a2" ), ( "font-size", "12px" ) ] ]
-            [ text "code" ]
-        ]
+-- UPDATE
+
+type Msg =
+    Toggle (Maybe String)
 
 
-main =
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    case msg of
+        Toggle id ->
+            ( id, Cmd.none )
+
+
+
+-- VIEW
+
+
+viewTitle : Model -> String -> String -> String -> Html Msg
+viewTitle model title url codeString =
+    let
+        isOpen =
+            case model of
+                Just id ->
+                    id == title
+
+                Nothing ->
+                    False
+
+        codeStyle =
+            if isOpen then ("display", "block") else ("display", "none")
+
+        onClickMsg =
+            if isOpen then Toggle Nothing else Toggle (Just title)
+    in
+        div [ style [ ( "margin", "100px auto 10px" ) ] ]
+            [ div [] [ text title ]
+            , p
+                [ style [ ( "color", "#9ea0a2" ), ( "font-size", "12px" ), ("cursor", "pointer") ]
+                , onClick onClickMsg
+                ]
+                [ text "View code snippet" ]
+            , div
+                [ style 
+                    (codeStyle ::
+                        [ ( "text-align", "left" )
+                        , ( "margin", "30px auto" )
+                        , ( "width", "600px" )
+                        ]
+                    )
+                ]
+                [ Html.code [ class "elm" ] [ pre [] [ text codeString ] ] ]
+            ]
+
+
+view : Model -> Html Msg
+view model =
     div
         [ style
             [ ( "width", "800px" )
@@ -41,24 +91,56 @@ main =
         , h1 [ style [ ( "font-weight", "200" ) ] ] [ text "Elm Plot" ]
         , div
             [ style [ ( "margin", "40px auto 100px" ) ] ]
-            [ text "Find it on Github "
-            , br [] []
+            [ text "Find it on "
             , a
                 [ href "https://github.com/terezka/elm-plot"
                 , style [ ( "color", "#84868a" ) ]
                 ]
-                [ text "https://github.com/terezka/elm-plot" ]
+                [ text "Github" ]
             ]
-        , viewTitle "Simple Area Chart" "AreaChart"
-        , areaChart
-        , viewTitle "Multi Area Chart" "MultiAreaChart"
-        , multiAreaChart
-        , viewTitle "Line Chart" "MultiLineChart"
-        , multiLineChart
-        , viewTitle "Grid" "GridChart"
-        , gridChart
-        , viewTitle "Custom ticks and labels" "CustomTickChart"
-        , customTickChart
-        , viewTitle "Composable" "ComposedChart"
-        , composedChart
+        , viewTitle model "Simple Area Chart" "AreaChart" AreaChart.code
+        , AreaChart.chart
+        , viewTitle model "Multi Area Chart" "MultiAreaChart" MultiAreaChart.code
+        , MultiAreaChart.chart
+        , viewTitle model "Line Chart" "MultiLineChart" MultiLineChart.code
+        , MultiLineChart.chart
+        , viewTitle model "Grid" "GridChart" GridChart.code
+        , GridChart.chart
+        , viewTitle model "Custom ticks and labels" "CustomTickChart" CustomTickChart.code
+        , CustomTickChart.chart
+        , viewTitle model "Composable" "ComposedChart" ComposedChart.code
+        , ComposedChart.chart
+        , div
+            [ style [ ( "margin", "100px auto 30px" ), ( "font-size", "14px" ) ] ]
+            [ text "Made by "
+            , a
+                [ href "https://twitter.com/terexka"
+                , style [ ( "color", "#84868a" ) ]
+                ]
+                [ text "@terexka" ]
+            ]
         ]
+
+
+main =
+    App.program
+        { init = ( Nothing, highlight "none" )
+        , update = update
+        , subscriptions = (always Sub.none)
+        , view = view
+        }
+
+
+-- Ports
+
+
+port highlight : String -> Cmd msg
+
+
+-- Helpers
+
+
+toUrl : String -> String
+toUrl end =
+    "https://github.com/terezka/elm-plot/blob/master/docs/" ++ end ++ ".elm"
+
