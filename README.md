@@ -2,7 +2,7 @@
 
 Plot stuff in svg with Elm!
 
-![role presentation](https://github.com/terezka/elm-plot/blob/refact/config/example.png)
+![alt tag](https://raw.githubusercontent.com/terezka/elm-plot/master/example.png)
 
 ## Overview
 
