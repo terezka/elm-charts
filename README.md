@@ -11,20 +11,21 @@ Currently, this library can draw line and area series, grids, axis' with easily 
 ### What does the api look like?
 
 ```elm
-	plot
-        [ size ( 600, 250 ), padding ( 0, 40 ) ]
-        [ verticalGrid
-            [ gridMirrorTicks
-            , gridStyle [ ( "stroke", "blue" ) ]
-            ]
-        , horizontalGrid
-            [ gridValues [ 10, 20, 30, 40 ]
-            , gridStyle [ ( "stroke", "blue" ) ]
-            ]
-        , xAxis [ axisStyle [ ( "stroke", "grey" ) ] ]
-        , line [ lineStyle [ ( "stroke", "red" ) ] ] data1
-        , area [ areaStyle [ ( "fill", "deeppink" ) ] ] data2
-        ]
+    main =
+		plot
+		   [ size ( 600, 250 ), padding ( 0, 40 ) ]
+			[ verticalGrid
+				[ gridMirrorTicks
+				, gridStyle [ ( "stroke", "blue" ) ]
+				]
+			, horizontalGrid
+				[ gridValues [ 10, 20, 30, 40 ]
+				, gridStyle [ ( "stroke", "blue" ) ]
+				]
+			, xAxis [ axisStyle [ ( "stroke", "grey" ) ] ]
+			, line [ lineStyle [ ( "stroke", "red" ) ] ] data1
+			, area [ areaStyle [ ( "fill", "deeppink" ) ] ] data2
+			]
 ```
 
 ### You need something?
