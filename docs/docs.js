@@ -9702,7 +9702,7 @@ var _terezka$elm_plot$AreaChart$chart = A2(
 				]))
 		]));
 
-var _terezka$elm_plot$ComposedChart$code = '\n    isOdd : Int -> Bool\n    isOdd n =\n        rem n 2 > 0\n\n\n    filterLabels : Int -> Float -> Bool\n    filterLabels index _ =\n        not (isOdd index)\n\n\n    toTickConfig : Int -> Float -> List TickViewAttr\n    toTickConfig index tick =\n        if isOdd index then\n            [ tickLength 7, tickStyle [ ( \"stroke\", \"#c7c7c7\" ) ] ]\n        else\n            [ tickLength 10, tickStyle [ ( \"stroke\", \"#b9b9b9\" ) ] ]\n\n\n    customLabelStyle : List ( String, String )\n    customLabelStyle =\n        [ ( \"stroke\", \"#969696\" ), ( \"font-size\", \"12px\" ) ]\n\n    chart =\n        plot\n            [ size ( 600, 350 ), padding ( 40, 40 ) ]\n            [ horizontalGrid\n                [ gridMirrorTicks\n                , gridStyle [ ( \"stroke\", \"#f2f2f2\" ) ]\n                ]\n            , area\n                [ areaStyle\n                    [ ( \"stroke\", Colors.skinStroke )\n                    , ( \"fill\", Colors.skinFill )\n                    , ( \"opacity\", \"0.5\" )\n                    ]\n                ]\n                data1\n            , area\n                [ areaStyle\n                    [ ( \"stroke\", Colors.blueStroke )\n                    , ( \"fill\", Colors.blueFill )\n                    ]\n                ]\n                data2\n            , line\n                [ lineStyle\n                    [ ( \"stroke\", Colors.pinkStroke )\n                    , ( \"stroke-width\", \"2px\" )\n                    ]\n                ]\n                data3\n            , yAxis\n                [ axisStyle [ ( \"stroke\", \"#b9b9b9\" ) ]\n                , tickRemoveZero\n                , tickDelta 50\n                , labelConfigView\n                    [ labelFormat (\\l -> toString l ++ \" °C\")\n                    , labelStyle customLabelStyle\n                    ]\n                ]\n            , xAxis\n                [ axisStyle [ ( \"stroke\", \"#b9b9b9\" ) ]\n                , tickRemoveZero\n                , tickConfigViewFunc toTickConfig\n                , labelConfigView\n                    [ labelFormat (\\l -> toString l ++ \" t\")\n                    , labelStyle customLabelStyle\n                    ]\n                , labelFilter filterLabels\n                ]\n            ]\n    ';
+var _terezka$elm_plot$ComposedChart$code = '\n    isOdd : Int -> Bool\n    isOdd n =\n        rem n 2 > 0\n\n\n    filterLabels : Int -> Float -> Bool\n    filterLabels index _ =\n        not (isOdd index)\n\n\n    toTickConfig : Int -> Float -> List TickViewAttr\n    toTickConfig index tick =\n        if isOdd index then\n            [ tickLength 7, tickStyle [ ( \"stroke\", \"#c7c7c7\" ) ] ]\n        else\n            [ tickLength 10, tickStyle [ ( \"stroke\", \"#b9b9b9\" ) ] ]\n\n\n    customLabelStyle : List ( String, String )\n    customLabelStyle =\n        [ ( \"stroke\", \"#969696\" ), ( \"font-size\", \"12px\" ) ]\n\n\n    chart : Svg.Svg a\n    chart =\n        plot\n            [ size ( 600, 350 ), padding ( 40, 40 ) ]\n            [ horizontalGrid\n                [ gridMirrorTicks\n                , gridStyle [ ( \"stroke\", \"#f2f2f2\" ) ]\n                ]\n            , area\n                [ areaStyle\n                    [ ( \"stroke\", Colors.skinStroke )\n                    , ( \"fill\", Colors.skinFill )\n                    , ( \"opacity\", \"0.5\" )\n                    ]\n                ]\n                data1\n            , area\n                [ areaStyle\n                    [ ( \"stroke\", Colors.blueStroke )\n                    , ( \"fill\", Colors.blueFill )\n                    ]\n                ]\n                data2\n            , line\n                [ lineStyle\n                    [ ( \"stroke\", Colors.pinkStroke )\n                    , ( \"stroke-width\", \"2px\" )\n                    ]\n                ]\n                data3\n            , yAxis\n                [ axisStyle [ ( \"stroke\", \"#b9b9b9\" ) ]\n                , tickRemoveZero\n                , tickDelta 50\n                , labelConfigView\n                    [ labelFormat (\\l -> toString l ++ \" °C\")\n                    , labelStyle customLabelStyle\n                    ]\n                ]\n            , xAxis\n                [ axisStyle [ ( \"stroke\", \"#b9b9b9\" ) ]\n                , tickRemoveZero\n                , tickConfigViewFunc toTickConfig\n                , labelConfigView\n                    [ labelFormat (\\l -> toString l ++ \" t\")\n                    , labelStyle customLabelStyle\n                    ]\n                , labelFilter filterLabels\n                ]\n            ]\n    ';
 var _terezka$elm_plot$ComposedChart$customLabelStyle = _elm_lang$core$Native_List.fromArray(
 	[
 		{ctor: '_Tuple2', _0: 'stroke', _1: '#969696'},
@@ -9979,7 +9979,7 @@ var _terezka$elm_plot$CustomTickChart$chart = A2(
 				]))
 		]));
 
-var _terezka$elm_plot$MultiAreaChart$code = '\n    chart : Svg.Svg a\n    chart =\n        plot\n            [ size ( 600, 250 ) ]\n            [ area\n                [ areaStyle \n                    [ ( \"stroke\", Colors.skinStroke )\n                    , ( \"fill\", Colors.skinFill )\n                    ]\n                ]\n                data1\n            , area\n                [ areaStyle\n                    [ ( \"stroke\", Colors.blueStroke )\n                    , ( \"fill\", Colors.blueFill )\n                    ]\n                ]\n                data2\n            , xAxis\n                [ axisStyle [ ( \"stroke\", Colors.axisColor ) ]\n                , tickDelta 10\n                ]\n            ]\n    ';
+var _terezka$elm_plot$MultiAreaChart$code = '\n    chart : Svg.Svg a\n    chart =\n        plot\n            [ size ( 600, 250 ) ]\n            [ area\n                [ areaStyle\n                    [ ( \"stroke\", Colors.skinStroke )\n                    , ( \"fill\", Colors.skinFill )\n                    ]\n                ]\n                data1\n            , area\n                [ areaStyle\n                    [ ( \"stroke\", Colors.blueStroke )\n                    , ( \"fill\", Colors.blueFill )\n                    ]\n                ]\n                data2\n            , xAxis\n                [ axisStyle [ ( \"stroke\", Colors.axisColor ) ]\n                , tickDelta 10\n                ]\n            ]\n    ';
 var _terezka$elm_plot$MultiAreaChart$data2 = _elm_lang$core$Native_List.fromArray(
 	[
 		{ctor: '_Tuple2', _0: 0, _1: 5},
@@ -10206,7 +10206,7 @@ var _terezka$elm_plot$Docs$Toggle = function (a) {
 	return {ctor: 'Toggle', _0: a};
 };
 var _terezka$elm_plot$Docs$viewTitle = F4(
-	function (model, title, url, codeString) {
+	function (model, title, name, codeString) {
 		var isOpen = function () {
 			var _p1 = model;
 			if (_p1.ctor === 'Just') {
@@ -10265,9 +10265,10 @@ var _terezka$elm_plot$Docs$viewTitle = F4(
 								codeStyle,
 								_elm_lang$core$Native_List.fromArray(
 									[
-										{ctor: '_Tuple2', _0: 'text-align', _1: 'left'},
+										{ctor: '_Tuple2', _0: 'text-align', _1: 'right'},
 										{ctor: '_Tuple2', _0: 'margin', _1: '30px auto'},
-										{ctor: '_Tuple2', _0: 'width', _1: '600px'}
+										{ctor: '_Tuple2', _0: 'width', _1: '600px'},
+										{ctor: '_Tuple2', _0: 'position', _1: 'relative'}
 									])))
 						]),
 					_elm_lang$core$Native_List.fromArray(
@@ -10276,7 +10277,12 @@ var _terezka$elm_plot$Docs$viewTitle = F4(
 							_elm_lang$html$Html$code,
 							_elm_lang$core$Native_List.fromArray(
 								[
-									_elm_lang$html$Html_Attributes$class('elm')
+									_elm_lang$html$Html_Attributes$class('elm'),
+									_elm_lang$html$Html_Attributes$style(
+									_elm_lang$core$Native_List.fromArray(
+										[
+											{ctor: '_Tuple2', _0: 'text-align', _1: 'left'}
+										]))
 								]),
 							_elm_lang$core$Native_List.fromArray(
 								[
@@ -10288,6 +10294,27 @@ var _terezka$elm_plot$Docs$viewTitle = F4(
 										[
 											_elm_lang$html$Html$text(codeString)
 										]))
+								])),
+							A2(
+							_elm_lang$html$Html$a,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$style(
+									_elm_lang$core$Native_List.fromArray(
+										[
+											{ctor: '_Tuple2', _0: 'font-size', _1: '12px'},
+											{ctor: '_Tuple2', _0: 'color', _1: '#9ea0a2'},
+											{ctor: '_Tuple2', _0: 'position', _1: 'absolute'},
+											{ctor: '_Tuple2', _0: 'top', _1: '0'},
+											{ctor: '_Tuple2', _0: 'right', _1: '0'},
+											{ctor: '_Tuple2', _0: 'margin', _1: '15px 20px'}
+										])),
+									_elm_lang$html$Html_Attributes$href(
+									_terezka$elm_plot$Docs$toUrl(name))
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text('See full code')
 								]))
 						]))
 				]));

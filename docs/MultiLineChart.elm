@@ -27,6 +27,7 @@ chart =
             ]
         ]
 
+
 code =
     """
     chart : Svg.Svg a

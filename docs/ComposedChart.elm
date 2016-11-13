@@ -108,6 +108,8 @@ code =
     customLabelStyle =
         [ ( "stroke", "#969696" ), ( "font-size", "12px" ) ]
 
+
+    chart : Svg.Svg a
     chart =
         plot
             [ size ( 600, 350 ), padding ( 40, 40 ) ]

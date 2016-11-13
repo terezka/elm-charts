@@ -650,7 +650,7 @@ labelConfigView attrs config =
  The function will be passed:
  1) An integer representing the amount of ticks away from the origin, the current tick is.
  2) A float value represeting the value of the tick.
-    
+
     toLabelConfig : Int -> Float -> List TickViewAttr
     toLabelConfig index tick =
         if isOdd index then

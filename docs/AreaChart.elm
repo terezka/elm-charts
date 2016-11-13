@@ -36,4 +36,3 @@ code =
             , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
             ]
     """
-

@@ -36,7 +36,7 @@ code =
         plot
             [ size ( 600, 250 ) ]
             [ area
-                [ areaStyle 
+                [ areaStyle
                     [ ( "stroke", Colors.skinStroke )
                     , ( "fill", Colors.skinFill )
                     ]

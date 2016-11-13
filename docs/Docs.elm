@@ -6,7 +6,6 @@ import Html.Attributes exposing (style, src, href, class)
 import Html.Events exposing (onClick)
 import Svg
 import Svg.Attributes
-
 import Plot exposing (..)
 import AreaChart exposing (..)
 import MultiAreaChart exposing (..)
@@ -18,16 +17,20 @@ import ComposedChart exposing (..)
 
 -- MODEL
 
-type alias Model = Maybe String
+
+type alias Model =
+    Maybe String
+
 
 
 -- UPDATE
 
-type Msg =
-    Toggle (Maybe String)
+
+type Msg
+    = Toggle (Maybe String)
 
 
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Toggle id ->
@@ -39,7 +42,7 @@ update msg model =
 
 
 viewTitle : Model -> String -> String -> String -> Html Msg
-viewTitle model title url codeString =
+viewTitle model title name codeString =
     let
         isOpen =
             case model of
@@ -50,28 +53,56 @@ viewTitle model title url codeString =
                     False
 
         codeStyle =
-            if isOpen then ("display", "block") else ("display", "none")
+            if isOpen then
+                ( "display", "block" )
+            else
+                ( "display", "none" )
 
         onClickMsg =
-            if isOpen then Toggle Nothing else Toggle (Just title)
+            if isOpen then
+                Toggle Nothing
+            else
+                Toggle (Just title)
     in
         div [ style [ ( "margin", "100px auto 10px" ) ] ]
             [ div [] [ text title ]
             , p
-                [ style [ ( "color", "#9ea0a2" ), ( "font-size", "12px" ), ("cursor", "pointer") ]
+                [ style
+                    [ ( "color", "#9ea0a2" )
+                    , ( "font-size", "12px" )
+                    , ( "cursor", "pointer" )
+                    ]
                 , onClick onClickMsg
                 ]
                 [ text "View code snippet" ]
             , div
-                [ style 
-                    (codeStyle ::
-                        [ ( "text-align", "left" )
-                        , ( "margin", "30px auto" )
-                        , ( "width", "600px" )
-                        ]
+                [ style
+                    (codeStyle
+                        :: [ ( "text-align", "right" )
+                           , ( "margin", "30px auto" )
+                           , ( "width", "600px" )
+                           , ( "position", "relative" )
+                           ]
                     )
                 ]
-                [ Html.code [ class "elm" ] [ pre [] [ text codeString ] ] ]
+                [ Html.code
+                    [ class "elm"
+                    , style [ ( "text-align", "left" ) ]
+                    ]
+                    [ pre [] [ text codeString ] ]
+                , a
+                    [ style
+                        [ ( "font-size", "12px" )
+                        , ( "color", "#9ea0a2" )
+                        , ( "position", "absolute" )
+                        , ( "top", "0" )
+                        , ( "right", "0" )
+                        , ( "margin", "15px 20px" )
+                        ]
+                    , href (toUrl name)
+                    ]
+                    [ text "See full code" ]
+                ]
             ]
 
 
@@ -131,10 +162,12 @@ main =
         }
 
 
+
 -- Ports
 
 
 port highlight : String -> Cmd msg
+
 
 
 -- Helpers
@@ -143,4 +176,3 @@ port highlight : String -> Cmd msg
 toUrl : String -> String
 toUrl end =
     "https://github.com/terezka/elm-plot/blob/master/docs/" ++ end ++ ".elm"
-
