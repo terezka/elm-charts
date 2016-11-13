@@ -1,8 +1,14 @@
 # elm-plot
 
-Plot series in Svgs! Right now it can draw lines and areas.
+Plot stuff in svg with Elm!
 
-## What does the api look like?
+![role presentation](https://github.com/terezka/elm-plot/blob/refact/config/example.png)
+
+## Overview
+
+Currently, this library can draw line and area series, grids, axis' with easily configurable ticks and labels.
+
+### What does the api look like?
 
 ```elm
 	plot
@@ -20,6 +26,10 @@ Plot series in Svgs! Right now it can draw lines and areas.
         , area [ areaStyle [ ( "fill", "deeppink" ) ] ] data2
         ]
 ```
+
+### You need something?
+
+Let me know! Open an issue (or PR) or write at #elm-plot in the elm-lang's http://elmlang.herokuapp.com. I focus on covering the needs of the community, so please don't hesistate! :sparkles:
 
 ## Development
 
