@@ -13,7 +13,7 @@ Currently, this library can draw line and area series, grids, axis' with easily 
 ```elm
     main =
 		plot
-		   [ size ( 600, 250 ), padding ( 0, 40 ) ]
+			[ size ( 600, 250 ), padding ( 0, 40 ) ]
 			[ verticalGrid
 				[ gridMirrorTicks
 				, gridStyle [ ( "stroke", "blue" ) ]
