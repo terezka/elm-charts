@@ -1,4 +1,4 @@
-# elm-plot
+# Elm Plot
 
 Plot stuff in svg with Elm!
 
