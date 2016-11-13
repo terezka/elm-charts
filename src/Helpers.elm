@@ -6,14 +6,36 @@ import String
 import Debug
 
 
+-- Calculate scales
+
+
 getHighest : List Float -> Float
 getHighest values =
-    Maybe.withDefault 1 (List.maximum values)
+    Maybe.withDefault 10 (List.maximum values)
 
 
 getLowest : List Float -> Float
 getLowest values =
     min 0 (Maybe.withDefault 0 (List.minimum values))
+
+
+getRange : Float -> Float -> Float
+getRange lowest highest =
+    abs lowest + abs highest
+
+
+pixelsToValue : Int -> Float -> Int -> Float
+pixelsToValue length range pixels =
+    range * (toFloat pixels) / (toFloat length)
+
+
+ceilToNearest : Float -> Float -> Float
+ceilToNearest precision value =
+    toFloat (ceiling (value / precision)) * precision
+
+
+
+-- Svg helpers
 
 
 coordToInstruction : String -> List ( Float, Float ) -> String
@@ -67,23 +89,23 @@ toStyle styles =
     List.foldr (\( p, v ) r -> r ++ p ++ ":" ++ v ++ "; ") "" styles
 
 
-calculateStep : Float -> Float
-calculateStep targetStep =
+getTickDelta : Float -> Int -> Float
+getTickDelta range totalTicks =
     let
         -- calculate an initial guess at step size
-        tempStep =
-            targetStep
+        delta0 =
+            range / (toFloat totalTicks)
 
         -- get the magnitude of the step size
         mag =
-            floor (logBase 10 tempStep)
+            floor (logBase 10 delta0)
 
         magPow =
             toFloat (10 ^ mag)
 
         -- calculate most significant digit of the new step size
         magMsd =
-            round (tempStep / magPow)
+            round (delta0 / magPow)
 
         -- promote the MSD to either 1, 2, or 5
         magMsdFinal =

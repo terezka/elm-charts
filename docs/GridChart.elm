@@ -3,6 +3,7 @@ module GridChart exposing (gridChart)
 import Svg
 import Svg.Attributes
 import Plot exposing (..)
+import Colors
 
 
 data : List ( Float, Float )
@@ -13,11 +14,16 @@ data =
 gridChart : Svg.Svg a
 gridChart =
     plot
-        [ size ( 600, 250 ) ]
-        [ verticalGrid [ gridTickList [ 10, 20, 30, 40 ], gridStyle [ ( "stroke", "#e2e2e2" ) ] ]
-        , horizontalGrid [ gridTickList [ 1, 3, 5, 7, 9 ], gridStyle [ ( "stroke", "#e2e2e2" ) ] ]
-        , line [ lineStyle [ ( "stroke", "#b6c9ef" ), ( "stroke-width", "2px" ) ] ] data
-        , xAxis
-            [ axisLineStyle [ ( "stroke", "#7F7F7F" ) ]
+        [ size ( 600, 250 ), padding ( 0, 40 ) ]
+        [ verticalGrid
+            [ gridMirrorTicks
+            , gridStyle [ ( "stroke", Colors.axisColorLight ) ]
             ]
+        , horizontalGrid
+            [ gridValues [ 10, 20, 30, 40 ]
+            , gridStyle [ ( "stroke", Colors.axisColorLight ) ]
+            ]
+        , xAxis
+            [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
+        , line [ lineStyle [ ( "stroke", Colors.blueStroke ), ( "stroke-width", "2px" ) ] ] data
         ]

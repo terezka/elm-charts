@@ -134,28 +134,30 @@ testToStyle =
                       "border:2px; padding:10px; color:green; "
         ]
 
+
+-- No finished
 testCalculateStep : Test
 testCalculateStep =
-    describe "calculateStepTest"
+    describe "getTickDeltaTest"
         [ test "should return 0 when passing in 0" <|
             \() ->
-                Expect.equal (calculateStep 0) 0
+                Expect.equal (getTickDelta 10 0) 0
         , test "should return 1 when passing in 1" <|
             \() ->
-                Expect.equal (calculateStep 1) 1
+                Expect.equal (getTickDelta 10 10) 1
         , test "should return 2  when passing in 2" <|
             \() ->
-                Expect.equal (calculateStep 2) 1
+                Expect.equal (getTickDelta 10 2) 1
        , test "should return 5 when passing in 3" <|
             \() ->
-                Expect.equal (calculateStep 3) 5
+                Expect.equal (getTickDelta 10 3) 5
         , test "should return 10 when passing in 10" <|
             \() ->
-                Expect.equal (calculateStep 10) 10
+                Expect.equal (getTickDelta 100 10) 10
         , test "should return 100 when passing in 100" <|
             \() ->
-                Expect.equal (calculateStep 100) 100
+                Expect.equal (getTickDelta 1000 100) 100
         , test "should return 100 when passing in 150" <|
             \() ->
-                Expect.equal (calculateStep 150) 100
+                Expect.equal (getTickDelta 150 150) 100
         ]
