@@ -1,4 +1,4 @@
-module MultiAreaChart exposing (multiAreaChart)
+module MultiAreaChart exposing (chart, code)
 
 import Svg
 import Svg.Attributes
@@ -16,8 +16,8 @@ data2 =
     [ ( 0, 5 ), ( 10, 20 ), ( 20, 10 ), ( 30, 12 ), ( 40, 20 ), ( 45, 25 ), ( 50, 3 ) ]
 
 
-multiAreaChart : Svg.Svg a
-multiAreaChart =
+chart : Svg.Svg a
+chart =
     plot
         [ size ( 600, 250 ) ]
         [ area [ areaStyle [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ] data1
@@ -27,3 +27,31 @@ multiAreaChart =
             , tickDelta 10
             ]
         ]
+
+
+code =
+    """
+    chart : Svg.Svg a
+    chart =
+        plot
+            [ size ( 600, 250 ) ]
+            [ area
+                [ areaStyle 
+                    [ ( "stroke", Colors.skinStroke )
+                    , ( "fill", Colors.skinFill )
+                    ]
+                ]
+                data1
+            , area
+                [ areaStyle
+                    [ ( "stroke", Colors.blueStroke )
+                    , ( "fill", Colors.blueFill )
+                    ]
+                ]
+                data2
+            , xAxis
+                [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+                , tickDelta 10
+                ]
+            ]
+    """

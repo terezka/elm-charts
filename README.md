@@ -51,7 +51,7 @@ and open [example](http://localhost:8000/examples/PlotExample.elm)
 ### Compile the Docs
 
 ```
-elm-make docs/Docs.elm --output=docs/index.html
+elm-make docs/Docs.elm --output=docs/docs.js
 ```
 
 ### Tests
