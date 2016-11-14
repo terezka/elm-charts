@@ -177,7 +177,7 @@ size size config =
 -}
 plotStyle : Style -> MetaConfig -> MetaConfig
 plotStyle style config =
-    { config | style = style }
+    { config | style = style ++ defaultMetaConfig.style }
 
 
 toMetaConfig : List MetaAttr -> MetaConfig
