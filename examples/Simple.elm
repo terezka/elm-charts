@@ -11,7 +11,7 @@ lineData =
 
 
 lineData2 =
-    [ ( 1, 2 ), ( 0, 3 ), ( 4, 5 ), ( 5, 3 ) ]
+    [ ( 1, 0.12 ), ( 2, 0.23 ), ( 4, 0.5 ), ( 5, 1.3 ) ]
 
 
 isEven : Int -> Bool
@@ -30,8 +30,8 @@ customTick fromZero tick =
 
 plot1 =
     plot
-        [ plotStyle [ ( "padding", "40px" ) ] ]
-        [ line [ lineStyle [ ( "stroke", "mediumvioletred" ) ] ] (List.sortBy (\(x, y) -> x) lineData)
+        []
+        [ line [ lineStyle [ ( "stroke", "mediumvioletred" ) ] ] (List.sortBy (\(x, y) -> x) lineData2)
         , yAxis []
         , xAxis []
         ]

@@ -544,7 +544,7 @@ tickConfigViewFunc toTickAttrs config =
 
     viewTick : Float -> Svg.Svg a
     viewTick tick =
-        text'
+        text_
             [ transform ("translate(-5, 10)") ]
             [ tspan [] [ text "✨" ] ]
 
@@ -564,7 +564,7 @@ tickCustomView view config =
 
     viewTick : Int -> Float -> Svg.Svg a
     viewTick index tick =
-        text'
+        text_
             [ transform ("translate(-5, 10)") ]
             [ tspan
                 []
@@ -674,7 +674,7 @@ labelConfigViewFunc toAttrs config =
 
     viewLabel : Float -> Svg.Svg a
     viewLabel tick =
-        text' mySpecialAttributes mySpecialLabelDisplay
+        text_ mySpecialAttributes mySpecialLabelDisplay
 
     main =
         plot
@@ -699,7 +699,7 @@ labelCustomView view config =
                 if isOdd fromZero then oddAttrs
                 else evenAttrs
         in
-            text' attrs labelHtml
+            text_ attrs labelHtml
 
     main =
         plot
@@ -1140,7 +1140,7 @@ defaultLabelView { displace, format, style } orientation index tick =
         ( dx, dy ) =
             Maybe.withDefault defaultDisplacement displace
     in
-        Svg.text'
+        Svg.text_
             [ Svg.Attributes.transform (toTranslate ( toFloat dx, toFloat dy ))
             , Svg.Attributes.style (toStyle (defaultStyle ++ style))
             ]
@@ -1205,7 +1205,7 @@ viewArea : PlotProps -> AreaConfig -> Svg.Svg a
 viewArea { toSvgCoords } { points, style } =
     let
         range =
-            List.map fst points
+            List.map Tuple.first points
 
         ( lowestX, highestX ) =
             ( getLowest range, getHighest range )
@@ -1402,7 +1402,7 @@ toTickValuesFromDelta delta { lowest, range } =
         tickCount =
             getTickCount delta lowest range firstValue
     in
-        List.map (toTickValue delta firstValue) [0..tickCount]
+        List.map (toTickValue delta firstValue) (List.range 0 tickCount)
 
 
 toTickValuesFromCount : Int -> AxisScale -> List Float

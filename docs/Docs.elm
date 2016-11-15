@@ -1,6 +1,5 @@
 port module Docs exposing (..)
 
-import Html.App as App
 import Html exposing (Html, div, text, h1, img, a, br, span, code, pre, p)
 import Html.Attributes exposing (style, src, href, class)
 import Html.Events exposing (onClick)
@@ -154,7 +153,7 @@ view model =
 
 
 main =
-    App.program
+    Html.program
         { init = ( Nothing, highlight "none" )
         , update = update
         , subscriptions = (always Sub.none)
