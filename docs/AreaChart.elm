@@ -11,7 +11,7 @@ data =
     [ ( 0, 8 ), ( 1, 13 ), ( 2, 14 ), ( 3, 12 ), ( 4, 11 ), ( 5, 16 ), ( 6, 22 ), ( 7, 32 ) ]
 
 
-chart : Svg.Svg a
+chart : Svg.Svg Msg
 chart =
     plot
         [ size ( 600, 250 ) ]

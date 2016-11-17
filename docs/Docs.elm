@@ -5,21 +5,29 @@ import Html.Attributes exposing (style, src, href, class)
 import Html.Events exposing (onClick)
 import Svg
 import Svg.Attributes
+
 import Plot exposing (..)
 import AreaChart exposing (..)
-import MultiAreaChart exposing (..)
-import GridChart exposing (..)
-import MultiLineChart exposing (..)
-import CustomTickChart exposing (..)
-import ComposedChart exposing (..)
+--import MultiAreaChart exposing (..)
+--import GridChart exposing (..)
+--import MultiLineChart exposing (..)
+--import CustomTickChart exposing (..)
+--import ComposedChart exposing (..)
 
 
 -- MODEL
 
 
 type alias Model =
-    Maybe String
+    { openSection : Maybe String
+    , plotState : Plot.State 
+    }
 
+
+initialModel =
+    { openSection = Nothing
+    , plotState = Plot.initialState
+    }
 
 
 -- UPDATE
@@ -27,24 +35,31 @@ type alias Model =
 
 type Msg
     = Toggle (Maybe String)
+    | PlotMsg Plot.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Toggle id ->
-            ( id, Cmd.none )
+            ( { model | openSection = id }, Cmd.none )
 
+        PlotMsg plotMsg ->
+            let
+                ( state, cmd ) =
+                    Plot.update plotMsg model.plotState
+            in
+                ( { model | plotState = state }, Cmd.map PlotMsg cmd )
 
 
 -- VIEW
 
 
 viewTitle : Model -> String -> String -> String -> Html Msg
-viewTitle model title name codeString =
+viewTitle { openSection } title name codeString =
     let
         isOpen =
-            case model of
+            case openSection of
                 Just id ->
                     id == title
 
@@ -129,17 +144,17 @@ view model =
                 [ text "Github" ]
             ]
         , viewTitle model "Simple Area Chart" "AreaChart" AreaChart.code
-        , AreaChart.chart
-        , viewTitle model "Multi Area Chart" "MultiAreaChart" MultiAreaChart.code
-        , MultiAreaChart.chart
-        , viewTitle model "Line Chart" "MultiLineChart" MultiLineChart.code
-        , MultiLineChart.chart
-        , viewTitle model "Grid" "GridChart" GridChart.code
-        , GridChart.chart
-        , viewTitle model "Custom ticks and labels" "CustomTickChart" CustomTickChart.code
-        , CustomTickChart.chart
-        , viewTitle model "Composable" "ComposedChart" ComposedChart.code
-        , ComposedChart.chart
+        , Html.map PlotMsg AreaChart.chart
+        --, viewTitle model "Multi Area Chart" "MultiAreaChart" MultiAreaChart.code
+        --, Html.map PlotMsg MultiAreaChart.chart
+        --, viewTitle model "Line Chart" "MultiLineChart" MultiLineChart.code
+        --, Html.map PlotMsg MultiLineChart.chart
+        --, viewTitle model "Grid" "GridChart" GridChart.code
+        --, Html.map PlotMsg GridChart.chart
+        --, viewTitle model "Custom ticks and labels" "CustomTickChart" CustomTickChart.code
+        --, Html.map PlotMsg CustomTickChart.chart
+        --, viewTitle model "Composable" "ComposedChart" ComposedChart.code
+        --, Html.map PlotMsg ComposedChart.chart
         , div
             [ style [ ( "margin", "100px auto 30px" ), ( "font-size", "14px" ) ] ]
             [ text "Made by "
@@ -154,7 +169,7 @@ view model =
 
 main =
     Html.program
-        { init = ( Nothing, highlight "none" )
+        { init = ( initialModel, highlight "none" )
         , update = update
         , subscriptions = (always Sub.none)
         , view = view

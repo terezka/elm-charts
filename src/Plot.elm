@@ -45,6 +45,10 @@ module Plot
         , LineAttr
         , Point
         , Style
+        , initialState
+        , update
+        , Msg
+        , State
         )
 
 {-|
@@ -84,14 +88,23 @@ module Plot
 ## Grid configuration
 @docs verticalGrid, horizontalGrid, gridMirrorTicks, gridValues, gridStyle
 
+# State
+
+@docs State, initialState, update, Msg
+
+
 -}
 
 import Html exposing (Html)
 import Html.Events exposing (on, onMouseOut)
 import Svg exposing (g)
 import Svg.Attributes exposing (height, width, d, style)
+import Svg.Events exposing (onMouseOver)
 import Svg.Lazy
 import String
+import Task
+import Dom
+import Dom.Position
 import Round
 import Debug
 import Helpers exposing (..)
@@ -266,12 +279,12 @@ tickStyle style config =
     { config | style = style }
 
 
-toTickView : List TickViewAttr -> TickView msg
+toTickView : List TickViewAttr -> TickView Msg
 toTickView attrs =
     defaultTickView (List.foldl (<|) defaultTickViewConfig attrs)
 
 
-toTickViewDynamic : TickAttrFunc -> TickView msg
+toTickViewDynamic : TickAttrFunc -> TickView Msg
 toTickViewDynamic toTickConfig =
     defaultTickViewDynamic toTickConfig
 
@@ -381,12 +394,12 @@ labelStyle style config =
     { config | style = style }
 
 
-toLabelView : List LabelViewAttr -> LabelView msg
+toLabelView : List LabelViewAttr -> LabelView Msg
 toLabelView attrs =
     defaultLabelView (List.foldl (<|) defaultLabelViewConfig attrs)
 
 
-toLabelViewDynamic : LabelAttrFunc -> LabelView msg
+toLabelViewDynamic : LabelAttrFunc -> LabelView Msg
 toLabelViewDynamic toLabelConfig =
     defaultLabelViewDynamic toLabelConfig
 
@@ -435,7 +448,7 @@ defaultAxisConfig =
 
  Default: `[]`
 -}
-axisStyle : Style -> AxisConfig msg -> AxisConfig msg
+axisStyle : Style -> AxisConfig Msg -> AxisConfig Msg
 axisStyle style config =
     { config | style = style }
 
@@ -449,7 +462,7 @@ axisStyle style config =
 
  Default: `[]`
 -}
-axisLineStyle : Style -> AxisConfig msg -> AxisConfig msg
+axisLineStyle : Style -> AxisConfig Msg -> AxisConfig Msg
 axisLineStyle style config =
     { config | axisLineStyle = style }
 
@@ -464,7 +477,7 @@ axisLineStyle style config =
  **Note:** If in the list of axis attributes, this attribute is followed by a
  `tickDelta` attribute, then this attribute will have no effect.
 -}
-tickValues : List Float -> AxisConfig msg -> AxisConfig msg
+tickValues : List Float -> AxisConfig Msg -> AxisConfig Msg
 tickValues values config =
     { config | toTickValues = toTickValuesFromList values }
 
@@ -480,7 +493,7 @@ tickValues values config =
  **Note:** If in the list of axis attributes, this attribute is followed by a
  `tickValues` attribute, then this attribute will have no effect.
 -}
-tickDelta : Float -> AxisConfig msg -> AxisConfig msg
+tickDelta : Float -> AxisConfig Msg -> AxisConfig Msg
 tickDelta delta config =
     { config | toTickValues = toTickValuesFromDelta delta }
 
@@ -506,7 +519,7 @@ tickDelta delta config =
  `tickCustomView`, `tickConfigViewFunc` or a `tickCustomViewIndexed` attribute,
  then this attribute will have no effect.
 -}
-tickConfigView : List TickViewAttr -> AxisConfig msg -> AxisConfig msg
+tickConfigView : List TickViewAttr -> AxisConfig Msg -> AxisConfig Msg
 tickConfigView tickAttrs config =
     { config | tickView = toTickView tickAttrs }
 
@@ -535,7 +548,7 @@ tickConfigView tickAttrs config =
  `tickConfigView`, `tickCustomView` or a `tickCustomViewIndexed` attribute,
  then this attribute will have no effect.
 -}
-tickConfigViewFunc : TickAttrFunc -> AxisConfig msg -> AxisConfig msg
+tickConfigViewFunc : TickAttrFunc -> AxisConfig Msg -> AxisConfig Msg
 tickConfigViewFunc toTickAttrs config =
     { config | tickView = toTickViewDynamic toTickAttrs }
 
@@ -554,7 +567,7 @@ tickConfigViewFunc toTickAttrs config =
  **Note:** If in the list of axis attributes, this attribute is followed by a
  `tickConfigView` or a `tickCustomViewIndexed` attribute, then this attribute will have no effect.
 -}
-tickCustomView : (Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
+tickCustomView : (Float -> Svg.Svg Msg) -> AxisConfig Msg -> AxisConfig Msg
 tickCustomView view config =
     { config | tickView = (\_ _ -> view) }
 
@@ -577,7 +590,7 @@ tickCustomView view config =
  **Note:** If in the list of axis attributes, this attribute is followed by a
  `tickConfigView` or a `tickCustomView` attribute, then this attribute will have no effect.
 -}
-tickCustomViewIndexed : (Int -> Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
+tickCustomViewIndexed : (Int -> Float -> Svg.Svg Msg) -> AxisConfig Msg -> AxisConfig Msg
 tickCustomViewIndexed view config =
     { config | tickView = (\_ -> view) }
 
@@ -590,7 +603,7 @@ tickCustomViewIndexed view config =
             []
             [ xAxis [ tickRemoveZero ] ]
 -}
-tickRemoveZero : AxisConfig msg -> AxisConfig msg
+tickRemoveZero : AxisConfig Msg -> AxisConfig Msg
 tickRemoveZero config =
     { config | axisCrossing = True }
 
@@ -602,7 +615,7 @@ tickRemoveZero config =
             []
             [ xAxis [ labelValues [ 20, 40, 60 ] ] ]
 -}
-labelValues : List Float -> AxisConfig msg -> AxisConfig msg
+labelValues : List Float -> AxisConfig Msg -> AxisConfig Msg
 labelValues filter config =
     { config | labelValues = LabelCustomValues filter }
 
@@ -625,7 +638,7 @@ labelValues filter config =
  **Note:** If in the list of axis attributes, this attribute is followed by a
  `labelValues` attribute, then this attribute will have no effect.
 -}
-labelFilter : (Int -> Float -> Bool) -> AxisConfig msg -> AxisConfig msg
+labelFilter : (Int -> Float -> Bool) -> AxisConfig Msg -> AxisConfig Msg
 labelFilter filter config =
     { config | labelValues = LabelCustomFilter filter }
 
@@ -641,7 +654,7 @@ labelFilter filter config =
                 ]
             ]
 -}
-labelConfigView : List LabelViewAttr -> AxisConfig msg -> AxisConfig msg
+labelConfigView : List LabelViewAttr -> AxisConfig Msg -> AxisConfig Msg
 labelConfigView attrs config =
     { config | labelView = toLabelView attrs }
 
@@ -665,7 +678,7 @@ labelConfigView attrs config =
                 [ labelConfigViewFunc toLabelConfig ]
             ]
 -}
-labelConfigViewFunc : LabelAttrFunc -> AxisConfig msg -> AxisConfig msg
+labelConfigViewFunc : LabelAttrFunc -> AxisConfig Msg -> AxisConfig Msg
 labelConfigViewFunc toAttrs config =
     { config | labelView = toLabelViewDynamic toAttrs }
 
@@ -684,7 +697,7 @@ labelConfigViewFunc toAttrs config =
  **Note:** If in the list of axis attributes, this attribute is followed by a
  `labelFormat` attribute, then this attribute will have no effect.
 -}
-labelCustomView : (Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
+labelCustomView : (Float -> Svg.Svg Msg) -> AxisConfig Msg -> AxisConfig Msg
 labelCustomView view config =
     { config | labelView = (\_ _ -> view) }
 
@@ -709,7 +722,7 @@ labelCustomView view config =
  **Note:** If in the list of axis attributes, this attribute is followed by a
  `labelFormat` attribute, then this attribute will have no effect.
 -}
-labelCustomViewIndexed : (Int -> Float -> Svg.Svg msg) -> AxisConfig msg -> AxisConfig msg
+labelCustomViewIndexed : (Int -> Float -> Svg.Svg Msg) -> AxisConfig Msg -> AxisConfig Msg
 labelCustomViewIndexed view config =
     { config | labelView = (\_ -> view) }
 
@@ -719,7 +732,7 @@ labelCustomViewIndexed view config =
     main =
         plot [] [ xAxis [] ]
 -}
-xAxis : List (AxisAttr msg) -> Element msg
+xAxis : List (AxisAttr Msg) -> Element Msg
 xAxis attrs =
     Axis (List.foldl (<|) defaultAxisConfig attrs)
 
@@ -729,7 +742,7 @@ xAxis attrs =
     main =
         plot [] [ yAxis [] ]
 -}
-yAxis : List (AxisAttr msg) -> Element msg
+yAxis : List (AxisAttr Msg) -> Element Msg
 yAxis attrs =
     Axis (List.foldl (<|) { defaultAxisConfig | orientation = Y } attrs)
 
@@ -815,7 +828,7 @@ gridStyle style config =
     main =
         plot [] [ horizontalGrid [] ]
 -}
-horizontalGrid : List GridAttr -> Element msg
+horizontalGrid : List GridAttr -> Element Msg
 horizontalGrid attrs =
     Grid (List.foldr (<|) defaultGridConfig attrs)
 
@@ -825,7 +838,7 @@ horizontalGrid attrs =
     main =
         plot [] [ verticalGrid [] ]
 -}
-verticalGrid : List GridAttr -> Element msg
+verticalGrid : List GridAttr -> Element Msg
 verticalGrid attrs =
     Grid (List.foldr (<|) { defaultGridConfig | orientation = Y } attrs)
 
@@ -877,7 +890,7 @@ areaStyle style config =
     main =
         plot [] [ area []  [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
 -}
-area : List AreaAttr -> List Point -> Element msg
+area : List AreaAttr -> List Point -> Element Msg
 area attrs points =
     let
         config =
@@ -928,7 +941,7 @@ lineStyle style config =
     main =
         plot [] [ line [] [ ( 0, 1 ), ( 2, 2 ), ( 3, 4 ) ] ]
 -}
-line : List LineAttr -> List Point -> Element msg
+line : List LineAttr -> List Point -> Element Msg
 line attrs points =
     let
         config =
@@ -938,6 +951,68 @@ line attrs points =
 
 
 
+-- MODEL
+
+
+{-| -}
+type alias State =
+    { mousePosition : ( Float, Float ) }
+
+
+{-| -}
+initialState : State
+initialState =
+    { mousePosition = ( 0, 0 ) }
+
+
+
+-- UPDATE
+
+type Direction = Top | Left
+
+
+{-| -}
+type Msg 
+    = Hovering
+    | ReceivePosition Direction (Result Dom.Error Float)
+
+
+{-| -}
+update : Msg -> State -> ( State, Cmd Msg )
+update msg state =
+    case msg of
+        Hovering ->
+            ( state, Cmd.batch [ getPlotTop, getPlotLeft ] )
+
+        ReceivePosition direction res ->
+            case res of
+                Ok num ->
+                    ( { state | mousePosition = updatePosition direction num state.mousePosition }, Cmd.none )
+
+                Err err ->
+                    ( state, Cmd.none )
+
+
+updatePosition : Direction -> Float -> ( Float, Float ) -> ( Float, Float )
+updatePosition direction number ( top, left ) =
+    case direction of
+        Top ->
+            ( number, left )
+
+        Left ->
+            ( top, number )
+
+
+getPlotLeft : Cmd Msg 
+getPlotLeft =
+    Task.attempt (ReceivePosition Left) (Dom.Position.left "elm-plot-id")
+
+
+getPlotTop : Cmd Msg 
+getPlotTop =
+    Task.attempt (ReceivePosition Top) (Dom.Position.top "elm-plot-id")
+
+
 -- PARSE PLOT
 
 
@@ -945,7 +1020,7 @@ line attrs points =
  Pass your meta attributes and plot elements to this function and
  a svg plot will be returned!
 -}
-plot : List MetaAttr -> List (Element msg) -> Svg.Svg msg
+plot : List MetaAttr -> List (Element Msg) -> Svg.Svg Msg
 plot attr elements =
     Svg.Lazy.lazy2 parsePlot attr elements
 
@@ -954,7 +1029,7 @@ plot attr elements =
 -- VIEW
 
 
-parsePlot : List MetaAttr -> List (Element msg) -> Svg.Svg msg
+parsePlot : List MetaAttr -> List (Element Msg) -> Svg.Svg Msg
 parsePlot attr elements =
     let
         metaConfig =
@@ -966,7 +1041,7 @@ parsePlot attr elements =
         viewPlot metaConfig (viewElements plotProps elements)
 
 
-viewPlot : MetaConfig -> List (Svg.Svg msg) -> Svg.Svg msg
+viewPlot : MetaConfig -> List (Svg.Svg Msg) -> Svg.Svg Msg
 viewPlot { size, style } children =
     let
         ( width, height ) =
@@ -976,6 +1051,8 @@ viewPlot { size, style } children =
             [ Svg.Attributes.height (toString height)
             , Svg.Attributes.width (toString width)
             , Svg.Attributes.style (toStyle style)
+            , Svg.Attributes.id "elm-plot-id"
+            , Svg.Events.onMouseOver Hovering
             ]
             children
 
@@ -984,12 +1061,12 @@ viewPlot { size, style } children =
 -- VIEW ELEMENTS
 
 
-viewElements : PlotProps -> List (Element msg) -> List (Svg.Svg msg)
+viewElements : PlotProps -> List (Element Msg) -> List (Svg.Svg Msg)
 viewElements plotProps elements =
     List.foldr (viewElement plotProps) [] elements
 
 
-viewElement : PlotProps -> Element msg -> List (Svg.Svg msg) -> List (Svg.Svg msg)
+viewElement : PlotProps -> Element Msg -> List (Svg.Svg Msg) -> List (Svg.Svg Msg)
 viewElement plotProps element views =
     case element of
         Axis config ->
@@ -1063,7 +1140,7 @@ indexTicks ticks =
         List.indexedMap (zipWithDistance hasZero lowerThanZero) ticks
 
 
-viewAxis : PlotProps -> AxisConfig msg -> Svg.Svg msg
+viewAxis : PlotProps -> AxisConfig Msg -> Svg.Svg Msg
 viewAxis plotProps { toTickValues, tickView, labelView, labelValues, style, axisLineStyle, axisCrossing, orientation } =
     let
         { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords } =
@@ -1090,12 +1167,12 @@ viewAxis plotProps { toTickValues, tickView, labelView, labelValues, style, axis
             ]
 
 
-placeTick : PlotProps -> (Int -> Float -> Svg.Svg msg) -> ( Int, Float ) -> Svg.Svg msg
+placeTick : PlotProps -> (Int -> Float -> Svg.Svg Msg) -> ( Int, Float ) -> Svg.Svg Msg
 placeTick { toSvgCoords } view ( index, tick ) =
     Svg.g [ Svg.Attributes.transform (toTranslate (toSvgCoords ( tick, 0 ))) ] [ view index tick ]
 
 
-defaultTickView : TickViewConfig -> Orientation -> Int -> Float -> Svg.Svg msg
+defaultTickView : TickViewConfig -> Orientation -> Int -> Float -> Svg.Svg Msg
 defaultTickView { length, width, style } orientation _ _ =
     let
         displacement =
@@ -1112,7 +1189,7 @@ defaultTickView { length, width, style } orientation _ _ =
             []
 
 
-defaultTickViewDynamic : TickAttrFunc -> Orientation -> Int -> Float -> Svg.Svg msg
+defaultTickViewDynamic : TickAttrFunc -> Orientation -> Int -> Float -> Svg.Svg Msg
 defaultTickViewDynamic toTickAttrs orientation index float =
     let
         tickView =
@@ -1131,7 +1208,7 @@ defaultLabelStyleY =
     ( [ ( "text-anchor", "end" ) ], ( -10, 5 ) )
 
 
-defaultLabelView : LabelViewConfig -> Orientation -> Int -> Float -> Svg.Svg msg
+defaultLabelView : LabelViewConfig -> Orientation -> Int -> Float -> Svg.Svg Msg
 defaultLabelView { displace, format, style } orientation index tick =
     let
         ( defaultStyle, defaultDisplacement ) =
@@ -1147,7 +1224,7 @@ defaultLabelView { displace, format, style } orientation index tick =
             [ Svg.tspan [] [ Svg.text (format index tick) ] ]
 
 
-defaultLabelViewDynamic : LabelAttrFunc -> Orientation -> Int -> Float -> Svg.Svg msg
+defaultLabelViewDynamic : LabelAttrFunc -> Orientation -> Int -> Float -> Svg.Svg Msg
 defaultLabelViewDynamic toLabelAttrs orientation index float =
     let
         labelView =
@@ -1170,7 +1247,7 @@ getGridPositions tickValues values =
             customValues
 
 
-viewGrid : PlotProps -> GridConfig -> Svg.Svg msg
+viewGrid : PlotProps -> GridConfig -> Svg.Svg Msg
 viewGrid { scale, toSvgCoords, oppositeTicks } { gridValues, gridStyle } =
     let
         positions =
@@ -1179,7 +1256,7 @@ viewGrid { scale, toSvgCoords, oppositeTicks } { gridValues, gridStyle } =
         Svg.g [] (List.map (viewGridLine toSvgCoords scale gridStyle) positions)
 
 
-viewGridLine : (Point -> Point) -> AxisScale -> Style -> Float -> Svg.Svg msg
+viewGridLine : (Point -> Point) -> AxisScale -> Style -> Float -> Svg.Svg Msg
 viewGridLine toSvgCoords scale style position =
     let
         { lowest, highest } =
@@ -1320,7 +1397,7 @@ toSvgCoordsY xScale yScale ( x, y ) =
     toSvgCoordsX xScale yScale ( y, x )
 
 
-getPlotProps : MetaConfig -> List (Element msg) -> PlotProps
+getPlotProps : MetaConfig -> List (Element Msg) -> PlotProps
 getPlotProps { size, padding } elements =
     let
         ( xValues, yValues ) =
@@ -1424,7 +1501,7 @@ toTickValuesAuto =
 -- GET LAST AXIS TICK CONFIG
 
 
-getAxisConfig : Orientation -> Element msg -> Maybe (AxisConfig msg) -> Maybe (AxisConfig msg)
+getAxisConfig : Orientation -> Element Msg -> Maybe (AxisConfig Msg) -> Maybe (AxisConfig Msg)
 getAxisConfig orientation element lastConfig =
     case element of
         Axis config ->
@@ -1437,7 +1514,7 @@ getAxisConfig orientation element lastConfig =
             lastConfig
 
 
-getLastGetTickValues : Orientation -> List (Element msg) -> AxisScale -> List Float
+getLastGetTickValues : Orientation -> List (Element Msg) -> AxisScale -> List Float
 getLastGetTickValues orientation elements =
     List.foldl (getAxisConfig orientation) Nothing elements
         |> Maybe.withDefault defaultAxisConfig
@@ -1448,7 +1525,7 @@ getLastGetTickValues orientation elements =
 -- Collect points
 
 
-collectPoints : Element msg -> List Point -> List Point
+collectPoints : Element Msg -> List Point -> List Point
 collectPoints element allPoints =
     case element of
         Area { points } ->
