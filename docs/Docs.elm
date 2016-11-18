@@ -144,7 +144,7 @@ view model =
                 [ text "Github" ]
             ]
         , viewTitle model "Simple Area Chart" "AreaChart" AreaChart.code
-        , Html.map PlotMsg AreaChart.chart
+        , Html.map PlotMsg (AreaChart.chart model.plotState)
         --, viewTitle model "Multi Area Chart" "MultiAreaChart" MultiAreaChart.code
         --, Html.map PlotMsg MultiAreaChart.chart
         --, viewTitle model "Line Chart" "MultiLineChart" MultiLineChart.code

@@ -95,8 +95,6 @@ module Plot
 
 -}
 
-import Html exposing (Html)
-import Html.Events exposing (on, onMouseOut)
 import Svg exposing (g)
 import Svg.Attributes exposing (height, width, d, style)
 import Svg.Events exposing (onMouseOver)
@@ -957,13 +955,17 @@ line attrs points =
 
 {-| -}
 type alias State =
-    { position : ( Float, Float ) }
+    { position : Maybe ( Float, Float )
+    , waiting : Bool
+    }
 
 
 {-| -}
 initialState : State
 initialState =
-    { position = ( 0, 0 ) }
+    { position = Nothing
+    , waiting = True
+    }
 
 
 
@@ -975,6 +977,7 @@ initialState =
 type Msg 
     = Hovering PlotProps (Float, Float )
     | ReceivePosition (Result Dom.Error ( Float, Float ))
+    | ResetPosition
 
 
 {-| -}
@@ -982,15 +985,21 @@ update : Msg -> State -> ( State, Cmd Msg )
 update msg state =
     case msg of
         Hovering plotProps mousePosition ->
-            ( state, getPosition plotProps mousePosition )
+            ( { state | waiting = True }, getPosition plotProps mousePosition )
 
         ReceivePosition result ->
             case result of
                 Ok position ->
-                    ( { state | position = position }, Cmd.none )
+                    if state.waiting then
+                        ( { state | position = Just position }, Cmd.none )
+                    else
+                        ( state, Cmd.none )
 
                 Err err ->
                     ( state, Cmd.none )
+
+        ResetPosition ->
+            ( { position = Nothing, waiting = False }, Cmd.none )
 
 
 
@@ -1052,10 +1061,21 @@ viewPlot { size, style } plotProps children =
             [ Svg.Attributes.height (toString height)
             , Svg.Attributes.width (toString width)
             , Svg.Attributes.style (toStyle style)
-            , Svg.Attributes.id "elm-plot-id"
-            , Svg.Events.on "mouseover" (eventPos plotProps)
             ]
-            children
+            (children ++ [ viewOverlay size plotProps ])
+
+
+viewOverlay : ( Int, Int ) -> PlotProps -> Svg.Svg Msg
+viewOverlay ( width, height ) plotProps =
+    Svg.rect  
+        [ Svg.Attributes.height (toString height)
+        , Svg.Attributes.width (toString width)
+        , Svg.Attributes.id "elm-plot-id"
+        , Svg.Attributes.style "fill: transparent; stroke: transparent;"
+        , Svg.Events.on "mousemove" (eventPos plotProps)
+        , Svg.Events.onMouseOut ResetPosition
+        ]
+        []
 
 
 
@@ -1396,7 +1416,7 @@ unScaleValue { length, range } v =
 
 fromSvgCoords : AxisScale -> AxisScale -> Point -> Point
 fromSvgCoords xScale yScale ( x, y ) =
-    ( unScaleValue xScale x, unScaleValue yScale y )
+    ( unScaleValue xScale x, unScaleValue yScale (yScale.length - y) )
 
 
 toSvgCoordsX : AxisScale -> AxisScale -> Point -> Point
