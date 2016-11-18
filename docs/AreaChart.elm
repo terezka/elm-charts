@@ -14,19 +14,21 @@ data =
 chart : Plot.State -> Svg.Svg Msg
 chart state =
     let
-        tooltip =
+        tooltipView =
             case state.position of
                 Nothing ->
                     []
 
                 Just position ->
-                    [ verticalGrid [ gridValues [ (Tuple.first position) ] ] ]
+                    [ tooltip [ ] position
+                    , verticalGrid [ gridValues [ Tuple.first position ] ]
+                    ]
     in
         plot
             [ size ( 600, 250 ) ]
             ([ area [ areaStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data
             , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
-            ] ++ tooltip)
+            ] ++ tooltipView)
 
 
 code =

@@ -37,6 +37,9 @@ module Plot
         , gridClasses
         , gridStyle
         , gridMirrorTicks
+        , tooltip
+        , tooltipCustomView
+        , tooltipShowLine
         , area
         , areaStyle
         , line
@@ -93,13 +96,16 @@ module Plot
 ## Grid configuration
 @docs verticalGrid, horizontalGrid, gridMirrorTicks, gridValues, gridClasses, gridStyle
 
-# State
+## Tooltip configuration
+@docs tooltip, tooltipShowLine, tooltipCustomView
 
+# State
 @docs State, initialState, update, Msg
 
 
 -}
 
+import Html exposing (Html)
 import Svg exposing (g)
 import Svg.Attributes exposing (height, width, d, style)
 import Svg.Events exposing (onMouseOver)
@@ -139,6 +145,7 @@ type Orientation
 -}
 type Element msg
     = Axis (AxisConfig msg)
+    | Tooltip (TooltipConfig msg) ( Float, Float )
     | Grid GridConfig
     | Line LineConfig
     | Area AreaConfig
@@ -1037,6 +1044,46 @@ line attrs points =
         Line { config | points = points }
 
 
+-- TOOLTIP
+
+
+type alias TooltipConfig msg =
+    { view : ( Float, Float ) -> Html msg
+    , showLine : Bool
+    }
+
+
+defaultTooltipConfig : TooltipConfig Msg
+defaultTooltipConfig =
+    { view = defaultTooltipView
+    , showLine = True
+    }
+
+
+{-| The type representing a tooltip configuration.
+-}
+type alias TooltipAttr msg =
+    TooltipConfig msg -> TooltipConfig msg
+
+
+{-| -}
+tooltipShowLine : TooltipConfig msg -> TooltipConfig msg
+tooltipShowLine config =
+    { config | showLine = True }
+
+
+{-| -}
+tooltipCustomView : ( ( Float, Float ) -> Svg.Svg msg ) -> TooltipConfig msg -> TooltipConfig msg
+tooltipCustomView view config =
+    { config | view = view }
+
+
+{-| -}
+tooltip : List (TooltipAttr Msg) -> ( Float, Float ) -> Element Msg
+tooltip attrs position =
+    Tooltip (List.foldr (<|) defaultTooltipConfig attrs) position
+
+
 
 -- MODEL
 
@@ -1139,19 +1186,23 @@ parsePlot attr elements =
         viewPlot metaConfig plotProps (viewElements plotProps elements)
 
 
-viewPlot : MetaConfig -> PlotProps -> List (Svg.Svg Msg) -> Svg.Svg Msg
-viewPlot { size, style, classes } plotProps children =
+viewPlot : MetaConfig -> PlotProps -> (List (Svg.Svg Msg), List (Html.Html Msg)) -> Svg.Svg Msg
+viewPlot { size, style, classes } plotProps (svgViews, htmlViews) =
     let
         ( width, height ) =
             size
     in
-        Svg.svg
-            [ Svg.Attributes.height (toString height)
-            , Svg.Attributes.width (toString width)
-            , Svg.Attributes.style (toStyle style)
-            , Svg.Attributes.class (String.join " " classes)
+        Html.div
+            []
+            [ Svg.svg
+                [ Svg.Attributes.height (toString height)
+                , Svg.Attributes.width (toString width)
+                , Svg.Attributes.style (toStyle style)
+                , Svg.Attributes.class (String.join " " classes)
+                ]
+                (svgViews ++ [ viewOverlay size plotProps ])
+            , Html.div [] htmlViews
             ]
-            (children ++ [ viewOverlay size plotProps ])
 
 
 viewOverlay : ( Int, Int ) -> PlotProps -> Svg.Svg Msg
@@ -1171,13 +1222,13 @@ viewOverlay ( width, height ) plotProps =
 -- VIEW ELEMENTS
 
 
-viewElements : PlotProps -> List (Element Msg) -> List (Svg.Svg Msg)
+viewElements : PlotProps -> List (Element Msg) -> (List (Svg.Svg Msg), List (Html.Html Msg))
 viewElements plotProps elements =
-    List.foldr (viewElement plotProps) [] elements
+    List.foldr (viewElement plotProps) ([], []) elements
 
 
-viewElement : PlotProps -> Element Msg -> List (Svg.Svg Msg) -> List (Svg.Svg Msg)
-viewElement plotProps element views =
+viewElement : PlotProps -> Element Msg -> (List (Svg.Svg Msg), List (Html.Html Msg)) -> (List (Svg.Svg Msg), List (Html.Html Msg))
+viewElement plotProps element ( svgViews, htmlViews ) =
     case element of
         Axis config ->
             let
@@ -1189,7 +1240,10 @@ viewElement plotProps element views =
                         Y ->
                             flipToY plotProps
             in
-                (viewAxis plotPropsFitted config) :: views
+                ((viewAxis plotPropsFitted config) :: svgViews, htmlViews)
+
+        Tooltip config position ->
+            (svgViews, (config.view position) :: htmlViews)
 
         Grid config ->
             let
@@ -1201,13 +1255,13 @@ viewElement plotProps element views =
                         Y ->
                             flipToY plotProps
             in
-                (viewGrid plotPropsFitted config) :: views
+                ((viewGrid plotPropsFitted config) :: svgViews, htmlViews)
 
         Line config ->
-            (viewLine plotProps config) :: views
+            ((viewLine plotProps config) :: svgViews, htmlViews)
 
         Area config ->
-            (viewArea plotProps config) :: views
+            ((viewArea plotProps config) :: svgViews, htmlViews)
 
 
 
@@ -1388,6 +1442,15 @@ viewGridLine toSvgCoords scale style position =
             Svg.Attributes.style (toStyle style) :: (toPositionAttr x1 y1 x2 y2)
     in
         Svg.line attrs []
+
+
+
+-- VIEW TOOLTIP
+
+
+defaultTooltipView : ( Float, Float ) -> Html.Html Msg
+defaultTooltipView position =
+    Html.div [] [ Html.text (toString position) ]
 
 
 
