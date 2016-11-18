@@ -3,15 +3,18 @@ module Plot
         ( plot
         , size
         , padding
+        , plotClasses
         , plotStyle
         , xAxis
         , yAxis
+        , axisClasses
         , axisStyle
         , axisLineStyle
         , tickValues
         , tickDelta
         , tickLength
         , tickWidth
+        , tickClasses
         , tickStyle
         , tickConfigView
         , tickConfigViewFunc
@@ -21,6 +24,7 @@ module Plot
         , labelValues
         , labelFilter
         , labelFormat
+        , labelClasses
         , labelDisplace
         , labelStyle
         , labelConfigView
@@ -30,6 +34,7 @@ module Plot
         , verticalGrid
         , horizontalGrid
         , gridValues
+        , gridClasses
         , gridStyle
         , gridMirrorTicks
         , area
@@ -62,7 +67,7 @@ module Plot
 # Configuration
 
 ## Meta configuration
-@docs MetaAttr, size, padding, plotStyle
+@docs MetaAttr, size, padding, plotClasses, plotStyle
 
 ## Line configuration
 @docs LineAttr, lineStyle
@@ -71,22 +76,22 @@ module Plot
 @docs AreaAttr, areaStyle
 
 ## Axis configuration
-@docs AxisAttr, axisStyle, axisLineStyle
+@docs AxisAttr, axisClasses, axisStyle, axisLineStyle
 
 ### Tick values configuration
 @docs tickValues, tickDelta, tickRemoveZero
 
 ### Tick view configuration
-@docs TickViewAttr, tickConfigView, tickConfigViewFunc, tickLength, tickWidth, tickStyle, tickCustomView, tickCustomViewIndexed
+@docs TickViewAttr, tickConfigView, tickConfigViewFunc, tickLength, tickWidth, tickClasses, tickStyle, tickCustomView, tickCustomViewIndexed
 
 ### Label values configuration
 @docs labelValues, labelFilter
 
 ### Label values configuration
-@docs LabelViewAttr, labelConfigView, labelConfigViewFunc, labelFormat, labelDisplace, labelStyle, labelCustomView, labelCustomViewIndexed
+@docs LabelViewAttr, labelConfigView, labelConfigViewFunc, labelFormat, labelDisplace, labelClasses, labelStyle, labelCustomView, labelCustomViewIndexed
 
 ## Grid configuration
-@docs verticalGrid, horizontalGrid, gridMirrorTicks, gridValues, gridStyle
+@docs verticalGrid, horizontalGrid, gridMirrorTicks, gridValues, gridClasses, gridStyle
 
 # State
 
@@ -146,6 +151,7 @@ type Element msg
 type alias MetaConfig =
     { size : ( Int, Int )
     , padding : ( Int, Int )
+    , classes : List String
     , style : Style
     }
 
@@ -159,6 +165,7 @@ type alias MetaAttr =
 defaultMetaConfig =
     { size = ( 800, 500 )
     , padding = ( 0, 0 )
+    , classes = []
     , style = [ ( "padding", "30px" ), ( "stroke", "#000" ) ]
     }
 
@@ -192,6 +199,15 @@ plotStyle style config =
     { config | style = style ++ defaultMetaConfig.style }
 
 
+{-| Add classes to the svg element.
+
+ Default: `[]`
+-}
+plotClasses : List String -> MetaConfig -> MetaConfig
+plotClasses classes config =
+    { config | classes = classes }
+
+
 toMetaConfig : List MetaAttr -> MetaConfig
 toMetaConfig attrs =
     List.foldr (<|) defaultMetaConfig attrs
@@ -205,6 +221,7 @@ type alias TickViewConfig =
     { length : Int
     , width : Int
     , style : Style
+    , classes : List String
     }
 
 
@@ -231,6 +248,7 @@ defaultTickViewConfig =
     { length = 7
     , width = 1
     , style = []
+    , classes = []
     }
 
 
@@ -260,6 +278,22 @@ tickLength length config =
 tickWidth : Int -> TickViewConfig -> TickViewConfig
 tickWidth width config =
     { config | width = width }
+
+
+{-| Add classes to the tick.
+
+    main =
+        plot
+            []
+            [ xAxis
+                [ tickConfigView
+                    [ tickClasses [ "my-class" ] ]
+                ]
+            ]
+-}
+tickClasses : List String -> TickViewConfig -> TickViewConfig
+tickClasses classes config =
+    { config | classes = classes }
 
 
 {-| Sets the style of the tick
@@ -296,6 +330,7 @@ type alias LabelViewConfig =
     { displace : Maybe ( Int, Int )
     , format : Int -> Float -> String
     , style : Style
+    , classes : List String
     }
 
 
@@ -323,6 +358,7 @@ defaultLabelViewConfig =
     { displace = Nothing
     , format = (\_ -> toString)
     , style = []
+    , classes = []
     }
 
 
@@ -354,6 +390,22 @@ labelDisplace displace config =
 labelFormat : (Float -> String) -> LabelViewConfig -> LabelViewConfig
 labelFormat format config =
     { config | format = always format }
+
+
+{-| Add classes to the label.
+
+    main =
+        plot
+            []
+            [ xAxis
+                [ labelConfigView
+                    [ labelClasses [ "my-class" ] ]
+                ]
+            ]
+-}
+labelClasses : List String -> LabelViewConfig -> LabelViewConfig
+labelClasses classes config =
+    { config | classes = classes }
 
 
 {-| Format the label based on its value and/or index.
@@ -415,6 +467,7 @@ type alias AxisConfig msg =
     , axisLineStyle : Style
     , axisCrossing : Bool
     , style : Style
+    , classes : List String
     , orientation : Orientation
     }
 
@@ -431,6 +484,7 @@ defaultAxisConfig =
     , labelValues = LabelCustomFilter (\a b -> True)
     , labelView = defaultLabelView defaultLabelViewConfig
     , style = []
+    , classes = []
     , axisLineStyle = []
     , axisCrossing = False
     , orientation = X
@@ -450,6 +504,20 @@ defaultAxisConfig =
 axisStyle : Style -> AxisConfig Msg -> AxisConfig Msg
 axisStyle style config =
     { config | style = style }
+
+
+{-| Add classes to the container holding your axis.
+
+    main =
+        plot
+            []
+            [ xAxis [ axisClasses [ "my-class" ] ] ]
+
+ Default: `[]`
+-}
+axisClasses : List String -> AxisConfig msg -> AxisConfig msg
+axisClasses classes config =
+    { config | classes = classes }
 
 
 {-| Add styling to the axis line.
@@ -756,8 +824,9 @@ type GridValues
 
 
 type alias GridConfig =
-    { gridValues : GridValues
-    , gridStyle : Style
+    { values : GridValues
+    , style : Style
+    , classes : List String
     , orientation : Orientation
     }
 
@@ -769,8 +838,9 @@ type alias GridAttr =
 
 
 defaultGridConfig =
-    { gridValues = GridMirrorTicks
-    , gridStyle = []
+    { values = GridMirrorTicks
+    , style = []
+    , classes = []
     , orientation = X
     }
 
@@ -789,7 +859,7 @@ defaultGridConfig =
 -}
 gridMirrorTicks : GridConfig -> GridConfig
 gridMirrorTicks config =
-    { config | gridValues = GridMirrorTicks }
+    { config | values = GridMirrorTicks }
 
 
 {-| Specify a list of ticks where you want grid lines drawn.
@@ -801,7 +871,7 @@ gridMirrorTicks config =
 -}
 gridValues : List Float -> GridConfig -> GridConfig
 gridValues values config =
-    { config | gridValues = GridCustomValues values }
+    { config | values = GridCustomValues values }
 
 
 {-| Specify styles for the gridlines.
@@ -819,7 +889,25 @@ gridValues values config =
 -}
 gridStyle : Style -> GridConfig -> GridConfig
 gridStyle style config =
-    { config | gridStyle = style }
+    { config | style = style }
+
+
+{-| Specify classes for the grid.
+
+    plot
+        []
+        [ verticalGrid
+            [ gridMirrorTicks
+            , gridClasses [ "my-class" ]
+            ]
+        ]
+
+ Remember that if you do not specify either `gridMirrorTicks`
+ or `gridValues`, then we will default to not showing any grid lines.
+-}
+gridClasses : List String -> GridConfig -> GridConfig
+gridClasses classes config =
+    { config | classes = classes }
 
 
 {-| This returns an grid element resulting in vertical grid lines being rendered in your plot.
@@ -1052,7 +1140,7 @@ parsePlot attr elements =
 
 
 viewPlot : MetaConfig -> PlotProps -> List (Svg.Svg Msg) -> Svg.Svg Msg
-viewPlot { size, style } plotProps children =
+viewPlot { size, style, classes } plotProps children =
     let
         ( width, height ) =
             size
@@ -1061,6 +1149,7 @@ viewPlot { size, style } plotProps children =
             [ Svg.Attributes.height (toString height)
             , Svg.Attributes.width (toString width)
             , Svg.Attributes.style (toStyle style)
+            , Svg.Attributes.class (String.join " " classes)
             ]
             (children ++ [ viewOverlay size plotProps ])
 
@@ -1162,7 +1251,7 @@ indexTicks ticks =
 
 
 viewAxis : PlotProps -> AxisConfig Msg -> Svg.Svg Msg
-viewAxis plotProps { toTickValues, tickView, labelView, labelValues, style, axisLineStyle, axisCrossing, orientation } =
+viewAxis plotProps { toTickValues, tickView, labelView, labelValues, style, classes, axisLineStyle, axisCrossing, orientation } =
     let
         { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords } =
             plotProps
@@ -1181,7 +1270,9 @@ viewAxis plotProps { toTickValues, tickView, labelView, labelValues, style, axis
                     List.filter (\( a, b ) -> filter a b) tickPositions
     in
         Svg.g
-            [ Svg.Attributes.style (toStyle style) ]
+            [ Svg.Attributes.style (toStyle style)
+            , Svg.Attributes.class (String.join " " classes)
+            ]
             [ viewGridLine toSvgCoords scale axisLineStyle 0
             , Svg.g [] (List.map (placeTick plotProps (tickView orientation)) tickPositions)
             , Svg.g [] (List.map (placeTick plotProps (labelView orientation)) labelPositions)
@@ -1194,7 +1285,7 @@ placeTick { toSvgCoords } view ( index, tick ) =
 
 
 defaultTickView : TickViewConfig -> Orientation -> Int -> Float -> Svg.Svg Msg
-defaultTickView { length, width, style } orientation _ _ =
+defaultTickView { length, width, style, classes } orientation _ _ =
     let
         displacement =
             (?) orientation "" (toRotate 90 0 0)
@@ -1206,6 +1297,7 @@ defaultTickView { length, width, style } orientation _ _ =
             [ Svg.Attributes.style (toStyle styleFinal)
             , Svg.Attributes.y2 (toString length)
             , Svg.Attributes.transform displacement
+            , Svg.Attributes.class (String.join " " classes)
             ]
             []
 
@@ -1230,7 +1322,7 @@ defaultLabelStyleY =
 
 
 defaultLabelView : LabelViewConfig -> Orientation -> Int -> Float -> Svg.Svg Msg
-defaultLabelView { displace, format, style } orientation index tick =
+defaultLabelView { displace, format, style, classes } orientation index tick =
     let
         ( defaultStyle, defaultDisplacement ) =
             (?) orientation defaultLabelStyleX defaultLabelStyleY
@@ -1241,6 +1333,7 @@ defaultLabelView { displace, format, style } orientation index tick =
         Svg.text_
             [ Svg.Attributes.transform (toTranslate ( toFloat dx, toFloat dy ))
             , Svg.Attributes.style (toStyle (defaultStyle ++ style))
+            , Svg.Attributes.class (String.join " " classes)
             ]
             [ Svg.tspan [] [ Svg.text (format index tick) ] ]
 
@@ -1269,12 +1362,14 @@ getGridPositions tickValues values =
 
 
 viewGrid : PlotProps -> GridConfig -> Svg.Svg Msg
-viewGrid { scale, toSvgCoords, oppositeTicks } { gridValues, gridStyle } =
+viewGrid { scale, toSvgCoords, oppositeTicks } { values, style, classes } =
     let
         positions =
-            getGridPositions oppositeTicks gridValues
+            getGridPositions oppositeTicks values
     in
-        Svg.g [] (List.map (viewGridLine toSvgCoords scale gridStyle) positions)
+        Svg.g
+            [ Svg.Attributes.class (String.join " " classes) ]
+            (List.map (viewGridLine toSvgCoords scale style) positions)
 
 
 viewGridLine : (Point -> Point) -> AxisScale -> Style -> Float -> Svg.Svg Msg
