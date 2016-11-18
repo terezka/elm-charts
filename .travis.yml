@@ -1,0 +1,10 @@
+sudo: false
+
+language: node_js
+
+install:
+  - npm install -g elm@18.0.0 elm-test
+  - elm-package install --yes
+
+script:
+  - elm-test
