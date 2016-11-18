@@ -2,6 +2,8 @@
 
 Plot stuff in svg with Elm!
 
+[![Build Status](https://travis-ci.org/terezka/elm-plot.svg?branch=master)](https://travis-ci.org/terezka/elm-plot)
+
 ![alt tag](https://raw.githubusercontent.com/terezka/elm-plot/master/example.png)
 
 ## Overview

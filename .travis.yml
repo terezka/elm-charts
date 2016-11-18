@@ -1,9 +1,11 @@
 sudo: false
 
 language: node_js
+node_js:
+  - '6'
 
 install:
-  - npm install -g elm@18.0.0 elm-test
+  - npm install -g elm@0.18.0 elm-test
   - elm-package install --yes
 
 script:
