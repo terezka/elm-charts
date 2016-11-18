@@ -103,6 +103,7 @@ import Svg.Events exposing (onMouseOver)
 import Svg.Lazy
 import String
 import Task
+import Json.Decode as Json
 import Dom
 import Dom.Position
 import Round
@@ -956,64 +957,64 @@ line attrs points =
 
 {-| -}
 type alias State =
-    { mousePosition : ( Float, Float ) }
+    { position : ( Float, Float ) }
 
 
 {-| -}
 initialState : State
 initialState =
-    { mousePosition = ( 0, 0 ) }
+    { position = ( 0, 0 ) }
 
 
 
 -- UPDATE
 
-type Direction = Top | Left
 
 
 {-| -}
 type Msg 
-    = Hovering
-    | ReceivePosition Direction (Result Dom.Error Float)
+    = Hovering PlotProps (Float, Float )
+    | ReceivePosition (Result Dom.Error ( Float, Float ))
 
 
 {-| -}
 update : Msg -> State -> ( State, Cmd Msg )
 update msg state =
     case msg of
-        Hovering ->
-            ( state, Cmd.batch [ getPlotTop, getPlotLeft ] )
+        Hovering plotProps mousePosition ->
+            ( state, getPosition plotProps mousePosition )
 
-        ReceivePosition direction res ->
-            case res of
-                Ok num ->
-                    ( { state | mousePosition = updatePosition direction num state.mousePosition }, Cmd.none )
+        ReceivePosition result ->
+            case result of
+                Ok position ->
+                    ( { state | position = position }, Cmd.none )
 
                 Err err ->
                     ( state, Cmd.none )
 
 
-updatePosition : Direction -> Float -> ( Float, Float ) -> ( Float, Float )
-updatePosition direction number ( top, left ) =
-    case direction of
-        Top ->
-            ( number, left )
 
-        Left ->
-            ( top, number )
+getPosition : PlotProps -> ( Float, Float ) -> Cmd Msg
+getPosition plotProps mousePosition =
+    Task.attempt ReceivePosition <| Task.map2 (getRelativeMousePosition plotProps mousePosition) (Dom.Position.left "elm-plot-id") (Dom.Position.top "elm-plot-id")
 
 
-getPlotLeft : Cmd Msg 
-getPlotLeft =
-    Task.attempt (ReceivePosition Left) (Dom.Position.left "elm-plot-id")
 
+getRelativeMousePosition : PlotProps -> ( Float, Float ) ->  Float -> Float -> ( Float, Float )
+getRelativeMousePosition { fromSvgCoords } ( mouseX, mouseY ) left top =
+    fromSvgCoords ( mouseX - left, mouseY - top )
 
-getPlotTop : Cmd Msg 
-getPlotTop =
-    Task.attempt (ReceivePosition Top) (Dom.Position.top "elm-plot-id")
 
 
 -- PARSE PLOT
+
+
+eventPos : PlotProps -> Json.Decoder Msg
+eventPos plotProps =
+  Json.map2
+    (\x y -> Hovering plotProps (x, y))
+    (Json.field "clientX" Json.float)
+    (Json.field "clientY" Json.float)
 
 
 {-| This is the function processing your entire plot configuration.
@@ -1038,11 +1039,11 @@ parsePlot attr elements =
         plotProps =
             getPlotProps metaConfig elements
     in
-        viewPlot metaConfig (viewElements plotProps elements)
+        viewPlot metaConfig plotProps (viewElements plotProps elements)
 
 
-viewPlot : MetaConfig -> List (Svg.Svg Msg) -> Svg.Svg Msg
-viewPlot { size, style } children =
+viewPlot : MetaConfig -> PlotProps -> List (Svg.Svg Msg) -> Svg.Svg Msg
+viewPlot { size, style } plotProps children =
     let
         ( width, height ) =
             size
@@ -1052,7 +1053,7 @@ viewPlot { size, style } children =
             , Svg.Attributes.width (toString width)
             , Svg.Attributes.style (toStyle style)
             , Svg.Attributes.id "elm-plot-id"
-            , Svg.Events.onMouseOver Hovering
+            , Svg.Events.on "mouseover" (eventPos plotProps)
             ]
             children
 
@@ -1352,6 +1353,7 @@ type alias PlotProps =
     , oppositeScale : AxisScale
     , toSvgCoords : Point -> Point
     , oppositeToSvgCoords : Point -> Point
+    , fromSvgCoords : Point -> Point
     , ticks : List Float
     , oppositeTicks : List Float
     }
@@ -1385,6 +1387,16 @@ getScales length ( paddingBottomPx, paddingTopPx ) values =
 scaleValue : AxisScale -> Float -> Float
 scaleValue { length, range } v =
     v * length / range
+
+
+unScaleValue : AxisScale -> Float -> Float
+unScaleValue { length, range } v =
+    v * range / length 
+
+
+fromSvgCoords : AxisScale -> AxisScale -> Point -> Point
+fromSvgCoords xScale yScale ( x, y ) =
+    ( unScaleValue xScale x, unScaleValue yScale y )
 
 
 toSvgCoordsX : AxisScale -> AxisScale -> Point -> Point
@@ -1422,17 +1434,19 @@ getPlotProps { size, padding } elements =
         , oppositeScale = yScale
         , toSvgCoords = toSvgCoordsX xScale yScale
         , oppositeToSvgCoords = toSvgCoordsY xScale yScale
+        , fromSvgCoords = fromSvgCoords xScale yScale
         , ticks = xTicks
         , oppositeTicks = yTicks
         }
 
 
 flipToY : PlotProps -> PlotProps
-flipToY { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, oppositeTicks } =
+flipToY { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, oppositeTicks, fromSvgCoords } =
     { scale = oppositeScale
     , oppositeScale = scale
     , toSvgCoords = oppositeToSvgCoords
     , oppositeToSvgCoords = toSvgCoords
+    , fromSvgCoords = fromSvgCoords
     , ticks = oppositeTicks
     , oppositeTicks = ticks
     }
