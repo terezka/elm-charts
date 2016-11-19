@@ -106,6 +106,7 @@ module Plot
 -}
 
 import Html exposing (Html)
+import Html.Attributes
 import Svg exposing (g)
 import Svg.Attributes exposing (height, width, d, style)
 import Svg.Events exposing (onMouseOver)
@@ -1145,8 +1146,12 @@ getPosition plotProps mousePosition =
 
 
 getRelativeMousePosition : PlotProps -> ( Float, Float ) ->  Float -> Float -> ( Float, Float )
-getRelativeMousePosition { fromSvgCoords } ( mouseX, mouseY ) left top =
-    fromSvgCoords ( mouseX - left, mouseY - top )
+getRelativeMousePosition { fromSvgCoords, toNearestX } ( mouseX, mouseY ) left top =
+    let
+        (x, y) =
+            fromSvgCoords ( mouseX - left, mouseY - top )
+    in
+        ( toNearestX x, y )
 
 
 
@@ -1193,7 +1198,7 @@ viewPlot { size, style, classes } plotProps (svgViews, htmlViews) =
             size
     in
         Html.div
-            []
+            [ Html.Attributes.style [ ( "position", "relative" ) ] ]
             [ Svg.svg
                 [ Svg.Attributes.height (toString height)
                 , Svg.Attributes.width (toString width)
@@ -1243,7 +1248,7 @@ viewElement plotProps element ( svgViews, htmlViews ) =
                 ((viewAxis plotPropsFitted config) :: svgViews, htmlViews)
 
         Tooltip config position ->
-            (svgViews, (config.view position) :: htmlViews)
+            (svgViews, (viewTooltip plotProps config position) :: htmlViews)
 
         Grid config ->
             let
@@ -1448,10 +1453,26 @@ viewGridLine toSvgCoords scale style position =
 -- VIEW TOOLTIP
 
 
+viewTooltip : PlotProps -> TooltipConfig Msg -> ( Float, Float ) -> Html.Html Msg
+viewTooltip { toSvgCoords } { showLine, view } position =
+    let 
+        ( x, y ) = toSvgCoords position
+    in
+        Html.div
+            [ Html.Attributes.style
+                [ ( "position", "absolute" )
+                , ( "left", (toString x) ++ "px" )
+                , ( "top", "20%" )
+                ]
+            ]
+            [ view position ]
+
+
 defaultTooltipView : ( Float, Float ) -> Html.Html Msg
 defaultTooltipView position =
-    Html.div [] [ Html.text (toString position) ]
-
+    Html.div
+        [ Html.Attributes.style [ ( "padding", "10px" ), ( "background", "#eee" ) ] ]
+        [ Html.text (toString position) ]
 
 
 -- VIEW AREA
@@ -1534,6 +1555,7 @@ type alias PlotProps =
     , fromSvgCoords : Point -> Point
     , ticks : List Float
     , oppositeTicks : List Float
+    , toNearestX : Float -> Float
     }
 
 
@@ -1587,6 +1609,21 @@ toSvgCoordsY xScale yScale ( x, y ) =
     toSvgCoordsX xScale yScale ( y, x )
 
 
+getDiff : Float -> Float -> Float
+getDiff a b =
+    abs ((abs a) - (abs b))
+
+
+getClosest : Float -> Float -> Float -> Float
+getClosest value candidate closest =
+    if getDiff value candidate < getDiff value closest then candidate else closest
+
+
+toNearestX : List Float -> Float -> Float
+toNearestX xValues value =
+    List.foldr (getClosest value) 0 xValues
+
+
 getPlotProps : MetaConfig -> List (Element Msg) -> PlotProps
 getPlotProps { size, padding } elements =
     let
@@ -1615,11 +1652,12 @@ getPlotProps { size, padding } elements =
         , fromSvgCoords = fromSvgCoords xScale yScale
         , ticks = xTicks
         , oppositeTicks = yTicks
+        , toNearestX = toNearestX xValues
         }
 
 
 flipToY : PlotProps -> PlotProps
-flipToY { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, oppositeTicks, fromSvgCoords } =
+flipToY { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, oppositeTicks, fromSvgCoords, toNearestX } =
     { scale = oppositeScale
     , oppositeScale = scale
     , toSvgCoords = oppositeToSvgCoords
@@ -1627,6 +1665,7 @@ flipToY { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, opposit
     , fromSvgCoords = fromSvgCoords
     , ticks = oppositeTicks
     , oppositeTicks = ticks
+    , toNearestX = toNearestX
     }
 
 
