@@ -25,7 +25,7 @@ chart state =
                     ]
     in
         plot
-            [ size ( 600, 250 ) ]
+            [ plotSize ( 600, 250 ), plotMargin ( 0, 10, 30, 10 ) ]
             ([ area [ areaStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data
             , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
             ] ++ tooltipView)

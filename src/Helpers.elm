@@ -24,9 +24,9 @@ getRange lowest highest =
     abs lowest + abs highest
 
 
-pixelsToValue : Int -> Float -> Int -> Float
+pixelsToValue : Float -> Float -> Float -> Float
 pixelsToValue length range pixels =
-    range * (toFloat pixels) / (toFloat length)
+    range * pixels / length
 
 
 ceilToNearest : Float -> Float -> Float

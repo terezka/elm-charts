@@ -1,9 +1,10 @@
 module Plot
     exposing
         ( plot
-        , size
-        , padding
+        , plotSize
+        , plotPadding
         , plotClasses
+        , plotMargin
         , plotStyle
         , xAxis
         , yAxis
@@ -70,7 +71,7 @@ module Plot
 # Configuration
 
 ## Meta configuration
-@docs MetaAttr, size, padding, plotClasses, plotStyle
+@docs MetaAttr, plotSize, plotPadding, plotMargin, plotClasses, plotStyle
 
 ## Line configuration
 @docs LineAttr, lineStyle
@@ -107,6 +108,7 @@ module Plot
 
 import Html exposing (Html)
 import Html.Attributes
+import Html.Events
 import Svg exposing (g)
 import Svg.Attributes exposing (height, width, d, style)
 import Svg.Events exposing (onMouseOver)
@@ -157,8 +159,9 @@ type Element msg
 
 
 type alias MetaConfig =
-    { size : ( Int, Int )
-    , padding : ( Int, Int )
+    { size : ( Float, Float )
+    , padding : ( Float, Float )
+    , margin : ( Float, Float, Float, Float )
     , classes : List String
     , style : Style
     }
@@ -173,8 +176,9 @@ type alias MetaAttr =
 defaultMetaConfig =
     { size = ( 800, 500 )
     , padding = ( 0, 0 )
+    , margin = ( 0, 0, 0, 0 )
     , classes = []
-    , style = [ ( "padding", "30px" ), ( "stroke", "#000" ) ]
+    , style = [ ( "padding", "0" ), ( "stroke", "#000" ) ]
     }
 
 
@@ -184,18 +188,27 @@ defaultMetaConfig =
 
  Default: `( 0, 0 )`
 -}
-padding : ( Int, Int ) -> MetaConfig -> MetaConfig
-padding padding config =
-    { config | padding = padding }
+plotPadding : ( Int, Int ) -> MetaConfig -> MetaConfig
+plotPadding ( bottom, top ) config =
+    { config | padding = ( toFloat bottom, toFloat top ) }
 
 
 {-| Specify the size of your plot in pixels.
 
  Default: `( 800, 500 )`
 -}
-size : ( Int, Int ) -> MetaConfig -> MetaConfig
-size size config =
-    { config | size = size }
+plotSize : ( Int, Int ) -> MetaConfig -> MetaConfig
+plotSize ( width, height ) config =
+    { config | size = ( toFloat width, toFloat height ) }
+
+
+{-| Specify the size of your plot in pixels.
+
+ Default: `( 800, 500 )`
+-}
+plotMargin : ( Int, Int, Int, Int ) -> MetaConfig -> MetaConfig
+plotMargin ( t, r, b, l ) config =
+    { config | margin = ( toFloat t, toFloat r, toFloat b, toFloat l) }
 
 
 {-| Add styles to the svg element.
@@ -204,7 +217,7 @@ size size config =
 -}
 plotStyle : Style -> MetaConfig -> MetaConfig
 plotStyle style config =
-    { config | style = style ++ defaultMetaConfig.style }
+    { config | style = defaultMetaConfig.style ++ style ++ [ ( "padding", "0" ) ] }
 
 
 {-| Add classes to the svg element.
@@ -1192,42 +1205,42 @@ parsePlot attr elements =
 
 
 viewPlot : MetaConfig -> PlotProps -> (List (Svg.Svg Msg), List (Html.Html Msg)) -> Svg.Svg Msg
-viewPlot { size, style, classes } plotProps (svgViews, htmlViews) =
+viewPlot { size, style, classes, margin } plotProps (svgViews, htmlViews) =
     let
         ( width, height ) =
             size
+
+        ( top, right, bottom, left ) =
+            margin
+
+        paddingStyle =
+            String.join "px " <| List.map toString [ top, right, bottom, left ]
     in
         Html.div
-            [ Html.Attributes.style [ ( "position", "relative" ) ] ]
+            [ Html.Attributes.class "elm-plot" ]
             [ Svg.svg
                 [ Svg.Attributes.height (toString height)
                 , Svg.Attributes.width (toString width)
-                , Svg.Attributes.style (toStyle style)
-                , Svg.Attributes.class (String.join " " classes)
+                , Svg.Attributes.class "elm-plot__inner"
                 ]
-                (svgViews ++ [ viewOverlay size plotProps ])
+                svgViews
             , Html.div
-                [ Svg.Attributes.style (toStyle [ ("position", "absolute"), ("top", "0px"), ("left", "0px"), ("pointer-events", "none"), ("width", "100%")])
-                ]
+                [ Html.Attributes.class "elm-plot__html" ]
                 [ Html.div
-                    [ Svg.Attributes.style (toStyle [ ("margin", "0 auto"), ("position", "relative"), ("width", toString width ++ "px"), ("height", toString height ++ "px")])
+                    [ Html.Attributes.class "elm-plot__html__inner"
+                    , Html.Attributes.id "elm-plot-id"
+                    , Html.Attributes.style
+                        [ ("width", toString (width - left - right) ++ "px")
+                        , ("height", toString (height - top - bottom) ++ "px")
+                        , ("padding", paddingStyle ++ "px")
+                        ]
+                    , Html.Events.on "mousemove" (eventPos plotProps)
+                    --, Html.Events.onMouseOut ResetPosition
                     ]
                     htmlViews
                 ]
             ]
 
-
-viewOverlay : ( Int, Int ) -> PlotProps -> Svg.Svg Msg
-viewOverlay ( width, height ) plotProps =
-    Svg.rect  
-        [ Svg.Attributes.height (toString height)
-        , Svg.Attributes.width (toString width)
-        , Svg.Attributes.id "elm-plot-id"
-        , Svg.Attributes.style "fill: transparent; stroke: transparent;"
-        , Svg.Events.on "mousemove" (eventPos plotProps)
-        , Svg.Events.onMouseOut ResetPosition
-        ]
-        []
 
 
 
@@ -1466,12 +1479,12 @@ viewTooltip { toSvgCoords, scale } { showLine, view } position =
         ( x, y ) = toSvgCoords position
 
         transform =
-            if x < scale.length / 2
+            if x > scale.length / 2
             then ( "transform", "translateX(-100%)" )
             else ( "transform", "translateX(0)" )
 
         left =
-            if x < scale.length / 2
+            if x > scale.length / 2
             then x - 10
             else x + 10
     in
@@ -1489,7 +1502,7 @@ viewTooltip { toSvgCoords, scale } { showLine, view } position =
 defaultTooltipView : ( Float, Float ) -> Html.Html Msg
 defaultTooltipView position =
     Html.div
-        [ Html.Attributes.style [ ( "padding", "10px" ), ( "background", "#eee" ) ] ]
+        [ Html.Attributes.style [ ( "padding", "10px" ), ( "background", "#eee" ), ( "border-radius", "5px" ) ] ]
         [ Html.text (toString position) ]
 
 
@@ -1562,6 +1575,7 @@ type alias AxisScale =
     , lowest : Float
     , highest : Float
     , length : Float
+    , offset : Float
     }
 
 
@@ -1577,8 +1591,8 @@ type alias PlotProps =
     }
 
 
-getScales : Int -> ( Int, Int ) -> List Float -> AxisScale
-getScales length ( paddingBottomPx, paddingTopPx ) values =
+getScales : Float -> Float -> ( Float, Float ) -> List Float -> AxisScale
+getScales length offset ( paddingBottomPx, paddingTopPx ) values =
     let
         lowest =
             getLowest values
@@ -1598,7 +1612,8 @@ getScales length ( paddingBottomPx, paddingTopPx ) values =
         { lowest = lowest - paddingBottom
         , highest = highest + paddingTop
         , range = range + paddingBottom + paddingTop
-        , length = toFloat length
+        , length = length
+        , offset = offset
         }
 
 
@@ -1614,12 +1629,16 @@ unScaleValue { length, range } v =
 
 fromSvgCoords : AxisScale -> AxisScale -> Point -> Point
 fromSvgCoords xScale yScale ( x, y ) =
-    ( unScaleValue xScale x, unScaleValue yScale (yScale.length - y) )
+    ( unScaleValue xScale x
+    , unScaleValue yScale (yScale.length - y)
+    )
 
 
 toSvgCoordsX : AxisScale -> AxisScale -> Point -> Point
 toSvgCoordsX xScale yScale ( x, y ) =
-    ( scaleValue xScale (abs xScale.lowest + x), scaleValue yScale (yScale.highest - y) )
+    ( xScale.offset + scaleValue xScale (abs xScale.lowest + x)
+    , yScale.offset + scaleValue yScale (yScale.highest - y)
+    )
 
 
 toSvgCoordsY : AxisScale -> AxisScale -> Point -> Point
@@ -1637,13 +1656,13 @@ getClosest value candidate closest =
     if getDiff value candidate < getDiff value closest then candidate else closest
 
 
-toNearestX : List Float -> Float -> Float
-toNearestX xValues value =
+toNearestX : (List Float, List Float) -> Float -> Float
+toNearestX (xValues, yValues) value =
     List.foldr (getClosest value) 0 xValues
 
 
 getPlotProps : MetaConfig -> List (Element Msg) -> PlotProps
-getPlotProps { size, padding } elements =
+getPlotProps { size, padding, margin } elements =
     let
         ( xValues, yValues ) =
             List.unzip (List.foldr collectPoints [] elements)
@@ -1651,11 +1670,14 @@ getPlotProps { size, padding } elements =
         ( width, height ) =
             size
 
+        ( top, right, bottom, left ) =
+            margin
+
         xScale =
-            getScales width ( 0, 0 ) xValues
+            getScales (width - left - right) left ( 0, 0 ) xValues
 
         yScale =
-            getScales height padding yValues
+            getScales (height - top - bottom) top padding yValues
 
         xTicks =
             getLastGetTickValues X elements <| xScale
@@ -1670,7 +1692,7 @@ getPlotProps { size, padding } elements =
         , fromSvgCoords = fromSvgCoords xScale yScale
         , ticks = xTicks
         , oppositeTicks = yTicks
-        , toNearestX = toNearestX xValues
+        , toNearestX = toNearestX ( xValues, yValues )
         }
 
 
