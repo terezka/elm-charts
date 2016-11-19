@@ -31,7 +31,7 @@ customTick fromZero tick =
 plot1 =
     plot
         []
-        [ line [ lineStyle [ ( "stroke", "mediumvioletred" ) ] ] (List.sortBy (\(x, y) -> x) lineData2)
+        [ line [ lineStyle [ ( "stroke", "mediumvioletred" ) ] ] (List.sortBy (\( x, y ) -> x) lineData2)
         , yAxis []
         , xAxis []
         ]

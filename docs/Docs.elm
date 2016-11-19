@@ -5,22 +5,21 @@ import Html.Attributes exposing (style, src, href, class)
 import Html.Events exposing (onClick)
 import Svg
 import Svg.Attributes
-
 import Plot exposing (..)
 import AreaChart exposing (..)
+
+
 --import MultiAreaChart exposing (..)
 --import GridChart exposing (..)
 --import MultiLineChart exposing (..)
 --import CustomTickChart exposing (..)
 --import ComposedChart exposing (..)
-
-
 -- MODEL
 
 
 type alias Model =
     { openSection : Maybe String
-    , plotState : Plot.State 
+    , plotState : Plot.State
     }
 
 
@@ -28,6 +27,7 @@ initialModel =
     { openSection = Nothing
     , plotState = Plot.initialState
     }
+
 
 
 -- UPDATE
@@ -50,6 +50,7 @@ update msg model =
                     Plot.update plotMsg model.plotState
             in
                 ( { model | plotState = state }, Cmd.map PlotMsg cmd )
+
 
 
 -- VIEW
@@ -145,16 +146,16 @@ view model =
             ]
         , viewTitle model "Simple Area Chart" "AreaChart" AreaChart.code
         , Html.map PlotMsg (AreaChart.chart model.plotState)
-        --, viewTitle model "Multi Area Chart" "MultiAreaChart" MultiAreaChart.code
-        --, Html.map PlotMsg MultiAreaChart.chart
-        --, viewTitle model "Line Chart" "MultiLineChart" MultiLineChart.code
-        --, Html.map PlotMsg MultiLineChart.chart
-        --, viewTitle model "Grid" "GridChart" GridChart.code
-        --, Html.map PlotMsg GridChart.chart
-        --, viewTitle model "Custom ticks and labels" "CustomTickChart" CustomTickChart.code
-        --, Html.map PlotMsg CustomTickChart.chart
-        --, viewTitle model "Composable" "ComposedChart" ComposedChart.code
-        --, Html.map PlotMsg ComposedChart.chart
+          --, viewTitle model "Multi Area Chart" "MultiAreaChart" MultiAreaChart.code
+          --, Html.map PlotMsg MultiAreaChart.chart
+          --, viewTitle model "Line Chart" "MultiLineChart" MultiLineChart.code
+          --, Html.map PlotMsg MultiLineChart.chart
+          --, viewTitle model "Grid" "GridChart" GridChart.code
+          --, Html.map PlotMsg GridChart.chart
+          --, viewTitle model "Custom ticks and labels" "CustomTickChart" CustomTickChart.code
+          --, Html.map PlotMsg CustomTickChart.chart
+          --, viewTitle model "Composable" "ComposedChart" ComposedChart.code
+          --, Html.map PlotMsg ComposedChart.chart
         , div
             [ style [ ( "margin", "100px auto 30px" ), ( "font-size", "14px" ) ] ]
             [ text "Made by "

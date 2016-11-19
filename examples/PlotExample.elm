@@ -44,7 +44,6 @@ specialTick _ =
         [ Svg.tspan [] [ Svg.text "🌟" ] ]
 
 
-
 main : Svg.Svg a
 main =
     plot

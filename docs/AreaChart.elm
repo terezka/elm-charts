@@ -20,15 +20,16 @@ chart state =
                     []
 
                 Just position ->
-                    [ tooltip [ ] position
+                    [ tooltip [] position
                     , verticalGrid [ gridValues [ Tuple.first position ], gridStyle [ ( "stroke", Colors.axisColor ) ] ]
                     ]
     in
         plot
-            [ plotSize ( 600, 250 ), plotMargin ( 0, 10, 30, 10 ) ]
-            ([ area [ areaStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data
+            "my-id"
+            [ plotSize ( 600, 250 ), plotMargin ( 0, 10, 30, 10 ) ] <|
+            [ area [ areaStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data
             , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
-            ] ++ tooltipView)
+            ] ++ tooltipView
 
 
 code =

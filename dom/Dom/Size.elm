@@ -1,4 +1,4 @@
-module Dom.Size exposing ( height, width, Boundary )
+module Dom.Size exposing (height, width, Boundary)
 
 {-| Figuring out the size of a node is actually pretty tricky. Nodes have
 padding, borders, and margins. You can also scroll the content in a node in
@@ -25,7 +25,7 @@ will be zero.
 -}
 height : Boundary -> Id -> Task Error Float
 height =
-  Native.Dom.height
+    Native.Dom.height
 
 
 {-| Get the width of a node, measured along a certain boundary.
@@ -35,7 +35,7 @@ will be zero.
 -}
 width : Boundary -> Id -> Task Error Float
 width =
-  Native.Dom.width
+    Native.Dom.width
 
 
 {-| Check out [this diagram][diagram] to understand what all of these
@@ -53,7 +53,7 @@ But again, look at [the diagram][diagram]. It makes this easier!
 [diagram]:
 -}
 type Boundary
-  = Content
-  | VisibleContent
-  | VisibleContentWithBorders
-  | VisibleContentWithBordersAndMargins
+    = Content
+    | VisibleContent
+    | VisibleContentWithBorders
+    | VisibleContentWithBordersAndMargins

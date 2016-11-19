@@ -1,7 +1,10 @@
-module Dom exposing
-  ( focus, blur, Id
-  , Error(..)
-  )
+module Dom
+    exposing
+        ( focus
+        , blur
+        , Id
+        , Error(..)
+        )
 
 {-|
 
@@ -17,14 +20,14 @@ import Native.Dom
 import Task exposing (Task)
 
 
-
 -- ERRORS
 
 
 {-| All the functions here look up DOM nodes by ID. If you ask for an ID that
 is not currently attached to the DOM, you will get this error!
 -}
-type Error = NotFound String
+type Error
+    = NotFound String
 
 
 
@@ -35,7 +38,7 @@ type Error = NotFound String
 `<div id="my-thing"></div>` you would refer to it with the `Id` `"my-thing"`.
 -}
 type alias Id =
-  String
+    String
 
 
 {-| On a website, there can only be one thing in focus at a time. A text field,
@@ -51,7 +54,7 @@ if document.activeElement actually got updated to the element we selected. https
 -}
 focus : Id -> Task Error ()
 focus =
-  Native.Dom.focus
+    Native.Dom.focus
 
 
 {-| On a website, there can only be one thing in focus at a time. A text field,
@@ -65,5 +68,4 @@ This is roughly the same as saying `document.getElementById(id).blur()`.
 -}
 blur : Id -> Task Error ()
 blur =
-  Native.Dom.blur
-
+    Native.Dom.blur

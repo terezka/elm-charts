@@ -164,6 +164,7 @@ type alias MetaConfig =
     , margin : ( Float, Float, Float, Float )
     , classes : List String
     , style : Style
+    , id : String
     }
 
 
@@ -179,6 +180,7 @@ defaultMetaConfig =
     , margin = ( 0, 0, 0, 0 )
     , classes = []
     , style = [ ( "padding", "0" ), ( "stroke", "#000" ) ]
+    , id = "elm-plot"
     }
 
 
@@ -202,13 +204,15 @@ plotSize ( width, height ) config =
     { config | size = ( toFloat width, toFloat height ) }
 
 
-{-| Specify the size of your plot in pixels.
+{-| Specify margin around the plot. Useful when your ticks are outside the
+ plot and you would like to add space to see them! Values are in pixels and
+ in the format of ( top, right, bottom, left ).
 
- Default: `( 800, 500 )`
+ Default: `( 0, 0, 0, 0 )`
 -}
 plotMargin : ( Int, Int, Int, Int ) -> MetaConfig -> MetaConfig
 plotMargin ( t, r, b, l ) config =
-    { config | margin = ( toFloat t, toFloat r, toFloat b, toFloat l) }
+    { config | margin = ( toFloat t, toFloat r, toFloat b, toFloat l ) }
 
 
 {-| Add styles to the svg element.
@@ -1058,6 +1062,7 @@ line attrs points =
         Line { config | points = points }
 
 
+
 -- TOOLTIP
 
 
@@ -1087,7 +1092,7 @@ tooltipShowLine config =
 
 
 {-| -}
-tooltipCustomView : ( ( Float, Float ) -> Svg.Svg msg ) -> TooltipConfig msg -> TooltipConfig msg
+tooltipCustomView : (( Float, Float ) -> Svg.Svg msg) -> TooltipConfig msg -> TooltipConfig msg
 tooltipCustomView view config =
     { config | view = view }
 
@@ -1121,10 +1126,9 @@ initialState =
 -- UPDATE
 
 
-
 {-| -}
-type Msg 
-    = Hovering PlotProps (Float, Float )
+type Msg
+    = Hovering PlotProps ( Float, Float )
     | ReceivePosition (Result Dom.Error ( Float, Float ))
     | ResetPosition
 
@@ -1151,21 +1155,27 @@ update msg state =
             ( { position = Nothing, waiting = False }, Cmd.none )
 
 
-
 getPosition : PlotProps -> ( Float, Float ) -> Cmd Msg
 getPosition plotProps mousePosition =
-    Task.attempt ReceivePosition <| Task.map2 (getRelativeMousePosition plotProps mousePosition) (Dom.Position.left "elm-plot-id") (Dom.Position.top "elm-plot-id")
+    Task.map2
+        (getRelativeMousePosition plotProps mousePosition)
+        (Dom.Position.left (getInnerId plotProps))
+        (Dom.Position.top (getInnerId plotProps))
+        |> Task.attempt ReceivePosition
 
 
-
-getRelativeMousePosition : PlotProps -> ( Float, Float ) ->  Float -> Float -> ( Float, Float )
+getRelativeMousePosition : PlotProps -> ( Float, Float ) -> Float -> Float -> ( Float, Float )
 getRelativeMousePosition { fromSvgCoords, toNearestX } ( mouseX, mouseY ) left top =
     let
-        (x, y) =
+        ( x, y ) =
             fromSvgCoords ( mouseX - left, mouseY - top )
     in
         ( toNearestX x, y )
 
+
+getInnerId : PlotProps -> String
+getInnerId { id } =
+    id ++ "__inner"
 
 
 -- PARSE PLOT
@@ -1173,39 +1183,39 @@ getRelativeMousePosition { fromSvgCoords, toNearestX } ( mouseX, mouseY ) left t
 
 eventPos : PlotProps -> Json.Decoder Msg
 eventPos plotProps =
-  Json.map2
-    (\x y -> Hovering plotProps (x, y))
-    (Json.field "clientX" Json.float)
-    (Json.field "clientY" Json.float)
+    Json.map2
+        (\x y -> Hovering plotProps ( x, y ))
+        (Json.field "clientX" Json.float)
+        (Json.field "clientY" Json.float)
 
 
 {-| This is the function processing your entire plot configuration.
  Pass your meta attributes and plot elements to this function and
  a svg plot will be returned!
 -}
-plot : List MetaAttr -> List (Element Msg) -> Svg.Svg Msg
-plot attr elements =
-    Svg.Lazy.lazy2 parsePlot attr elements
+plot : String -> List MetaAttr -> List (Element Msg) -> Svg.Svg Msg
+plot id attr elements =
+    Svg.Lazy.lazy3 parsePlot id attr elements
 
 
 
 -- VIEW
 
 
-parsePlot : List MetaAttr -> List (Element Msg) -> Svg.Svg Msg
-parsePlot attr elements =
+parsePlot : String -> List MetaAttr -> List (Element Msg) -> Svg.Svg Msg
+parsePlot id attr elements =
     let
         metaConfig =
             toMetaConfig attr
 
         plotProps =
-            getPlotProps metaConfig elements
+            getPlotProps id metaConfig elements
     in
         viewPlot metaConfig plotProps (viewElements plotProps elements)
 
 
-viewPlot : MetaConfig -> PlotProps -> (List (Svg.Svg Msg), List (Html.Html Msg)) -> Svg.Svg Msg
-viewPlot { size, style, classes, margin } plotProps (svgViews, htmlViews) =
+viewPlot : MetaConfig -> PlotProps -> ( List (Svg.Svg Msg), List (Html.Html Msg) ) -> Svg.Svg Msg
+viewPlot { size, style, classes, margin } plotProps ( svgViews, htmlViews ) =
     let
         ( width, height ) =
             size
@@ -1217,7 +1227,9 @@ viewPlot { size, style, classes, margin } plotProps (svgViews, htmlViews) =
             String.join "px " <| List.map toString [ top, right, bottom, left ]
     in
         Html.div
-            [ Html.Attributes.class "elm-plot" ]
+            [ Html.Attributes.class "elm-plot"
+            , Html.Attributes.id plotProps.id
+            ]
             [ Svg.svg
                 [ Svg.Attributes.height (toString height)
                 , Svg.Attributes.width (toString width)
@@ -1228,14 +1240,14 @@ viewPlot { size, style, classes, margin } plotProps (svgViews, htmlViews) =
                 [ Html.Attributes.class "elm-plot__html" ]
                 [ Html.div
                     [ Html.Attributes.class "elm-plot__html__inner"
-                    , Html.Attributes.id "elm-plot-id"
+                    , Html.Attributes.id (getInnerId plotProps)
                     , Html.Attributes.style
-                        [ ("width", toString (width - left - right) ++ "px")
-                        , ("height", toString (height - top - bottom) ++ "px")
-                        , ("padding", paddingStyle ++ "px")
+                        [ ( "width", toString (width - left - right) ++ "px" )
+                        , ( "height", toString (height - top - bottom) ++ "px" )
+                        , ( "padding", paddingStyle ++ "px" )
                         ]
                     , Html.Events.on "mousemove" (eventPos plotProps)
-                    --, Html.Events.onMouseOut ResetPosition
+                    , Html.Events.onMouseOut ResetPosition
                     ]
                     htmlViews
                 ]
@@ -1243,16 +1255,15 @@ viewPlot { size, style, classes, margin } plotProps (svgViews, htmlViews) =
 
 
 
-
 -- VIEW ELEMENTS
 
 
-viewElements : PlotProps -> List (Element Msg) -> (List (Svg.Svg Msg), List (Html.Html Msg))
+viewElements : PlotProps -> List (Element Msg) -> ( List (Svg.Svg Msg), List (Html.Html Msg) )
 viewElements plotProps elements =
-    List.foldr (viewElement plotProps) ([], []) elements
+    List.foldr (viewElement plotProps) ( [], [] ) elements
 
 
-viewElement : PlotProps -> Element Msg -> (List (Svg.Svg Msg), List (Html.Html Msg)) -> (List (Svg.Svg Msg), List (Html.Html Msg))
+viewElement : PlotProps -> Element Msg -> ( List (Svg.Svg Msg), List (Html.Html Msg) ) -> ( List (Svg.Svg Msg), List (Html.Html Msg) )
 viewElement plotProps element ( svgViews, htmlViews ) =
     case element of
         Axis config ->
@@ -1265,10 +1276,10 @@ viewElement plotProps element ( svgViews, htmlViews ) =
                         Y ->
                             flipToY plotProps
             in
-                ((viewAxis plotPropsFitted config) :: svgViews, htmlViews)
+                ( (viewAxis plotPropsFitted config) :: svgViews, htmlViews )
 
         Tooltip config position ->
-            (svgViews, (viewTooltip plotProps config position) :: htmlViews)
+            ( svgViews, (viewTooltip plotProps config position) :: htmlViews )
 
         Grid config ->
             let
@@ -1280,13 +1291,13 @@ viewElement plotProps element ( svgViews, htmlViews ) =
                         Y ->
                             flipToY plotProps
             in
-                ((viewGrid plotPropsFitted config) :: svgViews, htmlViews)
+                ( (viewGrid plotPropsFitted config) :: svgViews, htmlViews )
 
         Line config ->
-            ((viewLine plotProps config) :: svgViews, htmlViews)
+            ( (viewLine plotProps config) :: svgViews, htmlViews )
 
         Area config ->
-            ((viewArea plotProps config) :: svgViews, htmlViews)
+            ( (viewArea plotProps config) :: svgViews, htmlViews )
 
 
 
@@ -1475,18 +1486,21 @@ viewGridLine toSvgCoords scale style position =
 
 viewTooltip : PlotProps -> TooltipConfig Msg -> ( Float, Float ) -> Html.Html Msg
 viewTooltip { toSvgCoords, scale } { showLine, view } position =
-    let 
-        ( x, y ) = toSvgCoords position
+    let
+        ( x, y ) =
+            toSvgCoords position
 
         transform =
-            if x > scale.length / 2
-            then ( "transform", "translateX(-100%)" )
-            else ( "transform", "translateX(0)" )
+            if x > scale.length / 2 then
+                ( "transform", "translateX(-100%)" )
+            else
+                ( "transform", "translateX(0)" )
 
         left =
-            if x > scale.length / 2
-            then x - 10
-            else x + 10
+            if x > scale.length / 2 then
+                x - 10
+            else
+                x + 10
     in
         Html.div
             [ Html.Attributes.style
@@ -1504,6 +1518,7 @@ defaultTooltipView position =
     Html.div
         [ Html.Attributes.style [ ( "padding", "10px" ), ( "background", "#eee" ), ( "border-radius", "5px" ) ] ]
         [ Html.text (toString position) ]
+
 
 
 -- VIEW AREA
@@ -1588,12 +1603,16 @@ type alias PlotProps =
     , ticks : List Float
     , oppositeTicks : List Float
     , toNearestX : Float -> Float
+    , id : String
     }
 
 
-getScales : Float -> Float -> ( Float, Float ) -> List Float -> AxisScale
-getScales length offset ( paddingBottomPx, paddingTopPx ) values =
+getScales : Float -> ( Float, Float ) -> ( Float, Float ) -> List Float -> AxisScale
+getScales lengthTotal ( offsetLeft, offsetRight ) ( paddingBottomPx, paddingTopPx ) values =
     let
+        length =
+            lengthTotal - offsetLeft - offsetRight
+
         lowest =
             getLowest values
 
@@ -1613,7 +1632,7 @@ getScales length offset ( paddingBottomPx, paddingTopPx ) values =
         , highest = highest + paddingTop
         , range = range + paddingBottom + paddingTop
         , length = length
-        , offset = offset
+        , offset = offsetLeft
         }
 
 
@@ -1624,7 +1643,7 @@ scaleValue { length, range } v =
 
 unScaleValue : AxisScale -> Float -> Float
 unScaleValue { length, range } v =
-    v * range / length 
+    v * range / length
 
 
 fromSvgCoords : AxisScale -> AxisScale -> Point -> Point
@@ -1653,16 +1672,19 @@ getDiff a b =
 
 getClosest : Float -> Float -> Float -> Float
 getClosest value candidate closest =
-    if getDiff value candidate < getDiff value closest then candidate else closest
+    if getDiff value candidate < getDiff value closest then
+        candidate
+    else
+        closest
 
 
-toNearestX : (List Float, List Float) -> Float -> Float
-toNearestX (xValues, yValues) value =
+toNearestX : ( List Float, List Float ) -> Float -> Float
+toNearestX ( xValues, yValues ) value =
     List.foldr (getClosest value) 0 xValues
 
 
-getPlotProps : MetaConfig -> List (Element Msg) -> PlotProps
-getPlotProps { size, padding, margin } elements =
+getPlotProps : String -> MetaConfig -> List (Element Msg) -> PlotProps
+getPlotProps id { size, padding, margin } elements =
     let
         ( xValues, yValues ) =
             List.unzip (List.foldr collectPoints [] elements)
@@ -1674,10 +1696,10 @@ getPlotProps { size, padding, margin } elements =
             margin
 
         xScale =
-            getScales (width - left - right) left ( 0, 0 ) xValues
+            getScales width ( left, right ) ( 0, 0 ) xValues
 
         yScale =
-            getScales (height - top - bottom) top padding yValues
+            getScales height ( top, bottom ) padding yValues
 
         xTicks =
             getLastGetTickValues X elements <| xScale
@@ -1693,11 +1715,12 @@ getPlotProps { size, padding, margin } elements =
         , ticks = xTicks
         , oppositeTicks = yTicks
         , toNearestX = toNearestX ( xValues, yValues )
+        , id = id
         }
 
 
 flipToY : PlotProps -> PlotProps
-flipToY { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, oppositeTicks, fromSvgCoords, toNearestX } =
+flipToY { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, oppositeTicks, fromSvgCoords, toNearestX, id } =
     { scale = oppositeScale
     , oppositeScale = scale
     , toSvgCoords = oppositeToSvgCoords
@@ -1706,6 +1729,7 @@ flipToY { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, opposit
     , ticks = oppositeTicks
     , oppositeTicks = ticks
     , toNearestX = toNearestX
+    , id = id
     }
 
 

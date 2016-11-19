@@ -1,7 +1,14 @@
-module Dom.Scroll exposing
-  ( toTop, toBottom, y, toY
-  , toLeft, toRight, x, toX
-  )
+module Dom.Scroll
+    exposing
+        ( toTop
+        , toBottom
+        , y
+        , toY
+        , toLeft
+        , toRight
+        , x
+        , toX
+        )
 
 {-| When you set `overflow-y: scroll` on an element, a scroll bar will appear
 when the content overflows the available space. When that happens, you may want
@@ -23,7 +30,6 @@ import Native.Dom
 import Task exposing (Task)
 
 
-
 -- VERTICAL
 
 
@@ -33,14 +39,14 @@ So `toTop id` is the same as `toY id 0`.
 -}
 toTop : Id -> Task Error ()
 toTop id =
-  toY id 0
+    toY id 0
 
 
 {-| Find the node with the given `Id` and scroll it to the bottom.
 -}
 toBottom : Id -> Task Error ()
 toBottom =
-  Native.Dom.toBottom
+    Native.Dom.toBottom
 
 
 {-| How much this element is scrolled vertically.
@@ -55,7 +61,7 @@ This is roughly the same as saying [`document.getElementById(id).scrollTop`][doc
 -}
 y : Id -> Task Error Float
 y =
-  Native.Dom.getScrollTop
+    Native.Dom.getScrollTop
 
 
 {-| Set the vertical scroll to whatever offset you want.
@@ -72,7 +78,7 @@ If we provide values outside that range, they just get clamped, so
 -}
 toY : Id -> Float -> Task Error ()
 toY =
-  Native.Dom.setScrollTop
+    Native.Dom.setScrollTop
 
 
 
@@ -85,14 +91,14 @@ So `toLeft id` is the same as `toX id 0`.
 -}
 toLeft : Id -> Task Error ()
 toLeft id =
-  toX id 0
+    toX id 0
 
 
 {-| Find the node with the given `Id` and scroll it to the far right.
 -}
 toRight : Id -> Task Error ()
 toRight =
-  Native.Dom.toRight
+    Native.Dom.toRight
 
 
 {-| How much this element is scrolled horizontally.
@@ -107,7 +113,7 @@ This is roughly the same as saying [`document.getElementById(id).scrollLeft`][do
 -}
 x : Id -> Task Error Float
 x =
-  Native.Dom.getScrollLeft
+    Native.Dom.getScrollLeft
 
 
 {-| Set the horizontal scroll to whatever offset you want.
@@ -116,4 +122,4 @@ It works just like `toY`, so check out those docs for a more complete example.
 -}
 toX : Id -> Float -> Task Error ()
 toX =
-  Native.Dom.setScrollLeft
+    Native.Dom.setScrollLeft

@@ -1,4 +1,4 @@
-module Dom.Position exposing ( top, left )
+module Dom.Position exposing (top, left)
 
 {-| This module lets you choose one of these boundaries and then measure its size.
 # Position
@@ -14,7 +14,7 @@ import Task exposing (Task)
 -}
 top : Id -> Task Error Float
 top =
-  Native.Dom.top
+    Native.Dom.top
 
 
 {-| Get the width of a node, measured along a certain boundary.
@@ -23,4 +23,4 @@ will be zero.
 -}
 left : Id -> Task Error Float
 left =
-  Native.Dom.left
+    Native.Dom.left

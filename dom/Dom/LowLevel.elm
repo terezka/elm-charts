@@ -1,7 +1,8 @@
-module Dom.LowLevel exposing
-  ( onDocument
-  , onWindow
-  )
+module Dom.LowLevel
+    exposing
+        ( onDocument
+        , onWindow
+        )
 
 {-| This is not for general use. It backs libraries like `elm-lang/mouse` and
 `elm-lang/window` which should cover your needs in most cases. In the rare
@@ -25,7 +26,7 @@ event listener.
 -}
 onDocument : String -> Json.Decoder msg -> (msg -> Task Never ()) -> Task Never Never
 onDocument =
-  Native.Dom.onDocument
+    Native.Dom.onDocument
 
 
 {-| Add an event handler on `window`. The resulting task will never end, and
@@ -34,4 +35,4 @@ event listener.
 -}
 onWindow : String -> Json.Decoder msg -> (msg -> Task Never ()) -> Task Never Never
 onWindow =
-  Native.Dom.onWindow
+    Native.Dom.onWindow
