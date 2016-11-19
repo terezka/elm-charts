@@ -1206,7 +1206,14 @@ viewPlot { size, style, classes } plotProps (svgViews, htmlViews) =
                 , Svg.Attributes.class (String.join " " classes)
                 ]
                 (svgViews ++ [ viewOverlay size plotProps ])
-            , Html.div [] htmlViews
+            , Html.div
+                [ Svg.Attributes.style (toStyle [ ("position", "absolute"), ("top", "0px"), ("left", "0px"), ("pointer-events", "none"), ("width", "100%")])
+                ]
+                [ Html.div
+                    [ Svg.Attributes.style (toStyle [ ("margin", "0 auto"), ("position", "relative"), ("width", toString width ++ "px"), ("height", toString height ++ "px")])
+                    ]
+                    htmlViews
+                ]
             ]
 
 
@@ -1454,15 +1461,26 @@ viewGridLine toSvgCoords scale style position =
 
 
 viewTooltip : PlotProps -> TooltipConfig Msg -> ( Float, Float ) -> Html.Html Msg
-viewTooltip { toSvgCoords } { showLine, view } position =
+viewTooltip { toSvgCoords, scale } { showLine, view } position =
     let 
         ( x, y ) = toSvgCoords position
+
+        transform =
+            if x < scale.length / 2
+            then ( "transform", "translateX(-100%)" )
+            else ( "transform", "translateX(0)" )
+
+        left =
+            if x < scale.length / 2
+            then x - 10
+            else x + 10
     in
         Html.div
             [ Html.Attributes.style
                 [ ( "position", "absolute" )
-                , ( "left", (toString x) ++ "px" )
+                , ( "left", (toString left) ++ "px" )
                 , ( "top", "20%" )
+                , transform
                 ]
             ]
             [ view position ]
