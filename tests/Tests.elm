@@ -16,16 +16,28 @@ all =
         , testSize
         , testPlotStyle
         , testPlotClasses
+        , testTickLength
+        , testTickWidth
+        , testTickClasses
+        , testTickStyle
         ]
 
 
 baseMetaConfig =
-  { size = ( 1, 2 )
-  , padding = (0, 0)
-  , classes = ["foobar"]
-  , style = [("padding","30px"),("stroke","#000")]
-  }
-  
+    { size = ( 800, 500 )
+    , padding = ( 0, 0 )
+    , classes = []
+    , style = [ ( "padding", "30px" ), ( "stroke", "#000" ) ]
+    }
+
+
+baseTickViewConfig =
+    { length = 7
+    , width = 1
+    , style = []
+    , classes = []
+    }
+
 
 testPadding : Test
 testPadding =
@@ -71,13 +83,69 @@ testPlotStyle =
 
 testPlotClasses : Test
 testPlotClasses =
-  describe "size"
+  describe "plotClasses"
     [ fuzz (list string)
       "should return a valid metaConfig " <|
         \data ->
           let
             result = plotClasses data baseMetaConfig
             expected = { baseMetaConfig | classes = data }
+          in
+          Expect.equal result expected
+    ]
+
+
+testTickLength : Test
+testTickLength =
+  describe "tickLength"
+    [ fuzz (int)
+      "should return a valid viewConfig" <|
+        \data ->
+          let
+            result = tickLength data baseTickViewConfig
+            expected = { baseTickViewConfig | length = data }
+          in
+          Expect.equal result expected
+    ]
+
+
+testTickWidth : Test
+testTickWidth =
+  describe "tickWidth"
+    [ fuzz (int)
+      "should return a valid viewConfig" <|
+        \data ->
+          let
+            result = tickWidth data baseTickViewConfig
+            expected = { baseTickViewConfig | width = data }
+          in
+          Expect.equal result expected
+    ]
+
+
+testTickClasses : Test
+testTickClasses =
+  describe "tickClasses"
+    [ fuzz (list string)
+      "should return a valid viewConfig" <|
+        \data ->
+          let
+            result = tickClasses data baseTickViewConfig
+            expected = { baseTickViewConfig | classes = data }
+          in
+          Expect.equal result expected
+    ]
+
+
+testTickStyle : Test
+testTickStyle =
+  describe "tickStyle"
+    [ fuzz (list (tuple ( string, string )))
+      "should return a valid viewConfig" <|
+        \data ->
+          let
+            result = tickStyle data baseTickViewConfig
+            expected = { baseTickViewConfig | style = data }
           in
           Expect.equal result expected
     ]
