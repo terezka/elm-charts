@@ -40,7 +40,7 @@ module Plot
         , gridMirrorTicks
         , tooltip
         , tooltipCustomView
-        , tooltipShowLine
+        , tooltipRemoveLine
         , area
         , areaStyle
         , line
@@ -98,7 +98,7 @@ module Plot
 @docs verticalGrid, horizontalGrid, gridMirrorTicks, gridValues, gridClasses, gridStyle
 
 ## Tooltip configuration
-@docs tooltip, tooltipShowLine, tooltipCustomView
+@docs tooltip, tooltipRemoveLine, tooltipCustomView
 
 # State
 @docs State, initialState, update, Msg
@@ -1069,6 +1069,7 @@ line attrs points =
 type alias TooltipConfig msg =
     { view : TooltipInfo -> Bool -> Html msg
     , showLine : Bool
+    , lineStyle : Style
     }
 
 
@@ -1076,6 +1077,7 @@ defaultTooltipConfig : TooltipConfig Msg
 defaultTooltipConfig =
     { view = defaultTooltipView
     , showLine = True
+    , lineStyle = []
     }
 
 
@@ -1086,9 +1088,9 @@ type alias TooltipAttr msg =
 
 
 {-| -}
-tooltipShowLine : TooltipConfig msg -> TooltipConfig msg
-tooltipShowLine config =
-    { config | showLine = True }
+tooltipRemoveLine : TooltipConfig msg -> TooltipConfig msg
+tooltipRemoveLine config =
+    { config | showLine = False }
 
 
 {-| -}
@@ -1281,7 +1283,10 @@ viewElement plotProps element ( svgViews, htmlViews ) =
                 ( (viewAxis plotPropsFitted config) :: svgViews, htmlViews )
 
         Tooltip config position ->
-            ( svgViews, (viewTooltip plotProps config position) :: htmlViews )
+            let
+                tooltipView = viewTooltip plotProps config position
+            in
+                ( svgViews, tooltipView :: htmlViews )
 
         Grid config ->
             let
@@ -1365,7 +1370,7 @@ viewAxis plotProps { toTickValues, tickView, labelView, labelValues, style, clas
             [ Svg.Attributes.style (toStyle style)
             , Svg.Attributes.class (String.join " " classes)
             ]
-            [ viewGridLine toSvgCoords scale axisLineStyle 0
+            [ viewGridLine plotProps axisLineStyle 0
             , Svg.g [] (List.map (placeTick plotProps (tickView orientation)) tickPositions)
             , Svg.g [] (List.map (placeTick plotProps (labelView orientation)) labelPositions)
             ]
@@ -1454,18 +1459,21 @@ getGridPositions tickValues values =
 
 
 viewGrid : PlotProps -> GridConfig -> Svg.Svg Msg
-viewGrid { scale, toSvgCoords, oppositeTicks } { values, style, classes } =
+viewGrid plotProps { values, style, classes } =
     let
+        { scale, toSvgCoords, oppositeTicks } =
+            plotProps
+
         positions =
             getGridPositions oppositeTicks values
     in
         Svg.g
             [ Svg.Attributes.class (String.join " " classes) ]
-            (List.map (viewGridLine toSvgCoords scale style) positions)
+            (List.map (viewGridLine plotProps style) positions)
 
 
-viewGridLine : (Point -> Point) -> AxisScale -> Style -> Float -> Svg.Svg Msg
-viewGridLine toSvgCoords scale style position =
+viewGridLine : PlotProps -> Style -> Float -> Svg.Svg Msg
+viewGridLine { toSvgCoords, scale } style position =
     let
         { lowest, highest } =
             scale
@@ -1492,26 +1500,40 @@ viewTooltip { toSvgCoords, scale, getTooltipInfo } { showLine, view } position =
         info =
             getTooltipInfo (Tuple.first position)
 
-        ( xSvg, _ ) =
+        ( xSvg, ySvg ) =
             toSvgCoords (info.selectedX, 0)
 
         flipped =
-            xSvg > scale.length / 2
+            xSvg < scale.length / 2
+
+        lineView =
+            if showLine then [ viewTooltipLine ( xSvg, ySvg ) ] else []
     in
         Html.div
             [ Html.Attributes.class "elm-plot__tooltip"
             , Html.Attributes.style [ ( "left", (toString xSvg) ++ "px" ) ]
             ]
-            [ view info flipped ]
+            ((view info flipped) :: lineView)
+
+
+viewTooltipLine : ( Float, Float ) -> Html.Html Msg
+viewTooltipLine ( x, y ) =
+    Html.div
+        [ Html.Attributes.class "elm-plot__tooltip__line" 
+        , Html.Attributes.style
+            [ ( "left", (toString x) ++ "px" ) 
+            , ( "height", toString y ++ "px")]
+        ]
+        []
 
 
 defaultTooltipView : TooltipInfo -> Bool -> Html.Html Msg
-defaultTooltipView { selectedX, selectedYs } flipped =
+defaultTooltipView { selectedX, selectedYs } isLeftSide =
     let
         classes =
             [ ( "elm-plot__tooltip__default-view", True )
-            , ( "elm-plot__tooltip__default-view--left", not flipped )
-            , ( "elm-plot__tooltip__default-view--right", flipped )
+            , ( "elm-plot__tooltip__default-view--left", isLeftSide )
+            , ( "elm-plot__tooltip__default-view--right", not isLeftSide )
             ]
     in
         Html.div

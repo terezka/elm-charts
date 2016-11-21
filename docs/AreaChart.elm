@@ -25,9 +25,7 @@ chart state =
                     []
 
                 Just position ->
-                    [ tooltip [] position
-                    , verticalGrid [ gridValues [ Tuple.first position ], gridStyle [ ( "stroke", Colors.axisColor ) ] ]
-                    ]
+                    [ tooltip [] position ]
     in
         plot
             "my-id"

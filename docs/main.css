@@ -21,13 +21,19 @@
 
 .elm-plot__tooltip {
 	position: absolute;
-	top: 20%;
+	top: 0;
 	pointer-events: none;
+}
+
+.elm-plot__tooltip__line {
+	width: 1px;
+	top: 0;
+	background-color: #aaa;
 }
 
 .elm-plot__tooltip__default-view {
 	position: absolute;
-	top: 0;
+	top: 20%;
 	padding: 10px;
 	background-color: #eee;
 	width: 150px;
