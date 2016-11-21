@@ -1501,7 +1501,7 @@ viewTooltip { toSvgCoords, scale, getTooltipInfo } { showLine, view } position =
             getTooltipInfo (Tuple.first position)
 
         ( xSvg, ySvg ) =
-            toSvgCoords (info.selectedX, 0)
+            toSvgCoords (info.xValue, 0)
 
         flipped =
             xSvg < scale.length / 2
@@ -1528,7 +1528,7 @@ viewTooltipLine ( x, y ) =
 
 
 defaultTooltipView : TooltipInfo -> Bool -> Html.Html Msg
-defaultTooltipView { selectedX, selectedYs } isLeftSide =
+defaultTooltipView { xValue, yValues } isLeftSide =
     let
         classes =
             [ ( "elm-plot__tooltip__default-view", True )
@@ -1538,8 +1538,8 @@ defaultTooltipView { selectedX, selectedYs } isLeftSide =
     in
         Html.div
             [ Html.Attributes.classList classes ]
-            [ Html.div [] [ Html.text ("X: " ++ toString selectedX) ]
-            , Html.div [] (List.indexedMap viewTooltipYValue selectedYs)
+            [ Html.div [] [ Html.text ("X: " ++ toString xValue) ]
+            , Html.div [] (List.indexedMap viewTooltipYValue yValues)
             ]
 
 
@@ -1648,8 +1648,8 @@ type alias PlotProps =
 
 
 type alias TooltipInfo =
-    { selectedX : Float
-    , selectedYs : List (Maybe Float)
+    { xValue : Float
+    , yValues : List (Maybe Float)
     }
 
 
@@ -1730,12 +1730,12 @@ toNearestX xValues value =
 
 
 getTooltipInfo : List (Element Msg) -> Float -> TooltipInfo
-getTooltipInfo elements selectedX =
+getTooltipInfo elements xValue =
     let
-        selectedYs =
-            List.foldr (collectYValues selectedX) [] elements
+        yValues =
+            List.foldr (collectYValues xValue) [] elements
     in
-        TooltipInfo selectedX selectedYs
+        TooltipInfo xValue yValues
 
 
 getPlotProps : String -> MetaConfig -> List (Element Msg) -> PlotProps

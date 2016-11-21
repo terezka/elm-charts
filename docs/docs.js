@@ -9775,7 +9775,7 @@ var _terezka$elm_plot$Plot$defaultTooltipView = F2(
 							A2(
 								_elm_lang$core$Basics_ops['++'],
 								'X: ',
-								_elm_lang$core$Basics$toString(_p43.selectedX))),
+								_elm_lang$core$Basics$toString(_p43.xValue))),
 						_1: {ctor: '[]'}
 					}),
 				_1: {
@@ -9783,7 +9783,7 @@ var _terezka$elm_plot$Plot$defaultTooltipView = F2(
 					_0: A2(
 						_elm_lang$html$Html$div,
 						{ctor: '[]'},
-						A2(_elm_lang$core$List$indexedMap, _terezka$elm_plot$Plot$viewTooltipYValue, _p43.selectedYs)),
+						A2(_elm_lang$core$List$indexedMap, _terezka$elm_plot$Plot$viewTooltipYValue, _p43.yValues)),
 					_1: {ctor: '[]'}
 				}
 			});
@@ -9833,7 +9833,7 @@ var _terezka$elm_plot$Plot$viewTooltip = F3(
 		var info = _p48.getTooltipInfo(
 			_elm_lang$core$Tuple$first(position));
 		var _p50 = _p48.toSvgCoords(
-			{ctor: '_Tuple2', _0: info.selectedX, _1: 0});
+			{ctor: '_Tuple2', _0: info.xValue, _1: 0});
 		var xSvg = _p50._0;
 		var ySvg = _p50._1;
 		var flipped = _elm_lang$core$Native_Utils.cmp(xSvg, _p48.scale.length / 2) < 0;
@@ -10715,16 +10715,16 @@ var _terezka$elm_plot$Plot$PlotProps = function (a) {
 };
 var _terezka$elm_plot$Plot$TooltipInfo = F2(
 	function (a, b) {
-		return {selectedX: a, selectedYs: b};
+		return {xValue: a, yValues: b};
 	});
 var _terezka$elm_plot$Plot$getTooltipInfo = F2(
-	function (elements, selectedX) {
-		var selectedYs = A3(
+	function (elements, xValue) {
+		var yValues = A3(
 			_elm_lang$core$List$foldr,
-			_terezka$elm_plot$Plot$collectYValues(selectedX),
+			_terezka$elm_plot$Plot$collectYValues(xValue),
 			{ctor: '[]'},
 			elements);
-		return A2(_terezka$elm_plot$Plot$TooltipInfo, selectedX, selectedYs);
+		return A2(_terezka$elm_plot$Plot$TooltipInfo, xValue, yValues);
 	});
 var _terezka$elm_plot$Plot$Y = {ctor: 'Y'};
 var _terezka$elm_plot$Plot$X = {ctor: 'X'};
