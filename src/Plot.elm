@@ -1137,8 +1137,8 @@ type Msg
 update : Msg -> State -> ( State, Cmd Msg )
 update msg state =
     case msg of
-        Hovering plotProps mousePosition ->
-            ( { state | waiting = True }, getPosition plotProps mousePosition )
+        Hovering plotProps eventPosition ->
+            ( { state | waiting = True }, getPosition plotProps eventPosition )
 
         ReceivePosition result ->
             case result of
@@ -1156,16 +1156,16 @@ update msg state =
 
 
 getPosition : PlotProps -> ( Float, Float ) -> Cmd Msg
-getPosition plotProps mousePosition =
+getPosition plotProps eventPosition =
     Task.map2
-        (getRelativeMousePosition plotProps mousePosition)
+        (getRelativePosition plotProps eventPosition)
         (Dom.Position.left (getInnerId plotProps))
         (Dom.Position.top (getInnerId plotProps))
         |> Task.attempt ReceivePosition
 
 
-getRelativeMousePosition : PlotProps -> ( Float, Float ) -> Float -> Float -> ( Float, Float )
-getRelativeMousePosition { fromSvgCoords, toNearestX } ( mouseX, mouseY ) left top =
+getRelativePosition : PlotProps -> ( Float, Float ) -> Float -> Float -> ( Float, Float )
+getRelativePosition { fromSvgCoords, toNearestX } ( mouseX, mouseY ) left top =
     let
         ( x, y ) =
             fromSvgCoords ( mouseX - left, mouseY - top )
@@ -1178,15 +1178,8 @@ getInnerId { id } =
     id ++ "__inner"
 
 
+
 -- PARSE PLOT
-
-
-eventPos : PlotProps -> Json.Decoder Msg
-eventPos plotProps =
-    Json.map2
-        (\x y -> Hovering plotProps ( x, y ))
-        (Json.field "clientX" Json.float)
-        (Json.field "clientY" Json.float)
 
 
 {-| This is the function processing your entire plot configuration.
@@ -1212,6 +1205,15 @@ parsePlot id attr elements =
             getPlotProps id metaConfig elements
     in
         viewPlot metaConfig plotProps (viewElements plotProps elements)
+
+
+getEventPostion : PlotProps -> Json.Decoder Msg
+getEventPostion plotProps =
+    Json.map2
+        (\x y -> Hovering plotProps ( x, y ))
+        (Json.field "clientX" Json.float)
+        (Json.field "clientY" Json.float)
+
 
 
 viewPlot : MetaConfig -> PlotProps -> ( List (Svg.Svg Msg), List (Html.Html Msg) ) -> Svg.Svg Msg
@@ -1246,7 +1248,7 @@ viewPlot { size, style, classes, margin } plotProps ( svgViews, htmlViews ) =
                         , ( "height", toString (height - top - bottom) ++ "px" )
                         , ( "padding", paddingStyle ++ "px" )
                         ]
-                    , Html.Events.on "mousemove" (eventPos plotProps)
+                    , Html.Events.on "mousemove" (getEventPostion plotProps)
                     , Html.Events.onMouseOut ResetPosition
                     ]
                     htmlViews
@@ -1678,8 +1680,8 @@ getClosest value candidate closest =
         closest
 
 
-toNearestX : ( List Float, List Float ) -> Float -> Float
-toNearestX ( xValues, yValues ) value =
+toNearestX : List Float -> Float -> Float
+toNearestX xValues value =
     List.foldr (getClosest value) 0 xValues
 
 
@@ -1714,7 +1716,7 @@ getPlotProps id { size, padding, margin } elements =
         , fromSvgCoords = fromSvgCoords xScale yScale
         , ticks = xTicks
         , oppositeTicks = yTicks
-        , toNearestX = toNearestX ( xValues, yValues )
+        , toNearestX = toNearestX xValues
         , id = id
         }
 

@@ -26,7 +26,7 @@ chart state =
     in
         plot
             "my-id"
-            [ plotSize ( 600, 250 ), plotMargin ( 0, 10, 30, 10 ) ] <|
+            [ plotSize ( 600, 250 ), plotMargin ( 10, 10, 30, 10 ), plotPadding ( 0, 20 ) ] <|
             [ area [ areaStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data
             , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
             ] ++ tooltipView
