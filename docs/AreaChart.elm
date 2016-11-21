@@ -11,6 +11,11 @@ data =
     [ ( 0, 8 ), ( 1, 13 ), ( 2, 14 ), ( 3, 12 ), ( 4, 11 ), ( 5, 16 ), ( 6, 22 ), ( 7, 32 ) ]
 
 
+data2 : List ( Float, Float )
+data2 =
+    [ ( 0, 5 ), ( 1, 20 ), ( 2, 10 ), ( 3, 12 ), ( 4, 20 ), ( 5, 25 ), ( 6, 3 ) ]
+
+
 chart : Plot.State -> Svg.Svg Msg
 chart state =
     let
@@ -28,6 +33,7 @@ chart state =
             "my-id"
             [ plotSize ( 600, 250 ), plotMargin ( 10, 10, 30, 10 ), plotPadding ( 0, 20 ) ] <|
             [ area [ areaStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data
+            , area [ areaStyle [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ] data2
             , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
             ] ++ tooltipView
 

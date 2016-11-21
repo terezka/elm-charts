@@ -18,3 +18,28 @@
 	position: relative;
 	margin: 0 auto;
 }
+
+.elm-plot__tooltip {
+	position: absolute;
+	top: 20%;
+	pointer-events: none;
+}
+
+.elm-plot__tooltip__default-view {
+	position: absolute;
+	top: 0;
+	padding: 10px;
+	background-color: #eee;
+	width: 150px;
+	text-align: left;
+}
+
+
+.elm-plot__tooltip__default-view--left {
+	left: 10px; 
+}
+
+.elm-plot__tooltip__default-view--right {
+	transform: translateX(-100%);
+	left: -10px;
+}

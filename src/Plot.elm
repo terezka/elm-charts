@@ -1067,7 +1067,7 @@ line attrs points =
 
 
 type alias TooltipConfig msg =
-    { view : ( Float, Float ) -> Html msg
+    { view : TooltipInfo -> Bool -> Html msg
     , showLine : Bool
     }
 
@@ -1092,7 +1092,7 @@ tooltipShowLine config =
 
 
 {-| -}
-tooltipCustomView : (( Float, Float ) -> Svg.Svg msg) -> TooltipConfig msg -> TooltipConfig msg
+tooltipCustomView : (TooltipInfo -> Bool -> Svg.Svg msg) -> TooltipConfig msg -> TooltipConfig msg
 tooltipCustomView view config =
     { config | view = view }
 
@@ -1249,7 +1249,7 @@ viewPlot { size, style, classes, margin } plotProps ( svgViews, htmlViews ) =
                         , ( "padding", paddingStyle ++ "px" )
                         ]
                     , Html.Events.on "mousemove" (getEventPostion plotProps)
-                    , Html.Events.onMouseOut ResetPosition
+                    --, Html.Events.onMouseOut ResetPosition
                     ]
                     htmlViews
                 ]
@@ -1487,40 +1487,55 @@ viewGridLine toSvgCoords scale style position =
 
 
 viewTooltip : PlotProps -> TooltipConfig Msg -> ( Float, Float ) -> Html.Html Msg
-viewTooltip { toSvgCoords, scale } { showLine, view } position =
+viewTooltip { toSvgCoords, scale, getTooltipInfo } { showLine, view } position =
     let
-        ( x, y ) =
-            toSvgCoords position
+        info =
+            getTooltipInfo (Tuple.first position)
 
-        transform =
-            if x > scale.length / 2 then
-                ( "transform", "translateX(-100%)" )
-            else
-                ( "transform", "translateX(0)" )
+        ( xSvg, _ ) =
+            toSvgCoords (info.selectedX, 0)
 
-        left =
-            if x > scale.length / 2 then
-                x - 10
-            else
-                x + 10
+        flipped =
+            xSvg > scale.length / 2
     in
         Html.div
-            [ Html.Attributes.style
-                [ ( "position", "absolute" )
-                , ( "left", (toString left) ++ "px" )
-                , ( "top", "20%" )
-                , transform
-                ]
+            [ Html.Attributes.class "elm-plot__tooltip"
+            , Html.Attributes.style [ ( "left", (toString xSvg) ++ "px" ) ]
             ]
-            [ view position ]
+            [ view info flipped ]
 
 
-defaultTooltipView : ( Float, Float ) -> Html.Html Msg
-defaultTooltipView position =
-    Html.div
-        [ Html.Attributes.style [ ( "padding", "10px" ), ( "background", "#eee" ), ( "border-radius", "5px" ) ] ]
-        [ Html.text (toString position) ]
+defaultTooltipView : TooltipInfo -> Bool -> Html.Html Msg
+defaultTooltipView { selectedX, selectedYs } flipped =
+    let
+        classes =
+            [ ( "elm-plot__tooltip__default-view", True )
+            , ( "elm-plot__tooltip__default-view--left", not flipped )
+            , ( "elm-plot__tooltip__default-view--right", flipped )
+            ]
+    in
+        Html.div
+            [ Html.Attributes.classList classes ]
+            [ Html.div [] [ Html.text ("X: " ++ toString selectedX) ]
+            , Html.div [] (List.indexedMap viewTooltipYValue selectedYs)
+            ]
 
+
+viewTooltipYValue : Int -> Maybe Float -> Html.Html Msg
+viewTooltipYValue index yValue =
+    let
+        yValueDisplayed =
+            case yValue of
+                Just value ->
+                    toString value
+
+                Nothing ->
+                    "No data"
+    in
+        Html.div []
+            [ Html.span [] [ Html.text ("Serie " ++ toString index ++ ": ") ]
+            , Html.span [] [ Html.text yValueDisplayed ]
+            ]
 
 
 -- VIEW AREA
@@ -1604,8 +1619,15 @@ type alias PlotProps =
     , fromSvgCoords : Point -> Point
     , ticks : List Float
     , oppositeTicks : List Float
+    , getTooltipInfo : Float -> TooltipInfo
     , toNearestX : Float -> Float
     , id : String
+    }
+
+
+type alias TooltipInfo =
+    { selectedX : Float
+    , selectedYs : List (Maybe Float)
     }
 
 
@@ -1685,6 +1707,15 @@ toNearestX xValues value =
     List.foldr (getClosest value) 0 xValues
 
 
+getTooltipInfo : List (Element Msg) -> Float -> TooltipInfo
+getTooltipInfo elements selectedX =
+    let
+        selectedYs =
+            List.foldr (collectYValues selectedX) [] elements
+    in
+        TooltipInfo selectedX selectedYs
+
+
 getPlotProps : String -> MetaConfig -> List (Element Msg) -> PlotProps
 getPlotProps id { size, padding, margin } elements =
     let
@@ -1717,21 +1748,29 @@ getPlotProps id { size, padding, margin } elements =
         , ticks = xTicks
         , oppositeTicks = yTicks
         , toNearestX = toNearestX xValues
+        , getTooltipInfo = getTooltipInfo elements
         , id = id
         }
 
 
 flipToY : PlotProps -> PlotProps
-flipToY { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, oppositeTicks, fromSvgCoords, toNearestX, id } =
-    { scale = oppositeScale
+flipToY plotProps =
+    let
+        { scale
+        , oppositeScale
+        , toSvgCoords
+        , oppositeToSvgCoords
+        , ticks
+        , oppositeTicks
+        } = plotProps
+    in
+    { plotProps
+    | scale = oppositeScale
     , oppositeScale = scale
     , toSvgCoords = oppositeToSvgCoords
     , oppositeToSvgCoords = toSvgCoords
-    , fromSvgCoords = fromSvgCoords
     , ticks = oppositeTicks
     , oppositeTicks = ticks
-    , toNearestX = toNearestX
-    , id = id
     }
 
 
@@ -1833,6 +1872,24 @@ collectPoints element allPoints =
 
         _ ->
             allPoints
+
+
+collectYValues : Float -> Element Msg -> List (Maybe Float) -> List (Maybe Float)
+collectYValues xValue element yValues =
+    case element of
+        Area { points } ->
+            getYValue xValue points :: yValues
+
+        Line { points } ->
+            getYValue xValue points :: yValues
+
+        _ ->
+            yValues
+
+
+getYValue : Float -> List Point -> Maybe Float
+getYValue xValue points =
+    List.foldr (\(x, y) res -> if x == xValue then Just y else res) Nothing points
 
 
 
