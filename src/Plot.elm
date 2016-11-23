@@ -1,11 +1,6 @@
 module Plot
     exposing
         ( plot
-        , plotSize
-        , plotPadding
-        , plotClasses
-        , plotMargin
-        , plotStyle
         , xAxis
         , yAxis
         , axisClasses
@@ -34,26 +29,15 @@ module Plot
         , labelCustomViewIndexed
         , verticalGrid
         , horizontalGrid
-        , gridValues
-        , gridClasses
-        , gridStyle
-        , gridMirrorTicks
         , tooltip
         , tooltipCustomView
         , tooltipRemoveLine
         , area
-        , areaStyle
         , line
-        , lineStyle
         , Element
-        , MetaAttr
         , TickViewAttr
         , LabelViewAttr
         , AxisAttr
-        , AreaAttr
-        , LineAttr
-        , Point
-        , Style
         , initialState
         , update
         , Msg
@@ -66,18 +50,9 @@ module Plot
  It is insprired by the elm-html api, using the `element attrs children` pattern.
 
 # Elements
-@docs Element, plot, line, area, xAxis, yAxis, Point, Style
+@docs Element, plot, line, area, xAxis, yAxis, verticalGrid, horizontalGrid
 
 # Configuration
-
-## Meta configuration
-@docs MetaAttr, plotSize, plotPadding, plotMargin, plotClasses, plotStyle
-
-## Line configuration
-@docs LineAttr, lineStyle
-
-## Area configuration
-@docs AreaAttr, areaStyle
 
 ## Axis configuration
 @docs AxisAttr, axisClasses, axisStyle, axisLineStyle
@@ -93,9 +68,6 @@ module Plot
 
 ### Label values configuration
 @docs LabelViewAttr, labelConfigView, labelConfigViewFunc, labelFormat, labelDisplace, labelClasses, labelStyle, labelCustomView, labelCustomViewIndexed
-
-## Grid configuration
-@docs verticalGrid, horizontalGrid, gridMirrorTicks, gridValues, gridClasses, gridStyle
 
 ## Tooltip configuration
 @docs tooltip, tooltipRemoveLine, tooltipCustomView
@@ -123,21 +95,12 @@ import Debug
 import Helpers exposing (..)
 
 
-{-| Convinience type to represent coordinates.
--}
-type alias Point =
-    ( Float, Float )
+import Plot.Types exposing (..)
+import Plot.Meta as Meta
+import Plot.Grid as Grid
+import Plot.Area as Area
+import Plot.Line as Line
 
-
-{-| Convinience type to represent style.
--}
-type alias Style =
-    List ( String, String )
-
-
-type Orientation
-    = X
-    | Y
 
 
 
@@ -149,93 +112,9 @@ type Orientation
 type Element msg
     = Axis (AxisConfig msg)
     | Tooltip (TooltipConfig msg) ( Float, Float )
-    | Grid GridConfig
-    | Line LineConfig
-    | Area AreaConfig
-
-
-
--- META CONFIG
-
-
-type alias MetaConfig =
-    { size : ( Float, Float )
-    , padding : ( Float, Float )
-    , margin : ( Float, Float, Float, Float )
-    , classes : List String
-    , style : Style
-    , id : String
-    }
-
-
-{-| The type representing an a meta configuration.
--}
-type alias MetaAttr =
-    MetaConfig -> MetaConfig
-
-
-defaultMetaConfig =
-    { size = ( 800, 500 )
-    , padding = ( 0, 0 )
-    , margin = ( 0, 0, 0, 0 )
-    , classes = []
-    , style = [ ( "padding", "0" ), ( "stroke", "#000" ) ]
-    , id = "elm-plot"
-    }
-
-
-{-| Add padding to your plot, meaning extra space below
- and above the lowest and highest point in your plot.
- The unit is pixels.
-
- Default: `( 0, 0 )`
--}
-plotPadding : ( Int, Int ) -> MetaConfig -> MetaConfig
-plotPadding ( bottom, top ) config =
-    { config | padding = ( toFloat bottom, toFloat top ) }
-
-
-{-| Specify the size of your plot in pixels.
-
- Default: `( 800, 500 )`
--}
-plotSize : ( Int, Int ) -> MetaConfig -> MetaConfig
-plotSize ( width, height ) config =
-    { config | size = ( toFloat width, toFloat height ) }
-
-
-{-| Specify margin around the plot. Useful when your ticks are outside the
- plot and you would like to add space to see them! Values are in pixels and
- in the format of ( top, right, bottom, left ).
-
- Default: `( 0, 0, 0, 0 )`
--}
-plotMargin : ( Int, Int, Int, Int ) -> MetaConfig -> MetaConfig
-plotMargin ( t, r, b, l ) config =
-    { config | margin = ( toFloat t, toFloat r, toFloat b, toFloat l ) }
-
-
-{-| Add styles to the svg element.
-
- Default: `[ ( "padding", "30px" ), ( "stroke", "#000" ) ]`
--}
-plotStyle : Style -> MetaConfig -> MetaConfig
-plotStyle style config =
-    { config | style = defaultMetaConfig.style ++ style ++ [ ( "padding", "0" ) ] }
-
-
-{-| Add classes to the svg element.
-
- Default: `[]`
--}
-plotClasses : List String -> MetaConfig -> MetaConfig
-plotClasses classes config =
-    { config | classes = classes }
-
-
-toMetaConfig : List MetaAttr -> MetaConfig
-toMetaConfig attrs =
-    List.foldr (<|) defaultMetaConfig attrs
+    | Grid Grid.Config
+    | Line Line.Config (List Point)
+    | Area Area.Config (List Point)
 
 
 
@@ -503,6 +382,7 @@ type alias AxisAttr msg =
     AxisConfig msg -> AxisConfig msg
 
 
+defaultAxisConfig : AxisConfig Msg
 defaultAxisConfig =
     { toTickValues = toTickValuesAuto
     , tickView = defaultTickView defaultTickViewConfig
@@ -840,109 +720,15 @@ yAxis attrs =
 
 
 
--- GRID CONFIG
-
-
-type GridValues
-    = GridMirrorTicks
-    | GridCustomValues (List Float)
-
-
-type alias GridConfig =
-    { values : GridValues
-    , style : Style
-    , classes : List String
-    , orientation : Orientation
-    }
-
-
-{-| The type representing an grid configuration.
--}
-type alias GridAttr =
-    GridConfig -> GridConfig
-
-
-defaultGridConfig =
-    { values = GridMirrorTicks
-    , style = []
-    , classes = []
-    , orientation = X
-    }
-
-
-{-| Adds grid lines where the ticks on the corresponding axis are.
-
-    main =
-        plot
-            []
-            [ verticalGrid [ gridMirrorTicks ]
-            , xAxis []
-            ]
-
- **Note:** If in the list of axis attributes, this attribute is followed by a
- `gridValues` attribute, then this attribute will have no effect.
--}
-gridMirrorTicks : GridConfig -> GridConfig
-gridMirrorTicks config =
-    { config | values = GridMirrorTicks }
-
-
-{-| Specify a list of ticks where you want grid lines drawn.
-
-    plot [] [ verticalGrid [ gridValues [ 1, 2, 4, 8 ] ] ]
-
- **Note:** If in the list of axis attributes, this attribute is followed by a
- `gridMirrorTicks` attribute, then this attribute will have no effect.
--}
-gridValues : List Float -> GridConfig -> GridConfig
-gridValues values config =
-    { config | values = GridCustomValues values }
-
-
-{-| Specify styles for the gridlines.
-
-    plot
-        []
-        [ verticalGrid
-            [ gridMirrorTicks
-            , gridStyle myGridStyles
-            ]
-        ]
-
- Remember that if you do not specify either `gridMirrorTicks`
- or `gridValues`, then we will default to not showing any grid lines.
--}
-gridStyle : Style -> GridConfig -> GridConfig
-gridStyle style config =
-    { config | style = style }
-
-
-{-| Specify classes for the grid.
-
-    plot
-        []
-        [ verticalGrid
-            [ gridMirrorTicks
-            , gridClasses [ "my-class" ]
-            ]
-        ]
-
- Remember that if you do not specify either `gridMirrorTicks`
- or `gridValues`, then we will default to not showing any grid lines.
--}
-gridClasses : List String -> GridConfig -> GridConfig
-gridClasses classes config =
-    { config | classes = classes }
-
 
 {-| This returns an grid element resulting in vertical grid lines being rendered in your plot.
 
     main =
         plot [] [ horizontalGrid [] ]
 -}
-horizontalGrid : List GridAttr -> Element Msg
+horizontalGrid : List Grid.Attribute -> Element Msg
 horizontalGrid attrs =
-    Grid (List.foldr (<|) defaultGridConfig attrs)
+    Grid (Grid.toConfigX attrs)
 
 
 {-| This returns an axis element resulting in horizontal grid lines being rendered in your plot.
@@ -950,51 +736,13 @@ horizontalGrid attrs =
     main =
         plot [] [ verticalGrid [] ]
 -}
-verticalGrid : List GridAttr -> Element Msg
+verticalGrid : List Grid.Attribute -> Element Msg
 verticalGrid attrs =
-    Grid (List.foldr (<|) { defaultGridConfig | orientation = Y } attrs)
+    Grid (Grid.toConfigY attrs)
 
 
 
 -- AREA CONFIG
-
-
-type alias AreaConfig =
-    { style : Style
-    , points : List Point
-    }
-
-
-{-| The type representing an area configuration.
--}
-type alias AreaAttr =
-    AreaConfig -> AreaConfig
-
-
-defaultAreaConfig =
-    { style = []
-    , points = []
-    }
-
-
-{-| Add styles to your area serie.
-
-    main =
-        plot
-            []
-            [ area
-                [ areaStyle
-                    [ ( "fill", "deeppink" )
-                    , ( "stroke", "deeppink" )
-                    , ( "opacity", "0.5" ) ]
-                    ]
-                ]
-                areaDataPoints
-            ]
--}
-areaStyle : Style -> AreaConfig -> AreaConfig
-areaStyle style config =
-    { config | style = style }
 
 
 {-| This returns an area element resulting in an area serie rendered in your plot.
@@ -1002,50 +750,12 @@ areaStyle style config =
     main =
         plot [] [ area []  [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
 -}
-area : List AreaAttr -> List Point -> Element Msg
+area : List Area.Attribute -> List Point -> Element Msg
 area attrs points =
-    let
-        config =
-            List.foldr (<|) defaultAreaConfig attrs
-    in
-        Area { config | points = points }
-
+    Area (Area.toConfig attrs) points
 
 
 -- LINE CONFIG
-
-
-type alias LineConfig =
-    { style : Style
-    , points : List Point
-    }
-
-
-defaultLineConfig =
-    { style = []
-    , points = []
-    }
-
-
-{-| The type representing a line configuration.
--}
-type alias LineAttr =
-    LineConfig -> LineConfig
-
-
-{-| Add styles to your line serie.
-
-    main =
-        plot
-            []
-            [ line
-                [ lineStyle [ ( "fill", "deeppink" ) ] ]
-                lineDataPoints
-            ]
--}
-lineStyle : Style -> LineConfig -> LineConfig
-lineStyle style config =
-    { config | style = ( "fill", "transparent" ) :: style }
 
 
 {-| This returns a line element resulting in an line serie rendered in your plot.
@@ -1053,13 +763,9 @@ lineStyle style config =
     main =
         plot [] [ line [] [ ( 0, 1 ), ( 2, 2 ), ( 3, 4 ) ] ]
 -}
-line : List LineAttr -> List Point -> Element Msg
+line : List Line.Attribute -> List Point -> Element Msg
 line attrs points =
-    let
-        config =
-            List.foldr (<|) defaultLineConfig attrs
-    in
-        Line { config | points = points }
+    Line (List.foldr (<|) Line.defaultConfig attrs) points
 
 
 
@@ -1188,20 +894,20 @@ getInnerId { id } =
  Pass your meta attributes and plot elements to this function and
  a svg plot will be returned!
 -}
-plot : String -> List MetaAttr -> List (Element Msg) -> Svg.Svg Msg
-plot id attr elements =
-    Svg.Lazy.lazy3 parsePlot id attr elements
+plot : String -> List Meta.Attribute -> List (Element Msg) -> Svg.Svg Msg
+plot id attrs elements =
+    Svg.Lazy.lazy3 parsePlot id attrs elements
 
 
 
 -- VIEW
 
 
-parsePlot : String -> List MetaAttr -> List (Element Msg) -> Svg.Svg Msg
-parsePlot id attr elements =
+parsePlot : String -> List Meta.Attribute -> List (Element Msg) -> Svg.Svg Msg
+parsePlot id attrs elements =
     let
         metaConfig =
-            toMetaConfig attr
+            Meta.toConfig attrs
 
         plotProps =
             getPlotProps id metaConfig elements
@@ -1218,7 +924,7 @@ getEventPostion plotProps =
 
 
 
-viewPlot : MetaConfig -> PlotProps -> ( List (Svg.Svg Msg), List (Html.Html Msg) ) -> Svg.Svg Msg
+viewPlot : Meta.Config -> PlotProps -> ( List (Svg.Svg Msg), List (Html.Html Msg) ) -> Svg.Svg Msg
 viewPlot { size, style, classes, margin } plotProps ( svgViews, htmlViews ) =
     let
         ( width, height ) =
@@ -1298,13 +1004,13 @@ viewElement plotProps element ( svgViews, htmlViews ) =
                         Y ->
                             flipToY plotProps
             in
-                ( (viewGrid plotPropsFitted config) :: svgViews, htmlViews )
+                ( (Grid.view plotPropsFitted config) :: svgViews, htmlViews )
 
-        Line config ->
-            ( (viewLine plotProps config) :: svgViews, htmlViews )
+        Line config points ->
+            ( (Line.view plotProps config points) :: svgViews, htmlViews )
 
-        Area config ->
-            ( (viewArea plotProps config) :: svgViews, htmlViews )
+        Area config points ->
+            ( (Area.view plotProps config points) :: svgViews, htmlViews )
 
 
 
@@ -1370,7 +1076,7 @@ viewAxis plotProps { toTickValues, tickView, labelView, labelValues, style, clas
             [ Svg.Attributes.style (toStyle style)
             , Svg.Attributes.class (String.join " " classes)
             ]
-            [ viewGridLine plotProps axisLineStyle 0
+            [ Grid.viewLine plotProps axisLineStyle 0
             , Svg.g [] (List.map (placeTick plotProps (tickView orientation)) tickPositions)
             , Svg.g [] (List.map (placeTick plotProps (labelView orientation)) labelPositions)
             ]
@@ -1445,52 +1151,6 @@ defaultLabelViewDynamic toLabelAttrs orientation index float =
 
 
 
--- VIEW GRID
-
-
-getGridPositions : List Float -> GridValues -> List Float
-getGridPositions tickValues values =
-    case values of
-        GridMirrorTicks ->
-            tickValues
-
-        GridCustomValues customValues ->
-            customValues
-
-
-viewGrid : PlotProps -> GridConfig -> Svg.Svg Msg
-viewGrid plotProps { values, style, classes } =
-    let
-        { scale, toSvgCoords, oppositeTicks } =
-            plotProps
-
-        positions =
-            getGridPositions oppositeTicks values
-    in
-        Svg.g
-            [ Svg.Attributes.class (String.join " " classes) ]
-            (List.map (viewGridLine plotProps style) positions)
-
-
-viewGridLine : PlotProps -> Style -> Float -> Svg.Svg Msg
-viewGridLine { toSvgCoords, scale } style position =
-    let
-        { lowest, highest } =
-            scale
-
-        ( x1, y1 ) =
-            toSvgCoords ( lowest, position )
-
-        ( x2, y2 ) =
-            toSvgCoords ( highest, position )
-
-        attrs =
-            Svg.Attributes.style (toStyle style) :: (toPositionAttr x1 y1 x2 y2)
-    in
-        Svg.line attrs []
-
-
-
 -- VIEW TOOLTIP
 
 
@@ -1560,97 +1220,7 @@ viewTooltipYValue index yValue =
             ]
 
 
--- VIEW AREA
-
-
-viewArea : PlotProps -> AreaConfig -> Svg.Svg a
-viewArea { toSvgCoords } { points, style } =
-    let
-        range =
-            List.map Tuple.first points
-
-        ( lowestX, highestX ) =
-            ( getLowest range, getHighest range )
-
-        svgCoords =
-            List.map toSvgCoords points
-
-        ( highestSvgX, originY ) =
-            toSvgCoords ( highestX, 0 )
-
-        ( lowestSvgX, _ ) =
-            toSvgCoords ( lowestX, 0 )
-
-        startInstruction =
-            toInstruction "M" [ lowestSvgX, originY ]
-
-        endInstructions =
-            toInstruction "L" [ highestSvgX, originY ]
-
-        instructions =
-            coordToInstruction "L" svgCoords
-    in
-        Svg.path
-            [ Svg.Attributes.d (startInstruction ++ instructions ++ endInstructions ++ "Z")
-            , Svg.Attributes.style (toStyle style)
-            ]
-            []
-
-
-
--- VIEW LINE
-
-
-viewLine : PlotProps -> LineConfig -> Svg.Svg a
-viewLine { toSvgCoords } { points, style } =
-    let
-        svgPoints =
-            List.map toSvgCoords points
-
-        ( startInstruction, tail ) =
-            startPath svgPoints
-
-        instructions =
-            coordToInstruction "L" svgPoints
-    in
-        Svg.path
-            [ Svg.Attributes.d (startInstruction ++ instructions)
-            , Svg.Attributes.style (toStyle style)
-            ]
-            []
-
-
-
 -- CALCULATE SCALES
-
-
-type alias AxisScale =
-    { range : Float
-    , lowest : Float
-    , highest : Float
-    , length : Float
-    , offset : Float
-    }
-
-
-type alias PlotProps =
-    { scale : AxisScale
-    , oppositeScale : AxisScale
-    , toSvgCoords : Point -> Point
-    , oppositeToSvgCoords : Point -> Point
-    , fromSvgCoords : Point -> Point
-    , ticks : List Float
-    , oppositeTicks : List Float
-    , getTooltipInfo : Float -> TooltipInfo
-    , toNearestX : Float -> Float
-    , id : String
-    }
-
-
-type alias TooltipInfo =
-    { xValue : Float
-    , yValues : List (Maybe Float)
-    }
 
 
 getScales : Float -> ( Float, Float ) -> ( Float, Float ) -> List Float -> AxisScale
@@ -1738,7 +1308,7 @@ getTooltipInfo elements xValue =
         TooltipInfo xValue yValues
 
 
-getPlotProps : String -> MetaConfig -> List (Element Msg) -> PlotProps
+getPlotProps : String -> Meta.Config -> List (Element Msg) -> PlotProps
 getPlotProps id { size, padding, margin } elements =
     let
         ( xValues, yValues ) =
@@ -1886,10 +1456,10 @@ getLastGetTickValues orientation elements =
 collectPoints : Element Msg -> List Point -> List Point
 collectPoints element allPoints =
     case element of
-        Area { points } ->
+        Area config points ->
             allPoints ++ points
 
-        Line { points } ->
+        Line config points ->
             allPoints ++ points
 
         _ ->
@@ -1899,10 +1469,10 @@ collectPoints element allPoints =
 collectYValues : Float -> Element Msg -> List (Maybe Float) -> List (Maybe Float)
 collectYValues xValue element yValues =
     case element of
-        Area { points } ->
+        Area config points ->
             getYValue xValue points :: yValues
 
-        Line { points } ->
+        Line config points ->
             getYValue xValue points :: yValues
 
         _ ->

@@ -3,6 +3,9 @@ module AreaChart exposing (chart, code)
 import Svg
 import Svg.Attributes
 import Plot exposing (..)
+import Plot.Area as Area
+import Plot.Grid as Grid
+import Plot.Meta as Meta
 import Colors
 
 
@@ -29,9 +32,12 @@ chart state =
     in
         plot
             "my-id"
-            [ plotSize ( 600, 250 ), plotMargin ( 10, 10, 30, 10 ), plotPadding ( 0, 20 ) ] <|
-            [ area [ areaStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data
-            , area [ areaStyle [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ] data2
+            [ Meta.size ( 600, 250 ), Meta.margin ( 10, 10, 30, 10 ), Meta.padding ( 0, 20 ) ] <|
+            [ verticalGrid [ Grid.classes [ "dsfdjksh" ] ]
+            , area
+                [ Area.style [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data
+            , area
+                [ Area.style [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ] data2
             , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
             ] ++ tooltipView
 
