@@ -66,15 +66,13 @@ chart model =
             data
         , xAxis
             [ Axis.style [ ( "stroke", Colors.axisColor ) ]
-            , Axis.tick
-                [ Tick.viewFromDynamicConfig toTickConfig ]
-            , Axis.label
-                [ Label.viewFromDynamicConfig toLabelConfig ]
+            , Axis.tick [ Tick.viewDynamic toTickConfig ]
+            , Axis.label [ Label.viewDynamic toLabelConfig ]
             ]
         , yAxis
             [ Axis.style [ ( "stroke", Colors.axisColor ) ]
             , Axis.tick
-                [ Tick.viewFromCustomHtml specialTick
+                [ Tick.viewCustom specialTick
                 , Tick.removeZero
                 ]
             ]

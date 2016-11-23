@@ -9792,7 +9792,7 @@ var _terezka$elm_plot$Plot_Tick$Config = F3(
 var _terezka$elm_plot$Plot_Tick$FromCustomView = function (a) {
 	return {ctor: 'FromCustomView', _0: a};
 };
-var _terezka$elm_plot$Plot_Tick$viewFromCustomHtml = F2(
+var _terezka$elm_plot$Plot_Tick$viewCustom = F2(
 	function (view, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
@@ -9804,7 +9804,7 @@ var _terezka$elm_plot$Plot_Tick$viewFromCustomHtml = F2(
 						}))
 			});
 	});
-var _terezka$elm_plot$Plot_Tick$viewFromCustomHtmlIndexed = F2(
+var _terezka$elm_plot$Plot_Tick$viewCustomIndexed = F2(
 	function (view, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
@@ -9816,7 +9816,7 @@ var _terezka$elm_plot$Plot_Tick$viewFromCustomHtmlIndexed = F2(
 var _terezka$elm_plot$Plot_Tick$FromStyleDynamic = function (a) {
 	return {ctor: 'FromStyleDynamic', _0: a};
 };
-var _terezka$elm_plot$Plot_Tick$viewFromDynamicConfig = F2(
+var _terezka$elm_plot$Plot_Tick$viewDynamic = F2(
 	function (toStyles, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
@@ -9827,7 +9827,7 @@ var _terezka$elm_plot$Plot_Tick$viewFromDynamicConfig = F2(
 var _terezka$elm_plot$Plot_Tick$FromStyle = function (a) {
 	return {ctor: 'FromStyle', _0: a};
 };
-var _terezka$elm_plot$Plot_Tick$viewFromConfig = F2(
+var _terezka$elm_plot$Plot_Tick$view = F2(
 	function (styles, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
@@ -10039,7 +10039,7 @@ var _terezka$elm_plot$Plot_Label$Config = F2(
 var _terezka$elm_plot$Plot_Label$FromCustomView = function (a) {
 	return {ctor: 'FromCustomView', _0: a};
 };
-var _terezka$elm_plot$Plot_Label$viewFromCustomHtml = F2(
+var _terezka$elm_plot$Plot_Label$viewCustom = F2(
 	function (view, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
@@ -10051,7 +10051,7 @@ var _terezka$elm_plot$Plot_Label$viewFromCustomHtml = F2(
 						}))
 			});
 	});
-var _terezka$elm_plot$Plot_Label$viewFromCustomHtmlIndexed = F2(
+var _terezka$elm_plot$Plot_Label$viewCustomIndexed = F2(
 	function (view, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
@@ -10063,7 +10063,7 @@ var _terezka$elm_plot$Plot_Label$viewFromCustomHtmlIndexed = F2(
 var _terezka$elm_plot$Plot_Label$FromStyleDynamic = function (a) {
 	return {ctor: 'FromStyleDynamic', _0: a};
 };
-var _terezka$elm_plot$Plot_Label$viewFromDynamicConfig = F2(
+var _terezka$elm_plot$Plot_Label$viewDynamic = F2(
 	function (toStyles, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
@@ -10074,7 +10074,7 @@ var _terezka$elm_plot$Plot_Label$viewFromDynamicConfig = F2(
 var _terezka$elm_plot$Plot_Label$FromStyle = function (a) {
 	return {ctor: 'FromStyle', _0: a};
 };
-var _terezka$elm_plot$Plot_Label$viewFromConfig = F2(
+var _terezka$elm_plot$Plot_Label$view = F2(
 	function (styles, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
@@ -10504,6 +10504,202 @@ var _terezka$elm_plot$Plot_Line$Config = function (a) {
 	return {style: a};
 };
 
+var _terezka$elm_plot$Plot_Tooltip$viewYValue = F2(
+	function (index, yValue) {
+		var yValueDisplayed = function () {
+			var _p0 = yValue;
+			if (_p0.ctor === 'Just') {
+				return _elm_lang$core$Basics$toString(_p0._0);
+			} else {
+				return 'No data';
+			}
+		}();
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$span,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'Serie ',
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									_elm_lang$core$Basics$toString(index),
+									': '))),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$span,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(yValueDisplayed),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
+var _terezka$elm_plot$Plot_Tooltip$defaultView = F2(
+	function (_p1, isLeftSide) {
+		var _p2 = _p1;
+		var classes = {
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'elm-plot__tooltip__default-view', _1: true},
+			_1: {
+				ctor: '::',
+				_0: {ctor: '_Tuple2', _0: 'elm-plot__tooltip__default-view--left', _1: isLeftSide},
+				_1: {
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 'elm-plot__tooltip__default-view--right', _1: !isLeftSide},
+					_1: {ctor: '[]'}
+				}
+			}
+		};
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$classList(classes),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'X: ',
+								_elm_lang$core$Basics$toString(_p2.xValue))),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{ctor: '[]'},
+						A2(_elm_lang$core$List$indexedMap, _terezka$elm_plot$Plot_Tooltip$viewYValue, _p2.yValues)),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
+var _terezka$elm_plot$Plot_Tooltip$viewLine = function (_p3) {
+	var _p4 = _p3;
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('elm-plot__tooltip__line'),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$style(
+					{
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'left',
+							_1: A2(
+								_elm_lang$core$Basics_ops['++'],
+								_elm_lang$core$Basics$toString(_p4._0),
+								'px')
+						},
+						_1: {
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'height',
+								_1: A2(
+									_elm_lang$core$Basics_ops['++'],
+									_elm_lang$core$Basics$toString(_p4._1),
+									'px')
+							},
+							_1: {ctor: '[]'}
+						}
+					}),
+				_1: {ctor: '[]'}
+			}
+		},
+		{ctor: '[]'});
+};
+var _terezka$elm_plot$Plot_Tooltip$view = F3(
+	function (_p6, _p5, position) {
+		var _p7 = _p6;
+		var _p8 = _p5;
+		var info = _p7.getTooltipInfo(
+			_elm_lang$core$Tuple$first(position));
+		var _p9 = _p7.toSvgCoords(
+			{ctor: '_Tuple2', _0: info.xValue, _1: 0});
+		var xSvg = _p9._0;
+		var ySvg = _p9._1;
+		var flipped = _elm_lang$core$Native_Utils.cmp(xSvg, _p7.scale.length / 2) < 0;
+		var lineView = _p8.showLine ? {
+			ctor: '::',
+			_0: _terezka$elm_plot$Plot_Tooltip$viewLine(
+				{ctor: '_Tuple2', _0: xSvg, _1: ySvg}),
+			_1: {ctor: '[]'}
+		} : {ctor: '[]'};
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('elm-plot__tooltip'),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$style(
+						{
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'left',
+								_1: A2(
+									_elm_lang$core$Basics_ops['++'],
+									_elm_lang$core$Basics$toString(xSvg),
+									'px')
+							},
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
+			},
+			{
+				ctor: '::',
+				_0: A2(_p8.view, info, flipped),
+				_1: lineView
+			});
+	});
+var _terezka$elm_plot$Plot_Tooltip$viewCustom = F2(
+	function (view, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{view: view});
+	});
+var _terezka$elm_plot$Plot_Tooltip$removeLine = function (config) {
+	return _elm_lang$core$Native_Utils.update(
+		config,
+		{showLine: false});
+};
+var _terezka$elm_plot$Plot_Tooltip$defaultConfig = {
+	view: _terezka$elm_plot$Plot_Tooltip$defaultView,
+	showLine: true,
+	lineStyle: {ctor: '[]'}
+};
+var _terezka$elm_plot$Plot_Tooltip$Config = F3(
+	function (a, b, c) {
+		return {view: a, showLine: b, lineStyle: c};
+	});
+
 var _terezka$elm_plot$Plot$getYValue = F2(
 	function (xValue, points) {
 		return A3(
@@ -10712,193 +10908,18 @@ var _terezka$elm_plot$Plot$getPlotProps = F3(
 			id: id
 		};
 	});
-var _terezka$elm_plot$Plot$viewTooltipYValue = F2(
-	function (index, yValue) {
-		var yValueDisplayed = function () {
-			var _p27 = yValue;
-			if (_p27.ctor === 'Just') {
-				return _elm_lang$core$Basics$toString(_p27._0);
-			} else {
-				return 'No data';
-			}
-		}();
-		return A2(
-			_elm_lang$html$Html$div,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$span,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								'Serie ',
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									_elm_lang$core$Basics$toString(index),
-									': '))),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$span,
-						{ctor: '[]'},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(yValueDisplayed),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}
-			});
-	});
-var _terezka$elm_plot$Plot$defaultTooltipView = F2(
-	function (_p28, isLeftSide) {
-		var _p29 = _p28;
-		var classes = {
-			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: 'elm-plot__tooltip__default-view', _1: true},
-			_1: {
-				ctor: '::',
-				_0: {ctor: '_Tuple2', _0: 'elm-plot__tooltip__default-view--left', _1: isLeftSide},
-				_1: {
-					ctor: '::',
-					_0: {ctor: '_Tuple2', _0: 'elm-plot__tooltip__default-view--right', _1: !isLeftSide},
-					_1: {ctor: '[]'}
-				}
-			}
-		};
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$classList(classes),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								'X: ',
-								_elm_lang$core$Basics$toString(_p29.xValue))),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{ctor: '[]'},
-						A2(_elm_lang$core$List$indexedMap, _terezka$elm_plot$Plot$viewTooltipYValue, _p29.yValues)),
-					_1: {ctor: '[]'}
-				}
-			});
-	});
-var _terezka$elm_plot$Plot$viewTooltipLine = function (_p30) {
-	var _p31 = _p30;
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('elm-plot__tooltip__line'),
-			_1: {
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$style(
-					{
-						ctor: '::',
-						_0: {
-							ctor: '_Tuple2',
-							_0: 'left',
-							_1: A2(
-								_elm_lang$core$Basics_ops['++'],
-								_elm_lang$core$Basics$toString(_p31._0),
-								'px')
-						},
-						_1: {
-							ctor: '::',
-							_0: {
-								ctor: '_Tuple2',
-								_0: 'height',
-								_1: A2(
-									_elm_lang$core$Basics_ops['++'],
-									_elm_lang$core$Basics$toString(_p31._1),
-									'px')
-							},
-							_1: {ctor: '[]'}
-						}
-					}),
-				_1: {ctor: '[]'}
-			}
-		},
-		{ctor: '[]'});
-};
-var _terezka$elm_plot$Plot$viewTooltip = F3(
-	function (_p33, _p32, position) {
-		var _p34 = _p33;
-		var _p35 = _p32;
-		var info = _p34.getTooltipInfo(
-			_elm_lang$core$Tuple$first(position));
-		var _p36 = _p34.toSvgCoords(
-			{ctor: '_Tuple2', _0: info.xValue, _1: 0});
-		var xSvg = _p36._0;
-		var ySvg = _p36._1;
-		var flipped = _elm_lang$core$Native_Utils.cmp(xSvg, _p34.scale.length / 2) < 0;
-		var lineView = _p35.showLine ? {
-			ctor: '::',
-			_0: _terezka$elm_plot$Plot$viewTooltipLine(
-				{ctor: '_Tuple2', _0: xSvg, _1: ySvg}),
-			_1: {ctor: '[]'}
-		} : {ctor: '[]'};
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('elm-plot__tooltip'),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$style(
-						{
-							ctor: '::',
-							_0: {
-								ctor: '_Tuple2',
-								_0: 'left',
-								_1: A2(
-									_elm_lang$core$Basics_ops['++'],
-									_elm_lang$core$Basics$toString(xSvg),
-									'px')
-							},
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}
-			},
-			{
-				ctor: '::',
-				_0: A2(_p35.view, info, flipped),
-				_1: lineView
-			});
-	});
 var _terezka$elm_plot$Plot$viewElement = F3(
-	function (plotProps, element, _p37) {
-		var _p38 = _p37;
-		var _p45 = _p38._0;
-		var _p44 = _p38._1;
-		var _p39 = element;
-		switch (_p39.ctor) {
+	function (plotProps, element, _p27) {
+		var _p28 = _p27;
+		var _p35 = _p28._0;
+		var _p34 = _p28._1;
+		var _p29 = element;
+		switch (_p29.ctor) {
 			case 'Axis':
-				var _p41 = _p39._0;
+				var _p31 = _p29._0;
 				var plotPropsFitted = function () {
-					var _p40 = _p41.orientation;
-					if (_p40.ctor === 'X') {
+					var _p30 = _p31.orientation;
+					if (_p30.ctor === 'X') {
 						return plotProps;
 					} else {
 						return _terezka$elm_plot$Plot$flipToY(plotProps);
@@ -10908,23 +10929,23 @@ var _terezka$elm_plot$Plot$viewElement = F3(
 					ctor: '_Tuple2',
 					_0: {
 						ctor: '::',
-						_0: A2(_terezka$elm_plot$Plot_Axis$view, plotPropsFitted, _p41),
-						_1: _p45
+						_0: A2(_terezka$elm_plot$Plot_Axis$view, plotPropsFitted, _p31),
+						_1: _p35
 					},
-					_1: _p44
+					_1: _p34
 				};
 			case 'Tooltip':
-				var tooltipView = A3(_terezka$elm_plot$Plot$viewTooltip, plotProps, _p39._0, _p39._1);
+				var tooltipView = A3(_terezka$elm_plot$Plot_Tooltip$view, plotProps, _p29._0, _p29._1);
 				return {
 					ctor: '_Tuple2',
-					_0: _p45,
-					_1: {ctor: '::', _0: tooltipView, _1: _p44}
+					_0: _p35,
+					_1: {ctor: '::', _0: tooltipView, _1: _p34}
 				};
 			case 'Grid':
-				var _p43 = _p39._0;
+				var _p33 = _p29._0;
 				var plotPropsFitted = function () {
-					var _p42 = _p43.orientation;
-					if (_p42.ctor === 'X') {
+					var _p32 = _p33.orientation;
+					if (_p32.ctor === 'X') {
 						return plotProps;
 					} else {
 						return _terezka$elm_plot$Plot$flipToY(plotProps);
@@ -10934,30 +10955,30 @@ var _terezka$elm_plot$Plot$viewElement = F3(
 					ctor: '_Tuple2',
 					_0: {
 						ctor: '::',
-						_0: A2(_terezka$elm_plot$Plot_Grid$view, plotPropsFitted, _p43),
-						_1: _p45
+						_0: A2(_terezka$elm_plot$Plot_Grid$view, plotPropsFitted, _p33),
+						_1: _p35
 					},
-					_1: _p44
+					_1: _p34
 				};
 			case 'Line':
 				return {
 					ctor: '_Tuple2',
 					_0: {
 						ctor: '::',
-						_0: A3(_terezka$elm_plot$Plot_Line$view, plotProps, _p39._0, _p39._1),
-						_1: _p45
+						_0: A3(_terezka$elm_plot$Plot_Line$view, plotProps, _p29._0, _p29._1),
+						_1: _p35
 					},
-					_1: _p44
+					_1: _p34
 				};
 			default:
 				return {
 					ctor: '_Tuple2',
 					_0: {
 						ctor: '::',
-						_0: A3(_terezka$elm_plot$Plot_Area$view, plotProps, _p39._0, _p39._1),
-						_1: _p45
+						_0: A3(_terezka$elm_plot$Plot_Area$view, plotProps, _p29._0, _p29._1),
+						_1: _p35
 					},
-					_1: _p44
+					_1: _p34
 				};
 		}
 	});
@@ -10973,45 +10994,25 @@ var _terezka$elm_plot$Plot$viewElements = F2(
 			},
 			elements);
 	});
-var _terezka$elm_plot$Plot$getInnerId = function (_p46) {
-	var _p47 = _p46;
-	return A2(_elm_lang$core$Basics_ops['++'], _p47.id, '__inner');
+var _terezka$elm_plot$Plot$getInnerId = function (_p36) {
+	var _p37 = _p36;
+	return A2(_elm_lang$core$Basics_ops['++'], _p37.id, '__inner');
 };
 var _terezka$elm_plot$Plot$getRelativePosition = F4(
-	function (_p49, _p48, left, top) {
-		var _p50 = _p49;
-		var _p51 = _p48;
-		var _p52 = _p50.fromSvgCoords(
-			{ctor: '_Tuple2', _0: _p51._0 - left, _1: _p51._1 - top});
-		var x = _p52._0;
-		var y = _p52._1;
+	function (_p39, _p38, left, top) {
+		var _p40 = _p39;
+		var _p41 = _p38;
+		var _p42 = _p40.fromSvgCoords(
+			{ctor: '_Tuple2', _0: _p41._0 - left, _1: _p41._1 - top});
+		var x = _p42._0;
+		var y = _p42._1;
 		return {
 			ctor: '_Tuple2',
-			_0: _p50.toNearestX(x),
+			_0: _p40.toNearestX(x),
 			_1: y
 		};
 	});
 var _terezka$elm_plot$Plot$initialState = {position: _elm_lang$core$Maybe$Nothing, waiting: true};
-var _terezka$elm_plot$Plot$tooltipCustomView = F2(
-	function (view, config) {
-		return _elm_lang$core$Native_Utils.update(
-			config,
-			{view: view});
-	});
-var _terezka$elm_plot$Plot$tooltipRemoveLine = function (config) {
-	return _elm_lang$core$Native_Utils.update(
-		config,
-		{showLine: false});
-};
-var _terezka$elm_plot$Plot$defaultTooltipConfig = {
-	view: _terezka$elm_plot$Plot$defaultTooltipView,
-	showLine: true,
-	lineStyle: {ctor: '[]'}
-};
-var _terezka$elm_plot$Plot$TooltipConfig = F3(
-	function (a, b, c) {
-		return {view: a, showLine: b, lineStyle: c};
-	});
 var _terezka$elm_plot$Plot$State = F2(
 	function (a, b) {
 		return {position: a, waiting: b};
@@ -11070,7 +11071,7 @@ var _terezka$elm_plot$Plot$tooltip = F2(
 					function (x, y) {
 						return x(y);
 					}),
-				_terezka$elm_plot$Plot$defaultTooltipConfig,
+				_terezka$elm_plot$Plot_Tooltip$defaultConfig,
 				attrs),
 			position);
 	});
@@ -11118,25 +11119,25 @@ var _terezka$elm_plot$Plot$getPosition = F2(
 	});
 var _terezka$elm_plot$Plot$update = F2(
 	function (msg, state) {
-		var _p53 = msg;
-		switch (_p53.ctor) {
+		var _p43 = msg;
+		switch (_p43.ctor) {
 			case 'Hovering':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						state,
 						{waiting: true}),
-					_1: A2(_terezka$elm_plot$Plot$getPosition, _p53._0, _p53._1)
+					_1: A2(_terezka$elm_plot$Plot$getPosition, _p43._0, _p43._1)
 				};
 			case 'ReceivePosition':
-				var _p54 = _p53._0;
-				if (_p54.ctor === 'Ok') {
+				var _p44 = _p43._0;
+				if (_p44.ctor === 'Ok') {
 					return state.waiting ? {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							state,
 							{
-								position: _elm_lang$core$Maybe$Just(_p54._0)
+								position: _elm_lang$core$Maybe$Just(_p44._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					} : {ctor: '_Tuple2', _0: state, _1: _elm_lang$core$Platform_Cmd$none};
@@ -11169,14 +11170,14 @@ var _terezka$elm_plot$Plot$getEventPostion = function (plotProps) {
 		A2(_elm_lang$core$Json_Decode$field, 'clientY', _elm_lang$core$Json_Decode$float));
 };
 var _terezka$elm_plot$Plot$viewPlot = F3(
-	function (_p56, plotProps, _p55) {
-		var _p57 = _p56;
-		var _p58 = _p55;
-		var _p59 = _p57.margin;
-		var top = _p59._0;
-		var right = _p59._1;
-		var bottom = _p59._2;
-		var left = _p59._3;
+	function (_p46, plotProps, _p45) {
+		var _p47 = _p46;
+		var _p48 = _p45;
+		var _p49 = _p47.margin;
+		var top = _p49._0;
+		var right = _p49._1;
+		var bottom = _p49._2;
+		var left = _p49._3;
 		var paddingStyle = A2(
 			_elm_lang$core$String$join,
 			'px ',
@@ -11200,9 +11201,9 @@ var _terezka$elm_plot$Plot$viewPlot = F3(
 						}
 					}
 				}));
-		var _p60 = _p57.size;
-		var width = _p60._0;
-		var height = _p60._1;
+		var _p50 = _p47.size;
+		var width = _p50._0;
+		var height = _p50._1;
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -11233,7 +11234,7 @@ var _terezka$elm_plot$Plot$viewPlot = F3(
 							}
 						}
 					},
-					_p58._0),
+					_p48._0),
 				_1: {
 					ctor: '::',
 					_0: A2(
@@ -11299,7 +11300,7 @@ var _terezka$elm_plot$Plot$viewPlot = F3(
 										}
 									}
 								},
-								_p58._1),
+								_p48._1),
 							_1: {ctor: '[]'}
 						}),
 					_1: {ctor: '[]'}
@@ -11690,7 +11691,7 @@ var _terezka$elm_plot$Test$chart = function (model) {
 							_0: _terezka$elm_plot$Plot_Axis$tick(
 								{
 									ctor: '::',
-									_0: _terezka$elm_plot$Plot_Tick$viewFromDynamicConfig(_terezka$elm_plot$Test$toTickConfig),
+									_0: _terezka$elm_plot$Plot_Tick$viewDynamic(_terezka$elm_plot$Test$toTickConfig),
 									_1: {ctor: '[]'}
 								}),
 							_1: {
@@ -11698,7 +11699,7 @@ var _terezka$elm_plot$Test$chart = function (model) {
 								_0: _terezka$elm_plot$Plot_Axis$label(
 									{
 										ctor: '::',
-										_0: _terezka$elm_plot$Plot_Label$viewFromDynamicConfig(_terezka$elm_plot$Test$toLabelConfig),
+										_0: _terezka$elm_plot$Plot_Label$viewDynamic(_terezka$elm_plot$Test$toLabelConfig),
 										_1: {ctor: '[]'}
 									}),
 								_1: {ctor: '[]'}
@@ -11721,7 +11722,7 @@ var _terezka$elm_plot$Test$chart = function (model) {
 								_0: _terezka$elm_plot$Plot_Axis$tick(
 									{
 										ctor: '::',
-										_0: _terezka$elm_plot$Plot_Tick$viewFromCustomHtml(_terezka$elm_plot$Test$specialTick),
+										_0: _terezka$elm_plot$Plot_Tick$viewCustom(_terezka$elm_plot$Test$specialTick),
 										_1: {
 											ctor: '::',
 											_0: _terezka$elm_plot$Plot_Tick$removeZero,

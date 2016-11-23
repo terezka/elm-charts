@@ -171,8 +171,8 @@ toStyleConfig attributes =
  `tickCustomView`, `tickConfigViewFunc` or a `tickCustomViewIndexed` attribute,
  then this attribute will have no effect.
 -}
-viewFromConfig : List StyleAttribute -> Attribute msg
-viewFromConfig styles config =
+view : List StyleAttribute -> Attribute msg
+view styles config =
     { config | viewConfig = FromStyle (toStyleConfig styles) }
 
 
@@ -200,8 +200,8 @@ viewFromConfig styles config =
  `tickConfigView`, `tickCustomView` or a `tickCustomViewIndexed` attribute,
  then this attribute will have no effect.
 -}
-viewFromDynamicConfig : ToStyleAttributes -> Attribute msg
-viewFromDynamicConfig toStyles config =
+viewDynamic : ToStyleAttributes -> Attribute msg
+viewDynamic toStyles config =
     { config | viewConfig = FromStyleDynamic toStyles }
 
 
@@ -219,8 +219,8 @@ viewFromDynamicConfig toStyles config =
  **Note:** If in the list of axis attributes, this attribute is followed by a
  `tickConfigView` or a `tickCustomViewIndexed` attribute, then this attribute will have no effect.
 -}
-viewFromCustomHtml : (Float -> Svg.Svg msg) -> Attribute msg
-viewFromCustomHtml view config =
+viewCustom : (Float -> Svg.Svg msg) -> Attribute msg
+viewCustom view config =
     { config | viewConfig = FromCustomView (\_ _ -> view) }
 
 
@@ -243,8 +243,8 @@ viewFromCustomHtml view config =
  **Note:** If in the list of axis attributes, this attribute is followed by a
  `tickConfigView` or a `tickCustomView` attribute, then this attribute will have no effect.
 -}
-viewFromCustomHtmlIndexed : (Int -> Float -> Svg.Svg msg) -> Attribute msg
-viewFromCustomHtmlIndexed view config =
+viewCustomIndexed : (Int -> Float -> Svg.Svg msg) -> Attribute msg
+viewCustomIndexed view config =
     { config | viewConfig = FromCustomView (always view) }
 
 

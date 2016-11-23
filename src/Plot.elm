@@ -6,8 +6,6 @@ module Plot
         , verticalGrid
         , horizontalGrid
         , tooltip
-        , tooltipCustomView
-        , tooltipRemoveLine
         , area
         , line
         , Element
@@ -23,12 +21,9 @@ module Plot
  It is insprired by the elm-html api, using the `element attrs children` pattern.
 
 # Elements
-@docs Element, plot, line, area, xAxis, yAxis, verticalGrid, horizontalGrid
+@docs Element, plot, line, area, xAxis, yAxis, tooltip, verticalGrid, horizontalGrid
 
 # Configuration
-
-## Tooltip configuration
-@docs tooltip, tooltipRemoveLine, tooltipCustomView
 
 # State
 @docs State, initialState, update, Msg
@@ -60,6 +55,7 @@ import Plot.Tick as Tick
 import Plot.Grid as Grid
 import Plot.Area as Area
 import Plot.Line as Line
+import Plot.Tooltip as Tooltip
 
 
 
@@ -71,7 +67,7 @@ import Plot.Line as Line
 -}
 type Element msg
     = Axis (Axis.Config msg)
-    | Tooltip (TooltipConfig msg) ( Float, Float )
+    | Tooltip (Tooltip.Config msg) ( Float, Float )
     | Grid Grid.Config
     | Line Line.Config (List Point)
     | Area Area.Config (List Point)
@@ -165,43 +161,13 @@ line attrs points =
 -- TOOLTIP
 
 
-type alias TooltipConfig msg =
-    { view : TooltipInfo -> Bool -> Html msg
-    , showLine : Bool
-    , lineStyle : Style
-    }
 
-
-defaultTooltipConfig : TooltipConfig Msg
-defaultTooltipConfig =
-    { view = defaultTooltipView
-    , showLine = True
-    , lineStyle = []
-    }
-
-
-{-| The type representing a tooltip configuration.
--}
-type alias TooltipAttr msg =
-    TooltipConfig msg -> TooltipConfig msg
 
 
 {-| -}
-tooltipRemoveLine : TooltipConfig msg -> TooltipConfig msg
-tooltipRemoveLine config =
-    { config | showLine = False }
-
-
-{-| -}
-tooltipCustomView : (TooltipInfo -> Bool -> Svg.Svg msg) -> TooltipConfig msg -> TooltipConfig msg
-tooltipCustomView view config =
-    { config | view = view }
-
-
-{-| -}
-tooltip : List (TooltipAttr Msg) -> ( Float, Float ) -> Element Msg
+tooltip : List (Tooltip.Attribute Msg) -> ( Float, Float ) -> Element Msg
 tooltip attrs position =
-    Tooltip (List.foldr (<|) defaultTooltipConfig attrs) position
+    Tooltip (List.foldr (<|) Tooltip.defaultConfig attrs) position
 
 
 
@@ -383,7 +349,7 @@ viewElement plotProps element ( svgViews, htmlViews ) =
 
         Tooltip config position ->
             let
-                tooltipView = viewTooltip plotProps config position
+                tooltipView = Tooltip.view plotProps config position
             in
                 ( svgViews, tooltipView :: htmlViews )
 
@@ -419,70 +385,6 @@ viewElement plotProps element ( svgViews, htmlViews ) =
 -- VIEW TOOLTIP
 
 
-viewTooltip : PlotProps -> TooltipConfig Msg -> ( Float, Float ) -> Html.Html Msg
-viewTooltip { toSvgCoords, scale, getTooltipInfo } { showLine, view } position =
-    let
-        info =
-            getTooltipInfo (Tuple.first position)
-
-        ( xSvg, ySvg ) =
-            toSvgCoords (info.xValue, 0)
-
-        flipped =
-            xSvg < scale.length / 2
-
-        lineView =
-            if showLine then [ viewTooltipLine ( xSvg, ySvg ) ] else []
-    in
-        Html.div
-            [ Html.Attributes.class "elm-plot__tooltip"
-            , Html.Attributes.style [ ( "left", (toString xSvg) ++ "px" ) ]
-            ]
-            ((view info flipped) :: lineView)
-
-
-viewTooltipLine : ( Float, Float ) -> Html.Html Msg
-viewTooltipLine ( x, y ) =
-    Html.div
-        [ Html.Attributes.class "elm-plot__tooltip__line" 
-        , Html.Attributes.style
-            [ ( "left", (toString x) ++ "px" ) 
-            , ( "height", toString y ++ "px")]
-        ]
-        []
-
-
-defaultTooltipView : TooltipInfo -> Bool -> Html.Html Msg
-defaultTooltipView { xValue, yValues } isLeftSide =
-    let
-        classes =
-            [ ( "elm-plot__tooltip__default-view", True )
-            , ( "elm-plot__tooltip__default-view--left", isLeftSide )
-            , ( "elm-plot__tooltip__default-view--right", not isLeftSide )
-            ]
-    in
-        Html.div
-            [ Html.Attributes.classList classes ]
-            [ Html.div [] [ Html.text ("X: " ++ toString xValue) ]
-            , Html.div [] (List.indexedMap viewTooltipYValue yValues)
-            ]
-
-
-viewTooltipYValue : Int -> Maybe Float -> Html.Html Msg
-viewTooltipYValue index yValue =
-    let
-        yValueDisplayed =
-            case yValue of
-                Just value ->
-                    toString value
-
-                Nothing ->
-                    "No data"
-    in
-        Html.div []
-            [ Html.span [] [ Html.text ("Serie " ++ toString index ++ ": ") ]
-            , Html.span [] [ Html.text yValueDisplayed ]
-            ]
 
 
 -- CALCULATE SCALES
