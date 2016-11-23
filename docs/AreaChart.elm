@@ -5,6 +5,7 @@ import Svg.Attributes
 import Plot exposing (..)
 import Plot.Area as Area
 import Plot.Grid as Grid
+import Plot.Axis as Axis
 import Plot.Meta as Meta
 import Colors
 
@@ -38,7 +39,7 @@ chart state =
                 [ Area.style [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data
             , area
                 [ Area.style [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ] data2
-            , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
+            , xAxis [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
             ] ++ tooltipView
 
 

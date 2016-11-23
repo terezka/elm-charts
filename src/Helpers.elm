@@ -1,5 +1,6 @@
 module Helpers exposing (..)
 
+import Plot.Types exposing (Orientation(..))
 import Svg exposing (g)
 import Svg.Attributes exposing (transform, height, width, style, d, x, y, x1, x2, y1, y2)
 import String
@@ -119,3 +120,15 @@ getTickDelta range totalTicks =
                 magMsd
     in
         (toFloat magMsdFinal) * magPow
+
+
+
+
+(?) : Orientation -> a -> a -> a
+(?) orientation x y =
+    case orientation of
+        X ->
+            x
+
+        Y ->
+            y

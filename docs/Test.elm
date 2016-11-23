@@ -1,10 +1,11 @@
-module PlotExample exposing (..)
+module Test exposing (..)
 
 import Svg
 import Svg.Attributes
 import Plot exposing (..)
-import Plot.Area as Area
-import Plot.Grid as Grid
+import Plot.Line as Line
+import Plot.Label as Label
+import Plot.Tick as Tick
 import Plot.Axis as Axis
 import Plot.Meta as Meta
 
@@ -24,19 +25,19 @@ isOdd n =
 toTickConfig : Int -> Float -> List Tick.StyleAttribute
 toTickConfig index tick =
     if isOdd index then
-        [ tickLength 7, tickStyle [ ( "stroke", "#e4e3e3" ) ] ]
+        [ Tick.length 7, Tick.style [ ( "stroke", "#e4e3e3" ) ] ]
     else
-        [ tickLength 10, tickStyle [ ( "stroke", "#b9b9b9" ) ] ]
+        [ Tick.length 10, Tick.style [ ( "stroke", "#b9b9b9" ) ] ]
 
 
 toLabelConfig : Int -> Float -> List Label.StyleAttribute
 toLabelConfig index tick =
     if isOdd index then
-        [ labelFormat (always "") ]
+        [ Label.format (always "") ]
     else
-        [ labelFormat (\l -> toString l ++ " s")
-        , labelStyle [ ( "stroke", "#969696" ) ]
-        , labelDisplace ( 0, 27 )
+        [ Label.format (\l -> toString l ++ " s")
+        , Label.style [ ( "stroke", "#969696" ) ]
+        , Label.displace ( 0, 27 )
         ]
 
 
@@ -49,10 +50,13 @@ specialTick _ =
         [ Svg.tspan [] [ Svg.text "🌟" ] ]
 
 
-main : Svg.Svg a
-main =
+chart : Plot.State -> Svg.Svg Msg
+chart model =
     plot
-        [ Meta.size ( 600, 250 ), Meta.style [ ( "padding", "40px" ) ] ]
+        "id"
+        [ Meta.size ( 600, 250 )
+        , Meta.margin (0, 40, 40, 40)
+        ]
         [ line
             [ Line.style
                 [ ( "stroke", Colors.pinkStroke )
@@ -63,9 +67,7 @@ main =
         , xAxis
             [ Axis.style [ ( "stroke", Colors.axisColor ) ]
             , Axis.tick
-                [ Tick.values [ 0, 2, 5 ]
-                , Tick.viewFromDynamicConfig toTickConfig
-                ]
+                [ Tick.viewFromDynamicConfig toTickConfig ]
             , Axis.label
                 [ Label.viewFromDynamicConfig toLabelConfig ]
             ]

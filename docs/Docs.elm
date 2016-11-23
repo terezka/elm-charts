@@ -7,6 +7,7 @@ import Svg
 import Svg.Attributes
 import Plot exposing (..)
 import AreaChart exposing (..)
+import Test exposing (..)
 
 
 --import MultiAreaChart exposing (..)
@@ -145,6 +146,7 @@ view model =
                 [ text "Github" ]
             ]
         , viewTitle model "Simple Area Chart" "AreaChart" AreaChart.code
+        , Html.map PlotMsg (Test.chart model.plotState)
         , Html.map PlotMsg (AreaChart.chart model.plotState)
           --, viewTitle model "Multi Area Chart" "MultiAreaChart" MultiAreaChart.code
           --, Html.map PlotMsg MultiAreaChart.chart
