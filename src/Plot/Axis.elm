@@ -14,13 +14,13 @@ import Svg.Attributes
  Attributes for altering the view of your axis.
 
 # Styling
-@docs style, classes, lineStyle, format
+@docs style, classes, lineStyle
 
-# Values
-@docs values, filter
+# Ticks and labels
+@docs tick, label
 
 # Definitions
-@docs Attribute, StyleAttribute, ToStyleAttributes
+@docs Attribute
 
 -}
 type alias Config msg =

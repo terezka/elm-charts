@@ -7,7 +7,7 @@ import Plot.Line as Line
 import Plot.Label as Label
 import Plot.Tick as Tick
 import Plot.Axis as Axis
-import Plot.Meta as Meta
+import Plot.Base as Base
 import Colors
 
 
@@ -49,11 +49,11 @@ specialTick _ _ =
         [ Svg.tspan [] [ Svg.text "🌟" ] ]
 
 
-chart : Plot.State -> Svg.Svg Msg
+chart : Plot.State -> Svg.Svg Plot.Msg
 chart model =
-    plotStatic
-        [ Meta.size ( 600, 250 )
-        , Meta.margin ( 0, 40, 40, 40 )
+    baseStatic
+        [ Base.size ( 600, 250 )
+        , Base.margin ( 0, 40, 40, 40 )
         ]
         [ line
             [ Line.style [ ( "stroke", Colors.pinkStroke ), ( "stroke-width", "2px" ) ] ]

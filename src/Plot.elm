@@ -1,7 +1,7 @@
 module Plot
     exposing
-        ( plot
-        , plotStatic
+        ( base
+        , baseStatic
         , xAxis
         , yAxis
         , verticalGrid
@@ -22,7 +22,7 @@ module Plot
  It is insprired by the elm-html api, using the `element attrs children` pattern.
 
 # Elements
-@docs Element, plot, plotStatic, line, area, xAxis, yAxis, tooltip, verticalGrid, horizontalGrid
+@docs Element, base, baseStatic, line, area, xAxis, yAxis, tooltip, verticalGrid, horizontalGrid
 
 # Configuration
 
@@ -48,7 +48,7 @@ import Round
 import Debug
 import Helpers exposing (..)
 import Plot.Types exposing (..)
-import Plot.Meta as Meta
+import Plot.Base as Base
 import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Grid as Grid
@@ -216,8 +216,8 @@ getInnerId { id } =
  Pass your meta attributes and plot elements to this function and
  a svg plot will be returned!
 -}
-plotStatic : List Meta.Attribute -> List (Element Msg) -> Svg.Svg Msg
-plotStatic attrs elements =
+baseStatic : List Base.Attribute -> List (Element Msg) -> Svg.Svg Msg
+baseStatic attrs elements =
     Svg.Lazy.lazy3 parsePlot "elm-plot" attrs elements
 
 
@@ -225,8 +225,8 @@ plotStatic attrs elements =
  Pass your meta attributes and plot elements to this function and
  a svg plot will be returned!
 -}
-plot : String -> List Meta.Attribute -> List (Element Msg) -> Svg.Svg Msg
-plot id attrs elements =
+base : String -> List Base.Attribute -> List (Element Msg) -> Svg.Svg Msg
+base id attrs elements =
     Svg.Lazy.lazy3 parsePlot id attrs elements
 
 
@@ -234,11 +234,11 @@ plot id attrs elements =
 -- VIEW
 
 
-parsePlot : String -> List Meta.Attribute -> List (Element Msg) -> Svg.Svg Msg
+parsePlot : String -> List Base.Attribute -> List (Element Msg) -> Svg.Svg Msg
 parsePlot id attrs elements =
     let
         metaConfig =
-            Meta.toConfig attrs
+            Base.toConfig attrs
 
         plotProps =
             getPlotProps id metaConfig elements
@@ -254,7 +254,7 @@ getEventPostion plotProps =
         (Json.field "clientY" Json.float)
 
 
-viewPlot : Meta.Config -> PlotProps -> ( List (Svg.Svg Msg), List (Html.Html Msg) ) -> Svg.Svg Msg
+viewPlot : Base.Config -> PlotProps -> ( List (Svg.Svg Msg), List (Html.Html Msg) ) -> Svg.Svg Msg
 viewPlot { size, style, classes, margin } plotProps ( svgViews, htmlViews ) =
     let
         ( width, height ) =
@@ -433,7 +433,7 @@ getTooltipInfo elements xValue =
         TooltipInfo xValue yValues
 
 
-getPlotProps : String -> Meta.Config -> List (Element Msg) -> PlotProps
+getPlotProps : String -> Base.Config -> List (Element Msg) -> PlotProps
 getPlotProps id { size, padding, margin } elements =
     let
         ( xValues, yValues ) =

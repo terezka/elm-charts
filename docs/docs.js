@@ -9448,7 +9448,7 @@ var _terezka$elm_plot$Helpers$getHighest = function (values) {
 		_elm_lang$core$List$maximum(values));
 };
 
-var _terezka$elm_plot$Plot_Meta$defaultConfig = {
+var _terezka$elm_plot$Plot_Base$defaultConfig = {
 	size: {ctor: '_Tuple2', _0: 800, _1: 500},
 	padding: {ctor: '_Tuple2', _0: 0, _1: 0},
 	margin: {ctor: '_Tuple4', _0: 0, _1: 0, _2: 0, _3: 0},
@@ -9464,30 +9464,30 @@ var _terezka$elm_plot$Plot_Meta$defaultConfig = {
 	},
 	id: 'elm-plot'
 };
-var _terezka$elm_plot$Plot_Meta$toConfig = function (attrs) {
+var _terezka$elm_plot$Plot_Base$toConfig = function (attrs) {
 	return A3(
 		_elm_lang$core$List$foldr,
 		F2(
 			function (x, y) {
 				return x(y);
 			}),
-		_terezka$elm_plot$Plot_Meta$defaultConfig,
+		_terezka$elm_plot$Plot_Base$defaultConfig,
 		attrs);
 };
-var _terezka$elm_plot$Plot_Meta$classes = F2(
+var _terezka$elm_plot$Plot_Base$classes = F2(
 	function (classes, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{classes: classes});
 	});
-var _terezka$elm_plot$Plot_Meta$style = F2(
+var _terezka$elm_plot$Plot_Base$style = F2(
 	function (style, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{
 				style: A2(
 					_elm_lang$core$Basics_ops['++'],
-					_terezka$elm_plot$Plot_Meta$defaultConfig.style,
+					_terezka$elm_plot$Plot_Base$defaultConfig.style,
 					A2(
 						_elm_lang$core$Basics_ops['++'],
 						style,
@@ -9498,7 +9498,7 @@ var _terezka$elm_plot$Plot_Meta$style = F2(
 						}))
 			});
 	});
-var _terezka$elm_plot$Plot_Meta$margin = F2(
+var _terezka$elm_plot$Plot_Base$margin = F2(
 	function (_p0, config) {
 		var _p1 = _p0;
 		return _elm_lang$core$Native_Utils.update(
@@ -9513,7 +9513,7 @@ var _terezka$elm_plot$Plot_Meta$margin = F2(
 				}
 			});
 	});
-var _terezka$elm_plot$Plot_Meta$size = F2(
+var _terezka$elm_plot$Plot_Base$size = F2(
 	function (_p2, config) {
 		var _p3 = _p2;
 		return _elm_lang$core$Native_Utils.update(
@@ -9526,7 +9526,7 @@ var _terezka$elm_plot$Plot_Meta$size = F2(
 				}
 			});
 	});
-var _terezka$elm_plot$Plot_Meta$padding = F2(
+var _terezka$elm_plot$Plot_Base$padding = F2(
 	function (_p4, config) {
 		var _p5 = _p4;
 		return _elm_lang$core$Native_Utils.update(
@@ -9539,7 +9539,7 @@ var _terezka$elm_plot$Plot_Meta$padding = F2(
 				}
 			});
 	});
-var _terezka$elm_plot$Plot_Meta$Config = F6(
+var _terezka$elm_plot$Plot_Base$Config = F6(
 	function (a, b, c, d, e, f) {
 		return {size: a, padding: b, margin: c, classes: d, style: e, id: f};
 	});
@@ -11293,7 +11293,7 @@ var _terezka$elm_plot$Plot$viewPlot = F3(
 	});
 var _terezka$elm_plot$Plot$parsePlot = F3(
 	function (id, attrs, elements) {
-		var metaConfig = _terezka$elm_plot$Plot_Meta$toConfig(attrs);
+		var metaConfig = _terezka$elm_plot$Plot_Base$toConfig(attrs);
 		var plotProps = A3(_terezka$elm_plot$Plot$getPlotProps, id, metaConfig, elements);
 		return A3(
 			_terezka$elm_plot$Plot$viewPlot,
@@ -11301,11 +11301,11 @@ var _terezka$elm_plot$Plot$parsePlot = F3(
 			plotProps,
 			A2(_terezka$elm_plot$Plot$viewElements, plotProps, elements));
 	});
-var _terezka$elm_plot$Plot$plotStatic = F2(
+var _terezka$elm_plot$Plot$baseStatic = F2(
 	function (attrs, elements) {
 		return A4(_elm_lang$svg$Svg_Lazy$lazy3, _terezka$elm_plot$Plot$parsePlot, 'elm-plot', attrs, elements);
 	});
-var _terezka$elm_plot$Plot$plot = F3(
+var _terezka$elm_plot$Plot$base = F3(
 	function (id, attrs, elements) {
 		return A4(_elm_lang$svg$Svg_Lazy$lazy3, _terezka$elm_plot$Plot$parsePlot, id, attrs, elements);
 	});
@@ -11399,19 +11399,19 @@ var _terezka$elm_plot$AreaChart$chart = function (state) {
 		}
 	}();
 	return A3(
-		_terezka$elm_plot$Plot$plot,
+		_terezka$elm_plot$Plot$base,
 		'my-id',
 		{
 			ctor: '::',
-			_0: _terezka$elm_plot$Plot_Meta$size(
+			_0: _terezka$elm_plot$Plot_Base$size(
 				{ctor: '_Tuple2', _0: 600, _1: 250}),
 			_1: {
 				ctor: '::',
-				_0: _terezka$elm_plot$Plot_Meta$margin(
+				_0: _terezka$elm_plot$Plot_Base$margin(
 					{ctor: '_Tuple4', _0: 10, _1: 10, _2: 30, _3: 10}),
 				_1: {
 					ctor: '::',
-					_0: _terezka$elm_plot$Plot_Meta$padding(
+					_0: _terezka$elm_plot$Plot_Base$padding(
 						{ctor: '_Tuple2', _0: 0, _1: 20}),
 					_1: {ctor: '[]'}
 				}
@@ -11636,14 +11636,14 @@ var _terezka$elm_plot$Test$data = {
 };
 var _terezka$elm_plot$Test$chart = function (model) {
 	return A2(
-		_terezka$elm_plot$Plot$plotStatic,
+		_terezka$elm_plot$Plot$baseStatic,
 		{
 			ctor: '::',
-			_0: _terezka$elm_plot$Plot_Meta$size(
+			_0: _terezka$elm_plot$Plot_Base$size(
 				{ctor: '_Tuple2', _0: 600, _1: 250}),
 			_1: {
 				ctor: '::',
-				_0: _terezka$elm_plot$Plot_Meta$margin(
+				_0: _terezka$elm_plot$Plot_Base$margin(
 					{ctor: '_Tuple4', _0: 0, _1: 40, _2: 40, _3: 40}),
 				_1: {ctor: '[]'}
 			}

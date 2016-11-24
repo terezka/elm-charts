@@ -1,4 +1,4 @@
-module Plot.Meta exposing (..)
+module Plot.Base exposing (..)
 
 import Plot.Types exposing (..)
 

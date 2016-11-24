@@ -2,11 +2,11 @@ module AreaChart exposing (chart, code)
 
 import Svg
 import Svg.Attributes
-import Plot exposing (..)
+import Plot as Plot
 import Plot.Area as Area
 import Plot.Grid as Grid
 import Plot.Axis as Axis
-import Plot.Meta as Meta
+import Plot.Base as Base
 import Colors
 
 
@@ -20,7 +20,7 @@ data2 =
     [ ( 0, 5 ), ( 1, 20 ), ( 2, 10 ), ( 3, 12 ), ( 4, 20 ), ( 5, 25 ), ( 6, 3 ) ]
 
 
-chart : Plot.State -> Svg.Svg Msg
+chart : Plot.State -> Svg.Svg Plot.Msg
 chart state =
     let
         tooltipView =
@@ -29,20 +29,19 @@ chart state =
                     []
 
                 Just position ->
-                    [ tooltip [] position ]
+                    [ Plot.tooltip [] position ]
     in
-        plot
+        Plot.base
             "my-id"
-            [ Meta.size ( 600, 250 ), Meta.margin ( 10, 10, 30, 10 ), Meta.padding ( 0, 20 ) ]
-        <|
-            [ verticalGrid [ Grid.classes [ "dsfdjksh" ] ]
-            , area
+            [ Base.size ( 600, 250 ), Base.margin ( 10, 10, 30, 10 ), Base.padding ( 0, 20 ) ] <|
+            [ Plot.verticalGrid [ Grid.classes [ "dsfdjksh" ] ]
+            , Plot.area
                 [ Area.style [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ]
                 data
-            , area
+            , Plot.area
                 [ Area.style [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ]
                 data2
-            , xAxis [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
+            , Plot.xAxis [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
             ]
                 ++ tooltipView
 
