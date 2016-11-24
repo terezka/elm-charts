@@ -1,6 +1,7 @@
 module Plot
     exposing
         ( plot
+        , plotStatic
         , xAxis
         , yAxis
         , verticalGrid
@@ -21,7 +22,7 @@ module Plot
  It is insprired by the elm-html api, using the `element attrs children` pattern.
 
 # Elements
-@docs Element, plot, line, area, xAxis, yAxis, tooltip, verticalGrid, horizontalGrid
+@docs Element, plot, plotStatic, line, area, xAxis, yAxis, tooltip, verticalGrid, horizontalGrid
 
 # Configuration
 
@@ -46,8 +47,6 @@ import Dom.Position
 import Round
 import Debug
 import Helpers exposing (..)
-
-
 import Plot.Types exposing (..)
 import Plot.Meta as Meta
 import Plot.Axis as Axis
@@ -59,10 +58,6 @@ import Plot.Tooltip as Tooltip
 
 
 
-
--- CONFIGS
-
-
 {-| Represents child element of the plot.
 -}
 type Element msg
@@ -72,20 +67,6 @@ type Element msg
     | Line Line.Config (List Point)
     | Area Area.Config (List Point)
 
-
-
--- TICK CONFIG
-
-
-
-
-
--- LABEL CONFIG
-
-
-
-
--- AXIS CONFIG
 
 
 {-| This returns an axis element resulting in an x-axis being rendered in your plot.
@@ -106,8 +87,6 @@ xAxis attrs =
 yAxis : List (Axis.Attribute Msg) -> Element Msg
 yAxis attrs =
     Axis (List.foldl (<|) Axis.defaultConfigY attrs)
-
-
 
 
 {-| This returns an grid element resulting in vertical grid lines being rendered in your plot.
@@ -131,9 +110,6 @@ verticalGrid attrs =
 
 
 
--- AREA CONFIG
-
-
 {-| This returns an area element resulting in an area serie rendered in your plot.
 
     main =
@@ -144,8 +120,6 @@ area attrs points =
     Area (Area.toConfig attrs) points
 
 
--- LINE CONFIG
-
 
 {-| This returns a line element resulting in an line serie rendered in your plot.
 
@@ -155,13 +129,6 @@ area attrs points =
 line : List Line.Attribute -> List Point -> Element Msg
 line attrs points =
     Line (List.foldr (<|) Line.defaultConfig attrs) points
-
-
-
--- TOOLTIP
-
-
-
 
 
 {-| -}
@@ -253,6 +220,15 @@ getInnerId { id } =
  Pass your meta attributes and plot elements to this function and
  a svg plot will be returned!
 -}
+plotStatic : List Meta.Attribute -> List (Element Msg) -> Svg.Svg Msg
+plotStatic attrs elements =
+    Svg.Lazy.lazy3 parsePlot "elm-plot" attrs elements
+
+
+{-| This is the function processing your entire plot configuration.
+ Pass your meta attributes and plot elements to this function and
+ a svg plot will be returned!
+-}
 plot : String -> List Meta.Attribute -> List (Element Msg) -> Svg.Svg Msg
 plot id attrs elements =
     Svg.Lazy.lazy3 parsePlot id attrs elements
@@ -280,7 +256,6 @@ getEventPostion plotProps =
         (\x y -> Hovering plotProps ( x, y ))
         (Json.field "clientX" Json.float)
         (Json.field "clientY" Json.float)
-
 
 
 viewPlot : Meta.Config -> PlotProps -> ( List (Svg.Svg Msg), List (Html.Html Msg) ) -> Svg.Svg Msg
@@ -316,7 +291,7 @@ viewPlot { size, style, classes, margin } plotProps ( svgViews, htmlViews ) =
                         , ( "padding", paddingStyle ++ "px" )
                         ]
                     , Html.Events.on "mousemove" (getEventPostion plotProps)
-                    --, Html.Events.onMouseOut ResetPosition
+                      --, Html.Events.onMouseOut ResetPosition
                     ]
                     htmlViews
                 ]
@@ -349,7 +324,8 @@ viewElement plotProps element ( svgViews, htmlViews ) =
 
         Tooltip config position ->
             let
-                tooltipView = Tooltip.view plotProps config position
+                tooltipView =
+                    Tooltip.view plotProps config position
             in
                 ( svgViews, tooltipView :: htmlViews )
 
@@ -370,20 +346,6 @@ viewElement plotProps element ( svgViews, htmlViews ) =
 
         Area config points ->
             ( (Area.view plotProps config points) :: svgViews, htmlViews )
-
-
-
--- VIEW AXIS
-
-
-
-
-
-
-
-
--- VIEW TOOLTIP
-
 
 
 
@@ -515,22 +477,17 @@ getPlotProps id { size, padding, margin } elements =
 flipToY : PlotProps -> PlotProps
 flipToY plotProps =
     let
-        { scale
-        , oppositeScale
-        , toSvgCoords
-        , oppositeToSvgCoords
-        , ticks
-        , oppositeTicks
-        } = plotProps
+        { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, oppositeTicks } =
+            plotProps
     in
-    { plotProps
-    | scale = oppositeScale
-    , oppositeScale = scale
-    , toSvgCoords = oppositeToSvgCoords
-    , oppositeToSvgCoords = toSvgCoords
-    , ticks = oppositeTicks
-    , oppositeTicks = ticks
-    }
+        { plotProps
+            | scale = oppositeScale
+            , oppositeScale = scale
+            , toSvgCoords = oppositeToSvgCoords
+            , oppositeToSvgCoords = toSvgCoords
+            , ticks = oppositeTicks
+            , oppositeTicks = ticks
+        }
 
 
 
@@ -555,7 +512,7 @@ getLastGetTickValues orientation elements =
     List.foldl (getAxisConfig orientation) Nothing elements
         |> Maybe.withDefault Axis.defaultConfigX
         |> .tickConfig
-        |> Tick.getValuesPure
+        |> Tick.getValues
 
 
 
@@ -590,8 +547,12 @@ collectYValues xValue element yValues =
 
 getYValue : Float -> List Point -> Maybe Float
 getYValue xValue points =
-    List.foldr (\(x, y) res -> if x == xValue then Just y else res) Nothing points
-
-
-
-
+    List.foldr
+        (\( x, y ) res ->
+            if x == xValue then
+                Just y
+            else
+                res
+        )
+        Nothing
+        points

@@ -7,24 +7,35 @@ import Svg
 import Svg.Attributes
 
 
+{-|
+ Attributes for altering the values and view of your axis' labels.
+
+# Styling
+@docs view, viewDynamic, viewCustom
+
+## Style attributes
+@docs style, classes, displace, format
+
+# Values
+@docs values, filter
+
+# Definitions
+@docs Attribute, StyleAttribute, ToStyleAttributes
+
+-}
+
+type alias Config msg =
+    { viewConfig : ViewConfig msg
+    , valueConfig : ValueConfig
+    }
+
+
 type alias StyleConfig =
     { displace : Maybe ( Int, Int )
     , format : Int -> Float -> String
     , style : Style
     , classes : List String
     }
-
-
-type alias View msg =
-    Orientation -> Int -> Float -> Svg.Svg msg
-
-
-type alias StyleAttribute =
-    StyleConfig -> StyleConfig
-
-
-type alias ToStyleAttributes =
-    Int -> Float -> List StyleAttribute
 
 
 type ViewConfig msg
@@ -38,18 +49,23 @@ type ValueConfig
     | CustomFilter (Int -> Float -> Bool)
 
 
-type alias Config msg =
-    { viewConfig : ViewConfig msg
-    , valueConfig : ValueConfig
-    }
+type alias View msg =
+    Orientation -> Int -> Float -> Svg.Svg msg
 
 
+{-| The type representing a label attibute. -}
 type alias Attribute msg =
     Config msg -> Config msg
 
 
-type alias ToAttributes msg =
-    Int -> Float -> List (Attribute msg)
+{-| The type representing a label style attibutes. -}
+type alias StyleAttribute =
+    StyleConfig -> StyleConfig
+
+
+{-| The type representing function returning a list of style attibutes. -}
+type alias ToStyleAttributes =
+    Int -> Float -> List StyleAttribute
 
 
 defaultConfig : Config msg
@@ -68,14 +84,15 @@ defaultStyleConfig =
     }
 
 
-
-{-| Move the position of the label.
+{-| Displaces the label.
 
     main =
         plot
             []
             [ xAxis
-                [ labelConfigView [ labelDisplace ( 0, 27 ) ] ]
+                [ Axis.label
+                    [ Label.view [ Label.displace ( 12, 0 ) ] ]
+                ]
             ]
 -}
 displace : ( Int, Int ) -> StyleAttribute
@@ -83,14 +100,14 @@ displace displace config =
     { config | displace = Just displace }
 
 
-{-| Add classes to the label.
+{-| Adds classes to the label.
 
     main =
         plot
             []
             [ xAxis
-                [ labelConfigView
-                    [ labelClasses [ "my-class" ] ]
+                [ Axis.label
+                    [ Label.view [ Label.classes [ "my-class" ] ] ]
                 ]
             ]
 -}
@@ -99,16 +116,14 @@ classes classes config =
     { config | classes = classes }
 
 
-
-
-{-| Move the position of the label.
+{-| Adds inline-styles to the label.
 
     main =
         plot
             []
             [ xAxis
-                [ labelConfigView
-                    [ labelStyle [ ("stroke", "blue" ) ] ]
+                [ Axis.label
+                    [ Label.view [ Label.style [ ("stroke", "blue" ) ] ] ]
                 ]
             ]
 -}
@@ -117,122 +132,29 @@ style style config =
     { config | style = style }
 
 
-
-{-| Defines how the tick will be displayed by specifying a list of tick view attributes.
+{-| Format the label based on its value and index (amount of ticks from origin).
+    
+    formatter : Int -> Float -> String
+    formatter index value =
+        if isDivisibleBy5 index then
+            formatEveryFifth value
+        else
+            normalFormat value
 
     main =
         plot
             []
             [ xAxis
-                [ tickConfigView
-                    [ tickLength 10
-                    , tickWidth 2
-                    , tickStyle [ ( "stroke", "red" ) ]
+                [ Axis.label
+                    [ Label.view
+                        [ Label.format formatter ]
                     ]
                 ]
             ]
-
- If you do not define another view configuration,
- the default will be `[ tickLength 7, tickWidth 1, tickStyle [] ]`
-
- **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickCustomView`, `tickConfigViewFunc` or a `tickCustomViewIndexed` attribute,
- then this attribute will have no effect.
 -}
-view : List StyleAttribute -> Attribute msg
-view styles config =
-    { config | viewConfig = FromStyle (toStyleConfig styles) }
-
-
-{-| Defines how the tick will be displayed by specifying a list of tick view attributes.
-
-    toTickConfig : Int -> Float -> List TickViewAttr
-    toTickConfig index tick =
-        if isOdd index then
-            [ tickLength 7
-            , tickStyle [ ( "stroke", "#e4e3e3" ) ]
-            ]
-        else
-            [ tickLength 10
-            , tickStyle [ ( "stroke", "#b9b9b9" ) ]
-            ]
-
-    main =
-        plot
-            []
-            [ xAxis
-                [ tickConfigViewFunc toTickConfig ]
-            ]
-
- **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickConfigView`, `tickCustomView` or a `tickCustomViewIndexed` attribute,
- then this attribute will have no effect.
--}
-viewDynamic : ToStyleAttributes -> Attribute msg
-viewDynamic toStyles config =
-    { config | viewConfig = FromStyleDynamic toStyles }
-
-
-{-| Defines how the tick will be displayed by specifying a function which returns your tick html.
-
-    viewTick : Float -> Svg.Svg a
-    viewTick tick =
-        text_
-            [ transform ("translate(-5, 10)") ]
-            [ tspan [] [ text "✨" ] ]
-
-    main =
-        plot [] [ xAxis [ tickCustomView viewTick ] ]
-
- **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickConfigView` or a `tickCustomViewIndexed` attribute, then this attribute will have no effect.
--}
-viewCustom : (Float -> Svg.Svg msg) -> Attribute msg
-viewCustom view config =
-    { config | viewConfig = FromCustomView (\_ _ -> view) }
-
-
-
-{-| Same as `tickCustomConfig`, but the functions is also passed a value
- which is how many ticks away the current tick is from the zero tick.
-
-    viewTick : Int -> Float -> Svg.Svg a
-    viewTick index tick =
-        text_
-            [ transform ("translate(-5, 10)") ]
-            [ tspan
-                []
-                [ text (if isOdd index then "🌟" else "⭐") ]
-            ]
-
-    main =
-        plot [] [ xAxis [ tickCustomViewIndexed viewTick ] ]
-
- **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickConfigView` or a `tickCustomView` attribute, then this attribute will have no effect.
--}
-viewCustomIndexed : (Int -> Float -> Svg.Svg msg) -> Attribute msg
-viewCustomIndexed view config =
-    { config | viewConfig = FromCustomView (always view) }
-
-
-
-
-{-| Format the label based on its value.
-
-    main =
-        plot
-            []
-            [ xAxis
-                [ labelConfigView
-                    [ labelFormat (\l -> toString l ++ " DKK") ]
-                ]
-            ]
--}
-format : (Float -> String) -> StyleAttribute
+format : (Int -> Float -> String) -> StyleAttribute
 format format config =
-    { config | format = always format }
-    
+    { config | format = format }
 
 
 toStyleConfig : List StyleAttribute -> StyleConfig
@@ -240,27 +162,119 @@ toStyleConfig styleAttributes =
     List.foldl (<|) defaultStyleConfig styleAttributes
 
 
-{-| Format the label based on its value and/or index.
-
-    formatter : Int -> Float -> String
-    formatter index value =
-        if isOdd index then
-            toString l ++ " DKK"
-        else
-            ""
+{-| Provide a list of style attributes to alter the view of the label.
 
     main =
         plot
             []
             [ xAxis
-                [ labelConfigView [ labelFormat formatter ] ]
+                [ Axis.label
+                    [ Label.view
+                        [ Label.classes [ "label-class" ]
+                        , Label.displace ( 12, 0 )
+                        ]
+                    ]
+                ]
             ]
+
+ **Note:** If you add another attribute altering the view like `viewDynamic` or `viewCustom` _after_ this attribute,
+ then this attribute will have no effect.
 -}
-formatIndexed : (Int -> Float -> String) -> StyleAttribute
-formatIndexed format config =
-    { config | format = format }
+view : List StyleAttribute -> Attribute msg
+view styles config =
+    { config | viewConfig = FromStyle (toStyleConfig styles) }
 
 
+{-| Alter the view of the label based on the label's value and index (amount of ticks from origin) by
+ providing a function returning a list of style attributes.
+
+    toViewConfig : Int -> Float -> List Label.StyleAttribute
+    toViewConfig index value =
+        if isOdd index then
+            [ Label.classes [ "label--odd" ]
+            , Label.displace ( 12, 0 )
+            ]
+        else
+            [ Label.classes [ "label--even" ]
+            , Label.displace ( 16, 0 )
+            ]
+
+    main =
+        plot
+            []
+            [ xAxis
+                [ Axis.label [ Label.viewDynamic toViewConfig ] ]
+            ]
+
+ **Note:** If you add another attribute altering the view like `view` or `viewCustom` _after_ this attribute,
+ then this attribute will have no effect.
+-}
+viewDynamic : ToStyleAttributes -> Attribute msg
+viewDynamic toStyles config =
+    { config | viewConfig = FromStyleDynamic toStyles }
+
+
+{-| Define your own view for the labels. Your view will be passed label's value and index (amount of ticks from origin).
+
+    viewLabel : Int -> Float -> Svg.Svg a
+    viewLabel index value =
+        let
+            attrs =
+                if isOdd index then oddAttrs else evenAttrs
+        in
+            text_ attrs (toString value)
+
+    main =
+        plot []
+            [ xAxis
+                [ Axis.label [ Label.viewCustom viewLabel ] ]
+            ]
+
+ **Note:** If you add another attribute altering the view like `view` or `viewDynamic` _after_ this attribute,
+ then this attribute will have no effect.
+-}
+viewCustom : (Int -> Float -> Svg.Svg msg) -> Attribute msg
+viewCustom view config =
+    { config | viewConfig = FromCustomView (always view) }
+
+
+{-| Specify the values which you want a label for.
+
+    main =
+        plot
+            []
+            [ xAxis
+                [ Axis.label [ Label.values [ 0, 5, 10, 11 ] ] ]
+            ]
+
+ **Note:** If you add another attribute altering the values like `filter` _after_ this attribute,
+ then this attribute will have no effect.
+-}
+values : List Float -> Attribute msg
+values filter config =
+    { config | valueConfig = CustomValues filter }
+
+
+{-| Add a filter determining which of the _tick values_ are added a label.
+ Your filter will be passed label's value and index (amount of ticks from origin).
+
+    main =
+        plot
+            []
+            [ xAxis
+                [ Axis.label [ Label.filter onlyEven ] ]
+            ]
+
+ **Note:** If you add another attribute altering the values like `values` _after_ this attribute,
+ then this attribute will have no effect.
+-}
+filter : (Int -> Float -> Bool) -> Attribute msg
+filter filter config =
+    { config | valueConfig = CustomFilter filter }
+
+
+
+-- VIEW
 
 
 toView : ViewConfig msg -> View msg
@@ -312,12 +326,11 @@ defaultView { displace, format, style, classes } orientation index tick =
 -- resolve values
 
 
-getValues : ValueConfig -> List (Int, Float) -> List (Int, Float)
-getValues config tickValues =
+getValuesIndexed : ValueConfig -> List ( Int, Float ) -> List ( Int, Float )
+getValuesIndexed config tickValues =
     case config of
         CustomValues values ->
             Tick.indexValues values
 
         CustomFilter filter ->
             List.filter (\( a, b ) -> filter a b) tickValues
-

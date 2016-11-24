@@ -13,7 +13,7 @@ import Svg.Attributes
 type alias Config msg =
     { tickConfig : Tick.Config msg
     , labelConfig : Label.Config msg
-    , axisLineStyle : Style
+    , lineStyle : Style
     , axisCrossing : Bool
     , style : Style
     , classes : List String
@@ -33,7 +33,7 @@ defaultConfigX =
     , labelConfig = Label.defaultConfig
     , style = []
     , classes = []
-    , axisLineStyle = []
+    , lineStyle = []
     , axisCrossing = False
     , orientation = X
     }
@@ -78,60 +78,58 @@ classes classes config =
     main =
         plot
             []
-            [ xAxis [ axisLineStyle [ ( "stroke", "blue" ) ] ] ]
+            [ xAxis [ lineStyle [ ( "stroke", "blue" ) ] ] ]
 
  Default: `[]`
 -}
 lineStyle : Style -> Attribute msg
 lineStyle style config =
-    { config | axisLineStyle = style }
+    { config | lineStyle = style }
 
 
-
-tick : List (Tick.Attribute msg) -> Config msg -> Config msg
+tick : List (Tick.Attribute msg) -> Attribute msg
 tick attributes config =
     { config | tickConfig = List.foldl (<|) Tick.defaultConfig attributes }
 
 
-label : List (Label.Attribute msg) -> Config msg -> Config msg
+label : List (Label.Attribute msg) -> Attribute msg
 label attributes config =
     { config | labelConfig = List.foldl (<|) Label.defaultConfig attributes }
-
 
 
 
 -- View
 
 
-
 view : PlotProps -> Config msg -> Svg.Svg msg
-view plotProps { tickConfig, labelConfig, style, classes, axisLineStyle, axisCrossing, orientation } =
+view plotProps { tickConfig, labelConfig, style, classes, lineStyle, axisCrossing, orientation } =
     let
         { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords } =
             plotProps
 
         tickValues =
-            Tick.getValues tickConfig scale
+            Tick.getValuesIndexed tickConfig scale
 
         labelValues =
-            Label.getValues labelConfig.valueConfig tickValues
+            Label.getValuesIndexed labelConfig.valueConfig tickValues
     in
         Svg.g
             [ Svg.Attributes.style (toStyle style)
             , Svg.Attributes.class (String.join " " classes)
             ]
-            [ Grid.viewLine plotProps axisLineStyle 0
-            , Svg.g [] (List.map (placeTick plotProps (Tick.toView tickConfig.viewConfig orientation)) tickValues)
-            , Svg.g [] (List.map (placeTick plotProps (Label.toView labelConfig.viewConfig orientation)) labelValues)
+            [ Grid.viewLine plotProps lineStyle 0
+            , viewTicks plotProps (Tick.toView tickConfig.viewConfig orientation) tickValues
+            , viewTicks plotProps (Label.toView labelConfig.viewConfig orientation) labelValues
             ]
 
 
-placeTick : PlotProps -> (Int -> Float -> Svg.Svg msg) -> ( Int, Float ) -> Svg.Svg msg
-placeTick { toSvgCoords } view ( index, tick ) =
-    Svg.g [ Svg.Attributes.transform (toTranslate (toSvgCoords ( tick, 0 ))) ] [ view index tick ]
+viewTicks : PlotProps -> (Int -> Float -> Svg.Svg msg) -> List ( Int, Float ) -> Svg.Svg msg
+viewTicks plotProps view values =
+    Svg.g [] (List.map (viewTick plotProps view) values)
 
 
-
-
-
-
+viewTick : PlotProps -> (Int -> Float -> Svg.Svg msg) -> ( Int, Float ) -> Svg.Svg msg
+viewTick { toSvgCoords } view ( index, tick ) =
+    Svg.g
+        [ Svg.Attributes.transform <| toTranslate <| toSvgCoords ( tick, 0 ) ]
+        [ view index tick ]

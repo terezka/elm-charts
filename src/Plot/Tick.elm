@@ -43,7 +43,6 @@ type ValueConfig
     | FromCustom (List Float)
 
 
-
 type alias Config msg =
     { viewConfig : ViewConfig msg
     , valueConfig : ValueConfig
@@ -193,11 +192,11 @@ view styles config =
         plot
             []
             [ xAxis
-                [ tickConfigViewFunc toTickConfig ]
+                [ Axis.Tick [ Tick.viewDynamic toTickConfig ] ]
             ]
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickConfigView`, `tickCustomView` or a `tickCustomViewIndexed` attribute,
+ `view`, `viewCustom` or a `viewCustomIndexed` attribute,
  then this attribute will have no effect.
 -}
 viewDynamic : ToStyleAttributes -> Attribute msg
@@ -214,15 +213,14 @@ viewDynamic toStyles config =
             [ tspan [] [ text "✨" ] ]
 
     main =
-        plot [] [ xAxis [ tickCustomView viewTick ] ]
+        plot [] [ xAxis [ Axis.tick [ Tick.viewCustom viewTick ] ] ]
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickConfigView` or a `tickCustomViewIndexed` attribute, then this attribute will have no effect.
+ `viewDynamic` or a `viewCustomIndexed` attribute, then this attribute will have no effect.
 -}
 viewCustom : (Float -> Svg.Svg msg) -> Attribute msg
 viewCustom view config =
     { config | viewConfig = FromCustomView (\_ _ -> view) }
-
 
 
 {-| Same as `tickCustomConfig`, but the functions is also passed a value
@@ -241,12 +239,11 @@ viewCustom view config =
         plot [] [ xAxis [ tickCustomViewIndexed viewTick ] ]
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickConfigView` or a `tickCustomView` attribute, then this attribute will have no effect.
+ `viewCustom` or a `viewDynamic` attribute, then this attribute will have no effect.
 -}
 viewCustomIndexed : (Int -> Float -> Svg.Svg msg) -> Attribute msg
 viewCustomIndexed view config =
     { config | viewConfig = FromCustomView (always view) }
-
 
 
 
@@ -258,7 +255,11 @@ viewCustomIndexed view config =
     main =
         plot
             []
-            [ xAxis [ tickValues [ 0, 1, 2, 4, 8 ] ] ]
+            [ xAxis
+                [ Axis.tick 
+                    [ Tick.values [ 0, 1, 2, 4, 8 ] ]
+                ]
+            ]
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
  `tickDelta` attribute, then this attribute will have no effect.
@@ -274,10 +275,10 @@ values values config =
     main =
         plot
             []
-            [ xAxis [ tickDelta 4 ] ]
+            [ xAxis [ Axis.tick [ Tick.delta 4 ] ] ]
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickValues` attribute, then this attribute will have no effect.
+ `values` attribute, then this attribute will have no effect.
 -}
 delta : Float -> Attribute msg
 delta delta config =
@@ -328,18 +329,18 @@ defaultView { length, width, style, classes } orientation _ _ =
 -- Resolve values
 
 
-getValues : Config msg -> AxisScale -> List (Int, Float)
+getValuesIndexed : Config msg -> AxisScale -> List ( Int, Float )
+getValuesIndexed { valueConfig, removeZero } scale =
+    getRawValues valueConfig scale
+        |> filterValues removeZero
+        |> indexValues
+
+
+getValues : Config msg -> AxisScale -> List Float
 getValues { valueConfig, removeZero } scale =
     getRawValues valueConfig scale
-    |> filterValues removeZero
-    |> indexValues
+        |> filterValues removeZero
 
-
-getValuesPure : Config msg -> AxisScale -> List Float
-getValuesPure { valueConfig, removeZero } scale =
-    getRawValues valueConfig scale
-    |> filterValues removeZero
-    
 
 getRawValues : ValueConfig -> AxisScale -> List Float
 getRawValues config =
@@ -444,8 +445,8 @@ toValuesAuto =
 
 
 filterValues : Bool -> List Float -> List Float
-filterValues axisCrossing values =
-    if axisCrossing then
+filterValues removeZero values =
+    if removeZero then
         List.filter (\p -> p /= 0) values
     else
         values

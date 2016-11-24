@@ -122,8 +122,6 @@ getTickDelta range totalTicks =
         (toFloat magMsdFinal) * magPow
 
 
-
-
 (?) : Orientation -> a -> a -> a
 (?) orientation x y =
     case orientation of

@@ -6,7 +6,6 @@ import Svg
 import Svg.Attributes
 
 
-
 --## Line configuration
 --@docs LineAttr, lineStyle
 

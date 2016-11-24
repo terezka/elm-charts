@@ -48,13 +48,16 @@ view { toSvgCoords, scale, getTooltipInfo } { showLine, view } position =
             getTooltipInfo (Tuple.first position)
 
         ( xSvg, ySvg ) =
-            toSvgCoords (info.xValue, 0)
+            toSvgCoords ( info.xValue, 0 )
 
         flipped =
             xSvg < scale.length / 2
 
         lineView =
-            if showLine then [ viewLine ( xSvg, ySvg ) ] else []
+            if showLine then
+                [ viewLine ( xSvg, ySvg ) ]
+            else
+                []
     in
         Html.div
             [ Html.Attributes.class "elm-plot__tooltip"
@@ -66,10 +69,11 @@ view { toSvgCoords, scale, getTooltipInfo } { showLine, view } position =
 viewLine : ( Float, Float ) -> Html.Html msg
 viewLine ( x, y ) =
     Html.div
-        [ Html.Attributes.class "elm-plot__tooltip__line" 
+        [ Html.Attributes.class "elm-plot__tooltip__line"
         , Html.Attributes.style
-            [ ( "left", (toString x) ++ "px" ) 
-            , ( "height", toString y ++ "px")]
+            [ ( "left", (toString x) ++ "px" )
+            , ( "height", toString y ++ "px" )
+            ]
         ]
         []
 

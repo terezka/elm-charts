@@ -2,6 +2,8 @@ module Plot.Types exposing (Point, Style, Orientation(..), AxisScale, PlotProps,
 
 {-| Convinience type to represent coordinates.
 -}
+
+
 type alias Point =
     ( Float, Float )
 

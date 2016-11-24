@@ -2,6 +2,7 @@ module Plot.Meta exposing (..)
 
 import Plot.Types exposing (..)
 
+
 --## Meta configuration
 --@docs MetaAttr, plotSize, plotPadding, plotMargin, plotClasses, plotStyle
 
@@ -20,7 +21,6 @@ type alias Config =
 -}
 type alias Attribute =
     Config -> Config
-
 
 
 {-| Add padding to your plot, meaning extra space below

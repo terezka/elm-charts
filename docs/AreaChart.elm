@@ -33,14 +33,18 @@ chart state =
     in
         plot
             "my-id"
-            [ Meta.size ( 600, 250 ), Meta.margin ( 10, 10, 30, 10 ), Meta.padding ( 0, 20 ) ] <|
+            [ Meta.size ( 600, 250 ), Meta.margin ( 10, 10, 30, 10 ), Meta.padding ( 0, 20 ) ]
+        <|
             [ verticalGrid [ Grid.classes [ "dsfdjksh" ] ]
             , area
-                [ Area.style [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data
+                [ Area.style [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ]
+                data
             , area
-                [ Area.style [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ] data2
+                [ Area.style [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ]
+                data2
             , xAxis [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
-            ] ++ tooltipView
+            ]
+                ++ tooltipView
 
 
 code =

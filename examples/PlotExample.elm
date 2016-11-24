@@ -7,7 +7,6 @@ import Plot.Area as Area
 import Plot.Grid as Grid
 import Plot.Axis as Axis
 import Plot.Meta as Meta
-
 import Colors
 
 

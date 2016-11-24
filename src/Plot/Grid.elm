@@ -158,4 +158,3 @@ viewLine { toSvgCoords, scale } style position =
             Svg.Attributes.style (toStyle style) :: (toPositionAttr x1 y1 x2 y2)
     in
         Svg.line attrs []
-

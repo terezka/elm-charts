@@ -8,7 +8,6 @@ import Plot.Label as Label
 import Plot.Tick as Tick
 import Plot.Axis as Axis
 import Plot.Meta as Meta
-
 import Colors
 
 
@@ -33,9 +32,9 @@ toTickConfig index tick =
 toLabelConfig : Int -> Float -> List Label.StyleAttribute
 toLabelConfig index tick =
     if isOdd index then
-        [ Label.format (always "") ]
+        [ Label.format (\_ _ -> "") ]
     else
-        [ Label.format (\l -> toString l ++ " s")
+        [ Label.format (\i l -> toString l ++ " s")
         , Label.style [ ( "stroke", "#969696" ) ]
         , Label.displace ( 0, 27 )
         ]
@@ -52,17 +51,12 @@ specialTick _ =
 
 chart : Plot.State -> Svg.Svg Msg
 chart model =
-    plot
-        "id"
+    plotStatic
         [ Meta.size ( 600, 250 )
-        , Meta.margin (0, 40, 40, 40)
+        , Meta.margin ( 0, 40, 40, 40 )
         ]
         [ line
-            [ Line.style
-                [ ( "stroke", Colors.pinkStroke )
-                , ( "stroke-width", "2px" )
-                ]
-            ]
+            [ Line.style [ ( "stroke", Colors.pinkStroke ), ( "stroke-width", "2px" ) ] ]
             data
         , xAxis
             [ Axis.style [ ( "stroke", Colors.axisColor ) ]
@@ -77,3 +71,4 @@ chart model =
                 ]
             ]
         ]
+
