@@ -1425,12 +1425,6 @@ viewScatter { toSvgCoords } { points, style, radius } =
     let
         svgPoints =
             List.map toSvgCoords points
-
-        ( startInstruction, tail ) =
-            startPath svgPoints
-
-        instructions =
-            coordToInstruction "L" svgPoints
     in
         Svg.g
             [ Svg.Attributes.style (toStyle style) ]
