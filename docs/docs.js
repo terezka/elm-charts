@@ -9715,6 +9715,11 @@ var _terezka$elm_plot$Plot_Tick$defaultView = F4(
 			},
 			{ctor: '[]'});
 	});
+var _terezka$elm_plot$Plot_Tick$removeZero = function (config) {
+	return _elm_lang$core$Native_Utils.update(
+		config,
+		{removeZero: true});
+};
 var _terezka$elm_plot$Plot_Tick$style = F2(
 	function (style, config) {
 		return _elm_lang$core$Native_Utils.update(
@@ -9739,11 +9744,6 @@ var _terezka$elm_plot$Plot_Tick$length = F2(
 			config,
 			{length: length});
 	});
-var _terezka$elm_plot$Plot_Tick$removeZero = function (config) {
-	return _elm_lang$core$Native_Utils.update(
-		config,
-		{removeZero: true});
-};
 var _terezka$elm_plot$Plot_Tick$defaultStyleConfig = {
 	length: 7,
 	width: 1,
@@ -9781,30 +9781,18 @@ var _terezka$elm_plot$Plot_Tick$toView = function (config) {
 			return _p12._0;
 	}
 };
-var _terezka$elm_plot$Plot_Tick$StyleConfig = F4(
-	function (a, b, c, d) {
-		return {length: a, width: b, style: c, classes: d};
-	});
 var _terezka$elm_plot$Plot_Tick$Config = F3(
 	function (a, b, c) {
 		return {viewConfig: a, valueConfig: b, removeZero: c};
+	});
+var _terezka$elm_plot$Plot_Tick$StyleConfig = F4(
+	function (a, b, c, d) {
+		return {length: a, width: b, style: c, classes: d};
 	});
 var _terezka$elm_plot$Plot_Tick$FromCustomView = function (a) {
 	return {ctor: 'FromCustomView', _0: a};
 };
 var _terezka$elm_plot$Plot_Tick$viewCustom = F2(
-	function (view, config) {
-		return _elm_lang$core$Native_Utils.update(
-			config,
-			{
-				viewConfig: _terezka$elm_plot$Plot_Tick$FromCustomView(
-					F2(
-						function (_p14, _p13) {
-							return view;
-						}))
-			});
-	});
-var _terezka$elm_plot$Plot_Tick$viewCustomIndexed = F2(
 	function (view, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
@@ -11503,31 +11491,32 @@ var _terezka$elm_plot$AreaChart$chart = function (state) {
 			tooltipView));
 };
 
-var _terezka$elm_plot$Test$specialTick = function (_p0) {
-	return A2(
-		_elm_lang$svg$Svg$text_,
-		{
-			ctor: '::',
-			_0: _elm_lang$svg$Svg_Attributes$transform('translate(5, 5)'),
-			_1: {
+var _terezka$elm_plot$Test$specialTick = F2(
+	function (_p1, _p0) {
+		return A2(
+			_elm_lang$svg$Svg$text_,
+			{
 				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$style('stroke: #969696; font-size: 12px; text-anchor: end;'),
-				_1: {ctor: '[]'}
-			}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$svg$Svg$tspan,
-				{ctor: '[]'},
-				{
+				_0: _elm_lang$svg$Svg_Attributes$transform('translate(5, 5)'),
+				_1: {
 					ctor: '::',
-					_0: _elm_lang$svg$Svg$text('🌟'),
+					_0: _elm_lang$svg$Svg_Attributes$style('stroke: #969696; font-size: 12px; text-anchor: end;'),
 					_1: {ctor: '[]'}
-				}),
-			_1: {ctor: '[]'}
-		});
-};
+				}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$svg$Svg$tspan,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$svg$Svg$text('🌟'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			});
+	});
 var _terezka$elm_plot$Test$isOdd = function (n) {
 	return _elm_lang$core$Native_Utils.cmp(
 		A2(_elm_lang$core$Basics$rem, n, 2),
@@ -11569,7 +11558,7 @@ var _terezka$elm_plot$Test$toLabelConfig = F2(
 			ctor: '::',
 			_0: _terezka$elm_plot$Plot_Label$format(
 				F2(
-					function (_p2, _p1) {
+					function (_p3, _p2) {
 						return '';
 					})),
 			_1: {ctor: '[]'}

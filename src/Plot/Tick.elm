@@ -7,7 +7,27 @@ import Svg
 import Svg.Attributes
 
 
--- View config
+{-|
+ Attributes for altering the values and view of your axis' ticks.
+
+# Styling
+@docs view, viewDynamic, viewCustom
+
+## Style attributes
+@docs style, classes, length, width
+
+# Values
+@docs values, delta
+
+# Definitions
+@docs Attribute, StyleAttribute, ToStyleAttributes
+
+-}
+type alias Config msg =
+    { viewConfig : ViewConfig msg
+    , valueConfig : ValueConfig
+    , removeZero : Bool
+    }
 
 
 type alias StyleConfig =
@@ -18,22 +38,14 @@ type alias StyleConfig =
     }
 
 
-type alias StyleAttribute =
-    StyleConfig -> StyleConfig
-
-
-type alias ToStyleAttributes =
-    Int -> Float -> List StyleAttribute
-
-
-type alias View msg =
-    Orientation -> Int -> Float -> Svg.Svg msg
-
-
 type ViewConfig msg
     = FromStyle StyleConfig
     | FromStyleDynamic ToStyleAttributes
     | FromCustomView (View msg)
+
+
+type alias View msg =
+    Orientation -> Int -> Float -> Svg.Svg msg
 
 
 type ValueConfig
@@ -43,15 +55,16 @@ type ValueConfig
     | FromCustom (List Float)
 
 
-type alias Config msg =
-    { viewConfig : ViewConfig msg
-    , valueConfig : ValueConfig
-    , removeZero : Bool
-    }
-
-
 type alias Attribute msg =
     Config msg -> Config msg
+
+
+type alias StyleAttribute =
+    StyleConfig -> StyleConfig
+
+
+type alias ToStyleAttributes =
+    Int -> Float -> List StyleAttribute
 
 
 defaultConfig : Config msg
@@ -71,26 +84,19 @@ defaultStyleConfig =
     }
 
 
-{-| Remove tick at origin. Useful when two axis' are crossing and you do not
- want the origin the be cluttered with labels.
 
-    main =
-        plot
-            []
-            [ xAxis [ tickRemoveZero ] ]
--}
-removeZero : Attribute msg
-removeZero config =
-    { config | removeZero = True }
+-- ATTRIBUTES
 
 
-{-| Set the length of the tick.
+{-| Set the length of the tick (in pixels).
 
     main =
         plot
             []
             [ xAxis
-                [ tickConfigView [ tickLength 10 ] ]
+                [ Axis.tick
+                    [ Tick.view [ Tick.length 8 ] ]
+                ]
             ]
 -}
 length : Int -> StyleAttribute
@@ -98,13 +104,15 @@ length length config =
     { config | length = length }
 
 
-{-| Set the width of the tick.
+{-| Set the width of the tick (in pixels).
 
     main =
         plot
             []
             [ xAxis
-                [ tickConfigView [ tickWidth 2 ] ]
+                [ Axis.tick
+                    [ Tick.view [ Tick.width 2 ] ]
+                ]
             ]
 -}
 width : Int -> StyleAttribute
@@ -118,8 +126,8 @@ width width config =
         plot
             []
             [ xAxis
-                [ tickConfigView
-                    [ tickClasses [ "my-class" ] ]
+                [ Axis.tick
+                    [ Tick.view [ Tick.classes [ "my-tick" ] ] ]
                 ]
             ]
 -}
@@ -128,14 +136,16 @@ classes classes config =
     { config | classes = classes }
 
 
-{-| Sets the style of the tick
+{-| Add inline-styles to the tick.
 
     main =
         plot
             []
             [ xAxis
-                [ tickConfigView
-                    [ tickStyle [ ( "stroke", "blue" ) ] ]
+                [ Axis.tick
+                    [ Tick.view
+                        [ Tick.style [ ( "stroke", "blue" ) ] ]
+                    ]
                 ]
             ]
 -}
@@ -149,25 +159,23 @@ toStyleConfig attributes =
     List.foldl (<|) defaultStyleConfig attributes
 
 
-{-| Defines how the tick will be displayed by specifying a list of tick view attributes.
+{-| Provide a list of style attributes to alter the view of the tick.
 
     main =
         plot
             []
             [ xAxis
-                [ tickConfigView
-                    [ tickLength 10
-                    , tickWidth 2
-                    , tickStyle [ ( "stroke", "red" ) ]
+                [ Axis.tick
+                    [ Tick.view
+                        [ Tick.style [ ( "stroke", "deeppink" ) ]
+                        , Tick.length 5
+                        , Tick.width 2
+                        ]
                     ]
                 ]
             ]
 
- If you do not define another view configuration,
- the default will be `[ tickLength 7, tickWidth 1, tickStyle [] ]`
-
- **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickCustomView`, `tickConfigViewFunc` or a `tickCustomViewIndexed` attribute,
+ **Note:** If you add another attribute altering the view like `viewDynamic` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
 view : List StyleAttribute -> Attribute msg
@@ -175,28 +183,28 @@ view styles config =
     { config | viewConfig = FromStyle (toStyleConfig styles) }
 
 
-{-| Defines how the tick will be displayed by specifying a list of tick view attributes.
+{-| Alter the view of the tick based on the tick's value and index (amount of ticks from origin) by
+ providing a function returning a list of style attributes.
 
-    toTickConfig : Int -> Float -> List TickViewAttr
-    toTickConfig index tick =
+    toTickConfig : Int -> Float -> List Tick.StyleAttribute
+    toTickConfig index value =
         if isOdd index then
-            [ tickLength 7
-            , tickStyle [ ( "stroke", "#e4e3e3" ) ]
+            [ Tick.length 7
+            , Tick.style [ ( "stroke", "#e4e3e3" ) ]
             ]
         else
-            [ tickLength 10
-            , tickStyle [ ( "stroke", "#b9b9b9" ) ]
+            [ Tick.length 10
+            , Tick.style [ ( "stroke", "#b9b9b9" ) ]
             ]
 
     main =
         plot
             []
             [ xAxis
-                [ Axis.Tick [ Tick.viewDynamic toTickConfig ] ]
+                [ Axis.tick [ Tick.viewDynamic toViewConfig ] ]
             ]
 
- **Note:** If in the list of axis attributes, this attribute is followed by a
- `view`, `viewCustom` or a `viewCustomIndexed` attribute,
+ **Note:** If you add another attribute altering the view like `view` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
 viewDynamic : ToStyleAttributes -> Attribute msg
@@ -204,45 +212,25 @@ viewDynamic toStyles config =
     { config | viewConfig = FromStyleDynamic toStyles }
 
 
-{-| Defines how the tick will be displayed by specifying a function which returns your tick html.
-
-    viewTick : Float -> Svg.Svg a
-    viewTick tick =
-        text_
-            [ transform ("translate(-5, 10)") ]
-            [ tspan [] [ text "✨" ] ]
-
-    main =
-        plot [] [ xAxis [ Axis.tick [ Tick.viewCustom viewTick ] ] ]
-
- **Note:** If in the list of axis attributes, this attribute is followed by a
- `viewDynamic` or a `viewCustomIndexed` attribute, then this attribute will have no effect.
--}
-viewCustom : (Float -> Svg.Svg msg) -> Attribute msg
-viewCustom view config =
-    { config | viewConfig = FromCustomView (\_ _ -> view) }
-
-
-{-| Same as `tickCustomConfig`, but the functions is also passed a value
- which is how many ticks away the current tick is from the zero tick.
+{-| Define your own view for the labels. Your view will be passed label's value and index (amount of ticks from origin).
 
     viewTick : Int -> Float -> Svg.Svg a
     viewTick index tick =
         text_
-            [ transform ("translate(-5, 10)") ]
+            [ transform "translate(-5, 10)" ]
             [ tspan
                 []
                 [ text (if isOdd index then "🌟" else "⭐") ]
             ]
 
     main =
-        plot [] [ xAxis [ tickCustomViewIndexed viewTick ] ]
+        plot [] [ xAxis [ Axis.tick [ Tick.viewCustom viewTick ] ] ]
 
- **Note:** If in the list of axis attributes, this attribute is followed by a
- `viewCustom` or a `viewDynamic` attribute, then this attribute will have no effect.
+ **Note:** If you add another attribute altering the view like `view` or `viewDynamic` _after_ this attribute,
+ then this attribute will have no effect.
 -}
-viewCustomIndexed : (Int -> Float -> Svg.Svg msg) -> Attribute msg
-viewCustomIndexed view config =
+viewCustom : (Int -> Float -> Svg.Svg msg) -> Attribute msg
+viewCustom view config =
     { config | viewConfig = FromCustomView (always view) }
 
 
@@ -250,26 +238,26 @@ viewCustomIndexed view config =
 -- Value attributes
 
 
-{-| Defines what ticks will be shown on the axis by specifying a list of values.
+{-| Specify what values will be added a tick.
 
     main =
         plot
             []
             [ xAxis
-                [ Axis.tick 
+                [ Axis.tick
                     [ Tick.values [ 0, 1, 2, 4, 8 ] ]
                 ]
             ]
 
- **Note:** If in the list of axis attributes, this attribute is followed by a
- `tickDelta` attribute, then this attribute will have no effect.
+ **Note:** If you add another attribute altering the values like `delta` _after_ this attribute,
+ then this attribute will have no effect.
 -}
 values : List Float -> Attribute msg
 values values config =
     { config | valueConfig = FromCustom values }
 
 
-{-| Defines what ticks will be shown on the axis by specifying the delta between the ticks.
+{-| Specify what values will be added a tick by specifying the space between each tick.
  The delta will be added from zero.
 
     main =
@@ -277,12 +265,25 @@ values values config =
             []
             [ xAxis [ Axis.tick [ Tick.delta 4 ] ] ]
 
- **Note:** If in the list of axis attributes, this attribute is followed by a
- `values` attribute, then this attribute will have no effect.
+ **Note:** If you add another attribute altering the values like `values` _after_ this attribute,
+ then this attribute will have no effect.
 -}
 delta : Float -> Attribute msg
 delta delta config =
     { config | valueConfig = FromDelta delta }
+
+
+{-| Remove tick at origin. Useful when two axis' are crossing and you do not
+ want the origin the be cluttered with labels.
+
+    main =
+        plot
+            []
+            [ xAxis [ Axis.tick [ Tick.removeZero ] ] ]
+-}
+removeZero : Attribute msg
+removeZero config =
+    { config | removeZero = True }
 
 
 

@@ -57,7 +57,6 @@ import Plot.Line as Line
 import Plot.Tooltip as Tooltip
 
 
-
 {-| Represents child element of the plot.
 -}
 type Element msg
@@ -66,7 +65,6 @@ type Element msg
     | Grid Grid.Config
     | Line Line.Config (List Point)
     | Area Area.Config (List Point)
-
 
 
 {-| This returns an axis element resulting in an x-axis being rendered in your plot.
@@ -109,7 +107,6 @@ verticalGrid attrs =
     Grid (Grid.toConfigY attrs)
 
 
-
 {-| This returns an area element resulting in an area serie rendered in your plot.
 
     main =
@@ -118,7 +115,6 @@ verticalGrid attrs =
 area : List Area.Attribute -> List Point -> Element Msg
 area attrs points =
     Area (Area.toConfig attrs) points
-
 
 
 {-| This returns a line element resulting in an line serie rendered in your plot.

@@ -23,7 +23,6 @@ import Svg.Attributes
 @docs Attribute, StyleAttribute, ToStyleAttributes
 
 -}
-
 type alias Config msg =
     { viewConfig : ViewConfig msg
     , valueConfig : ValueConfig
@@ -53,17 +52,20 @@ type alias View msg =
     Orientation -> Int -> Float -> Svg.Svg msg
 
 
-{-| The type representing a label attibute. -}
+{-| The type representing a label attibute.
+-}
 type alias Attribute msg =
     Config msg -> Config msg
 
 
-{-| The type representing a label style attibutes. -}
+{-| The type representing a label style attibutes.
+-}
 type alias StyleAttribute =
     StyleConfig -> StyleConfig
 
 
-{-| The type representing function returning a list of style attibutes. -}
+{-| The type representing function returning a list of style attibutes.
+-}
 type alias ToStyleAttributes =
     Int -> Float -> List StyleAttribute
 
@@ -133,7 +135,7 @@ style style config =
 
 
 {-| Format the label based on its value and index (amount of ticks from origin).
-    
+
     formatter : Int -> Float -> String
     formatter index value =
         if isDivisibleBy5 index then

@@ -40,8 +40,8 @@ toLabelConfig index tick =
         ]
 
 
-specialTick : Float -> Svg.Svg a
-specialTick _ =
+specialTick : Int -> Float -> Svg.Svg a
+specialTick _ _ =
     Svg.text_
         [ Svg.Attributes.transform "translate(5, 5)"
         , Svg.Attributes.style "stroke: #969696; font-size: 12px; text-anchor: end;"
@@ -71,4 +71,3 @@ chart model =
                 ]
             ]
         ]
-
