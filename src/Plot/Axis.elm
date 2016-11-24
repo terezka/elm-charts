@@ -10,6 +10,19 @@ import Svg
 import Svg.Attributes
 
 
+{-|
+ Attributes for altering the view of your axis.
+
+# Styling
+@docs style, classes, lineStyle, format
+
+# Values
+@docs values, filter
+
+# Definitions
+@docs Attribute, StyleAttribute, ToStyleAttributes
+
+-}
 type alias Config msg =
     { tickConfig : Tick.Config msg
     , labelConfig : Label.Config msg
@@ -21,7 +34,7 @@ type alias Config msg =
     }
 
 
-{-| The type representing an axis configuration.
+{-| The type representing an axis attribute.
 -}
 type alias Attribute msg =
     Config msg -> Config msg
@@ -50,9 +63,7 @@ defaultConfigY =
     main =
         plot
             []
-            [ xAxis [ axisStyle [ ( "stroke", "red" ) ] ] ]
-
- Default: `[]`
+            [ xAxis [ Axis.style [ ( "stroke", "red" ) ] ] ]
 -}
 style : Style -> Attribute msg
 style style config =
@@ -64,9 +75,7 @@ style style config =
     main =
         plot
             []
-            [ xAxis [ axisClasses [ "my-class" ] ] ]
-
- Default: `[]`
+            [ xAxis [ Axis.classes [ "axis-class" ] ] ]
 -}
 classes : List String -> Attribute msg
 classes classes config =
@@ -78,27 +87,56 @@ classes classes config =
     main =
         plot
             []
-            [ xAxis [ lineStyle [ ( "stroke", "blue" ) ] ] ]
-
- Default: `[]`
+            [ xAxis [ Axis.lineStyle [ ( "stroke", "blue" ) ] ] ]
 -}
 lineStyle : Style -> Attribute msg
 lineStyle style config =
     { config | lineStyle = style }
 
 
+{-| Provided a list of tick attributes to alter what values with be added a tick and how it will be displayed.
+
+    main =
+        plot
+            []
+            [ xAxis [
+                Axis.tick
+                    [ Tick.view
+                        [ Tick.length 3 
+                        , Tick.values [ 2, 4, 6 ]
+                        ]
+                    ]
+                ]
+            ]
+-}
 tick : List (Tick.Attribute msg) -> Attribute msg
 tick attributes config =
     { config | tickConfig = List.foldl (<|) Tick.defaultConfig attributes }
 
 
+{-| Provided a list of label attributes to alter what values with be added a label and how it will be displayed.
+
+    main =
+        plot
+            []
+            [ xAxis [
+                Axis.label
+                    [ Label.view
+                        [ Label.displace (10, 0) 
+                        , Label.values [ 3, 5, 7 ]
+                        , Label.format (\index value -> "$" ++ toString value)
+                        ]
+                    ]
+                ]
+            ]
+-}
 label : List (Label.Attribute msg) -> Attribute msg
 label attributes config =
     { config | labelConfig = List.foldl (<|) Label.defaultConfig attributes }
 
 
 
--- View
+-- VIEW
 
 
 view : PlotProps -> Config msg -> Svg.Svg msg
@@ -133,3 +171,4 @@ viewTick { toSvgCoords } view ( index, tick ) =
     Svg.g
         [ Svg.Attributes.transform <| toTranslate <| toSvgCoords ( tick, 0 ) ]
         [ view index tick ]
+
