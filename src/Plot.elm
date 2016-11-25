@@ -162,7 +162,7 @@ defaultMetaConfig =
     { size = ( 800, 500 )
     , padding = ( 0, 0 )
     , classes = []
-    , style = [ (Svg.Attributes.stroke "#000") ]
+    , style = [ (Svg.Attributes.style "padding: 30px;"), (Svg.Attributes.stroke "#000") ]
     }
 
 
