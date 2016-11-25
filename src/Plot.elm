@@ -316,7 +316,7 @@ viewElement plotProps element ( svgViews, htmlViews ) =
                         Y ->
                             flipToY plotProps
             in
-                ( (Axis.view plotPropsFitted config) :: svgViews, htmlViews )
+                ( (Axis.defaultView plotPropsFitted config) :: svgViews, htmlViews )
 
         Tooltip config position ->
             let

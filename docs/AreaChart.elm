@@ -41,7 +41,10 @@ chart state =
             , Plot.area
                 [ Area.style [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ]
                 data2
-            , Plot.xAxis [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
+            , Plot.xAxis
+                [ Axis.view
+                    [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
+                ]
             ]
                 ++ tooltipView
 

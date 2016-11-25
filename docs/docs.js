@@ -10201,7 +10201,7 @@ var _terezka$elm_plot$Plot_Grid$mirrorTicks = function (config) {
 		{values: _terezka$elm_plot$Plot_Grid$MirrorTicks});
 };
 
-var _terezka$elm_plot$Plot_Axis$viewTick = F3(
+var _terezka$elm_plot$Plot_Axis$placeTick = F3(
 	function (_p1, view, _p0) {
 		var _p2 = _p1;
 		var _p3 = _p0;
@@ -10229,51 +10229,49 @@ var _terezka$elm_plot$Plot_Axis$viewTicks = F3(
 			{ctor: '[]'},
 			A2(
 				_elm_lang$core$List$map,
-				A2(_terezka$elm_plot$Plot_Axis$viewTick, plotProps, view),
+				A2(_terezka$elm_plot$Plot_Axis$placeTick, plotProps, view),
 				values));
 	});
-var _terezka$elm_plot$Plot_Axis$view = F2(
-	function (plotProps, _p5) {
-		var _p6 = _p5;
-		var _p10 = _p6.tickConfig;
-		var _p9 = _p6.orientation;
-		var _p8 = _p6.labelConfig;
-		var _p7 = plotProps;
-		var scale = _p7.scale;
-		var oppositeScale = _p7.oppositeScale;
-		var toSvgCoords = _p7.toSvgCoords;
-		var oppositeToSvgCoords = _p7.oppositeToSvgCoords;
-		var tickValues = A2(_terezka$elm_plot$Plot_Tick$getValuesIndexed, _p10, scale);
-		var labelValues = A2(_terezka$elm_plot$Plot_Label$getValuesIndexed, _p8.valueConfig, tickValues);
+var _terezka$elm_plot$Plot_Axis$defaultView = F2(
+	function (_p6, _p5) {
+		var _p7 = _p6;
+		var _p13 = _p7;
+		var _p8 = _p5;
+		var _p12 = _p8.viewConfig;
+		var _p11 = _p8.tickConfig;
+		var _p10 = _p8.orientation;
+		var _p9 = _p8.labelConfig;
+		var tickValues = A2(_terezka$elm_plot$Plot_Tick$getValuesIndexed, _p11, _p7.scale);
+		var labelValues = A2(_terezka$elm_plot$Plot_Label$getValuesIndexed, _p9.valueConfig, tickValues);
 		return A2(
 			_elm_lang$svg$Svg$g,
 			{
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$style(
-					_terezka$elm_plot$Helpers$toStyle(_p6.style)),
+					_terezka$elm_plot$Helpers$toStyle(_p12.baseStyle)),
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$svg$Svg_Attributes$class(
-						A2(_elm_lang$core$String$join, ' ', _p6.classes)),
+						A2(_elm_lang$core$String$join, ' ', _p12.classes)),
 					_1: {ctor: '[]'}
 				}
 			},
 			{
 				ctor: '::',
-				_0: A3(_terezka$elm_plot$Plot_Grid$viewLine, plotProps, _p6.lineStyle, 0),
+				_0: A3(_terezka$elm_plot$Plot_Grid$viewLine, _p13, _p12.lineStyle, 0),
 				_1: {
 					ctor: '::',
 					_0: A3(
 						_terezka$elm_plot$Plot_Axis$viewTicks,
-						plotProps,
-						A2(_terezka$elm_plot$Plot_Tick$toView, _p10.viewConfig, _p9),
+						_p13,
+						A2(_terezka$elm_plot$Plot_Tick$toView, _p11.viewConfig, _p10),
 						tickValues),
 					_1: {
 						ctor: '::',
 						_0: A3(
 							_terezka$elm_plot$Plot_Axis$viewTicks,
-							plotProps,
-							A2(_terezka$elm_plot$Plot_Label$toView, _p8.viewConfig, _p9),
+							_p13,
+							A2(_terezka$elm_plot$Plot_Label$toView, _p9.viewConfig, _p10),
 							labelValues),
 						_1: {ctor: '[]'}
 					}
@@ -10316,33 +10314,49 @@ var _terezka$elm_plot$Plot_Axis$lineStyle = F2(
 			config,
 			{lineStyle: style});
 	});
+var _terezka$elm_plot$Plot_Axis$style = F2(
+	function (style, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{baseStyle: style});
+	});
 var _terezka$elm_plot$Plot_Axis$classes = F2(
 	function (classes, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{classes: classes});
 	});
-var _terezka$elm_plot$Plot_Axis$style = F2(
-	function (style, config) {
-		return _elm_lang$core$Native_Utils.update(
-			config,
-			{style: style});
-	});
-var _terezka$elm_plot$Plot_Axis$defaultConfigX = {
-	tickConfig: _terezka$elm_plot$Plot_Tick$defaultConfig,
-	labelConfig: _terezka$elm_plot$Plot_Label$defaultConfig,
-	style: {ctor: '[]'},
-	classes: {ctor: '[]'},
+var _terezka$elm_plot$Plot_Axis$defaultStyleConfig = {
 	lineStyle: {ctor: '[]'},
-	axisCrossing: false,
-	orientation: _terezka$elm_plot$Plot_Types$X
+	baseStyle: {ctor: '[]'},
+	classes: {ctor: '[]'}
 };
+var _terezka$elm_plot$Plot_Axis$defaultConfigX = {tickConfig: _terezka$elm_plot$Plot_Tick$defaultConfig, labelConfig: _terezka$elm_plot$Plot_Label$defaultConfig, viewConfig: _terezka$elm_plot$Plot_Axis$defaultStyleConfig, orientation: _terezka$elm_plot$Plot_Types$X};
 var _terezka$elm_plot$Plot_Axis$defaultConfigY = _elm_lang$core$Native_Utils.update(
 	_terezka$elm_plot$Plot_Axis$defaultConfigX,
 	{orientation: _terezka$elm_plot$Plot_Types$Y});
-var _terezka$elm_plot$Plot_Axis$Config = F7(
-	function (a, b, c, d, e, f, g) {
-		return {tickConfig: a, labelConfig: b, lineStyle: c, axisCrossing: d, style: e, classes: f, orientation: g};
+var _terezka$elm_plot$Plot_Axis$view = F2(
+	function (attributes, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{
+				viewConfig: A3(
+					_elm_lang$core$List$foldl,
+					F2(
+						function (x, y) {
+							return x(y);
+						}),
+					_terezka$elm_plot$Plot_Axis$defaultStyleConfig,
+					attributes)
+			});
+	});
+var _terezka$elm_plot$Plot_Axis$Config = F4(
+	function (a, b, c, d) {
+		return {tickConfig: a, labelConfig: b, viewConfig: c, orientation: d};
+	});
+var _terezka$elm_plot$Plot_Axis$StyleConfig = F3(
+	function (a, b, c) {
+		return {lineStyle: a, baseStyle: b, classes: c};
 	});
 
 var _terezka$elm_plot$Plot_Area$view = F3(
@@ -10913,7 +10927,7 @@ var _terezka$elm_plot$Plot$viewElement = F3(
 					ctor: '_Tuple2',
 					_0: {
 						ctor: '::',
-						_0: A2(_terezka$elm_plot$Plot_Axis$view, plotPropsFitted, _p31),
+						_0: A2(_terezka$elm_plot$Plot_Axis$defaultView, plotPropsFitted, _p31),
 						_1: _p35
 					},
 					_1: _p34
@@ -11475,10 +11489,15 @@ var _terezka$elm_plot$AreaChart$chart = function (state) {
 							_0: _terezka$elm_plot$Plot$xAxis(
 								{
 									ctor: '::',
-									_0: _terezka$elm_plot$Plot_Axis$style(
+									_0: _terezka$elm_plot$Plot_Axis$view(
 										{
 											ctor: '::',
-											_0: {ctor: '_Tuple2', _0: 'stroke', _1: _terezka$elm_plot$Colors$axisColor},
+											_0: _terezka$elm_plot$Plot_Axis$style(
+												{
+													ctor: '::',
+													_0: {ctor: '_Tuple2', _0: 'stroke', _1: _terezka$elm_plot$Colors$axisColor},
+													_1: {ctor: '[]'}
+												}),
 											_1: {ctor: '[]'}
 										}),
 									_1: {ctor: '[]'}
@@ -11672,10 +11691,15 @@ var _terezka$elm_plot$Test$chart = function (model) {
 				_0: _terezka$elm_plot$Plot$xAxis(
 					{
 						ctor: '::',
-						_0: _terezka$elm_plot$Plot_Axis$style(
+						_0: _terezka$elm_plot$Plot_Axis$view(
 							{
 								ctor: '::',
-								_0: {ctor: '_Tuple2', _0: 'stroke', _1: _terezka$elm_plot$Colors$axisColor},
+								_0: _terezka$elm_plot$Plot_Axis$style(
+									{
+										ctor: '::',
+										_0: {ctor: '_Tuple2', _0: 'stroke', _1: _terezka$elm_plot$Colors$axisColor},
+										_1: {ctor: '[]'}
+									}),
 								_1: {ctor: '[]'}
 							}),
 						_1: {
@@ -11703,10 +11727,15 @@ var _terezka$elm_plot$Test$chart = function (model) {
 					_0: _terezka$elm_plot$Plot$yAxis(
 						{
 							ctor: '::',
-							_0: _terezka$elm_plot$Plot_Axis$style(
+							_0: _terezka$elm_plot$Plot_Axis$view(
 								{
 									ctor: '::',
-									_0: {ctor: '_Tuple2', _0: 'stroke', _1: _terezka$elm_plot$Colors$axisColor},
+									_0: _terezka$elm_plot$Plot_Axis$style(
+										{
+											ctor: '::',
+											_0: {ctor: '_Tuple2', _0: 'stroke', _1: _terezka$elm_plot$Colors$axisColor},
+											_1: {ctor: '[]'}
+										}),
 									_1: {ctor: '[]'}
 								}),
 							_1: {

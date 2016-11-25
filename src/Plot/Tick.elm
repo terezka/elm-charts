@@ -55,14 +55,17 @@ type ValueConfig
     | FromCustom (List Float)
 
 
+{-| -}
 type alias Attribute msg =
     Config msg -> Config msg
 
 
+{-| -}
 type alias StyleAttribute =
     StyleConfig -> StyleConfig
 
 
+{-| -}
 type alias ToStyleAttributes =
     Int -> Float -> List StyleAttribute
 

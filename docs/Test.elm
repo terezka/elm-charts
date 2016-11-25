@@ -59,12 +59,12 @@ chart model =
             [ Line.style [ ( "stroke", Colors.pinkStroke ), ( "stroke-width", "2px" ) ] ]
             data
         , xAxis
-            [ Axis.style [ ( "stroke", Colors.axisColor ) ]
+            [ Axis.view [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
             , Axis.tick [ Tick.viewDynamic toTickConfig ]
             , Axis.label [ Label.viewDynamic toLabelConfig ]
             ]
         , yAxis
-            [ Axis.style [ ( "stroke", Colors.axisColor ) ]
+            [ Axis.view [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
             , Axis.tick
                 [ Tick.viewCustom specialTick
                 , Tick.removeZero
