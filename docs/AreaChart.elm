@@ -15,11 +15,12 @@ chart : Svg.Svg a
 chart =
     plot
         [ size ( 600, 250 ) ]
-        [ area [ areaStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data
-        , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
+        [ area [ areaStyle [ (Svg.Attributes.stroke Colors.blueStroke), (Svg.Attributes.fill Colors.blueFill) ] ] data
+        , xAxis [ axisStyle [ (Svg.Attributes.stroke Colors.axisColor) ] ]
         ]
 
 
+code : String
 code =
     """
     chart : Svg.Svg a
@@ -28,11 +29,11 @@ code =
             [ size ( 600, 250 ) ]
             [ area
                 [ areaStyle
-                    [ ( "stroke", Colors.blueStroke )
-                    , ( "fill", Colors.blueFill )
+                    [ ( Svg.Attributes.stroke Colors.blueStroke )
+                    , ( Svg.Attributes.fill Colors.blueFill )
                     ]
                 ]
                 data
-            , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
+            , xAxis [ axisStyle [ ( Svg.Attributes.stroke Colors.axisColor ) ] ]
             ]
     """

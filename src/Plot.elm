@@ -188,7 +188,7 @@ size size config =
 
 {-| Add styles to the svg element.
 
- Default: `[ ( "padding", "30px" ), ( "stroke", "#000" ) ]`
+ Default: `[ ( Svg.Attributes.style "padding: 30px" ), ( Svg.Attributes.stroke "#000" ) ]`
 -}
 plotStyle : Style msg -> MetaConfig msg -> MetaConfig msg
 plotStyle style config =
@@ -299,7 +299,7 @@ tickClasses classes config =
             []
             [ xAxis
                 [ tickConfigView
-                    [ tickStyle [ ( "stroke", "blue" ) ] ]
+                    [ tickStyle [ ( Svg.Attributes.stroke "blue" ) ] ]
                 ]
             ]
 -}
@@ -432,7 +432,7 @@ labelFormatIndexed format config =
             []
             [ xAxis
                 [ labelConfigView
-                    [ labelStyle [ ("stroke", "blue" ) ] ]
+                    [ labelStyle [ (Svg.Attributes.stroke "blue" ) ] ]
                 ]
             ]
 -}
@@ -493,7 +493,7 @@ defaultAxisConfig =
     main =
         plot
             []
-            [ xAxis [ axisStyle [ ( "stroke", "red" ) ] ] ]
+            [ xAxis [ axisStyle [ ( Svg.Attributes.stroke "red" ) ] ] ]
 
  Default: `[]`
 -}
@@ -521,7 +521,7 @@ axisClasses classes config =
     main =
         plot
             []
-            [ xAxis [ axisLineStyle [ ( "stroke", "blue" ) ] ] ]
+            [ xAxis [ axisLineStyle [ ( Svg.Attributes.stroke "blue" ) ] ] ]
 
  Default: `[]`
 -}
@@ -570,7 +570,7 @@ tickDelta delta config =
                 [ tickConfigView
                     [ tickLength 10
                     , tickWidth 2
-                    , tickStyle [ ( "stroke", "red" ) ]
+                    , tickStyle [ ( Svg.Attributes.stroke "red" ) ]
                     ]
                 ]
             ]
@@ -593,11 +593,11 @@ tickConfigView tickAttrs config =
     toTickConfig index tick =
         if isOdd index then
             [ tickLength 7
-            , tickStyle [ ( "stroke", "#e4e3e3" ) ]
+            , tickStyle [ ( Svg.Attributes.stroke "#e4e3e3" ) ]
             ]
         else
             [ tickLength 10
-            , tickStyle [ ( "stroke", "#b9b9b9" ) ]
+            , tickStyle [ ( Svg.Attributes.stroke "#b9b9b9" ) ]
             ]
 
     main =
@@ -958,8 +958,8 @@ defaultScatterConfig =
             []
             [ scatter
                 [ scatterStyle
-                    [ ( "stroke", "deeppink" )
-                    , ( "opacity", "0.5" ) ]
+                    [ ( Svg.Attributes.stroke "deeppink" )
+                    , ( Svg.Attributes.opacity "0.5" ) ]
                     ]
                 , scatterRadius 4
                 ]
@@ -978,8 +978,8 @@ scatterStyle style config =
             []
             [ scatter
                 [ scatterStyle
-                    [ ( "stroke", "deeppink" )
-                    , ( "opacity", "0.5" ) ]
+                    [ ( Svg.Attributes.stroke "deeppink" )
+                    , ( Svg.Attributes.opacity "0.5" ) ]
                     ]
                 , scatterRadius 4
                 ]
@@ -1034,9 +1034,9 @@ defaultAreaConfig =
             []
             [ area
                 [ areaStyle
-                    [ ( "fill", "deeppink" )
-                    , ( "stroke", "deeppink" )
-                    , ( "opacity", "0.5" ) ]
+                    [ ( Svg.Attributes.fill "deeppink" )
+                    , ( Svg.Attributes.stroke "deeppink" )
+                    , ( Svg.Attributes.opacity "0.5" ) ]
                     ]
                 ]
                 areaDataPoints
@@ -1089,7 +1089,7 @@ type alias LineAttr msg =
         plot
             []
             [ line
-                [ lineStyle [ ( "fill", "deeppink" ) ] ]
+                [ lineStyle [ ( Svg.Attributes.fill "deeppink" ) ] ]
                 lineDataPoints
             ]
 -}

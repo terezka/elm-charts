@@ -20,10 +20,10 @@ chart : Svg.Svg a
 chart =
     plot
         [ size ( 600, 250 ) ]
-        [ area [ areaStyle [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ] data1
-        , area [ areaStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data2
+        [ area [ areaStyle [ (Svg.Attributes.stroke Colors.skinStroke), (Svg.Attributes.fill Colors.skinFill) ] ] data1
+        , area [ areaStyle [ (Svg.Attributes.stroke Colors.blueStroke), (Svg.Attributes.fill Colors.blueFill) ] ] data2
         , xAxis
-            [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+            [ axisStyle [ (Svg.Attributes.stroke Colors.axisColor) ]
             , tickDelta 10
             ]
         ]
@@ -37,20 +37,20 @@ code =
             [ size ( 600, 250 ) ]
             [ area
                 [ areaStyle
-                    [ ( "stroke", Colors.skinStroke )
-                    , ( "fill", Colors.skinFill )
+                    [ ( Svg.Attributes.stroke Colors.skinStroke )
+                    , ( Svg.Attributes.fill Colors.skinFill )
                     ]
                 ]
                 data1
             , area
                 [ areaStyle
-                    [ ( "stroke", Colors.blueStroke )
-                    , ( "fill", Colors.blueFill )
+                    [ ( Svg.Attributes.stroke Colors.blueStroke )
+                    , ( Svg.Attributes.fill Colors.blueFill )
                     ]
                 ]
                 data2
             , xAxis
-                [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+                [ axisStyle [ ( Svg.Attributes.stroke Colors.axisColor ) ]
                 , tickDelta 10
                 ]
             ]

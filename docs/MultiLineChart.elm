@@ -20,10 +20,10 @@ chart : Svg.Svg a
 chart =
     plot
         [ size ( 600, 250 ) ]
-        [ line [ lineStyle [ ( "stroke", Colors.blueStroke ), ( "stroke-width", "2px" ) ] ] data2
-        , line [ lineStyle [ ( "stroke", Colors.pinkStroke ), ( "stroke-width", "2px" ) ] ] data1
+        [ line [ lineStyle [ (Svg.Attributes.stroke Colors.blueStroke), (Svg.Attributes.strokeWidth "2px") ] ] data2
+        , line [ lineStyle [ (Svg.Attributes.stroke Colors.pinkStroke), (Svg.Attributes.strokeWidth "2px") ] ] data1
         , xAxis
-            [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+            [ axisStyle [ (Svg.Attributes.stroke Colors.axisColor) ]
             ]
         ]
 
@@ -36,20 +36,20 @@ code =
             [ size ( 600, 250 ) ]
             [ line
                 [ lineStyle
-                    [ ( "stroke", Colors.blueStroke )
-                    , ( "stroke-width", "2px" )
+                    [ ( Svg.Attributes.stroke Colors.blueStroke )
+                    , ( Svg.Attributes.strokeWidth "2px" )
                     ]
                 ]
                 data2
             , line
                 [ lineStyle
-                    [ ( "stroke", Colors.pinkStroke )
-                    , ( "stroke-width", "2px" )
+                    [ ( Svg.Attributes.stroke Colors.pinkStroke )
+                    , ( Svg.Attributes.strokeWidth "2px" )
                     ]
                 ]
                 data1
             , xAxis
-                [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+                [ axisStyle [ ( Svg.Attributes.stroke Colors.axisColor ) ]
                 ]
             ]
     """
