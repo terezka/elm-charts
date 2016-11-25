@@ -19,7 +19,6 @@ all =
         , testToPositionAttr
         , testToTranslate
         , testToRotate
-        , testToStyle
         , testCalculateStep
         ]
 
@@ -127,23 +126,6 @@ testToRotate =
             \() ->
                 Expect.equal (toRotate 90 -90 100) "rotate(90 -90 100)"
         ]
-
-
-testToStyle : Test
-testToStyle =
-    describe "toStyle"
-        [ test "should return a string containg the style definition" <|
-            \() ->
-                Expect.equal
-                    (toStyle
-                        [ ( "color", "green" )
-                        , ( "padding", "10px" )
-                        , ( "border", "2px" )
-                        ]
-                    )
-                    "border:2px; padding:10px; color:green; "
-        ]
-
 
 
 -- No finished

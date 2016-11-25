@@ -100,8 +100,8 @@ module Plot
 
 import Html exposing (Html)
 import Html.Events exposing (on, onMouseOut)
-import Svg exposing (g)
-import Svg.Attributes exposing (height, width, d, style)
+import Svg exposing (g, circle)
+import Svg.Attributes exposing (..)
 import Svg.Lazy
 import String
 import Round
@@ -117,8 +117,8 @@ type alias Point =
 
 {-| Convinience type to represent style.
 -}
-type alias Style =
-    List ( String, String )
+type alias Style msg =
+    List (Svg.Attribute msg)
 
 
 type Orientation
@@ -134,35 +134,35 @@ type Orientation
 -}
 type Element msg
     = Axis (AxisConfig msg)
-    | Grid GridConfig
-    | Line LineConfig
-    | Area AreaConfig
-    | Scatter ScatterConfig
+    | Grid (GridConfig msg)
+    | Line (LineConfig msg)
+    | Area (AreaConfig msg)
+    | Scatter (ScatterConfig msg)
 
 
 
 -- META CONFIG
 
 
-type alias MetaConfig =
+type alias MetaConfig msg =
     { size : ( Int, Int )
     , padding : ( Int, Int )
     , classes : List String
-    , style : Style
+    , style : Style msg
     }
 
 
 {-| The type representing an a meta configuration.
 -}
-type alias MetaAttr =
-    MetaConfig -> MetaConfig
+type alias MetaAttr msg =
+    MetaConfig msg -> MetaConfig msg
 
 
 defaultMetaConfig =
     { size = ( 800, 500 )
     , padding = ( 0, 0 )
     , classes = []
-    , style = [ ( "padding", "30px" ), ( "stroke", "#000" ) ]
+    , style = [ (Svg.Attributes.stroke "#000") ]
     }
 
 
@@ -172,7 +172,7 @@ defaultMetaConfig =
 
  Default: `( 0, 0 )`
 -}
-padding : ( Int, Int ) -> MetaConfig -> MetaConfig
+padding : ( Int, Int ) -> MetaConfig msg -> MetaConfig msg
 padding padding config =
     { config | padding = padding }
 
@@ -181,7 +181,7 @@ padding padding config =
 
  Default: `( 800, 500 )`
 -}
-size : ( Int, Int ) -> MetaConfig -> MetaConfig
+size : ( Int, Int ) -> MetaConfig msg -> MetaConfig msg
 size size config =
     { config | size = size }
 
@@ -190,7 +190,7 @@ size size config =
 
  Default: `[ ( "padding", "30px" ), ( "stroke", "#000" ) ]`
 -}
-plotStyle : Style -> MetaConfig -> MetaConfig
+plotStyle : Style msg -> MetaConfig msg -> MetaConfig msg
 plotStyle style config =
     { config | style = style ++ defaultMetaConfig.style }
 
@@ -199,12 +199,12 @@ plotStyle style config =
 
  Default: `[]`
 -}
-plotClasses : List String -> MetaConfig -> MetaConfig
+plotClasses : List String -> MetaConfig msg -> MetaConfig msg
 plotClasses classes config =
     { config | classes = classes }
 
 
-toMetaConfig : List MetaAttr -> MetaConfig
+toMetaConfig : List (MetaAttr msg) -> MetaConfig msg
 toMetaConfig attrs =
     List.foldr (<|) defaultMetaConfig attrs
 
@@ -213,10 +213,10 @@ toMetaConfig attrs =
 -- TICK CONFIG
 
 
-type alias TickViewConfig =
+type alias TickViewConfig msg =
     { length : Int
     , width : Int
-    , style : Style
+    , style : Style msg
     , classes : List String
     }
 
@@ -229,17 +229,17 @@ type alias TickValues =
     AxisScale -> List Float
 
 
-type alias TickAttrFunc =
-    Int -> Float -> List TickViewAttr
+type alias TickAttrFunc msg =
+    Int -> Float -> List (TickViewAttr msg)
 
 
 {-| Type representing a tick view configuration attribute.
 -}
-type alias TickViewAttr =
-    TickViewConfig -> TickViewConfig
+type alias TickViewAttr msg =
+    TickViewConfig msg -> TickViewConfig msg
 
 
-defaultTickViewConfig : TickViewConfig
+defaultTickViewConfig : TickViewConfig msg
 defaultTickViewConfig =
     { length = 7
     , width = 1
@@ -257,7 +257,7 @@ defaultTickViewConfig =
                 [ tickConfigView [ tickLength 10 ] ]
             ]
 -}
-tickLength : Int -> TickViewConfig -> TickViewConfig
+tickLength : Int -> TickViewConfig msg -> TickViewConfig msg
 tickLength length config =
     { config | length = length }
 
@@ -271,7 +271,7 @@ tickLength length config =
                 [ tickConfigView [ tickWidth 2 ] ]
             ]
 -}
-tickWidth : Int -> TickViewConfig -> TickViewConfig
+tickWidth : Int -> TickViewConfig msg -> TickViewConfig msg
 tickWidth width config =
     { config | width = width }
 
@@ -287,7 +287,7 @@ tickWidth width config =
                 ]
             ]
 -}
-tickClasses : List String -> TickViewConfig -> TickViewConfig
+tickClasses : List String -> TickViewConfig msg -> TickViewConfig msg
 tickClasses classes config =
     { config | classes = classes }
 
@@ -303,17 +303,17 @@ tickClasses classes config =
                 ]
             ]
 -}
-tickStyle : Style -> TickViewConfig -> TickViewConfig
+tickStyle : Style msg -> TickViewConfig msg -> TickViewConfig msg
 tickStyle style config =
     { config | style = style }
 
 
-toTickView : List TickViewAttr -> TickView msg
+toTickView : List (TickViewAttr msg) -> TickView msg
 toTickView attrs =
     defaultTickView (List.foldl (<|) defaultTickViewConfig attrs)
 
 
-toTickViewDynamic : TickAttrFunc -> TickView msg
+toTickViewDynamic : TickAttrFunc msg -> TickView msg
 toTickViewDynamic toTickConfig =
     defaultTickViewDynamic toTickConfig
 
@@ -322,10 +322,10 @@ toTickViewDynamic toTickConfig =
 -- LABEL CONFIG
 
 
-type alias LabelViewConfig =
+type alias LabelViewConfig msg =
     { displace : Maybe ( Int, Int )
     , format : Int -> Float -> String
-    , style : Style
+    , style : Style msg
     , classes : List String
     }
 
@@ -339,17 +339,17 @@ type LabelValues
     | LabelCustomFilter (Int -> Float -> Bool)
 
 
-type alias LabelAttrFunc =
-    Int -> Float -> List LabelViewAttr
+type alias LabelAttrFunc msg =
+    Int -> Float -> List (LabelViewAttr msg)
 
 
 {-| Type representing a label view configuration attribute.
 -}
-type alias LabelViewAttr =
-    LabelViewConfig -> LabelViewConfig
+type alias LabelViewAttr msg =
+    LabelViewConfig msg -> LabelViewConfig msg
 
 
-defaultLabelViewConfig : LabelViewConfig
+defaultLabelViewConfig : LabelViewConfig msg
 defaultLabelViewConfig =
     { displace = Nothing
     , format = (\_ -> toString)
@@ -367,7 +367,7 @@ defaultLabelViewConfig =
                 [ labelConfigView [ labelDisplace ( 0, 27 ) ] ]
             ]
 -}
-labelDisplace : ( Int, Int ) -> LabelViewConfig -> LabelViewConfig
+labelDisplace : ( Int, Int ) -> LabelViewConfig msg -> LabelViewConfig msg
 labelDisplace displace config =
     { config | displace = Just displace }
 
@@ -383,7 +383,7 @@ labelDisplace displace config =
                 ]
             ]
 -}
-labelFormat : (Float -> String) -> LabelViewConfig -> LabelViewConfig
+labelFormat : (Float -> String) -> LabelViewConfig msg -> LabelViewConfig msg
 labelFormat format config =
     { config | format = always format }
 
@@ -399,7 +399,7 @@ labelFormat format config =
                 ]
             ]
 -}
-labelClasses : List String -> LabelViewConfig -> LabelViewConfig
+labelClasses : List String -> LabelViewConfig msg -> LabelViewConfig msg
 labelClasses classes config =
     { config | classes = classes }
 
@@ -420,7 +420,7 @@ labelClasses classes config =
                 [ labelConfigView [ labelFormat formatter ] ]
             ]
 -}
-labelFormatIndexed : (Int -> Float -> String) -> LabelViewConfig -> LabelViewConfig
+labelFormatIndexed : (Int -> Float -> String) -> LabelViewConfig msg -> LabelViewConfig msg
 labelFormatIndexed format config =
     { config | format = format }
 
@@ -436,17 +436,17 @@ labelFormatIndexed format config =
                 ]
             ]
 -}
-labelStyle : Style -> LabelViewConfig -> LabelViewConfig
+labelStyle : Style msg -> LabelViewConfig msg -> LabelViewConfig msg
 labelStyle style config =
     { config | style = style }
 
 
-toLabelView : List LabelViewAttr -> LabelView msg
+toLabelView : List (LabelViewAttr msg) -> LabelView msg
 toLabelView attrs =
     defaultLabelView (List.foldl (<|) defaultLabelViewConfig attrs)
 
 
-toLabelViewDynamic : LabelAttrFunc -> LabelView msg
+toLabelViewDynamic : LabelAttrFunc msg -> LabelView msg
 toLabelViewDynamic toLabelConfig =
     defaultLabelViewDynamic toLabelConfig
 
@@ -460,9 +460,9 @@ type alias AxisConfig msg =
     , tickView : TickView msg
     , labelValues : LabelValues
     , labelView : LabelView msg
-    , axisLineStyle : Style
+    , axisLineStyle : Style msg
     , axisCrossing : Bool
-    , style : Style
+    , style : Style msg
     , classes : List String
     , orientation : Orientation
     }
@@ -497,7 +497,7 @@ defaultAxisConfig =
 
  Default: `[]`
 -}
-axisStyle : Style -> AxisConfig msg -> AxisConfig msg
+axisStyle : Style msg -> AxisConfig msg -> AxisConfig msg
 axisStyle style config =
     { config | style = style }
 
@@ -525,7 +525,7 @@ axisClasses classes config =
 
  Default: `[]`
 -}
-axisLineStyle : Style -> AxisConfig msg -> AxisConfig msg
+axisLineStyle : Style msg -> AxisConfig msg -> AxisConfig msg
 axisLineStyle style config =
     { config | axisLineStyle = style }
 
@@ -582,7 +582,7 @@ tickDelta delta config =
  `tickCustomView`, `tickConfigViewFunc` or a `tickCustomViewIndexed` attribute,
  then this attribute will have no effect.
 -}
-tickConfigView : List TickViewAttr -> AxisConfig msg -> AxisConfig msg
+tickConfigView : List (TickViewAttr msg) -> AxisConfig msg -> AxisConfig msg
 tickConfigView tickAttrs config =
     { config | tickView = toTickView tickAttrs }
 
@@ -611,7 +611,7 @@ tickConfigView tickAttrs config =
  `tickConfigView`, `tickCustomView` or a `tickCustomViewIndexed` attribute,
  then this attribute will have no effect.
 -}
-tickConfigViewFunc : TickAttrFunc -> AxisConfig msg -> AxisConfig msg
+tickConfigViewFunc : TickAttrFunc msg -> AxisConfig msg -> AxisConfig msg
 tickConfigViewFunc toTickAttrs config =
     { config | tickView = toTickViewDynamic toTickAttrs }
 
@@ -717,7 +717,7 @@ labelFilter filter config =
                 ]
             ]
 -}
-labelConfigView : List LabelViewAttr -> AxisConfig msg -> AxisConfig msg
+labelConfigView : List (LabelViewAttr msg) -> AxisConfig msg -> AxisConfig msg
 labelConfigView attrs config =
     { config | labelView = toLabelView attrs }
 
@@ -741,7 +741,7 @@ labelConfigView attrs config =
                 [ labelConfigViewFunc toLabelConfig ]
             ]
 -}
-labelConfigViewFunc : LabelAttrFunc -> AxisConfig msg -> AxisConfig msg
+labelConfigViewFunc : LabelAttrFunc msg -> AxisConfig msg -> AxisConfig msg
 labelConfigViewFunc toAttrs config =
     { config | labelView = toLabelViewDynamic toAttrs }
 
@@ -819,9 +819,9 @@ type GridValues
     | GridCustomValues (List Float)
 
 
-type alias GridConfig =
+type alias GridConfig msg =
     { values : GridValues
-    , style : Style
+    , style : Style msg
     , classes : List String
     , orientation : Orientation
     }
@@ -829,8 +829,8 @@ type alias GridConfig =
 
 {-| The type representing an grid configuration.
 -}
-type alias GridAttr =
-    GridConfig -> GridConfig
+type alias GridAttr msg =
+    GridConfig msg -> GridConfig msg
 
 
 defaultGridConfig =
@@ -853,7 +853,7 @@ defaultGridConfig =
  **Note:** If in the list of axis attributes, this attribute is followed by a
  `gridValues` attribute, then this attribute will have no effect.
 -}
-gridMirrorTicks : GridConfig -> GridConfig
+gridMirrorTicks : GridConfig msg -> GridConfig msg
 gridMirrorTicks config =
     { config | values = GridMirrorTicks }
 
@@ -865,7 +865,7 @@ gridMirrorTicks config =
  **Note:** If in the list of axis attributes, this attribute is followed by a
  `gridMirrorTicks` attribute, then this attribute will have no effect.
 -}
-gridValues : List Float -> GridConfig -> GridConfig
+gridValues : List Float -> GridConfig msg -> GridConfig msg
 gridValues values config =
     { config | values = GridCustomValues values }
 
@@ -883,7 +883,7 @@ gridValues values config =
  Remember that if you do not specify either `gridMirrorTicks`
  or `gridValues`, then we will default to not showing any grid lines.
 -}
-gridStyle : Style -> GridConfig -> GridConfig
+gridStyle : Style msg -> GridConfig msg -> GridConfig msg
 gridStyle style config =
     { config | style = style }
 
@@ -901,7 +901,7 @@ gridStyle style config =
  Remember that if you do not specify either `gridMirrorTicks`
  or `gridValues`, then we will default to not showing any grid lines.
 -}
-gridClasses : List String -> GridConfig -> GridConfig
+gridClasses : List String -> GridConfig msg -> GridConfig msg
 gridClasses classes config =
     { config | classes = classes }
 
@@ -911,7 +911,7 @@ gridClasses classes config =
     main =
         plot [] [ horizontalGrid [] ]
 -}
-horizontalGrid : List GridAttr -> Element msg
+horizontalGrid : List (GridAttr msg) -> Element msg
 horizontalGrid attrs =
     Grid (List.foldr (<|) defaultGridConfig attrs)
 
@@ -921,7 +921,7 @@ horizontalGrid attrs =
     main =
         plot [] [ verticalGrid [] ]
 -}
-verticalGrid : List GridAttr -> Element msg
+verticalGrid : List (GridAttr msg) -> Element msg
 verticalGrid attrs =
     Grid (List.foldr (<|) { defaultGridConfig | orientation = Y } attrs)
 
@@ -930,8 +930,8 @@ verticalGrid attrs =
 -- SCATTER CONFIG
 
 
-type alias ScatterConfig =
-    { style : Style
+type alias ScatterConfig msg =
+    { style : Style msg
     , points : List Point
     , radius : Float
     }
@@ -939,8 +939,8 @@ type alias ScatterConfig =
 
 {-| The type representing an scatter configuration.
 -}
-type alias ScatterAttr =
-    ScatterConfig -> ScatterConfig
+type alias ScatterAttr msg =
+    ScatterConfig msg -> ScatterConfig msg
 
 
 defaultScatterConfig : { style : List a, points : List b, radius : Float }
@@ -966,7 +966,7 @@ defaultScatterConfig =
                 scatterDataPoints
             ]
 -}
-scatterStyle : Style -> ScatterConfig -> ScatterConfig
+scatterStyle : Style msg -> ScatterConfig msg -> ScatterConfig msg
 scatterStyle style config =
     { config | style = style }
 
@@ -986,7 +986,7 @@ scatterStyle style config =
                 scatterDataPoints
             ]
 -}
-scatterRadius : Float -> ScatterConfig -> ScatterConfig
+scatterRadius : Float -> ScatterConfig msg -> ScatterConfig msg
 scatterRadius radius config =
     { config | radius = radius }
 
@@ -996,7 +996,7 @@ scatterRadius radius config =
     main =
         plot [] [ scatter []  [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
 -}
-scatter : List ScatterAttr -> List Point -> Element msg
+scatter : List (ScatterAttr msg) -> List Point -> Element msg
 scatter attrs points =
     let
         config =
@@ -1009,16 +1009,16 @@ scatter attrs points =
 -- AREA CONFIG
 
 
-type alias AreaConfig =
-    { style : Style
+type alias AreaConfig msg =
+    { style : Style msg
     , points : List Point
     }
 
 
 {-| The type representing an area configuration.
 -}
-type alias AreaAttr =
-    AreaConfig -> AreaConfig
+type alias AreaAttr msg =
+    AreaConfig msg -> AreaConfig msg
 
 
 defaultAreaConfig =
@@ -1042,7 +1042,7 @@ defaultAreaConfig =
                 areaDataPoints
             ]
 -}
-areaStyle : Style -> AreaConfig -> AreaConfig
+areaStyle : Style msg -> AreaConfig msg -> AreaConfig msg
 areaStyle style config =
     { config | style = style }
 
@@ -1052,7 +1052,7 @@ areaStyle style config =
     main =
         plot [] [ area []  [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
 -}
-area : List AreaAttr -> List Point -> Element msg
+area : List (AreaAttr msg) -> List Point -> Element msg
 area attrs points =
     let
         config =
@@ -1065,8 +1065,8 @@ area attrs points =
 -- LINE CONFIG
 
 
-type alias LineConfig =
-    { style : Style
+type alias LineConfig msg =
+    { style : Style msg
     , points : List Point
     }
 
@@ -1079,8 +1079,8 @@ defaultLineConfig =
 
 {-| The type representing a line configuration.
 -}
-type alias LineAttr =
-    LineConfig -> LineConfig
+type alias LineAttr msg =
+    LineConfig msg -> LineConfig msg
 
 
 {-| Add styles to your line serie.
@@ -1093,9 +1093,9 @@ type alias LineAttr =
                 lineDataPoints
             ]
 -}
-lineStyle : Style -> LineConfig -> LineConfig
+lineStyle : Style msg -> LineConfig msg -> LineConfig msg
 lineStyle style config =
-    { config | style = ( "fill", "transparent" ) :: style }
+    { config | style = (Svg.Attributes.fill "transparent") :: style }
 
 
 {-| This returns a line element resulting in an line serie rendered in your plot.
@@ -1103,7 +1103,7 @@ lineStyle style config =
     main =
         plot [] [ line [] [ ( 0, 1 ), ( 2, 2 ), ( 3, 4 ) ] ]
 -}
-line : List LineAttr -> List Point -> Element msg
+line : List (LineAttr msg) -> List Point -> Element msg
 line attrs points =
     let
         config =
@@ -1120,7 +1120,7 @@ line attrs points =
  Pass your meta attributes and plot elements to this function and
  a svg plot will be returned!
 -}
-plot : List MetaAttr -> List (Element msg) -> Svg.Svg msg
+plot : List (MetaAttr msg) -> List (Element msg) -> Svg.Svg msg
 plot attr elements =
     Svg.Lazy.lazy2 parsePlot attr elements
 
@@ -1129,7 +1129,7 @@ plot attr elements =
 -- VIEW
 
 
-parsePlot : List MetaAttr -> List (Element msg) -> Svg.Svg msg
+parsePlot : List (MetaAttr msg) -> List (Element msg) -> Svg.Svg msg
 parsePlot attr elements =
     let
         metaConfig =
@@ -1141,18 +1141,19 @@ parsePlot attr elements =
         viewPlot metaConfig (viewElements plotProps elements)
 
 
-viewPlot : MetaConfig -> List (Svg.Svg msg) -> Svg.Svg msg
+viewPlot : MetaConfig msg -> List (Svg.Svg msg) -> Svg.Svg msg
 viewPlot { size, style, classes } children =
     let
         ( width, height ) =
             size
     in
         Svg.svg
-            [ Svg.Attributes.height (toString height)
-            , Svg.Attributes.width (toString width)
-            , Svg.Attributes.style (toStyle style)
-            , Svg.Attributes.class (String.join " " classes)
-            ]
+            ([ Svg.Attributes.height (toString height)
+             , Svg.Attributes.width (toString width)
+             , Svg.Attributes.class (String.join " " classes)
+             ]
+                ++ style
+            )
             children
 
 
@@ -1262,9 +1263,10 @@ viewAxis plotProps { toTickValues, tickView, labelView, labelValues, style, clas
                     List.filter (\( a, b ) -> filter a b) tickPositions
     in
         Svg.g
-            [ Svg.Attributes.style (toStyle style)
-            , Svg.Attributes.class (String.join " " classes)
-            ]
+            (style
+                ++ [ Svg.Attributes.class (String.join " " classes)
+                   ]
+            )
             [ viewGridLine toSvgCoords scale axisLineStyle 0
             , Svg.g [] (List.map (placeTick plotProps (tickView orientation)) tickPositions)
             , Svg.g [] (List.map (placeTick plotProps (labelView orientation)) labelPositions)
@@ -1276,25 +1278,26 @@ placeTick { toSvgCoords } view ( index, tick ) =
     Svg.g [ Svg.Attributes.transform (toTranslate (toSvgCoords ( tick, 0 ))) ] [ view index tick ]
 
 
-defaultTickView : TickViewConfig -> Orientation -> Int -> Float -> Svg.Svg msg
+defaultTickView : TickViewConfig msg -> Orientation -> Int -> Float -> Svg.Svg msg
 defaultTickView { length, width, style, classes } orientation _ _ =
     let
         displacement =
             (?) orientation "" (toRotate 90 0 0)
 
         styleFinal =
-            style ++ [ ( "stroke-width", (toString width) ++ "px" ) ]
+            style ++ [ (Svg.Attributes.strokeWidth ((toString width) ++ "px")) ]
     in
         Svg.line
-            [ Svg.Attributes.style (toStyle styleFinal)
-            , Svg.Attributes.y2 (toString length)
-            , Svg.Attributes.transform displacement
-            , Svg.Attributes.class (String.join " " classes)
-            ]
+            (styleFinal
+                ++ [ Svg.Attributes.y2 (toString length)
+                   , Svg.Attributes.transform displacement
+                   , Svg.Attributes.class (String.join " " classes)
+                   ]
+            )
             []
 
 
-defaultTickViewDynamic : TickAttrFunc -> Orientation -> Int -> Float -> Svg.Svg msg
+defaultTickViewDynamic : TickAttrFunc msg -> Orientation -> Int -> Float -> Svg.Svg msg
 defaultTickViewDynamic toTickAttrs orientation index float =
     let
         tickView =
@@ -1303,17 +1306,17 @@ defaultTickViewDynamic toTickAttrs orientation index float =
         tickView orientation index float
 
 
-defaultLabelStyleX : ( Style, ( Int, Int ) )
+defaultLabelStyleX : ( Style msg, ( Int, Int ) )
 defaultLabelStyleX =
-    ( [ ( "text-anchor", "middle" ) ], ( 0, 24 ) )
+    ( [ (Svg.Attributes.textAnchor "middle") ], ( 0, 24 ) )
 
 
-defaultLabelStyleY : ( Style, ( Int, Int ) )
+defaultLabelStyleY : ( Style msg, ( Int, Int ) )
 defaultLabelStyleY =
-    ( [ ( "text-anchor", "end" ) ], ( -10, 5 ) )
+    ( [ (Svg.Attributes.textAnchor "end") ], ( -10, 5 ) )
 
 
-defaultLabelView : LabelViewConfig -> Orientation -> Int -> Float -> Svg.Svg msg
+defaultLabelView : LabelViewConfig msg -> Orientation -> Int -> Float -> Svg.Svg msg
 defaultLabelView { displace, format, style, classes } orientation index tick =
     let
         ( defaultStyle, defaultDisplacement ) =
@@ -1323,14 +1326,15 @@ defaultLabelView { displace, format, style, classes } orientation index tick =
             Maybe.withDefault defaultDisplacement displace
     in
         Svg.text_
-            [ Svg.Attributes.transform (toTranslate ( toFloat dx, toFloat dy ))
-            , Svg.Attributes.style (toStyle (defaultStyle ++ style))
-            , Svg.Attributes.class (String.join " " classes)
-            ]
+            ((defaultStyle ++ style)
+                ++ [ Svg.Attributes.transform (toTranslate ( toFloat dx, toFloat dy ))
+                   , Svg.Attributes.class (String.join " " classes)
+                   ]
+            )
             [ Svg.tspan [] [ Svg.text (format index tick) ] ]
 
 
-defaultLabelViewDynamic : LabelAttrFunc -> Orientation -> Int -> Float -> Svg.Svg msg
+defaultLabelViewDynamic : LabelAttrFunc msg -> Orientation -> Int -> Float -> Svg.Svg msg
 defaultLabelViewDynamic toLabelAttrs orientation index float =
     let
         labelView =
@@ -1353,7 +1357,7 @@ getGridPositions tickValues values =
             customValues
 
 
-viewGrid : PlotProps -> GridConfig -> Svg.Svg msg
+viewGrid : PlotProps -> GridConfig msg -> Svg.Svg msg
 viewGrid { scale, toSvgCoords, oppositeTicks } { values, style, classes } =
     let
         positions =
@@ -1364,7 +1368,7 @@ viewGrid { scale, toSvgCoords, oppositeTicks } { values, style, classes } =
             (List.map (viewGridLine toSvgCoords scale style) positions)
 
 
-viewGridLine : (Point -> Point) -> AxisScale -> Style -> Float -> Svg.Svg msg
+viewGridLine : (Point -> Point) -> AxisScale -> Style msg -> Float -> Svg.Svg msg
 viewGridLine toSvgCoords scale style position =
     let
         { lowest, highest } =
@@ -1377,7 +1381,7 @@ viewGridLine toSvgCoords scale style position =
             toSvgCoords ( highest, position )
 
         attrs =
-            Svg.Attributes.style (toStyle style) :: (toPositionAttr x1 y1 x2 y2)
+            style ++ (toPositionAttr x1 y1 x2 y2)
     in
         Svg.line attrs []
 
@@ -1386,7 +1390,7 @@ viewGridLine toSvgCoords scale style position =
 -- VIEW AREA
 
 
-viewArea : PlotProps -> AreaConfig -> Svg.Svg a
+viewArea : PlotProps -> AreaConfig msg -> Svg.Svg msg
 viewArea { toSvgCoords } { points, style } =
     let
         range =
@@ -1414,29 +1418,27 @@ viewArea { toSvgCoords } { points, style } =
             coordToInstruction "L" svgCoords
     in
         Svg.path
-            [ Svg.Attributes.d (startInstruction ++ instructions ++ endInstructions ++ "Z")
-            , Svg.Attributes.style (toStyle style)
-            ]
+            (style ++ [ Svg.Attributes.d (startInstruction ++ instructions ++ endInstructions ++ "Z") ])
             []
 
 
-viewScatter : PlotProps -> ScatterConfig -> Svg.Svg a
+viewScatter : PlotProps -> ScatterConfig msg -> Svg.Svg msg
 viewScatter { toSvgCoords } { points, style, radius } =
     let
         svgPoints =
             List.map toSvgCoords points
     in
         Svg.g
-            [ Svg.Attributes.style (toStyle style) ]
+            style
             (List.map (toSvgCircle radius) svgPoints)
 
 
 toSvgCircle : Float -> Point -> Svg.Svg a
 toSvgCircle radius point =
-    Svg.circle
-        [ Svg.Attributes.cx (toString (Tuple.first point))
-        , Svg.Attributes.cy (toString (Tuple.second point))
-        , Svg.Attributes.r (toString radius)
+    circle
+        [ cx (toString (Tuple.first point))
+        , cy (toString (Tuple.second point))
+        , r (toString radius)
         ]
         []
 
@@ -1445,7 +1447,7 @@ toSvgCircle radius point =
 -- VIEW LINE
 
 
-viewLine : PlotProps -> LineConfig -> Svg.Svg a
+viewLine : PlotProps -> LineConfig msg -> Svg.Svg msg
 viewLine { toSvgCoords } { points, style } =
     let
         svgPoints =
@@ -1458,9 +1460,9 @@ viewLine { toSvgCoords } { points, style } =
             coordToInstruction "L" svgPoints
     in
         Svg.path
-            [ Svg.Attributes.d (startInstruction ++ instructions)
-            , Svg.Attributes.style (toStyle style)
-            ]
+            (style
+                ++ [ Svg.Attributes.d (startInstruction ++ instructions) ]
+            )
             []
 
 
@@ -1526,7 +1528,7 @@ toSvgCoordsY xScale yScale ( x, y ) =
     toSvgCoordsX xScale yScale ( y, x )
 
 
-getPlotProps : MetaConfig -> List (Element msg) -> PlotProps
+getPlotProps : MetaConfig msg -> List (Element msg) -> PlotProps
 getPlotProps { size, padding } elements =
     let
         ( xValues, yValues ) =
@@ -1585,7 +1587,7 @@ getDeltaPrecision : Float -> Int
 getDeltaPrecision delta =
     logBase 10 delta
         |> floor
-        |> min 0
+        |> Basics.min 0
         |> abs
 
 
