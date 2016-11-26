@@ -5,10 +5,19 @@ import Html.Attributes exposing (style, src, href, class)
 import Html.Events exposing (onClick)
 import Svg
 import Svg.Attributes
+import Svg.Events
 import Plot exposing (..)
-import AreaChart exposing (..)
-import Test exposing (..)
+--import AreaChart exposing (..)
+import Colors
+--import Test exposing (..)
+import Plot as Plot exposing (Interaction(..))
+import Plot.Line as Line
+import Plot.Label as Label
+import Plot.Tick as Tick
+import Plot.Axis as Axis
+import Plot.Base as Base
 
+import Debug
 
 --import MultiAreaChart exposing (..)
 --import GridChart exposing (..)
@@ -36,7 +45,8 @@ initialModel =
 
 type Msg
     = Toggle (Maybe String)
-    | PlotMsg Plot.Msg
+    | ClickTick 
+    | PlotInteraction (Plot.Interaction Msg)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -45,12 +55,21 @@ update msg model =
         Toggle id ->
             ( { model | openSection = id }, Cmd.none )
 
-        PlotMsg plotMsg ->
-            let
-                ( state, cmd ) =
-                    Plot.update plotMsg model.plotState
-            in
-                ( { model | plotState = state }, Cmd.map PlotMsg cmd )
+        PlotInteraction interaction ->
+            case interaction of
+                Internal internalMsg ->
+                    let
+                        ( state, cmd ) =
+                            Plot.update internalMsg model.plotState
+                    in
+                        ( { model | plotState = state }, Cmd.map PlotInteraction cmd )
+
+                Custom customMsg ->
+                    update customMsg model
+
+
+        ClickTick ->
+            ( model |> Debug.log "click tick!!!", Cmd.none )
 
 
 
@@ -145,19 +164,20 @@ view model =
                 ]
                 [ text "Github" ]
             ]
-        , viewTitle model "Simple Area Chart" "AreaChart" AreaChart.code
-        , Html.map PlotMsg (Test.chart Plot.initialState)
-        , Html.map PlotMsg (AreaChart.chart model.plotState)
+        --, viewTitle model "Simple Area Chart" "AreaChart" AreaChart.code
+        , Html.map PlotInteraction (testChart model.plotState)
+        --, Html.map PlotInteraction (Test.chart Plot.initialState)
+        --, Html.map PlotInteraction (AreaChart.chart model.plotState)
           --, viewTitle model "Multi Area Chart" "MultiAreaChart" MultiAreaChart.code
-          --, Html.map PlotMsg MultiAreaChart.chart
+          --, Html.map PlotInteraction MultiAreaChart.chart
           --, viewTitle model "Line Chart" "MultiLineChart" MultiLineChart.code
-          --, Html.map PlotMsg MultiLineChart.chart
+          --, Html.map PlotInteraction MultiLineChart.chart
           --, viewTitle model "Grid" "GridChart" GridChart.code
-          --, Html.map PlotMsg GridChart.chart
+          --, Html.map PlotInteraction GridChart.chart
           --, viewTitle model "Custom ticks and labels" "CustomTickChart" CustomTickChart.code
-          --, Html.map PlotMsg CustomTickChart.chart
+          --, Html.map PlotInteraction CustomTickChart.chart
           --, viewTitle model "Composable" "ComposedChart" ComposedChart.code
-          --, Html.map PlotMsg ComposedChart.chart
+          --, Html.map PlotInteraction ComposedChart.chart
         , div
             [ style [ ( "margin", "100px auto 30px" ), ( "font-size", "14px" ) ] ]
             [ text "Made by "
@@ -168,6 +188,38 @@ view model =
                 [ text "@terexka" ]
             ]
         ]
+
+
+
+specialTick : Int -> Float -> Svg.Svg (Plot.Interaction Msg)
+specialTick _ _ =
+    Svg.text_
+        [ Svg.Attributes.transform "translate(5, 5)"
+        , Svg.Attributes.style "stroke: #969696; font-size: 12px; text-anchor: end;"
+        , Svg.Events.onClick (Custom ClickTick)
+        ]
+        [ Svg.tspan [] [ Svg.text "🌟" ] ]
+
+
+testChart : Plot.State -> Svg.Svg (Plot.Interaction Msg)
+testChart { position } =
+    base
+        [ Base.size ( 600, 250 )
+        , Base.margin ( 10, 40, 40, 40 )
+        ]
+        [ line
+            [ Line.style [ ( "stroke", Colors.pinkStroke ), ( "stroke-width", "2px" ) ] ]
+            [ (0, 2), (1, 3), (2, 5)]
+        , xAxis []
+        , yAxis
+            [ Axis.tick
+                [ Tick.viewCustom specialTick
+                , Tick.removeZero
+                ]
+            ]
+        , Plot.tooltip [] position
+        ]
+
 
 
 main =

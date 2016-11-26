@@ -5,6 +5,7 @@
 
 .elm-plot__svg {
 	stroke: #c3c3c3;
+	fill: #c3c3c3;
 }
 
 .elm-plot__grid__line {

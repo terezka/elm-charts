@@ -49,9 +49,9 @@ specialTick _ _ =
         [ Svg.tspan [] [ Svg.text "🌟" ] ]
 
 
-chart : Plot.State -> Svg.Svg Plot.Msg
+chart : Plot.State -> Svg.Svg msg
 chart model =
-    base
+    baseStatic
         [ Base.size ( 600, 250 )
         , Base.margin ( 0, 40, 40, 40 )
         ]
