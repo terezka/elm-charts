@@ -79,7 +79,7 @@ classes classes config =
     { config | classes = classes }
 
 
-{-| An id to the svg element. 
+{-| An id to the svg element.
 
  **Note:** If you have more than one plot in your DOM,
  then you most provide a unique id using this attribute for
@@ -104,6 +104,3 @@ defaultConfig =
     , style = [ ( "padding", "0" ), ( "stroke", "#000" ) ]
     , id = "elm-plot"
     }
-
-
-

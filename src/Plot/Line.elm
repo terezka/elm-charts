@@ -42,7 +42,7 @@ toConfig attrs =
 
 defaultConfig : Config
 defaultConfig =
-    { style = [ ("fill", "transparent") ] }
+    { style = [ ( "fill", "transparent" ) ] }
 
 
 view : Meta -> Config -> List Point -> Svg.Svg a

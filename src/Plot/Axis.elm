@@ -38,7 +38,6 @@ type alias StyleConfig =
     }
 
 
-
 {-| The type representing an axis attribute.
 -}
 type alias Attribute msg =
@@ -109,7 +108,6 @@ lineStyle style config =
     { config | lineStyle = style }
 
 
-
 {-| -}
 view : List StyleAttribute -> Attribute msg
 view attributes config =
@@ -124,7 +122,7 @@ view attributes config =
             [ xAxis [
                 Axis.tick
                     [ Tick.view
-                        [ Tick.length 3 
+                        [ Tick.length 3
                         , Tick.values [ 2, 4, 6 ]
                         ]
                     ]
@@ -144,7 +142,7 @@ tick attributes config =
             [ xAxis [
                 Axis.label
                     [ Label.view
-                        [ Label.displace (10, 0) 
+                        [ Label.displace (10, 0)
                         , Label.values [ 3, 5, 7 ]
                         , Label.format (\index value -> "$" ++ toString value)
                         ]
@@ -190,5 +188,3 @@ placeTick { toSvgCoords } view ( index, tick ) =
     Svg.g
         [ Svg.Attributes.transform <| toTranslate <| toSvgCoords ( tick, 0 ) ]
         [ view index tick ]
-
-

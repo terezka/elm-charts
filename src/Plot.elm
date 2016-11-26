@@ -56,7 +56,6 @@ import Plot.Line as Line
 import Plot.Tooltip as Tooltip
 
 
-
 {-| Represents child element of the plot.
 -}
 type Element msg
@@ -127,7 +126,7 @@ line attrs points =
     Line (List.foldr (<|) Line.defaultConfig attrs) points
 
 
-{-| 
+{-|
 -}
 tooltip : List (Tooltip.Attribute Msg) -> Maybe Point -> Element Msg
 tooltip attrs position =
@@ -247,7 +246,7 @@ viewPlot { size, style, classes, margin } meta ( svgViews, htmlViews ) =
             margin
 
         sizeStyle =
-            [ ("height", toString height ++ "px" ), ("width", toString width ++ "px" ) ]
+            [ ( "height", toString height ++ "px" ), ( "width", toString width ++ "px" ) ]
     in
         Html.div
             [ Html.Attributes.class "elm-plot"
@@ -255,7 +254,8 @@ viewPlot { size, style, classes, margin } meta ( svgViews, htmlViews ) =
             , Html.Attributes.id meta.id
             , Html.Events.on "mousemove" (getMousePosition meta)
             , Html.Events.onMouseOut ResetPosition
-            ] <|
+            ]
+        <|
             [ Svg.svg
                 [ Svg.Attributes.height (toString height)
                 , Svg.Attributes.width (toString width)
@@ -263,7 +263,8 @@ viewPlot { size, style, classes, margin } meta ( svgViews, htmlViews ) =
                 , Svg.Attributes.class "elm-plot__svg"
                 ]
                 svgViews
-            ] ++ htmlViews
+            ]
+                ++ htmlViews
 
 
 
@@ -294,7 +295,7 @@ viewElement meta element ( svgViews, htmlViews ) =
             case position of
                 Just point ->
                     ( svgViews, (Tooltip.view meta config point) :: htmlViews )
-                
+
                 Nothing ->
                     ( svgViews, htmlViews )
 
@@ -309,9 +310,11 @@ calculateMeta { size, padding, margin, id } elements =
         ( xValues, yValues ) =
             List.unzip (List.foldr collectPoints [] elements)
 
-        ( width, height ) = size
+        ( width, height ) =
+            size
 
-        ( top, right, bottom, left ) = margin
+        ( top, right, bottom, left ) =
+            margin
 
         xScale =
             getScale width ( left, right ) ( 0, 0 ) xValues
@@ -341,12 +344,12 @@ calculateMeta { size, padding, margin, id } elements =
 flipToY : Meta -> Meta
 flipToY ({ scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, oppositeTicks } as meta) =
     { meta
-    | scale = oppositeScale
-    , oppositeScale = scale
-    , toSvgCoords = oppositeToSvgCoords
-    , oppositeToSvgCoords = toSvgCoords
-    , ticks = oppositeTicks
-    , oppositeTicks = ticks
+        | scale = oppositeScale
+        , oppositeScale = scale
+        , toSvgCoords = oppositeToSvgCoords
+        , oppositeToSvgCoords = toSvgCoords
+        , ticks = oppositeTicks
+        , oppositeTicks = ticks
     }
 
 
@@ -462,7 +465,6 @@ getLastGetTickValues orientation elements =
         |> Tick.getValues
 
 
-
 collectPoints : Element Msg -> List Point -> List Point
 collectPoints element allPoints =
     case element of
@@ -489,7 +491,6 @@ collectYValues xValue element yValues =
             yValues
 
 
-
 collectYValue : Float -> List Point -> Maybe Float
 collectYValue xValue points =
     List.foldr (getYValue xValue) Nothing points
@@ -497,5 +498,7 @@ collectYValue xValue points =
 
 getYValue : Float -> Point -> Maybe Float -> Maybe Float
 getYValue xValue ( x, y ) result =
-    if x == xValue then Just y else result
-
+    if x == xValue then
+        Just y
+    else
+        result

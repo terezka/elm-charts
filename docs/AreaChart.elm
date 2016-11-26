@@ -39,7 +39,6 @@ chart { position } =
             ]
         , Plot.tooltip [] position
         ]
-        
 
 
 code =
