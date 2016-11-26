@@ -7,6 +7,7 @@ import Svg
 import Svg.Attributes
 import Plot exposing (..)
 import AreaChart exposing (..)
+import ScatterChart exposing (..)
 import MultiAreaChart exposing (..)
 import GridChart exposing (..)
 import MultiLineChart exposing (..)
@@ -132,6 +133,8 @@ view model =
         , AreaChart.chart
         , viewTitle model "Multi Area Chart" "MultiAreaChart" MultiAreaChart.code
         , MultiAreaChart.chart
+        , viewTitle model "Scatter Chart" "ScatterChart" ScatterChart.code
+        , ScatterChart.chart
         , viewTitle model "Line Chart" "MultiLineChart" MultiLineChart.code
         , MultiLineChart.chart
         , viewTitle model "Grid" "GridChart" GridChart.code

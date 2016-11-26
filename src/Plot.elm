@@ -39,6 +39,9 @@ module Plot
         , gridMirrorTicks
         , area
         , areaStyle
+        , scatter
+        , scatterStyle
+        , scatterRadius
         , line
         , lineStyle
         , Element
@@ -47,6 +50,7 @@ module Plot
         , LabelViewAttr
         , AxisAttr
         , AreaAttr
+        , ScatterAttr
         , LineAttr
         , Point
         , Style
@@ -58,7 +62,7 @@ module Plot
  It is insprired by the elm-html api, using the `element attrs children` pattern.
 
 # Elements
-@docs Element, plot, line, area, xAxis, yAxis, Point, Style
+@docs Element, plot, area, scatter, line, xAxis, yAxis, Point, Style
 
 # Configuration
 
@@ -70,6 +74,9 @@ module Plot
 
 ## Area configuration
 @docs AreaAttr, areaStyle
+
+## Scatter configuration
+@docs ScatterAttr, scatterRadius, scatterStyle
 
 ## Axis configuration
 @docs AxisAttr, axisClasses, axisStyle, axisLineStyle
@@ -130,6 +137,7 @@ type Element msg
     | Grid GridConfig
     | Line LineConfig
     | Area AreaConfig
+    | Scatter ScatterConfig
 
 
 
@@ -919,6 +927,85 @@ verticalGrid attrs =
 
 
 
+-- SCATTER CONFIG
+
+
+type alias ScatterConfig =
+    { style : Style
+    , points : List Point
+    , radius : Float
+    }
+
+
+{-| The type representing an scatter configuration.
+-}
+type alias ScatterAttr =
+    ScatterConfig -> ScatterConfig
+
+
+defaultScatterConfig : { style : List a, points : List b, radius : Float }
+defaultScatterConfig =
+    { style = []
+    , points = []
+    , radius = 5
+    }
+
+
+{-| Add styles to your scatter series
+
+    main =
+        plot
+            []
+            [ scatter
+                [ scatterStyle
+                    [ ( "stroke", "deeppink" )
+                    , ( "opacity", "0.5" ) ]
+                    ]
+                , scatterRadius 4
+                ]
+                scatterDataPoints
+            ]
+-}
+scatterStyle : Style -> ScatterConfig -> ScatterConfig
+scatterStyle style config =
+    { config | style = style }
+
+
+{-| Add a radius to your scatter circles
+
+    main =
+        plot
+            []
+            [ scatter
+                [ scatterStyle
+                    [ ( "stroke", "deeppink" )
+                    , ( "opacity", "0.5" ) ]
+                    ]
+                , scatterRadius 4
+                ]
+                scatterDataPoints
+            ]
+-}
+scatterRadius : Float -> ScatterConfig -> ScatterConfig
+scatterRadius radius config =
+    { config | radius = radius }
+
+
+{-| This returns a scatter element resulting in a scatter series rendered in your plot.
+
+    main =
+        plot [] [ scatter []  [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
+-}
+scatter : List ScatterAttr -> List Point -> Element msg
+scatter attrs points =
+    let
+        config =
+            List.foldr (<|) defaultScatterConfig attrs
+    in
+        Scatter { config | points = points }
+
+
+
 -- AREA CONFIG
 
 
@@ -1110,6 +1197,9 @@ viewElement plotProps element views =
 
         Area config ->
             (viewArea plotProps config) :: views
+
+        Scatter config ->
+            (viewScatter plotProps config) :: views
 
 
 
@@ -1330,6 +1420,27 @@ viewArea { toSvgCoords } { points, style } =
             []
 
 
+viewScatter : PlotProps -> ScatterConfig -> Svg.Svg a
+viewScatter { toSvgCoords } { points, style, radius } =
+    let
+        svgPoints =
+            List.map toSvgCoords points
+    in
+        Svg.g
+            [ Svg.Attributes.style (toStyle style) ]
+            (List.map (toSvgCircle radius) svgPoints)
+
+
+toSvgCircle : Float -> Point -> Svg.Svg a
+toSvgCircle radius point =
+    Svg.circle
+        [ Svg.Attributes.cx (toString (Tuple.first point))
+        , Svg.Attributes.cy (toString (Tuple.second point))
+        , Svg.Attributes.r (toString radius)
+        ]
+        []
+
+
 
 -- VIEW LINE
 
@@ -1547,6 +1658,9 @@ collectPoints : Element msg -> List Point -> List Point
 collectPoints element allPoints =
     case element of
         Area { points } ->
+            allPoints ++ points
+
+        Scatter { points } ->
             allPoints ++ points
 
         Line { points } ->
