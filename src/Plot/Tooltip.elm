@@ -71,9 +71,7 @@ viewLine ( x, y ) =
     Html.div
         [ Html.Attributes.class "elm-plot__tooltip__line"
         , Html.Attributes.style
-            [ ( "left", (toString x) ++ "px" )
-            , ( "height", toString y ++ "px" )
-            ]
+            [ ( "height", toString y ++ "px" ) ]
         ]
         []
 

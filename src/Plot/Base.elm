@@ -72,6 +72,17 @@ classes classes config =
     { config | classes = classes }
 
 
+{-| An id to the svg element. 
+
+ **Note:** If you have more than one plot in your DOM,
+ then you most provide a unique id using this attribute for
+ the tooltip to work!
+-}
+id : String -> Attribute
+id id config =
+    { config | id = id }
+
+
 toConfig : List Attribute -> Config
 toConfig attrs =
     List.foldr (<|) defaultConfig attrs

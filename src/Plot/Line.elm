@@ -42,7 +42,7 @@ toConfig attrs =
 
 defaultConfig : Config
 defaultConfig =
-    { style = [] }
+    { style = [ ("fill", "transparent") ] }
 
 
 view : PlotProps -> Config -> List Point -> Svg.Svg a

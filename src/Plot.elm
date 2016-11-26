@@ -1,7 +1,6 @@
 module Plot
     exposing
         ( base
-        , baseStatic
         , xAxis
         , yAxis
         , verticalGrid
@@ -22,7 +21,7 @@ module Plot
  It is insprired by the elm-html api, using the `element attrs children` pattern.
 
 # Elements
-@docs Element, base, baseStatic, line, area, xAxis, yAxis, tooltip, verticalGrid, horizontalGrid
+@docs Element, base, line, area, xAxis, yAxis, tooltip, verticalGrid, horizontalGrid
 
 # Configuration
 
@@ -61,7 +60,7 @@ import Plot.Tooltip as Tooltip
 -}
 type Element msg
     = Axis (Axis.Config msg)
-    | Tooltip (Tooltip.Config msg) ( Float, Float )
+    | Tooltip (Tooltip.Config msg) (Maybe Point)
     | Grid Grid.Config
     | Line Line.Config (List Point)
     | Area Area.Config (List Point)
@@ -127,10 +126,20 @@ line attrs points =
     Line (List.foldr (<|) Line.defaultConfig attrs) points
 
 
-{-| -}
-tooltip : List (Tooltip.Attribute Msg) -> ( Float, Float ) -> Element Msg
+{-| 
+-}
+tooltip : List (Tooltip.Attribute Msg) -> Maybe Point -> Element Msg
 tooltip attrs position =
     Tooltip (List.foldr (<|) Tooltip.defaultConfig attrs) position
+
+
+{-| This is the function processing your entire plot configuration.
+ Pass your meta attributes and plot elements to this function and
+ a svg plot will be returned!
+-}
+base : List Base.Attribute -> List (Element Msg) -> Svg.Svg Msg
+base attrs elements =
+    Svg.Lazy.lazy2 parsePlot attrs elements
 
 
 
@@ -189,8 +198,8 @@ getPosition : PlotProps -> ( Float, Float ) -> Cmd Msg
 getPosition plotProps eventPosition =
     Task.map2
         (getRelativePosition plotProps eventPosition)
-        (Dom.Position.left (getInnerId plotProps))
-        (Dom.Position.top (getInnerId plotProps))
+        (Dom.Position.left plotProps.id)
+        (Dom.Position.top plotProps.id)
         |> Task.attempt ReceivePosition
 
 
@@ -203,45 +212,18 @@ getRelativePosition { fromSvgCoords, toNearestX } ( mouseX, mouseY ) left top =
         ( toNearestX x, y )
 
 
-getInnerId : PlotProps -> String
-getInnerId { id } =
-    id ++ "__inner"
-
-
-
--- PARSE PLOT
-
-
-{-| This is the function processing your entire plot configuration.
- Pass your meta attributes and plot elements to this function and
- a svg plot will be returned!
--}
-baseStatic : List Base.Attribute -> List (Element Msg) -> Svg.Svg Msg
-baseStatic attrs elements =
-    Svg.Lazy.lazy3 parsePlot "elm-plot" attrs elements
-
-
-{-| This is the function processing your entire plot configuration.
- Pass your meta attributes and plot elements to this function and
- a svg plot will be returned!
--}
-base : String -> List Base.Attribute -> List (Element Msg) -> Svg.Svg Msg
-base id attrs elements =
-    Svg.Lazy.lazy3 parsePlot id attrs elements
-
-
 
 -- VIEW
 
 
-parsePlot : String -> List Base.Attribute -> List (Element Msg) -> Svg.Svg Msg
-parsePlot id attrs elements =
+parsePlot : List Base.Attribute -> List (Element Msg) -> Svg.Svg Msg
+parsePlot attrs elements =
     let
         metaConfig =
             Base.toConfig attrs
 
         plotProps =
-            getPlotProps id metaConfig elements
+            getPlotProps metaConfig elements
     in
         viewPlot metaConfig plotProps (viewElements plotProps elements)
 
@@ -268,30 +250,18 @@ viewPlot { size, style, classes, margin } plotProps ( svgViews, htmlViews ) =
     in
         Html.div
             [ Html.Attributes.class "elm-plot"
+            , Html.Attributes.style [ ("height", toString height ++ "px" ), ("width", toString width ++ "px" ) ]
             , Html.Attributes.id plotProps.id
-            ]
+            , Html.Events.on "mousemove" (getEventPostion plotProps)
+            , Html.Events.onMouseOut ResetPosition
+            ] <|
             [ Svg.svg
                 [ Svg.Attributes.height (toString height)
                 , Svg.Attributes.width (toString width)
-                , Svg.Attributes.class "elm-plot__inner"
+                , Svg.Attributes.class "elm-plot__svg"
                 ]
                 svgViews
-            , Html.div
-                [ Html.Attributes.class "elm-plot__html" ]
-                [ Html.div
-                    [ Html.Attributes.class "elm-plot__html__inner"
-                    , Html.Attributes.id (getInnerId plotProps)
-                    , Html.Attributes.style
-                        [ ( "width", toString (width - left - right) ++ "px" )
-                        , ( "height", toString (height - top - bottom) ++ "px" )
-                        , ( "padding", paddingStyle ++ "px" )
-                        ]
-                    , Html.Events.on "mousemove" (getEventPostion plotProps)
-                      --, Html.Events.onMouseOut ResetPosition
-                    ]
-                    htmlViews
-                ]
-            ]
+            ] ++ htmlViews
 
 
 
@@ -319,11 +289,13 @@ viewElement plotProps element ( svgViews, htmlViews ) =
                 ( (Axis.defaultView plotPropsFitted config) :: svgViews, htmlViews )
 
         Tooltip config position ->
-            let
-                tooltipView =
-                    Tooltip.view plotProps config position
-            in
-                ( svgViews, tooltipView :: htmlViews )
+            case position of
+                Just point ->
+                    ( svgViews, (Tooltip.view plotProps config point) :: htmlViews )
+                
+                Nothing ->
+                    ( svgViews, htmlViews )
+                
 
         Grid config ->
             let
@@ -378,13 +350,13 @@ getScales lengthTotal ( offsetLeft, offsetRight ) ( paddingBottomPx, paddingTopP
 
 
 scaleValue : AxisScale -> Float -> Float
-scaleValue { length, range } v =
-    v * length / range
+scaleValue { length, range, offset } v =
+    (v * length / range) + offset
 
 
 unScaleValue : AxisScale -> Float -> Float
-unScaleValue { length, range } v =
-    v * range / length
+unScaleValue { length, range, offset } v =
+    (v - offset) * range / length
 
 
 fromSvgCoords : AxisScale -> AxisScale -> Point -> Point
@@ -396,8 +368,8 @@ fromSvgCoords xScale yScale ( x, y ) =
 
 toSvgCoordsX : AxisScale -> AxisScale -> Point -> Point
 toSvgCoordsX xScale yScale ( x, y ) =
-    ( xScale.offset + scaleValue xScale (abs xScale.lowest + x)
-    , yScale.offset + scaleValue yScale (yScale.highest - y)
+    ( scaleValue xScale (abs xScale.lowest + x)
+    , scaleValue yScale (yScale.highest - y)
     )
 
 
@@ -433,8 +405,8 @@ getTooltipInfo elements xValue =
         TooltipInfo xValue yValues
 
 
-getPlotProps : String -> Base.Config -> List (Element Msg) -> PlotProps
-getPlotProps id { size, padding, margin } elements =
+getPlotProps : Base.Config -> List (Element Msg) -> PlotProps
+getPlotProps { size, padding, margin, id } elements =
     let
         ( xValues, yValues ) =
             List.unzip (List.foldr collectPoints [] elements)
@@ -528,6 +500,7 @@ collectPoints element allPoints =
             allPoints
 
 
+
 collectYValues : Float -> Element Msg -> List (Maybe Float) -> List (Maybe Float)
 collectYValues xValue element yValues =
     case element of
@@ -539,6 +512,7 @@ collectYValues xValue element yValues =
 
         _ ->
             yValues
+
 
 
 getYValue : Float -> List Point -> Maybe Float

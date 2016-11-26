@@ -87,7 +87,7 @@ values values config =
 -}
 style : Style -> Attribute
 style style config =
-    { config | style = style }
+    { config | style = defaultConfigX.style ++ style }
 
 
 {-| Specify classes for the grid.
@@ -153,8 +153,13 @@ viewLine { toSvgCoords, scale } style position =
 
         ( x2, y2 ) =
             toSvgCoords ( highest, position )
-
-        attrs =
-            Svg.Attributes.style (toStyle style) :: (toPositionAttr x1 y1 x2 y2)
     in
-        Svg.line attrs []
+        Svg.line
+            [ Svg.Attributes.x1 (toString x1)
+            , Svg.Attributes.y1 (toString y1)
+            , Svg.Attributes.x2 (toString x2)
+            , Svg.Attributes.y2 (toString y2)
+            , Svg.Attributes.style (toStyle style)
+            , Svg.Attributes.class "elm-plot__grid__line"
+            ]
+            []

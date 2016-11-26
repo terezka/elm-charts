@@ -51,7 +51,7 @@ specialTick _ _ =
 
 chart : Plot.State -> Svg.Svg Plot.Msg
 chart model =
-    baseStatic
+    base
         [ Base.size ( 600, 250 )
         , Base.margin ( 0, 40, 40, 40 )
         ]

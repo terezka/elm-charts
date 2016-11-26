@@ -3,20 +3,12 @@
 	position: relative;
 }
 
-.elm-plot__inner {
-	stroke: #000;
+.elm-plot__svg {
+	stroke: #c3c3c3;
 }
 
-.elm-plot__html {
-	position: absolute;
-	width: 100%;
-	top: 0;
-	left: 0;
-}
-
-.elm-plot__html__inner {
-	position: relative;
-	margin: 0 auto;
+.elm-plot__grid__line {
+	stroke: #c3c3c3;
 }
 
 .elm-plot__tooltip {
@@ -28,7 +20,7 @@
 .elm-plot__tooltip__line {
 	width: 1px;
 	top: 0;
-	background-color: #aaa;
+	background-color: #000;
 }
 
 .elm-plot__tooltip__default-view {

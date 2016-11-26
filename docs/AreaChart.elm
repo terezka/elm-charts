@@ -6,6 +6,7 @@ import Plot as Plot
 import Plot.Area as Area
 import Plot.Grid as Grid
 import Plot.Axis as Axis
+import Plot.Tick as Tick
 import Plot.Base as Base
 import Colors
 
@@ -21,32 +22,24 @@ data2 =
 
 
 chart : Plot.State -> Svg.Svg Plot.Msg
-chart state =
-    let
-        tooltipView =
-            case state.position of
-                Nothing ->
-                    []
-
-                Just position ->
-                    [ Plot.tooltip [] position ]
-    in
-        Plot.base
-            "my-id"
-            [ Base.size ( 600, 250 ), Base.margin ( 10, 10, 30, 10 ), Base.padding ( 0, 20 ) ] <|
-            [ Plot.verticalGrid [ Grid.classes [ "dsfdjksh" ] ]
-            , Plot.area
-                [ Area.style [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ]
-                data
-            , Plot.area
-                [ Area.style [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ]
-                data2
-            , Plot.xAxis
-                [ Axis.view
-                    [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
-                ]
+chart { position } =
+    Plot.base
+        [ Base.size ( 600, 250 )
+        , Base.margin ( 0, 40, 40, 40 )
+        , Base.padding ( 0, 20 )
+        , Base.id "elm-plot-area-chart"
+        ]
+        [ Plot.verticalGrid [ Grid.classes [ "dsfdjksh" ] ]
+        , Plot.line [] data
+        , Plot.line [] data2
+        , Plot.xAxis
+            [ Axis.tick [ Tick.delta 0.5 ]
+            , Axis.view
+                [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
             ]
-                ++ tooltipView
+        , Plot.tooltip [] position
+        ]
+        
 
 
 code =
@@ -54,7 +47,7 @@ code =
     chart : Svg.Svg a
     chart =
         plot
-            [ size ( 600, 250 ) ]
+            [ size ( 300, 300 ) ]
             [ area
                 [ areaStyle
                     [ ( "stroke", Colors.blueStroke )
