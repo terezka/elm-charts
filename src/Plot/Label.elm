@@ -1,6 +1,6 @@
 module Plot.Label exposing (..)
 
-import Plot.Types exposing (Point, Style, Orientation(..), AxisScale, PlotProps, TooltipInfo)
+import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, TooltipInfo)
 import Plot.Tick as Tick
 import Helpers exposing (..)
 import Svg

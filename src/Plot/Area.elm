@@ -50,7 +50,7 @@ defaultConfig =
     { style = [] }
 
 
-view : PlotProps -> Config -> List Point -> Svg.Svg a
+view : Meta -> Config -> List Point -> Svg.Svg a
 view { toSvgCoords } { style } points =
     let
         range =

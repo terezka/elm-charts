@@ -1,6 +1,6 @@
 module Plot.Grid exposing (..)
 
-import Plot.Types exposing (Point, Style, Orientation(..), AxisScale, PlotProps, TooltipInfo)
+import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, TooltipInfo)
 import Helpers exposing (..)
 import Svg
 import Svg.Attributes
@@ -128,21 +128,21 @@ getPositions tickValues values =
             customValues
 
 
-view : PlotProps -> Config -> Svg.Svg a
-view plotProps { values, style, classes } =
+view : Meta -> Config -> Svg.Svg a
+view meta { values, style, classes } =
     let
         { scale, toSvgCoords, oppositeTicks } =
-            plotProps
+            meta
 
         positions =
             getPositions oppositeTicks values
     in
         Svg.g
             [ Svg.Attributes.class (String.join " " classes) ]
-            (List.map (viewLine plotProps style) positions)
+            (List.map (viewLine meta style) positions)
 
 
-viewLine : PlotProps -> Style -> Float -> Svg.Svg a
+viewLine : Meta -> Style -> Float -> Svg.Svg a
 viewLine { toSvgCoords, scale } style position =
     let
         { lowest, highest } =

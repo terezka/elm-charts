@@ -7,6 +7,14 @@ import String
 import Debug
 
 
+-- Configuration helpers
+
+
+foldConfig : a -> List (a -> a) -> a
+foldConfig =
+    List.foldl (<|)
+
+
 -- Calculate scales
 
 

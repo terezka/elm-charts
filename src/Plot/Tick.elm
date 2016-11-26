@@ -1,6 +1,6 @@
 module Plot.Tick exposing (..)
 
-import Plot.Types exposing (Point, Style, Orientation(..), AxisScale, PlotProps, TooltipInfo)
+import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, TooltipInfo)
 import Helpers exposing (..)
 import Round
 import Svg
@@ -333,20 +333,20 @@ defaultView { length, width, style, classes } orientation _ _ =
 -- Resolve values
 
 
-getValuesIndexed : Config msg -> AxisScale -> List ( Int, Float )
+getValuesIndexed : Config msg -> Scale -> List ( Int, Float )
 getValuesIndexed { valueConfig, removeZero } scale =
     getRawValues valueConfig scale
         |> filterValues removeZero
         |> indexValues
 
 
-getValues : Config msg -> AxisScale -> List Float
+getValues : Config msg -> Scale -> List Float
 getValues { valueConfig, removeZero } scale =
     getRawValues valueConfig scale
         |> filterValues removeZero
 
 
-getRawValues : ValueConfig -> AxisScale -> List Float
+getRawValues : ValueConfig -> Scale -> List Float
 getRawValues config =
     case config of
         AutoValues ->
@@ -422,7 +422,7 @@ toValue delta firstValue index =
         |> Result.withDefault 0
 
 
-toValuesFromDelta : Float -> AxisScale -> List Float
+toValuesFromDelta : Float -> Scale -> List Float
 toValuesFromDelta delta { lowest, range } =
     let
         firstValue =
@@ -434,12 +434,12 @@ toValuesFromDelta delta { lowest, range } =
         List.map (toValue delta firstValue) (List.range 0 tickCount)
 
 
-toValuesFromCount : Int -> AxisScale -> List Float
+toValuesFromCount : Int -> Scale -> List Float
 toValuesFromCount appxCount scale =
     toValuesFromDelta (getDelta scale.range appxCount) scale
 
 
-toValuesAuto : AxisScale -> List Float
+toValuesAuto : Scale -> List Float
 toValuesAuto =
     toValuesFromCount 10
 

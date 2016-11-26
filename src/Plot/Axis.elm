@@ -1,6 +1,6 @@
 module Plot.Axis exposing (..)
 
-import Plot.Types exposing (Point, Style, Orientation(..), AxisScale, PlotProps, TooltipInfo)
+import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, TooltipInfo)
 import Plot.Tick as Tick
 import Plot.Label as Label
 import Plot.Grid as Grid
@@ -161,8 +161,8 @@ label attributes config =
 -- VIEW
 
 
-defaultView : PlotProps -> Config msg -> Svg.Svg msg
-defaultView ({ scale, toSvgCoords } as plotProps) { viewConfig, tickConfig, labelConfig, orientation } =
+defaultView : Meta -> Config msg -> Svg.Svg msg
+defaultView ({ scale, toSvgCoords } as meta) { viewConfig, tickConfig, labelConfig, orientation } =
     let
         tickValues =
             Tick.getValuesIndexed tickConfig scale
@@ -174,18 +174,18 @@ defaultView ({ scale, toSvgCoords } as plotProps) { viewConfig, tickConfig, labe
             [ Svg.Attributes.style (toStyle viewConfig.baseStyle)
             , Svg.Attributes.class (String.join " " viewConfig.classes)
             ]
-            [ Grid.viewLine plotProps viewConfig.lineStyle 0
-            , viewTicks plotProps (Tick.toView tickConfig.viewConfig orientation) tickValues
-            , viewTicks plotProps (Label.toView labelConfig.viewConfig orientation) labelValues
+            [ Grid.viewLine meta viewConfig.lineStyle 0
+            , viewTicks meta (Tick.toView tickConfig.viewConfig orientation) tickValues
+            , viewTicks meta (Label.toView labelConfig.viewConfig orientation) labelValues
             ]
 
 
-viewTicks : PlotProps -> (Int -> Float -> Svg.Svg msg) -> List ( Int, Float ) -> Svg.Svg msg
-viewTicks plotProps view values =
-    Svg.g [] (List.map (placeTick plotProps view) values)
+viewTicks : Meta -> (Int -> Float -> Svg.Svg msg) -> List ( Int, Float ) -> Svg.Svg msg
+viewTicks meta view values =
+    Svg.g [] (List.map (placeTick meta view) values)
 
 
-placeTick : PlotProps -> (Int -> Float -> Svg.Svg msg) -> ( Int, Float ) -> Svg.Svg msg
+placeTick : Meta -> (Int -> Float -> Svg.Svg msg) -> ( Int, Float ) -> Svg.Svg msg
 placeTick { toSvgCoords } view ( index, tick ) =
     Svg.g
         [ Svg.Attributes.transform <| toTranslate <| toSvgCoords ( tick, 0 ) ]

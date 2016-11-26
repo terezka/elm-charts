@@ -1,6 +1,6 @@
 module Plot.Tooltip exposing (..)
 
-import Plot.Types exposing (Point, Style, Orientation(..), AxisScale, PlotProps, TooltipInfo)
+import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, TooltipInfo)
 import Helpers exposing (..)
 import Svg
 import Svg.Attributes
@@ -41,7 +41,7 @@ viewCustom view config =
     { config | view = view }
 
 
-view : PlotProps -> Config msg -> ( Float, Float ) -> Html.Html msg
+view : Meta -> Config msg -> ( Float, Float ) -> Html.Html msg
 view { toSvgCoords, scale, getTooltipInfo } { showLine, view } position =
     let
         info =

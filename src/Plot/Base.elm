@@ -1,6 +1,13 @@
 module Plot.Base exposing (..)
 
+import Svg
+import Svg.Attributes
+import Html
+import Html.Attributes
+import Html.Events
+import Json.Decode as Json
 import Plot.Types exposing (..)
+import Plot.Interaction exposing (Msg(..))
 
 
 --## Meta configuration
@@ -97,3 +104,6 @@ defaultConfig =
     , style = [ ( "padding", "0" ), ( "stroke", "#000" ) ]
     , id = "elm-plot"
     }
+
+
+
