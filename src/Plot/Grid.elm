@@ -1,46 +1,13 @@
-module Plot.Grid exposing (..)
+module Plot.Grid exposing (Attribute, values, mirrorTicks, style, classes)
 
-import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, TooltipInfo)
-import Helpers exposing (..)
-import Svg
-import Svg.Attributes
-
-
---## Grid configuration
---@docs verticalGrid, horizontalGrid, gridMirrorTicks, gridValues, gridClasses, gridStyle
-
-
-type Values
-    = MirrorTicks
-    | CustomValues (List Float)
-
-
-type alias Config =
-    { values : Values
-    , style : Style
-    , classes : List String
-    , orientation : Orientation
-    }
+import Plot.Grid.Config as Config exposing (Config, Values(..), defaultConfigX)
+import Plot.Types exposing (Style)
 
 
 {-| The type representing an grid configuration.
 -}
 type alias Attribute =
     Config -> Config
-
-
-defaultConfigX : Config
-defaultConfigX =
-    { values = MirrorTicks
-    , style = []
-    , classes = []
-    , orientation = X
-    }
-
-
-defaultConfigY : Config
-defaultConfigY =
-    { defaultConfigX | orientation = Y }
 
 
 {-| Adds grid lines where the ticks on the corresponding axis are.
@@ -107,59 +74,3 @@ classes : List String -> Attribute
 classes classes config =
     { config | classes = classes }
 
-
-toConfigX : List Attribute -> Config
-toConfigX attrs =
-    List.foldr (<|) defaultConfigX attrs
-
-
-toConfigY : List Attribute -> Config
-toConfigY attrs =
-    List.foldr (<|) defaultConfigY attrs
-
-
-getPositions : List Float -> Values -> List Float
-getPositions tickValues values =
-    case values of
-        MirrorTicks ->
-            tickValues
-
-        CustomValues customValues ->
-            customValues
-
-
-view : Meta -> Config -> Svg.Svg a
-view meta { values, style, classes } =
-    let
-        { scale, toSvgCoords, oppositeTicks } =
-            meta
-
-        positions =
-            getPositions oppositeTicks values
-    in
-        Svg.g
-            [ Svg.Attributes.class (String.join " " classes) ]
-            (List.map (viewLine meta style) positions)
-
-
-viewLine : Meta -> Style -> Float -> Svg.Svg a
-viewLine { toSvgCoords, scale } style position =
-    let
-        { lowest, highest } =
-            scale
-
-        ( x1, y1 ) =
-            toSvgCoords ( lowest, position )
-
-        ( x2, y2 ) =
-            toSvgCoords ( highest, position )
-    in
-        Svg.line
-            [ Svg.Attributes.x1 (toString x1)
-            , Svg.Attributes.y1 (toString y1)
-            , Svg.Attributes.x2 (toString x2)
-            , Svg.Attributes.y2 (toString y2)
-            , Svg.Attributes.style (toStyle style)
-            , Svg.Attributes.class "elm-plot__grid__line"
-            ]
-            []

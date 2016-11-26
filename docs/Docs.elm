@@ -217,6 +217,7 @@ testChart { position } =
                 , Tick.removeZero
                 ]
             ]
+        , verticalGrid [] 
         , Plot.tooltip [] position
         ]
 

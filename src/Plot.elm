@@ -47,11 +47,15 @@ import Dom.Position
 import Round
 import Debug
 import Helpers exposing (..)
+import Element exposing (Element(..))
+
 import Plot.Types exposing (..)
 import Plot.Base as Base
 import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Grid as Grid
+import Plot.Grid.Config as GridConfig
+import Plot.Grid.View as GridView
 import Plot.Area as Area
 import Plot.Line as Line
 import Plot.Tooltip as Tooltip
@@ -60,11 +64,7 @@ import Plot.Tooltip as Tooltip
 {-| Represents child element of the plot.
 -}
 type Element msg
-    = Axis (Axis.Config msg)
-    | Tooltip (Tooltip.Config msg) (Maybe Point)
-    | Grid Grid.Config
-    | Line Line.Config (List Point)
-    | Area Area.Config (List Point)
+    = Element (Element.Element msg)
 
 
 {-| This returns an axis element resulting in an x-axis being rendered in your plot.
@@ -74,7 +74,7 @@ type Element msg
 -}
 xAxis : List (Axis.Attribute msg) -> Element msg
 xAxis attrs =
-    Axis (List.foldl (<|) Axis.defaultConfigX attrs)
+    Element <| Axis (List.foldl (<|) Axis.defaultConfigX attrs)
 
 
 {-| This returns an axis element resulting in an y-axis being rendered in your plot.
@@ -84,7 +84,7 @@ xAxis attrs =
 -}
 yAxis : List (Axis.Attribute msg) -> Element msg
 yAxis attrs =
-    Axis (List.foldl (<|) Axis.defaultConfigY attrs)
+    Element <| Axis (List.foldl (<|) Axis.defaultConfigY attrs)
 
 
 {-| This returns an grid element resulting in vertical grid lines being rendered in your plot.
@@ -94,7 +94,7 @@ yAxis attrs =
 -}
 horizontalGrid : List Grid.Attribute -> Element msg
 horizontalGrid attrs =
-    Grid (Grid.toConfigX attrs)
+    Element <| Grid (foldConfig GridConfig.defaultConfigX attrs)
 
 
 {-| This returns an axis element resulting in horizontal grid lines being rendered in your plot.
@@ -104,7 +104,7 @@ horizontalGrid attrs =
 -}
 verticalGrid : List Grid.Attribute -> Element msg
 verticalGrid attrs =
-    Grid (Grid.toConfigY attrs)
+    Element <| Grid (foldConfig GridConfig.defaultConfigY attrs)
 
 
 {-| This returns an area element resulting in an area serie rendered in your plot.
@@ -114,7 +114,7 @@ verticalGrid attrs =
 -}
 area : List Area.Attribute -> List Point -> Element msg
 area attrs points =
-    Area (Area.toConfig attrs) points
+    Element <| Area (Area.toConfig attrs) points
 
 
 {-| This returns a line element resulting in an line serie rendered in your plot.
@@ -124,14 +124,14 @@ area attrs points =
 -}
 line : List Line.Attribute -> List Point -> Element msg
 line attrs points =
-    Line (List.foldr (<|) Line.defaultConfig attrs) points
+    Element <| Line (List.foldr (<|) Line.defaultConfig attrs) points
 
 
 {-|
 -}
 tooltip : List (Tooltip.Attribute msg) -> Maybe Point -> Element msg
 tooltip attrs position =
-    Tooltip (List.foldr (<|) Tooltip.defaultConfig attrs) position
+    Element <| Tooltip (List.foldr (<|) Tooltip.defaultConfig attrs) position
 
 
 {-| This is the function processing your entire plot configuration.
@@ -331,7 +331,7 @@ viewElements meta elements =
 
 
 viewElement : Meta -> Element msg -> ( List (Svg.Svg msg), List (Html.Html msg) ) -> ( List (Svg.Svg msg), List (Html.Html msg) )
-viewElement meta element ( svgViews, htmlViews ) =
+viewElement meta (Element element) ( svgViews, htmlViews ) =
     case element of
         Line config points ->
             ( (Line.view meta config points) :: svgViews, htmlViews )
@@ -343,7 +343,7 @@ viewElement meta element ( svgViews, htmlViews ) =
             ( (Axis.defaultView (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
 
         Grid ({ orientation } as config) ->
-            ( (Grid.view (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
+            ( (GridView.view (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
 
         Tooltip config position ->
             case position of
@@ -499,7 +499,7 @@ getTooltipInfo elements xValue =
 
 
 getAxisConfig : Orientation -> Element msg -> Maybe (Axis.Config msg) -> Maybe (Axis.Config msg)
-getAxisConfig orientation element lastConfig =
+getAxisConfig orientation (Element element) lastConfig =
     case element of
         Axis config ->
             if config.orientation == orientation then
@@ -520,7 +520,7 @@ getLastGetTickValues orientation elements =
 
 
 collectPoints : Element msg -> List Point -> List Point
-collectPoints element allPoints =
+collectPoints (Element element) allPoints =
     case element of
         Area config points ->
             allPoints ++ points
@@ -533,7 +533,7 @@ collectPoints element allPoints =
 
 
 collectYValues : Float -> Element msg -> List (Maybe Float) -> List (Maybe Float)
-collectYValues xValue element yValues =
+collectYValues xValue (Element element) yValues =
     case element of
         Area config points ->
             collectYValue xValue points :: yValues

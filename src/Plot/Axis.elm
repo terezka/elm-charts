@@ -3,7 +3,7 @@ module Plot.Axis exposing (..)
 import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, TooltipInfo)
 import Plot.Tick as Tick
 import Plot.Label as Label
-import Plot.Grid as Grid
+import Plot.Grid.View as Grid
 import Helpers exposing (..)
 import Round
 import Svg
