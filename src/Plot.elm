@@ -4,18 +4,18 @@ module Plot
         , size
         , padding
         , plotClasses
-        , plotStyle
+        , plotAttributes
         , xAxis
         , yAxis
         , axisClasses
-        , axisStyle
-        , axisLineStyle
+        , axisAttributes
+        , axisLineAttributes
         , tickValues
         , tickDelta
         , tickLength
         , tickWidth
         , tickClasses
-        , tickStyle
+        , tickAttributes
         , tickConfigView
         , tickConfigViewFunc
         , tickCustomView
@@ -26,7 +26,7 @@ module Plot
         , labelFormat
         , labelClasses
         , labelDisplace
-        , labelStyle
+        , labelAttributes
         , labelConfigView
         , labelConfigViewFunc
         , labelCustomView
@@ -35,15 +35,15 @@ module Plot
         , horizontalGrid
         , gridValues
         , gridClasses
-        , gridStyle
+        , gridAttributes
         , gridMirrorTicks
         , area
-        , areaStyle
+        , areaAttributes
         , scatter
-        , scatterStyle
+        , scatterAttributes
         , scatterRadius
         , line
-        , lineStyle
+        , lineAttributes
         , Element
         , MetaAttr
         , TickViewAttr
@@ -53,7 +53,7 @@ module Plot
         , ScatterAttr
         , LineAttr
         , Point
-        , Style
+        , Attributes
         )
 
 {-|
@@ -62,39 +62,39 @@ module Plot
  It is insprired by the elm-html api, using the `element attrs children` pattern.
 
 # Elements
-@docs Element, plot, area, scatter, line, xAxis, yAxis, Point, Style
+@docs Element, plot, area, scatter, line, xAxis, yAxis, Point, Attributes
 
 # Configuration
 
 ## Meta configuration
-@docs MetaAttr, size, padding, plotClasses, plotStyle
+@docs MetaAttr, size, padding, plotClasses, plotAttributes
 
 ## Line configuration
-@docs LineAttr, lineStyle
+@docs LineAttr, lineAttributes
 
 ## Area configuration
-@docs AreaAttr, areaStyle
+@docs AreaAttr, areaAttributes
 
 ## Scatter configuration
-@docs ScatterAttr, scatterRadius, scatterStyle
+@docs ScatterAttr, scatterRadius, scatterAttributes
 
 ## Axis configuration
-@docs AxisAttr, axisClasses, axisStyle, axisLineStyle
+@docs AxisAttr, axisClasses, axisAttributes, axisLineAttributes
 
 ### Tick values configuration
 @docs tickValues, tickDelta, tickRemoveZero
 
 ### Tick view configuration
-@docs TickViewAttr, tickConfigView, tickConfigViewFunc, tickLength, tickWidth, tickClasses, tickStyle, tickCustomView, tickCustomViewIndexed
+@docs TickViewAttr, tickConfigView, tickConfigViewFunc, tickLength, tickWidth, tickClasses, tickAttributes, tickCustomView, tickCustomViewIndexed
 
 ### Label values configuration
 @docs labelValues, labelFilter
 
 ### Label values configuration
-@docs LabelViewAttr, labelConfigView, labelConfigViewFunc, labelFormat, labelDisplace, labelClasses, labelStyle, labelCustomView, labelCustomViewIndexed
+@docs LabelViewAttr, labelConfigView, labelConfigViewFunc, labelFormat, labelDisplace, labelClasses, labelAttributes, labelCustomView, labelCustomViewIndexed
 
 ## Grid configuration
-@docs verticalGrid, horizontalGrid, gridMirrorTicks, gridValues, gridClasses, gridStyle
+@docs verticalGrid, horizontalGrid, gridMirrorTicks, gridValues, gridClasses, gridAttributes
 
 -}
 
@@ -115,9 +115,9 @@ type alias Point =
     ( Float, Float )
 
 
-{-| Convinience type to represent style.
+{-| Convinience type to represent attributes.
 -}
-type alias Style msg =
+type alias Attributes msg =
     List (Svg.Attribute msg)
 
 
@@ -148,7 +148,7 @@ type alias MetaConfig msg =
     { size : ( Int, Int )
     , padding : ( Int, Int )
     , classes : List String
-    , style : Style msg
+    , attributes : Attributes msg
     }
 
 
@@ -162,7 +162,7 @@ defaultMetaConfig =
     { size = ( 800, 500 )
     , padding = ( 0, 0 )
     , classes = []
-    , style = [ (Svg.Attributes.style "padding: 30px;"), (Svg.Attributes.stroke "#000") ]
+    , attributes = [ (Svg.Attributes.style "padding: 30px;"), (Svg.Attributes.stroke "#000") ]
     }
 
 
@@ -186,13 +186,13 @@ size size config =
     { config | size = size }
 
 
-{-| Add styles to the svg element.
+{-| Add attributes to the svg element.
 
  Default: `[ ( Svg.Attributes.style "padding: 30px" ), ( Svg.Attributes.stroke "#000" ) ]`
 -}
-plotStyle : Style msg -> MetaConfig msg -> MetaConfig msg
-plotStyle style config =
-    { config | style = style ++ defaultMetaConfig.style }
+plotAttributes : Attributes msg -> MetaConfig msg -> MetaConfig msg
+plotAttributes attributes config =
+    { config | attributes = attributes ++ defaultMetaConfig.attributes }
 
 
 {-| Add classes to the svg element.
@@ -216,7 +216,7 @@ toMetaConfig attrs =
 type alias TickViewConfig msg =
     { length : Int
     , width : Int
-    , style : Style msg
+    , attributes : Attributes msg
     , classes : List String
     }
 
@@ -243,7 +243,7 @@ defaultTickViewConfig : TickViewConfig msg
 defaultTickViewConfig =
     { length = 7
     , width = 1
-    , style = []
+    , attributes = []
     , classes = []
     }
 
@@ -292,20 +292,20 @@ tickClasses classes config =
     { config | classes = classes }
 
 
-{-| Sets the style of the tick
+{-| Sets the attributes of the tick
 
     main =
         plot
             []
             [ xAxis
                 [ tickConfigView
-                    [ tickStyle [ ( Svg.Attributes.stroke "blue" ) ] ]
+                    [ tickAttributes [ ( Svg.Attributes.stroke "blue" ) ] ]
                 ]
             ]
 -}
-tickStyle : Style msg -> TickViewConfig msg -> TickViewConfig msg
-tickStyle style config =
-    { config | style = style }
+tickAttributes : Attributes msg -> TickViewConfig msg -> TickViewConfig msg
+tickAttributes attributes config =
+    { config | attributes = attributes }
 
 
 toTickView : List (TickViewAttr msg) -> TickView msg
@@ -325,7 +325,7 @@ toTickViewDynamic toTickConfig =
 type alias LabelViewConfig msg =
     { displace : Maybe ( Int, Int )
     , format : Int -> Float -> String
-    , style : Style msg
+    , attributes : Attributes msg
     , classes : List String
     }
 
@@ -353,7 +353,7 @@ defaultLabelViewConfig : LabelViewConfig msg
 defaultLabelViewConfig =
     { displace = Nothing
     , format = (\_ -> toString)
-    , style = []
+    , attributes = []
     , classes = []
     }
 
@@ -432,13 +432,13 @@ labelFormatIndexed format config =
             []
             [ xAxis
                 [ labelConfigView
-                    [ labelStyle [ (Svg.Attributes.stroke "blue" ) ] ]
+                    [ labelAttributes [ (Svg.Attributes.stroke "blue" ) ] ]
                 ]
             ]
 -}
-labelStyle : Style msg -> LabelViewConfig msg -> LabelViewConfig msg
-labelStyle style config =
-    { config | style = style }
+labelAttributes : Attributes msg -> LabelViewConfig msg -> LabelViewConfig msg
+labelAttributes attributes config =
+    { config | attributes = attributes }
 
 
 toLabelView : List (LabelViewAttr msg) -> LabelView msg
@@ -460,9 +460,9 @@ type alias AxisConfig msg =
     , tickView : TickView msg
     , labelValues : LabelValues
     , labelView : LabelView msg
-    , axisLineStyle : Style msg
+    , axisLineAttributes : Attributes msg
     , axisCrossing : Bool
-    , style : Style msg
+    , attributes : Attributes msg
     , classes : List String
     , orientation : Orientation
     }
@@ -479,27 +479,27 @@ defaultAxisConfig =
     , tickView = defaultTickView defaultTickViewConfig
     , labelValues = LabelCustomFilter (\a b -> True)
     , labelView = defaultLabelView defaultLabelViewConfig
-    , style = []
+    , attributes = []
     , classes = []
-    , axisLineStyle = []
+    , axisLineAttributes = []
     , axisCrossing = False
     , orientation = X
     }
 
 
-{-| Add style to the container holding your axis. Most properties are
+{-| Add attributes to the container holding your axis. Most properties are
  conveniently inherited by your ticks and labels.
 
     main =
         plot
             []
-            [ xAxis [ axisStyle [ ( Svg.Attributes.stroke "red" ) ] ] ]
+            [ xAxis [ axisAttributes [ ( Svg.Attributes.stroke "red" ) ] ] ]
 
  Default: `[]`
 -}
-axisStyle : Style msg -> AxisConfig msg -> AxisConfig msg
-axisStyle style config =
-    { config | style = style }
+axisAttributes : Attributes msg -> AxisConfig msg -> AxisConfig msg
+axisAttributes attributes config =
+    { config | attributes = attributes }
 
 
 {-| Add classes to the container holding your axis.
@@ -521,13 +521,13 @@ axisClasses classes config =
     main =
         plot
             []
-            [ xAxis [ axisLineStyle [ ( Svg.Attributes.stroke "blue" ) ] ] ]
+            [ xAxis [ axisLineAttributes [ ( Svg.Attributes.stroke "blue" ) ] ] ]
 
  Default: `[]`
 -}
-axisLineStyle : Style msg -> AxisConfig msg -> AxisConfig msg
-axisLineStyle style config =
-    { config | axisLineStyle = style }
+axisLineAttributes : Attributes msg -> AxisConfig msg -> AxisConfig msg
+axisLineAttributes attributes config =
+    { config | axisLineAttributes = attributes }
 
 
 {-| Defines what ticks will be shown on the axis by specifying a list of values.
@@ -570,13 +570,13 @@ tickDelta delta config =
                 [ tickConfigView
                     [ tickLength 10
                     , tickWidth 2
-                    , tickStyle [ ( Svg.Attributes.stroke "red" ) ]
+                    , tickAttributes [ ( Svg.Attributes.stroke "red" ) ]
                     ]
                 ]
             ]
 
  If you do not define another view configuration,
- the default will be `[ tickLength 7, tickWidth 1, tickStyle [] ]`
+ the default will be `[ tickLength 7, tickWidth 1, tickAttributes [] ]`
 
  **Note:** If in the list of axis attributes, this attribute is followed by a
  `tickCustomView`, `tickConfigViewFunc` or a `tickCustomViewIndexed` attribute,
@@ -593,11 +593,11 @@ tickConfigView tickAttrs config =
     toTickConfig index tick =
         if isOdd index then
             [ tickLength 7
-            , tickStyle [ ( Svg.Attributes.stroke "#e4e3e3" ) ]
+            , tickAttributes [ ( Svg.Attributes.stroke "#e4e3e3" ) ]
             ]
         else
             [ tickLength 10
-            , tickStyle [ ( Svg.Attributes.stroke "#b9b9b9" ) ]
+            , tickAttributes [ ( Svg.Attributes.stroke "#b9b9b9" ) ]
             ]
 
     main =
@@ -821,7 +821,7 @@ type GridValues
 
 type alias GridConfig msg =
     { values : GridValues
-    , style : Style msg
+    , attributes : Attributes msg
     , classes : List String
     , orientation : Orientation
     }
@@ -835,7 +835,7 @@ type alias GridAttr msg =
 
 defaultGridConfig =
     { values = GridMirrorTicks
-    , style = []
+    , attributes = []
     , classes = []
     , orientation = X
     }
@@ -870,22 +870,22 @@ gridValues values config =
     { config | values = GridCustomValues values }
 
 
-{-| Specify styles for the gridlines.
+{-| Specify attributes for the gridlines.
 
     plot
         []
         [ verticalGrid
             [ gridMirrorTicks
-            , gridStyle myGridStyles
+            , gridAttributes myGridAttributess
             ]
         ]
 
  Remember that if you do not specify either `gridMirrorTicks`
  or `gridValues`, then we will default to not showing any grid lines.
 -}
-gridStyle : Style msg -> GridConfig msg -> GridConfig msg
-gridStyle style config =
-    { config | style = style }
+gridAttributes : Attributes msg -> GridConfig msg -> GridConfig msg
+gridAttributes attributes config =
+    { config | attributes = attributes }
 
 
 {-| Specify classes for the grid.
@@ -931,7 +931,7 @@ verticalGrid attrs =
 
 
 type alias ScatterConfig msg =
-    { style : Style msg
+    { attributes : Attributes msg
     , points : List Point
     , radius : Float
     }
@@ -943,21 +943,21 @@ type alias ScatterAttr msg =
     ScatterConfig msg -> ScatterConfig msg
 
 
-defaultScatterConfig : { style : List a, points : List b, radius : Float }
+defaultScatterConfig : { attributes : List a, points : List b, radius : Float }
 defaultScatterConfig =
-    { style = []
+    { attributes = []
     , points = []
     , radius = 5
     }
 
 
-{-| Add styles to your scatter series
+{-| Add attributes to your scatter series
 
     main =
         plot
             []
             [ scatter
-                [ scatterStyle
+                [ scatterAttributes
                     [ ( Svg.Attributes.stroke "deeppink" )
                     , ( Svg.Attributes.opacity "0.5" ) ]
                     ]
@@ -966,9 +966,9 @@ defaultScatterConfig =
                 scatterDataPoints
             ]
 -}
-scatterStyle : Style msg -> ScatterConfig msg -> ScatterConfig msg
-scatterStyle style config =
-    { config | style = style }
+scatterAttributes : Attributes msg -> ScatterConfig msg -> ScatterConfig msg
+scatterAttributes attributes config =
+    { config | attributes = attributes }
 
 
 {-| Add a radius to your scatter circles
@@ -977,7 +977,7 @@ scatterStyle style config =
         plot
             []
             [ scatter
-                [ scatterStyle
+                [ scatterAttributes
                     [ ( Svg.Attributes.stroke "deeppink" )
                     , ( Svg.Attributes.opacity "0.5" ) ]
                     ]
@@ -1010,7 +1010,7 @@ scatter attrs points =
 
 
 type alias AreaConfig msg =
-    { style : Style msg
+    { attributes : Attributes msg
     , points : List Point
     }
 
@@ -1022,18 +1022,18 @@ type alias AreaAttr msg =
 
 
 defaultAreaConfig =
-    { style = []
+    { attributes = []
     , points = []
     }
 
 
-{-| Add styles to your area serie.
+{-| Add attributes to your area serie.
 
     main =
         plot
             []
             [ area
-                [ areaStyle
+                [ areaAttributes
                     [ ( Svg.Attributes.fill "deeppink" )
                     , ( Svg.Attributes.stroke "deeppink" )
                     , ( Svg.Attributes.opacity "0.5" ) ]
@@ -1042,9 +1042,9 @@ defaultAreaConfig =
                 areaDataPoints
             ]
 -}
-areaStyle : Style msg -> AreaConfig msg -> AreaConfig msg
-areaStyle style config =
-    { config | style = style }
+areaAttributes : Attributes msg -> AreaConfig msg -> AreaConfig msg
+areaAttributes attributes config =
+    { config | attributes = attributes }
 
 
 {-| This returns an area element resulting in an area serie rendered in your plot.
@@ -1066,13 +1066,13 @@ area attrs points =
 
 
 type alias LineConfig msg =
-    { style : Style msg
+    { attributes : Attributes msg
     , points : List Point
     }
 
 
 defaultLineConfig =
-    { style = []
+    { attributes = []
     , points = []
     }
 
@@ -1083,19 +1083,19 @@ type alias LineAttr msg =
     LineConfig msg -> LineConfig msg
 
 
-{-| Add styles to your line serie.
+{-| Add attributes to your line serie.
 
     main =
         plot
             []
             [ line
-                [ lineStyle [ ( Svg.Attributes.fill "deeppink" ) ] ]
+                [ lineAttributes [ ( Svg.Attributes.fill "deeppink" ) ] ]
                 lineDataPoints
             ]
 -}
-lineStyle : Style msg -> LineConfig msg -> LineConfig msg
-lineStyle style config =
-    { config | style = (Svg.Attributes.fill "transparent") :: style }
+lineAttributes : Attributes msg -> LineConfig msg -> LineConfig msg
+lineAttributes attributes config =
+    { config | attributes = (Svg.Attributes.fill "transparent") :: attributes }
 
 
 {-| This returns a line element resulting in an line serie rendered in your plot.
@@ -1142,7 +1142,7 @@ parsePlot attr elements =
 
 
 viewPlot : MetaConfig msg -> List (Svg.Svg msg) -> Svg.Svg msg
-viewPlot { size, style, classes } children =
+viewPlot { size, attributes, classes } children =
     let
         ( width, height ) =
             size
@@ -1152,7 +1152,7 @@ viewPlot { size, style, classes } children =
              , Svg.Attributes.width (toString width)
              , Svg.Attributes.class (String.join " " classes)
              ]
-                ++ style
+                ++ attributes
             )
             children
 
@@ -1244,7 +1244,7 @@ indexTicks ticks =
 
 
 viewAxis : PlotProps -> AxisConfig msg -> Svg.Svg msg
-viewAxis plotProps { toTickValues, tickView, labelView, labelValues, style, classes, axisLineStyle, axisCrossing, orientation } =
+viewAxis plotProps { toTickValues, tickView, labelView, labelValues, attributes, classes, axisLineAttributes, axisCrossing, orientation } =
     let
         { scale, oppositeScale, toSvgCoords, oppositeToSvgCoords } =
             plotProps
@@ -1263,11 +1263,11 @@ viewAxis plotProps { toTickValues, tickView, labelView, labelValues, style, clas
                     List.filter (\( a, b ) -> filter a b) tickPositions
     in
         Svg.g
-            (style
+            (attributes
                 ++ [ Svg.Attributes.class (String.join " " classes)
                    ]
             )
-            [ viewGridLine toSvgCoords scale axisLineStyle 0
+            [ viewGridLine toSvgCoords scale axisLineAttributes 0
             , Svg.g [] (List.map (placeTick plotProps (tickView orientation)) tickPositions)
             , Svg.g [] (List.map (placeTick plotProps (labelView orientation)) labelPositions)
             ]
@@ -1279,16 +1279,16 @@ placeTick { toSvgCoords } view ( index, tick ) =
 
 
 defaultTickView : TickViewConfig msg -> Orientation -> Int -> Float -> Svg.Svg msg
-defaultTickView { length, width, style, classes } orientation _ _ =
+defaultTickView { length, width, attributes, classes } orientation _ _ =
     let
         displacement =
             (?) orientation "" (toRotate 90 0 0)
 
-        styleFinal =
-            style ++ [ (Svg.Attributes.strokeWidth ((toString width) ++ "px")) ]
+        attributesFinal =
+            attributes ++ [ Svg.Attributes.strokeWidth ((toString width) ++ "px") ]
     in
         Svg.line
-            (styleFinal
+            (attributesFinal
                 ++ [ Svg.Attributes.y2 (toString length)
                    , Svg.Attributes.transform displacement
                    , Svg.Attributes.class (String.join " " classes)
@@ -1306,27 +1306,27 @@ defaultTickViewDynamic toTickAttrs orientation index float =
         tickView orientation index float
 
 
-defaultLabelStyleX : ( Style msg, ( Int, Int ) )
-defaultLabelStyleX =
-    ( [ (Svg.Attributes.textAnchor "middle") ], ( 0, 24 ) )
+defaultLabelAttributesX : ( Attributes msg, ( Int, Int ) )
+defaultLabelAttributesX =
+    ( [ Svg.Attributes.textAnchor "middle" ], ( 0, 24 ) )
 
 
-defaultLabelStyleY : ( Style msg, ( Int, Int ) )
-defaultLabelStyleY =
-    ( [ (Svg.Attributes.textAnchor "end") ], ( -10, 5 ) )
+defaultLabelAttributesY : ( Attributes msg, ( Int, Int ) )
+defaultLabelAttributesY =
+    ( [ Svg.Attributes.textAnchor "end" ], ( -10, 5 ) )
 
 
 defaultLabelView : LabelViewConfig msg -> Orientation -> Int -> Float -> Svg.Svg msg
-defaultLabelView { displace, format, style, classes } orientation index tick =
+defaultLabelView { displace, format, attributes, classes } orientation index tick =
     let
-        ( defaultStyle, defaultDisplacement ) =
-            (?) orientation defaultLabelStyleX defaultLabelStyleY
+        ( defaultAttributes, defaultDisplacement ) =
+            (?) orientation defaultLabelAttributesX defaultLabelAttributesY
 
         ( dx, dy ) =
             Maybe.withDefault defaultDisplacement displace
     in
         Svg.text_
-            ((defaultStyle ++ style)
+            ((defaultAttributes ++ attributes)
                 ++ [ Svg.Attributes.transform (toTranslate ( toFloat dx, toFloat dy ))
                    , Svg.Attributes.class (String.join " " classes)
                    ]
@@ -1358,18 +1358,18 @@ getGridPositions tickValues values =
 
 
 viewGrid : PlotProps -> GridConfig msg -> Svg.Svg msg
-viewGrid { scale, toSvgCoords, oppositeTicks } { values, style, classes } =
+viewGrid { scale, toSvgCoords, oppositeTicks } { values, attributes, classes } =
     let
         positions =
             getGridPositions oppositeTicks values
     in
         Svg.g
             [ Svg.Attributes.class (String.join " " classes) ]
-            (List.map (viewGridLine toSvgCoords scale style) positions)
+            (List.map (viewGridLine toSvgCoords scale attributes) positions)
 
 
-viewGridLine : (Point -> Point) -> AxisScale -> Style msg -> Float -> Svg.Svg msg
-viewGridLine toSvgCoords scale style position =
+viewGridLine : (Point -> Point) -> AxisScale -> Attributes msg -> Float -> Svg.Svg msg
+viewGridLine toSvgCoords scale attributes position =
     let
         { lowest, highest } =
             scale
@@ -1381,7 +1381,7 @@ viewGridLine toSvgCoords scale style position =
             toSvgCoords ( highest, position )
 
         attrs =
-            style ++ (toPositionAttr x1 y1 x2 y2)
+            attributes ++ (toPositionAttr x1 y1 x2 y2)
     in
         Svg.line attrs []
 
@@ -1391,7 +1391,7 @@ viewGridLine toSvgCoords scale style position =
 
 
 viewArea : PlotProps -> AreaConfig msg -> Svg.Svg msg
-viewArea { toSvgCoords } { points, style } =
+viewArea { toSvgCoords } { points, attributes } =
     let
         range =
             List.map Tuple.first points
@@ -1418,18 +1418,18 @@ viewArea { toSvgCoords } { points, style } =
             coordToInstruction "L" svgCoords
     in
         Svg.path
-            (style ++ [ Svg.Attributes.d (startInstruction ++ instructions ++ endInstructions ++ "Z") ])
+            (attributes ++ [ Svg.Attributes.d (startInstruction ++ instructions ++ endInstructions ++ "Z") ])
             []
 
 
 viewScatter : PlotProps -> ScatterConfig msg -> Svg.Svg msg
-viewScatter { toSvgCoords } { points, style, radius } =
+viewScatter { toSvgCoords } { points, attributes, radius } =
     let
         svgPoints =
             List.map toSvgCoords points
     in
         Svg.g
-            style
+            attributes
             (List.map (toSvgCircle radius) svgPoints)
 
 
@@ -1448,7 +1448,7 @@ toSvgCircle radius point =
 
 
 viewLine : PlotProps -> LineConfig msg -> Svg.Svg msg
-viewLine { toSvgCoords } { points, style } =
+viewLine { toSvgCoords } { points, attributes } =
     let
         svgPoints =
             List.map toSvgCoords points
@@ -1460,7 +1460,7 @@ viewLine { toSvgCoords } { points, style } =
             coordToInstruction "L" svgPoints
     in
         Svg.path
-            (style
+            (attributes
                 ++ [ Svg.Attributes.d (startInstruction ++ instructions) ]
             )
             []

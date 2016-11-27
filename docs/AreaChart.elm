@@ -1,7 +1,7 @@
 module AreaChart exposing (chart, code)
 
 import Svg
-import Svg.Attributes
+import Svg.Attributes exposing (stroke, fill)
 import Plot exposing (..)
 import Colors
 
@@ -15,8 +15,8 @@ chart : Svg.Svg a
 chart =
     plot
         [ size ( 600, 250 ) ]
-        [ area [ areaStyle [ (Svg.Attributes.stroke Colors.blueStroke), (Svg.Attributes.fill Colors.blueFill) ] ] data
-        , xAxis [ axisStyle [ (Svg.Attributes.stroke Colors.axisColor) ] ]
+        [ area [ areaAttributes [ stroke Colors.blueStroke, fill Colors.blueFill ] ] data
+        , xAxis [ axisAttributes [ stroke Colors.axisColor ] ]
         ]
 
 
@@ -27,13 +27,7 @@ code =
     chart =
         plot
             [ size ( 600, 250 ) ]
-            [ area
-                [ areaStyle
-                    [ ( Svg.Attributes.stroke Colors.blueStroke )
-                    , ( Svg.Attributes.fill Colors.blueFill )
-                    ]
-                ]
-                data
-            , xAxis [ axisStyle [ ( Svg.Attributes.stroke Colors.axisColor ) ] ]
+            [ area [ areaAttributes [ stroke Colors.blueStroke, fill Colors.blueFill ] ] data
+            , xAxis [ axisAttributes [ stroke Colors.axisColor ] ]
             ]
     """

@@ -1,7 +1,7 @@
 module MultiLineChart exposing (chart, code)
 
 import Svg
-import Svg.Attributes
+import Svg.Attributes exposing (stroke, strokeWidth)
 import Plot exposing (..)
 import Colors
 
@@ -20,10 +20,10 @@ chart : Svg.Svg a
 chart =
     plot
         [ size ( 600, 250 ) ]
-        [ line [ lineStyle [ (Svg.Attributes.stroke Colors.blueStroke), (Svg.Attributes.strokeWidth "2px") ] ] data2
-        , line [ lineStyle [ (Svg.Attributes.stroke Colors.pinkStroke), (Svg.Attributes.strokeWidth "2px") ] ] data1
+        [ line [ lineAttributes [ stroke Colors.blueStroke, strokeWidth "2px" ] ] data2
+        , line [ lineAttributes [ stroke Colors.pinkStroke, strokeWidth "2px" ] ] data1
         , xAxis
-            [ axisStyle [ (Svg.Attributes.stroke Colors.axisColor) ]
+            [ axisAttributes [ (stroke Colors.axisColor) ]
             ]
         ]
 
@@ -35,21 +35,21 @@ code =
         plot
             [ size ( 600, 250 ) ]
             [ line
-                [ lineStyle
-                    [ ( Svg.Attributes.stroke Colors.blueStroke )
-                    , ( Svg.Attributes.strokeWidth "2px" )
+                [ lineAttributes
+                    [ stroke Colors.blueStroke
+                    , strokeWidth "2px"
                     ]
                 ]
                 data2
             , line
-                [ lineStyle
-                    [ ( Svg.Attributes.stroke Colors.pinkStroke )
-                    , ( Svg.Attributes.strokeWidth "2px" )
+                [ lineAttributes
+                    [ stroke Colors.pinkStroke
+                    , strokeWidth "2px"
                     ]
                 ]
                 data1
             , xAxis
-                [ axisStyle [ ( Svg.Attributes.stroke Colors.axisColor ) ]
+                [ axisAttributes [ stroke Colors.axisColor ]
                 ]
             ]
     """

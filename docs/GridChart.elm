@@ -1,7 +1,7 @@
 module GridChart exposing (chart, code)
 
 import Svg
-import Svg.Attributes
+import Svg.Attributes exposing (stroke, strokeWidth)
 import Plot exposing (..)
 import Colors
 
@@ -17,15 +17,15 @@ chart =
         [ size ( 600, 250 ), padding ( 0, 40 ) ]
         [ verticalGrid
             [ gridMirrorTicks
-            , gridStyle [ (Svg.Attributes.stroke Colors.axisColorLight) ]
+            , gridAttributes [ stroke Colors.axisColorLight ]
             ]
         , horizontalGrid
             [ gridValues [ 10, 20, 30, 40 ]
-            , gridStyle [ (Svg.Attributes.stroke Colors.axisColorLight) ]
+            , gridAttributes [ (stroke Colors.axisColorLight) ]
             ]
         , xAxis
-            [ axisStyle [ (Svg.Attributes.stroke Colors.axisColor) ] ]
-        , line [ lineStyle [ (Svg.Attributes.stroke Colors.blueStroke), (Svg.Attributes.strokeWidth "2px") ] ] data
+            [ axisAttributes [ (stroke Colors.axisColor) ] ]
+        , line [ lineAttributes [ stroke Colors.blueStroke, strokeWidth "2px" ] ] data
         ]
 
 
@@ -37,18 +37,18 @@ code =
             [ size ( 600, 250 ), padding ( 0, 40 ) ]
             [ verticalGrid
                 [ gridMirrorTicks
-                , gridStyle [ ( Svg.Attributes.stroke Colors.axisColorLight ) ]
+                , gridAttributes [ stroke Colors.axisColorLight ]
                 ]
             , horizontalGrid
                 [ gridValues [ 10, 20, 30, 40 ]
-                , gridStyle [ ( Svg.Attributes.stroke Colors.axisColorLight ) ]
+                , gridAttributes [ stroke Colors.axisColorLight ]
                 ]
             , xAxis
-                [ axisStyle [ ( Svg.Attributes.stroke Colors.axisColor ) ] ]
+                [ axisAttributes [ stroke Colors.axisColor ] ]
             , line
-                [ lineStyle
-                    [ ( Svg.Attributes.stroke Colors.blueStroke )
-                    , ( Svg.Attributes.strokeWidth "2px" )
+                [ lineAttributes
+                    [ stroke Colors.blueStroke
+                    , strokeWidth "2px"
                     ]
                 ]
                 data

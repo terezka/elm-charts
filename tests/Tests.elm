@@ -28,14 +28,14 @@ baseMetaConfig =
     { size = ( 800, 500 )
     , padding = ( 0, 0 )
     , classes = []
-    , style = [ (Svg.Attributes.style "padding: 30px;"), ( stroke "#000" ) ]
+    , attributes = [ style "padding: 30px;", stroke "#000" ]
     }
 
 
 baseTickViewConfig =
     { length = 7
     , width = 1
-    , style = []
+    , attributes = []
     , classes = []
     }
 
@@ -74,8 +74,8 @@ testPlotStyle =
     [ test "should return a valid metaConfig " <|
         \() ->
           let
-            result = plotStyle [Svg.Attributes.r "5"] baseMetaConfig
-            expected = { baseMetaConfig | style = append [Svg.Attributes.r "5"] baseMetaConfig.style }
+            result = plotAttributes [Svg.Attributes.r "5"] baseMetaConfig
+            expected = { baseMetaConfig | attributes = append [Svg.Attributes.r "5"] baseMetaConfig.attributes }
           in
           Expect.equal result expected
     ]
@@ -143,8 +143,8 @@ testTickStyle =
     [ test "should return a valid viewConfig" <|
         \() ->
           let
-            result = tickStyle [Svg.Attributes.r "5"] baseTickViewConfig
-            expected = { baseTickViewConfig | style = [Svg.Attributes.r "5"] }
+            result = tickAttributes [Svg.Attributes.r "5"] baseTickViewConfig
+            expected = { baseTickViewConfig | attributes = [Svg.Attributes.r "5"] }
           in
           Expect.equal result expected
     ]

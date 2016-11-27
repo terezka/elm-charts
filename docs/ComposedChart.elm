@@ -1,7 +1,7 @@
 module ComposedChart exposing (chart, code)
 
 import Svg
-import Svg.Attributes
+import Svg.Attributes exposing (stroke, strokeWidth, fill, fontSize, opacity)
 import Plot exposing (..)
 import Debug
 import Colors
@@ -25,59 +25,59 @@ filterLabels index _ =
 toTickConfig : Int -> Float -> List (TickViewAttr msg)
 toTickConfig index tick =
     if isOdd index then
-        [ tickLength 7, tickStyle [ (Svg.Attributes.stroke "#c7c7c7") ] ]
+        [ tickLength 7, tickAttributes [ stroke "#c7c7c7" ] ]
     else
-        [ tickLength 10, tickStyle [ (Svg.Attributes.stroke "#b9b9b9") ] ]
+        [ tickLength 10, tickAttributes [ stroke "#b9b9b9" ] ]
 
 
-customLabelStyle : List (Svg.Attribute msg)
-customLabelStyle =
-    [ (Svg.Attributes.stroke "#969696"), (Svg.Attributes.fontSize "12px") ]
+customLabelAttributes : List (Svg.Attribute msg)
+customLabelAttributes =
+    [ stroke "#969696", fontSize "12px" ]
 
 
 chart : Svg.Svg a
 chart =
     plot
         [ size ( 600, 350 ), padding ( 40, 40 ) ]
-        [ horizontalGrid [ gridMirrorTicks, gridStyle [ (Svg.Attributes.stroke "#f2f2f2") ] ]
+        [ horizontalGrid [ gridMirrorTicks, gridAttributes [ stroke "#f2f2f2" ] ]
         , area
-            [ areaStyle
-                [ (Svg.Attributes.stroke Colors.skinStroke)
-                , (Svg.Attributes.fill Colors.skinFill)
-                , (Svg.Attributes.opacity "0.5")
+            [ areaAttributes
+                [ stroke Colors.skinStroke
+                , fill Colors.skinFill
+                , opacity "0.5"
                 ]
             ]
             (List.map (\( x, y ) -> ( x, y * 2.1 )) data1)
         , area
-            [ areaStyle
-                [ (Svg.Attributes.stroke Colors.blueStroke)
-                , (Svg.Attributes.fill Colors.blueFill)
+            [ areaAttributes
+                [ stroke Colors.blueStroke
+                , fill Colors.blueFill
                 ]
             ]
             data1
         , line
-            [ lineStyle
-                [ (Svg.Attributes.stroke Colors.pinkStroke)
-                , (Svg.Attributes.strokeWidth "2px")
+            [ lineAttributes
+                [ stroke Colors.pinkStroke
+                , strokeWidth "2px"
                 ]
             ]
             (List.map (\( x, y ) -> ( x, y * 3 )) data1)
         , yAxis
-            [ axisStyle [ (Svg.Attributes.stroke "#b9b9b9") ]
+            [ axisAttributes [ stroke "#b9b9b9" ]
             , tickRemoveZero
             , tickDelta 50
             , labelConfigView
                 [ labelFormat (\l -> toString l ++ " °C")
-                , labelStyle customLabelStyle
+                , labelAttributes customLabelAttributes
                 ]
             ]
         , xAxis
-            [ axisStyle [ (Svg.Attributes.stroke "#b9b9b9") ]
+            [ axisAttributes [ stroke "#b9b9b9" ]
             , tickRemoveZero
             , tickConfigViewFunc toTickConfig
             , labelConfigView
                 [ labelFormat (\l -> toString l ++ " t")
-                , labelStyle customLabelStyle
+                , labelAttributes customLabelAttributes
                 ]
             , labelFilter filterLabels
             ]
@@ -99,14 +99,14 @@ code =
     toTickConfig : Int -> Float -> List TickViewAttr
     toTickConfig index tick =
         if isOdd index then
-            [ tickLength 7, tickStyle [ ( Svg.Attributes.stroke "#c7c7c7" ) ] ]
+            [ tickLength 7, tickAttributes [ stroke "#c7c7c7" ] ]
         else
-            [ tickLength 10, tickStyle [ ( Svg.Attributes.stroke "#b9b9b9" ) ] ]
+            [ tickLength 10, tickAttributes [ stroke "#b9b9b9" ] ]
 
 
-    customLabelStyle : List ( String, String )
-    customLabelStyle =
-        [ ( Svg.Attributes.stroke "#969696" ), ( Svg.Attributes.fontSize "12px" ) ]
+    customLabelAttributes : List ( String, String )
+    customLabelAttributes =
+        [ stroke "#969696", fontSize "12px" ]
 
 
     chart : Svg.Svg a
@@ -115,46 +115,46 @@ code =
             [ size ( 600, 350 ), padding ( 40, 40 ) ]
             [ horizontalGrid
                 [ gridMirrorTicks
-                , gridStyle [ ( Svg.Attributes.stroke "#f2f2f2" ) ]
+                , gridAttributes [ stroke "#f2f2f2" ]
                 ]
             , area
-                [ areaStyle
-                    [ ( Svg.Attributes.stroke Colors.skinStroke )
-                    , ( Svg.Attributes.fill Colors.skinFill )
-                    , ( Svg.Attributes.opacity "0.5" )
+                [ areaAttributes
+                    [ stroke Colors.skinStroke
+                    , fill Colors.skinFill
+                    , opacity "0.5"
                     ]
                 ]
                 data1
             , area
-                [ areaStyle
-                    [ ( Svg.Attributes.stroke Colors.blueStroke )
-                    , ( Svg.Attributes.fill Colors.blueFill )
+                [ areaAttributes
+                    [ stroke Colors.blueStroke
+                    , fill Colors.blueFill
                     ]
                 ]
                 data2
             , line
-                [ lineStyle
-                    [ ( Svg.Attributes.stroke Colors.pinkStroke )
-                    , ( Svg.Attributes.strokeWidth "2px" )
+                [ lineAttributes
+                    [ stroke Colors.pinkStroke
+                    , strokeWidth "2px"
                     ]
                 ]
                 data3
             , yAxis
-                [ axisStyle [ ( Svg.Attributes.stroke "#b9b9b9" ) ]
+                [ axisAttributes [ stroke "#b9b9b9" ]
                 , tickRemoveZero
                 , tickDelta 50
                 , labelConfigView
                     [ labelFormat (\\l -> toString l ++ " °C")
-                    , labelStyle customLabelStyle
+                    , labelAttributes customLabelAttributes
                     ]
                 ]
             , xAxis
-                [ axisStyle [ ( Svg.Attributes.stroke "#b9b9b9" ) ]
+                [ axisAttributes [ stroke "#b9b9b9" ]
                 , tickRemoveZero
                 , tickConfigViewFunc toTickConfig
                 , labelConfigView
                     [ labelFormat (\\l -> toString l ++ " t")
-                    , labelStyle customLabelStyle
+                    , labelAttributes customLabelAttributes
                     ]
                 , labelFilter filterLabels
                 ]
