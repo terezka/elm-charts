@@ -1,14 +1,20 @@
 module Plot
     exposing
-        ( base
-        , baseStatic
+        ( plot
+        , plotStatic
         , xAxis
         , yAxis
         , verticalGrid
         , horizontalGrid
-        , tooltip
+        , hint
         , area
         , line
+        , classes
+        , id
+        , margin
+        , padding
+        , size
+        , style
         , Element
         , initialState
         , update
@@ -22,7 +28,7 @@ module Plot
  It is insprired by the elm-html api, using the `element attrs children` pattern.
 
 # Elements
-@docs Element, base, baseStatic, line, area, xAxis, yAxis, tooltip, verticalGrid, horizontalGrid
+@docs Element, plot, plotStatic, line, area, xAxis, yAxis, hint, verticalGrid, horizontalGrid, classes, id, margin, padding, size, style
 
 # Configuration
 
@@ -47,24 +53,116 @@ import Dom.Position
 import Round
 import Debug
 import Helpers exposing (..)
-import Element exposing (Element(..))
-
 import Plot.Types exposing (..)
-import Plot.Base as Base
 import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Grid as Grid
-import Plot.Grid.Config as GridConfig
-import Plot.Grid.View as GridView
 import Plot.Area as Area
 import Plot.Line as Line
-import Plot.Tooltip as Tooltip
+import Plot.Hint as Hint
+import Internal.Grid as GridInternal
+import Internal.Axis as AxisInternal
+import Internal.Area as AreaInternal
+import Internal.Line as LineInternal
+import Internal.Tick as TickInternal
+import Internal.Hint as HintInternal
 
 
 {-| Represents child element of the plot.
 -}
 type Element msg
-    = Element (Element.Element msg)
+    = Line LineInternal.Config (List Point)
+    | Area AreaInternal.Config (List Point)
+    | Hint (HintInternal.Config msg) (Maybe Point)
+    | Axis (AxisInternal.Config msg)
+    | Grid GridInternal.Config
+
+
+type alias Config =
+    { size : ( Float, Float )
+    , padding : ( Float, Float )
+    , margin : ( Float, Float, Float, Float )
+    , classes : List String
+    , style : Style
+    , id : String
+    }
+
+
+defaultConfig : Config
+defaultConfig =
+    { size = ( 800, 500 )
+    , padding = ( 0, 0 )
+    , margin = ( 0, 0, 0, 0 )
+    , classes = []
+    , style = [ ( "padding", "0" ), ( "stroke", "#000" ) ]
+    , id = "elm-plot"
+    }
+
+
+{-| The type representing an a meta configuration.
+-}
+type alias Attribute =
+    Config -> Config
+
+
+{-| Add padding to your plot, meaning extra space below
+ and above the lowest and highest point in your plot.
+ The unit is pixels.
+
+ Default: `( 0, 0 )`
+-}
+padding : ( Int, Int ) -> Attribute
+padding ( bottom, top ) config =
+    { config | padding = ( toFloat bottom, toFloat top ) }
+
+
+{-| Specify the size of your plot in pixels.
+
+ Default: `( 800, 500 )`
+-}
+size : ( Int, Int ) -> Attribute
+size ( width, height ) config =
+    { config | size = ( toFloat width, toFloat height ) }
+
+
+{-| Specify margin around the plot. Useful when your ticks are outside the
+ plot and you would like to add space to see them! Values are in pixels and
+ in the format of ( top, right, bottom, left ).
+
+ Default: `( 0, 0, 0, 0 )`
+-}
+margin : ( Int, Int, Int, Int ) -> Attribute
+margin ( t, r, b, l ) config =
+    { config | margin = ( toFloat t, toFloat r, toFloat b, toFloat l ) }
+
+
+{-| Add styles to the svg element.
+
+ Default: `[ ( "padding", "30px" ), ( "stroke", "#000" ) ]`
+-}
+style : Style -> Attribute
+style style config =
+    { config | style = defaultConfig.style ++ style ++ [ ( "padding", "0" ) ] }
+
+
+{-| Add classes to the svg element.
+
+ Default: `[]`
+-}
+classes : List String -> Attribute
+classes classes config =
+    { config | classes = classes }
+
+
+{-| An id to the svg element.
+
+ **Note:** If you have more than one plot in your DOM,
+ then you most provide a unique id using this attribute for
+ the hint to work!
+-}
+id : String -> Attribute
+id id config =
+    { config | id = id }
 
 
 {-| This returns an axis element resulting in an x-axis being rendered in your plot.
@@ -74,7 +172,7 @@ type Element msg
 -}
 xAxis : List (Axis.Attribute msg) -> Element msg
 xAxis attrs =
-    Element <| Axis (List.foldl (<|) Axis.defaultConfigX attrs)
+    Axis (List.foldl (<|) AxisInternal.defaultConfigX attrs)
 
 
 {-| This returns an axis element resulting in an y-axis being rendered in your plot.
@@ -84,7 +182,7 @@ xAxis attrs =
 -}
 yAxis : List (Axis.Attribute msg) -> Element msg
 yAxis attrs =
-    Element <| Axis (List.foldl (<|) Axis.defaultConfigY attrs)
+    Axis (List.foldl (<|) AxisInternal.defaultConfigY attrs)
 
 
 {-| This returns an grid element resulting in vertical grid lines being rendered in your plot.
@@ -94,7 +192,7 @@ yAxis attrs =
 -}
 horizontalGrid : List Grid.Attribute -> Element msg
 horizontalGrid attrs =
-    Element <| Grid (foldConfig GridConfig.defaultConfigX attrs)
+    Grid (foldConfig GridInternal.defaultConfigX attrs)
 
 
 {-| This returns an axis element resulting in horizontal grid lines being rendered in your plot.
@@ -104,7 +202,7 @@ horizontalGrid attrs =
 -}
 verticalGrid : List Grid.Attribute -> Element msg
 verticalGrid attrs =
-    Element <| Grid (foldConfig GridConfig.defaultConfigY attrs)
+    Grid (foldConfig GridInternal.defaultConfigY attrs)
 
 
 {-| This returns an area element resulting in an area serie rendered in your plot.
@@ -114,7 +212,7 @@ verticalGrid attrs =
 -}
 area : List Area.Attribute -> List Point -> Element msg
 area attrs points =
-    Element <| Area (Area.toConfig attrs) points
+    Area (List.foldr (<|) AreaInternal.defaultConfig attrs) points
 
 
 {-| This returns a line element resulting in an line serie rendered in your plot.
@@ -124,29 +222,30 @@ area attrs points =
 -}
 line : List Line.Attribute -> List Point -> Element msg
 line attrs points =
-    Element <| Line (List.foldr (<|) Line.defaultConfig attrs) points
+    Line (List.foldr (<|) LineInternal.defaultConfig attrs) points
 
 
 {-|
 -}
-tooltip : List (Tooltip.Attribute msg) -> Maybe Point -> Element msg
-tooltip attrs position =
-    Element <| Tooltip (List.foldr (<|) Tooltip.defaultConfig attrs) position
+hint : List (Hint.Attribute msg) -> Maybe Point -> Element msg
+hint attrs position =
+    Hint (List.foldr (<|) HintInternal.defaultConfig attrs) position
 
 
 {-| This is the function processing your entire plot configuration.
  Pass your meta attributes and plot elements to this function and
  a svg plot will be returned!
 -}
-base : List Base.Attribute -> List (Element (Interaction c)) -> Svg.Svg (Interaction c)
-base attrs elements =
+plot : List Attribute -> List (Element (Interaction c)) -> Svg.Svg (Interaction c)
+plot attrs elements =
     Svg.Lazy.lazy2 parsePlot attrs elements
 
 
 {-| -}
-baseStatic : List Base.Attribute -> List (Element msg) -> Svg.Svg msg
-baseStatic attrs elements =
+plotStatic : List Attribute -> List (Element msg) -> Svg.Svg msg
+plotStatic attrs elements =
     Svg.Lazy.lazy2 parsePlotStatic attrs elements
+
 
 
 -- MODEL
@@ -205,7 +304,6 @@ update msg state =
             ( { position = Nothing, waiting = False }, Cmd.none )
 
 
-
 getPosition : Meta -> ( Float, Float ) -> Cmd (Interaction c)
 getPosition meta eventPosition =
     Task.map2
@@ -229,11 +327,11 @@ getRelativePosition { fromSvgCoords, toNearestX } ( mouseX, mouseY ) left top =
 -- VIEW
 
 
-parsePlotStatic : List Base.Attribute -> List (Element msg) -> Svg.Svg msg
+parsePlotStatic : List Attribute -> List (Element msg) -> Svg.Svg msg
 parsePlotStatic attrs elements =
     let
         metaConfig =
-            Base.toConfig attrs
+            List.foldr (<|) defaultConfig attrs
 
         meta =
             calculateMeta metaConfig elements
@@ -241,11 +339,11 @@ parsePlotStatic attrs elements =
         viewPlotStatic metaConfig meta (viewElements meta elements)
 
 
-parsePlot : List Base.Attribute -> List (Element (Interaction c)) -> Svg.Svg (Interaction c)
+parsePlot : List Attribute -> List (Element (Interaction c)) -> Svg.Svg (Interaction c)
 parsePlot attrs elements =
     let
         metaConfig =
-            Base.toConfig attrs
+            List.foldr (<|) defaultConfig attrs
 
         meta =
             calculateMeta metaConfig elements
@@ -261,7 +359,7 @@ getMousePosition meta =
         (Json.field "clientY" Json.float)
 
 
-viewPlot : Base.Config -> Meta -> ( List (Svg.Svg (Interaction c)), List (Html.Html (Interaction c)) ) -> Svg.Svg (Interaction c)
+viewPlot : Config -> Meta -> ( List (Svg.Svg (Interaction c)), List (Html.Html (Interaction c)) ) -> Svg.Svg (Interaction c)
 viewPlot { size, style, classes, margin } meta ( svgViews, htmlViews ) =
     let
         ( width, height ) =
@@ -292,8 +390,7 @@ viewPlot { size, style, classes, margin } meta ( svgViews, htmlViews ) =
                 ++ htmlViews
 
 
-
-viewPlotStatic : Base.Config -> Meta -> ( List (Svg.Svg msg), List (Html.Html msg) ) -> Svg.Svg msg
+viewPlotStatic : Config -> Meta -> ( List (Svg.Svg msg), List (Html.Html msg) ) -> Svg.Svg msg
 viewPlotStatic { size, style, classes, margin } meta ( svgViews, htmlViews ) =
     let
         ( width, height ) =
@@ -322,6 +419,7 @@ viewPlotStatic { size, style, classes, margin } meta ( svgViews, htmlViews ) =
                 ++ htmlViews
 
 
+
 -- VIEW ELEMENTS
 
 
@@ -331,24 +429,24 @@ viewElements meta elements =
 
 
 viewElement : Meta -> Element msg -> ( List (Svg.Svg msg), List (Html.Html msg) ) -> ( List (Svg.Svg msg), List (Html.Html msg) )
-viewElement meta (Element element) ( svgViews, htmlViews ) =
+viewElement meta element ( svgViews, htmlViews ) =
     case element of
         Line config points ->
-            ( (Line.view meta config points) :: svgViews, htmlViews )
+            ( (LineInternal.view meta config points) :: svgViews, htmlViews )
 
         Area config points ->
-            ( (Area.view meta config points) :: svgViews, htmlViews )
+            ( (AreaInternal.view meta config points) :: svgViews, htmlViews )
 
         Axis ({ orientation } as config) ->
-            ( (Axis.defaultView (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
+            ( (AxisInternal.defaultView (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
 
         Grid ({ orientation } as config) ->
-            ( (GridView.view (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
+            ( (GridInternal.view (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
 
-        Tooltip config position ->
+        Hint config position ->
             case position of
                 Just point ->
-                    ( svgViews, (Tooltip.view meta config point) :: htmlViews )
+                    ( svgViews, (HintInternal.view meta config point) :: htmlViews )
 
                 Nothing ->
                     ( svgViews, htmlViews )
@@ -358,7 +456,7 @@ viewElement meta (Element element) ( svgViews, htmlViews ) =
 -- CALCULATIONS
 
 
-calculateMeta : Base.Config -> List (Element msg) -> Meta
+calculateMeta : Config -> List (Element msg) -> Meta
 calculateMeta { size, padding, margin, id } elements =
     let
         ( xValues, yValues ) =
@@ -390,7 +488,7 @@ calculateMeta { size, padding, margin, id } elements =
         , ticks = xTicks
         , oppositeTicks = yTicks
         , toNearestX = toNearestX xValues
-        , getTooltipInfo = getTooltipInfo elements
+        , getHintInfo = getHintInfo elements
         , id = id
         }
 
@@ -493,13 +591,13 @@ toNearestX xValues value =
     List.foldr (getClosest value) 0 xValues
 
 
-getTooltipInfo : List (Element msg) -> Float -> TooltipInfo
-getTooltipInfo elements xValue =
-    TooltipInfo xValue <| List.foldr (collectYValues xValue) [] elements
+getHintInfo : List (Element msg) -> Float -> HintInfo
+getHintInfo elements xValue =
+    HintInfo xValue <| List.foldr (collectYValues xValue) [] elements
 
 
-getAxisConfig : Orientation -> Element msg -> Maybe (Axis.Config msg) -> Maybe (Axis.Config msg)
-getAxisConfig orientation (Element element) lastConfig =
+getAxisConfig : Orientation -> Element msg -> Maybe (AxisInternal.Config msg) -> Maybe (AxisInternal.Config msg)
+getAxisConfig orientation element lastConfig =
     case element of
         Axis config ->
             if config.orientation == orientation then
@@ -514,13 +612,13 @@ getAxisConfig orientation (Element element) lastConfig =
 getLastGetTickValues : Orientation -> List (Element msg) -> Scale -> List Float
 getLastGetTickValues orientation elements =
     List.foldl (getAxisConfig orientation) Nothing elements
-        |> Maybe.withDefault Axis.defaultConfigX
+        |> Maybe.withDefault AxisInternal.defaultConfigX
         |> .tickConfig
-        |> Tick.getValues
+        |> TickInternal.getValues
 
 
 collectPoints : Element msg -> List Point -> List Point
-collectPoints (Element element) allPoints =
+collectPoints element allPoints =
     case element of
         Area config points ->
             allPoints ++ points
@@ -533,7 +631,7 @@ collectPoints (Element element) allPoints =
 
 
 collectYValues : Float -> Element msg -> List (Maybe Float) -> List (Maybe Float)
-collectYValues xValue (Element element) yValues =
+collectYValues xValue element yValues =
     case element of
         Area config points ->
             collectYValue xValue points :: yValues

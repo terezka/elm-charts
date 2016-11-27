@@ -1,12 +1,5 @@
 module Plot.Label exposing (..)
 
-import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, TooltipInfo)
-import Plot.Tick as Tick
-import Helpers exposing (..)
-import Svg
-import Svg.Attributes
-
-
 {-|
  Attributes for altering the values and view of your axis' labels.
 
@@ -23,67 +16,23 @@ import Svg.Attributes
 @docs Attribute, StyleAttribute, ToStyleAttributes
 
 -}
-type alias Config msg =
-    { viewConfig : ViewConfig msg
-    , valueConfig : ValueConfig
-    }
 
-
-type alias StyleConfig =
-    { displace : Maybe ( Int, Int )
-    , format : Int -> Float -> String
-    , style : Style
-    , classes : List String
-    }
-
-
-type ViewConfig msg
-    = FromStyle StyleConfig
-    | FromStyleDynamic ToStyleAttributes
-    | FromCustomView (View msg)
-
-
-type ValueConfig
-    = CustomValues (List Float)
-    | CustomFilter (Int -> Float -> Bool)
-
-
-type alias View msg =
-    Orientation -> Int -> Float -> Svg.Svg msg
+import Svg
+import Plot.Types exposing (Style)
+import Plot.Tick as Tick
+import Internal.Label as Internal
 
 
 {-| The type representing a label attibute.
 -}
 type alias Attribute msg =
-    Config msg -> Config msg
+    Internal.Config msg -> Internal.Config msg
 
 
 {-| The type representing a label style attibutes.
 -}
 type alias StyleAttribute =
-    StyleConfig -> StyleConfig
-
-
-{-| The type representing function returning a list of style attibutes.
--}
-type alias ToStyleAttributes =
-    Int -> Float -> List StyleAttribute
-
-
-defaultConfig : Config msg
-defaultConfig =
-    { viewConfig = FromStyle defaultStyleConfig
-    , valueConfig = CustomFilter (\_ _ -> True)
-    }
-
-
-defaultStyleConfig : StyleConfig
-defaultStyleConfig =
-    { displace = Nothing
-    , format = (\_ -> toString)
-    , style = []
-    , classes = []
-    }
+    Internal.StyleConfig -> Internal.StyleConfig
 
 
 {-| Displaces the label.
@@ -154,14 +103,14 @@ style style config =
                 ]
             ]
 -}
-format : (Int -> Float -> String) -> StyleAttribute
+format : (( Int, Float ) -> String) -> StyleAttribute
 format format config =
     { config | format = format }
 
 
-toStyleConfig : List StyleAttribute -> StyleConfig
+toStyleConfig : List StyleAttribute -> Internal.StyleConfig
 toStyleConfig styleAttributes =
-    List.foldl (<|) defaultStyleConfig styleAttributes
+    List.foldl (<|) Internal.defaultStyleConfig styleAttributes
 
 
 {-| Provide a list of style attributes to alter the view of the label.
@@ -184,7 +133,7 @@ toStyleConfig styleAttributes =
 -}
 view : List StyleAttribute -> Attribute msg
 view styles config =
-    { config | viewConfig = FromStyle (toStyleConfig styles) }
+    { config | viewConfig = Internal.FromStyle (toStyleConfig styles) }
 
 
 {-| Alter the view of the label based on the label's value and index (amount of ticks from origin) by
@@ -211,9 +160,9 @@ view styles config =
  **Note:** If you add another attribute altering the view like `view` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
-viewDynamic : ToStyleAttributes -> Attribute msg
+viewDynamic : (( Int, Float ) -> List StyleAttribute) -> Attribute msg
 viewDynamic toStyles config =
-    { config | viewConfig = FromStyleDynamic toStyles }
+    { config | viewConfig = Internal.FromStyleDynamic (toStyleConfig << toStyles) }
 
 
 {-| Define your own view for the labels. Your view will be passed label's value and index (amount of ticks from origin).
@@ -235,9 +184,9 @@ viewDynamic toStyles config =
  **Note:** If you add another attribute altering the view like `view` or `viewDynamic` _after_ this attribute,
  then this attribute will have no effect.
 -}
-viewCustom : (Int -> Float -> Svg.Svg msg) -> Attribute msg
+viewCustom : (( Int, Float ) -> Svg.Svg msg) -> Attribute msg
 viewCustom view config =
-    { config | viewConfig = FromCustomView (always view) }
+    { config | viewConfig = Internal.FromCustomView (always view) }
 
 
 {-| Specify the values which you want a label for.
@@ -254,7 +203,7 @@ viewCustom view config =
 -}
 values : List Float -> Attribute msg
 values filter config =
-    { config | valueConfig = CustomValues filter }
+    { config | valueConfig = Internal.CustomValues filter }
 
 
 {-| Add a filter determining which of the _tick values_ are added a label.
@@ -270,69 +219,6 @@ values filter config =
  **Note:** If you add another attribute altering the values like `values` _after_ this attribute,
  then this attribute will have no effect.
 -}
-filter : (Int -> Float -> Bool) -> Attribute msg
+filter : (( Int, Float ) -> Bool) -> Attribute msg
 filter filter config =
-    { config | valueConfig = CustomFilter filter }
-
-
-
--- VIEW
-
-
-toView : ViewConfig msg -> View msg
-toView config =
-    case config of
-        FromStyle styles ->
-            defaultView styles
-
-        FromStyleDynamic toStyles ->
-            toViewFromStyleDynamic toStyles
-
-        FromCustomView view ->
-            view
-
-
-toViewFromStyleDynamic : ToStyleAttributes -> View msg
-toViewFromStyleDynamic toStyleAttributes orientation index value =
-    defaultView (toStyleConfig <| toStyleAttributes index value) orientation index value
-
-
-defaultStyleX : ( Style, ( Int, Int ) )
-defaultStyleX =
-    ( [ ( "text-anchor", "middle" ) ], ( 0, 24 ) )
-
-
-defaultStyleY : ( Style, ( Int, Int ) )
-defaultStyleY =
-    ( [ ( "text-anchor", "end" ) ], ( -10, 5 ) )
-
-
-defaultView : StyleConfig -> View msg
-defaultView { displace, format, style, classes } orientation index tick =
-    let
-        ( defaultStyle, defaultDisplacement ) =
-            (?) orientation defaultStyleX defaultStyleY
-
-        ( dx, dy ) =
-            Maybe.withDefault defaultDisplacement displace
-    in
-        Svg.text_
-            [ Svg.Attributes.transform (toTranslate ( toFloat dx, toFloat dy ))
-            , Svg.Attributes.style (toStyle (defaultStyle ++ style))
-            , Svg.Attributes.class (String.join " " classes)
-            ]
-            [ Svg.tspan [] [ Svg.text (format index tick) ] ]
-
-
-
--- resolve values
-
-
-getValuesIndexed : ValueConfig -> List ( Int, Float ) -> List ( Int, Float )
-getValuesIndexed config tickValues =
-    case config of
-        CustomValues values ->
-            Tick.indexValues values
-
-        CustomFilter filter ->
-            List.filter (\( a, b ) -> filter a b) tickValues
+    { config | valueConfig = Internal.CustomFilter filter }

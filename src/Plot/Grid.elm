@@ -1,6 +1,6 @@
 module Plot.Grid exposing (Attribute, values, mirrorTicks, style, classes)
 
-import Plot.Grid.Config as Config exposing (Config, Values(..), defaultConfigX)
+import Internal.Grid as Internal exposing (Config, Values(..), defaultConfigX)
 import Plot.Types exposing (Style)
 
 
@@ -73,4 +73,3 @@ style style config =
 classes : List String -> Attribute
 classes classes config =
     { config | classes = classes }
-

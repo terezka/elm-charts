@@ -1,6 +1,6 @@
-module Plot.Tooltip exposing (..)
+module Internal.Hint exposing (..)
 
-import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, TooltipInfo)
+import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
 import Helpers exposing (..)
 import Svg
 import Svg.Attributes
@@ -9,7 +9,7 @@ import Html.Attributes
 
 
 type alias Config msg =
-    { view : TooltipInfo -> Bool -> Html.Html msg
+    { view : HintInfo -> Bool -> Html.Html msg
     , showLine : Bool
     , lineStyle : Style
     }
@@ -23,29 +23,11 @@ defaultConfig =
     }
 
 
-{-| The type representing a tooltip configuration.
--}
-type alias Attribute msg =
-    Config msg -> Config msg
-
-
-{-| -}
-removeLine : Attribute msg
-removeLine config =
-    { config | showLine = False }
-
-
-{-| -}
-viewCustom : (TooltipInfo -> Bool -> Html.Html msg) -> Attribute msg
-viewCustom view config =
-    { config | view = view }
-
-
 view : Meta -> Config msg -> ( Float, Float ) -> Html.Html msg
-view { toSvgCoords, scale, getTooltipInfo } { showLine, view } position =
+view { toSvgCoords, scale, getHintInfo } { showLine, view } position =
     let
         info =
-            getTooltipInfo (Tuple.first position)
+            getHintInfo (Tuple.first position)
 
         ( xSvg, ySvg ) =
             toSvgCoords ( info.xValue, 0 )
@@ -60,7 +42,7 @@ view { toSvgCoords, scale, getTooltipInfo } { showLine, view } position =
                 []
     in
         Html.div
-            [ Html.Attributes.class "elm-plot__tooltip"
+            [ Html.Attributes.class "elm-plot__hint"
             , Html.Attributes.style [ ( "left", (toString xSvg) ++ "px" ) ]
             ]
             ((view info flipped) :: lineView)
@@ -69,20 +51,20 @@ view { toSvgCoords, scale, getTooltipInfo } { showLine, view } position =
 viewLine : ( Float, Float ) -> Html.Html msg
 viewLine ( x, y ) =
     Html.div
-        [ Html.Attributes.class "elm-plot__tooltip__line"
+        [ Html.Attributes.class "elm-plot__hint__line"
         , Html.Attributes.style
             [ ( "height", toString y ++ "px" ) ]
         ]
         []
 
 
-defaultView : TooltipInfo -> Bool -> Html.Html msg
+defaultView : HintInfo -> Bool -> Html.Html msg
 defaultView { xValue, yValues } isLeftSide =
     let
         classes =
-            [ ( "elm-plot__tooltip__default-view", True )
-            , ( "elm-plot__tooltip__default-view--left", isLeftSide )
-            , ( "elm-plot__tooltip__default-view--right", not isLeftSide )
+            [ ( "elm-plot__hint__default-view", True )
+            , ( "elm-plot__hint__default-view--left", isLeftSide )
+            , ( "elm-plot__hint__default-view--right", not isLeftSide )
             ]
     in
         Html.div

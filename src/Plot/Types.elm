@@ -1,4 +1,4 @@
-module Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, TooltipInfo)
+module Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
 
 {-| Convinience type to represent coordinates.
 -}
@@ -27,7 +27,7 @@ type alias Meta =
     , oppositeTicks : List Float
     , oppositeScale : Scale
     , oppositeToSvgCoords : Point -> Point
-    , getTooltipInfo : Float -> TooltipInfo
+    , getHintInfo : Float -> HintInfo
     , toNearestX : Float -> Float
     , id : String
     }
@@ -42,7 +42,7 @@ type alias Scale =
     }
 
 
-type alias TooltipInfo =
+type alias HintInfo =
     { xValue : Float
     , yValues : List (Maybe Float)
     }

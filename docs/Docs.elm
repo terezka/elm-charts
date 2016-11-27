@@ -6,18 +6,22 @@ import Html.Events exposing (onClick)
 import Svg
 import Svg.Attributes
 import Svg.Events
-import Plot exposing (..)
+
+
 --import AreaChart exposing (..)
+
 import Colors
+
+
 --import Test exposing (..)
+
 import Plot as Plot exposing (Interaction(..))
 import Plot.Line as Line
 import Plot.Label as Label
 import Plot.Tick as Tick
 import Plot.Axis as Axis
-import Plot.Base as Base
-
 import Debug
+
 
 --import MultiAreaChart exposing (..)
 --import GridChart exposing (..)
@@ -45,7 +49,7 @@ initialModel =
 
 type Msg
     = Toggle (Maybe String)
-    | ClickTick 
+    | ClickTick
     | PlotInteraction (Plot.Interaction Msg)
 
 
@@ -66,7 +70,6 @@ update msg model =
 
                 Custom customMsg ->
                     update customMsg model
-
 
         ClickTick ->
             ( model |> Debug.log "click tick!!!", Cmd.none )
@@ -164,10 +167,10 @@ view model =
                 ]
                 [ text "Github" ]
             ]
-        --, viewTitle model "Simple Area Chart" "AreaChart" AreaChart.code
+          --, viewTitle model "Simple Area Chart" "AreaChart" AreaChart.code
         , Html.map PlotInteraction (testChart model.plotState)
-        --, Html.map PlotInteraction (Test.chart Plot.initialState)
-        --, Html.map PlotInteraction (AreaChart.chart model.plotState)
+          --, Html.map PlotInteraction (Test.chart Plot.initialState)
+          --, Html.map PlotInteraction (AreaChart.chart model.plotState)
           --, viewTitle model "Multi Area Chart" "MultiAreaChart" MultiAreaChart.code
           --, Html.map PlotInteraction MultiAreaChart.chart
           --, viewTitle model "Line Chart" "MultiLineChart" MultiLineChart.code
@@ -190,9 +193,8 @@ view model =
         ]
 
 
-
-specialTick : Int -> Float -> Svg.Svg (Plot.Interaction Msg)
-specialTick _ _ =
+specialTick : ( Int, Float ) -> Svg.Svg (Plot.Interaction Msg)
+specialTick _ =
     Svg.text_
         [ Svg.Attributes.transform "translate(5, 5)"
         , Svg.Attributes.style "stroke: #969696; font-size: 12px; text-anchor: end;"
@@ -203,24 +205,27 @@ specialTick _ _ =
 
 testChart : Plot.State -> Svg.Svg (Plot.Interaction Msg)
 testChart { position } =
-    base
-        [ Base.size ( 600, 250 )
-        , Base.margin ( 10, 40, 40, 40 )
+    Plot.plot
+        [ Plot.size ( 600, 250 )
+        , Plot.margin ( 10, 40, 40, 40 )
         ]
-        [ line
-            [ Line.style [ ( "stroke", Colors.pinkStroke ), ( "stroke-width", "2px" ) ] ]
-            [ (0, 2), (1, 3), (2, 5)]
-        , xAxis []
-        , yAxis
+        [ Plot.line
+            [ Line.style
+                [ ( "stroke", Colors.pinkStroke )
+                , ( "stroke-width", "2px" )
+                ]
+            ]
+            [ ( 0, 2 ), ( 1, 3 ), ( 2, 5 ) ]
+        , Plot.xAxis []
+        , Plot.yAxis
             [ Axis.tick
                 [ Tick.viewCustom specialTick
                 , Tick.removeZero
                 ]
             ]
-        , verticalGrid [] 
-        , Plot.tooltip [] position
+        , Plot.verticalGrid []
+        , Plot.hint [] position
         ]
-
 
 
 main =

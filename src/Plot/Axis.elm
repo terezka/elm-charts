@@ -1,15 +1,5 @@
 module Plot.Axis exposing (..)
 
-import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, TooltipInfo)
-import Plot.Tick as Tick
-import Plot.Label as Label
-import Plot.Grid.View as Grid
-import Helpers exposing (..)
-import Round
-import Svg
-import Svg.Attributes
-
-
 {-|
  Attributes for altering the view of your axis.
 
@@ -23,52 +13,24 @@ import Svg.Attributes
 @docs Attribute
 
 -}
-type alias Config msg =
-    { tickConfig : Tick.Config msg
-    , labelConfig : Label.Config msg
-    , viewConfig : StyleConfig
-    , orientation : Orientation
-    }
 
-
-type alias StyleConfig =
-    { lineStyle : Style
-    , baseStyle : Style
-    , classes : List String
-    }
+import Plot.Types exposing (Style, Orientation(..))
+import Internal.Axis as Internal
+import Internal.Label as LabelInternal
+import Internal.Tick as TickInternal
+import Plot.Tick as Tick
+import Plot.Label as Label
 
 
 {-| The type representing an axis attribute.
 -}
 type alias Attribute msg =
-    Config msg -> Config msg
+    Internal.Config msg -> Internal.Config msg
 
 
 {-| -}
 type alias StyleAttribute =
-    StyleConfig -> StyleConfig
-
-
-defaultStyleConfig : StyleConfig
-defaultStyleConfig =
-    { lineStyle = []
-    , baseStyle = []
-    , classes = []
-    }
-
-
-defaultConfigX : Config msg
-defaultConfigX =
-    { tickConfig = Tick.defaultConfig
-    , labelConfig = Label.defaultConfig
-    , viewConfig = defaultStyleConfig
-    , orientation = X
-    }
-
-
-defaultConfigY : Config msg
-defaultConfigY =
-    { defaultConfigX | orientation = Y }
+    Internal.StyleConfig -> Internal.StyleConfig
 
 
 {-| Add classes to the container holding your axis.
@@ -111,7 +73,7 @@ lineStyle style config =
 {-| -}
 view : List StyleAttribute -> Attribute msg
 view attributes config =
-    { config | viewConfig = List.foldl (<|) defaultStyleConfig attributes }
+    { config | viewConfig = List.foldl (<|) Internal.defaultStyleConfig attributes }
 
 
 {-| Provided a list of tick attributes to alter what values with be added a tick and how it will be displayed.
@@ -131,7 +93,7 @@ view attributes config =
 -}
 tick : List (Tick.Attribute msg) -> Attribute msg
 tick attributes config =
-    { config | tickConfig = List.foldl (<|) Tick.defaultConfig attributes }
+    { config | tickConfig = List.foldl (<|) TickInternal.defaultConfig attributes }
 
 
 {-| Provided a list of label attributes to alter what values with be added a label and how it will be displayed.
@@ -152,39 +114,4 @@ tick attributes config =
 -}
 label : List (Label.Attribute msg) -> Attribute msg
 label attributes config =
-    { config | labelConfig = List.foldl (<|) Label.defaultConfig attributes }
-
-
-
--- VIEW
-
-
-defaultView : Meta -> Config msg -> Svg.Svg msg
-defaultView ({ scale, toSvgCoords } as meta) { viewConfig, tickConfig, labelConfig, orientation } =
-    let
-        tickValues =
-            Tick.getValuesIndexed tickConfig scale
-
-        labelValues =
-            Label.getValuesIndexed labelConfig.valueConfig tickValues
-    in
-        Svg.g
-            [ Svg.Attributes.style (toStyle viewConfig.baseStyle)
-            , Svg.Attributes.class (String.join " " viewConfig.classes)
-            ]
-            [ Grid.viewLine meta viewConfig.lineStyle 0
-            , viewTicks meta (Tick.toView tickConfig.viewConfig orientation) tickValues
-            , viewTicks meta (Label.toView labelConfig.viewConfig orientation) labelValues
-            ]
-
-
-viewTicks : Meta -> (Int -> Float -> Svg.Svg msg) -> List ( Int, Float ) -> Svg.Svg msg
-viewTicks meta view values =
-    Svg.g [] (List.map (placeTick meta view) values)
-
-
-placeTick : Meta -> (Int -> Float -> Svg.Svg msg) -> ( Int, Float ) -> Svg.Svg msg
-placeTick { toSvgCoords } view ( index, tick ) =
-    Svg.g
-        [ Svg.Attributes.transform <| toTranslate <| toSvgCoords ( tick, 0 ) ]
-        [ view index tick ]
+    { config | labelConfig = List.foldl (<|) LabelInternal.defaultConfig attributes }
