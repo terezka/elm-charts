@@ -1,7 +1,7 @@
 module MultiAreaChart exposing (chart, code)
 
 import Svg
-import Svg.Attributes
+import Svg.Attributes exposing (stroke, fill)
 import Plot exposing (..)
 import Colors
 
@@ -20,10 +20,10 @@ chart : Svg.Svg a
 chart =
     plot
         [ size ( 600, 250 ) ]
-        [ area [ areaStyle [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ] data1
-        , area [ areaStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data2
+        [ area [ areaAttributes [ stroke Colors.skinStroke, fill Colors.skinFill ] ] data1
+        , area [ areaAttributes [ stroke Colors.blueStroke, fill Colors.blueFill ] ] data2
         , xAxis
-            [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+            [ axisAttributes [ (stroke Colors.axisColor) ]
             , tickDelta 10
             ]
         ]
@@ -36,21 +36,21 @@ code =
         plot
             [ size ( 600, 250 ) ]
             [ area
-                [ areaStyle
-                    [ ( "stroke", Colors.skinStroke )
-                    , ( "fill", Colors.skinFill )
+                [ areaAttributes
+                    [ stroke Colors.skinStroke
+                    , fill Colors.skinFill
                     ]
                 ]
                 data1
             , area
-                [ areaStyle
-                    [ ( "stroke", Colors.blueStroke )
-                    , ( "fill", Colors.blueFill )
+                [ areaAttributes
+                    [ stroke Colors.blueStroke
+                    , fill Colors.blueFill
                     ]
                 ]
                 data2
             , xAxis
-                [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+                [ axisAttributes [ stroke Colors.axisColor ]
                 , tickDelta 10
                 ]
             ]

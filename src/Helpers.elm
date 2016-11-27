@@ -84,11 +84,6 @@ toRotate d x y =
     "rotate(" ++ (toString d) ++ " " ++ (toString x) ++ " " ++ (toString y) ++ ")"
 
 
-toStyle : List ( String, String ) -> String
-toStyle styles =
-    List.foldr (\( p, v ) r -> r ++ p ++ ":" ++ v ++ "; ") "" styles
-
-
 getTickDelta : Float -> Int -> Float
 getTickDelta range totalTicks =
     let

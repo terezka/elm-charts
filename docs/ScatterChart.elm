@@ -1,6 +1,7 @@
 module ScatterChart exposing (chart, code)
 
 import Svg
+import Svg.Attributes exposing (stroke, fill)
 import Plot exposing (..)
 import Colors
 
@@ -14,9 +15,17 @@ chart : Svg.Svg a
 chart =
     plot
         [ size ( 600, 250 ) ]
-        [ scatter [ scatterStyle [ ( "stroke", Colors.pinkStroke ), ( "fill", Colors.pinkFill ) ], scatterRadius 8 ] data
-        , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
+        [ scatter
+            [ scatterAttributes
+                [ stroke Colors.pinkStroke
+                , fill Colors.pinkFill
+                ]
+            , scatterRadius 8
+            ]
+            data
+        , xAxis [ axisAttributes [ stroke Colors.axisColor ] ]
         ]
+
 
 code : String
 code =
@@ -26,13 +35,13 @@ code =
         plot
             [ size ( 600, 250 ) ]
             [ scatter
-                [ scatterStyle
-                    [ ( "stroke", Colors.pinkStroke )
-                    , ( "fill", Colors.pinkFill )
+                [ scatterAttributes
+                    [ stroke Colors.pinkStroke
+                    , fill Colors.pinkFill
                     ]
                 , scatterRadius 8
                 ]
                 data
-            , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
+            , xAxis [ axisAttributes [ stroke Colors.axisColor ] ]
             ]
     """

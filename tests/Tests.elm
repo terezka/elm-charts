@@ -5,6 +5,7 @@ import Fuzz exposing (..)
 import Expect
 import HelperTests
 import List exposing (append)
+import Svg.Attributes exposing (..)
 import Plot exposing (..)
 
 
@@ -27,14 +28,14 @@ baseMetaConfig =
     { size = ( 800, 500 )
     , padding = ( 0, 0 )
     , classes = []
-    , style = [ ( "padding", "30px" ), ( "stroke", "#000" ) ]
+    , attributes = [ style "padding: 30px;", stroke "#000" ]
     }
 
 
 baseTickViewConfig =
     { length = 7
     , width = 1
-    , style = []
+    , attributes = []
     , classes = []
     }
 
@@ -70,12 +71,11 @@ testSize =
 testPlotStyle : Test
 testPlotStyle =
   describe "plotStyle"
-    [ fuzz (list (tuple ( string, string )))
-      "should return a valid metaConfig " <|
-        \data ->
+    [ test "should return a valid metaConfig " <|
+        \() ->
           let
-            result = plotStyle data baseMetaConfig
-            expected = { baseMetaConfig | style = append data baseMetaConfig.style }
+            result = plotAttributes [Svg.Attributes.r "5"] baseMetaConfig
+            expected = { baseMetaConfig | attributes = append [Svg.Attributes.r "5"] baseMetaConfig.attributes }
           in
           Expect.equal result expected
     ]
@@ -84,7 +84,7 @@ testPlotStyle =
 testPlotClasses : Test
 testPlotClasses =
   describe "plotClasses"
-    [ fuzz (list string)
+    [ fuzz (list Fuzz.string)
       "should return a valid metaConfig " <|
         \data ->
           let
@@ -126,7 +126,7 @@ testTickWidth =
 testTickClasses : Test
 testTickClasses =
   describe "tickClasses"
-    [ fuzz (list string)
+    [ fuzz (list Fuzz.string)
       "should return a valid viewConfig" <|
         \data ->
           let
@@ -140,12 +140,11 @@ testTickClasses =
 testTickStyle : Test
 testTickStyle =
   describe "tickStyle"
-    [ fuzz (list (tuple ( string, string )))
-      "should return a valid viewConfig" <|
-        \data ->
+    [ test "should return a valid viewConfig" <|
+        \() ->
           let
-            result = tickStyle data baseTickViewConfig
-            expected = { baseTickViewConfig | style = data }
+            result = tickAttributes [Svg.Attributes.r "5"] baseTickViewConfig
+            expected = { baseTickViewConfig | attributes = [Svg.Attributes.r "5"] }
           in
           Expect.equal result expected
     ]

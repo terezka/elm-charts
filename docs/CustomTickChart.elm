@@ -1,7 +1,7 @@
 module CustomTickChart exposing (chart, code)
 
 import Svg
-import Svg.Attributes
+import Svg.Attributes exposing (..)
 import Plot exposing (..)
 import Colors
 
@@ -16,21 +16,21 @@ isOdd n =
     rem n 2 > 0
 
 
-toTickConfig : Int -> Float -> List TickViewAttr
+toTickConfig : Int -> Float -> List (TickViewAttr msg)
 toTickConfig index tick =
     if isOdd index then
-        [ tickLength 7, tickStyle [ ( "stroke", "#e4e3e3" ) ] ]
+        [ tickLength 7, tickAttributes [ stroke "#e4e3e3" ] ]
     else
-        [ tickLength 10, tickStyle [ ( "stroke", "#b9b9b9" ) ] ]
+        [ tickLength 10, tickAttributes [ stroke "#b9b9b9" ] ]
 
 
-toLabelConfig : Int -> Float -> List LabelViewAttr
+toLabelConfig : Int -> Float -> List (LabelViewAttr msg)
 toLabelConfig index tick =
     if isOdd index then
         [ labelFormat (always "") ]
     else
         [ labelFormat (\l -> toString l ++ " s")
-        , labelStyle [ ( "stroke", "#969696" ) ]
+        , labelAttributes [ stroke "#969696" ]
         , labelDisplace ( 0, 27 )
         ]
 
@@ -40,14 +40,14 @@ chart =
     plot
         [ size ( 600, 250 ) ]
         [ line
-            [ lineStyle
-                [ ( "stroke", Colors.pinkStroke )
-                , ( "stroke-width", "2px" )
+            [ lineAttributes
+                [ stroke Colors.pinkStroke
+                , strokeWidth "2px"
                 ]
             ]
             data
         , xAxis
-            [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+            [ axisAttributes [ stroke Colors.axisColor ]
             , tickConfigViewFunc toTickConfig
             , labelConfigViewFunc toLabelConfig
             ]
@@ -64,9 +64,9 @@ code =
     toTickConfig : Int -> Float -> List TickViewAttr
     toTickConfig index tick =
         if isOdd index then
-            [ tickLength 7, tickStyle [ ( "stroke", "#e4e3e3" ) ] ]
+            [ tickLength 7, tickAttributes [ stroke "#e4e3e3" ] ]
         else
-            [ tickLength 10, tickStyle [ ( "stroke", "#b9b9b9" ) ] ]
+            [ tickLength 10, tickAttributes [ stroke "#b9b9b9" ] ]
 
 
     toLabelConfig : Int -> Float -> List LabelViewAttr
@@ -75,7 +75,7 @@ code =
             [ labelFormat (always "") ]
         else
             [ labelFormat (\\l -> toString l ++ " s")
-            , labelStyle [ ( "stroke", "#969696" ) ]
+            , labelAttributes [ stroke "#969696" ]
             , labelDisplace ( 0, 27 )
             ]
 
@@ -85,14 +85,14 @@ code =
         plot
             [ size ( 600, 250 ) ]
             [ line
-                [ lineStyle
-                    [ ( "stroke", Colors.pinkStroke )
-                    , ( "stroke-width", "2px" )
+                [ lineAttributes
+                    [ stroke Colors.pinkStroke
+                    , strokeWidth "2px"
                     ]
                 ]
                 data
             , xAxis
-                [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+                [ axisAttributes [ stroke Colors.axisColor ]
                 , tickConfigViewFunc toTickConfig
                 , labelConfigViewFunc toLabelConfig
                 ]
