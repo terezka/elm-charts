@@ -99,38 +99,6 @@ toStyle styles =
     List.foldr (\( p, v ) r -> r ++ p ++ ":" ++ v ++ "; ") "" styles
 
 
-getTickDelta : Float -> Int -> Float
-getTickDelta range totalTicks =
-    let
-        -- calculate an initial guess at step size
-        delta0 =
-            range / (toFloat totalTicks)
-
-        -- get the magnitude of the step size
-        mag =
-            floor (logBase 10 delta0)
-
-        magPow =
-            toFloat (10 ^ mag)
-
-        -- calculate most significant digit of the new step size
-        magMsd =
-            round (delta0 / magPow)
-
-        -- promote the MSD to either 1, 2, or 5
-        magMsdFinal =
-            if magMsd > 5 then
-                10
-            else if magMsd > 2 then
-                5
-            else if magMsd > 1 then
-                1
-            else
-                magMsd
-    in
-        (toFloat magMsdFinal) * magPow
-
-
 (?) : Orientation -> a -> a -> a
 (?) orientation x y =
     case orientation of

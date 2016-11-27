@@ -47,8 +47,8 @@ defaultConfigY =
     { defaultConfigX | orientation = Y }
 
 
-defaultView : Meta -> Config msg -> Svg.Svg msg
-defaultView ({ scale, toSvgCoords } as meta) { viewConfig, tickConfig, labelConfig, orientation } =
+view : Meta -> Config msg -> Svg.Svg msg
+view ({ scale, toSvgCoords } as meta) { viewConfig, tickConfig, labelConfig, orientation } =
     let
         tickValues =
             Tick.getValuesIndexed tickConfig scale

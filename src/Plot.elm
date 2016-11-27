@@ -351,6 +351,45 @@ parsePlot attrs elements =
         viewPlot metaConfig meta (viewElements meta elements)
 
 
+viewPlot : Config -> Meta -> ( List (Svg.Svg (Interaction c)), List (Html.Html (Interaction c)) ) -> Html.Html (Interaction c)
+viewPlot ({ size } as config) meta ( svgViews, htmlViews ) =
+    Html.div
+        (plotAttributes config ++ plotAttributesInteraction meta)
+        (viewSvg size svgViews :: htmlViews) 
+
+
+viewPlotStatic : Config -> Meta -> ( List (Svg.Svg msg), List (Html.Html msg) ) -> Svg.Svg msg
+viewPlotStatic ({ size } as config) meta ( svgViews, htmlViews ) =
+    Html.div
+        (plotAttributes config)
+        (viewSvg size svgViews :: htmlViews) 
+
+
+plotAttributes : Config -> List (Html.Attribute msg)
+plotAttributes { size, id } =
+    [ Html.Attributes.class "elm-plot"
+    , Html.Attributes.style <| sizeStyle size
+    , Html.Attributes.id id
+    ]
+
+
+plotAttributesInteraction : Meta -> List (Html.Attribute (Interaction c))
+plotAttributesInteraction meta =
+    [ Html.Events.on "mousemove" (getMousePosition meta)
+    , Html.Events.onMouseOut (Internal ResetPosition)
+    ]
+
+
+viewSvg : (Float, Float) -> List (Svg.Svg msg) -> Svg.Svg msg
+viewSvg ( width, height ) views =
+    Svg.svg
+        [ Svg.Attributes.height (toString height)
+        , Svg.Attributes.width (toString width)
+        , Svg.Attributes.class "elm-plot__svg"
+        ]
+        views
+
+
 getMousePosition : Meta -> Json.Decoder (Interaction c)
 getMousePosition meta =
     Json.map2
@@ -359,64 +398,9 @@ getMousePosition meta =
         (Json.field "clientY" Json.float)
 
 
-viewPlot : Config -> Meta -> ( List (Svg.Svg (Interaction c)), List (Html.Html (Interaction c)) ) -> Svg.Svg (Interaction c)
-viewPlot { size, style, classes, margin } meta ( svgViews, htmlViews ) =
-    let
-        ( width, height ) =
-            size
-
-        ( top, right, bottom, left ) =
-            margin
-
-        sizeStyle =
-            [ ( "height", toString height ++ "px" ), ( "width", toString width ++ "px" ) ]
-    in
-        Html.div
-            [ Html.Attributes.class "elm-plot"
-            , Html.Attributes.style sizeStyle
-            , Html.Attributes.id meta.id
-            , Html.Events.on "mousemove" (getMousePosition meta)
-            , Html.Events.onMouseOut (Internal ResetPosition)
-            ]
-        <|
-            [ Svg.svg
-                [ Svg.Attributes.height (toString height)
-                , Svg.Attributes.width (toString width)
-                , Svg.Attributes.viewBox <| "0 0 " ++ toString width ++ " " ++ toString height
-                , Svg.Attributes.class "elm-plot__svg"
-                ]
-                svgViews
-            ]
-                ++ htmlViews
-
-
-viewPlotStatic : Config -> Meta -> ( List (Svg.Svg msg), List (Html.Html msg) ) -> Svg.Svg msg
-viewPlotStatic { size, style, classes, margin } meta ( svgViews, htmlViews ) =
-    let
-        ( width, height ) =
-            size
-
-        ( top, right, bottom, left ) =
-            margin
-
-        sizeStyle =
-            [ ( "height", toString height ++ "px" ), ( "width", toString width ++ "px" ) ]
-    in
-        Html.div
-            [ Html.Attributes.class "elm-plot"
-            , Html.Attributes.style sizeStyle
-            , Html.Attributes.id meta.id
-            ]
-        <|
-            [ Svg.svg
-                [ Svg.Attributes.height (toString height)
-                , Svg.Attributes.width (toString width)
-                , Svg.Attributes.viewBox <| "0 0 " ++ toString width ++ " " ++ toString height
-                , Svg.Attributes.class "elm-plot__svg"
-                ]
-                svgViews
-            ]
-                ++ htmlViews
+sizeStyle : (Float, Float) -> Style
+sizeStyle (width, height) =
+    [ ( "height", toString height ++ "px" ), ( "width", toString width ++ "px" ) ]
 
 
 
@@ -438,7 +422,7 @@ viewElement meta element ( svgViews, htmlViews ) =
             ( (AreaInternal.view meta config points) :: svgViews, htmlViews )
 
         Axis ({ orientation } as config) ->
-            ( (AxisInternal.defaultView (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
+            ( (AxisInternal.view (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
 
         Grid ({ orientation } as config) ->
             ( (GridInternal.view (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
