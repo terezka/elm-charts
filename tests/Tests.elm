@@ -5,9 +5,7 @@ import Fuzz exposing (..)
 import Expect
 import HelperTests
 import List exposing (append)
-import Svg exposing (..)
 import Svg.Attributes exposing (..)
-import Svg.Lazy
 import Plot exposing (..)
 
 
@@ -30,7 +28,7 @@ baseMetaConfig =
     { size = ( 800, 500 )
     , padding = ( 0, 0 )
     , classes = []
-    , style = [ ( stroke "#000" ) ]
+    , style = [ (Svg.Attributes.style "padding: 30px;"), ( stroke "#000" ) ]
     }
 
 

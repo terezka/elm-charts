@@ -6035,7 +6035,7 @@ function mapProperty(func, property)
 	return on(
 		property.realKey,
 		property.value.options,
-		A2(_elm_lang$core$Json$map, func, property.value.decoder)
+		A2(_elm_lang$core$Json_Decode$map, func, property.value.decoder)
 	);
 }
 
@@ -7634,6 +7634,7 @@ return {
 };
 
 }();
+
 var _elm_lang$virtual_dom$VirtualDom$programWithFlags = function (impl) {
 	return A2(_elm_lang$virtual_dom$Native_VirtualDom.programWithFlags, _elm_lang$virtual_dom$VirtualDom_Debug$wrapWithFlags, impl);
 };
@@ -9190,34 +9191,11 @@ var _terezka$elm_plot$Plot$viewArea = F2(
 					_0: _elm_lang$svg$Svg_Attributes$d(
 						A2(
 							_elm_lang$core$Basics_ops['++'],
-<<<<<<< HEAD
-<<<<<<< HEAD
-							instructions,
-							A2(_elm_lang$core$Basics_ops['++'], endInstructions, 'Z')))),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$style(
-						_terezka$elm_plot$Helpers$toStyle(_p30.style)),
-=======
-=======
->>>>>>> Add niks psych marketing tricks :sparkels:
 							startInstruction,
 							A2(
 								_elm_lang$core$Basics_ops['++'],
 								instructions,
 								A2(_elm_lang$core$Basics_ops['++'], endInstructions, 'Z')))),
-<<<<<<< HEAD
->>>>>>> update docs
-=======
-=======
-							instructions,
-							A2(_elm_lang$core$Basics_ops['++'], endInstructions, 'Z')))),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$style(
-						_terezka$elm_plot$Helpers$toStyle(_p30.style)),
->>>>>>> 1f36ef4... Add niks psych marketing tricks :sparkels:
->>>>>>> Add niks psych marketing tricks :sparkels:
 					_1: {ctor: '[]'}
 				}),
 			{ctor: '[]'});
@@ -9235,33 +9213,10 @@ var _terezka$elm_plot$Plot$viewGridLine = F4(
 			{ctor: '_Tuple2', _0: highest, _1: position});
 		var x2 = _p38._0;
 		var y2 = _p38._1;
-<<<<<<< HEAD
-<<<<<<< HEAD
-		var attrs = {
-			ctor: '::',
-			_0: _elm_lang$svg$Svg_Attributes$style(
-				_terezka$elm_plot$Helpers$toStyle(style)),
-			_1: A4(_terezka$elm_plot$Helpers$toPositionAttr, x1, y1, x2, y2)
-		};
-=======
-=======
->>>>>>> Add niks psych marketing tricks :sparkels:
 		var attrs = A2(
 			_elm_lang$core$Basics_ops['++'],
 			style,
 			A4(_terezka$elm_plot$Helpers$toPositionAttr, x1, y1, x2, y2));
-<<<<<<< HEAD
->>>>>>> update docs
-=======
-=======
-		var attrs = {
-			ctor: '::',
-			_0: _elm_lang$svg$Svg_Attributes$style(
-				_terezka$elm_plot$Helpers$toStyle(style)),
-			_1: A4(_terezka$elm_plot$Helpers$toPositionAttr, x1, y1, x2, y2)
-		};
->>>>>>> 1f36ef4... Add niks psych marketing tricks :sparkels:
->>>>>>> Add niks psych marketing tricks :sparkels:
 		return A2(
 			_elm_lang$svg$Svg$line,
 			attrs,
@@ -9335,14 +9290,6 @@ var _terezka$elm_plot$Plot$defaultLabelView = F4(
 				A2(_elm_lang$core$Basics_ops['++'], defaultStyle, _p45.style),
 				{
 					ctor: '::',
-<<<<<<< HEAD
-<<<<<<< HEAD
-					_0: _elm_lang$svg$Svg_Attributes$style(
-						_terezka$elm_plot$Helpers$toStyle(
-							A2(_elm_lang$core$Basics_ops['++'], defaultStyle, _p45.style))),
-=======
-=======
->>>>>>> Add niks psych marketing tricks :sparkels:
 					_0: _elm_lang$svg$Svg_Attributes$transform(
 						_terezka$elm_plot$Helpers$toTranslate(
 							{
@@ -9350,15 +9297,6 @@ var _terezka$elm_plot$Plot$defaultLabelView = F4(
 								_0: _elm_lang$core$Basics$toFloat(dx),
 								_1: _elm_lang$core$Basics$toFloat(dy)
 							})),
-<<<<<<< HEAD
->>>>>>> update docs
-=======
-=======
-					_0: _elm_lang$svg$Svg_Attributes$style(
-						_terezka$elm_plot$Helpers$toStyle(
-							A2(_elm_lang$core$Basics_ops['++'], defaultStyle, _p45.style))),
->>>>>>> 1f36ef4... Add niks psych marketing tricks :sparkels:
->>>>>>> Add niks psych marketing tricks :sparkels:
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$svg$Svg_Attributes$class(
@@ -9392,20 +9330,7 @@ var _terezka$elm_plot$Plot$defaultTickView = F4(
 					A2(
 						_elm_lang$core$Basics_ops['++'],
 						_elm_lang$core$Basics$toString(_p51.width),
-<<<<<<< HEAD
-<<<<<<< HEAD
-						'px')
-				},
-=======
 						'px')),
->>>>>>> update docs
-=======
-						'px')),
-=======
-						'px')
-				},
->>>>>>> 1f36ef4... Add niks psych marketing tricks :sparkels:
->>>>>>> Add niks psych marketing tricks :sparkels:
 				_1: {ctor: '[]'}
 			});
 		var displacement = A3(
@@ -9522,31 +9447,10 @@ var _terezka$elm_plot$Plot$viewAxis = F2(
 		}();
 		return A2(
 			_elm_lang$svg$Svg$g,
-<<<<<<< HEAD
-<<<<<<< HEAD
-			{
-				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$style(
-					_terezka$elm_plot$Helpers$toStyle(_p58.style)),
-				_1: {
-=======
-=======
->>>>>>> Add niks psych marketing tricks :sparkels:
 			A2(
 				_elm_lang$core$Basics_ops['++'],
 				_p58.style,
 				{
-<<<<<<< HEAD
->>>>>>> update docs
-=======
-=======
-			{
-				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$style(
-					_terezka$elm_plot$Helpers$toStyle(_p58.style)),
-				_1: {
->>>>>>> 1f36ef4... Add niks psych marketing tricks :sparkels:
->>>>>>> Add niks psych marketing tricks :sparkels:
 					ctor: '::',
 					_0: _elm_lang$svg$Svg_Attributes$class(
 						A2(_elm_lang$core$String$join, ' ', _p58.classes)),
@@ -9662,22 +9566,8 @@ var _terezka$elm_plot$Plot$viewPlot = F2(
 						_elm_lang$core$Basics$toString(height)),
 					_1: {
 						ctor: '::',
-<<<<<<< HEAD
-<<<<<<< HEAD
-						_0: _elm_lang$svg$Svg_Attributes$style(
-							_terezka$elm_plot$Helpers$toStyle(_p70.style)),
-=======
 						_0: _elm_lang$svg$Svg_Attributes$width(
 							_elm_lang$core$Basics$toString(width)),
->>>>>>> update docs
-=======
-						_0: _elm_lang$svg$Svg_Attributes$width(
-							_elm_lang$core$Basics$toString(width)),
-=======
-						_0: _elm_lang$svg$Svg_Attributes$style(
-							_terezka$elm_plot$Helpers$toStyle(_p70.style)),
->>>>>>> 1f36ef4... Add niks psych marketing tricks :sparkels:
->>>>>>> Add niks psych marketing tricks :sparkels:
 						_1: {
 							ctor: '::',
 							_0: _elm_lang$svg$Svg_Attributes$class(
@@ -10870,44 +10760,9 @@ var _terezka$elm_plot$CustomTickChart$chart = A2(
 		}
 	});
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-var _terezka$elm_plot$ScatterChart$code = '\n    chart : Svg.Svg a\n    chart =\n        plot\n            [ size ( 600, 250 ) ]\n            [ scatter\n                [ scatterStyle\n                    [ ( \"stroke\", Colors.pinkStroke )\n                    , ( \"fill\", Colors.pinkFill )\n                    ]\n                , scatterRadius 8\n                ]\n                data\n            , xAxis [ axisStyle [ ( \"stroke\", Colors.axisColor ) ] ]\n            ]\n    ';
-var _terezka$elm_plot$ScatterChart$data = {
-	ctor: '::',
-	_0: {ctor: '_Tuple2', _0: 0, _1: 20},
-	_1: {
-		ctor: '::',
-		_0: {ctor: '_Tuple2', _0: 1, _1: 15},
-		_1: {
-			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: 2, _1: 20},
-			_1: {
-				ctor: '::',
-				_0: {ctor: '_Tuple2', _0: 3, _1: 20},
-=======
-=======
->>>>>>> Add niks psych marketing tricks :sparkels:
 var _terezka$elm_plot$ScatterChart$code = '\n    chart : Svg.Svg a\n    chart =\n        plot\n            [ size ( 600, 250 ) ]\n            [ scatter\n                [ scatterStyle\n                    [ ( Svg.Attributes.stroke Colors.pinkStroke )\n                    , ( Svg.Attributes.fill Colors.pinkFill )\n                    ]\n                , scatterRadius 8\n                ]\n                data\n            , xAxis [ axisStyle [ ( Svg.Attributes.stroke Colors.axisColor ) ] ]\n            ]\n    ';
 var _terezka$elm_plot$ScatterChart$data = {
 	ctor: '::',
-	_0: {ctor: '_Tuple2', _0: 0, _1: 40},
-	_1: {
-		ctor: '::',
-		_0: {ctor: '_Tuple2', _0: 1, _1: 35},
-		_1: {
-			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: 2, _1: 32},
-			_1: {
-				ctor: '::',
-				_0: {ctor: '_Tuple2', _0: 3, _1: 36},
-<<<<<<< HEAD
->>>>>>> update docs
-=======
-=======
-var _terezka$elm_plot$ScatterChart$code = '\n    chart : Svg.Svg a\n    chart =\n        plot\n            [ size ( 600, 250 ) ]\n            [ scatter\n                [ scatterStyle\n                    [ ( \"stroke\", Colors.pinkStroke )\n                    , ( \"fill\", Colors.pinkFill )\n                    ]\n                , scatterRadius 8\n                ]\n                data\n            , xAxis [ axisStyle [ ( \"stroke\", Colors.axisColor ) ] ]\n            ]\n    ';
-var _terezka$elm_plot$ScatterChart$data = {
-	ctor: '::',
 	_0: {ctor: '_Tuple2', _0: 0, _1: 20},
 	_1: {
 		ctor: '::',
@@ -10918,15 +10773,11 @@ var _terezka$elm_plot$ScatterChart$data = {
 			_1: {
 				ctor: '::',
 				_0: {ctor: '_Tuple2', _0: 3, _1: 20},
->>>>>>> 1f36ef4... Add niks psych marketing tricks :sparkels:
->>>>>>> Add niks psych marketing tricks :sparkels:
 				_1: {
 					ctor: '::',
 					_0: {ctor: '_Tuple2', _0: 4, _1: 31},
 					_1: {
 						ctor: '::',
-<<<<<<< HEAD
-<<<<<<< HEAD
 						_0: {ctor: '_Tuple2', _0: 5, _1: 36},
 						_1: {
 							ctor: '::',
@@ -10934,29 +10785,6 @@ var _terezka$elm_plot$ScatterChart$data = {
 							_1: {
 								ctor: '::',
 								_0: {ctor: '_Tuple2', _0: 7, _1: 40},
-=======
-=======
->>>>>>> Add niks psych marketing tricks :sparkels:
-						_0: {ctor: '_Tuple2', _0: 5, _1: 20},
-						_1: {
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 6, _1: 15},
-							_1: {
-								ctor: '::',
-								_0: {ctor: '_Tuple2', _0: 7, _1: 16},
-<<<<<<< HEAD
->>>>>>> update docs
-=======
-=======
-						_0: {ctor: '_Tuple2', _0: 5, _1: 36},
-						_1: {
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 6, _1: 35},
-							_1: {
-								ctor: '::',
-								_0: {ctor: '_Tuple2', _0: 7, _1: 40},
->>>>>>> 1f36ef4... Add niks psych marketing tricks :sparkels:
->>>>>>> Add niks psych marketing tricks :sparkels:
 								_1: {ctor: '[]'}
 							}
 						}
@@ -10983,29 +10811,10 @@ var _terezka$elm_plot$ScatterChart$chart = A2(
 				_0: _terezka$elm_plot$Plot$scatterStyle(
 					{
 						ctor: '::',
-<<<<<<< HEAD
-<<<<<<< HEAD
-						_0: {ctor: '_Tuple2', _0: 'stroke', _1: _terezka$elm_plot$Colors$pinkStroke},
-						_1: {
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 'fill', _1: _terezka$elm_plot$Colors$pinkFill},
-=======
-=======
->>>>>>> Add niks psych marketing tricks :sparkels:
 						_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Colors$pinkStroke),
 						_1: {
 							ctor: '::',
 							_0: _elm_lang$svg$Svg_Attributes$fill(_terezka$elm_plot$Colors$pinkFill),
-<<<<<<< HEAD
->>>>>>> update docs
-=======
-=======
-						_0: {ctor: '_Tuple2', _0: 'stroke', _1: _terezka$elm_plot$Colors$pinkStroke},
-						_1: {
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 'fill', _1: _terezka$elm_plot$Colors$pinkFill},
->>>>>>> 1f36ef4... Add niks psych marketing tricks :sparkels:
->>>>>>> Add niks psych marketing tricks :sparkels:
 							_1: {ctor: '[]'}
 						}
 					}),
