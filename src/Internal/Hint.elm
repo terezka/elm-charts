@@ -10,7 +10,6 @@ import Html.Attributes
 
 type alias Config msg =
     { view : HintInfo -> Bool -> Html.Html msg
-    , showLine : Bool
     , lineStyle : Style
     }
 
@@ -18,13 +17,12 @@ type alias Config msg =
 defaultConfig : Config msg
 defaultConfig =
     { view = defaultView
-    , showLine = True
     , lineStyle = []
     }
 
 
 view : Meta -> Config msg -> ( Float, Float ) -> Html.Html msg
-view { toSvgCoords, scale, getHintInfo } { showLine, view } position =
+view { toSvgCoords, scale, oppositeScale, getHintInfo } { lineStyle, view } position =
     let
         info =
             getHintInfo (Tuple.first position)
@@ -36,24 +34,23 @@ view { toSvgCoords, scale, getHintInfo } { showLine, view } position =
             xSvg < scale.length / 2
 
         lineView =
-            if showLine then
-                [ viewLine ( xSvg, ySvg ) ]
-            else
-                []
+            [ viewLine lineStyle oppositeScale.length ]
     in
         Html.div
             [ Html.Attributes.class "elm-plot__hint"
-            , Html.Attributes.style [ ( "left", (toString xSvg) ++ "px" ) ]
+            , Html.Attributes.style
+                [ ( "left", (toString xSvg) ++ "px" )
+                , ( "top", toString oppositeScale.offset ++ "px" )
+                ]
             ]
             ((view info flipped) :: lineView)
 
 
-viewLine : ( Float, Float ) -> Html.Html msg
-viewLine ( x, y ) =
+viewLine : Style -> Float -> Html.Html msg
+viewLine style length =
     Html.div
         [ Html.Attributes.class "elm-plot__hint__line"
-        , Html.Attributes.style
-            [ ( "height", toString y ++ "px" ) ]
+        , Html.Attributes.style <| [ ( "height", toString length ++ "px" ) ] ++ style
         ]
         []
 

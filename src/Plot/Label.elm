@@ -14,7 +14,7 @@ module Plot.Label exposing (Attribute, StyleAttribute, view, viewDynamic, viewCu
  Ok, now you can go on!
 
 # Definition
-@docs Attribute 
+@docs Attribute
 
 # Styling
 @docs view, viewDynamic, viewCustom

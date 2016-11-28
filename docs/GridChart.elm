@@ -3,6 +3,9 @@ module GridChart exposing (chart, code)
 import Svg
 import Svg.Attributes
 import Plot exposing (..)
+import Plot.Line as Line
+import Plot.Axis as Axis
+import Plot.Grid as Grid
 import Colors
 
 
@@ -14,18 +17,27 @@ data =
 chart : Svg.Svg a
 chart =
     plot
-        [ size ( 600, 250 ), padding ( 0, 40 ) ]
+        [ size ( 600, 300 )
+        , padding ( 0, 40 )
+        , margin ( 10, 20, 40, 20 )
+        ]
         [ verticalGrid
-            [ gridMirrorTicks
-            , gridStyle [ ( "stroke", Colors.axisColorLight ) ]
-            ]
+            [ Grid.style [ ( "stroke", Colors.axisColorLight ) ] ]
         , horizontalGrid
-            [ gridValues [ 10, 20, 30, 40 ]
-            , gridStyle [ ( "stroke", Colors.axisColorLight ) ]
+            [ Grid.values [ 10, 20, 30, 40 ]
+            , Grid.style [ ( "stroke", Colors.axisColorLight ) ]
             ]
         , xAxis
-            [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
-        , line [ lineStyle [ ( "stroke", Colors.blueStroke ), ( "stroke-width", "2px" ) ] ] data
+            [ Axis.view
+                [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
+            ]
+        , line
+            [ Line.style
+                [ ( "stroke", Colors.blueStroke )
+                , ( "stroke-width", "2px" )
+                ]
+            ]
+            data
         ]
 
 
@@ -34,19 +46,19 @@ code =
     chart : Svg.Svg a
     chart =
         plot
-            [ size ( 600, 250 ), padding ( 0, 40 ) ]
+            [ size ( 600, 300 ), padding ( 0, 40 ) ]
             [ verticalGrid
-                [ gridMirrorTicks
-                , gridStyle [ ( "stroke", Colors.axisColorLight ) ]
-                ]
+                [ Grid.style [ ( "stroke", Colors.axisColorLight ) ] ]
             , horizontalGrid
-                [ gridValues [ 10, 20, 30, 40 ]
-                , gridStyle [ ( "stroke", Colors.axisColorLight ) ]
+                [ Grid.values [ 10, 20, 30, 40 ]
+                , Grid.style [ ( "stroke", Colors.axisColorLight ) ]
                 ]
             , xAxis
-                [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
+                [ Axis.view
+                    [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
+                ]
             , line
-                [ lineStyle
+                [ Lne.style
                     [ ( "stroke", Colors.blueStroke )
                     , ( "stroke-width", "2px" )
                     ]

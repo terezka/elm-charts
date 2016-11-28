@@ -2,7 +2,7 @@ module Plot
     exposing
         ( Attribute
         , plot
-        , plotStatic
+        , plotInteractive
         , xAxis
         , yAxis
         , verticalGrid
@@ -35,7 +35,7 @@ module Plot
 @docs classes, id, margin, padding, size, style
 
 # Elements
-@docs plot, plotStatic, line, area, xAxis, yAxis, hint, verticalGrid, horizontalGrid
+@docs plot, plotInteractive, line, area, xAxis, yAxis, hint, verticalGrid, horizontalGrid
 
 # State
 @docs State, initialState, update, Interaction
@@ -221,15 +221,23 @@ hint attrs position =
  Pass your meta attributes and plot elements to this function and
  a svg plot will be returned!
 -}
-plot : List Attribute -> List (Element (Interaction c)) -> Svg (Interaction c)
-plot attrs elements =
-    Svg.Lazy.lazy2 parsePlot attrs elements
+plot : List Attribute -> List (Element msg) -> Svg msg
+plot attrs =
+    Svg.Lazy.lazy2 parsePlot (toPlotConfig attrs)
 
 
-{-| -}
-plotStatic : List Attribute -> List (Element msg) -> Svg msg
-plotStatic attrs elements =
-    Svg.Lazy.lazy2 parsePlotStatic attrs elements
+{-| So this is like `plot`, except the message to is `Interaction yourMsg`. It's a message wrapping
+ your message, so you can use down the build in inteactions in the plot as well as adding your own.
+ See example here (if I forget to insert link, please let me know).
+-}
+plotInteractive : List Attribute -> List (Element (Interaction yourMsg)) -> Svg (Interaction yourMsg)
+plotInteractive attrs =
+    Svg.Lazy.lazy2 parsePlotInteractive (toPlotConfig attrs)
+
+
+toPlotConfig : List Attribute -> Config
+toPlotConfig =
+    List.foldl (<|) defaultConfig
 
 
 
@@ -312,42 +320,36 @@ getRelativePosition { fromSvgCoords, toNearestX } ( mouseX, mouseY ) left top =
 -- VIEW
 
 
-parsePlotStatic : List Attribute -> List (Element msg) -> Svg msg
-parsePlotStatic attrs elements =
+parsePlot : Config -> List (Element msg) -> Svg msg
+parsePlot config elements =
     let
-        metaConfig =
-            List.foldr (<|) defaultConfig attrs
-
         meta =
-            calculateMeta metaConfig elements
+            calculateMeta config elements
     in
-        viewPlotStatic metaConfig meta (viewElements meta elements)
+        viewPlot config meta (viewElements meta elements)
 
 
-parsePlot : List Attribute -> List (Element (Interaction c)) -> Svg (Interaction c)
-parsePlot attrs elements =
+parsePlotInteractive : Config -> List (Element (Interaction c)) -> Svg (Interaction c)
+parsePlotInteractive config elements =
     let
-        metaConfig =
-            List.foldr (<|) defaultConfig attrs
-
         meta =
-            calculateMeta metaConfig elements
+            calculateMeta config elements
     in
-        viewPlot metaConfig meta (viewElements meta elements)
+        viewPlotInteractive config meta (viewElements meta elements)
 
 
-viewPlot : Config -> Meta -> ( List (Svg (Interaction c)), List (Html (Interaction c)) ) -> Html (Interaction c)
-viewPlot ({ size } as config) meta ( svgViews, htmlViews ) =
+viewPlotInteractive : Config -> Meta -> ( List (Svg (Interaction c)), List (Html (Interaction c)) ) -> Html (Interaction c)
+viewPlotInteractive ({ size } as config) meta ( svgViews, htmlViews ) =
     Html.div
         (plotAttributes config ++ plotAttributesInteraction meta)
-        (viewSvg size svgViews :: htmlViews) 
+        (viewSvg size svgViews :: htmlViews)
 
 
-viewPlotStatic : Config -> Meta -> ( List (Svg msg), List (Html msg) ) -> Svg msg
-viewPlotStatic ({ size } as config) meta ( svgViews, htmlViews ) =
+viewPlot : Config -> Meta -> ( List (Svg msg), List (Html msg) ) -> Svg msg
+viewPlot ({ size } as config) meta ( svgViews, htmlViews ) =
     Html.div
         (plotAttributes config)
-        (viewSvg size svgViews :: htmlViews) 
+        (viewSvg size svgViews :: htmlViews)
 
 
 plotAttributes : Config -> List (Html.Attribute msg)
@@ -365,7 +367,7 @@ plotAttributesInteraction meta =
     ]
 
 
-viewSvg : (Float, Float) -> List (Svg msg) -> Svg msg
+viewSvg : ( Float, Float ) -> List (Svg msg) -> Svg msg
 viewSvg ( width, height ) views =
     Svg.svg
         [ Svg.Attributes.height (toString height)
@@ -383,8 +385,8 @@ getMousePosition meta =
         (Json.field "clientY" Json.float)
 
 
-sizeStyle : (Float, Float) -> Style
-sizeStyle (width, height) =
+sizeStyle : ( Float, Float ) -> Style
+sizeStyle ( width, height ) =
     [ ( "height", toString height ++ "px" ), ( "width", toString width ++ "px" ) ]
 
 
@@ -515,8 +517,8 @@ scaleValue { length, range, offset } v =
 
 
 unScaleValue : Scale -> Float -> Float
-unScaleValue { length, range, offset } v =
-    (v - offset) * range / length
+unScaleValue { length, range, offset, lowest } v =
+    ((v - offset) * range / length) + lowest
 
 
 fromSvgCoords : Scale -> Scale -> Point -> Point
@@ -540,7 +542,7 @@ toSvgCoordsY xScale yScale ( x, y ) =
 
 getDifference : Float -> Float -> Float
 getDifference a b =
-    abs <| (abs a) - (abs b)
+    abs <| a - b
 
 
 getClosest : Float -> Float -> Float -> Float

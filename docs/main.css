@@ -1,5 +1,11 @@
 
 .elm-plot {
+	margin: 0 auto;
+}
+
+/* Standard styles */
+
+.elm-plot {
 	position: relative;
 }
 
@@ -12,19 +18,17 @@
 	stroke: #c3c3c3;
 }
 
-.elm-plot__tooltip {
+.elm-plot__hint {
 	position: absolute;
-	top: 0;
 	pointer-events: none;
 }
 
-.elm-plot__tooltip__line {
+.elm-plot__hint__line {
 	width: 1px;
-	top: 0;
 	background-color: #000;
 }
 
-.elm-plot__tooltip__default-view {
+.elm-plot__hint__default-view {
 	position: absolute;
 	top: 20%;
 	padding: 10px;
@@ -34,11 +38,11 @@
 }
 
 
-.elm-plot__tooltip__default-view--left {
+.elm-plot__hint__default-view--left {
 	left: 10px; 
 }
 
-.elm-plot__tooltip__default-view--right {
+.elm-plot__hint__default-view--right {
 	transform: translateX(-100%);
 	left: -10px;
 }

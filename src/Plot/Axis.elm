@@ -69,8 +69,6 @@ classes classes config =
 
 
 {-| Adds style to the container holding your axis.
- 
- (Hint: Most properties are conveniently inherited by your ticks and labels)
 
     myXAxis : Plot.Element msg
     myXAxis =

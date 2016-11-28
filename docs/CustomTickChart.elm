@@ -3,6 +3,11 @@ module CustomTickChart exposing (chart, code)
 import Svg
 import Svg.Attributes
 import Plot exposing (..)
+import Plot.Line as Line
+import Plot.Grid as Grid
+import Plot.Axis as Axis
+import Plot.Tick as Tick
+import Plot.Label as Label
 import Colors
 
 
@@ -16,40 +21,46 @@ isOdd n =
     rem n 2 > 0
 
 
-toTickConfig : Int -> Float -> List TickViewAttr
-toTickConfig index tick =
+toTickStyle : ( Int, Float ) -> List Tick.StyleAttribute
+toTickStyle ( index, tick ) =
     if isOdd index then
-        [ tickLength 7, tickStyle [ ( "stroke", "#e4e3e3" ) ] ]
+        [ Tick.length 7
+        , Tick.style [ ( "stroke", "#e4e3e3" ) ]
+        ]
     else
-        [ tickLength 10, tickStyle [ ( "stroke", "#b9b9b9" ) ] ]
+        [ Tick.length 10
+        , Tick.style [ ( "stroke", "#b9b9b9" ) ]
+        ]
 
 
-toLabelConfig : Int -> Float -> List LabelViewAttr
-toLabelConfig index tick =
+toLabelStyle : ( Int, Float ) -> List Label.StyleAttribute
+toLabelStyle ( index, tick ) =
     if isOdd index then
-        [ labelFormat (always "") ]
+        [ Label.format (always "") ]
     else
-        [ labelFormat (\l -> toString l ++ " s")
-        , labelStyle [ ( "stroke", "#969696" ) ]
-        , labelDisplace ( 0, 27 )
+        [ Label.format (\( _, v ) -> toString v ++ " s")
+        , Label.style [ ( "stroke", "#969696" ) ]
+        , Label.displace ( 0, 27 )
         ]
 
 
 chart : Svg.Svg a
 chart =
     plot
-        [ size ( 600, 250 ) ]
+        [ size ( 600, 300 )
+        , margin ( 10, 20, 40, 20 )
+        ]
         [ line
-            [ lineStyle
+            [ Line.style
                 [ ( "stroke", Colors.pinkStroke )
                 , ( "stroke-width", "2px" )
                 ]
             ]
             data
         , xAxis
-            [ axisStyle [ ( "stroke", Colors.axisColor ) ]
-            , tickConfigViewFunc toTickConfig
-            , labelConfigViewFunc toLabelConfig
+            [ Axis.view [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
+            , Axis.tick [ Tick.viewDynamic toTickStyle ]
+            , Axis.label [ Label.viewDynamic toLabelStyle ]
             ]
         ]
 
@@ -61,16 +72,16 @@ code =
         rem n 2 > 0
 
 
-    toTickConfig : Int -> Float -> List TickViewAttr
-    toTickConfig index tick =
+    toTickStyle : Int -> Float -> List TickViewAttr
+    toTickStyle index tick =
         if isOdd index then
             [ tickLength 7, tickStyle [ ( "stroke", "#e4e3e3" ) ] ]
         else
             [ tickLength 10, tickStyle [ ( "stroke", "#b9b9b9" ) ] ]
 
 
-    toLabelConfig : Int -> Float -> List LabelViewAttr
-    toLabelConfig index tick =
+    toLabelStyle : Int -> Float -> List LabelViewAttr
+    toLabelStyle index tick =
         if isOdd index then
             [ labelFormat (always "") ]
         else
@@ -83,7 +94,7 @@ code =
     chart : Svg.Svg a
     chart =
         plot
-            [ size ( 600, 250 ) ]
+            [ size ( 600, 300 ) ]
             [ line
                 [ lineStyle
                     [ ( "stroke", Colors.pinkStroke )
@@ -93,8 +104,8 @@ code =
                 data
             , xAxis
                 [ axisStyle [ ( "stroke", Colors.axisColor ) ]
-                , tickConfigViewFunc toTickConfig
-                , labelConfigViewFunc toLabelConfig
+                , tickConfigViewFunc toTickStyle
+                , labelConfigViewFunc toLabelStyle
                 ]
             ]
     """

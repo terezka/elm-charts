@@ -3,6 +3,8 @@ module MultiLineChart exposing (chart, code)
 import Svg
 import Svg.Attributes
 import Plot exposing (..)
+import Plot.Line as Line
+import Plot.Axis as Axis
 import Colors
 
 
@@ -19,11 +21,14 @@ data2 =
 chart : Svg.Svg a
 chart =
     plot
-        [ size ( 600, 250 ) ]
-        [ line [ lineStyle [ ( "stroke", Colors.blueStroke ), ( "stroke-width", "2px" ) ] ] data2
-        , line [ lineStyle [ ( "stroke", Colors.pinkStroke ), ( "stroke-width", "2px" ) ] ] data1
+        [ size ( 600, 300 )
+        , margin ( 10, 20, 40, 20 )
+        ]
+        [ line [ Line.style [ ( "stroke", Colors.blueStroke ), ( "stroke-width", "2px" ) ] ] data2
+        , line [ Line.style [ ( "stroke", Colors.pinkStroke ), ( "stroke-width", "2px" ) ] ] data1
         , xAxis
-            [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+            [ Axis.view
+                [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
             ]
         ]
 
@@ -33,23 +38,24 @@ code =
     chart : Svg.Svg a
     chart =
         plot
-            [ size ( 600, 250 ) ]
+            [ size ( 600, 300 ) ]
             [ line
-                [ lineStyle
+                [ Line.style
                     [ ( "stroke", Colors.blueStroke )
                     , ( "stroke-width", "2px" )
                     ]
                 ]
                 data2
             , line
-                [ lineStyle
+                [ Line.style
                     [ ( "stroke", Colors.pinkStroke )
                     , ( "stroke-width", "2px" )
                     ]
                 ]
                 data1
             , xAxis
-                [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+                [ Axis.view
+                    [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
                 ]
             ]
     """

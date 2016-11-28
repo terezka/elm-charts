@@ -13,6 +13,7 @@ module Plot.Grid exposing (Attribute, values, style, classes)
 @docs values
 
 -}
+
 import Internal.Grid as Internal exposing (Config, Values(..), defaultConfigX)
 import Plot.Types exposing (Style)
 
@@ -27,7 +28,7 @@ type alias Attribute =
     myGrid : Plot.Element msg
     myGrid =
         verticalGrid [ Grid.values [ 2, 4, 6 ] ]
-    
+
  If values are not specified with this attribute, the grid will mirror the ticks.
 -}
 values : List Float -> Attribute

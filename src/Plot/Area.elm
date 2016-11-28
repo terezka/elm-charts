@@ -1,6 +1,5 @@
 module Plot.Area exposing (..)
 
-
 {-|
  Attributes for altering the view of your area serie.
 
@@ -12,6 +11,7 @@ module Plot.Area exposing (..)
 
 
 -}
+
 import Internal.Area as Internal
 import Plot.Types exposing (Style)
 

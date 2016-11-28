@@ -2,12 +2,11 @@ module AreaChart exposing (chart, code)
 
 import Svg
 import Svg.Attributes
-import Plot as Plot
+import Plot as Plot exposing (..)
 import Plot.Area as Area
 import Plot.Grid as Grid
 import Plot.Axis as Axis
 import Plot.Tick as Tick
-import Plot.Base as Base
 import Colors
 
 
@@ -21,39 +20,36 @@ data2 =
     [ ( 0, 5 ), ( 1, 20 ), ( 2, 10 ), ( 3, 12 ), ( 4, 20 ), ( 5, 25 ), ( 6, 3 ) ]
 
 
-chart : Plot.State -> Svg.Svg Plot.Msg
-chart { position } =
-    Plot.base
-        [ Base.size ( 600, 250 )
-        , Base.margin ( 0, 40, 40, 40 )
-        , Base.padding ( 0, 20 )
-        , Base.id "elm-plot-area-chart"
+chart : Svg.Svg msg
+chart =
+    Plot.plot
+        [ size ( 600, 300 )
+        , margin ( 10, 20, 40, 20 )
         ]
-        [ Plot.verticalGrid [ Grid.classes [ "dsfdjksh" ] ]
-        , Plot.line [] data
-        , Plot.line [] data2
-        , Plot.xAxis
-            [ Axis.tick [ Tick.delta 0.5 ]
-            , Axis.view
-                [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
+        [ area
+            [ Area.style
+                [ ( "stroke", Colors.blueStroke )
+                , ( "fill", Colors.blueFill )
+                ]
             ]
-        , Plot.tooltip [] position
+            data
+        , xAxis [ Axis.view [ Axis.style [ ( "stroke", Colors.axisColor ) ] ] ]
         ]
 
 
 code =
     """
-    chart : Svg.Svg a
+    chart : Svg.Svg msg
     chart =
         plot
-            [ size ( 300, 300 ) ]
+            [ size ( 600, 300 ) ]
             [ area
-                [ areaStyle
+                [ Area.style
                     [ ( "stroke", Colors.blueStroke )
                     , ( "fill", Colors.blueFill )
                     ]
                 ]
                 data
-            , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
+            , xAxis [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
             ]
     """

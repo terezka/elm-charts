@@ -4,6 +4,9 @@ import Svg
 import Svg.Attributes
 import Plot exposing (..)
 import Colors
+import Plot.Area as Area
+import Plot.Axis as Axis
+import Plot.Tick as Tick
 
 
 data1 : List ( Float, Float )
@@ -19,12 +22,26 @@ data2 =
 chart : Svg.Svg a
 chart =
     plot
-        [ size ( 600, 250 ) ]
-        [ area [ areaStyle [ ( "stroke", Colors.skinStroke ), ( "fill", Colors.skinFill ) ] ] data1
-        , area [ areaStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data2
+        [ size ( 600, 300 )
+        , margin ( 10, 20, 40, 20 )
+        ]
+        [ area
+            [ Area.style
+                [ ( "stroke", Colors.skinStroke )
+                , ( "fill", Colors.skinFill )
+                ]
+            ]
+            data1
+        , area
+            [ Area.style
+                [ ( "stroke", Colors.blueStroke )
+                , ( "fill", Colors.blueFill )
+                ]
+            ]
+            data2
         , xAxis
-            [ axisStyle [ ( "stroke", Colors.axisColor ) ]
-            , tickDelta 10
+            [ Axis.view [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
+            , Axis.tick [ Tick.delta 10 ]
             ]
         ]
 
@@ -34,16 +51,16 @@ code =
     chart : Svg.Svg a
     chart =
         plot
-            [ size ( 600, 250 ) ]
+            [ size ( 600, 300 ) ]
             [ area
-                [ areaStyle
+                [ Area.style
                     [ ( "stroke", Colors.skinStroke )
                     , ( "fill", Colors.skinFill )
                     ]
                 ]
                 data1
             , area
-                [ areaStyle
+                [ Area.style
                     [ ( "stroke", Colors.blueStroke )
                     , ( "fill", Colors.blueFill )
                     ]

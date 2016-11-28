@@ -10,6 +10,7 @@ module Plot.Line exposing (..)
 @docs style
 
 -}
+
 import Plot.Types exposing (Style)
 import Internal.Line as Internal
 

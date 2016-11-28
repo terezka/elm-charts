@@ -33,7 +33,6 @@ module Plot.Tick exposing (Attribute, StyleAttribute, view, viewDynamic, viewCus
 
 -}
 
-
 import Svg
 import Plot.Types exposing (Style)
 import Internal.Tick as Internal

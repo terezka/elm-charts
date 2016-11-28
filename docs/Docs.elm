@@ -3,32 +3,15 @@ port module Docs exposing (..)
 import Html exposing (Html, div, text, h1, img, a, br, span, code, pre, p)
 import Html.Attributes exposing (style, src, href, class)
 import Html.Events exposing (onClick)
-import Svg
-import Svg.Attributes
-import Svg.Events
-
-
---import AreaChart exposing (..)
-
-import Colors
-
-
---import Test exposing (..)
-
 import Plot as Plot exposing (Interaction(..))
-import Plot.Line as Line
-import Plot.Label as Label
-import Plot.Tick as Tick
-import Plot.Axis as Axis
-import Plot.Hint as Hint
-import Debug
+import AreaChart
+import MultiAreaChart
+import GridChart
+import MultiLineChart
+import CustomTickChart
+import ComposedChart
 
 
---import MultiAreaChart exposing (..)
---import GridChart exposing (..)
---import MultiLineChart exposing (..)
---import CustomTickChart exposing (..)
---import ComposedChart exposing (..)
 -- MODEL
 
 
@@ -168,20 +151,18 @@ view model =
                 ]
                 [ text "Github" ]
             ]
-          --, viewTitle model "Simple Area Chart" "AreaChart" AreaChart.code
-        , Html.map PlotInteraction (testChart model.plotState)
-          --, Html.map PlotInteraction (Test.chart Plot.initialState)
-          --, Html.map PlotInteraction (AreaChart.chart model.plotState)
-          --, viewTitle model "Multi Area Chart" "MultiAreaChart" MultiAreaChart.code
-          --, Html.map PlotInteraction MultiAreaChart.chart
-          --, viewTitle model "Line Chart" "MultiLineChart" MultiLineChart.code
-          --, Html.map PlotInteraction MultiLineChart.chart
-          --, viewTitle model "Grid" "GridChart" GridChart.code
-          --, Html.map PlotInteraction GridChart.chart
-          --, viewTitle model "Custom ticks and labels" "CustomTickChart" CustomTickChart.code
-          --, Html.map PlotInteraction CustomTickChart.chart
-          --, viewTitle model "Composable" "ComposedChart" ComposedChart.code
-          --, Html.map PlotInteraction ComposedChart.chart
+        , viewTitle model "Simple Area Chart" "AreaChart" AreaChart.code
+        , Html.map PlotInteraction (AreaChart.chart)
+        , viewTitle model "Multi Area Chart" "MultiAreaChart" MultiAreaChart.code
+        , Html.map PlotInteraction MultiAreaChart.chart
+        , viewTitle model "Line Chart" "MultiLineChart" MultiLineChart.code
+        , Html.map PlotInteraction MultiLineChart.chart
+        , viewTitle model "Grid" "GridChart" GridChart.code
+        , Html.map PlotInteraction GridChart.chart
+        , viewTitle model "Custom ticks and labels" "CustomTickChart" CustomTickChart.code
+        , Html.map PlotInteraction CustomTickChart.chart
+        , viewTitle model "Composable" "ComposedChart" ComposedChart.code
+        , Html.map PlotInteraction <| ComposedChart.chart model.plotState
         , div
             [ style [ ( "margin", "100px auto 30px" ), ( "font-size", "14px" ) ] ]
             [ text "Made by "
@@ -191,41 +172,6 @@ view model =
                 ]
                 [ text "@terexka" ]
             ]
-        ]
-
-
-specialTick : ( Int, Float ) -> Svg.Svg (Plot.Interaction Msg)
-specialTick _ =
-    Svg.text_
-        [ Svg.Attributes.transform "translate(5, 5)"
-        , Svg.Attributes.style "stroke: #969696; font-size: 12px; text-anchor: end;"
-        , Svg.Events.onClick (Custom ClickTick)
-        ]
-        [ Svg.tspan [] [ Svg.text "🌟" ] ]
-
-
-testChart : Plot.State -> Svg.Svg (Plot.Interaction Msg)
-testChart { position } =
-    Plot.plot
-        [ Plot.size ( 600, 250 )
-        , Plot.margin ( 10, 40, 40, 40 )
-        ]
-        [ Plot.line
-            [ Line.style
-                [ ( "stroke", Colors.pinkStroke )
-                , ( "stroke-width", "2px" )
-                ]
-            ]
-            [ ( 0, 2 ), ( 1, 3 ), ( 2, 5 ) ]
-        , Plot.xAxis []
-        , Plot.yAxis
-            [ Axis.tick
-                [ Tick.viewCustom specialTick
-                , Tick.removeZero
-                ]
-            ]
-        , Plot.verticalGrid []
-        , Plot.hint [ ] position
         ]
 
 
