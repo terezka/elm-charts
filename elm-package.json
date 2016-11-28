@@ -9,7 +9,14 @@
         "./dom"
     ],
     "exposed-modules": [
-        "Plot"
+        "Plot",
+        "Plot.Axis",
+        "Plot.Tick",
+        "Plot.Label",
+        "Plot.Grid",
+        "Plot.Area",
+        "Plot.Line",
+        "Plot.Hint"
     ],
     "native-modules": true,
     "dependencies": {

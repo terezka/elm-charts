@@ -18,22 +18,6 @@ import Svg
 import Svg.Attributes
 
 
-{-|
- Attributes for altering the values and view of your axis' labels.
-
-# Styling
-@docs view, viewDynamic, viewCustom
-
-## Style attributes
-@docs style, classes, displace, format
-
-# Values
-@docs values, filter
-
-# Definitions
-@docs Attribute, StyleAttribute, ToStyleAttributes
-
--}
 type alias Config msg =
     { viewConfig : ViewConfig msg
     , valueConfig : ValueConfig

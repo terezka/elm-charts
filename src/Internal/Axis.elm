@@ -1,6 +1,6 @@
 module Internal.Axis exposing (..)
 
-import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
+import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta)
 import Internal.Tick as Tick
 import Internal.Label as Label
 import Internal.Grid as Grid

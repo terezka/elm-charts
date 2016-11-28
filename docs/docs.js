@@ -10221,21 +10221,6 @@ var _terezka$elm_plot$Plot_Axis$tick = F2(
 					attributes)
 			});
 	});
-var _terezka$elm_plot$Plot_Axis$view = F2(
-	function (attributes, config) {
-		return _elm_lang$core$Native_Utils.update(
-			config,
-			{
-				viewConfig: A3(
-					_elm_lang$core$List$foldl,
-					F2(
-						function (x, y) {
-							return x(y);
-						}),
-					_terezka$elm_plot$Internal_Axis$defaultStyleConfig,
-					attributes)
-			});
-	});
 var _terezka$elm_plot$Plot_Axis$lineStyle = F2(
 	function (style, config) {
 		return _elm_lang$core$Native_Utils.update(
@@ -10253,6 +10238,21 @@ var _terezka$elm_plot$Plot_Axis$classes = F2(
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{classes: classes});
+	});
+var _terezka$elm_plot$Plot_Axis$view = F2(
+	function (attributes, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{
+				viewConfig: A3(
+					_elm_lang$core$List$foldl,
+					F2(
+						function (x, y) {
+							return x(y);
+						}),
+					_terezka$elm_plot$Internal_Axis$defaultStyleConfig,
+					attributes)
+			});
 	});
 
 var _terezka$elm_plot$Plot_Grid$classes = F2(
@@ -10597,6 +10597,10 @@ var _terezka$elm_plot$Plot_Hint$removeLine = function (config) {
 		config,
 		{showLine: false});
 };
+var _terezka$elm_plot$Plot_Hint$HintInfo = F2(
+	function (a, b) {
+		return {xValue: a, yValues: b};
+	});
 
 var _terezka$elm_plot$Plot$getYValue = F3(
 	function (xValue, _p0, result) {

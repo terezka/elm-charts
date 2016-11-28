@@ -3,14 +3,18 @@ module Plot.Axis exposing (..)
 {-|
  Attributes for altering the view of your axis.
 
+# Definition
+@docs Attribute
+
 # Styling
-@docs style, classes, lineStyle
+@docs view
+
+## Style attributes
+@docs StyleAttribute, style, classes, lineStyle
 
 # Ticks and labels
 @docs tick, label
 
-# Definitions
-@docs Attribute
 
 -}
 
@@ -22,8 +26,7 @@ import Plot.Tick as Tick
 import Plot.Label as Label
 
 
-{-| The type representing an axis attribute.
--}
+{-| -}
 type alias Attribute msg =
     Internal.Config msg -> Internal.Config msg
 
@@ -33,61 +36,77 @@ type alias StyleAttribute =
     Internal.StyleConfig -> Internal.StyleConfig
 
 
-{-| Add classes to the container holding your axis.
+{-| By providing a list of style attributes to this attribute,
+ you may alter the styling of your axis.
 
-    main =
-        plot
-            []
-            [ xAxis [ Axis.classes [ "axis-class" ] ] ]
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.view
+                [ Axis.style [ ( "stroke", "red" ) ]
+                , Axis.classes [ "axis--x" ]
+                , Axis.lineStyle [ ( "stroke", "blue" ) ]
+                ]
+            ]
+-}
+view : List StyleAttribute -> Attribute msg
+view attributes config =
+    { config | viewConfig = List.foldl (<|) Internal.defaultStyleConfig attributes }
+
+
+{-| Adds classes to the container holding your axis.
+
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.view
+                [ Axis.classes [ "axis--x" ] ]
+            ]
 -}
 classes : List String -> StyleAttribute
 classes classes config =
     { config | classes = classes }
 
 
-{-| Add style to the container holding your axis. Most properties are
- conveniently inherited by your ticks and labels.
+{-| Adds style to the container holding your axis.
+ 
+ (Hint: Most properties are conveniently inherited by your ticks and labels)
 
-    main =
-        plot
-            []
-            [ xAxis [ Axis.style [ ( "stroke", "red" ) ] ] ]
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.view
+                [ Axis.style [ ( "stroke", "red" ) ] ]
+            ]
 -}
 style : Style -> StyleAttribute
 style style config =
     { config | baseStyle = style }
 
 
-{-| Add styling to the axis line.
+{-| Adds styles to the axis line.
 
-    main =
-        plot
-            []
-            [ xAxis [ Axis.lineStyle [ ( "stroke", "blue" ) ] ] ]
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.view
+                [ Axis.lineStyle [ ( "stroke", "blue" ) ] ]
+            ]
 -}
 lineStyle : Style -> StyleAttribute
 lineStyle style config =
     { config | lineStyle = style }
 
 
-{-| -}
-view : List StyleAttribute -> Attribute msg
-view attributes config =
-    { config | viewConfig = List.foldl (<|) Internal.defaultStyleConfig attributes }
+{-| By providing this attribute with a list of [tick attributes](http://package.elm-lang.org/packages/terezka/elm-plot/latest/Plot-Tick),
+ you may alter the values and ticks displayed as your axis' ticks.
 
-
-{-| Provided a list of tick attributes to alter what values with be added a tick and how it will be displayed.
-
-    main =
-        plot
-            []
-            [ xAxis [
-                Axis.tick
-                    [ Tick.view
-                        [ Tick.length 3
-                        , Tick.values [ 2, 4, 6 ]
-                        ]
-                    ]
+    myYAxis : Plot.Element msg
+    myYAxis =
+        Plot.yAxis
+            [ Axis.tick
+                [ Tick.view [ Tick.length 3 ]
+                , Tick.values [ 2, 4, 6 ]
                 ]
             ]
 -}
@@ -96,19 +115,18 @@ tick attributes config =
     { config | tickConfig = List.foldl (<|) TickInternal.defaultConfig attributes }
 
 
-{-| Provided a list of label attributes to alter what values with be added a label and how it will be displayed.
+{-| By providing this attribute with a list of [label attributes](http://package.elm-lang.org/packages/terezka/elm-plot/latest/Plot-Label),
+ you may alter the values and ticks displayed as your axis' labels.
 
-    main =
-        plot
-            []
-            [ xAxis [
-                Axis.label
-                    [ Label.view
-                        [ Label.displace (10, 0)
-                        , Label.values [ 3, 5, 7 ]
-                        , Label.format (\index value -> "$" ++ toString value)
-                        ]
+    myYAxis : Plot.Element msg
+    myYAxis =
+        Plot.yAxis
+            [ Axis.tick
+                [ Label.view
+                    [ Label.displace (10, 0)
+                    , Label.format formatFunc
                     ]
+                , Label.values [ 3, 5, 7 ]
                 ]
             ]
 -}

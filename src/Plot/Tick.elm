@@ -1,19 +1,35 @@
-module Plot.Tick exposing (..)
+module Plot.Tick exposing (Attribute, StyleAttribute, view, viewDynamic, viewCustom, style, classes, length, width, values, delta, removeZero)
 
 {-|
  Attributes for altering the values and view of your axis' ticks.
+
+ Before you read any further, please note that when I speak of the tick _index_,
+ then I'm talking about how many ticks this tick is from the origin.
+
+ Imaging an axis looking like this:
+
+
+ For the tick with the value 4, the index will be 2, because there are two ticks
+ before it. For the tick with the value 6, index will be 3 and so on.
+
+ Ok, now you can go on!
+
+# Definition
+@docs Attribute
 
 # Styling
 @docs view, viewDynamic, viewCustom
 
 ## Style attributes
-@docs style, classes, length, width
+@docs StyleAttribute, style, classes, length, width
 
 # Values
 @docs values, delta
 
-# Definitions
-@docs Attribute, StyleAttribute, ToStyleAttributes
+# Others
+@docs removeZero
+
+
 
 -}
 
@@ -44,12 +60,12 @@ type alias StyleAttribute =
 
 {-| Set the length of the tick (in pixels).
 
-    main =
-        plot
-            []
-            [ xAxis
-                [ Axis.tick
-                    [ Tick.view [ Tick.length 8 ] ]
+    myYAxis : Plot.Element msg
+    myYAxis =
+        Plot.yAxis
+            [ Axis.tick
+                [ Tick.view
+                    [ Tick.length 8 ]
                 ]
             ]
 -}
@@ -60,12 +76,12 @@ length length config =
 
 {-| Set the width of the tick (in pixels).
 
-    main =
-        plot
-            []
-            [ xAxis
-                [ Axis.tick
-                    [ Tick.view [ Tick.width 2 ] ]
+    myYAxis : Plot.Element msg
+    myYAxis =
+        Plot.yAxis
+            [ Axis.tick
+                [ Tick.view
+                    [ Tick.width 2 ]
                 ]
             ]
 -}
@@ -76,12 +92,12 @@ width width config =
 
 {-| Add classes to the tick.
 
-    main =
-        plot
-            []
-            [ xAxis
-                [ Axis.tick
-                    [ Tick.view [ Tick.classes [ "my-tick" ] ] ]
+    myYAxis : Plot.Element msg
+    myYAxis =
+        Plot.yAxis
+            [ Axis.tick
+                [ Tick.view
+                    [ Tick.classes [ "my-tick" ] ]
                 ]
             ]
 -}
@@ -92,14 +108,12 @@ classes classes config =
 
 {-| Add inline-styles to the tick.
 
-    main =
-        plot
-            []
-            [ xAxis
-                [ Axis.tick
-                    [ Tick.view
-                        [ Tick.style [ ( "stroke", "blue" ) ] ]
-                    ]
+    myYAxis : Plot.Element msg
+    myYAxis =
+        Plot.yAxis
+            [ Axis.tick
+                [ Tick.view
+                    [ Tick.style [ ( "stroke", "blue" ) ] ]
                 ]
             ]
 -}
@@ -115,16 +129,15 @@ toStyleConfig attributes =
 
 {-| Provide a list of style attributes to alter the view of the tick.
 
-    main =
-        plot
-            []
-            [ xAxis
-                [ Axis.tick
-                    [ Tick.view
-                        [ Tick.style [ ( "stroke", "deeppink" ) ]
-                        , Tick.length 5
-                        , Tick.width 2
-                        ]
+    myYAxis : Plot.Element msg
+    myYAxis =
+        Plot.yAxis
+            [ Axis.tick
+                [ Tick.view
+                    [ Tick.style
+                        [ ( "stroke", "deeppink" ) ]
+                    , Tick.length 5
+                    , Tick.width 2
                     ]
                 ]
             ]
@@ -140,8 +153,8 @@ view styles config =
 {-| Alter the view of the tick based on the tick's value and index (amount of ticks from origin) by
  providing a function returning a list of style attributes.
 
-    toTickConfig : ( Int, Float ) -> List Tick.StyleAttribute
-    toTickConfig index value =
+    toTickStyles : ( Int, Float ) -> List Tick.StyleAttribute
+    toTickStyles ( index, value ) =
         if isOdd index then
             [ Tick.length 7
             , Tick.style [ ( "stroke", "#e4e3e3" ) ]
@@ -151,11 +164,11 @@ view styles config =
             , Tick.style [ ( "stroke", "#b9b9b9" ) ]
             ]
 
-    main =
-        plot
-            []
-            [ xAxis
-                [ Axis.tick [ Tick.viewDynamic toViewConfig ] ]
+    myYAxis : Plot.Element msg
+    myYAxis =
+        Plot.yAxis
+            [ Axis.tick
+                [ Tick.viewDynamic toTickStyles ]
             ]
 
  **Note:** If you add another attribute altering the view like `view` or `viewCustom` _after_ this attribute,
@@ -169,16 +182,22 @@ viewDynamic toStyles config =
 {-| Define your own view for the labels. Your view will be passed label's value and index (amount of ticks from origin).
 
     viewTick : ( Int, Float ) -> Svg.Svg a
-    viewTick index tick =
+    viewTick ( index, tick ) =
         text_
-            [ transform "translate(-5, 10)" ]
+            [ transform "translate(-5, 10)"
+            , Svg.Events.onClick (Custom MyTickClickMsg)
+            ]
             [ tspan
                 []
                 [ text (if isOdd index then "🌟" else "⭐") ]
             ]
 
-    main =
-        plot [] [ xAxis [ Axis.tick [ Tick.viewCustom viewTick ] ] ]
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.tick
+                [ Tick.viewCustom viewTick ]
+            ]
 
  **Note:** If you add another attribute altering the view like `view` or `viewDynamic` _after_ this attribute,
  then this attribute will have no effect.
@@ -188,19 +207,13 @@ viewCustom view config =
     { config | viewConfig = FromCustomView (always view) }
 
 
-
--- Value attributes
-
-
 {-| Specify what values will be added a tick.
 
-    main =
-        plot
-            []
-            [ xAxis
-                [ Axis.tick
-                    [ Tick.values [ 0, 1, 2, 4, 8 ] ]
-                ]
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.tick
+                [ Tick.values [ 0, 1, 2, 4, 8 ] ]
             ]
 
  **Note:** If you add another attribute altering the values like `delta` _after_ this attribute,
@@ -212,12 +225,13 @@ values values config =
 
 
 {-| Specify what values will be added a tick by specifying the space between each tick.
- The delta will be added from zero.
 
-    main =
-        plot
-            []
-            [ xAxis [ Axis.tick [ Tick.delta 4 ] ] ]
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.tick
+                [ Tick.delta 4 ]
+            ]
 
  **Note:** If you add another attribute altering the values like `values` _after_ this attribute,
  then this attribute will have no effect.
@@ -230,10 +244,12 @@ delta delta config =
 {-| Remove tick at origin. Useful when two axis' are crossing and you do not
  want the origin the be cluttered with labels.
 
-    main =
-        plot
-            []
-            [ xAxis [ Axis.tick [ Tick.removeZero ] ] ]
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.tick
+                [ Tick.removeZero ]
+            ]
 -}
 removeZero : Attribute msg
 removeZero config =

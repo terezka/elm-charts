@@ -1,6 +1,7 @@
 module Plot
     exposing
-        ( plot
+        ( Attribute
+        , plot
         , plotStatic
         , xAxis
         , yAxis
@@ -27,10 +28,14 @@ module Plot
  an intuitve manner without comprimising flexibility regarding configuration.
  It is insprired by the elm-html api, using the `element attrs children` pattern.
 
-# Elements
-@docs Element, plot, plotStatic, line, area, xAxis, yAxis, hint, verticalGrid, horizontalGrid, classes, id, margin, padding, size, style
+# Definitions
+@docs Attribute, Element
 
-# Configuration
+# Styling
+@docs classes, id, margin, padding, size, style
+
+# Elements
+@docs plot, plotStatic, line, area, xAxis, yAxis, hint, verticalGrid, horizontalGrid
 
 # State
 @docs State, initialState, update, Interaction
@@ -41,17 +46,14 @@ module Plot
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
-import Svg exposing (g)
-import Svg.Attributes exposing (height, width, d, style)
-import Svg.Events exposing (onMouseOver)
+import Svg exposing (Svg)
+import Svg.Attributes
+import Svg.Events
 import Svg.Lazy
-import String
 import Task
 import Json.Decode as Json
 import Dom
 import Dom.Position
-import Round
-import Debug
 import Helpers exposing (..)
 import Plot.Types exposing (..)
 import Plot.Axis as Axis
@@ -99,15 +101,14 @@ defaultConfig =
     }
 
 
-{-| The type representing an a meta configuration.
--}
+{-| -}
 type alias Attribute =
     Config -> Config
 
 
-{-| Add padding to your plot, meaning extra space below
+{-| Adds padding to your plot, meaning extra space below
  and above the lowest and highest point in your plot.
- The unit is pixels.
+ The unit is pixels and the format is `( bottom, top )`.
 
  Default: `( 0, 0 )`
 -}
@@ -116,7 +117,8 @@ padding ( bottom, top ) config =
     { config | padding = ( toFloat bottom, toFloat top ) }
 
 
-{-| Specify the size of your plot in pixels.
+{-| Specify the size of your plot in pixels and in the format
+ of `( width, height )`.
 
  Default: `( 800, 500 )`
 -}
@@ -127,7 +129,7 @@ size ( width, height ) config =
 
 {-| Specify margin around the plot. Useful when your ticks are outside the
  plot and you would like to add space to see them! Values are in pixels and
- in the format of ( top, right, bottom, left ).
+the format is `( top, right, bottom, left )`.
 
  Default: `( 0, 0, 0, 0 )`
 -}
@@ -136,25 +138,21 @@ margin ( t, r, b, l ) config =
     { config | margin = ( toFloat t, toFloat r, toFloat b, toFloat l ) }
 
 
-{-| Add styles to the svg element.
-
- Default: `[ ( "padding", "30px" ), ( "stroke", "#000" ) ]`
+{-| Adds styles to the svg element.
 -}
 style : Style -> Attribute
 style style config =
     { config | style = defaultConfig.style ++ style ++ [ ( "padding", "0" ) ] }
 
 
-{-| Add classes to the svg element.
-
- Default: `[]`
+{-| Adds classes to the svg element.
 -}
 classes : List String -> Attribute
 classes classes config =
     { config | classes = classes }
 
 
-{-| An id to the svg element.
+{-| Adds an id to the svg element.
 
  **Note:** If you have more than one plot in your DOM,
  then you most provide a unique id using this attribute for
@@ -165,59 +163,47 @@ id id config =
     { config | id = id }
 
 
-{-| This returns an axis element resulting in an x-axis being rendered in your plot.
-
-    main =
-        plot [] [ xAxis [] ]
--}
+{-| -}
 xAxis : List (Axis.Attribute msg) -> Element msg
 xAxis attrs =
     Axis (List.foldl (<|) AxisInternal.defaultConfigX attrs)
 
 
-{-| This returns an axis element resulting in an y-axis being rendered in your plot.
-
-    main =
-        plot [] [ yAxis [] ]
--}
+{-| -}
 yAxis : List (Axis.Attribute msg) -> Element msg
 yAxis attrs =
     Axis (List.foldl (<|) AxisInternal.defaultConfigY attrs)
 
 
-{-| This returns an grid element resulting in vertical grid lines being rendered in your plot.
-
-    main =
-        plot [] [ horizontalGrid [] ]
--}
+{-| -}
 horizontalGrid : List Grid.Attribute -> Element msg
 horizontalGrid attrs =
     Grid (foldConfig GridInternal.defaultConfigX attrs)
 
 
-{-| This returns an axis element resulting in horizontal grid lines being rendered in your plot.
-
-    main =
-        plot [] [ verticalGrid [] ]
--}
+{-| -}
 verticalGrid : List Grid.Attribute -> Element msg
 verticalGrid attrs =
     Grid (foldConfig GridInternal.defaultConfigY attrs)
 
 
-{-| This returns an area element resulting in an area serie rendered in your plot.
+{-| Draws an area.
 
-    main =
-        plot [] [ area []  [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
+    myPlot : Svg.Svg msg
+    myPlot =
+        plot
+            []
+            [ area [] [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
 -}
 area : List Area.Attribute -> List Point -> Element msg
 area attrs points =
     Area (List.foldr (<|) AreaInternal.defaultConfig attrs) points
 
 
-{-| This returns a line element resulting in an line serie rendered in your plot.
+{-| Draws an line.
 
-    main =
+    myPlot : Svg.Svg msg
+    myPlot =
         plot [] [ line [] [ ( 0, 1 ), ( 2, 2 ), ( 3, 4 ) ] ]
 -}
 line : List Line.Attribute -> List Point -> Element msg
@@ -225,8 +211,7 @@ line attrs points =
     Line (List.foldr (<|) LineInternal.defaultConfig attrs) points
 
 
-{-|
--}
+{-| -}
 hint : List (Hint.Attribute msg) -> Maybe Point -> Element msg
 hint attrs position =
     Hint (List.foldr (<|) HintInternal.defaultConfig attrs) position
@@ -236,13 +221,13 @@ hint attrs position =
  Pass your meta attributes and plot elements to this function and
  a svg plot will be returned!
 -}
-plot : List Attribute -> List (Element (Interaction c)) -> Svg.Svg (Interaction c)
+plot : List Attribute -> List (Element (Interaction c)) -> Svg (Interaction c)
 plot attrs elements =
     Svg.Lazy.lazy2 parsePlot attrs elements
 
 
 {-| -}
-plotStatic : List Attribute -> List (Element msg) -> Svg.Svg msg
+plotStatic : List Attribute -> List (Element msg) -> Svg msg
 plotStatic attrs elements =
     Svg.Lazy.lazy2 parsePlotStatic attrs elements
 
@@ -327,7 +312,7 @@ getRelativePosition { fromSvgCoords, toNearestX } ( mouseX, mouseY ) left top =
 -- VIEW
 
 
-parsePlotStatic : List Attribute -> List (Element msg) -> Svg.Svg msg
+parsePlotStatic : List Attribute -> List (Element msg) -> Svg msg
 parsePlotStatic attrs elements =
     let
         metaConfig =
@@ -339,7 +324,7 @@ parsePlotStatic attrs elements =
         viewPlotStatic metaConfig meta (viewElements meta elements)
 
 
-parsePlot : List Attribute -> List (Element (Interaction c)) -> Svg.Svg (Interaction c)
+parsePlot : List Attribute -> List (Element (Interaction c)) -> Svg (Interaction c)
 parsePlot attrs elements =
     let
         metaConfig =
@@ -351,14 +336,14 @@ parsePlot attrs elements =
         viewPlot metaConfig meta (viewElements meta elements)
 
 
-viewPlot : Config -> Meta -> ( List (Svg.Svg (Interaction c)), List (Html.Html (Interaction c)) ) -> Html.Html (Interaction c)
+viewPlot : Config -> Meta -> ( List (Svg (Interaction c)), List (Html (Interaction c)) ) -> Html (Interaction c)
 viewPlot ({ size } as config) meta ( svgViews, htmlViews ) =
     Html.div
         (plotAttributes config ++ plotAttributesInteraction meta)
         (viewSvg size svgViews :: htmlViews) 
 
 
-viewPlotStatic : Config -> Meta -> ( List (Svg.Svg msg), List (Html.Html msg) ) -> Svg.Svg msg
+viewPlotStatic : Config -> Meta -> ( List (Svg msg), List (Html msg) ) -> Svg msg
 viewPlotStatic ({ size } as config) meta ( svgViews, htmlViews ) =
     Html.div
         (plotAttributes config)
@@ -380,7 +365,7 @@ plotAttributesInteraction meta =
     ]
 
 
-viewSvg : (Float, Float) -> List (Svg.Svg msg) -> Svg.Svg msg
+viewSvg : (Float, Float) -> List (Svg msg) -> Svg msg
 viewSvg ( width, height ) views =
     Svg.svg
         [ Svg.Attributes.height (toString height)
@@ -403,16 +388,12 @@ sizeStyle (width, height) =
     [ ( "height", toString height ++ "px" ), ( "width", toString width ++ "px" ) ]
 
 
-
--- VIEW ELEMENTS
-
-
-viewElements : Meta -> List (Element msg) -> ( List (Svg.Svg msg), List (Html.Html msg) )
+viewElements : Meta -> List (Element msg) -> ( List (Svg msg), List (Html msg) )
 viewElements meta elements =
     List.foldr (viewElement meta) ( [], [] ) elements
 
 
-viewElement : Meta -> Element msg -> ( List (Svg.Svg msg), List (Html.Html msg) ) -> ( List (Svg.Svg msg), List (Html.Html msg) )
+viewElement : Meta -> Element msg -> ( List (Svg msg), List (Html msg) ) -> ( List (Svg msg), List (Html msg) )
 viewElement meta element ( svgViews, htmlViews ) =
     case element of
         Line config points ->
@@ -437,7 +418,7 @@ viewElement meta element ( svgViews, htmlViews ) =
 
 
 
--- CALCULATIONS
+-- CALCULATIONS OF META
 
 
 calculateMeta : Config -> List (Element msg) -> Meta

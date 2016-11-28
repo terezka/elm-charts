@@ -1,11 +1,20 @@
 module Plot.Line exposing (..)
 
+{-|
+ Attributes for altering the view of your line serie.
+
+# Definition
+@docs Attribute
+
+# Styling
+@docs style
+
+-}
 import Plot.Types exposing (Style)
 import Internal.Line as Internal
 
 
-{-| The type representing a line configuration.
--}
+{-| -}
 type alias Attribute =
     Internal.Config -> Internal.Config
 
@@ -16,7 +25,7 @@ type alias Attribute =
         plot
             []
             [ line
-                [ lineStyle [ ( "fill", "deeppink" ) ] ]
+                [ lineStyle [ ( "stroke", "deeppink" ) ] ]
                 lineDataPoints
             ]
 -}

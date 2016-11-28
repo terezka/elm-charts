@@ -20,6 +20,7 @@ import Plot.Line as Line
 import Plot.Label as Label
 import Plot.Tick as Tick
 import Plot.Axis as Axis
+import Plot.Hint as Hint
 import Debug
 
 
@@ -224,7 +225,7 @@ testChart { position } =
                 ]
             ]
         , Plot.verticalGrid []
-        , Plot.hint [] position
+        , Plot.hint [ ] position
         ]
 
 

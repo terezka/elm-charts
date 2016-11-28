@@ -1,27 +1,43 @@
 module Plot.Hint exposing (..)
 
-import Internal.Hint as Internal
-import Plot.Types exposing (HintInfo)
-import Helpers exposing (..)
-import Svg
-import Svg.Attributes
-import Html
-import Html.Attributes
+{-|
+ Attributes for altering the view of your hint.
 
+# Definition
+@docs Attribute
 
-{-| The type representing a hint configuration.
+# Styling
+@docs viewCustom, HintInfo, IsLeftSide, removeLine
+
 -}
+import Internal.Hint as Internal
+import Html exposing (Html)
+
+
+{-| -}
 type alias Attribute msg =
     Internal.Config msg -> Internal.Config msg
 
 
+{-| The available info provided to your hint view. -}
+type alias HintInfo =
+    { xValue : Float
+    , yValues : List (Maybe Float)
+    }
+
+
 {-| -}
+type alias IsLeftSide =
+    Bool
+
+
+{-| Removes the line indication of the hovered value. -}
 removeLine : Attribute msg
 removeLine config =
     { config | showLine = False }
 
 
-{-| -}
-viewCustom : (HintInfo -> Bool -> Html.Html msg) -> Attribute msg
+{-| Uses your own view to display the hint box. -}
+viewCustom : (HintInfo -> IsLeftSide -> Html msg) -> Attribute msg
 viewCustom view config =
     { config | view = view }

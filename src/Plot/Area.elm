@@ -1,11 +1,22 @@
 module Plot.Area exposing (..)
 
+
+{-|
+ Attributes for altering the view of your area serie.
+
+# Definition
+@docs Attribute
+
+# Styling
+@docs style
+
+
+-}
 import Internal.Area as Internal
 import Plot.Types exposing (Style)
 
 
-{-| The type representing an area attribute.
--}
+{-| -}
 type alias Attribute =
     Internal.Config -> Internal.Config
 
