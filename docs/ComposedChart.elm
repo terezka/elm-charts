@@ -53,7 +53,7 @@ labelStyle =
 
 
 chart : State -> Svg.Svg (Interaction c)
-chart { position } =
+chart state =
     plotInteractive
         [ size ( 600, 400 )
         , padding ( 40, 40 )
@@ -108,7 +108,8 @@ chart { position } =
                 , Label.filter filterLabels
                 ]
             ]
-        , hint [ Hint.lineStyle [ ( "background", Colors.pinkStroke ) ] ] position
+        , hint [ Hint.lineStyle [ ( "background", Colors.pinkStroke ) ] ] (Just (0, 0))
+        , hint [ Hint.lineStyle [ ( "background", Colors.pinkStroke ) ] ] (getHoveredValue state)
         ]
 
 
@@ -119,34 +120,47 @@ code =
         rem n 2 > 0
 
 
-    filterLabels : Int -> Float -> Bool
-    filterLabels index _ =
+    filterLabels : ( Int, Float ) -> Bool
+    filterLabels ( index, _ ) =
         not (isOdd index)
 
 
-    toTickConfig : Int -> Float -> List TickViewAttr
-    toTickConfig index tick =
+    toTickStyle : ( Int, Float ) -> List Tick.StyleAttribute
+    toTickStyle ( index, tick ) =
         if isOdd index then
-            [ tickLength 7, tickStyle [ ( "stroke", "#c7c7c7" ) ] ]
+            [ Tick.length 7
+            , Tick.style [ ( "stroke", "#e4e3e3" ) ]
+            ]
         else
-            [ tickLength 10, tickStyle [ ( "stroke", "#b9b9b9" ) ] ]
+            [ Tick.length 10
+            , Tick.style [ ( "stroke", "#b9b9b9" ) ]
+            ]
 
 
-    customLabelStyle : List ( String, String )
-    customLabelStyle =
-        [ ( "stroke", "#969696" ), ( "font-size", "12px" ) ]
+    labelStyle : List Label.StyleAttribute
+    labelStyle =
+        [ Label.format (\\( _, v ) -> toString v ++ " °C")
+        , Label.style
+            [ ( "stroke", "#969696" )
+            , ( "font-size", "12px" )
+            ]
+        , Label.displace ( -15, 5 )
+        ]
 
 
-    chart : Svg.Svg a
-    chart =
-        plot
-            [ size ( 600, 350 ), padding ( 40, 40 ) ]
+    chart : State -> Svg.Svg (Interaction c)
+    chart { position } =
+        plotInteractive
+            [ size ( 600, 400 )
+            , padding ( 40, 40 )
+            , margin ( 10, 20, 40, 20 )
+            , id "ComposedChart"
+            ]
             [ horizontalGrid
-                [ gridMirrorTicks
-                , gridStyle [ ( "stroke", "#f2f2f2" ) ]
+                [ Grid.style [ ( "stroke", "#f2f2f2" ) ]
                 ]
             , area
-                [ areaStyle
+                [ Area.style
                     [ ( "stroke", Colors.skinStroke )
                     , ( "fill", Colors.skinFill )
                     , ( "opacity", "0.5" )
@@ -154,37 +168,42 @@ code =
                 ]
                 data1
             , area
-                [ areaStyle
+                [ Area.style
                     [ ( "stroke", Colors.blueStroke )
                     , ( "fill", Colors.blueFill )
                     ]
                 ]
                 data2
             , line
-                [ lineStyle
+                [ Line.style
                     [ ( "stroke", Colors.pinkStroke )
                     , ( "stroke-width", "2px" )
                     ]
                 ]
                 data3
             , yAxis
-                [ axisStyle [ ( "stroke", "#b9b9b9" ) ]
-                , tickRemoveZero
-                , tickDelta 50
-                , labelConfigView
-                    [ labelFormat (\\l -> toString l ++ " °C")
-                    , labelStyle customLabelStyle
+                [ Axis.view [ Axis.style [ ( "stroke", "#b9b9b9" ) ] ]
+                , Axis.tick
+                    [ Tick.removeZero
+                    , Tick.delta 50
                     ]
+                , Axis.label
+                    [ Label.view labelStyle ]
                 ]
             , xAxis
-                [ axisStyle [ ( "stroke", "#b9b9b9" ) ]
-                , tickRemoveZero
-                , tickConfigViewFunc toTickConfig
-                , labelConfigView
-                    [ labelFormat (\\l -> toString l ++ " t")
-                    , labelStyle customLabelStyle
+                [ Axis.view [ Axis.style [ ( "stroke", "#b9b9b9" ) ] ]
+                , Axis.tick
+                    [ Tick.removeZero
+                    , Tick.viewDynamic toTickStyle
                     ]
-                , labelFilter filterLabels
+                , Axis.label
+                    [ Label.view
+                        [ Label.format (\\( _, v ) -> toString v ++ " t")
+                        , Label.style [ ( "font-size", "12px" ), ( "stroke", "#b9b9b9" ) ]
+                        ]
+                    , Label.filter filterLabels
+                    ]
                 ]
+            , hint [ Hint.lineStyle [ ( "background", Colors.pinkStroke ) ] ] position
             ]
     """

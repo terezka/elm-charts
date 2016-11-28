@@ -21,6 +21,7 @@ module Plot
         , update
         , Interaction(..)
         , State
+        , getHoveredValue
         )
 
 {-|
@@ -38,7 +39,7 @@ module Plot
 @docs plot, plotInteractive, line, area, xAxis, yAxis, hint, verticalGrid, horizontalGrid
 
 # State
-@docs State, initialState, update, Interaction
+@docs State, initialState, update, Interaction, getHoveredValue
 
 
 -}
@@ -245,18 +246,20 @@ toPlotConfig =
 
 
 {-| -}
-type alias State =
-    { position : Maybe ( Float, Float )
-    , waiting : Bool
-    }
+type State =
+    State
+        { position : Maybe ( Float, Float )
+        , waiting : Bool
+        }
 
 
 {-| -}
 initialState : State
 initialState =
-    { position = Nothing
-    , waiting = True
-    }
+    State
+        { position = Nothing
+        , waiting = True
+        }
 
 
 
@@ -277,28 +280,34 @@ type Msg
 
 {-| -}
 update : Msg -> State -> ( State, Cmd (Interaction c) )
-update msg state =
+update msg (State state) =
     case msg of
         Hovering meta eventPosition ->
-            ( { state | waiting = True }, getPosition meta eventPosition )
+            ( State { state | waiting = True }, cmdPosition meta eventPosition )
 
         ReceivePosition result ->
             case result of
                 Ok position ->
                     if state.waiting then
-                        ( { state | position = Just position }, Cmd.none )
+                        ( State { state | position = Just position }, Cmd.none )
                     else
-                        ( state, Cmd.none )
+                        ( State state, Cmd.none )
 
                 Err err ->
-                    ( state, Cmd.none )
+                    ( State state, Cmd.none )
 
         ResetPosition ->
-            ( { position = Nothing, waiting = False }, Cmd.none )
+            ( State { position = Nothing, waiting = False }, Cmd.none )
 
 
-getPosition : Meta -> ( Float, Float ) -> Cmd (Interaction c)
-getPosition meta eventPosition =
+{-| -}
+getHoveredValue : State -> Maybe Point
+getHoveredValue (State state) =
+    state.position
+
+
+cmdPosition : Meta -> ( Float, Float ) -> Cmd (Interaction c)
+cmdPosition meta eventPosition =
     Task.map2
         (getRelativePosition meta eventPosition)
         (Dom.Position.left meta.id)
