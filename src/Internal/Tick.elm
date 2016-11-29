@@ -100,7 +100,7 @@ defaultView { length, width, style, classes } orientation ( _, _ ) =
             [ Svg.Attributes.style (toStyle styleFinal)
             , Svg.Attributes.y2 (toString length)
             , Svg.Attributes.transform displacement
-            , Svg.Attributes.class (String.join " " classes)
+            , Svg.Attributes.class <| String.join " " <| "elm-plot__tick__default-view" :: classes
             ]
             []
 

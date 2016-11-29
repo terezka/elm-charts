@@ -381,7 +381,7 @@ viewSvg ( width, height ) views =
     Svg.svg
         [ Svg.Attributes.height (toString height)
         , Svg.Attributes.width (toString width)
-        , Svg.Attributes.class "elm-plot__svg"
+        , Svg.Attributes.class "elm-plot__inner"
         ]
         views
 

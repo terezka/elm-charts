@@ -9,7 +9,7 @@
 	position: relative;
 }
 
-.elm-plot__svg {
+.elm-plot__inner {
 	stroke: #c3c3c3;
 	fill: #c3c3c3;
 }

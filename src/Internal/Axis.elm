@@ -3,7 +3,7 @@ module Internal.Axis exposing (..)
 import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta)
 import Internal.Tick as Tick
 import Internal.Label as Label
-import Internal.Grid as Grid
+import Internal.Draw as Draw
 import Helpers exposing (..)
 import Round
 import Svg
@@ -58,21 +58,33 @@ view ({ scale, toSvgCoords } as meta) { viewConfig, tickConfig, labelConfig, ori
     in
         Svg.g
             [ Svg.Attributes.style (toStyle viewConfig.baseStyle)
-            , Svg.Attributes.class (String.join " " viewConfig.classes)
+            , Draw.classAttributeOriented "axis" orientation viewConfig.classes
             ]
-            [ Grid.viewLine meta viewConfig.lineStyle 0
-            , viewTicks meta (Tick.toView tickConfig.viewConfig orientation) tickValues
-            , viewTicks meta (Label.toView labelConfig.viewConfig orientation) labelValues
+            [ viewAxisLine viewConfig meta 0
+            , viewTicks "tick" meta (Tick.toView tickConfig.viewConfig orientation) tickValues
+            , viewTicks "label" meta (Label.toView labelConfig.viewConfig orientation) labelValues
             ]
 
 
-viewTicks : Meta -> (( Int, Float ) -> Svg.Svg msg) -> List ( Int, Float ) -> Svg.Svg msg
-viewTicks meta view values =
-    Svg.g [] (List.map (placeTick meta view) values)
+viewAxisLine : StyleConfig -> Meta -> Float -> Svg.Svg a
+viewAxisLine { lineStyle } =
+    Draw.fullLine
+        [ Svg.Attributes.style (toStyle lineStyle)
+        , Svg.Attributes.class "elm-plot__axis__line"
+        ]
 
 
-placeTick : Meta -> (( Int, Float ) -> Svg.Svg msg) -> ( Int, Float ) -> Svg.Svg msg
-placeTick { toSvgCoords } view ( index, tick ) =
+viewTicks : String -> Meta -> (( Int, Float ) -> Svg.Svg msg) -> List ( Int, Float ) -> Svg.Svg msg
+viewTicks class meta view values =
     Svg.g
-        [ Svg.Attributes.transform <| toTranslate <| toSvgCoords ( tick, 0 ) ]
+        [ Svg.Attributes.class <| "elm-plot__axis__" ++ class ++ "s" ]
+        (List.map (placeTick class meta view) values)
+
+
+placeTick : String -> Meta -> (( Int, Float ) -> Svg.Svg msg) -> ( Int, Float ) -> Svg.Svg msg
+placeTick class { toSvgCoords } view ( index, tick ) =
+    Svg.g
+        [ Svg.Attributes.transform <| toTranslate <| toSvgCoords ( tick, 0 )
+        , Svg.Attributes.class <| "elm-plot__axis__" ++ class
+        ]
         [ view ( index, tick ) ]

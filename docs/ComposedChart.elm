@@ -86,7 +86,8 @@ chart state =
             ]
             (List.map (\( x, y ) -> ( x, toFloat <| round y * 3 )) data1)
         , yAxis
-            [ Axis.view [ Axis.style [ ( "stroke", "#b9b9b9" ) ] ]
+            [ Axis.view
+                [ Axis.style [ ( "stroke", "#b9b9b9" ) ] ]
             , Axis.tick
                 [ Tick.removeZero
                 , Tick.delta 50
@@ -95,7 +96,8 @@ chart state =
                 [ Label.view labelStyle ]
             ]
         , xAxis
-            [ Axis.view [ Axis.style [ ( "stroke", "#b9b9b9" ) ] ]
+            [ Axis.view
+                [ Axis.style [ ( "stroke", "#b9b9b9" ) ] ]
             , Axis.tick
                 [ Tick.removeZero
                 , Tick.viewDynamic toTickStyle
@@ -108,7 +110,6 @@ chart state =
                 , Label.filter filterLabels
                 ]
             ]
-        , hint [ Hint.lineStyle [ ( "background", Colors.pinkStroke ) ] ] (Just (0, 0))
         , hint [ Hint.lineStyle [ ( "background", Colors.pinkStroke ) ] ] (getHoveredValue state)
         ]
 

@@ -30,5 +30,6 @@ view { toSvgCoords } { style } points =
         Svg.path
             [ Svg.Attributes.d (startInstruction ++ instructions)
             , Svg.Attributes.style (toStyle style)
+            , Svg.Attributes.class "elm-plot__serie--line"
             ]
             []
