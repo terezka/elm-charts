@@ -28,17 +28,18 @@ type alias Config msg =
     }
 
 
-type alias StyleConfig =
+type alias StyleConfig a =
     { length : Int
     , width : Int
     , style : Style
     , classes : List String
+    , customAttrs : List (Svg.Attribute a)
     }
 
 
 type ViewConfig msg
-    = FromStyle StyleConfig
-    | FromStyleDynamic (( Int, Float ) -> StyleConfig)
+    = FromStyle (StyleConfig msg)
+    | FromStyleDynamic (( Int, Float ) -> StyleConfig msg)
     | FromCustomView (View msg)
 
 
@@ -61,12 +62,13 @@ defaultConfig =
     }
 
 
-defaultStyleConfig : StyleConfig
+defaultStyleConfig : StyleConfig msg
 defaultStyleConfig =
     { length = 7
     , width = 1
     , style = []
     , classes = []
+    , customAttrs = []
     }
 
 
@@ -83,27 +85,28 @@ toView config =
             view
 
 
-toViewFromStyleDynamic : (( Int, Float ) -> StyleConfig) -> View msg
+toViewFromStyleDynamic : (( Int, Float ) -> StyleConfig msg) -> View msg
 toViewFromStyleDynamic toStyleConfig orientation ( index, value ) =
     defaultView (toStyleConfig ( index, value )) orientation ( index, value )
 
 
-defaultView : StyleConfig -> View msg
-defaultView { length, width, style, classes } orientation ( _, _ ) =
+defaultView : StyleConfig msg -> View msg
+defaultView { length, width, style, classes, customAttrs } orientation ( _, _ ) =
     let
         displacement =
             (?) orientation "" (toRotate 90 0 0)
 
         styleFinal =
             style ++ [ ( "stroke-width", (toString width) ++ "px" ) ]
-    in
-        Svg.line
+
+        attrs =
             [ Svg.Attributes.style (toStyle styleFinal)
             , Svg.Attributes.y2 (toString length)
             , Svg.Attributes.transform displacement
             , Svg.Attributes.class <| String.join " " <| "elm-plot__tick__default-view" :: classes
-            ]
-            []
+            ] ++ customAttrs
+    in
+        Svg.line attrs []
 
 
 

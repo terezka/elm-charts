@@ -8,6 +8,7 @@ module Plot.Area exposing (..)
         line
             [ stroke "deeppink"
             , strokeWidth 2
+            , fill "red"
             , opacity 0.5
             , customAttrs
                 [ Svg.Events.onClick <| Custom MyClickMsg

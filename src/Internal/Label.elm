@@ -25,17 +25,18 @@ type alias Config msg =
     }
 
 
-type alias StyleConfig =
+type alias StyleConfig msg =
     { displace : Maybe ( Int, Int )
     , format : ( Int, Float ) -> String
     , style : Style
     , classes : List String
+    , customAttrs : List (Svg.Attribute msg)
     }
 
 
 type ViewConfig msg
-    = FromStyle StyleConfig
-    | FromStyleDynamic (( Int, Float ) -> StyleConfig)
+    = FromStyle (StyleConfig msg)
+    | FromStyleDynamic (( Int, Float ) -> StyleConfig msg)
     | FromCustomView (View msg)
 
 
@@ -55,12 +56,13 @@ defaultConfig =
     }
 
 
-defaultStyleConfig : StyleConfig
+defaultStyleConfig : StyleConfig msg
 defaultStyleConfig =
     { displace = Nothing
     , format = (\( _, v ) -> toString v)
     , style = []
     , classes = []
+    , customAttrs = []
     }
 
 
@@ -77,7 +79,7 @@ toView config =
             view
 
 
-toViewFromStyleDynamic : (( Int, Float ) -> StyleConfig) -> View msg
+toViewFromStyleDynamic : (( Int, Float ) -> StyleConfig msg) -> View msg
 toViewFromStyleDynamic toStyleAttributes orientation ( index, value ) =
     defaultView (toStyleAttributes ( index, value )) orientation ( index, value )
 
@@ -92,21 +94,22 @@ defaultStyleY =
     ( [ ( "text-anchor", "end" ) ], ( -10, 5 ) )
 
 
-defaultView : StyleConfig -> View msg
-defaultView { displace, format, style, classes } orientation ( index, tick ) =
+defaultView : StyleConfig msg -> View msg
+defaultView { displace, format, style, classes, customAttrs } orientation ( index, tick ) =
     let
         ( defaultStyle, defaultDisplacement ) =
             (?) orientation defaultStyleX defaultStyleY
 
         ( dx, dy ) =
             Maybe.withDefault defaultDisplacement displace
-    in
-        Svg.text_
+
+        attrs =
             [ Svg.Attributes.transform (toTranslate ( toFloat dx, toFloat dy ))
             , Svg.Attributes.style (toStyle (defaultStyle ++ style))
             , Svg.Attributes.class <| String.join " " <| "elm-plot__label__default-view" :: classes
-            ]
-            [ Svg.tspan [] [ Svg.text (format ( index, tick )) ] ]
+            ] ++ customAttrs
+    in
+        Svg.text_ attrs [ Svg.tspan [] [ Svg.text (format ( index, tick )) ] ]
 
 
 

@@ -1,4 +1,22 @@
-module Plot.Label exposing (Attribute, StyleAttribute, view, viewDynamic, viewCustom, style, classes, displace, format, values, filter)
+module Plot.Label
+    exposing
+        ( Attribute
+        , StyleAttribute 
+        , view
+        , viewDynamic
+        , viewCustom
+        , stroke
+        , strokeWidth
+        , opacity
+        , fill
+        , fontSize
+        , classes
+        , customAttrs
+        , displace
+        , format
+        , values
+        , filter
+        )
 
 {-|
  Attributes for altering the values and view of your axis' labels.
@@ -20,7 +38,9 @@ module Plot.Label exposing (Attribute, StyleAttribute, view, viewDynamic, viewCu
 @docs view, viewDynamic, viewCustom
 
 ## Style attributes
-@docs StyleAttribute, style, classes, displace, format
+If these attributes do not forfill your needs, try out the viewCustom! If you have
+a suspicion that I have missed a very common configuration, then please let me know and I'll add it.
+@docs StyleAttribute, classes, displace, format, stroke, strokeWidth, opacity, fill, fontSize, customAttrs
 
 # Values
 @docs values, filter
@@ -38,8 +58,8 @@ type alias Attribute msg =
 
 
 {-| -}
-type alias StyleAttribute =
-    Internal.StyleConfig -> Internal.StyleConfig
+type alias StyleAttribute msg =
+    Internal.StyleConfig msg -> Internal.StyleConfig msg
 
 
 {-| Displaces the label.
@@ -53,7 +73,7 @@ type alias StyleAttribute =
                 ]
             ]
 -}
-displace : ( Int, Int ) -> StyleAttribute
+displace : ( Int, Int ) -> StyleAttribute a
 displace displace config =
     { config | displace = Just displace }
 
@@ -69,25 +89,45 @@ displace displace config =
                 ]
             ]
 -}
-classes : List String -> StyleAttribute
+classes : List String -> StyleAttribute a
 classes classes config =
     { config | classes = classes }
 
 
-{-| Adds inline-styles to the label.
+{-| Set the stroke color. -}
+stroke : String -> StyleAttribute a
+stroke stroke config =
+    { config | style = ( "stroke", stroke ) :: config.style }
 
-    myYAxis : Plot.Element msg
-    myYAxis =
-        Plot.yAxis
-            [ Axis.label
-                [ Label.view
-                    [ Label.style [ ("stroke", "blue" ) ] ]
-                ]
-            ]
--}
-style : Style -> StyleAttribute
-style style config =
-    { config | style = style }
+
+{-| Set the stroke width (in pixels). -}
+strokeWidth : Int -> StyleAttribute a
+strokeWidth strokeWidth config =
+    { config | style = ( "stroke-width", toString strokeWidth ++ "px" ) :: config.style }
+
+
+{-| Set the fill color. -}
+fill : String -> StyleAttribute a
+fill fill config =
+    { config | style = ( "fill", fill ) :: config.style }
+
+
+{-| Set the opacity. -}
+opacity : Float -> StyleAttribute a
+opacity opacity config =
+    { config | style = ( "opacity", toString opacity ) :: config.style }
+
+
+{-| Set the font size (in pixels). -}
+fontSize : Int -> StyleAttribute a
+fontSize fontSize config =
+    { config | style = ( "font-size", toString fontSize ++ "px" ) :: config.style }
+
+
+{-| Add your own attributes. -}
+customAttrs : List (Svg.Attribute a) -> StyleAttribute a
+customAttrs attrs config =
+    { config | customAttrs = attrs }
 
 
 {-| Format the label based on its value and index.
@@ -108,12 +148,12 @@ style style config =
                 ]
             ]
 -}
-format : (( Int, Float ) -> String) -> StyleAttribute
+format : (( Int, Float ) -> String) -> StyleAttribute a
 format format config =
     { config | format = format }
 
 
-toStyleConfig : List StyleAttribute -> Internal.StyleConfig
+toStyleConfig : List (StyleAttribute a) -> Internal.StyleConfig a
 toStyleConfig styleAttributes =
     List.foldl (<|) Internal.defaultStyleConfig styleAttributes
 
@@ -134,7 +174,7 @@ toStyleConfig styleAttributes =
  **Note:** If you add another attribute altering the view like `viewDynamic` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
-view : List StyleAttribute -> Attribute msg
+view : List (StyleAttribute msg) -> Attribute msg
 view styles config =
     { config | viewConfig = Internal.FromStyle (toStyleConfig styles) }
 
@@ -142,7 +182,7 @@ view styles config =
 {-| Alter the view of the label based on the label's value and index (amount of ticks from origin) by
  providing a function returning a list of style attributes.
 
-    toViewStyles : Int -> Float -> List Label.StyleAttribute
+    toViewStyles : Int -> Float -> List Label.StyleAttribute a
     toViewStyles index value =
         if isOdd index then
             [ Label.classes [ "label--odd" ]
@@ -163,7 +203,7 @@ view styles config =
  **Note:** If you add another attribute altering the view like `view` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
-viewDynamic : (( Int, Float ) -> List StyleAttribute) -> Attribute msg
+viewDynamic : (( Int, Float ) -> List (StyleAttribute msg)) -> Attribute msg
 viewDynamic toStyles config =
     { config | viewConfig = Internal.FromStyleDynamic (toStyleConfig << toStyles) }
 

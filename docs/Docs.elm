@@ -11,6 +11,7 @@ import Plot.Line as Line
 import Plot.Area as Area
 import Plot.Grid as Grid
 import Plot.Axis as Axis
+import Plot.Label as Label
 import AreaChart
 import MultiAreaChart
 import GridChart
@@ -191,7 +192,6 @@ testChart state =
         ]
         [ Plot.verticalGrid
             [ Grid.stroke "black"
-            , Grid.customAttrs [ Svg.Events.onClick <| Custom ClickTick ]
             ]
         , Plot.line
             [ Line.stroke "red"
@@ -202,10 +202,14 @@ testChart state =
             [ Area.stroke "blue"
             , Area.strokeWidth 2
             , Area.fill "deeppink"
-            , Area.customAttrs [ Svg.Events.onClick <| Custom ClickTick ]
             ]
             [ (0, 1), (1, 2), (2, 0.5) ]
-        , Plot.xAxis []
+        , Plot.xAxis
+            [ Axis.label
+                [ Label.view
+                    [ Label.customAttrs [ Svg.Events.onClick <| Custom ClickTick ] ]
+                ]
+            ]
         ]
 
 

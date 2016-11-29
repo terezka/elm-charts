@@ -30,25 +30,23 @@ filterLabels ( index, _ ) =
     not (isOdd index)
 
 
-toTickStyle : ( Int, Float ) -> List Tick.StyleAttribute
+toTickStyle : ( Int, Float ) -> List (Tick.StyleAttribute msg)
 toTickStyle ( index, tick ) =
     if isOdd index then
         [ Tick.length 7
-        , Tick.style [ ( "stroke", "#e4e3e3" ) ]
+        , Tick.stroke "#e4e3e3"
         ]
     else
         [ Tick.length 10
-        , Tick.style [ ( "stroke", "#b9b9b9" ) ]
+        , Tick.stroke "#b9b9b9"
         ]
 
 
-labelStyle : List Label.StyleAttribute
+labelStyle : List (Label.StyleAttribute msg)
 labelStyle =
     [ Label.format (\( _, v ) -> toString v ++ " °C")
-    , Label.style
-        [ ( "stroke", "#969696" )
-        , ( "font-size", "12px" )
-        ]
+    , Label.stroke "#969696"
+    , Label.fontSize 12
     , Label.displace ( -15, 5 )
     ]
 
@@ -100,7 +98,8 @@ chart state =
             , Axis.label
                 [ Label.view
                     [ Label.format (\( _, v ) -> toString v ++ " t")
-                    , Label.style [ ( "font-size", "12px" ), ( "stroke", "#b9b9b9" ) ]
+                    , Label.fontSize 12
+                    , Label.stroke "#b9b9b9"
                     ]
                 , Label.filter filterLabels
                 ]

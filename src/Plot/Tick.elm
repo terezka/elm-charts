@@ -1,4 +1,21 @@
-module Plot.Tick exposing (Attribute, StyleAttribute, view, viewDynamic, viewCustom, style, classes, length, width, values, delta, removeZero)
+module Plot.Tick
+    exposing
+        ( Attribute
+        , StyleAttribute
+        , view
+        , viewDynamic
+        , viewCustom
+        , stroke
+        , strokeWidth
+        , opacity
+        , classes
+        , customAttrs
+        , length
+        , width
+        , values
+        , delta
+        , removeZero
+        )
 
 {-|
  Attributes for altering the values and view of your axis' ticks.
@@ -21,7 +38,9 @@ module Plot.Tick exposing (Attribute, StyleAttribute, view, viewDynamic, viewCus
 @docs view, viewDynamic, viewCustom
 
 ## Style attributes
-@docs StyleAttribute, style, classes, length, width
+If these attributes do not forfill your needs, try out the viewCustom! If you have
+a suspicion that I have missed a very common configuration, then please let me know and I'll add it.
+@docs StyleAttribute, classes, width, length, stroke, strokeWidth, opacity, customAttrs
 
 # Values
 @docs values, delta
@@ -51,8 +70,8 @@ type alias Attribute msg =
 
 
 {-| -}
-type alias StyleAttribute =
-    StyleConfig -> StyleConfig
+type alias StyleAttribute msg =
+    StyleConfig msg -> StyleConfig msg
 
 
 {-| Set the length of the tick (in pixels).
@@ -66,7 +85,7 @@ type alias StyleAttribute =
                 ]
             ]
 -}
-length : Int -> StyleAttribute
+length : Int -> StyleAttribute msg
 length length config =
     { config | length = length }
 
@@ -82,7 +101,7 @@ length length config =
                 ]
             ]
 -}
-width : Int -> StyleAttribute
+width : Int -> StyleAttribute msg
 width width config =
     { config | width = width }
 
@@ -98,28 +117,36 @@ width width config =
                 ]
             ]
 -}
-classes : List String -> StyleAttribute
+classes : List String -> StyleAttribute msg
 classes classes config =
     { config | classes = classes }
 
 
-{-| Add inline-styles to the tick.
-
-    myYAxis : Plot.Element msg
-    myYAxis =
-        Plot.yAxis
-            [ Axis.tick
-                [ Tick.view
-                    [ Tick.style [ ( "stroke", "blue" ) ] ]
-                ]
-            ]
--}
-style : Style -> StyleAttribute
-style style config =
-    { config | style = style }
+{-| Set the stroke color. -}
+stroke : String -> StyleAttribute msg
+stroke stroke config =
+    { config | style = ( "stroke", stroke ) :: config.style }
 
 
-toStyleConfig : List StyleAttribute -> StyleConfig
+{-| Set the stroke width (in pixels). -}
+strokeWidth : Int -> StyleAttribute msg
+strokeWidth strokeWidth config =
+    { config | style = ( "stroke-width", toString strokeWidth ++ "px" ) :: config.style }
+
+
+{-| Set the opacity. -}
+opacity : Float -> StyleAttribute msg
+opacity opacity config =
+    { config | style = ( "opacity", toString opacity ) :: config.style }
+
+
+{-| Add your own attributes. -}
+customAttrs : List (Svg.Attribute msg) -> StyleAttribute msg
+customAttrs attrs config =
+    { config | customAttrs = attrs }
+
+
+toStyleConfig : List (StyleAttribute msg) -> StyleConfig msg
 toStyleConfig attributes =
     List.foldl (<|) defaultStyleConfig attributes
 
@@ -139,10 +166,10 @@ toStyleConfig attributes =
                 ]
             ]
 
- **Note:** If you add another attribute altering the view like `viewDynamic` or `viewCustom` _after_ this attribute,
+ **Note:** If you add another attribute msgltering the view like `viewDynamic` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
-view : List StyleAttribute -> Attribute msg
+view : List (StyleAttribute msg) -> Attribute msg
 view styles config =
     { config | viewConfig = FromStyle (toStyleConfig styles) }
 
@@ -168,10 +195,10 @@ view styles config =
                 [ Tick.viewDynamic toTickStyles ]
             ]
 
- **Note:** If you add another attribute altering the view like `view` or `viewCustom` _after_ this attribute,
+ **Note:** If you add another attribute msgltering the view like `view` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
-viewDynamic : (( Int, Float ) -> List StyleAttribute) -> Attribute msg
+viewDynamic : (( Int, Float ) -> List (StyleAttribute msg)) -> Attribute msg
 viewDynamic toStyles config =
     { config | viewConfig = FromStyleDynamic (toStyleConfig << toStyles) }
 
@@ -196,7 +223,7 @@ viewDynamic toStyles config =
                 [ Tick.viewCustom viewTick ]
             ]
 
- **Note:** If you add another attribute altering the view like `view` or `viewDynamic` _after_ this attribute,
+ **Note:** If you add another attribute msgltering the view like `view` or `viewDynamic` _after_ this attribute,
  then this attribute will have no effect.
 -}
 viewCustom : (( Int, Float ) -> Svg.Svg msg) -> Attribute msg
@@ -213,7 +240,7 @@ viewCustom view config =
                 [ Tick.values [ 0, 1, 2, 4, 8 ] ]
             ]
 
- **Note:** If you add another attribute altering the values like `delta` _after_ this attribute,
+ **Note:** If you add another attribute msgltering the values like `delta` _after_ this attribute,
  then this attribute will have no effect.
 -}
 values : List Float -> Attribute msg
@@ -230,7 +257,7 @@ values values config =
                 [ Tick.delta 4 ]
             ]
 
- **Note:** If you add another attribute altering the values like `values` _after_ this attribute,
+ **Note:** If you add another attribute msgltering the values like `values` _after_ this attribute,
  then this attribute will have no effect.
 -}
 delta : Float -> Attribute msg
