@@ -9221,7 +9221,7 @@ var _terezka$elm_plot$Dom$NotFound = function (a) {
 var _terezka$elm_plot$Dom_Position$left = _terezka$elm_plot$Native_Dom.left;
 var _terezka$elm_plot$Dom_Position$top = _terezka$elm_plot$Native_Dom.top;
 
-var _terezka$elm_plot$Plot_Types$Meta = function (a) {
+var _terezka$elm_plot$Internal_Types$Meta = function (a) {
 	return function (b) {
 		return function (c) {
 			return function (d) {
@@ -9242,19 +9242,19 @@ var _terezka$elm_plot$Plot_Types$Meta = function (a) {
 		};
 	};
 };
-var _terezka$elm_plot$Plot_Types$Scale = F5(
+var _terezka$elm_plot$Internal_Types$Scale = F5(
 	function (a, b, c, d, e) {
 		return {range: a, lowest: b, highest: c, length: d, offset: e};
 	});
-var _terezka$elm_plot$Plot_Types$HintInfo = F2(
+var _terezka$elm_plot$Internal_Types$HintInfo = F2(
 	function (a, b) {
 		return {xValue: a, yValues: b};
 	});
-var _terezka$elm_plot$Plot_Types$Y = {ctor: 'Y'};
-var _terezka$elm_plot$Plot_Types$X = {ctor: 'X'};
+var _terezka$elm_plot$Internal_Types$Y = {ctor: 'Y'};
+var _terezka$elm_plot$Internal_Types$X = {ctor: 'X'};
 
-var _terezka$elm_plot$Helpers_ops = _terezka$elm_plot$Helpers_ops || {};
-_terezka$elm_plot$Helpers_ops['?'] = F3(
+var _terezka$elm_plot$Internal_Stuff_ops = _terezka$elm_plot$Internal_Stuff_ops || {};
+_terezka$elm_plot$Internal_Stuff_ops['?'] = F3(
 	function (orientation, x, y) {
 		var _p0 = orientation;
 		if (_p0.ctor === 'X') {
@@ -9263,27 +9263,71 @@ _terezka$elm_plot$Helpers_ops['?'] = F3(
 			return y;
 		}
 	});
-var _terezka$elm_plot$Helpers$toStyle = function (styles) {
+var _terezka$elm_plot$Internal_Stuff$ceilToNearest = F2(
+	function (precision, value) {
+		return _elm_lang$core$Basics$toFloat(
+			_elm_lang$core$Basics$ceiling(value / precision)) * precision;
+	});
+var _terezka$elm_plot$Internal_Stuff$pixelsToValue = F3(
+	function (length, range, pixels) {
+		return (range * pixels) / length;
+	});
+var _terezka$elm_plot$Internal_Stuff$getRange = F2(
+	function (lowest, highest) {
+		return _elm_lang$core$Basics$abs(lowest) + _elm_lang$core$Basics$abs(highest);
+	});
+var _terezka$elm_plot$Internal_Stuff$getLowest = function (values) {
+	return A2(
+		_elm_lang$core$Basics$min,
+		0,
+		A2(
+			_elm_lang$core$Maybe$withDefault,
+			0,
+			_elm_lang$core$List$minimum(values)));
+};
+var _terezka$elm_plot$Internal_Stuff$getHighest = function (values) {
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		10,
+		_elm_lang$core$List$maximum(values));
+};
+var _terezka$elm_plot$Internal_Stuff$getEdges = function (range) {
+	return {
+		ctor: '_Tuple2',
+		_0: _terezka$elm_plot$Internal_Stuff$getLowest(range),
+		_1: _terezka$elm_plot$Internal_Stuff$getHighest(range)
+	};
+};
+var _terezka$elm_plot$Internal_Stuff$getEdgesX = function (points) {
+	return _terezka$elm_plot$Internal_Stuff$getEdges(
+		A2(_elm_lang$core$List$map, _elm_lang$core$Tuple$first, points));
+};
+var _terezka$elm_plot$Internal_Stuff$getEdgesY = function (points) {
+	return _terezka$elm_plot$Internal_Stuff$getEdges(
+		A2(_elm_lang$core$List$map, _elm_lang$core$Tuple$second, points));
+};
+
+var _terezka$elm_plot$Internal_Draw$toStyle = function (styles) {
 	return A3(
 		_elm_lang$core$List$foldr,
 		F2(
-			function (_p1, r) {
-				var _p2 = _p1;
+			function (_p0, r) {
+				var _p1 = _p0;
 				return A2(
 					_elm_lang$core$Basics_ops['++'],
 					r,
 					A2(
 						_elm_lang$core$Basics_ops['++'],
-						_p2._0,
+						_p1._0,
 						A2(
 							_elm_lang$core$Basics_ops['++'],
 							':',
-							A2(_elm_lang$core$Basics_ops['++'], _p2._1, '; '))));
+							A2(_elm_lang$core$Basics_ops['++'], _p1._1, '; '))));
 			}),
 		'',
 		styles);
 };
-var _terezka$elm_plot$Helpers$toRotate = F3(
+var _terezka$elm_plot$Internal_Draw$toRotate = F3(
 	function (d, x, y) {
 		return A2(
 			_elm_lang$core$Basics_ops['++'],
@@ -9305,47 +9349,23 @@ var _terezka$elm_plot$Helpers$toRotate = F3(
 								_elm_lang$core$Basics$toString(y),
 								')'))))));
 	});
-var _terezka$elm_plot$Helpers$toTranslate = function (_p3) {
-	var _p4 = _p3;
+var _terezka$elm_plot$Internal_Draw$toTranslate = function (_p2) {
+	var _p3 = _p2;
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
 		'translate(',
 		A2(
 			_elm_lang$core$Basics_ops['++'],
-			_elm_lang$core$Basics$toString(_p4._0),
+			_elm_lang$core$Basics$toString(_p3._0),
 			A2(
 				_elm_lang$core$Basics_ops['++'],
 				',',
 				A2(
 					_elm_lang$core$Basics_ops['++'],
-					_elm_lang$core$Basics$toString(_p4._1),
+					_elm_lang$core$Basics$toString(_p3._1),
 					')'))));
 };
-var _terezka$elm_plot$Helpers$toPositionAttr = F4(
-	function (x1, y1, x2, y2) {
-		return {
-			ctor: '::',
-			_0: _elm_lang$svg$Svg_Attributes$x1(
-				_elm_lang$core$Basics$toString(x1)),
-			_1: {
-				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$y1(
-					_elm_lang$core$Basics$toString(y1)),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$x2(
-						_elm_lang$core$Basics$toString(x2)),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$y2(
-							_elm_lang$core$Basics$toString(y2)),
-						_1: {ctor: '[]'}
-					}
-				}
-			}
-		};
-	});
-var _terezka$elm_plot$Helpers$toInstruction = F2(
+var _terezka$elm_plot$Internal_Draw$toInstruction = F2(
 	function (instructionType, coords) {
 		var coordsString = A2(
 			_elm_lang$core$String$join,
@@ -9356,21 +9376,45 @@ var _terezka$elm_plot$Helpers$toInstruction = F2(
 			instructionType,
 			A2(_elm_lang$core$Basics_ops['++'], ' ', coordsString));
 	});
-var _terezka$elm_plot$Helpers$startPath = function (data) {
+var _terezka$elm_plot$Internal_Draw$coordsToInstruction = F2(
+	function (instructionType, coords) {
+		return A2(
+			_elm_lang$core$String$join,
+			'',
+			A2(
+				_elm_lang$core$List$map,
+				function (_p4) {
+					var _p5 = _p4;
+					return A2(
+						_terezka$elm_plot$Internal_Draw$toInstruction,
+						instructionType,
+						{
+							ctor: '::',
+							_0: _p5._0,
+							_1: {
+								ctor: '::',
+								_0: _p5._1,
+								_1: {ctor: '[]'}
+							}
+						});
+				},
+				coords));
+	});
+var _terezka$elm_plot$Internal_Draw$startPath = function (data) {
 	var tail = A2(
 		_elm_lang$core$Maybe$withDefault,
 		{ctor: '[]'},
 		_elm_lang$core$List$tail(data));
-	var _p5 = A2(
+	var _p6 = A2(
 		_elm_lang$core$Maybe$withDefault,
 		{ctor: '_Tuple2', _0: 0, _1: 0},
 		_elm_lang$core$List$head(data));
-	var x = _p5._0;
-	var y = _p5._1;
+	var x = _p6._0;
+	var y = _p6._1;
 	return {
 		ctor: '_Tuple2',
 		_0: A2(
-			_terezka$elm_plot$Helpers$toInstruction,
+			_terezka$elm_plot$Internal_Draw$toInstruction,
 			'M',
 			{
 				ctor: '::',
@@ -9384,63 +9428,90 @@ var _terezka$elm_plot$Helpers$startPath = function (data) {
 		_1: tail
 	};
 };
-var _terezka$elm_plot$Helpers$coordToInstruction = F2(
-	function (instructionType, coords) {
-		return A2(
-			_elm_lang$core$String$join,
-			'',
+var _terezka$elm_plot$Internal_Draw$classBase = function (base) {
+	return A2(_elm_lang$core$Basics_ops['++'], 'elm-plot__', base);
+};
+var _terezka$elm_plot$Internal_Draw$classAttribute = F2(
+	function (base, classes) {
+		return _elm_lang$svg$Svg_Attributes$class(
 			A2(
-				_elm_lang$core$List$map,
-				function (_p6) {
-					var _p7 = _p6;
-					return A2(
-						_terezka$elm_plot$Helpers$toInstruction,
-						instructionType,
-						{
-							ctor: '::',
-							_0: _p7._0,
-							_1: {
-								ctor: '::',
-								_0: _p7._1,
-								_1: {ctor: '[]'}
-							}
-						});
-				},
-				coords));
+				_elm_lang$core$String$join,
+				' ',
+				{
+					ctor: '::',
+					_0: _terezka$elm_plot$Internal_Draw$classBase(base),
+					_1: classes
+				}));
 	});
-var _terezka$elm_plot$Helpers$ceilToNearest = F2(
-	function (precision, value) {
-		return _elm_lang$core$Basics$toFloat(
-			_elm_lang$core$Basics$ceiling(value / precision)) * precision;
+var _terezka$elm_plot$Internal_Draw$classAttributeOriented = F3(
+	function (base, orientation, classes) {
+		return A2(
+			_terezka$elm_plot$Internal_Draw$classAttribute,
+			base,
+			{
+				ctor: '::',
+				_0: A3(
+					F2(
+						function (x, y) {
+							return A2(_terezka$elm_plot$Internal_Stuff_ops['?'], x, y);
+						}),
+					orientation,
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						_terezka$elm_plot$Internal_Draw$classBase(base),
+						'--x'),
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						_terezka$elm_plot$Internal_Draw$classBase(base),
+						'--y')),
+				_1: classes
+			});
 	});
-var _terezka$elm_plot$Helpers$pixelsToValue = F3(
-	function (length, range, pixels) {
-		return (range * pixels) / length;
+var _terezka$elm_plot$Internal_Draw$positionAttributes = F2(
+	function (_p8, _p7) {
+		var _p9 = _p8;
+		var _p10 = _p7;
+		return {
+			ctor: '::',
+			_0: _elm_lang$svg$Svg_Attributes$x1(
+				_elm_lang$core$Basics$toString(_p9._0)),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$y1(
+					_elm_lang$core$Basics$toString(_p9._1)),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$x2(
+						_elm_lang$core$Basics$toString(_p10._0)),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$y2(
+							_elm_lang$core$Basics$toString(_p10._1)),
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		};
 	});
-var _terezka$elm_plot$Helpers$getRange = F2(
-	function (lowest, highest) {
-		return _elm_lang$core$Basics$abs(lowest) + _elm_lang$core$Basics$abs(highest);
+var _terezka$elm_plot$Internal_Draw$fullLine = F3(
+	function (attributes, _p11, value) {
+		var _p12 = _p11;
+		var _p14 = _p12.toSvgCoords;
+		var _p13 = _p12.scale;
+		var lowest = _p13.lowest;
+		var highest = _p13.highest;
+		var begin = _p14(
+			{ctor: '_Tuple2', _0: lowest, _1: value});
+		var end = _p14(
+			{ctor: '_Tuple2', _0: highest, _1: value});
+		return A2(
+			_elm_lang$svg$Svg$line,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				A2(_terezka$elm_plot$Internal_Draw$positionAttributes, begin, end),
+				attributes),
+			{ctor: '[]'});
 	});
-var _terezka$elm_plot$Helpers$getLowest = function (values) {
-	return A2(
-		_elm_lang$core$Basics$min,
-		0,
-		A2(
-			_elm_lang$core$Maybe$withDefault,
-			0,
-			_elm_lang$core$List$minimum(values)));
-};
-var _terezka$elm_plot$Helpers$getHighest = function (values) {
-	return A2(
-		_elm_lang$core$Maybe$withDefault,
-		10,
-		_elm_lang$core$List$maximum(values));
-};
-var _terezka$elm_plot$Helpers$foldConfig = _elm_lang$core$List$foldl(
-	F2(
-		function (x, y) {
-			return x(y);
-		}));
 
 var _terezka$elm_plot$Internal_Tick$zipWithDistance = F4(
 	function (hasZero, lowerThanZero, index, value) {
@@ -9512,7 +9583,7 @@ var _terezka$elm_plot$Internal_Tick$getCount = F4(
 	});
 var _terezka$elm_plot$Internal_Tick$getFirstValue = F2(
 	function (delta, lowest) {
-		return A2(_terezka$elm_plot$Helpers$ceilToNearest, delta, lowest);
+		return A2(_terezka$elm_plot$Internal_Stuff$ceilToNearest, delta, lowest);
 	});
 var _terezka$elm_plot$Internal_Tick$toValuesFromDelta = F2(
 	function (delta, _p0) {
@@ -9585,17 +9656,17 @@ var _terezka$elm_plot$Internal_Tick$defaultView = F3(
 		var displacement = A3(
 			F2(
 				function (x, y) {
-					return A2(_terezka$elm_plot$Helpers_ops['?'], x, y);
+					return A2(_terezka$elm_plot$Internal_Stuff_ops['?'], x, y);
 				}),
 			orientation,
 			'',
-			A3(_terezka$elm_plot$Helpers$toRotate, 90, 0, 0));
+			A3(_terezka$elm_plot$Internal_Draw$toRotate, 90, 0, 0));
 		return A2(
 			_elm_lang$svg$Svg$line,
 			{
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$style(
-					_terezka$elm_plot$Helpers$toStyle(styleFinal)),
+					_terezka$elm_plot$Internal_Draw$toStyle(styleFinal)),
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$svg$Svg_Attributes$y2(
@@ -9713,7 +9784,7 @@ var _terezka$elm_plot$Internal_Label$defaultView = F3(
 		var _p5 = A3(
 			F2(
 				function (x, y) {
-					return A2(_terezka$elm_plot$Helpers_ops['?'], x, y);
+					return A2(_terezka$elm_plot$Internal_Stuff_ops['?'], x, y);
 				}),
 			orientation,
 			_terezka$elm_plot$Internal_Label$defaultStyleX,
@@ -9728,7 +9799,7 @@ var _terezka$elm_plot$Internal_Label$defaultView = F3(
 			{
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$transform(
-					_terezka$elm_plot$Helpers$toTranslate(
+					_terezka$elm_plot$Internal_Draw$toTranslate(
 						{
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Basics$toFloat(dx),
@@ -9737,7 +9808,7 @@ var _terezka$elm_plot$Internal_Label$defaultView = F3(
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$svg$Svg_Attributes$style(
-						_terezka$elm_plot$Helpers$toStyle(
+						_terezka$elm_plot$Internal_Draw$toStyle(
 							A2(_elm_lang$core$Basics_ops['++'], defaultStyle, _p3.style))),
 					_1: {
 						ctor: '::',
@@ -9826,91 +9897,6 @@ var _terezka$elm_plot$Internal_Label$CustomValues = function (a) {
 	return {ctor: 'CustomValues', _0: a};
 };
 
-var _terezka$elm_plot$Internal_Draw$classBase = function (base) {
-	return A2(_elm_lang$core$Basics_ops['++'], 'elm-plot__', base);
-};
-var _terezka$elm_plot$Internal_Draw$classAttribute = F2(
-	function (base, classes) {
-		return _elm_lang$svg$Svg_Attributes$class(
-			A2(
-				_elm_lang$core$String$join,
-				' ',
-				{
-					ctor: '::',
-					_0: _terezka$elm_plot$Internal_Draw$classBase(base),
-					_1: classes
-				}));
-	});
-var _terezka$elm_plot$Internal_Draw$classAttributeOriented = F3(
-	function (base, orientation, classes) {
-		return A2(
-			_terezka$elm_plot$Internal_Draw$classAttribute,
-			base,
-			{
-				ctor: '::',
-				_0: A3(
-					F2(
-						function (x, y) {
-							return A2(_terezka$elm_plot$Helpers_ops['?'], x, y);
-						}),
-					orientation,
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						_terezka$elm_plot$Internal_Draw$classBase(base),
-						'--x'),
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						_terezka$elm_plot$Internal_Draw$classBase(base),
-						'--y')),
-				_1: classes
-			});
-	});
-var _terezka$elm_plot$Internal_Draw$positionAttributes = F2(
-	function (_p1, _p0) {
-		var _p2 = _p1;
-		var _p3 = _p0;
-		return {
-			ctor: '::',
-			_0: _elm_lang$svg$Svg_Attributes$x1(
-				_elm_lang$core$Basics$toString(_p2._0)),
-			_1: {
-				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$y1(
-					_elm_lang$core$Basics$toString(_p2._1)),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$x2(
-						_elm_lang$core$Basics$toString(_p3._0)),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$y2(
-							_elm_lang$core$Basics$toString(_p3._1)),
-						_1: {ctor: '[]'}
-					}
-				}
-			}
-		};
-	});
-var _terezka$elm_plot$Internal_Draw$fullLine = F3(
-	function (attributes, _p4, value) {
-		var _p5 = _p4;
-		var _p7 = _p5.toSvgCoords;
-		var _p6 = _p5.scale;
-		var lowest = _p6.lowest;
-		var highest = _p6.highest;
-		var begin = _p7(
-			{ctor: '_Tuple2', _0: lowest, _1: value});
-		var end = _p7(
-			{ctor: '_Tuple2', _0: highest, _1: value});
-		return A2(
-			_elm_lang$svg$Svg$line,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				A2(_terezka$elm_plot$Internal_Draw$positionAttributes, begin, end),
-				attributes),
-			{ctor: '[]'});
-	});
-
 var _terezka$elm_plot$Internal_Axis$placeTick = F4(
 	function ($class, _p1, view, _p0) {
 		var _p2 = _p1;
@@ -9921,7 +9907,7 @@ var _terezka$elm_plot$Internal_Axis$placeTick = F4(
 			{
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$transform(
-					_terezka$elm_plot$Helpers$toTranslate(
+					_terezka$elm_plot$Internal_Draw$toTranslate(
 						_p2.toSvgCoords(
 							{ctor: '_Tuple2', _0: _p4, _1: 0}))),
 				_1: {
@@ -9962,7 +9948,7 @@ var _terezka$elm_plot$Internal_Axis$viewAxisLine = function (_p5) {
 		{
 			ctor: '::',
 			_0: _elm_lang$svg$Svg_Attributes$style(
-				_terezka$elm_plot$Helpers$toStyle(_p6.lineStyle)),
+				_terezka$elm_plot$Internal_Draw$toStyle(_p6.lineStyle)),
 			_1: {
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__axis__line'),
@@ -9986,7 +9972,7 @@ var _terezka$elm_plot$Internal_Axis$view = F2(
 			{
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$style(
-					_terezka$elm_plot$Helpers$toStyle(_p14.baseStyle)),
+					_terezka$elm_plot$Internal_Draw$toStyle(_p14.baseStyle)),
 				_1: {
 					ctor: '::',
 					_0: A3(_terezka$elm_plot$Internal_Draw$classAttributeOriented, 'axis', _p12, _p14.classes),
@@ -10022,10 +10008,10 @@ var _terezka$elm_plot$Internal_Axis$defaultStyleConfig = {
 	baseStyle: {ctor: '[]'},
 	classes: {ctor: '[]'}
 };
-var _terezka$elm_plot$Internal_Axis$defaultConfigX = {tickConfig: _terezka$elm_plot$Internal_Tick$defaultConfig, labelConfig: _terezka$elm_plot$Internal_Label$defaultConfig, viewConfig: _terezka$elm_plot$Internal_Axis$defaultStyleConfig, orientation: _terezka$elm_plot$Plot_Types$X};
+var _terezka$elm_plot$Internal_Axis$defaultConfigX = {tickConfig: _terezka$elm_plot$Internal_Tick$defaultConfig, labelConfig: _terezka$elm_plot$Internal_Label$defaultConfig, viewConfig: _terezka$elm_plot$Internal_Axis$defaultStyleConfig, orientation: _terezka$elm_plot$Internal_Types$X};
 var _terezka$elm_plot$Internal_Axis$defaultConfigY = _elm_lang$core$Native_Utils.update(
 	_terezka$elm_plot$Internal_Axis$defaultConfigX,
-	{orientation: _terezka$elm_plot$Plot_Types$Y});
+	{orientation: _terezka$elm_plot$Internal_Types$Y});
 var _terezka$elm_plot$Internal_Axis$Config = F4(
 	function (a, b, c, d) {
 		return {tickConfig: a, labelConfig: b, viewConfig: c, orientation: d};
@@ -10273,7 +10259,7 @@ var _terezka$elm_plot$Internal_Grid$viewLine = function (style) {
 		{
 			ctor: '::',
 			_0: _elm_lang$svg$Svg_Attributes$style(
-				_terezka$elm_plot$Helpers$toStyle(style)),
+				_terezka$elm_plot$Internal_Draw$toStyle(style)),
 			_1: {
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__grid__line'),
@@ -10290,25 +10276,26 @@ var _terezka$elm_plot$Internal_Grid$getValues = F2(
 			return _p0._0;
 		}
 	});
+var _terezka$elm_plot$Internal_Grid$viewLines = F2(
+	function (_p2, _p1) {
+		var _p3 = _p2;
+		var _p4 = _p1;
+		return A2(
+			_elm_lang$core$List$map,
+			A2(_terezka$elm_plot$Internal_Grid$viewLine, _p4.style, _p3),
+			A2(_terezka$elm_plot$Internal_Grid$getValues, _p3.oppositeTicks, _p4.values));
+	});
 var _terezka$elm_plot$Internal_Grid$view = F2(
-	function (meta, _p1) {
-		var _p2 = _p1;
-		var _p3 = meta;
-		var scale = _p3.scale;
-		var toSvgCoords = _p3.toSvgCoords;
-		var oppositeTicks = _p3.oppositeTicks;
-		var positions = A2(_terezka$elm_plot$Internal_Grid$getValues, oppositeTicks, _p2.values);
+	function (meta, _p5) {
+		var _p6 = _p5;
 		return A2(
 			_elm_lang$svg$Svg$g,
 			{
 				ctor: '::',
-				_0: A3(_terezka$elm_plot$Internal_Draw$classAttributeOriented, 'grid', _p2.orientation, _p2.classes),
+				_0: A3(_terezka$elm_plot$Internal_Draw$classAttributeOriented, 'grid', _p6.orientation, _p6.classes),
 				_1: {ctor: '[]'}
 			},
-			A2(
-				_elm_lang$core$List$map,
-				A2(_terezka$elm_plot$Internal_Grid$viewLine, _p2.style, meta),
-				positions));
+			A2(_terezka$elm_plot$Internal_Grid$viewLines, meta, _p6));
 	});
 var _terezka$elm_plot$Internal_Grid$Config = F4(
 	function (a, b, c, d) {
@@ -10322,11 +10309,11 @@ var _terezka$elm_plot$Internal_Grid$defaultConfigX = {
 	values: _terezka$elm_plot$Internal_Grid$MirrorTicks,
 	style: {ctor: '[]'},
 	classes: {ctor: '[]'},
-	orientation: _terezka$elm_plot$Plot_Types$X
+	orientation: _terezka$elm_plot$Internal_Types$X
 };
 var _terezka$elm_plot$Internal_Grid$defaultConfigY = _elm_lang$core$Native_Utils.update(
 	_terezka$elm_plot$Internal_Grid$defaultConfigX,
-	{orientation: _terezka$elm_plot$Plot_Types$Y});
+	{orientation: _terezka$elm_plot$Internal_Types$Y});
 
 var _terezka$elm_plot$Plot_Grid$classes = F2(
 	function (classes, config) {
@@ -10357,13 +10344,8 @@ var _terezka$elm_plot$Internal_Area$view = F3(
 		var _p7 = _p2.toSvgCoords;
 		var _p3 = _p0;
 		var svgCoords = A2(_elm_lang$core$List$map, _p7, points);
-		var instructions = A2(_terezka$elm_plot$Helpers$coordToInstruction, 'L', svgCoords);
-		var range = A2(_elm_lang$core$List$map, _elm_lang$core$Tuple$first, points);
-		var _p4 = {
-			ctor: '_Tuple2',
-			_0: _terezka$elm_plot$Helpers$getLowest(range),
-			_1: _terezka$elm_plot$Helpers$getHighest(range)
-		};
+		var instructions = A2(_terezka$elm_plot$Internal_Draw$coordsToInstruction, 'L', svgCoords);
+		var _p4 = _terezka$elm_plot$Internal_Stuff$getEdgesX(points);
 		var lowestX = _p4._0;
 		var highestX = _p4._1;
 		var _p5 = _p7(
@@ -10371,7 +10353,7 @@ var _terezka$elm_plot$Internal_Area$view = F3(
 		var highestSvgX = _p5._0;
 		var originY = _p5._1;
 		var endInstructions = A2(
-			_terezka$elm_plot$Helpers$toInstruction,
+			_terezka$elm_plot$Internal_Draw$toInstruction,
 			'L',
 			{
 				ctor: '::',
@@ -10386,7 +10368,7 @@ var _terezka$elm_plot$Internal_Area$view = F3(
 			{ctor: '_Tuple2', _0: lowestX, _1: 0});
 		var lowestSvgX = _p6._0;
 		var startInstruction = A2(
-			_terezka$elm_plot$Helpers$toInstruction,
+			_terezka$elm_plot$Internal_Draw$toInstruction,
 			'M',
 			{
 				ctor: '::',
@@ -10412,7 +10394,7 @@ var _terezka$elm_plot$Internal_Area$view = F3(
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$svg$Svg_Attributes$style(
-						_terezka$elm_plot$Helpers$toStyle(_p3.style)),
+						_terezka$elm_plot$Internal_Draw$toStyle(_p3.style)),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__serie--area'),
@@ -10441,10 +10423,10 @@ var _terezka$elm_plot$Internal_Line$view = F3(
 		var _p2 = _p1;
 		var _p3 = _p0;
 		var svgPoints = A2(_elm_lang$core$List$map, _p2.toSvgCoords, points);
-		var _p4 = _terezka$elm_plot$Helpers$startPath(svgPoints);
+		var _p4 = _terezka$elm_plot$Internal_Draw$startPath(svgPoints);
 		var startInstruction = _p4._0;
 		var tail = _p4._1;
-		var instructions = A2(_terezka$elm_plot$Helpers$coordToInstruction, 'L', svgPoints);
+		var instructions = A2(_terezka$elm_plot$Internal_Draw$coordsToInstruction, 'L', svgPoints);
 		return A2(
 			_elm_lang$svg$Svg$path,
 			{
@@ -10454,7 +10436,7 @@ var _terezka$elm_plot$Internal_Line$view = F3(
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$svg$Svg_Attributes$style(
-						_terezka$elm_plot$Helpers$toStyle(_p3.style)),
+						_terezka$elm_plot$Internal_Draw$toStyle(_p3.style)),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__serie--line'),
@@ -10765,7 +10747,7 @@ var _terezka$elm_plot$Plot$getLastGetTickValues = F2(
 var _terezka$elm_plot$Plot$getHintInfo = F2(
 	function (elements, xValue) {
 		return A2(
-			_terezka$elm_plot$Plot_Types$HintInfo,
+			_terezka$elm_plot$Internal_Types$HintInfo,
 			xValue,
 			A3(
 				_elm_lang$core$List$foldr,
@@ -10836,12 +10818,12 @@ var _terezka$elm_plot$Plot$getScale = F4(
 		var _p18 = _p17;
 		var _p20 = _p18._0;
 		var _p19 = _p16;
-		var highest = _terezka$elm_plot$Helpers$getHighest(values);
-		var lowest = _terezka$elm_plot$Helpers$getLowest(values);
-		var range = A2(_terezka$elm_plot$Helpers$getRange, lowest, highest);
+		var highest = _terezka$elm_plot$Internal_Stuff$getHighest(values);
+		var lowest = _terezka$elm_plot$Internal_Stuff$getLowest(values);
+		var range = A2(_terezka$elm_plot$Internal_Stuff$getRange, lowest, highest);
 		var length = (lengthTotal - _p20) - _p18._1;
-		var paddingTop = A3(_terezka$elm_plot$Helpers$pixelsToValue, length, range, _p19._1);
-		var paddingBottom = A3(_terezka$elm_plot$Helpers$pixelsToValue, length, range, _p19._0);
+		var paddingTop = A3(_terezka$elm_plot$Internal_Stuff$pixelsToValue, length, range, _p19._1);
+		var paddingBottom = A3(_terezka$elm_plot$Internal_Stuff$pixelsToValue, length, range, _p19._0);
 		return {lowest: lowest - paddingBottom, highest: highest + paddingTop, range: (range + paddingBottom) + paddingTop, length: length, offset: _p20};
 	});
 var _terezka$elm_plot$Plot$flipToY = function (_p21) {
@@ -10884,14 +10866,14 @@ var _terezka$elm_plot$Plot$calculateMeta = F2(
 			{ctor: '_Tuple2', _0: left, _1: right},
 			{ctor: '_Tuple2', _0: 0, _1: 0},
 			xValues);
-		var xTicks = A3(_terezka$elm_plot$Plot$getLastGetTickValues, _terezka$elm_plot$Plot_Types$X, elements, xScale);
+		var xTicks = A3(_terezka$elm_plot$Plot$getLastGetTickValues, _terezka$elm_plot$Internal_Types$X, elements, xScale);
 		var yScale = A4(
 			_terezka$elm_plot$Plot$getScale,
 			height,
 			{ctor: '_Tuple2', _0: top, _1: bottom},
 			_p25.padding,
 			yValues);
-		var yTicks = A3(_terezka$elm_plot$Plot$getLastGetTickValues, _terezka$elm_plot$Plot_Types$Y, elements, yScale);
+		var yTicks = A3(_terezka$elm_plot$Plot$getLastGetTickValues, _terezka$elm_plot$Internal_Types$Y, elements, yScale);
 		return {
 			scale: xScale,
 			oppositeScale: yScale,
@@ -11201,11 +11183,25 @@ var _terezka$elm_plot$Plot$Grid = function (a) {
 };
 var _terezka$elm_plot$Plot$horizontalGrid = function (attrs) {
 	return _terezka$elm_plot$Plot$Grid(
-		A2(_terezka$elm_plot$Helpers$foldConfig, _terezka$elm_plot$Internal_Grid$defaultConfigX, attrs));
+		A3(
+			_elm_lang$core$List$foldr,
+			F2(
+				function (x, y) {
+					return x(y);
+				}),
+			_terezka$elm_plot$Internal_Grid$defaultConfigX,
+			attrs));
 };
 var _terezka$elm_plot$Plot$verticalGrid = function (attrs) {
 	return _terezka$elm_plot$Plot$Grid(
-		A2(_terezka$elm_plot$Helpers$foldConfig, _terezka$elm_plot$Internal_Grid$defaultConfigY, attrs));
+		A3(
+			_elm_lang$core$List$foldr,
+			F2(
+				function (x, y) {
+					return x(y);
+				}),
+			_terezka$elm_plot$Internal_Grid$defaultConfigY,
+			attrs));
 };
 var _terezka$elm_plot$Plot$Axis = function (a) {
 	return {ctor: 'Axis', _0: a};

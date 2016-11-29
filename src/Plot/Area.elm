@@ -13,7 +13,7 @@ module Plot.Area exposing (..)
 -}
 
 import Internal.Area as Internal
-import Plot.Types exposing (Style)
+import Internal.Types exposing (Style)
 
 
 {-| -}

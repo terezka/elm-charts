@@ -2,8 +2,8 @@ module Internal.Draw exposing (..)
 
 import Svg exposing (Svg, Attribute)
 import Svg.Attributes
-import Plot.Types exposing (Meta, Orientation)
-import Helpers exposing (..)
+import Internal.Types exposing (Meta, Orientation)
+import Internal.Stuff exposing (..)
 
 
 fullLine : List (Attribute a) -> Meta -> Float -> Svg a
@@ -47,3 +47,44 @@ classBase : String -> String
 classBase base =
     "elm-plot__" ++ base
     
+
+toInstruction : String -> List Float -> String
+toInstruction instructionType coords =
+    let
+        coordsString =
+            List.map toString coords
+                |> String.join ","
+    in
+        instructionType ++ " " ++ coordsString
+
+
+coordsToInstruction : String -> List ( Float, Float ) -> String
+coordsToInstruction instructionType coords =
+    List.map (\( x, y ) -> toInstruction instructionType [ x, y ]) coords |> String.join ""
+
+
+startPath : List ( Float, Float ) -> ( String, List ( Float, Float ) )
+startPath data =
+    let
+        ( x, y ) =
+            Maybe.withDefault ( 0, 0 ) (List.head data)
+
+        tail =
+            Maybe.withDefault [] (List.tail data)
+    in
+        ( toInstruction "M" [ x, y ], tail )
+
+
+toTranslate : ( Float, Float ) -> String
+toTranslate ( x, y ) =
+    "translate(" ++ (toString x) ++ "," ++ (toString y) ++ ")"
+
+
+toRotate : Float -> Float -> Float -> String
+toRotate d x y =
+    "rotate(" ++ (toString d) ++ " " ++ (toString x) ++ " " ++ (toString y) ++ ")"
+
+
+toStyle : List ( String, String ) -> String
+toStyle styles =
+    List.foldr (\( p, v ) r -> r ++ p ++ ":" ++ v ++ "; ") "" styles

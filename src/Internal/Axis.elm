@@ -1,10 +1,9 @@
 module Internal.Axis exposing (..)
 
-import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta)
+import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta)
 import Internal.Tick as Tick
 import Internal.Label as Label
-import Internal.Draw as Draw
-import Helpers exposing (..)
+import Internal.Draw as Draw exposing (..)
 import Round
 import Svg
 import Svg.Attributes

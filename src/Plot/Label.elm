@@ -28,7 +28,7 @@ module Plot.Label exposing (Attribute, StyleAttribute, view, viewDynamic, viewCu
 -}
 
 import Svg
-import Plot.Types exposing (Style)
+import Internal.Types exposing (Style)
 import Internal.Label as Internal
 
 

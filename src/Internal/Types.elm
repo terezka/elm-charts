@@ -1,15 +1,10 @@
-module Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
-
-{-| Convinience type to represent coordinates.
--}
+module Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
 
 
 type alias Point =
     ( Float, Float )
 
 
-{-| Convinience type to represent style.
--}
 type alias Style =
     List ( String, String )
 

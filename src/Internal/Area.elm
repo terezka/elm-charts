@@ -1,7 +1,8 @@
 module Internal.Area exposing (..)
 
-import Plot.Types exposing (..)
-import Helpers exposing (..)
+import Internal.Types exposing (..)
+import Internal.Stuff exposing (getEdgesX)
+import Internal.Draw exposing (..)
 import Svg
 import Svg.Attributes
 
@@ -18,11 +19,8 @@ defaultConfig =
 view : Meta -> Config -> List Point -> Svg.Svg a
 view { toSvgCoords } { style } points =
     let
-        range =
-            List.map Tuple.first points
-
         ( lowestX, highestX ) =
-            ( getLowest range, getHighest range )
+            getEdgesX points
 
         svgCoords =
             List.map toSvgCoords points
@@ -40,7 +38,7 @@ view { toSvgCoords } { style } points =
             toInstruction "L" [ highestSvgX, originY ]
 
         instructions =
-            coordToInstruction "L" svgCoords
+            coordsToInstruction "L" svgCoords
     in
         Svg.path
             [ Svg.Attributes.d (startInstruction ++ instructions ++ endInstructions ++ "Z")

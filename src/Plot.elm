@@ -22,6 +22,8 @@ module Plot
         , Interaction(..)
         , State
         , getHoveredValue
+        , Point
+        , Style
         )
 
 {-|
@@ -30,7 +32,7 @@ module Plot
  It is insprired by the elm-html api, using the `element attrs children` pattern.
 
 # Definitions
-@docs Attribute, Element
+@docs Attribute, Element, Point, Style
 
 # Styling
 @docs classes, id, margin, padding, size, style
@@ -55,8 +57,6 @@ import Task
 import Json.Decode as Json
 import Dom
 import Dom.Position
-import Helpers exposing (..)
-import Plot.Types exposing (..)
 import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Grid as Grid
@@ -69,6 +69,22 @@ import Internal.Area as AreaInternal
 import Internal.Line as LineInternal
 import Internal.Tick as TickInternal
 import Internal.Hint as HintInternal
+import Internal.Stuff exposing (..)
+import Internal.Types exposing (..)
+
+
+
+{-| Convinience type to represent coordinates.
+-}
+type alias Point =
+    ( Float, Float )
+
+
+{-| Convinience type to represent style.
+-}
+type alias Style =
+    List ( String, String )
+
 
 
 {-| Represents child element of the plot.
@@ -179,13 +195,13 @@ yAxis attrs =
 {-| -}
 horizontalGrid : List Grid.Attribute -> Element msg
 horizontalGrid attrs =
-    Grid (foldConfig GridInternal.defaultConfigX attrs)
+    Grid (List.foldr (<|) GridInternal.defaultConfigX attrs)
 
 
 {-| -}
 verticalGrid : List Grid.Attribute -> Element msg
 verticalGrid attrs =
-    Grid (foldConfig GridInternal.defaultConfigY attrs)
+    Grid (List.foldr (<|) GridInternal.defaultConfigY attrs)
 
 
 {-| Draws an area.

@@ -1,7 +1,6 @@
 module Internal.Hint exposing (..)
 
-import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
-import Helpers exposing (..)
+import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
 import Svg
 import Svg.Attributes
 import Html

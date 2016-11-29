@@ -11,9 +11,10 @@ module Internal.Label
         , getValuesIndexed
         )
 
-import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
+import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
+import Internal.Draw as Draw exposing (..)
+import Internal.Stuff exposing ((?))
 import Internal.Tick as Tick
-import Helpers exposing (..)
 import Svg
 import Svg.Attributes
 

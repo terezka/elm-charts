@@ -1,11 +1,9 @@
 module Internal.Grid exposing (..)
 
-import Plot.Types exposing (Point, Style, Orientation(..))
 import Svg
 import Svg.Attributes
-import Plot.Types exposing (Meta, Point, Style, Orientation(..))
-import Helpers exposing (..)
-import Internal.Draw as Draw
+import Internal.Types exposing (Meta, Point, Style, Orientation(..))
+import Internal.Draw as Draw exposing (..)
 
 
 type Values
@@ -46,18 +44,15 @@ getValues tickValues values =
 
 
 view : Meta -> Config -> Svg.Svg a
-view meta { values, style, classes, orientation } =
-    let
-        { scale, toSvgCoords, oppositeTicks } =
-            meta
+view meta ({ values, style, classes, orientation } as config) =
+    Svg.g
+        [ Draw.classAttributeOriented "grid" orientation classes ]
+        (viewLines meta config)
 
-        positions =
-            getValues oppositeTicks values
-    in
-        Svg.g
-            [ Draw.classAttributeOriented "grid" orientation classes ]
-            (List.map (viewLine style meta) positions)
 
+viewLines : Meta -> Config -> List (Svg.Svg a)
+viewLines ({ oppositeTicks } as meta) { values, style } =
+    List.map (viewLine style meta) <| getValues oppositeTicks values
 
 
 viewLine : Style -> Meta -> Float -> Svg.Svg a

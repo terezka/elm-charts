@@ -1,7 +1,7 @@
 module Internal.Line exposing (..)
 
-import Plot.Types exposing (..)
-import Helpers exposing (..)
+import Internal.Types exposing (..)
+import Internal.Draw exposing (..)
 import Svg
 import Svg.Attributes
 
@@ -25,7 +25,7 @@ view { toSvgCoords } { style } points =
             startPath svgPoints
 
         instructions =
-            coordToInstruction "L" svgPoints
+            coordsToInstruction "L" svgPoints
     in
         Svg.path
             [ Svg.Attributes.d (startInstruction ++ instructions)

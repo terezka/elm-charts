@@ -15,7 +15,7 @@ module Plot.Grid exposing (Attribute, values, style, classes)
 -}
 
 import Internal.Grid as Internal exposing (Config, Values(..), defaultConfigX)
-import Plot.Types exposing (Style)
+import Internal.Types exposing (Style)
 
 
 {-| -}

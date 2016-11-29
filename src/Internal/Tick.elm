@@ -13,8 +13,9 @@ module Internal.Tick
         , getValues
         )
 
-import Plot.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
-import Helpers exposing (..)
+import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
+import Internal.Draw as Draw exposing (..)
+import Internal.Stuff exposing (..)
 import Round
 import Svg
 import Svg.Attributes

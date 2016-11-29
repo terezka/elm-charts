@@ -11,7 +11,7 @@ module Plot.Line exposing (..)
 
 -}
 
-import Plot.Types exposing (Style)
+import Internal.Types exposing (Style)
 import Internal.Line as Internal
 
 
