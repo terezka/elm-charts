@@ -1,7 +1,7 @@
 module Plot.Label
     exposing
         ( Attribute
-        , StyleAttribute 
+        , StyleAttribute
         , view
         , viewDynamic
         , viewCustom
@@ -94,37 +94,43 @@ classes classes config =
     { config | classes = classes }
 
 
-{-| Set the stroke color. -}
+{-| Set the stroke color.
+-}
 stroke : String -> StyleAttribute a
 stroke stroke config =
     { config | style = ( "stroke", stroke ) :: config.style }
 
 
-{-| Set the stroke width (in pixels). -}
+{-| Set the stroke width (in pixels).
+-}
 strokeWidth : Int -> StyleAttribute a
 strokeWidth strokeWidth config =
     { config | style = ( "stroke-width", toString strokeWidth ++ "px" ) :: config.style }
 
 
-{-| Set the fill color. -}
+{-| Set the fill color.
+-}
 fill : String -> StyleAttribute a
 fill fill config =
     { config | style = ( "fill", fill ) :: config.style }
 
 
-{-| Set the opacity. -}
+{-| Set the opacity.
+-}
 opacity : Float -> StyleAttribute a
 opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
 
 
-{-| Set the font size (in pixels). -}
+{-| Set the font size (in pixels).
+-}
 fontSize : Int -> StyleAttribute a
 fontSize fontSize config =
     { config | style = ( "font-size", toString fontSize ++ "px" ) :: config.style }
 
 
-{-| Add your own attributes. -}
+{-| Add your own attributes.
+-}
 customAttrs : List (Svg.Attribute a) -> StyleAttribute a
 customAttrs attrs config =
     { config | customAttrs = attrs }

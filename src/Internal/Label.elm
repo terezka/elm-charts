@@ -107,7 +107,8 @@ defaultView { displace, format, style, classes, customAttrs } orientation ( inde
             [ Svg.Attributes.transform (toTranslate ( toFloat dx, toFloat dy ))
             , Svg.Attributes.style (toStyle (defaultStyle ++ style))
             , Svg.Attributes.class <| String.join " " <| "elm-plot__label__default-view" :: classes
-            ] ++ customAttrs
+            ]
+                ++ customAttrs
     in
         Svg.text_ attrs [ Svg.tspan [] [ Svg.text (format ( index, tick )) ] ]
 

@@ -61,4 +61,6 @@ viewLine : Style -> List (Svg.Attribute a) -> Meta -> Float -> Svg.Svg a
 viewLine style customAttrs =
     [ Svg.Attributes.style (toStyle style)
     , Svg.Attributes.class "elm-plot__grid__line"
-    ] ++ customAttrs |> Draw.fullLine
+    ]
+        ++ customAttrs
+        |> Draw.fullLine

@@ -53,19 +53,22 @@ values values config =
     { config | values = CustomValues values }
 
 
-{-| Set the stroke color. -}
+{-| Set the stroke color.
+-}
 stroke : String -> Attribute a
 stroke stroke config =
     { config | style = ( "stroke", stroke ) :: config.style }
 
 
-{-| Set the stroke width (in pixels). -}
+{-| Set the stroke width (in pixels).
+-}
 strokeWidth : Int -> Attribute a
 strokeWidth strokeWidth config =
     { config | style = ( "stroke-width", toString strokeWidth ++ "px" ) :: config.style }
 
 
-{-| Set the opacity. -}
+{-| Set the opacity.
+-}
 opacity : Float -> Attribute a
 opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
@@ -82,7 +85,8 @@ classes classes config =
     { config | classes = classes }
 
 
-{-| Add your own attributes to your gridlines. For events, read _insert link, please tell me if I forget_ -}
+{-| Add your own attributes to your gridlines. For events, read _insert link, please tell me if I forget_
+-}
 customAttrs : List (Svg.Attribute a) -> Attribute a
 customAttrs attrs config =
     { config | customAttrs = attrs }

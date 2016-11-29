@@ -104,7 +104,8 @@ defaultView { length, width, style, classes, customAttrs } orientation ( _, _ ) 
             , Svg.Attributes.y2 (toString length)
             , Svg.Attributes.transform displacement
             , Svg.Attributes.class <| String.join " " <| "elm-plot__tick__default-view" :: classes
-            ] ++ customAttrs
+            ]
+                ++ customAttrs
     in
         Svg.line attrs []
 

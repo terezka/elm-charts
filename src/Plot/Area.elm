@@ -38,32 +38,36 @@ type alias Attribute a =
     Internal.Config a -> Internal.Config a
 
 
-{-| Set the stroke color. -}
+{-| Set the stroke color.
+-}
 stroke : String -> Attribute a
 stroke stroke config =
     { config | style = ( "stroke", stroke ) :: config.style }
 
 
-{-| Set the stroke width (in pixels). -}
+{-| Set the stroke width (in pixels).
+-}
 strokeWidth : Int -> Attribute a
 strokeWidth strokeWidth config =
     { config | style = ( "stroke-width", toString strokeWidth ++ "px" ) :: config.style }
 
 
-{-| Set the fill color. -}
+{-| Set the fill color.
+-}
 fill : String -> Attribute a
 fill fill config =
     { config | style = ( "fill", fill ) :: config.style }
 
 
-{-| Set the opacity. -}
+{-| Set the opacity.
+-}
 opacity : Float -> Attribute a
 opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
 
 
-{-| Add your own attributes. -}
+{-| Add your own attributes.
+-}
 customAttrs : List (Svg.Attribute a) -> Attribute a
 customAttrs attrs config =
     { config | customAttrs = attrs }
-

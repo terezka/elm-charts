@@ -12860,7 +12860,7 @@ var _terezka$elm_plot$Docs$initialModel = {openSection: _elm_lang$core$Maybe$Not
 var _terezka$elm_plot$Docs$highlight = _elm_lang$core$Native_Platform.outgoingPort(
 	'highlight',
 	function (v) {
-		return v;
+		return null;
 	});
 var _terezka$elm_plot$Docs$Model = F2(
 	function (a, b) {
@@ -13441,7 +13441,8 @@ var _terezka$elm_plot$Docs$main = _elm_lang$html$Html$program(
 		init: {
 			ctor: '_Tuple2',
 			_0: _terezka$elm_plot$Docs$initialModel,
-			_1: _terezka$elm_plot$Docs$highlight('none')
+			_1: _terezka$elm_plot$Docs$highlight(
+				{ctor: '_Tuple0'})
 		},
 		update: _terezka$elm_plot$Docs$update,
 		subscriptions: _elm_lang$core$Basics$always(_elm_lang$core$Platform_Sub$none),

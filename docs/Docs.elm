@@ -197,13 +197,13 @@ testChart state =
             [ Line.stroke "red"
             , Line.strokeWidth 2
             ]
-            [ (0, 1), (1, 2), (2, 0.5) ]
+            [ ( 0, 1 ), ( 1, 2 ), ( 2, 0.5 ) ]
         , Plot.area
             [ Area.stroke "blue"
             , Area.strokeWidth 2
             , Area.fill "deeppink"
             ]
-            [ (0, 1), (1, 2), (2, 0.5) ]
+            [ ( 0, 1 ), ( 1, 2 ), ( 2, 0.5 ) ]
         , Plot.xAxis
             [ Axis.label
                 [ Label.view
@@ -217,21 +217,24 @@ testChart state =
 mySvgElement : (Plot.Point -> Plot.Point) -> Svg.Svg msg
 mySvgElement toSvgCoords =
     let
-        (x1, y1) = toSvgCoords (0, 0)
-        (x2, y2) = toSvgCoords (2, 2)
+        ( x1, y1 ) =
+            toSvgCoords ( 0, 0 )
+
+        ( x2, y2 ) =
+            toSvgCoords ( 2, 2 )
     in
-    Svg.line
-        [ Svg.Attributes.x1 (toString x1)
-        , Svg.Attributes.y1 (toString y1)
-        , Svg.Attributes.x2 (toString x2)
-        , Svg.Attributes.y2 (toString y2)
-        ]
-        []
+        Svg.line
+            [ Svg.Attributes.x1 (toString x1)
+            , Svg.Attributes.y1 (toString y1)
+            , Svg.Attributes.x2 (toString x2)
+            , Svg.Attributes.y2 (toString y2)
+            ]
+            []
 
 
 main =
     Html.program
-        { init = ( initialModel, highlight "none" )
+        { init = ( initialModel, highlight () )
         , update = update
         , subscriptions = (always Sub.none)
         , view = view
@@ -242,7 +245,7 @@ main =
 -- Ports
 
 
-port highlight : String -> Cmd msg
+port highlight : () -> Cmd msg
 
 
 

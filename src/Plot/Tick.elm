@@ -122,25 +122,29 @@ classes classes config =
     { config | classes = classes }
 
 
-{-| Set the stroke color. -}
+{-| Set the stroke color.
+-}
 stroke : String -> StyleAttribute msg
 stroke stroke config =
     { config | style = ( "stroke", stroke ) :: config.style }
 
 
-{-| Set the stroke width (in pixels). -}
+{-| Set the stroke width (in pixels).
+-}
 strokeWidth : Int -> StyleAttribute msg
 strokeWidth strokeWidth config =
     { config | style = ( "stroke-width", toString strokeWidth ++ "px" ) :: config.style }
 
 
-{-| Set the opacity. -}
+{-| Set the opacity.
+-}
 opacity : Float -> StyleAttribute msg
 opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
 
 
-{-| Add your own attributes. -}
+{-| Add your own attributes.
+-}
 customAttrs : List (Svg.Attribute msg) -> StyleAttribute msg
 customAttrs attrs config =
     { config | customAttrs = attrs }
