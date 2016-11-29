@@ -1,35 +1,45 @@
 module Internal.Line exposing (..)
 
-import Internal.Types exposing (..)
-import Internal.Draw exposing (..)
 import Svg
 import Svg.Attributes
+import Internal.Types exposing (..)
+import Internal.Draw exposing (..)
 
 
-type alias Config =
-    { style : Style }
+type alias Config a =
+    { style : Style
+    , customAttrs : List (Svg.Attribute a)
+    }
 
 
-defaultConfig : Config
+defaultConfig : Config a
 defaultConfig =
-    { style = [ ( "fill", "transparent" ) ] }
+    { style = [ ( "fill", "transparent" ) ]
+    , customAttrs = []
+    }
 
 
-view : Meta -> Config -> List Point -> Svg.Svg a
-view { toSvgCoords } { style } points =
+view : Meta -> Config a -> List Point -> Svg.Svg a
+view { toSvgCoords } { style, customAttrs } points =
     let
         svgPoints =
             List.map toSvgCoords points
 
-        ( startInstruction, tail ) =
+        ( startInstruction, _ ) =
             startPath svgPoints
 
         instructions =
             coordsToInstruction "L" svgPoints
+
+        attrs =
+            (stdAttributes (startInstruction ++ instructions) style) ++ customAttrs
     in
-        Svg.path
-            [ Svg.Attributes.d (startInstruction ++ instructions)
-            , Svg.Attributes.style (toStyle style)
-            , Svg.Attributes.class "elm-plot__serie--line"
-            ]
-            []
+        Svg.path attrs []
+
+
+stdAttributes : String -> Style -> List (Svg.Attribute a)
+stdAttributes d style =
+    [ Svg.Attributes.d d
+    , Svg.Attributes.style (toStyle style)
+    , Svg.Attributes.class "elm-plot__serie--line"
+    ]

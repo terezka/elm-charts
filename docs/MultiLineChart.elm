@@ -24,8 +24,16 @@ chart =
         [ size ( 600, 300 )
         , margin ( 10, 20, 40, 20 )
         ]
-        [ line [ Line.style [ ( "stroke", Colors.blueStroke ), ( "stroke-width", "2px" ) ] ] data2
-        , line [ Line.style [ ( "stroke", Colors.pinkStroke ), ( "stroke-width", "2px" ) ] ] data1
+        [ line
+            [ Line.stroke Colors.blueStroke
+            , Line.strokeWidth 2
+            ]
+            data2
+        , line
+            [ Line.stroke Colors.pinkStroke
+            , Line.strokeWidth 2
+            ]
+            data1
         , xAxis
             [ Axis.view
                 [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]

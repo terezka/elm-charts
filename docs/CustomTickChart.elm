@@ -51,10 +51,8 @@ chart =
         , margin ( 10, 20, 40, 20 )
         ]
         [ line
-            [ Line.style
-                [ ( "stroke", Colors.pinkStroke )
-                , ( "stroke-width", "2px" )
-                ]
+            [ Line.stroke Colors.pinkStroke
+            , Line.strokeWidth 2
             ]
             data
         , xAxis

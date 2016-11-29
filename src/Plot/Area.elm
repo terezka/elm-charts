@@ -9,7 +9,6 @@ module Plot.Area exposing (..)
 # Styling
 @docs style
 
-
 -}
 
 import Internal.Area as Internal

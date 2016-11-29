@@ -3,33 +3,56 @@ module Plot.Line exposing (..)
 {-|
  Attributes for altering the view of your line serie.
 
+    myLineSerie : Plot.Element a
+    myLineSerie =
+        line
+            [ stroke "deeppink"
+            , strokeWidth 2
+            , opacity 0.5
+            ]
+            lineDataPoints
+                
+
 # Definition
 @docs Attribute
 
 # Styling
-@docs style
+@docs stroke, strokeWidth, opacity
+
+# Other
+@docs customAttrs
 
 -}
 
+import Svg
 import Internal.Types exposing (Style)
 import Internal.Line as Internal
 
 
 {-| -}
-type alias Attribute =
-    Internal.Config -> Internal.Config
+type alias Attribute a =
+    Internal.Config a -> Internal.Config a
 
 
-{-| Add styles to your line serie.
+{-| Set the stroke color. -}
+stroke : String -> Attribute a
+stroke stroke config =
+    { config | style = ( "stroke", stroke ) :: config.style }
 
-    main =
-        plot
-            []
-            [ line
-                [ lineStyle [ ( "stroke", "deeppink" ) ] ]
-                lineDataPoints
-            ]
--}
-style : Style -> Attribute
-style style config =
-    { config | style = ( "fill", "transparent" ) :: style }
+
+{-| Set the stroke width (in pixels). -}
+strokeWidth : Int -> Attribute a
+strokeWidth strokeWidth config =
+    { config | style = ( "stroke-width", toString strokeWidth ++ "px" ) :: config.style }
+
+
+{-| Set the opacity. -}
+opacity : Float -> Attribute a
+opacity opacity config =
+    { config | style = ( "opacity", toString opacity ) :: config.style }
+
+
+{-| Add your own attributes. -}
+customAttrs : List (Svg.Attribute a) -> Attribute a
+customAttrs attrs config =
+    { config | customAttrs = attrs }

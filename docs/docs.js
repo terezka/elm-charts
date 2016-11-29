@@ -10418,6 +10418,23 @@ var _terezka$elm_plot$Plot_Area$style = F2(
 			{style: style});
 	});
 
+var _terezka$elm_plot$Internal_Line$stdAttributes = F2(
+	function (d, style) {
+		return {
+			ctor: '::',
+			_0: _elm_lang$svg$Svg_Attributes$d(d),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$style(
+					_terezka$elm_plot$Internal_Draw$toStyle(style)),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__serie--line'),
+					_1: {ctor: '[]'}
+				}
+			}
+		};
+	});
 var _terezka$elm_plot$Internal_Line$view = F3(
 	function (_p1, _p0, points) {
 		var _p2 = _p1;
@@ -10425,25 +10442,17 @@ var _terezka$elm_plot$Internal_Line$view = F3(
 		var svgPoints = A2(_elm_lang$core$List$map, _p2.toSvgCoords, points);
 		var _p4 = _terezka$elm_plot$Internal_Draw$startPath(svgPoints);
 		var startInstruction = _p4._0;
-		var tail = _p4._1;
 		var instructions = A2(_terezka$elm_plot$Internal_Draw$coordsToInstruction, 'L', svgPoints);
+		var attrs = A2(
+			_elm_lang$core$Basics_ops['++'],
+			A2(
+				_terezka$elm_plot$Internal_Line$stdAttributes,
+				A2(_elm_lang$core$Basics_ops['++'], startInstruction, instructions),
+				_p3.style),
+			_p3.customAttrs);
 		return A2(
 			_elm_lang$svg$Svg$path,
-			{
-				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$d(
-					A2(_elm_lang$core$Basics_ops['++'], startInstruction, instructions)),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$style(
-						_terezka$elm_plot$Internal_Draw$toStyle(_p3.style)),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__serie--line'),
-						_1: {ctor: '[]'}
-					}
-				}
-			},
+			attrs,
 			{ctor: '[]'});
 	});
 var _terezka$elm_plot$Internal_Line$defaultConfig = {
@@ -10451,21 +10460,64 @@ var _terezka$elm_plot$Internal_Line$defaultConfig = {
 		ctor: '::',
 		_0: {ctor: '_Tuple2', _0: 'fill', _1: 'transparent'},
 		_1: {ctor: '[]'}
-	}
+	},
+	customAttrs: {ctor: '[]'}
 };
-var _terezka$elm_plot$Internal_Line$Config = function (a) {
-	return {style: a};
-};
+var _terezka$elm_plot$Internal_Line$Config = F2(
+	function (a, b) {
+		return {style: a, customAttrs: b};
+	});
 
-var _terezka$elm_plot$Plot_Line$style = F2(
-	function (style, config) {
+var _terezka$elm_plot$Plot_Line$customAttrs = F2(
+	function (attrs, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{customAttrs: attrs});
+	});
+var _terezka$elm_plot$Plot_Line$opacity = F2(
+	function (opacity, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{
 				style: {
 					ctor: '::',
-					_0: {ctor: '_Tuple2', _0: 'fill', _1: 'transparent'},
-					_1: style
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'opacity',
+						_1: _elm_lang$core$Basics$toString(opacity)
+					},
+					_1: config.style
+				}
+			});
+	});
+var _terezka$elm_plot$Plot_Line$strokeWidth = F2(
+	function (strokeWidth, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{
+				style: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'stroke-width',
+						_1: A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(strokeWidth),
+							'px')
+					},
+					_1: config.style
+				}
+			});
+	});
+var _terezka$elm_plot$Plot_Line$stroke = F2(
+	function (stroke, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{
+				style: {
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 'stroke', _1: stroke},
+					_1: config.style
 				}
 			});
 	});
@@ -11800,17 +11852,12 @@ var _terezka$elm_plot$ComposedChart$chart = function (state) {
 							_terezka$elm_plot$Plot$line,
 							{
 								ctor: '::',
-								_0: _terezka$elm_plot$Plot_Line$style(
-									{
-										ctor: '::',
-										_0: {ctor: '_Tuple2', _0: 'stroke', _1: _terezka$elm_plot$Colors$pinkStroke},
-										_1: {
-											ctor: '::',
-											_0: {ctor: '_Tuple2', _0: 'stroke-width', _1: '2px'},
-											_1: {ctor: '[]'}
-										}
-									}),
-								_1: {ctor: '[]'}
+								_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Colors$pinkStroke),
+								_1: {
+									ctor: '::',
+									_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
+									_1: {ctor: '[]'}
+								}
 							},
 							A2(
 								_elm_lang$core$List$map,
@@ -12092,17 +12139,12 @@ var _terezka$elm_plot$CustomTickChart$chart = A2(
 			_terezka$elm_plot$Plot$line,
 			{
 				ctor: '::',
-				_0: _terezka$elm_plot$Plot_Line$style(
-					{
-						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 'stroke', _1: _terezka$elm_plot$Colors$pinkStroke},
-						_1: {
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 'stroke-width', _1: '2px'},
-							_1: {ctor: '[]'}
-						}
-					}),
-				_1: {ctor: '[]'}
+				_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Colors$pinkStroke),
+				_1: {
+					ctor: '::',
+					_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
+					_1: {ctor: '[]'}
+				}
 			},
 			_terezka$elm_plot$CustomTickChart$data),
 		_1: {
@@ -12418,17 +12460,12 @@ var _terezka$elm_plot$GridChart$chart = A2(
 						_terezka$elm_plot$Plot$line,
 						{
 							ctor: '::',
-							_0: _terezka$elm_plot$Plot_Line$style(
-								{
-									ctor: '::',
-									_0: {ctor: '_Tuple2', _0: 'stroke', _1: _terezka$elm_plot$Colors$blueStroke},
-									_1: {
-										ctor: '::',
-										_0: {ctor: '_Tuple2', _0: 'stroke-width', _1: '2px'},
-										_1: {ctor: '[]'}
-									}
-								}),
-							_1: {ctor: '[]'}
+							_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Colors$blueStroke),
+							_1: {
+								ctor: '::',
+								_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
+								_1: {ctor: '[]'}
+							}
 						},
 						_terezka$elm_plot$GridChart$data),
 					_1: {ctor: '[]'}
@@ -12539,17 +12576,12 @@ var _terezka$elm_plot$MultiLineChart$chart = A2(
 			_terezka$elm_plot$Plot$line,
 			{
 				ctor: '::',
-				_0: _terezka$elm_plot$Plot_Line$style(
-					{
-						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 'stroke', _1: _terezka$elm_plot$Colors$blueStroke},
-						_1: {
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 'stroke-width', _1: '2px'},
-							_1: {ctor: '[]'}
-						}
-					}),
-				_1: {ctor: '[]'}
+				_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Colors$blueStroke),
+				_1: {
+					ctor: '::',
+					_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
+					_1: {ctor: '[]'}
+				}
 			},
 			_terezka$elm_plot$MultiLineChart$data2),
 		_1: {
@@ -12558,17 +12590,12 @@ var _terezka$elm_plot$MultiLineChart$chart = A2(
 				_terezka$elm_plot$Plot$line,
 				{
 					ctor: '::',
-					_0: _terezka$elm_plot$Plot_Line$style(
-						{
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 'stroke', _1: _terezka$elm_plot$Colors$pinkStroke},
-							_1: {
-								ctor: '::',
-								_0: {ctor: '_Tuple2', _0: 'stroke-width', _1: '2px'},
-								_1: {ctor: '[]'}
-							}
-						}),
-					_1: {ctor: '[]'}
+					_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Colors$pinkStroke),
+					_1: {
+						ctor: '::',
+						_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
+						_1: {ctor: '[]'}
+					}
 				},
 				_terezka$elm_plot$MultiLineChart$data1),
 			_1: {
@@ -12657,6 +12684,64 @@ var _terezka$elm_plot$Docs$update = F2(
 		}
 	});
 var _terezka$elm_plot$Docs$ClickTick = {ctor: 'ClickTick'};
+var _terezka$elm_plot$Docs$testChart = function (state) {
+	return A2(
+		_terezka$elm_plot$Plot$plot,
+		{
+			ctor: '::',
+			_0: _terezka$elm_plot$Plot$size(
+				{ctor: '_Tuple2', _0: 600, _1: 300}),
+			_1: {
+				ctor: '::',
+				_0: _terezka$elm_plot$Plot$margin(
+					{ctor: '_Tuple4', _0: 10, _1: 20, _2: 40, _3: 20}),
+				_1: {ctor: '[]'}
+			}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_terezka$elm_plot$Plot$line,
+				{
+					ctor: '::',
+					_0: _terezka$elm_plot$Plot_Line$stroke('red'),
+					_1: {
+						ctor: '::',
+						_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
+						_1: {
+							ctor: '::',
+							_0: _terezka$elm_plot$Plot_Line$customAttrs(
+								{
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Events$onClick(
+										_terezka$elm_plot$Plot$Custom(_terezka$elm_plot$Docs$ClickTick)),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}
+					}
+				},
+				{
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 0, _1: 1},
+					_1: {
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 1, _1: 2},
+						_1: {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 2, _1: 0.5},
+							_1: {ctor: '[]'}
+						}
+					}
+				}),
+			_1: {
+				ctor: '::',
+				_0: _terezka$elm_plot$Plot$xAxis(
+					{ctor: '[]'}),
+				_1: {ctor: '[]'}
+			}
+		});
+};
 var _terezka$elm_plot$Docs$Toggle = function (a) {
 	return {ctor: 'Toggle', _0: a};
 };
@@ -12999,51 +13084,58 @@ var _terezka$elm_plot$Docs$view = function (model) {
 																	_1: {
 																		ctor: '::',
 																		_0: A2(
-																			_elm_lang$html$Html$div,
-																			{
-																				ctor: '::',
-																				_0: _elm_lang$html$Html_Attributes$style(
-																					{
-																						ctor: '::',
-																						_0: {ctor: '_Tuple2', _0: 'margin', _1: '100px auto 30px'},
-																						_1: {
-																							ctor: '::',
-																							_0: {ctor: '_Tuple2', _0: 'font-size', _1: '14px'},
-																							_1: {ctor: '[]'}
-																						}
-																					}),
-																				_1: {ctor: '[]'}
-																			},
-																			{
-																				ctor: '::',
-																				_0: _elm_lang$html$Html$text('Made by '),
-																				_1: {
+																			_elm_lang$html$Html$map,
+																			_terezka$elm_plot$Docs$PlotInteraction,
+																			_terezka$elm_plot$Docs$testChart(model.plotState)),
+																		_1: {
+																			ctor: '::',
+																			_0: A2(
+																				_elm_lang$html$Html$div,
+																				{
 																					ctor: '::',
-																					_0: A2(
-																						_elm_lang$html$Html$a,
+																					_0: _elm_lang$html$Html_Attributes$style(
 																						{
 																							ctor: '::',
-																							_0: _elm_lang$html$Html_Attributes$href('https://twitter.com/terexka'),
+																							_0: {ctor: '_Tuple2', _0: 'margin', _1: '100px auto 30px'},
 																							_1: {
 																								ctor: '::',
-																								_0: _elm_lang$html$Html_Attributes$style(
-																									{
-																										ctor: '::',
-																										_0: {ctor: '_Tuple2', _0: 'color', _1: '#84868a'},
-																										_1: {ctor: '[]'}
-																									}),
+																								_0: {ctor: '_Tuple2', _0: 'font-size', _1: '14px'},
 																								_1: {ctor: '[]'}
 																							}
-																						},
-																						{
-																							ctor: '::',
-																							_0: _elm_lang$html$Html$text('@terexka'),
-																							_1: {ctor: '[]'}
 																						}),
 																					_1: {ctor: '[]'}
-																				}
-																			}),
-																		_1: {ctor: '[]'}
+																				},
+																				{
+																					ctor: '::',
+																					_0: _elm_lang$html$Html$text('Made by '),
+																					_1: {
+																						ctor: '::',
+																						_0: A2(
+																							_elm_lang$html$Html$a,
+																							{
+																								ctor: '::',
+																								_0: _elm_lang$html$Html_Attributes$href('https://twitter.com/terexka'),
+																								_1: {
+																									ctor: '::',
+																									_0: _elm_lang$html$Html_Attributes$style(
+																										{
+																											ctor: '::',
+																											_0: {ctor: '_Tuple2', _0: 'color', _1: '#84868a'},
+																											_1: {ctor: '[]'}
+																										}),
+																									_1: {ctor: '[]'}
+																								}
+																							},
+																							{
+																								ctor: '::',
+																								_0: _elm_lang$html$Html$text('@terexka'),
+																								_1: {ctor: '[]'}
+																							}),
+																						_1: {ctor: '[]'}
+																					}
+																				}),
+																			_1: {ctor: '[]'}
+																		}
 																	}
 																}
 															}

@@ -15,7 +15,6 @@ module Plot.Axis exposing (..)
 # Ticks and labels
 @docs tick, label
 
-
 -}
 
 import Internal.Types exposing (Style, Orientation(..))

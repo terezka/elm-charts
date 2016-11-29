@@ -2,6 +2,7 @@ module ComposedChart exposing (chart, code)
 
 import Svg
 import Svg.Attributes
+import Svg.Events
 import Plot exposing (..)
 import Plot.Area as Area
 import Plot.Line as Line
@@ -79,10 +80,8 @@ chart state =
             ]
             data1
         , line
-            [ Line.style
-                [ ( "stroke", Colors.pinkStroke )
-                , ( "stroke-width", "2px" )
-                ]
+            [ Line.stroke Colors.pinkStroke
+            , Line.strokeWidth 2
             ]
             (List.map (\( x, y ) -> ( x, toFloat <| round y * 3 )) data1)
         , yAxis

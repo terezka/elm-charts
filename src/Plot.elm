@@ -88,7 +88,7 @@ type alias Style =
 {-| Represents child element of the plot.
 -}
 type Element msg
-    = Line LineInternal.Config (List Point)
+    = Line (LineInternal.Config msg) (List Point)
     | Area AreaInternal.Config (List Point)
     | Hint (HintInternal.Config msg) (Maybe Point)
     | Axis (AxisInternal.Config msg)
@@ -221,7 +221,7 @@ area attrs points =
     myPlot =
         plot [] [ line [] [ ( 0, 1 ), ( 2, 2 ), ( 3, 4 ) ] ]
 -}
-line : List Line.Attribute -> List Point -> Element msg
+line : List (Line.Attribute msg) -> List Point -> Element msg
 line attrs points =
     Line (List.foldr (<|) LineInternal.defaultConfig attrs) points
 

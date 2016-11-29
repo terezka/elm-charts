@@ -29,8 +29,6 @@ module Plot.Tick exposing (Attribute, StyleAttribute, view, viewDynamic, viewCus
 # Others
 @docs removeZero
 
-
-
 -}
 
 import Svg

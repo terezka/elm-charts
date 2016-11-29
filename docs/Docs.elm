@@ -1,9 +1,14 @@
 port module Docs exposing (..)
 
+import Svg
+import Svg.Events
+import Svg.Attributes
 import Html exposing (Html, div, text, h1, img, a, br, span, code, pre, p)
 import Html.Attributes exposing (style, src, href, class)
 import Html.Events exposing (onClick)
 import Plot as Plot exposing (Interaction(..))
+import Plot.Line as Line
+import Plot.Axis as Axis
 import AreaChart
 import MultiAreaChart
 import GridChart
@@ -163,6 +168,7 @@ view model =
         , Html.map PlotInteraction CustomTickChart.chart
         , viewTitle model "Composable" "ComposedChart" ComposedChart.code
         , Html.map PlotInteraction <| ComposedChart.chart model.plotState
+        , Html.map PlotInteraction <| testChart model.plotState
         , div
             [ style [ ( "margin", "100px auto 30px" ), ( "font-size", "14px" ) ] ]
             [ text "Made by "
@@ -172,6 +178,22 @@ view model =
                 ]
                 [ text "@terexka" ]
             ]
+        ]
+
+
+testChart : Plot.State -> Svg.Svg (Interaction Msg)
+testChart state =
+    Plot.plot
+        [ Plot.size ( 600, 300 )
+        , Plot.margin ( 10, 20, 40, 20 )
+        ]
+        [ Plot.line
+            [ Line.stroke "red"
+            , Line.strokeWidth 2
+            , Line.customAttrs [ Svg.Events.onClick <| Custom ClickTick ]
+            ]
+            [ (0, 1), (1, 2), (2, 0.5) ]
+        , Plot.xAxis []
         ]
 
 

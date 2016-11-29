@@ -32,10 +32,8 @@ chart =
                 [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
             ]
         , line
-            [ Line.style
-                [ ( "stroke", Colors.blueStroke )
-                , ( "stroke-width", "2px" )
-                ]
+            [ Line.stroke Colors.blueStroke
+            , Line.strokeWidth 2
             ]
             data
         ]
