@@ -8,6 +8,8 @@ import Html.Attributes exposing (style, src, href, class)
 import Html.Events exposing (onClick)
 import Plot as Plot exposing (Interaction(..))
 import Plot.Line as Line
+import Plot.Area as Area
+import Plot.Grid as Grid
 import Plot.Axis as Axis
 import AreaChart
 import MultiAreaChart
@@ -187,10 +189,20 @@ testChart state =
         [ Plot.size ( 600, 300 )
         , Plot.margin ( 10, 20, 40, 20 )
         ]
-        [ Plot.line
+        [ Plot.verticalGrid
+            [ Grid.stroke "black"
+            , Grid.customAttrs [ Svg.Events.onClick <| Custom ClickTick ]
+            ]
+        , Plot.line
             [ Line.stroke "red"
             , Line.strokeWidth 2
-            , Line.customAttrs [ Svg.Events.onClick <| Custom ClickTick ]
+            ]
+            [ (0, 1), (1, 2), (2, 0.5) ]
+        , Plot.area
+            [ Area.stroke "blue"
+            , Area.strokeWidth 2
+            , Area.fill "deeppink"
+            , Area.customAttrs [ Svg.Events.onClick <| Custom ClickTick ]
             ]
             [ (0, 1), (1, 2), (2, 0.5) ]
         , Plot.xAxis []

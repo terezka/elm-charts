@@ -1,4 +1,4 @@
-module Plot.Grid exposing (Attribute, values, style, classes)
+module Plot.Grid exposing (..)
 
 {-|
  Attributes for altering the view of your grid.
@@ -7,20 +7,24 @@ module Plot.Grid exposing (Attribute, values, style, classes)
 @docs Attribute
 
 # Styling
-@docs style, classes
+@docs stroke, strokeWidth, opacity
 
 # Values
 @docs values
 
+# Others
+@docs classes, customAttrs
+
 -}
 
+import Svg
 import Internal.Grid as Internal exposing (Config, Values(..), defaultConfigX)
 import Internal.Types exposing (Style)
 
 
 {-| -}
-type alias Attribute =
-    Config -> Config
+type alias Attribute a =
+    Config a -> Config a
 
 
 {-| Specify a list of ticks where you want grid lines drawn.
@@ -31,29 +35,41 @@ type alias Attribute =
 
  If values are not specified with this attribute, the grid will mirror the ticks.
 -}
-values : List Float -> Attribute
+values : List Float -> Attribute a
 values values config =
     { config | values = CustomValues values }
 
 
-{-| Adds styles to the gridlines.
-
-    myGrid : Plot.Element msg
-    myGrid =
-        verticalGrid [ Grid.style myStyles ]
-
--}
-style : Style -> Attribute
-style style config =
-    { config | style = defaultConfigX.style ++ style }
+{-| Set the stroke color. -}
+stroke : String -> Attribute a
+stroke stroke config =
+    { config | style = ( "stroke", stroke ) :: config.style }
 
 
-{-| Adds classes to the grid.
+{-| Set the stroke width (in pixels). -}
+strokeWidth : Int -> Attribute a
+strokeWidth strokeWidth config =
+    { config | style = ( "stroke-width", toString strokeWidth ++ "px" ) :: config.style }
+
+
+{-| Set the opacity. -}
+opacity : Float -> Attribute a
+opacity opacity config =
+    { config | style = ( "opacity", toString opacity ) :: config.style }
+
+
+{-| Adds classes to the grid container.
 
     myGrid : Plot.Element msg
     myGrid =
         verticalGrid [ Grid.classes [ "my-grid" ] ]
 -}
-classes : List String -> Attribute
+classes : List String -> Attribute a
 classes classes config =
     { config | classes = classes }
+
+
+{-| Add your own attributes to your gridlines. For events, read _insert link, please tell me if I forget_ -}
+customAttrs : List (Svg.Attribute a) -> Attribute a
+customAttrs attrs config =
+    { config | customAttrs = attrs }

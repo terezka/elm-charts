@@ -62,7 +62,7 @@ chart state =
         , id "ComposedChart"
         ]
         [ horizontalGrid
-            [ Grid.style [ ( "stroke", "#f2f2f2" ) ]
+            [ Grid.stroke "#f2f2f2"
             ]
         , area
             [ Area.stroke Colors.skinStroke

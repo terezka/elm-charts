@@ -10254,19 +10254,23 @@ var _terezka$elm_plot$Plot_Axis$view = F2(
 			});
 	});
 
-var _terezka$elm_plot$Internal_Grid$viewLine = function (style) {
-	return _terezka$elm_plot$Internal_Draw$fullLine(
-		{
-			ctor: '::',
-			_0: _elm_lang$svg$Svg_Attributes$style(
-				_terezka$elm_plot$Internal_Draw$toStyle(style)),
-			_1: {
-				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__grid__line'),
-				_1: {ctor: '[]'}
-			}
-		});
-};
+var _terezka$elm_plot$Internal_Grid$viewLine = F2(
+	function (style, customAttrs) {
+		return _terezka$elm_plot$Internal_Draw$fullLine(
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				{
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$style(
+						_terezka$elm_plot$Internal_Draw$toStyle(style)),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__grid__line'),
+						_1: {ctor: '[]'}
+					}
+				},
+				customAttrs));
+	});
 var _terezka$elm_plot$Internal_Grid$getValues = F2(
 	function (tickValues, values) {
 		var _p0 = values;
@@ -10282,7 +10286,7 @@ var _terezka$elm_plot$Internal_Grid$viewLines = F2(
 		var _p4 = _p1;
 		return A2(
 			_elm_lang$core$List$map,
-			A2(_terezka$elm_plot$Internal_Grid$viewLine, _p4.style, _p3),
+			A3(_terezka$elm_plot$Internal_Grid$viewLine, _p4.style, _p4.customAttrs, _p3),
 			A2(_terezka$elm_plot$Internal_Grid$getValues, _p3.oppositeTicks, _p4.values));
 	});
 var _terezka$elm_plot$Internal_Grid$view = F2(
@@ -10297,9 +10301,9 @@ var _terezka$elm_plot$Internal_Grid$view = F2(
 			},
 			A2(_terezka$elm_plot$Internal_Grid$viewLines, meta, _p6));
 	});
-var _terezka$elm_plot$Internal_Grid$Config = F4(
-	function (a, b, c, d) {
-		return {values: a, style: b, classes: c, orientation: d};
+var _terezka$elm_plot$Internal_Grid$Config = F5(
+	function (a, b, c, d, e) {
+		return {values: a, style: b, classes: c, orientation: d, customAttrs: e};
 	});
 var _terezka$elm_plot$Internal_Grid$CustomValues = function (a) {
 	return {ctor: 'CustomValues', _0: a};
@@ -10309,24 +10313,70 @@ var _terezka$elm_plot$Internal_Grid$defaultConfigX = {
 	values: _terezka$elm_plot$Internal_Grid$MirrorTicks,
 	style: {ctor: '[]'},
 	classes: {ctor: '[]'},
-	orientation: _terezka$elm_plot$Internal_Types$X
+	orientation: _terezka$elm_plot$Internal_Types$X,
+	customAttrs: {ctor: '[]'}
 };
 var _terezka$elm_plot$Internal_Grid$defaultConfigY = _elm_lang$core$Native_Utils.update(
 	_terezka$elm_plot$Internal_Grid$defaultConfigX,
 	{orientation: _terezka$elm_plot$Internal_Types$Y});
 
+var _terezka$elm_plot$Plot_Grid$customAttrs = F2(
+	function (attrs, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{customAttrs: attrs});
+	});
 var _terezka$elm_plot$Plot_Grid$classes = F2(
 	function (classes, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{classes: classes});
 	});
-var _terezka$elm_plot$Plot_Grid$style = F2(
-	function (style, config) {
+var _terezka$elm_plot$Plot_Grid$opacity = F2(
+	function (opacity, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{
-				style: A2(_elm_lang$core$Basics_ops['++'], _terezka$elm_plot$Internal_Grid$defaultConfigX.style, style)
+				style: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'opacity',
+						_1: _elm_lang$core$Basics$toString(opacity)
+					},
+					_1: config.style
+				}
+			});
+	});
+var _terezka$elm_plot$Plot_Grid$strokeWidth = F2(
+	function (strokeWidth, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{
+				style: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'stroke-width',
+						_1: A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(strokeWidth),
+							'px')
+					},
+					_1: config.style
+				}
+			});
+	});
+var _terezka$elm_plot$Plot_Grid$stroke = F2(
+	function (stroke, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{
+				style: {
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 'stroke', _1: stroke},
+					_1: config.style
+				}
 			});
 	});
 var _terezka$elm_plot$Plot_Grid$values = F2(
@@ -11849,12 +11899,7 @@ var _terezka$elm_plot$ComposedChart$chart = function (state) {
 			_0: _terezka$elm_plot$Plot$horizontalGrid(
 				{
 					ctor: '::',
-					_0: _terezka$elm_plot$Plot_Grid$style(
-						{
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 'stroke', _1: '#f2f2f2'},
-							_1: {ctor: '[]'}
-						}),
+					_0: _terezka$elm_plot$Plot_Grid$stroke('#f2f2f2'),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
@@ -12438,12 +12483,7 @@ var _terezka$elm_plot$GridChart$chart = A2(
 		_0: _terezka$elm_plot$Plot$verticalGrid(
 			{
 				ctor: '::',
-				_0: _terezka$elm_plot$Plot_Grid$style(
-					{
-						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 'stroke', _1: _terezka$elm_plot$Colors$axisColorLight},
-						_1: {ctor: '[]'}
-					}),
+				_0: _terezka$elm_plot$Plot_Grid$stroke(_terezka$elm_plot$Colors$axisColorLight),
 				_1: {ctor: '[]'}
 			}),
 		_1: {
@@ -12471,12 +12511,7 @@ var _terezka$elm_plot$GridChart$chart = A2(
 						}),
 					_1: {
 						ctor: '::',
-						_0: _terezka$elm_plot$Plot_Grid$style(
-							{
-								ctor: '::',
-								_0: {ctor: '_Tuple2', _0: 'stroke', _1: _terezka$elm_plot$Colors$axisColorLight},
-								_1: {ctor: '[]'}
-							}),
+						_0: _terezka$elm_plot$Plot_Grid$stroke(_terezka$elm_plot$Colors$axisColorLight),
 						_1: {ctor: '[]'}
 					}
 				}),
@@ -12744,45 +12779,95 @@ var _terezka$elm_plot$Docs$testChart = function (state) {
 		},
 		{
 			ctor: '::',
-			_0: A2(
-				_terezka$elm_plot$Plot$line,
+			_0: _terezka$elm_plot$Plot$verticalGrid(
 				{
 					ctor: '::',
-					_0: _terezka$elm_plot$Plot_Line$stroke('red'),
+					_0: _terezka$elm_plot$Plot_Grid$stroke('black'),
 					_1: {
 						ctor: '::',
-						_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
-						_1: {
-							ctor: '::',
-							_0: _terezka$elm_plot$Plot_Line$customAttrs(
-								{
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Events$onClick(
-										_terezka$elm_plot$Plot$Custom(_terezka$elm_plot$Docs$ClickTick)),
-									_1: {ctor: '[]'}
-								}),
-							_1: {ctor: '[]'}
-						}
-					}
-				},
-				{
-					ctor: '::',
-					_0: {ctor: '_Tuple2', _0: 0, _1: 1},
-					_1: {
-						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 1, _1: 2},
-						_1: {
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 2, _1: 0.5},
-							_1: {ctor: '[]'}
-						}
+						_0: _terezka$elm_plot$Plot_Grid$customAttrs(
+							{
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Events$onClick(
+									_terezka$elm_plot$Plot$Custom(_terezka$elm_plot$Docs$ClickTick)),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
 					}
 				}),
 			_1: {
 				ctor: '::',
-				_0: _terezka$elm_plot$Plot$xAxis(
-					{ctor: '[]'}),
-				_1: {ctor: '[]'}
+				_0: A2(
+					_terezka$elm_plot$Plot$line,
+					{
+						ctor: '::',
+						_0: _terezka$elm_plot$Plot_Line$stroke('red'),
+						_1: {
+							ctor: '::',
+							_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
+							_1: {ctor: '[]'}
+						}
+					},
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 0, _1: 1},
+						_1: {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 1, _1: 2},
+							_1: {
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 2, _1: 0.5},
+								_1: {ctor: '[]'}
+							}
+						}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_terezka$elm_plot$Plot$area,
+						{
+							ctor: '::',
+							_0: _terezka$elm_plot$Plot_Area$stroke('blue'),
+							_1: {
+								ctor: '::',
+								_0: _terezka$elm_plot$Plot_Area$strokeWidth(2),
+								_1: {
+									ctor: '::',
+									_0: _terezka$elm_plot$Plot_Area$fill('deeppink'),
+									_1: {
+										ctor: '::',
+										_0: _terezka$elm_plot$Plot_Area$customAttrs(
+											{
+												ctor: '::',
+												_0: _elm_lang$svg$Svg_Events$onClick(
+													_terezka$elm_plot$Plot$Custom(_terezka$elm_plot$Docs$ClickTick)),
+												_1: {ctor: '[]'}
+											}),
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						},
+						{
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 0, _1: 1},
+							_1: {
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 1, _1: 2},
+								_1: {
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: 2, _1: 0.5},
+									_1: {ctor: '[]'}
+								}
+							}
+						}),
+					_1: {
+						ctor: '::',
+						_0: _terezka$elm_plot$Plot$xAxis(
+							{ctor: '[]'}),
+						_1: {ctor: '[]'}
+					}
+				}
 			}
 		});
 };

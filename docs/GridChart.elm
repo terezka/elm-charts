@@ -22,10 +22,10 @@ chart =
         , margin ( 10, 20, 40, 20 )
         ]
         [ verticalGrid
-            [ Grid.style [ ( "stroke", Colors.axisColorLight ) ] ]
+            [ Grid.stroke Colors.axisColorLight ]
         , horizontalGrid
             [ Grid.values [ 10, 20, 30, 40 ]
-            , Grid.style [ ( "stroke", Colors.axisColorLight ) ]
+            , Grid.stroke Colors.axisColorLight
             ]
         , xAxis
             [ Axis.view

@@ -11,24 +11,26 @@ type Values
     | CustomValues (List Float)
 
 
-type alias Config =
+type alias Config a =
     { values : Values
     , style : Style
     , classes : List String
     , orientation : Orientation
+    , customAttrs : List (Svg.Attribute a)
     }
 
 
-defaultConfigX : Config
+defaultConfigX : Config a
 defaultConfigX =
     { values = MirrorTicks
     , style = []
     , classes = []
     , orientation = X
+    , customAttrs = []
     }
 
 
-defaultConfigY : Config
+defaultConfigY : Config a
 defaultConfigY =
     { defaultConfigX | orientation = Y }
 
@@ -43,21 +45,20 @@ getValues tickValues values =
             customValues
 
 
-view : Meta -> Config -> Svg.Svg a
+view : Meta -> Config a -> Svg.Svg a
 view meta ({ values, style, classes, orientation } as config) =
     Svg.g
         [ Draw.classAttributeOriented "grid" orientation classes ]
         (viewLines meta config)
 
 
-viewLines : Meta -> Config -> List (Svg.Svg a)
-viewLines ({ oppositeTicks } as meta) { values, style } =
-    List.map (viewLine style meta) <| getValues oppositeTicks values
+viewLines : Meta -> Config a -> List (Svg.Svg a)
+viewLines ({ oppositeTicks } as meta) { values, style, customAttrs } =
+    List.map (viewLine style customAttrs meta) <| getValues oppositeTicks values
 
 
-viewLine : Style -> Meta -> Float -> Svg.Svg a
-viewLine style =
-    Draw.fullLine
-        [ Svg.Attributes.style (toStyle style)
-        , Svg.Attributes.class "elm-plot__grid__line"
-        ]
+viewLine : Style -> List (Svg.Attribute a) -> Meta -> Float -> Svg.Svg a
+viewLine style customAttrs =
+    [ Svg.Attributes.style (toStyle style)
+    , Svg.Attributes.class "elm-plot__grid__line"
+    ] ++ customAttrs |> Draw.fullLine

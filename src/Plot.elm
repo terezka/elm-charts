@@ -92,7 +92,7 @@ type Element msg
     | Area (AreaInternal.Config msg) (List Point)
     | Hint (HintInternal.Config msg) (Maybe Point)
     | Axis (AxisInternal.Config msg)
-    | Grid GridInternal.Config
+    | Grid (GridInternal.Config msg)
 
 
 type alias Config =
@@ -191,13 +191,13 @@ yAxis attrs =
 
 
 {-| -}
-horizontalGrid : List Grid.Attribute -> Element msg
+horizontalGrid : List (Grid.Attribute msg) -> Element msg
 horizontalGrid attrs =
     Grid (List.foldr (<|) GridInternal.defaultConfigX attrs)
 
 
 {-| -}
-verticalGrid : List Grid.Attribute -> Element msg
+verticalGrid : List (Grid.Attribute msg) -> Element msg
 verticalGrid attrs =
     Grid (List.foldr (<|) GridInternal.defaultConfigY attrs)
 
