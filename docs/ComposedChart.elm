@@ -104,7 +104,7 @@ chart state =
                 , Label.filter filterLabels
                 ]
             ]
-        , hint [ Hint.lineStyle [ ( "background", Colors.pinkStroke ) ] ] (getHoveredValue state)
+        , hint [ Hint.lineStyle [ ( "background", "#b9b9b9") ] ] (getHoveredValue state)
         ]
 
 

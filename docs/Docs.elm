@@ -171,7 +171,7 @@ view model =
         , Html.map PlotInteraction CustomTickChart.chart
         , viewTitle model "Composable" "ComposedChart" ComposedChart.code
         , Html.map PlotInteraction <| ComposedChart.chart model.plotState
-        , Html.map PlotInteraction <| testChart model.plotState
+        --, Html.map PlotInteraction <| testChart model.plotState
         , div
             [ style [ ( "margin", "100px auto 30px" ), ( "font-size", "14px" ) ] ]
             [ text "Made by "

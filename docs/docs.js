@@ -12219,7 +12219,7 @@ var _terezka$elm_plot$ComposedChart$chart = function (state) {
 											_0: _terezka$elm_plot$Plot_Hint$lineStyle(
 												{
 													ctor: '::',
-													_0: {ctor: '_Tuple2', _0: 'background', _1: _terezka$elm_plot$Colors$pinkStroke},
+													_0: {ctor: '_Tuple2', _0: 'background', _1: '#b9b9b9'},
 													_1: {ctor: '[]'}
 												}),
 											_1: {ctor: '[]'}
@@ -13367,58 +13367,51 @@ var _terezka$elm_plot$Docs$view = function (model) {
 																	_1: {
 																		ctor: '::',
 																		_0: A2(
-																			_elm_lang$html$Html$map,
-																			_terezka$elm_plot$Docs$PlotInteraction,
-																			_terezka$elm_plot$Docs$testChart(model.plotState)),
-																		_1: {
-																			ctor: '::',
-																			_0: A2(
-																				_elm_lang$html$Html$div,
-																				{
+																			_elm_lang$html$Html$div,
+																			{
+																				ctor: '::',
+																				_0: _elm_lang$html$Html_Attributes$style(
+																					{
+																						ctor: '::',
+																						_0: {ctor: '_Tuple2', _0: 'margin', _1: '100px auto 30px'},
+																						_1: {
+																							ctor: '::',
+																							_0: {ctor: '_Tuple2', _0: 'font-size', _1: '14px'},
+																							_1: {ctor: '[]'}
+																						}
+																					}),
+																				_1: {ctor: '[]'}
+																			},
+																			{
+																				ctor: '::',
+																				_0: _elm_lang$html$Html$text('Made by '),
+																				_1: {
 																					ctor: '::',
-																					_0: _elm_lang$html$Html_Attributes$style(
+																					_0: A2(
+																						_elm_lang$html$Html$a,
 																						{
 																							ctor: '::',
-																							_0: {ctor: '_Tuple2', _0: 'margin', _1: '100px auto 30px'},
+																							_0: _elm_lang$html$Html_Attributes$href('https://twitter.com/terexka'),
 																							_1: {
 																								ctor: '::',
-																								_0: {ctor: '_Tuple2', _0: 'font-size', _1: '14px'},
+																								_0: _elm_lang$html$Html_Attributes$style(
+																									{
+																										ctor: '::',
+																										_0: {ctor: '_Tuple2', _0: 'color', _1: '#84868a'},
+																										_1: {ctor: '[]'}
+																									}),
 																								_1: {ctor: '[]'}
 																							}
+																						},
+																						{
+																							ctor: '::',
+																							_0: _elm_lang$html$Html$text('@terexka'),
+																							_1: {ctor: '[]'}
 																						}),
 																					_1: {ctor: '[]'}
-																				},
-																				{
-																					ctor: '::',
-																					_0: _elm_lang$html$Html$text('Made by '),
-																					_1: {
-																						ctor: '::',
-																						_0: A2(
-																							_elm_lang$html$Html$a,
-																							{
-																								ctor: '::',
-																								_0: _elm_lang$html$Html_Attributes$href('https://twitter.com/terexka'),
-																								_1: {
-																									ctor: '::',
-																									_0: _elm_lang$html$Html_Attributes$style(
-																										{
-																											ctor: '::',
-																											_0: {ctor: '_Tuple2', _0: 'color', _1: '#84868a'},
-																											_1: {ctor: '[]'}
-																										}),
-																									_1: {ctor: '[]'}
-																								}
-																							},
-																							{
-																								ctor: '::',
-																								_0: _elm_lang$html$Html$text('@terexka'),
-																								_1: {ctor: '[]'}
-																							}),
-																						_1: {ctor: '[]'}
-																					}
-																				}),
-																			_1: {ctor: '[]'}
-																		}
+																				}
+																			}),
+																		_1: {ctor: '[]'}
 																	}
 																}
 															}
