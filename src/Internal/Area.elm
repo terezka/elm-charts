@@ -1,23 +1,27 @@
 module Internal.Area exposing (..)
 
+import Svg
+import Svg.Attributes
 import Internal.Types exposing (..)
 import Internal.Stuff exposing (getEdgesX)
 import Internal.Draw exposing (..)
-import Svg
-import Svg.Attributes
 
 
-type alias Config =
-    { style : Style }
+type alias Config a =
+    { style : Style
+    , customAttrs : List (Svg.Attribute a)
+    }
 
 
-defaultConfig : Config
+defaultConfig : Config a
 defaultConfig =
-    { style = [] }
+    { style = []
+    , customAttrs = []
+    }
 
 
-view : Meta -> Config -> List Point -> Svg.Svg a
-view { toSvgCoords } { style } points =
+view : Meta -> Config a -> List Point -> Svg.Svg a
+view { toSvgCoords } { style, customAttrs } points =
     let
         ( lowestX, highestX ) =
             getEdgesX points
@@ -39,10 +43,16 @@ view { toSvgCoords } { style } points =
 
         instructions =
             coordsToInstruction "L" svgCoords
+
+        attrs =
+            (stdAttributes (startInstruction ++ instructions ++ endInstructions) style) ++ customAttrs
     in
-        Svg.path
-            [ Svg.Attributes.d (startInstruction ++ instructions ++ endInstructions ++ "Z")
-            , Svg.Attributes.style (toStyle style)
-            , Svg.Attributes.class "elm-plot__serie--area"
-            ]
-            []
+        Svg.path attrs []
+
+
+stdAttributes : String -> Style -> List (Svg.Attribute a)
+stdAttributes d style =
+    [ Svg.Attributes.d (d ++ "Z")
+    , Svg.Attributes.style (toStyle style)
+    , Svg.Attributes.class "elm-plot__serie--area"
+    ]

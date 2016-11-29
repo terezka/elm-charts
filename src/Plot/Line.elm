@@ -3,12 +3,14 @@ module Plot.Line exposing (..)
 {-|
  Attributes for altering the view of your line serie.
 
-    myLineSerie : Plot.Element a
+    myLineSerie : Plot.Element (Interaction YourMsg)
     myLineSerie =
         line
             [ stroke "deeppink"
             , strokeWidth 2
             , opacity 0.5
+            , customAttrs
+                [ Svg.Events.onClick <| Custom MyClickMsg ]
             ]
             lineDataPoints
                 
@@ -52,7 +54,7 @@ opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
 
 
-{-| Add your own attributes. -}
+{-| Add your own attributes. For events, read _insert link, please tell me if I forget_ -}
 customAttrs : List (Svg.Attribute a) -> Attribute a
 customAttrs attrs config =
     { config | customAttrs = attrs }

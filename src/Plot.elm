@@ -89,7 +89,7 @@ type alias Style =
 -}
 type Element msg
     = Line (LineInternal.Config msg) (List Point)
-    | Area AreaInternal.Config (List Point)
+    | Area (AreaInternal.Config msg) (List Point)
     | Hint (HintInternal.Config msg) (Maybe Point)
     | Axis (AxisInternal.Config msg)
     | Grid GridInternal.Config
@@ -210,7 +210,7 @@ verticalGrid attrs =
             []
             [ area [] [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
 -}
-area : List Area.Attribute -> List Point -> Element msg
+area : List (Area.Attribute msg) -> List Point -> Element msg
 area attrs points =
     Area (List.foldr (<|) AreaInternal.defaultConfig attrs) points
 

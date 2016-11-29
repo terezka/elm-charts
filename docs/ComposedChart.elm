@@ -65,18 +65,14 @@ chart state =
             [ Grid.style [ ( "stroke", "#f2f2f2" ) ]
             ]
         , area
-            [ Area.style
-                [ ( "stroke", Colors.skinStroke )
-                , ( "fill", Colors.skinFill )
-                , ( "opacity", "0.5" )
-                ]
+            [ Area.stroke Colors.skinStroke
+            , Area.fill Colors.skinFill
+            , Area.opacity 0.5
             ]
             (List.map (\( x, y ) -> ( x, toFloat <| round (y * 2.1) )) data1)
         , area
-            [ Area.style
-                [ ( "stroke", Colors.blueStroke )
-                , ( "fill", Colors.blueFill )
-                ]
+            [ Area.stroke Colors.blueStroke
+            , Area.fill Colors.blueFill
             ]
             data1
         , line

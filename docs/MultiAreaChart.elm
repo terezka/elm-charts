@@ -26,17 +26,13 @@ chart =
         , margin ( 10, 20, 40, 20 )
         ]
         [ area
-            [ Area.style
-                [ ( "stroke", Colors.skinStroke )
-                , ( "fill", Colors.skinFill )
-                ]
+            [ Area.stroke Colors.skinStroke
+            , Area.fill Colors.skinFill
             ]
             data1
         , area
-            [ Area.style
-                [ ( "stroke", Colors.blueStroke )
-                , ( "fill", Colors.blueFill )
-                ]
+            [ Area.stroke Colors.blueStroke
+            , Area.fill Colors.blueFill
             ]
             data2
         , xAxis

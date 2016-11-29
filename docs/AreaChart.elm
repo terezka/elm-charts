@@ -27,10 +27,8 @@ chart =
         , margin ( 10, 20, 40, 20 )
         ]
         [ area
-            [ Area.style
-                [ ( "stroke", Colors.blueStroke )
-                , ( "fill", Colors.blueFill )
-                ]
+            [ Area.stroke Colors.blueStroke
+            , Area.fill Colors.blueFill
             ]
             data
         , xAxis [ Axis.view [ Axis.style [ ( "stroke", Colors.axisColor ) ] ] ]
