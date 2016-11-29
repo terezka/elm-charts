@@ -11246,6 +11246,16 @@ var _terezka$elm_plot$Plot$viewElement = F3(
 					},
 					_1: _p33
 				};
+			case 'CustomElement':
+				return {
+					ctor: '_Tuple2',
+					_0: {
+						ctor: '::',
+						_0: _p31._0(meta.toSvgCoords),
+						_1: _p34
+					},
+					_1: _p33
+				};
 			default:
 				var _p32 = _p31._1;
 				if (_p32.ctor === 'Just') {
@@ -11484,6 +11494,12 @@ var _terezka$elm_plot$Plot$Config = F6(
 	function (a, b, c, d, e, f) {
 		return {size: a, padding: b, margin: c, classes: d, style: e, id: f};
 	});
+var _terezka$elm_plot$Plot$CustomElement = function (a) {
+	return {ctor: 'CustomElement', _0: a};
+};
+var _terezka$elm_plot$Plot$custom = function (view) {
+	return _terezka$elm_plot$Plot$CustomElement(view);
+};
 var _terezka$elm_plot$Plot$Grid = function (a) {
 	return {ctor: 'Grid', _0: a};
 };
@@ -12806,6 +12822,40 @@ var _terezka$elm_plot$Docs$toUrl = function (end) {
 		'https://github.com/terezka/elm-plot/blob/master/docs/',
 		A2(_elm_lang$core$Basics_ops['++'], end, '.elm'));
 };
+var _terezka$elm_plot$Docs$mySvgElement = function (toSvgCoords) {
+	var _p0 = toSvgCoords(
+		{ctor: '_Tuple2', _0: 2, _1: 2});
+	var x2 = _p0._0;
+	var y2 = _p0._1;
+	var _p1 = toSvgCoords(
+		{ctor: '_Tuple2', _0: 0, _1: 0});
+	var x1 = _p1._0;
+	var y1 = _p1._1;
+	return A2(
+		_elm_lang$svg$Svg$line,
+		{
+			ctor: '::',
+			_0: _elm_lang$svg$Svg_Attributes$x1(
+				_elm_lang$core$Basics$toString(x1)),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$y1(
+					_elm_lang$core$Basics$toString(y1)),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$x2(
+						_elm_lang$core$Basics$toString(x2)),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$y2(
+							_elm_lang$core$Basics$toString(y2)),
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		},
+		{ctor: '[]'});
+};
 var _terezka$elm_plot$Docs$initialModel = {openSection: _elm_lang$core$Maybe$Nothing, plotState: _terezka$elm_plot$Plot$initialState};
 var _terezka$elm_plot$Docs$highlight = _elm_lang$core$Native_Platform.outgoingPort(
 	'highlight',
@@ -12823,22 +12873,22 @@ var _terezka$elm_plot$Docs$update = F2(
 	function (msg, model) {
 		update:
 		while (true) {
-			var _p0 = msg;
-			switch (_p0.ctor) {
+			var _p2 = msg;
+			switch (_p2.ctor) {
 				case 'Toggle':
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{openSection: _p0._0}),
+							{openSection: _p2._0}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				case 'PlotInteraction':
-					var _p1 = _p0._0;
-					if (_p1.ctor === 'Internal') {
-						var _p2 = A2(_terezka$elm_plot$Plot$update, _p1._0, model.plotState);
-						var state = _p2._0;
-						var cmd = _p2._1;
+					var _p3 = _p2._0;
+					if (_p3.ctor === 'Internal') {
+						var _p4 = A2(_terezka$elm_plot$Plot$update, _p3._0, model.plotState);
+						var state = _p4._0;
+						var cmd = _p4._1;
 						return {
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
@@ -12847,7 +12897,7 @@ var _terezka$elm_plot$Docs$update = F2(
 							_1: A2(_elm_lang$core$Platform_Cmd$map, _terezka$elm_plot$Docs$PlotInteraction, cmd)
 						};
 					} else {
-						var _v2 = _p1._0,
+						var _v2 = _p3._0,
 							_v3 = model;
 						msg = _v2;
 						model = _v3;
@@ -12965,7 +13015,11 @@ var _terezka$elm_plot$Docs$testChart = function (state) {
 									}),
 								_1: {ctor: '[]'}
 							}),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: _terezka$elm_plot$Plot$custom(_terezka$elm_plot$Docs$mySvgElement),
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			}
@@ -12975,12 +13029,12 @@ var _terezka$elm_plot$Docs$Toggle = function (a) {
 	return {ctor: 'Toggle', _0: a};
 };
 var _terezka$elm_plot$Docs$viewTitle = F4(
-	function (_p3, title, name, codeString) {
-		var _p4 = _p3;
+	function (_p5, title, name, codeString) {
+		var _p6 = _p5;
 		var isOpen = function () {
-			var _p5 = _p4.openSection;
-			if (_p5.ctor === 'Just') {
-				return _elm_lang$core$Native_Utils.eq(_p5._0, title);
+			var _p7 = _p6.openSection;
+			if (_p7.ctor === 'Just') {
+				return _elm_lang$core$Native_Utils.eq(_p7._0, title);
 			} else {
 				return false;
 			}

@@ -210,7 +210,23 @@ testChart state =
                     [ Label.customAttrs [ Svg.Events.onClick <| Custom ClickTick ] ]
                 ]
             ]
+        , Plot.custom mySvgElement
         ]
+
+
+mySvgElement : (Plot.Point -> Plot.Point) -> Svg.Svg msg
+mySvgElement toSvgCoords =
+    let
+        (x1, y1) = toSvgCoords (0, 0)
+        (x2, y2) = toSvgCoords (2, 2)
+    in
+    Svg.line
+        [ Svg.Attributes.x1 (toString x1)
+        , Svg.Attributes.y1 (toString y1)
+        , Svg.Attributes.x2 (toString x2)
+        , Svg.Attributes.y2 (toString y2)
+        ]
+        []
 
 
 main =

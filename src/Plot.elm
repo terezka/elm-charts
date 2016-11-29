@@ -10,6 +10,7 @@ module Plot
         , hint
         , area
         , line
+        , custom
         , classes
         , id
         , margin
@@ -38,7 +39,7 @@ module Plot
 @docs classes, id, margin, padding, size, style
 
 # Elements
-@docs plot, plotInteractive, line, area, xAxis, yAxis, hint, verticalGrid, horizontalGrid
+@docs plot, plotInteractive, line, area, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
 
 # State
 @docs State, initialState, update, Interaction, getHoveredValue
@@ -93,6 +94,7 @@ type Element msg
     | Hint (HintInternal.Config msg) (Maybe Point)
     | Axis (AxisInternal.Config msg)
     | Grid (GridInternal.Config msg)
+    | CustomElement ((Point -> Point) -> Svg.Svg msg)
 
 
 type alias Config =
@@ -230,6 +232,12 @@ line attrs points =
 hint : List (Hint.Attribute msg) -> Maybe Point -> Element msg
 hint attrs position =
     Hint (List.foldr (<|) HintInternal.defaultConfig attrs) position
+
+
+{-| -}
+custom : ((Point -> Point) -> Svg.Svg msg) -> Element msg
+custom view =
+    CustomElement view
 
 
 {-| This is the function processing your entire plot configuration.
@@ -432,6 +440,9 @@ viewElement meta element ( svgViews, htmlViews ) =
 
         Grid ({ orientation } as config) ->
             ( (GridInternal.view (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
+
+        CustomElement view ->
+            ( (view meta.toSvgCoords :: svgViews), htmlViews )
 
         Hint config position ->
             case position of
