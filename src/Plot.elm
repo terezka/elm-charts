@@ -73,7 +73,6 @@ import Internal.Stuff exposing (..)
 import Internal.Types exposing (..)
 
 
-
 {-| Convinience type to represent coordinates.
 -}
 type alias Point =
@@ -84,7 +83,6 @@ type alias Point =
 -}
 type alias Style =
     List ( String, String )
-
 
 
 {-| Represents child element of the plot.
@@ -262,8 +260,8 @@ toPlotConfig =
 
 
 {-| -}
-type State =
-    State
+type State
+    = State
         { position : Maybe ( Float, Float )
         , waiting : Bool
         }

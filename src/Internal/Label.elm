@@ -110,7 +110,6 @@ defaultView { displace, format, style, classes } orientation ( index, tick ) =
 
 
 
-
 -- resolve values
 
 

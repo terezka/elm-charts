@@ -6,6 +6,9 @@ import Internal.Types exposing (Meta, Orientation)
 import Internal.Stuff exposing (..)
 
 
+{- Common drawing functions. -}
+
+
 fullLine : List (Attribute a) -> Meta -> Float -> Svg a
 fullLine attributes { toSvgCoords, scale } value =
     let
@@ -21,8 +24,8 @@ fullLine attributes { toSvgCoords, scale } value =
         Svg.line (positionAttributes begin end ++ attributes) []
 
 
-positionAttributes : (Float, Float) -> (Float, Float) -> List (Attribute a)
-positionAttributes (x1, y1) (x2, y2) =
+positionAttributes : ( Float, Float ) -> ( Float, Float ) -> List (Attribute a)
+positionAttributes ( x1, y1 ) ( x2, y2 ) =
     [ Svg.Attributes.x1 (toString x1)
     , Svg.Attributes.y1 (toString y1)
     , Svg.Attributes.x2 (toString x2)
@@ -32,21 +35,23 @@ positionAttributes (x1, y1) (x2, y2) =
 
 classAttribute : String -> List String -> Attribute a
 classAttribute base classes =
-    (classBase base) :: classes
-    |> String.join " "
-    |> Svg.Attributes.class
+    (classBase base)
+        :: classes
+        |> String.join " "
+        |> Svg.Attributes.class
 
 
 classAttributeOriented : String -> Orientation -> List String -> Attribute a
 classAttributeOriented base orientation classes =
-    ((?) orientation (classBase base ++ "--x") (classBase base ++ "--y")) :: classes
-    |> classAttribute base
+    ((?) orientation (classBase base ++ "--x") (classBase base ++ "--y"))
+        :: classes
+        |> classAttribute base
 
 
 classBase : String -> String
 classBase base =
     "elm-plot__" ++ base
-    
+
 
 toInstruction : String -> List Float -> String
 toInstruction instructionType coords =

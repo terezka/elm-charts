@@ -6,12 +6,10 @@ import Svg.Attributes
 
 
 {-| ...Sorry for the bad filename
-    
+
     This is where I put all the functions which
     are like "ugh, why do I have to express this
--} 
-
-
+-}
 getHighest : List Float -> Float
 getHighest values =
     Maybe.withDefault 10 (List.maximum values)
