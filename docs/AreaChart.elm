@@ -25,6 +25,7 @@ chart =
     Plot.plot
         [ size ( 600, 300 )
         , margin ( 10, 20, 40, 20 )
+        , domain ( Just 0, Nothing )
         ]
         [ area
             [ Area.stroke Colors.blueStroke

@@ -5,7 +5,7 @@ import Svg.Attributes
 import Internal.Types exposing (..)
 import Internal.Stuff exposing (getEdgesX)
 import Internal.Draw exposing (..)
-
+import Debug
 
 type alias Config a =
     { style : Style
@@ -21,7 +21,7 @@ defaultConfig =
 
 
 view : Meta -> Config a -> List Point -> Svg.Svg a
-view { toSvgCoords } { style, customAttrs } points =
+view { toSvgCoords, oppositeScale } { style, customAttrs } points =
     let
         ( lowestX, highestX ) =
             getEdgesX points
@@ -29,11 +29,14 @@ view { toSvgCoords } { style, customAttrs } points =
         svgCoords =
             List.map toSvgCoords points
 
+        areaEnd =
+            clamp oppositeScale.lowest oppositeScale.highest 0
+
         ( highestSvgX, originY ) =
-            toSvgCoords ( highestX, 0 )
+            toSvgCoords ( highestX, areaEnd )
 
         ( lowestSvgX, _ ) =
-            toSvgCoords ( lowestX, 0 )
+            toSvgCoords ( lowestX, areaEnd )
 
         startInstruction =
             toInstruction "M" [ lowestSvgX, originY ]

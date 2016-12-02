@@ -17,6 +17,8 @@ module Plot
         , padding
         , size
         , style
+        , range
+        , domain
         , Element
         , initialState
         , update
@@ -35,11 +37,11 @@ module Plot
 # Definitions
 @docs Attribute, Element, Point, Style
 
-# Styling
-@docs classes, id, margin, padding, size, style
-
 # Elements
 @docs plot, plotInteractive, line, area, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
+
+# Styling and sizes
+@docs classes, id, margin, padding, size, style, range, domain
 
 # State
 @docs State, initialState, update, Interaction, getHoveredValue
@@ -103,6 +105,8 @@ type alias Config =
     , margin : ( Float, Float, Float, Float )
     , classes : List String
     , style : Style
+    , domain : ( Maybe Float, Maybe Float )
+    , range : ( Maybe Float, Maybe Float )
     , id : String
     }
 
@@ -114,6 +118,8 @@ defaultConfig =
     , margin = ( 0, 0, 0, 0 )
     , classes = []
     , style = [ ( "padding", "0" ), ( "stroke", "#000" ) ]
+    , domain = ( Nothing, Nothing )
+    , range = ( Nothing, Nothing )
     , id = "elm-plot"
     }
 
@@ -178,6 +184,25 @@ classes classes config =
 id : String -> Attribute
 id id config =
     { config | id = id }
+
+
+{-| Specifically set the domain. The format is ( lowest, highest )
+ and if left with a `Nothing` value, then it default to the edges of your series y-coordinates.
+
+ **Note:** If you are using `padding` as well, the extra padding will still be 
+ added outside the domain.
+-}
+domain : ( Maybe Float, Maybe Float ) -> Attribute
+domain domain config =
+    { config | domain = domain }
+
+
+{-| Specifically set the range. The format is ( lowest, highest )
+ and if left with a `Nothing` value, then it default to the edges of your series x-coordinates.
+-}
+range : ( Maybe Float, Maybe Float ) -> Attribute
+range range config =
+    { config | range = range }
 
 
 {-| -}
@@ -458,7 +483,7 @@ viewElement meta element ( svgViews, htmlViews ) =
 
 
 calculateMeta : Config -> List (Element msg) -> Meta
-calculateMeta { size, padding, margin, id } elements =
+calculateMeta { size, padding, margin, id, range, domain } elements =
     let
         ( xValues, yValues ) =
             List.unzip (List.foldr collectPoints [] elements)
@@ -470,10 +495,10 @@ calculateMeta { size, padding, margin, id } elements =
             margin
 
         xScale =
-            getScale width ( left, right ) ( 0, 0 ) xValues
+            getScale width range ( left, right ) ( 0, 0 ) xValues
 
         yScale =
-            getScale height ( top, bottom ) padding yValues
+            getScale height domain ( top, bottom ) padding yValues
 
         xTicks =
             getLastGetTickValues X elements <| xScale
@@ -488,7 +513,7 @@ calculateMeta { size, padding, margin, id } elements =
         , fromSvgCoords = fromSvgCoords xScale yScale
         , ticks = xTicks
         , oppositeTicks = yTicks
-        , toNearestX = toNearestX xValues
+        , toNearestX = toNearest xValues
         , getHintInfo = getHintInfo elements
         , id = id
         }
@@ -516,17 +541,20 @@ getFlippedMeta orientation meta =
             flipToY meta
 
 
-getScale : Float -> ( Float, Float ) -> ( Float, Float ) -> List Float -> Scale
-getScale lengthTotal ( offsetLeft, offsetRight ) ( paddingBottomPx, paddingTopPx ) values =
+{-| All naming assumes dealing with the x-axis, but can also be used with
+ the t-axis, just flip it in your mind.
+-}
+getScale : Float -> ( Maybe Float, Maybe Float ) -> ( Float, Float ) -> ( Float, Float ) -> List Float -> Scale
+getScale lengthTotal ( forcedLowest, forcedHighest ) ( offsetLeft, offsetRight ) ( paddingBottomPx, paddingTopPx ) values =
     let
         length =
             lengthTotal - offsetLeft - offsetRight
 
         lowest =
-            getLowest values
+           Maybe.withDefault (getLowest values) forcedLowest
 
         highest =
-            getHighest values
+            Maybe.withDefault (getHighest values) forcedHighest
 
         range =
             getRange lowest highest
@@ -572,24 +600,6 @@ toSvgCoordsX xScale yScale ( x, y ) =
 toSvgCoordsY : Scale -> Scale -> Point -> Point
 toSvgCoordsY xScale yScale ( x, y ) =
     toSvgCoordsX xScale yScale ( y, x )
-
-
-getDifference : Float -> Float -> Float
-getDifference a b =
-    abs <| a - b
-
-
-getClosest : Float -> Float -> Float -> Float
-getClosest value candidate closest =
-    if getDifference value candidate < getDifference value closest then
-        candidate
-    else
-        closest
-
-
-toNearestX : List Float -> Float -> Float
-toNearestX xValues value =
-    List.foldr (getClosest value) 0 xValues
 
 
 getHintInfo : List (Element msg) -> Float -> HintInfo

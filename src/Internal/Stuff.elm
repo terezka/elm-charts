@@ -8,7 +8,7 @@ import Svg.Attributes
 {-| ...Sorry for the bad filename
 
     This is where I put all the functions which
-    are like "ugh, why do I have to express this
+    are like "ugh, why do I have to express this"
 -}
 getHighest : List Float -> Float
 getHighest values =
@@ -17,12 +17,12 @@ getHighest values =
 
 getLowest : List Float -> Float
 getLowest values =
-    min 0 (Maybe.withDefault 0 (List.minimum values))
+    Maybe.withDefault 0 (List.minimum values)
 
 
 getRange : Float -> Float -> Float
 getRange lowest highest =
-    abs lowest + abs highest
+    highest - lowest
 
 
 getEdgesX : List Point -> ( Float, Float )
@@ -48,6 +48,24 @@ pixelsToValue length range pixels =
 ceilToNearest : Float -> Float -> Float
 ceilToNearest precision value =
     toFloat (ceiling (value / precision)) * precision
+
+
+getDifference : Float -> Float -> Float
+getDifference a b =
+    abs <| a - b
+
+
+getClosest : Float -> Float -> Float -> Float
+getClosest value candidate closest =
+    if getDifference value candidate < getDifference value closest then
+        candidate
+    else
+        closest
+
+
+toNearest : List Float -> Float -> Float
+toNearest values value =
+    List.foldr (getClosest value) 0 values
 
 
 (?) : Orientation -> a -> a -> a

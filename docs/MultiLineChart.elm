@@ -23,6 +23,7 @@ chart =
     plot
         [ size ( 600, 300 )
         , margin ( 10, 20, 40, 20 )
+        , domain ( Just 0, Nothing )
         ]
         [ line
             [ Line.stroke Colors.blueStroke

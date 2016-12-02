@@ -20,6 +20,7 @@ chart =
         [ size ( 600, 300 )
         , padding ( 0, 40 )
         , margin ( 10, 20, 40, 20 )
+        , domain ( Just 0, Nothing )
         ]
         [ verticalGrid
             [ Grid.stroke Colors.axisColorLight ]
