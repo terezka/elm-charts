@@ -1,0 +1,54 @@
+module BarChart exposing (chart, code)
+
+import Svg
+import Plot exposing (..)
+import Plot.Bars as Bars
+import Plot.Axis as Axis
+import Plot.Tick as Tick
+import Plot.Line as Line
+import Colors
+
+
+data1 : List ( Float, Float )
+data1 =
+    [ ( -0.4, -8 ), ( -0.3, -1 ), ( -0.2, 6 ), ( -0.1, 10 ), ( 0.0, 14 ), ( 0.1, 16 ), ( 0.2, 26 ), ( 0.3, 32 ), ( 0.4, 28 ), ( 0.5, 32 ), ( 0.6, 29 ), ( 0.7, 46 ), ( 0.8, 52 ), ( 0.9, 53 ), ( 1, 59 ) ]
+
+
+data : List ( Float, Float )
+data =
+    [ ( 0.0, 20 ), ( 0.1, 15 ), ( 0.2, 20 ), ( 0.3, 20 ), ( 0.4, 31 ), ( 0.5, 36 ), ( 0.6, 35 ), ( 0.7, 40 ) ]
+
+
+chart : Svg.Svg a
+chart =
+    plot
+        [ size ( 600, 300 )
+        , margin ( 10, 20, 40, 40 )
+        ]
+        [ line [] data1
+        , bars
+            [ Bars.stroke Colors.pinkStroke
+            , Bars.fill Colors.pinkFill
+            ]
+            data
+        , xAxis [ Axis.line [ Line.stroke Colors.axisColor ], Axis.tick [ Tick.delta 0.2 ] ]
+        ]
+
+code : String
+code =
+    """
+    chart : Svg.Svg a
+    chart =
+        plot
+            [ size ( 600, 250 ) ]
+            [ scatter
+                [ scatterStyle
+                    [ ( "stroke", Colors.pinkStroke )
+                    , ( "fill", Colors.pinkFill )
+                    ]
+                , scatterRadius 8
+                ]
+                data
+            , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
+            ]
+    """

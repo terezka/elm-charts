@@ -10,6 +10,7 @@ module Plot
         , hint
         , area
         , line
+        , bars
         , scatter
         , custom
         , classes
@@ -39,7 +40,7 @@ module Plot
 @docs Attribute, Element, Point, Style
 
 # Elements
-@docs plot, plotInteractive, scatter, line, area, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
+@docs plot, plotInteractive, scatter, line, area, bars, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
 
 # Styling and sizes
 @docs classes, id, margin, padding, size, style, range, domain
@@ -65,11 +66,13 @@ import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Grid as Grid
 import Plot.Area as Area
+import Plot.Bars as Bars
 import Plot.Scatter as Scatter
 import Plot.Line as Line
 import Plot.Hint as Hint
 import Internal.Grid as GridInternal
 import Internal.Axis as AxisInternal
+import Internal.Bars as BarsInternal
 import Internal.Area as AreaInternal
 import Internal.Scatter as ScatterInternal
 import Internal.Line as LineInternal
@@ -96,6 +99,7 @@ type alias Style =
 type Element msg
     = Line (LineInternal.Config msg) (List Point)
     | Area (AreaInternal.Config msg) (List Point)
+    | Bars (BarsInternal.Config msg) (List Point)
     | Scatter (ScatterInternal.Config msg) (List Point)
     | Hint (HintInternal.Config msg) (Maybe Point)
     | Axis (AxisInternal.Config msg)
@@ -268,6 +272,18 @@ line attrs points =
 scatter : List (Scatter.Attribute msg) -> List Point -> Element msg
 scatter attrs points =
     Scatter (List.foldr (<|) ScatterInternal.defaultConfig attrs) points
+
+{-| Draws a bar chart.
+
+    myPlot : Svg.Svg msg
+    myPlot =
+        plot
+            []
+            [ bars [] [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
+-}
+bars : List (Bars.Attribute msg) -> List Point -> Element msg
+bars attrs points =
+    Bars (List.foldr (<|) BarsInternal.defaultConfig attrs) points
 
 
 {-| -}
@@ -479,6 +495,9 @@ viewElement meta element ( svgViews, htmlViews ) =
         
         Scatter config points ->
             ( (ScatterInternal.view meta config points) :: svgViews, htmlViews )
+
+        Bars config points ->
+            ( (BarsInternal.view meta config points) :: svgViews, htmlViews )
         
         Axis ({ orientation } as config) ->
             ( (AxisInternal.view (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
@@ -669,6 +688,9 @@ collectPoints element allPoints =
         Scatter config points ->
             allPoints ++ points
 
+        Bars config points ->
+            allPoints ++ points
+
         _ ->
             allPoints
 
@@ -683,6 +705,9 @@ collectYValues xValue element yValues =
             collectYValue xValue points :: yValues
 
         Scatter config points ->
+            collectYValue xValue points :: yValues
+
+        Bars config points ->
             collectYValue xValue points :: yValues
 
         _ ->

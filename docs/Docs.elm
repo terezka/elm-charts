@@ -18,6 +18,7 @@ import MultiLineChart
 import CustomTickChart
 import ComposedChart
 import ScatterChart
+import BarChart
 
 
 -- MODEL
@@ -159,6 +160,7 @@ view model =
                 ]
                 [ text "Github" ]
             ]
+        , Html.map PlotInteraction <| ComposedChart.chart model.plotState
         , viewTitle model "Scatter Chart" "MultiAreaChart" ScatterChart.code
         , Html.map PlotInteraction ScatterChart.chart
         , viewTitle model "Area Chart" "MultiAreaChart" MultiAreaChart.code
@@ -169,8 +171,8 @@ view model =
         , Html.map PlotInteraction GridChart.chart
         , viewTitle model "Custom ticks and labels" "CustomTickChart" CustomTickChart.code
         , Html.map PlotInteraction CustomTickChart.chart
-        , viewTitle model "Composable" "ComposedChart" ComposedChart.code
-        , Html.map PlotInteraction <| ComposedChart.chart model.plotState
+        , viewTitle model "Bar Chart" "BarChart" BarChart.code
+        , Html.map PlotInteraction BarChart.chart
         , div
             [ style [ ( "margin", "100px auto 30px" ), ( "font-size", "14px" ) ] ]
             [ text "Made by "
