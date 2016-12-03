@@ -20,6 +20,12 @@ data1 =
     [ ( -10, 14 ), ( -9, 5 ), ( -8, -9 ), ( -7, -15 ), ( -6, -22 ), ( -5, -12 ), ( -4, -8 ), ( -3, -1 ), ( -2, 6 ), ( -1, 10 ), ( 0, 14 ), ( 1, 16 ), ( 2, 26 ), ( 3, 32 ), ( 4, 28 ), ( 5, 32 ), ( 6, 29 ), ( 7, 46 ), ( 8, 52 ), ( 9, 53 ), ( 10, 59 ) ]
 
 
+dataScat : List ( Float, Float )
+dataScat =
+    [ ( -8, 50 ), ( -7, 45 ), ( -6.5, 70 ), ( -6, 90 ), ( -4, 81 ), ( -3, 106 ), ( -1, 115 ), ( 0, 140 ) ]
+
+
+
 isOdd : Int -> Bool
 isOdd n =
     rem n 2 > 0
@@ -45,7 +51,6 @@ toTickStyle ( index, tick ) =
 labelStyle : List (Label.StyleAttribute msg)
 labelStyle =
     [ Label.format (\( _, v ) -> toString v ++ " °C")
-    , Label.stroke "#969696"
     , Label.fontSize 12
     , Label.displace (0, -2)
     ]
@@ -54,14 +59,15 @@ labelStyle =
 chart : State -> Svg.Svg (Interaction c)
 chart state =
     plotInteractive
-        [ size ( 600, 400 )
+        [ size ( 800, 400 )
         , padding ( 40, 40 )
-        , margin ( 10, 20, 40, 50 )
+        , margin ( 10, 20, 40, 15 )
         , id "ComposedChart"
         ]
         [ horizontalGrid
-            [ Grid.stroke "#f2f2f2"
-            ]
+            [ Grid.lines [ Line.stroke "#f2f2f2" ] ]
+        , verticalGrid
+            [ Grid.lines [ Line.stroke "#f2f2f2" ] ]
         , area
             [ Area.stroke Colors.skinStroke
             , Area.fill Colors.skinFill
@@ -78,44 +84,41 @@ chart state =
             , Line.strokeWidth 2
             ]
             (List.map (\( x, y ) -> ( x, toFloat <| round y * 3 )) data1)
+        , scatter 
+            []
+            dataScat
         , yAxis
-            [ Axis.view
-                [ Axis.style [ ( "stroke", "#b9b9b9" ) ]
-                , Axis.anchorInside
-                , Axis.cleanCrossings
-                , Axis.positionLowest
-                ]
+            [ Axis.anchorInside
+            , Axis.cleanCrossings
+            , Axis.positionLowest
+            , Axis.line
+                [ Line.stroke "#b9b9b9" ]
             , Axis.tick
-                [ Tick.delta 50
-                ]
+                [ Tick.delta 50 ]
             , Axis.label
                 [ Label.view labelStyle ]
             ]
         , xAxis
-            [ Axis.view
-                [ Axis.style [ ( "stroke", "#b9b9b9" ) ]
-                , Axis.cleanCrossings
-                ]
+            [ Axis.cleanCrossings
+            , Axis.line
+                [ Line.stroke "#b9b9b9" ]
             , Axis.tick
                 [ Tick.viewDynamic toTickStyle
-                , Tick.delta 2.55
+                , Tick.delta 2.5
                 ]
             , Axis.label
                 [ Label.view
-                    [ Label.format (\( _, v ) -> toString v ++ " t")
+                    [ Label.format (\( _, v ) -> toString v ++ " x")
                     , Label.fontSize 12
                     , Label.stroke "#b9b9b9"
                     ]
                 ]
             ]
         , xAxis
-            [ Axis.view
-                [ Axis.style [ ( "stroke", "#b9b9b9" ) ]
-                , Axis.positionLowest
-                ]
+            [ Axis.positionLowest
+            , Axis.line [ Line.stroke "#b9b9b9" ]
             , Axis.tick
-                [ Tick.viewDynamic toTickStyle
-                ]
+                [ Tick.viewDynamic toTickStyle ]
             , Axis.label
                 [ Label.view
                     [ Label.format (\( _, v ) -> toString v ++ " t")
@@ -125,7 +128,9 @@ chart state =
                 , Label.filter filterLabels
                 ]
             ]
-        , hint [ Hint.lineStyle [ ( "background", "#b9b9b9") ] ] (getHoveredValue state)
+        , hint
+            [ Hint.lineStyle [ ( "background", "#b9b9b9") ] ]
+            (getHoveredValue state)
         ]
 
 
@@ -165,61 +170,74 @@ code =
 
 
     chart : State -> Svg.Svg (Interaction c)
-    chart { position } =
+    chart state =
         plotInteractive
             [ size ( 600, 400 )
             , padding ( 40, 40 )
-            , margin ( 10, 20, 40, 20 )
+            , margin ( 10, 20, 40, 50 )
             , id "ComposedChart"
             ]
             [ horizontalGrid
-                [ Grid.style [ ( "stroke", "#f2f2f2" ) ]
-                ]
+                [ Grid.lines [ Line.stroke "#f2f2f2" ] ]
             , area
-                [ Area.style
-                    [ ( "stroke", Colors.skinStroke )
-                    , ( "fill", Colors.skinFill )
-                    , ( "opacity", "0.5" )
-                    ]
+                [ Area.stroke Colors.skinStroke
+                , Area.fill Colors.skinFill
+                , Area.opacity 0.5
+                ]
+                data0
+            , area
+                [ Area.stroke Colors.blueStroke
+                , Area.fill Colors.blueFill
                 ]
                 data1
-            , area
-                [ Area.style
-                    [ ( "stroke", Colors.blueStroke )
-                    , ( "fill", Colors.blueFill )
-                    ]
+            , line
+                [ Line.stroke Colors.pinkStroke
+                , Line.strokeWidth 2
                 ]
                 data2
-            , line
-                [ Line.style
-                    [ ( "stroke", Colors.pinkStroke )
-                    , ( "stroke-width", "2px" )
-                    ]
-                ]
-                data3
             , yAxis
-                [ Axis.view [ Axis.style [ ( "stroke", "#b9b9b9" ) ] ]
+                [ Axis.anchorInside
+                , Axis.cleanCrossings
+                , Axis.positionLowest
+                , Axis.line
+                    [ Line.stroke "#b9b9b9" ]
                 , Axis.tick
-                    [ Tick.removeZero
-                    , Tick.delta 50
-                    ]
+                    [ Tick.delta 50 ]
                 , Axis.label
                     [ Label.view labelStyle ]
                 ]
             , xAxis
-                [ Axis.view [ Axis.style [ ( "stroke", "#b9b9b9" ) ] ]
+                [ Axis.cleanCrossings
+                , Axis.line
+                    [ Line.stroke "#b9b9b9" ]
                 , Axis.tick
-                    [ Tick.removeZero
-                    , Tick.viewDynamic toTickStyle
+                    [ Tick.viewDynamic toTickStyle
+                    , Tick.delta 2.55
                     ]
                 , Axis.label
                     [ Label.view
                         [ Label.format (\\( _, v ) -> toString v ++ " t")
-                        , Label.style [ ( "font-size", "12px" ), ( "stroke", "#b9b9b9" ) ]
+                        , Label.fontSize 12
+                        , Label.stroke "#b9b9b9"
+                        ]
+                    ]
+                ]
+            , xAxis
+                [ Axis.positionLowest
+                , Axis.line [ Line.stroke "#b9b9b9" ]
+                , Axis.tick
+                    [ Tick.viewDynamic toTickStyle ]
+                , Axis.label
+                    [ Label.view
+                        [ Label.format (\\( _, v ) -> toString v ++ " t")
+                        , Label.fontSize 12
+                        , Label.stroke "#b9b9b9"
                         ]
                     , Label.filter filterLabels
                     ]
                 ]
-            , hint [ Hint.lineStyle [ ( "background", Colors.pinkStroke ) ] ] position
+            , hint
+                [ Hint.lineStyle [ ( "background", "#b9b9b9") ] ]
+                (getHoveredValue state)
             ]
     """

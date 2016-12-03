@@ -12,12 +12,12 @@ import Plot.Area as Area
 import Plot.Grid as Grid
 import Plot.Axis as Axis
 import Plot.Label as Label
-import AreaChart
 import MultiAreaChart
 import GridChart
 import MultiLineChart
 import CustomTickChart
 import ComposedChart
+import ScatterChart
 
 
 -- MODEL
@@ -159,9 +159,9 @@ view model =
                 ]
                 [ text "Github" ]
             ]
-        , viewTitle model "Simple Area Chart" "AreaChart" AreaChart.code
-        , Html.map PlotInteraction (AreaChart.chart)
-        , viewTitle model "Multi Area Chart" "MultiAreaChart" MultiAreaChart.code
+        , viewTitle model "Scatter Chart" "MultiAreaChart" ScatterChart.code
+        , Html.map PlotInteraction ScatterChart.chart
+        , viewTitle model "Area Chart" "MultiAreaChart" MultiAreaChart.code
         , Html.map PlotInteraction MultiAreaChart.chart
         , viewTitle model "Line Chart" "MultiLineChart" MultiLineChart.code
         , Html.map PlotInteraction MultiLineChart.chart
@@ -171,7 +171,6 @@ view model =
         , Html.map PlotInteraction CustomTickChart.chart
         , viewTitle model "Composable" "ComposedChart" ComposedChart.code
         , Html.map PlotInteraction <| ComposedChart.chart model.plotState
-        --, Html.map PlotInteraction <| testChart model.plotState
         , div
             [ style [ ( "margin", "100px auto 30px" ), ( "font-size", "14px" ) ] ]
             [ text "Made by "
@@ -181,36 +180,6 @@ view model =
                 ]
                 [ text "@terexka" ]
             ]
-        ]
-
-
-testChart : Plot.State -> Svg.Svg (Interaction Msg)
-testChart state =
-    Plot.plot
-        [ Plot.size ( 600, 300 )
-        , Plot.margin ( 10, 20, 40, 20 )
-        ]
-        [ Plot.verticalGrid
-            [ Grid.stroke "black"
-            ]
-        , Plot.line
-            [ Line.stroke "red"
-            , Line.strokeWidth 2
-            ]
-            [ ( 0, 1 ), ( 1, 2 ), ( 2, 0.5 ) ]
-        , Plot.area
-            [ Area.stroke "blue"
-            , Area.strokeWidth 2
-            , Area.fill "deeppink"
-            ]
-            [ ( 0, 1 ), ( 1, 2 ), ( 2, 0.5 ) ]
-        , Plot.xAxis
-            [ Axis.label
-                [ Label.view
-                    [ Label.customAttrs [ Svg.Events.onClick <| Custom ClickTick ] ]
-                ]
-            ]
-        , Plot.custom mySvgElement
         ]
 
 

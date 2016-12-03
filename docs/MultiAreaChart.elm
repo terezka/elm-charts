@@ -5,6 +5,7 @@ import Svg.Attributes
 import Plot exposing (..)
 import Colors
 import Plot.Area as Area
+import Plot.Line as Line
 import Plot.Axis as Axis
 import Plot.Tick as Tick
 
@@ -37,7 +38,7 @@ chart =
             ]
             data2
         , xAxis
-            [ Axis.view [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
+            [ Axis.line [ Line.stroke Colors.axisColor ]
             , Axis.tick [ Tick.delta 10 ]
             ]
         ]

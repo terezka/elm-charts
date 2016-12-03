@@ -36,8 +36,7 @@ chart =
             ]
             data1
         , xAxis
-            [ Axis.view
-                [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
+            [ Axis.line [ Line.stroke Colors.axisColor ]
             ]
         ]
 

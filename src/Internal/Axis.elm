@@ -3,6 +3,7 @@ module Internal.Axis exposing (..)
 import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, Anchor(..))
 import Internal.Tick as Tick
 import Internal.Label as Label
+import Internal.Line as Line
 import Internal.Draw as Draw exposing (..)
 import Round
 import Svg
@@ -14,8 +15,12 @@ import Debug
 type alias Config msg =
     { tickConfig : Tick.Config msg
     , labelConfig : Label.Config msg
-    , viewConfig : StyleConfig
+    , lineConfig : Line.Config msg
     , orientation : Orientation
+    , anchor : Anchor
+    , cleanCrossings : Bool
+    , position : PositionOption
+    , classes : List String
     }
 
 
@@ -25,33 +30,16 @@ type PositionOption
     | AtZero
 
 
-type alias StyleConfig =
-    { lineStyle : Style
-    , baseStyle : Style
-    , anchor : Anchor
-    , cleanCrossings : Bool
-    , position : PositionOption
-    , classes : List String
-    }
-
-
-defaultStyleConfig : StyleConfig
-defaultStyleConfig =
-    { lineStyle = []
-    , baseStyle = []
-    , anchor = Outer
-    , cleanCrossings = False
-    , position = AtZero
-    , classes = []
-    }
-
-
 defaultConfigX : Config msg
 defaultConfigX =
     { tickConfig = Tick.defaultConfig
     , labelConfig = Label.defaultConfig
-    , viewConfig = defaultStyleConfig
+    , lineConfig = Line.defaultConfig
     , orientation = X
+    , cleanCrossings = False
+    , anchor = Outer
+    , position = AtZero
+    , classes = []
     }
 
 
@@ -61,30 +49,28 @@ defaultConfigY =
 
 
 view : Meta -> Config msg -> Svg.Svg msg
-view ({ scale, toSvgCoords, oppositeScale, oppositeAxisCrossings } as meta) ({ viewConfig, tickConfig, labelConfig, orientation } as config) =
+view ({ scale, toSvgCoords, oppositeScale, oppositeAxisCrossings } as meta) ({ lineConfig, tickConfig, labelConfig, orientation, cleanCrossings, position, anchor, classes } as config) =
     let
         tickValues =
             Tick.getValues tickConfig scale
-            |> filterValues viewConfig.cleanCrossings oppositeAxisCrossings
+            |> filterValues cleanCrossings oppositeAxisCrossings
             |> Tick.indexValues
 
         labelValues =
             Label.getValuesIndexed labelConfig.valueConfig tickValues
 
         axisPosition =
-            getAxisPosition oppositeScale viewConfig.position
+            getAxisPosition oppositeScale position
     in
         Svg.g
-            [ Svg.Attributes.style (toStyle viewConfig.baseStyle)
-            , Draw.classAttributeOriented "axis" orientation viewConfig.classes
-            ]
-            [ viewAxisLine viewConfig meta axisPosition
+            [ Draw.classAttributeOriented "axis" orientation classes ]
+            [ viewAxisLine lineConfig meta axisPosition
             , Svg.g
                 [ Svg.Attributes.class "elm-plot__axis__ticks" ]
                 (List.map (placeTick meta config axisPosition (Tick.toView tickConfig orientation)) tickValues)
             , Svg.g
                 [ Svg.Attributes.class "elm-plot__axis__labels"
-                , Svg.Attributes.style <| toAnchorStyle viewConfig.anchor orientation
+                , Svg.Attributes.style <| toAnchorStyle anchor orientation
                 ]
                 (List.map (placeLabel meta config axisPosition (Label.toView labelConfig orientation)) labelValues)
             ]
@@ -94,12 +80,12 @@ view ({ scale, toSvgCoords, oppositeScale, oppositeAxisCrossings } as meta) ({ v
 -- View line
 
 
-viewAxisLine : StyleConfig -> Meta -> Float -> Svg.Svg a
-viewAxisLine { lineStyle } =
+viewAxisLine : Line.Config msg -> Meta -> Float -> Svg.Svg msg
+viewAxisLine { style, customAttrs } =
     Draw.fullLine
-        [ Svg.Attributes.style (toStyle lineStyle)
+        ([ Svg.Attributes.style (toStyle style)
         , Svg.Attributes.class "elm-plot__axis__line"
-        ]
+        ] ++ customAttrs)
 
 
 
@@ -107,9 +93,9 @@ viewAxisLine { lineStyle } =
 
 
 placeLabel : Meta -> Config msg -> Float -> (( Int, Float ) -> Svg.Svg msg) -> ( Int, Float ) -> Svg.Svg msg
-placeLabel { toSvgCoords } ({ orientation, viewConfig } as config) axisPosition view ( index, tick ) =
+placeLabel { toSvgCoords } ({ orientation, anchor } as config) axisPosition view ( index, tick ) =
     Svg.g
-        [ Svg.Attributes.transform <| toTranslate <| addDisplacement (getDisplacement viewConfig.anchor orientation) <| toSvgCoords ( tick, axisPosition )
+        [ Svg.Attributes.transform <| toTranslate <| addDisplacement (getDisplacement anchor orientation) <| toSvgCoords ( tick, axisPosition )
         , Svg.Attributes.class "elm-plot__axis__label"
         ]
         [ view ( index, tick ) ]
@@ -120,9 +106,9 @@ placeLabel { toSvgCoords } ({ orientation, viewConfig } as config) axisPosition 
 
 
 placeTick : Meta -> Config msg -> Float -> (( Int, Float ) -> Svg.Svg msg) -> ( Int, Float ) -> Svg.Svg msg
-placeTick { toSvgCoords } ({ orientation, viewConfig } as config) axisPosition view ( index, tick ) =
+placeTick { toSvgCoords } ({ orientation, anchor } as config) axisPosition view ( index, tick ) =
     Svg.g
-        [ Svg.Attributes.transform <| (toTranslate <| toSvgCoords ( tick, axisPosition )) ++ " " ++ (toRotate viewConfig.anchor orientation)
+        [ Svg.Attributes.transform <| (toTranslate <| toSvgCoords ( tick, axisPosition )) ++ " " ++ (toRotate anchor orientation)
         , Svg.Attributes.class "elm-plot__axis__tick"
         ]
         [ view ( index, tick ) ]

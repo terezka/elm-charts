@@ -56,7 +56,7 @@ chart =
             ]
             data
         , xAxis
-            [ Axis.view [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
+            [ Axis.line [ Line.stroke Colors.axisColor ]
             , Axis.tick [ Tick.viewDynamic toTickStyle ]
             , Axis.label [ Label.viewDynamic toLabelStyle ]
             ]

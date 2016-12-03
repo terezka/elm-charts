@@ -20,7 +20,7 @@ module Plot.Grid exposing (..)
 @docs Attribute
 
 # Styling
-@docs stroke, strokeWidth, opacity
+@docs lines
 
 # Values
 @docs values
@@ -31,8 +31,10 @@ module Plot.Grid exposing (..)
 -}
 
 import Svg
-import Internal.Grid as Internal exposing (Config, Values(..), defaultConfigX)
 import Internal.Types exposing (Style)
+import Internal.Grid as Internal exposing (Config, Values(..), defaultConfigX)
+import Internal.Line as LineInternal
+import Plot.Line as Line
 
 
 {-| -}
@@ -53,25 +55,11 @@ values values config =
     { config | values = CustomValues values }
 
 
-{-| Set the stroke color.
+{-| Configure the view of the grid lines.
 -}
-stroke : String -> Attribute a
-stroke stroke config =
-    { config | style = ( "stroke", stroke ) :: config.style }
-
-
-{-| Set the stroke width (in pixels).
--}
-strokeWidth : Int -> Attribute a
-strokeWidth strokeWidth config =
-    { config | style = ( "stroke-width", toString strokeWidth ++ "px" ) :: config.style }
-
-
-{-| Set the opacity.
--}
-opacity : Float -> Attribute a
-opacity opacity config =
-    { config | style = ( "opacity", toString opacity ) :: config.style }
+lines : List (Line.Attribute msg) -> Attribute msg
+lines attrs config =
+    { config | linesConfig = List.foldr (<|) LineInternal.defaultConfig attrs }
 
 
 {-| Adds classes to the grid container.

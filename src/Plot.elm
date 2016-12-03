@@ -10,6 +10,7 @@ module Plot
         , hint
         , area
         , line
+        , scatter
         , custom
         , classes
         , id
@@ -38,7 +39,7 @@ module Plot
 @docs Attribute, Element, Point, Style
 
 # Elements
-@docs plot, plotInteractive, line, area, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
+@docs plot, plotInteractive, scatter, line, area, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
 
 # Styling and sizes
 @docs classes, id, margin, padding, size, style, range, domain
@@ -64,18 +65,18 @@ import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Grid as Grid
 import Plot.Area as Area
+import Plot.Scatter as Scatter
 import Plot.Line as Line
 import Plot.Hint as Hint
 import Internal.Grid as GridInternal
 import Internal.Axis as AxisInternal
 import Internal.Area as AreaInternal
+import Internal.Scatter as ScatterInternal
 import Internal.Line as LineInternal
 import Internal.Tick as TickInternal
 import Internal.Hint as HintInternal
 import Internal.Stuff exposing (..)
 import Internal.Types exposing (..)
-
-import Debug
 
 
 {-| Convinience type to represent coordinates.
@@ -95,6 +96,7 @@ type alias Style =
 type Element msg
     = Line (LineInternal.Config msg) (List Point)
     | Area (AreaInternal.Config msg) (List Point)
+    | Scatter (ScatterInternal.Config msg) (List Point)
     | Hint (HintInternal.Config msg) (Maybe Point)
     | Axis (AxisInternal.Config msg)
     | Grid (GridInternal.Config msg)
@@ -253,6 +255,19 @@ area attrs points =
 line : List (Line.Attribute msg) -> List Point -> Element msg
 line attrs points =
     Line (List.foldr (<|) LineInternal.defaultConfig attrs) points
+
+
+{-| Draws a scatter.
+
+    myPlot : Svg.Svg msg
+    myPlot =
+        plot
+            []
+            [ scatter [] [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
+-}
+scatter : List (Scatter.Attribute msg) -> List Point -> Element msg
+scatter attrs points =
+    Scatter (List.foldr (<|) ScatterInternal.defaultConfig attrs) points
 
 
 {-| -}
@@ -461,7 +476,10 @@ viewElement meta element ( svgViews, htmlViews ) =
 
         Area config points ->
             ( (AreaInternal.view meta config points) :: svgViews, htmlViews )
-
+        
+        Scatter config points ->
+            ( (ScatterInternal.view meta config points) :: svgViews, htmlViews )
+        
         Axis ({ orientation } as config) ->
             ( (AxisInternal.view (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
 
@@ -648,6 +666,9 @@ collectPoints element allPoints =
         Line config points ->
             allPoints ++ points
 
+        Scatter config points ->
+            allPoints ++ points
+
         _ ->
             allPoints
 
@@ -659,6 +680,9 @@ collectYValues xValue element yValues =
             collectYValue xValue points :: yValues
 
         Line config points ->
+            collectYValue xValue points :: yValues
+
+        Scatter config points ->
             collectYValue xValue points :: yValues
 
         _ ->
@@ -680,6 +704,6 @@ getYValue xValue ( x, y ) result =
 
 getAxisCrossings : List (AxisInternal.Config msg) -> Scale -> List Float
 getAxisCrossings axisConfigs oppositeScale =
-    List.map (AxisInternal.getAxisPosition oppositeScale << .position << .viewConfig) axisConfigs
+    List.map (AxisInternal.getAxisPosition oppositeScale << .position) axisConfigs
 
 

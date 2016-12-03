@@ -6,6 +6,7 @@ import Plot exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
 import Plot.Grid as Grid
+import Plot.Line as Line
 import Colors
 
 
@@ -23,15 +24,13 @@ chart =
         , domain ( Just 0, Nothing )
         ]
         [ verticalGrid
-            [ Grid.stroke Colors.axisColorLight ]
+            [ Grid.lines [ Line.stroke Colors.axisColorLight ] ]
         , horizontalGrid
             [ Grid.values [ 10, 20, 30, 40 ]
-            , Grid.stroke Colors.axisColorLight
+            , Grid.lines [ Line.stroke Colors.axisColorLight ]
             ]
         , xAxis
-            [ Axis.view
-                [ Axis.style [ ( "stroke", Colors.axisColor ) ] ]
-            ]
+            [ Axis.line [ Line.stroke Colors.axisColor ] ]
         , line
             [ Line.stroke Colors.blueStroke
             , Line.strokeWidth 2

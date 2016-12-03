@@ -6,11 +6,8 @@ module Plot.Axis exposing (..)
 # Definition
 @docs Attribute
 
-# Styling
-@docs view
-
-## Style attributes
-@docs StyleAttribute, style, classes, lineStyle, positionLowest, positionHighest, cleanCrossings, anchorInside
+# Attributes
+@docs classes, line, positionLowest, positionHighest, cleanCrossings, anchorInside
 
 # Ticks and labels
 @docs tick, label
@@ -21,6 +18,8 @@ import Internal.Types exposing (Style, Orientation(..), Anchor(..))
 import Internal.Axis as Internal
 import Internal.Label as LabelInternal
 import Internal.Tick as TickInternal
+import Internal.Line as LineInternal
+import Plot.Line as Line
 import Plot.Tick as Tick
 import Plot.Label as Label
 
@@ -28,29 +27,6 @@ import Plot.Label as Label
 {-| -}
 type alias Attribute msg =
     Internal.Config msg -> Internal.Config msg
-
-
-{-| -}
-type alias StyleAttribute =
-    Internal.StyleConfig -> Internal.StyleConfig
-
-
-{-| By providing a list of style attributes to this attribute,
- you may alter the styling of your axis.
-
-    myXAxis : Plot.Element msg
-    myXAxis =
-        Plot.xAxis
-            [ Axis.view
-                [ Axis.style [ ( "stroke", "red" ) ]
-                , Axis.classes [ "axis--x" ]
-                , Axis.lineStyle [ ( "stroke", "blue" ) ]
-                ]
-            ]
--}
-view : List StyleAttribute -> Attribute msg
-view attributes config =
-    { config | viewConfig = List.foldl (<|) Internal.defaultStyleConfig attributes }
 
 
 {-| Adds classes to the container holding your axis.
@@ -62,23 +38,10 @@ view attributes config =
                 [ Axis.classes [ "axis--x" ] ]
             ]
 -}
-classes : List String -> StyleAttribute
+classes : List String -> Attribute msg
 classes classes config =
     { config | classes = classes }
 
-
-{-| Adds style to the container holding your axis.
-
-    myXAxis : Plot.Element msg
-    myXAxis =
-        Plot.xAxis
-            [ Axis.view
-                [ Axis.style [ ( "stroke", "red" ) ] ]
-            ]
--}
-style : Style -> StyleAttribute
-style style config =
-    { config | baseStyle = style }
 
 
 {-| Adds styles to the axis line.
@@ -90,9 +53,9 @@ style style config =
                 [ Axis.lineStyle [ ( "stroke", "blue" ) ] ]
             ]
 -}
-lineStyle : Style -> StyleAttribute
-lineStyle style config =
-    { config | lineStyle = style }
+line : List (Line.Attribute msg) -> Attribute msg
+line attrs config =
+    { config | lineConfig = List.foldr (<|) LineInternal.defaultConfig attrs }
 
 
 {-| Anchor the ticks/labels on the inside of the plot. By default they are anchored on the outside.
@@ -104,7 +67,7 @@ lineStyle style config =
                 [ Axis.anchorInside ]
             ]
 -}
-anchorInside : StyleAttribute
+anchorInside : Attribute msg
 anchorInside config =
     { config | anchor = Inner }
 
@@ -119,7 +82,7 @@ anchorInside config =
                 [ Axis.positionLowest ]
             ]
 -}
-positionLowest : StyleAttribute
+positionLowest : Attribute msg
 positionLowest config =
     { config | position = Internal.Lowest }
 
@@ -134,7 +97,7 @@ positionLowest config =
                 [ Axis.positionHighest ]
             ]
 -}
-positionHighest : StyleAttribute
+positionHighest : Attribute msg
 positionHighest config =
     { config | position = Internal.Highest }
 
@@ -146,7 +109,7 @@ positionHighest config =
         Plot.xAxis
             [ Axis.view [ Axis.cleanCrossings ] ]
 -}
-cleanCrossings : StyleAttribute
+cleanCrossings : Attribute msg
 cleanCrossings config =
     { config | cleanCrossings = True }
 
