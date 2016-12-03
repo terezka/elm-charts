@@ -10,14 +10,14 @@ module Plot.Axis exposing (..)
 @docs view
 
 ## Style attributes
-@docs StyleAttribute, style, classes, lineStyle
+@docs StyleAttribute, style, classes, lineStyle, anchorInside, positionLowest, positionHighest
 
 # Ticks and labels
 @docs tick, label
 
 -}
 
-import Internal.Types exposing (Style, Orientation(..))
+import Internal.Types exposing (Style, Orientation(..), Anchor(..))
 import Internal.Axis as Internal
 import Internal.Label as LabelInternal
 import Internal.Tick as TickInternal
@@ -93,6 +93,50 @@ style style config =
 lineStyle : Style -> StyleAttribute
 lineStyle style config =
     { config | lineStyle = style }
+
+
+{-| Anchor the ticks/labels on the inside of the plot. By default they are anchored on the outside.
+
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.view
+                [ Axis.anchorInside ]
+            ]
+-}
+anchorInside : StyleAttribute
+anchorInside config =
+    { config | anchor = Inner }
+
+
+{-| Position this axis to the lowest value on the opposite axis. E.g. if
+ this attribute is added on an y-axis, it will be positioned to the left.
+
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.view
+                [ Axis.positionLowest ]
+            ]
+-}
+positionLowest : StyleAttribute
+positionLowest config =
+    { config | position = Internal.Lowest }
+
+
+{-| Position this axis to the highest value on the opposite axis. E.g. if
+ this attribute is added on an y-axis, it will be positioned to the right.
+
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.view
+                [ Axis.positionHighest ]
+            ]
+-}
+positionHighest : StyleAttribute
+positionHighest config =
+    { config | position = Internal.Highest }
 
 
 --{-| Remove tick and value where the axis crosses the opposite axis.

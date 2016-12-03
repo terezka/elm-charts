@@ -80,6 +80,8 @@ chart state =
         , yAxis
             [ Axis.view
                 [ Axis.style [ ( "stroke", "#b9b9b9" ) ]
+                , Axis.anchorInside
+                , Axis.positionLowest
                 ]
             , Axis.tick
                 [ Tick.delta 50
@@ -94,6 +96,23 @@ chart state =
             , Axis.tick
                 [ Tick.viewDynamic toTickStyle
                 , Tick.delta 4
+                ]
+            , Axis.label
+                [ Label.view
+                    [ Label.format (\( _, v ) -> toString v ++ " t")
+                    , Label.fontSize 12
+                    , Label.stroke "#b9b9b9"
+                    ]
+                , Label.filter filterLabels
+                ]
+            ]
+        , xAxis
+            [ Axis.view
+                [ Axis.style [ ( "stroke", "#b9b9b9" ) ]
+                , Axis.positionLowest
+                ]
+            , Axis.tick
+                [ Tick.viewDynamic toTickStyle
                 ]
             , Axis.label
                 [ Label.view

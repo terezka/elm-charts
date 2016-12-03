@@ -9980,7 +9980,7 @@ var _terezka$elm_plot$Internal_Axis$placeTick = F5(
 						A2(
 							_elm_lang$core$Basics_ops['++'],
 							' ',
-							A2(_terezka$elm_plot$Internal_Axis$toRotate, _p21.viewConfig.anchorTicks, _p21.orientation)))),
+							A2(_terezka$elm_plot$Internal_Axis$toRotate, _p21.viewConfig.anchor, _p21.orientation)))),
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__axis__tick'),
@@ -10008,7 +10008,7 @@ var _terezka$elm_plot$Internal_Axis$placeLabel = F5(
 					_terezka$elm_plot$Internal_Draw$toTranslate(
 						A2(
 							_terezka$elm_plot$Internal_Axis$addDisplacement,
-							A2(_terezka$elm_plot$Internal_Axis$getDisplacement, _p28.viewConfig.anchorTicks, _p28.orientation),
+							A2(_terezka$elm_plot$Internal_Axis$getDisplacement, _p28.viewConfig.anchor, _p28.orientation),
 							_p27.toSvgCoords(
 								{ctor: '_Tuple2', _0: _p30, _1: axisPosition})))),
 				_1: {
@@ -10048,7 +10048,7 @@ var _terezka$elm_plot$Internal_Axis$view = F2(
 		var _p39 = _p36.orientation;
 		var _p38 = _p36.labelConfig;
 		var _p37 = _p36;
-		var axisPosition = A2(_terezka$elm_plot$Internal_Axis$getAxisPosition, _p36.position, _p35.oppositeScale);
+		var axisPosition = A2(_terezka$elm_plot$Internal_Axis$getAxisPosition, _p41.position, _p35.oppositeScale);
 		var tickValues = A2(_terezka$elm_plot$Internal_Tick$getValuesIndexed, _p40, _p35.scale);
 		var labelValues = A2(_terezka$elm_plot$Internal_Label$getValuesIndexed, _p38.valueConfig, tickValues);
 		return A2(
@@ -10097,7 +10097,7 @@ var _terezka$elm_plot$Internal_Axis$view = F2(
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$svg$Svg_Attributes$style(
-										A2(_terezka$elm_plot$Internal_Axis$toAnchorStyle, _p41.anchorTicks, _p39)),
+										A2(_terezka$elm_plot$Internal_Axis$toAnchorStyle, _p41.anchor, _p39)),
 									_1: {ctor: '[]'}
 								}
 							},
@@ -10118,28 +10118,29 @@ var _terezka$elm_plot$Internal_Axis$view = F2(
 				}
 			});
 	});
+var _terezka$elm_plot$Internal_Axis$Config = F4(
+	function (a, b, c, d) {
+		return {tickConfig: a, labelConfig: b, viewConfig: c, orientation: d};
+	});
+var _terezka$elm_plot$Internal_Axis$StyleConfig = F6(
+	function (a, b, c, d, e, f) {
+		return {lineStyle: a, baseStyle: b, anchor: c, cleanCrossing: d, position: e, classes: f};
+	});
+var _terezka$elm_plot$Internal_Axis$AtZero = {ctor: 'AtZero'};
 var _terezka$elm_plot$Internal_Axis$defaultStyleConfig = {
 	lineStyle: {ctor: '[]'},
 	baseStyle: {ctor: '[]'},
-	anchorTicks: _terezka$elm_plot$Internal_Types$Outer,
+	anchor: _terezka$elm_plot$Internal_Types$Outer,
 	cleanCrossing: false,
+	position: _terezka$elm_plot$Internal_Axis$AtZero,
 	classes: {ctor: '[]'}
 };
-var _terezka$elm_plot$Internal_Axis$Config = F5(
-	function (a, b, c, d, e) {
-		return {tickConfig: a, labelConfig: b, viewConfig: c, orientation: d, position: e};
-	});
-var _terezka$elm_plot$Internal_Axis$StyleConfig = F5(
-	function (a, b, c, d, e) {
-		return {lineStyle: a, baseStyle: b, anchorTicks: c, cleanCrossing: d, classes: e};
-	});
-var _terezka$elm_plot$Internal_Axis$AtZero = {ctor: 'AtZero'};
-var _terezka$elm_plot$Internal_Axis$Highest = {ctor: 'Highest'};
-var _terezka$elm_plot$Internal_Axis$Lowest = {ctor: 'Lowest'};
-var _terezka$elm_plot$Internal_Axis$defaultConfigX = {tickConfig: _terezka$elm_plot$Internal_Tick$defaultConfig, labelConfig: _terezka$elm_plot$Internal_Label$defaultConfig, viewConfig: _terezka$elm_plot$Internal_Axis$defaultStyleConfig, orientation: _terezka$elm_plot$Internal_Types$X, position: _terezka$elm_plot$Internal_Axis$Lowest};
+var _terezka$elm_plot$Internal_Axis$defaultConfigX = {tickConfig: _terezka$elm_plot$Internal_Tick$defaultConfig, labelConfig: _terezka$elm_plot$Internal_Label$defaultConfig, viewConfig: _terezka$elm_plot$Internal_Axis$defaultStyleConfig, orientation: _terezka$elm_plot$Internal_Types$X};
 var _terezka$elm_plot$Internal_Axis$defaultConfigY = _elm_lang$core$Native_Utils.update(
 	_terezka$elm_plot$Internal_Axis$defaultConfigX,
 	{orientation: _terezka$elm_plot$Internal_Types$Y});
+var _terezka$elm_plot$Internal_Axis$Highest = {ctor: 'Highest'};
+var _terezka$elm_plot$Internal_Axis$Lowest = {ctor: 'Lowest'};
 
 var _terezka$elm_plot$Plot_Tick$delta = F2(
 	function (delta, config) {
@@ -10460,6 +10461,21 @@ var _terezka$elm_plot$Plot_Axis$tick = F2(
 					attributes)
 			});
 	});
+var _terezka$elm_plot$Plot_Axis$positionHighest = function (config) {
+	return _elm_lang$core$Native_Utils.update(
+		config,
+		{position: _terezka$elm_plot$Internal_Axis$Highest});
+};
+var _terezka$elm_plot$Plot_Axis$positionLowest = function (config) {
+	return _elm_lang$core$Native_Utils.update(
+		config,
+		{position: _terezka$elm_plot$Internal_Axis$Lowest});
+};
+var _terezka$elm_plot$Plot_Axis$anchorInside = function (config) {
+	return _elm_lang$core$Native_Utils.update(
+		config,
+		{anchor: _terezka$elm_plot$Internal_Types$Inner});
+};
 var _terezka$elm_plot$Plot_Axis$lineStyle = F2(
 	function (style, config) {
 		return _elm_lang$core$Native_Utils.update(
@@ -12236,7 +12252,15 @@ var _terezka$elm_plot$ComposedChart$chart = function (state) {
 													_0: {ctor: '_Tuple2', _0: 'stroke', _1: '#b9b9b9'},
 													_1: {ctor: '[]'}
 												}),
-											_1: {ctor: '[]'}
+											_1: {
+												ctor: '::',
+												_0: _terezka$elm_plot$Plot_Axis$anchorInside,
+												_1: {
+													ctor: '::',
+													_0: _terezka$elm_plot$Plot_Axis$positionLowest,
+													_1: {ctor: '[]'}
+												}
+											}
 										}),
 									_1: {
 										ctor: '::',
@@ -12324,20 +12348,85 @@ var _terezka$elm_plot$ComposedChart$chart = function (state) {
 									}),
 								_1: {
 									ctor: '::',
-									_0: A2(
-										_terezka$elm_plot$Plot$hint,
+									_0: _terezka$elm_plot$Plot$xAxis(
 										{
 											ctor: '::',
-											_0: _terezka$elm_plot$Plot_Hint$lineStyle(
+											_0: _terezka$elm_plot$Plot_Axis$view(
 												{
 													ctor: '::',
-													_0: {ctor: '_Tuple2', _0: 'background', _1: '#b9b9b9'},
-													_1: {ctor: '[]'}
+													_0: _terezka$elm_plot$Plot_Axis$style(
+														{
+															ctor: '::',
+															_0: {ctor: '_Tuple2', _0: 'stroke', _1: '#b9b9b9'},
+															_1: {ctor: '[]'}
+														}),
+													_1: {
+														ctor: '::',
+														_0: _terezka$elm_plot$Plot_Axis$positionLowest,
+														_1: {ctor: '[]'}
+													}
 												}),
-											_1: {ctor: '[]'}
-										},
-										_terezka$elm_plot$Plot$getHoveredValue(state)),
-									_1: {ctor: '[]'}
+											_1: {
+												ctor: '::',
+												_0: _terezka$elm_plot$Plot_Axis$tick(
+													{
+														ctor: '::',
+														_0: _terezka$elm_plot$Plot_Tick$viewDynamic(_terezka$elm_plot$ComposedChart$toTickStyle),
+														_1: {ctor: '[]'}
+													}),
+												_1: {
+													ctor: '::',
+													_0: _terezka$elm_plot$Plot_Axis$label(
+														{
+															ctor: '::',
+															_0: _terezka$elm_plot$Plot_Label$view(
+																{
+																	ctor: '::',
+																	_0: _terezka$elm_plot$Plot_Label$format(
+																		function (_p12) {
+																			var _p13 = _p12;
+																			return A2(
+																				_elm_lang$core$Basics_ops['++'],
+																				_elm_lang$core$Basics$toString(_p13._1),
+																				' t');
+																		}),
+																	_1: {
+																		ctor: '::',
+																		_0: _terezka$elm_plot$Plot_Label$fontSize(12),
+																		_1: {
+																			ctor: '::',
+																			_0: _terezka$elm_plot$Plot_Label$stroke('#b9b9b9'),
+																			_1: {ctor: '[]'}
+																		}
+																	}
+																}),
+															_1: {
+																ctor: '::',
+																_0: _terezka$elm_plot$Plot_Label$filter(_terezka$elm_plot$ComposedChart$filterLabels),
+																_1: {ctor: '[]'}
+															}
+														}),
+													_1: {ctor: '[]'}
+												}
+											}
+										}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_terezka$elm_plot$Plot$hint,
+											{
+												ctor: '::',
+												_0: _terezka$elm_plot$Plot_Hint$lineStyle(
+													{
+														ctor: '::',
+														_0: {ctor: '_Tuple2', _0: 'background', _1: '#b9b9b9'},
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											},
+											_terezka$elm_plot$Plot$getHoveredValue(state)),
+										_1: {ctor: '[]'}
+									}
 								}
 							}
 						}
