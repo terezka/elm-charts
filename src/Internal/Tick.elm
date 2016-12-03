@@ -24,7 +24,6 @@ import Svg.Attributes
 type alias Config msg =
     { viewConfig : ViewConfig msg
     , valueConfig : ValueConfig
-    , removeZero : Bool
     }
 
 
@@ -58,7 +57,6 @@ defaultConfig : Config msg
 defaultConfig =
     { viewConfig = FromStyle defaultStyleConfig
     , valueConfig = AutoValues
-    , removeZero = False
     }
 
 
@@ -93,16 +91,12 @@ toViewFromStyleDynamic toStyleConfig orientation ( index, value ) =
 defaultView : StyleConfig msg -> View msg
 defaultView { length, width, style, classes, customAttrs } orientation ( _, _ ) =
     let
-        displacement =
-            (?) orientation "" (toRotate 90 0 0)
-
         styleFinal =
             style ++ [ ( "stroke-width", (toString width) ++ "px" ) ]
 
         attrs =
             [ Svg.Attributes.style (toStyle styleFinal)
             , Svg.Attributes.y2 (toString length)
-            , Svg.Attributes.transform displacement
             , Svg.Attributes.class <| String.join " " <| "elm-plot__tick__default-view" :: classes
             ]
                 ++ customAttrs
@@ -115,16 +109,13 @@ defaultView { length, width, style, classes, customAttrs } orientation ( _, _ ) 
 
 
 getValuesIndexed : Config msg -> Scale -> List ( Int, Float )
-getValuesIndexed { valueConfig, removeZero } scale =
-    getRawValues valueConfig scale
-        |> filterValues removeZero
-        |> indexValues
+getValuesIndexed { valueConfig } scale =
+    getRawValues valueConfig scale |> indexValues
 
 
 getValues : Config msg -> Scale -> List Float
-getValues { valueConfig, removeZero } scale =
+getValues { valueConfig } scale =
     getRawValues valueConfig scale
-        |> filterValues removeZero
 
 
 getRawValues : ValueConfig -> Scale -> List Float
@@ -227,14 +218,6 @@ toValuesAuto =
 
 
 -- Helpers
-
-
-filterValues : Bool -> List Float -> List Float
-filterValues removeZero values =
-    if removeZero then
-        List.filter (\p -> p /= 0) values
-    else
-        values
 
 
 indexValues : List Float -> List ( Int, Float )

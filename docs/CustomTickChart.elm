@@ -40,7 +40,6 @@ toLabelStyle ( index, tick ) =
     else
         [ Label.format (\( _, v ) -> toString v ++ " s")
         , Label.stroke "#969696"
-        , Label.displace ( 0, 27 )
         ]
 
 

@@ -1,4 +1,4 @@
-module Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
+module Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo, Anchor(..))
 
 
 type alias Point =
@@ -12,6 +12,11 @@ type alias Style =
 type Orientation
     = X
     | Y
+
+
+type Anchor
+    = Inner
+    | Outer
 
 
 type alias Meta =

@@ -84,28 +84,15 @@ toViewFromStyleDynamic toStyleAttributes orientation ( index, value ) =
     defaultView (toStyleAttributes ( index, value )) orientation ( index, value )
 
 
-defaultStyleX : ( Style, ( Int, Int ) )
-defaultStyleX =
-    ( [ ( "text-anchor", "middle" ) ], ( 0, 24 ) )
-
-
-defaultStyleY : ( Style, ( Int, Int ) )
-defaultStyleY =
-    ( [ ( "text-anchor", "end" ) ], ( -10, 5 ) )
-
-
 defaultView : StyleConfig msg -> View msg
 defaultView { displace, format, style, classes, customAttrs } orientation ( index, tick ) =
     let
-        ( defaultStyle, defaultDisplacement ) =
-            (?) orientation defaultStyleX defaultStyleY
-
         ( dx, dy ) =
-            Maybe.withDefault defaultDisplacement displace
+            Maybe.withDefault ( 0, 0 ) displace
 
         attrs =
             [ Svg.Attributes.transform (toTranslate ( toFloat dx, toFloat dy ))
-            , Svg.Attributes.style (toStyle (defaultStyle ++ style))
+            , Svg.Attributes.style <| toStyle style
             , Svg.Attributes.class <| String.join " " <| "elm-plot__label__default-view" :: classes
             ]
                 ++ customAttrs

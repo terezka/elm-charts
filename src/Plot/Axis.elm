@@ -95,6 +95,18 @@ lineStyle style config =
     { config | lineStyle = style }
 
 
+--{-| Remove tick and value where the axis crosses the opposite axis.
+--
+--    myXAxis : Plot.Element msg
+--    myXAxis =
+--        Plot.xAxis
+--            [ Axis.view [ Axis.cleanCrossing ] ]
+---}
+--cleanCrossing : StyleAttribute
+--cleanCrossing config =
+--    { config | cleanCrossing = True }
+
+
 {-| By providing this attribute with a list of [tick attributes](http://package.elm-lang.org/packages/terezka/elm-plot/latest/Plot-Tick),
  you may alter the values and ticks displayed as your axis' ticks.
 
@@ -130,3 +142,4 @@ tick attributes config =
 label : List (Label.Attribute msg) -> Attribute msg
 label attributes config =
     { config | labelConfig = List.foldl (<|) LabelInternal.defaultConfig attributes }
+

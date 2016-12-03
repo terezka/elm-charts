@@ -14,7 +14,6 @@ module Plot.Tick
         , width
         , values
         , delta
-        , removeZero
         )
 
 {-|
@@ -44,9 +43,6 @@ a suspicion that I have missed a very common configuration, then please let me k
 
 # Values
 @docs values, delta
-
-# Others
-@docs removeZero
 
 -}
 
@@ -267,18 +263,3 @@ values values config =
 delta : Float -> Attribute msg
 delta delta config =
     { config | valueConfig = FromDelta delta }
-
-
-{-| Remove tick at origin. Useful when two axis' are crossing and you do not
- want the origin the be cluttered with labels.
-
-    myXAxis : Plot.Element msg
-    myXAxis =
-        Plot.xAxis
-            [ Axis.tick
-                [ Tick.removeZero ]
-            ]
--}
-removeZero : Attribute msg
-removeZero config =
-    { config | removeZero = True }

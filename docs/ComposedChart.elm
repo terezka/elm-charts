@@ -47,7 +47,6 @@ labelStyle =
     [ Label.format (\( _, v ) -> toString v ++ " °C")
     , Label.stroke "#969696"
     , Label.fontSize 12
-    , Label.displace ( -15, 5 )
     ]
 
 
@@ -56,7 +55,7 @@ chart state =
     plotInteractive
         [ size ( 600, 400 )
         , padding ( 40, 40 )
-        , margin ( 10, 20, 40, 20 )
+        , margin ( 10, 20, 40, 50 )
         , id "ComposedChart"
         ]
         [ horizontalGrid
@@ -80,20 +79,21 @@ chart state =
             (List.map (\( x, y ) -> ( x, toFloat <| round y * 3 )) data1)
         , yAxis
             [ Axis.view
-                [ Axis.style [ ( "stroke", "#b9b9b9" ) ] ]
+                [ Axis.style [ ( "stroke", "#b9b9b9" ) ]
+                ]
             , Axis.tick
-                [ Tick.removeZero
-                , Tick.delta 50
+                [ Tick.delta 50
                 ]
             , Axis.label
                 [ Label.view labelStyle ]
             ]
         , xAxis
             [ Axis.view
-                [ Axis.style [ ( "stroke", "#b9b9b9" ) ] ]
+                [ Axis.style [ ( "stroke", "#b9b9b9" ) ]
+                ]
             , Axis.tick
-                [ Tick.removeZero
-                , Tick.viewDynamic toTickStyle
+                [ Tick.viewDynamic toTickStyle
+                , Tick.delta 4
                 ]
             , Axis.label
                 [ Label.view
