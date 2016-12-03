@@ -81,6 +81,7 @@ chart state =
             [ Axis.view
                 [ Axis.style [ ( "stroke", "#b9b9b9" ) ]
                 , Axis.anchorInside
+                , Axis.cleanCrossings
                 , Axis.positionLowest
                 ]
             , Axis.tick
@@ -92,6 +93,7 @@ chart state =
         , xAxis
             [ Axis.view
                 [ Axis.style [ ( "stroke", "#b9b9b9" ) ]
+                , Axis.cleanCrossings
                 ]
             , Axis.tick
                 [ Tick.viewDynamic toTickStyle

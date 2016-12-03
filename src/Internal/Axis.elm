@@ -8,6 +8,8 @@ import Round
 import Svg
 import Svg.Attributes
 
+import Debug
+
 
 type alias Config msg =
     { tickConfig : Tick.Config msg
@@ -27,7 +29,7 @@ type alias StyleConfig =
     { lineStyle : Style
     , baseStyle : Style
     , anchor : Anchor
-    , cleanCrossing : Bool
+    , cleanCrossings : Bool
     , position : PositionOption
     , classes : List String
     }
@@ -38,7 +40,7 @@ defaultStyleConfig =
     { lineStyle = []
     , baseStyle = []
     , anchor = Outer
-    , cleanCrossing = False
+    , cleanCrossings = False
     , position = AtZero
     , classes = []
     }
@@ -59,16 +61,18 @@ defaultConfigY =
 
 
 view : Meta -> Config msg -> Svg.Svg msg
-view ({ scale, toSvgCoords, oppositeScale } as meta) ({ viewConfig, tickConfig, labelConfig, orientation } as config) =
+view ({ scale, toSvgCoords, oppositeScale, oppositeAxisCrossings } as meta) ({ viewConfig, tickConfig, labelConfig, orientation } as config) =
     let
         tickValues =
-            Tick.getValuesIndexed tickConfig scale
+            Tick.getValues tickConfig scale
+            |> filterValues viewConfig.cleanCrossings oppositeAxisCrossings
+            |> Tick.indexValues
 
         labelValues =
             Label.getValuesIndexed labelConfig.valueConfig tickValues
 
         axisPosition =
-            getAxisPosition viewConfig.position oppositeScale
+            getAxisPosition oppositeScale viewConfig.position
     in
         Svg.g
             [ Svg.Attributes.style (toStyle viewConfig.baseStyle)
@@ -125,8 +129,8 @@ placeTick { toSvgCoords } ({ orientation, viewConfig } as config) axisPosition v
 
 
 
-getAxisPosition : PositionOption -> Scale -> Float
-getAxisPosition position { lowest, highest } =
+getAxisPosition : Scale ->  PositionOption -> Float
+getAxisPosition { lowest, highest } position =
     case position of
         AtZero ->
             clamp lowest highest 0
@@ -195,9 +199,16 @@ toRotate anchor orientation =
                 Outer -> "rotate(90 0 0)"
 
 
-filterValues : Bool -> List Float -> List Float
-filterValues removeZero values =
-    if removeZero then
-        List.filter (\p -> p /= 0) values
+filterValues : Bool -> List Float -> List Float -> List Float
+filterValues cleanCrossings crossings values =
+    if cleanCrossings then
+        List.filter (isCrossing crossings) values
     else
         values
+
+
+isCrossing : List Float -> Float -> Bool
+isCrossing crossings value =
+    not <| List.member value crossings
+
+

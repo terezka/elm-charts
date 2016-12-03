@@ -27,6 +27,8 @@ type alias Meta =
     , oppositeTicks : List Float
     , oppositeScale : Scale
     , oppositeToSvgCoords : Point -> Point
+    , axisCrossings : List Float
+    , oppositeAxisCrossings : List Float
     , getHintInfo : Float -> HintInfo
     , toNearestX : Float -> Float
     , id : String

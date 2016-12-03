@@ -10,7 +10,7 @@ module Plot.Axis exposing (..)
 @docs view
 
 ## Style attributes
-@docs StyleAttribute, style, classes, lineStyle, anchorInside, positionLowest, positionHighest
+@docs StyleAttribute, style, classes, lineStyle, positionLowest, positionHighest, cleanCrossings, anchorInside
 
 # Ticks and labels
 @docs tick, label
@@ -139,16 +139,16 @@ positionHighest config =
     { config | position = Internal.Highest }
 
 
---{-| Remove tick and value where the axis crosses the opposite axis.
---
---    myXAxis : Plot.Element msg
---    myXAxis =
---        Plot.xAxis
---            [ Axis.view [ Axis.cleanCrossing ] ]
----}
---cleanCrossing : StyleAttribute
---cleanCrossing config =
---    { config | cleanCrossing = True }
+{-| Remove tick and value where the axis crosses the opposite axis.
+
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.view [ Axis.cleanCrossings ] ]
+-}
+cleanCrossings : StyleAttribute
+cleanCrossings config =
+    { config | cleanCrossings = True }
 
 
 {-| By providing this attribute with a list of [tick attributes](http://package.elm-lang.org/packages/terezka/elm-plot/latest/Plot-Tick),

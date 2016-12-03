@@ -75,6 +75,8 @@ import Internal.Hint as HintInternal
 import Internal.Stuff exposing (..)
 import Internal.Types exposing (..)
 
+import Debug
+
 
 {-| Convinience type to represent coordinates.
 -}
@@ -488,6 +490,9 @@ calculateMeta { size, padding, margin, id, range, domain } elements =
         ( xValues, yValues ) =
             List.unzip (List.foldr collectPoints [] elements)
 
+        ( xAxisConfigs, yAxisConfigs ) =
+            List.foldr collectAxisConfigs ([], []) elements
+
         ( width, height ) =
             size
 
@@ -501,10 +506,10 @@ calculateMeta { size, padding, margin, id, range, domain } elements =
             getScale height domain ( top, bottom ) padding yValues
 
         xTicks =
-            getLastGetTickValues X elements <| xScale
+            getLastGetTickValues xAxisConfigs xScale
 
         yTicks =
-            getLastGetTickValues Y elements <| yScale
+            getLastGetTickValues yAxisConfigs yScale
     in
         { scale = xScale
         , oppositeScale = yScale
@@ -513,6 +518,8 @@ calculateMeta { size, padding, margin, id, range, domain } elements =
         , fromSvgCoords = fromSvgCoords xScale yScale
         , ticks = xTicks
         , oppositeTicks = yTicks
+        , axisCrossings = getAxisCrossings xAxisConfigs yScale
+        , oppositeAxisCrossings = getAxisCrossings yAxisConfigs xScale
         , toNearestX = toNearest xValues
         , getHintInfo = getHintInfo elements
         , id = id
@@ -520,12 +527,14 @@ calculateMeta { size, padding, margin, id, range, domain } elements =
 
 
 flipToY : Meta -> Meta
-flipToY ({ scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, oppositeTicks } as meta) =
+flipToY ({ scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, oppositeTicks, axisCrossings, oppositeAxisCrossings } as meta) =
     { meta
         | scale = oppositeScale
         , oppositeScale = scale
         , toSvgCoords = oppositeToSvgCoords
         , oppositeToSvgCoords = toSvgCoords
+        , axisCrossings = oppositeAxisCrossings
+        , oppositeAxisCrossings = axisCrossings
         , ticks = oppositeTicks
         , oppositeTicks = ticks
     }
@@ -607,22 +616,24 @@ getHintInfo elements xValue =
     HintInfo xValue <| List.foldr (collectYValues xValue) [] elements
 
 
-getAxisConfig : Orientation -> Element msg -> Maybe (AxisInternal.Config msg) -> Maybe (AxisInternal.Config msg)
-getAxisConfig orientation element lastConfig =
+collectAxisConfigs : Element msg -> (List (AxisInternal.Config msg), List (AxisInternal.Config msg)) -> (List (AxisInternal.Config msg), List (AxisInternal.Config msg))
+collectAxisConfigs element ( xAxisConfigs, yAxisConfigs ) =
     case element of
         Axis config ->
-            if config.orientation == orientation then
-                Just config
-            else
-                lastConfig
+            case config.orientation of
+                X ->
+                    ( config :: xAxisConfigs, yAxisConfigs )
+
+                Y ->
+                    ( xAxisConfigs, config :: yAxisConfigs )
 
         _ ->
-            lastConfig
+            ( xAxisConfigs, yAxisConfigs )
 
 
-getLastGetTickValues : Orientation -> List (Element msg) -> Scale -> List Float
-getLastGetTickValues orientation elements =
-    List.foldl (getAxisConfig orientation) Nothing elements
+getLastGetTickValues : List (AxisInternal.Config msg) -> Scale -> List Float
+getLastGetTickValues axisConfigs =
+    List.head axisConfigs
         |> Maybe.withDefault AxisInternal.defaultConfigX
         |> .tickConfig
         |> TickInternal.getValues
@@ -665,3 +676,10 @@ getYValue xValue ( x, y ) result =
         Just y
     else
         result
+
+
+getAxisCrossings : List (AxisInternal.Config msg) -> Scale -> List Float
+getAxisCrossings axisConfigs oppositeScale =
+    List.map (AxisInternal.getAxisPosition oppositeScale << .position << .viewConfig) axisConfigs
+
+
