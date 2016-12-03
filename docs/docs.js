@@ -5923,6 +5923,126 @@ var _elm_lang$core$Json_Decode$bool = _elm_lang$core$Native_Json.decodePrimitive
 var _elm_lang$core$Json_Decode$string = _elm_lang$core$Native_Json.decodePrimitive('string');
 var _elm_lang$core$Json_Decode$Decoder = {ctor: 'Decoder'};
 
+//import Maybe, Native.List //
+
+var _elm_lang$core$Native_Regex = function() {
+
+function escape(str)
+{
+	return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+function caseInsensitive(re)
+{
+	return new RegExp(re.source, 'gi');
+}
+function regex(raw)
+{
+	return new RegExp(raw, 'g');
+}
+
+function contains(re, string)
+{
+	return string.match(re) !== null;
+}
+
+function find(n, re, str)
+{
+	n = n.ctor === 'All' ? Infinity : n._0;
+	var out = [];
+	var number = 0;
+	var string = str;
+	var lastIndex = re.lastIndex;
+	var prevLastIndex = -1;
+	var result;
+	while (number++ < n && (result = re.exec(string)))
+	{
+		if (prevLastIndex === re.lastIndex) break;
+		var i = result.length - 1;
+		var subs = new Array(i);
+		while (i > 0)
+		{
+			var submatch = result[i];
+			subs[--i] = submatch === undefined
+				? _elm_lang$core$Maybe$Nothing
+				: _elm_lang$core$Maybe$Just(submatch);
+		}
+		out.push({
+			match: result[0],
+			submatches: _elm_lang$core$Native_List.fromArray(subs),
+			index: result.index,
+			number: number
+		});
+		prevLastIndex = re.lastIndex;
+	}
+	re.lastIndex = lastIndex;
+	return _elm_lang$core$Native_List.fromArray(out);
+}
+
+function replace(n, re, replacer, string)
+{
+	n = n.ctor === 'All' ? Infinity : n._0;
+	var count = 0;
+	function jsReplacer(match)
+	{
+		if (count++ >= n)
+		{
+			return match;
+		}
+		var i = arguments.length - 3;
+		var submatches = new Array(i);
+		while (i > 0)
+		{
+			var submatch = arguments[i];
+			submatches[--i] = submatch === undefined
+				? _elm_lang$core$Maybe$Nothing
+				: _elm_lang$core$Maybe$Just(submatch);
+		}
+		return replacer({
+			match: match,
+			submatches: _elm_lang$core$Native_List.fromArray(submatches),
+			index: arguments[arguments.length - 2],
+			number: count
+		});
+	}
+	return string.replace(re, jsReplacer);
+}
+
+function split(n, re, str)
+{
+	n = n.ctor === 'All' ? Infinity : n._0;
+	if (n === Infinity)
+	{
+		return _elm_lang$core$Native_List.fromArray(str.split(re));
+	}
+	var string = str;
+	var result;
+	var out = [];
+	var start = re.lastIndex;
+	var restoreLastIndex = re.lastIndex;
+	while (n--)
+	{
+		if (!(result = re.exec(string))) break;
+		out.push(string.slice(start, result.index));
+		start = re.lastIndex;
+	}
+	out.push(string.slice(start));
+	re.lastIndex = restoreLastIndex;
+	return _elm_lang$core$Native_List.fromArray(out);
+}
+
+return {
+	regex: regex,
+	caseInsensitive: caseInsensitive,
+	escape: escape,
+
+	contains: F2(contains),
+	find: F3(find),
+	replace: F4(replace),
+	split: F3(split)
+};
+
+}();
+
 var _elm_lang$core$Tuple$mapSecond = F2(
 	function (func, _p0) {
 		var _p1 = _p0;
@@ -5949,6 +6069,23 @@ var _elm_lang$core$Tuple$first = function (_p6) {
 	var _p7 = _p6;
 	return _p7._0;
 };
+
+var _elm_lang$core$Regex$split = _elm_lang$core$Native_Regex.split;
+var _elm_lang$core$Regex$replace = _elm_lang$core$Native_Regex.replace;
+var _elm_lang$core$Regex$find = _elm_lang$core$Native_Regex.find;
+var _elm_lang$core$Regex$contains = _elm_lang$core$Native_Regex.contains;
+var _elm_lang$core$Regex$caseInsensitive = _elm_lang$core$Native_Regex.caseInsensitive;
+var _elm_lang$core$Regex$regex = _elm_lang$core$Native_Regex.regex;
+var _elm_lang$core$Regex$escape = _elm_lang$core$Native_Regex.escape;
+var _elm_lang$core$Regex$Match = F4(
+	function (a, b, c, d) {
+		return {match: a, submatches: b, index: c, number: d};
+	});
+var _elm_lang$core$Regex$Regex = {ctor: 'Regex'};
+var _elm_lang$core$Regex$AtMost = function (a) {
+	return {ctor: 'AtMost', _0: a};
+};
+var _elm_lang$core$Regex$All = {ctor: 'All'};
 
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrap;
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrapWithFlags;
@@ -9574,8 +9711,27 @@ var _terezka$elm_plot$Internal_Tick$getDeltaPrecision = function (delta) {
 		A2(
 			_elm_lang$core$Basics$min,
 			0,
-			_elm_lang$core$Basics$floor(
-				A2(_elm_lang$core$Basics$logBase, 10, delta))));
+			A2(
+				F2(
+					function (x, y) {
+						return x - y;
+					}),
+				1,
+				_elm_lang$core$String$length(
+					A2(
+						_elm_lang$core$Maybe$withDefault,
+						'',
+						_elm_lang$core$List$head(
+							A2(
+								_elm_lang$core$List$map,
+								function (_) {
+									return _.match;
+								},
+								A3(
+									_elm_lang$core$Regex$find,
+									_elm_lang$core$Regex$AtMost(1),
+									_elm_lang$core$Regex$regex('\\.[0-9]*'),
+									_elm_lang$core$Basics$toString(delta)))))))));
 };
 var _terezka$elm_plot$Internal_Tick$toValue = F3(
 	function (delta, firstValue, index) {
@@ -9698,15 +9854,16 @@ var _terezka$elm_plot$Internal_Tick$toViewFromStyleDynamic = F3(
 			orientation,
 			{ctor: '_Tuple2', _0: _p14, _1: _p15});
 	});
-var _terezka$elm_plot$Internal_Tick$toView = function (config) {
-	var _p16 = config;
-	switch (_p16.ctor) {
+var _terezka$elm_plot$Internal_Tick$toView = function (_p16) {
+	var _p17 = _p16;
+	var _p18 = _p17.viewConfig;
+	switch (_p18.ctor) {
 		case 'FromStyle':
-			return _terezka$elm_plot$Internal_Tick$defaultView(_p16._0);
+			return _terezka$elm_plot$Internal_Tick$defaultView(_p18._0);
 		case 'FromStyleDynamic':
-			return _terezka$elm_plot$Internal_Tick$toViewFromStyleDynamic(_p16._0);
+			return _terezka$elm_plot$Internal_Tick$toViewFromStyleDynamic(_p18._0);
 		default:
-			return _p16._0;
+			return _p18._0;
 	}
 };
 var _terezka$elm_plot$Internal_Tick$defaultStyleConfig = {
@@ -9824,22 +9981,23 @@ var _terezka$elm_plot$Internal_Label$toViewFromStyleDynamic = F3(
 			orientation,
 			{ctor: '_Tuple2', _0: _p8, _1: _p9});
 	});
-var _terezka$elm_plot$Internal_Label$toView = function (config) {
-	var _p10 = config;
-	switch (_p10.ctor) {
+var _terezka$elm_plot$Internal_Label$toView = function (_p10) {
+	var _p11 = _p10;
+	var _p12 = _p11.viewConfig;
+	switch (_p12.ctor) {
 		case 'FromStyle':
-			return _terezka$elm_plot$Internal_Label$defaultView(_p10._0);
+			return _terezka$elm_plot$Internal_Label$defaultView(_p12._0);
 		case 'FromStyleDynamic':
-			return _terezka$elm_plot$Internal_Label$toViewFromStyleDynamic(_p10._0);
+			return _terezka$elm_plot$Internal_Label$toViewFromStyleDynamic(_p12._0);
 		default:
-			return _p10._0;
+			return _p12._0;
 	}
 };
 var _terezka$elm_plot$Internal_Label$defaultStyleConfig = {
 	displace: _elm_lang$core$Maybe$Nothing,
-	format: function (_p11) {
-		var _p12 = _p11;
-		return _elm_lang$core$Basics$toString(_p12._1);
+	format: function (_p13) {
+		var _p14 = _p13;
+		return _elm_lang$core$Basics$toString(_p14._1);
 	},
 	style: {ctor: '[]'},
 	classes: {ctor: '[]'},
@@ -10088,15 +10246,12 @@ var _terezka$elm_plot$Internal_Axis$view = F2(
 						},
 						A2(
 							_elm_lang$core$List$map,
-							function (value) {
-								return A5(
-									_terezka$elm_plot$Internal_Axis$placeTick,
-									_p42,
-									_p37,
-									axisPosition,
-									A2(_terezka$elm_plot$Internal_Tick$toView, _p40.viewConfig, _p39),
-									value);
-							},
+							A4(
+								_terezka$elm_plot$Internal_Axis$placeTick,
+								_p42,
+								_p37,
+								axisPosition,
+								A2(_terezka$elm_plot$Internal_Tick$toView, _p40, _p39)),
 							tickValues)),
 					_1: {
 						ctor: '::',
@@ -10114,15 +10269,12 @@ var _terezka$elm_plot$Internal_Axis$view = F2(
 							},
 							A2(
 								_elm_lang$core$List$map,
-								function (value) {
-									return A5(
-										_terezka$elm_plot$Internal_Axis$placeLabel,
-										_p42,
-										_p37,
-										axisPosition,
-										A2(_terezka$elm_plot$Internal_Label$toView, _p38.viewConfig, _p39),
-										value);
-								},
+								A4(
+									_terezka$elm_plot$Internal_Axis$placeLabel,
+									_p42,
+									_p37,
+									axisPosition,
+									A2(_terezka$elm_plot$Internal_Label$toView, _p38, _p39)),
 								labelValues)),
 						_1: {ctor: '[]'}
 					}
@@ -12078,7 +12230,12 @@ var _terezka$elm_plot$ComposedChart$labelStyle = {
 		_1: {
 			ctor: '::',
 			_0: _terezka$elm_plot$Plot_Label$fontSize(12),
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: _terezka$elm_plot$Plot_Label$displace(
+					{ctor: '_Tuple2', _0: 0, _1: -2}),
+				_1: {ctor: '[]'}
+			}
 		}
 	}
 };
@@ -12371,7 +12528,7 @@ var _terezka$elm_plot$ComposedChart$chart = function (state) {
 													_0: _terezka$elm_plot$Plot_Tick$viewDynamic(_terezka$elm_plot$ComposedChart$toTickStyle),
 													_1: {
 														ctor: '::',
-														_0: _terezka$elm_plot$Plot_Tick$delta(4),
+														_0: _terezka$elm_plot$Plot_Tick$delta(2.55),
 														_1: {ctor: '[]'}
 													}
 												}),
@@ -12401,11 +12558,7 @@ var _terezka$elm_plot$ComposedChart$chart = function (state) {
 																	}
 																}
 															}),
-														_1: {
-															ctor: '::',
-															_0: _terezka$elm_plot$Plot_Label$filter(_terezka$elm_plot$ComposedChart$filterLabels),
-															_1: {ctor: '[]'}
-														}
+														_1: {ctor: '[]'}
 													}),
 												_1: {ctor: '[]'}
 											}

@@ -81,12 +81,12 @@ view ({ scale, toSvgCoords, oppositeScale, oppositeAxisCrossings } as meta) ({ v
             [ viewAxisLine viewConfig meta axisPosition
             , Svg.g
                 [ Svg.Attributes.class "elm-plot__axis__ticks" ]
-                (List.map (\value -> placeTick meta config axisPosition (Tick.toView tickConfig.viewConfig orientation) value) tickValues)
+                (List.map (placeTick meta config axisPosition (Tick.toView tickConfig orientation)) tickValues)
             , Svg.g
                 [ Svg.Attributes.class "elm-plot__axis__labels"
                 , Svg.Attributes.style <| toAnchorStyle viewConfig.anchor orientation
                 ]
-                (List.map (\value -> placeLabel meta config axisPosition (Label.toView labelConfig.viewConfig orientation) value) labelValues)
+                (List.map (placeLabel meta config axisPosition (Label.toView labelConfig orientation)) labelValues)
             ]
 
 

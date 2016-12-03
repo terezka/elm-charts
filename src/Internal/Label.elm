@@ -66,9 +66,9 @@ defaultStyleConfig =
     }
 
 
-toView : ViewConfig msg -> View msg
-toView config =
-    case config of
+toView : Config msg -> View msg
+toView { viewConfig } =
+    case viewConfig of
         FromStyle styles ->
             defaultView styles
 

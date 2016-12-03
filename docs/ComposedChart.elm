@@ -47,6 +47,7 @@ labelStyle =
     [ Label.format (\( _, v ) -> toString v ++ " °C")
     , Label.stroke "#969696"
     , Label.fontSize 12
+    , Label.displace (0, -2)
     ]
 
 
@@ -97,7 +98,7 @@ chart state =
                 ]
             , Axis.tick
                 [ Tick.viewDynamic toTickStyle
-                , Tick.delta 4
+                , Tick.delta 2.55
                 ]
             , Axis.label
                 [ Label.view
@@ -105,7 +106,6 @@ chart state =
                     , Label.fontSize 12
                     , Label.stroke "#b9b9b9"
                     ]
-                , Label.filter filterLabels
                 ]
             ]
         , xAxis

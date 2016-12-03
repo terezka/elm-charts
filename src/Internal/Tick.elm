@@ -17,6 +17,7 @@ import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, Hint
 import Internal.Draw as Draw exposing (..)
 import Internal.Stuff exposing (..)
 import Round
+import Regex
 import Svg
 import Svg.Attributes
 
@@ -70,9 +71,9 @@ defaultStyleConfig =
     }
 
 
-toView : ViewConfig msg -> View msg
-toView config =
-    case config of
+toView : Config msg -> View msg
+toView { viewConfig } =
+    case viewConfig of
         FromStyle styleConfig ->
             defaultView styleConfig
 
@@ -146,8 +147,14 @@ getCount delta lowest range firstValue =
 
 getDeltaPrecision : Float -> Int
 getDeltaPrecision delta =
-    logBase 10 delta
-        |> floor
+    delta
+        |> toString
+        |> Regex.find (Regex.AtMost 1) (Regex.regex "\\.[0-9]*")
+        |> List.map .match
+        |> List.head
+        |> Maybe.withDefault ""
+        |> String.length
+        |> (-) 1
         |> min 0
         |> abs
 
