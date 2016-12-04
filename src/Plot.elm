@@ -41,6 +41,8 @@ module Plot
         , areaStyle
         , bar
         , barStyle
+        , barOrientation
+        , barBarWidth
         , scatter
         , scatterStyle
         , scatterRadius
@@ -57,6 +59,7 @@ module Plot
         , LineAttr
         , Point
         , Style
+        , BarOrientation (..)
         )
 
 {-|
@@ -79,7 +82,7 @@ module Plot
 @docs AreaAttr, areaStyle
 
 ## Bar configuration
-@docs BarAttr, barStyle
+@docs BarAttr, BarOrientation, barStyle, barBarWidth, barOrientation
 
 ## Scatter configuration
 @docs ScatterAttr, scatterRadius, scatterStyle
@@ -169,7 +172,7 @@ defaultMetaConfig =
     { size = ( 800, 500 )
     , padding = ( 0, 0 )
     , classes = []
-    , style = [ ( "padding", "30px" ), ( "stroke", "#000" ) ]
+    , style = [ ( "padding", "40px" ), ( "stroke", "#000" ) ]
     }
 
 
@@ -1072,6 +1075,8 @@ area attrs points =
 -- BAR CONFIG
 
 
+{-| The type representing an bar orientation
+-}
 type BarOrientation
     = BarHorizontal
     | BarVertical
@@ -1081,6 +1086,7 @@ type alias BarConfig =
     { style : Style
     , points : List Point
     , orientation : BarOrientation
+    , barWidth : Float
     }
 
 
@@ -1093,11 +1099,12 @@ type alias BarAttr =
 defaultBarConfig =
     { style = []
     , points = []
-    , orientation = BarHorizontal
+    , orientation = BarVertical
+    , barWidth = 0.6
     }
 
 
-{-| Add styles to your bar serie.
+{-| Add styles to your bar chart.
 
     main =
         plot
@@ -1115,6 +1122,19 @@ defaultBarConfig =
 barStyle : Style -> BarConfig -> BarConfig
 barStyle style config =
     { config | style = style }
+
+
+{-| set the orientation of your bar chart
+-}
+barOrientation : BarOrientation -> BarConfig -> BarConfig
+barOrientation orientation config =
+  { config | orientation = orientation }
+
+{-| set the fractional width of bar chart bars.
+-}
+barBarWidth : Float -> BarConfig -> BarConfig
+barBarWidth barWidth config =
+  { config | barWidth = barWidth }
 
 
 {-| This returns an bar element resulting in an bar serie rendered in your plot.
@@ -1494,28 +1514,45 @@ viewArea { toSvgCoords } { points, style } =
 
 
 viewBar : PlotProps -> BarConfig -> Svg.Svg a
-viewBar { toSvgCoords, scale, oppositeScale } { points, style } =
+viewBar { toSvgCoords, scale, oppositeScale } { points, style, barWidth, orientation } =
     let
         barSize =
-            0.3
+            barWidth / 2
 
-        rects =
-            List.map
-                (\( x, y ) ->
-                    let
-                        ( px, py ) =
-                            toSvgCoords ( x - barSize, 0)
+        geom =
+          case orientation of
+            BarVertical -> verticalGeom
+            BarHorizontal -> horizontalGeom
 
-                        ( qx, qy ) =
-                            toSvgCoords ( x + barSize, y )
-                    in
-                        { x = px
-                        , y = qy
-                        , width = qx - px
-                        , height = py - qy
-                        }
-                )
-                points
+        verticalGeom ( x, y ) =
+            let
+                ( px, py ) =
+                    toSvgCoords ( x - barSize, 0 )
+
+                ( qx, qy ) =
+                    toSvgCoords ( x + barSize, y )
+            in
+                { x = px
+                , y = qy
+                , width = qx - px
+                , height = py - qy
+                }
+
+        horizontalGeom ( x, y ) =
+            let
+                ( px, py ) =
+                    toSvgCoords ( 0, y - barSize )
+
+                ( qx, qy ) =
+                    toSvgCoords ( x, y + barSize )
+            in
+                { x = px
+                , y = qy
+                , width = qx - px
+                , height = py - qy
+                }
+
+
 
         rect { x, y, width, height } =
             Svg.rect
@@ -1525,13 +1562,11 @@ viewBar { toSvgCoords, scale, oppositeScale } { points, style } =
                 , Svg.Attributes.height <| toString height
                 ]
                 []
-
-        -- ll = Debug.log (toString points) xAxis
     in
         Svg.g
             [ Svg.Attributes.style (toStyle style)
             ]
-            (List.map rect rects)
+            (List.map (rect << geom) points)
 
 
 viewScatter : PlotProps -> ScatterConfig -> Svg.Svg a

@@ -1,9 +1,10 @@
-module BarChart exposing (chart, code)
+module VerticalBarChart exposing (chart, code)
 
 import Svg
 import Svg.Attributes
 import Plot exposing (..)
 import Colors
+import Tuple exposing (..)
 
 
 data : List ( Float, Float )
@@ -15,8 +16,17 @@ chart : Svg.Svg a
 chart =
     plot
         [ size ( 600, 250 ) ]
-        [ bar [ barStyle [ ( "stroke", Colors.blueStroke ), ( "fill", Colors.blueFill ) ] ] data
-        , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
+        [ bar
+            [ barStyle
+                [ ( "stroke", Colors.blueStroke )
+                , ( "fill", Colors.blueFill )
+                ]
+            ]
+            data
+        , xAxis
+            [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+            , tickValues (List.map first data)
+            ]
         ]
 
 
@@ -33,6 +43,9 @@ code =
                     ]
                 ]
                 data
-            , xAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] ]
+            , xAxis
+                [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+                , tickValues (List.map first data)
+                ]
             ]
     """
