@@ -10,7 +10,7 @@ module Plot
         , hint
         , area
         , line
-        , bars
+        , pile
         , scatter
         , custom
         , classes
@@ -40,7 +40,7 @@ module Plot
 @docs Attribute, Element, Point, Style
 
 # Elements
-@docs plot, plotInteractive, scatter, line, area, bars, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
+@docs plot, plotInteractive, scatter, line, area, pile, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
 
 # Styling and sizes
 @docs classes, id, margin, padding, size, style, range, domain
@@ -66,12 +66,13 @@ import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Grid as Grid
 import Plot.Area as Area
-import Plot.Bars as Bars
+import Plot.Pile as Pile
 import Plot.Scatter as Scatter
 import Plot.Line as Line
 import Plot.Hint as Hint
 import Internal.Grid as GridInternal
 import Internal.Axis as AxisInternal
+import Internal.Pile as PileInternal
 import Internal.Bars as BarsInternal
 import Internal.Area as AreaInternal
 import Internal.Scatter as ScatterInternal
@@ -99,7 +100,7 @@ type alias Style =
 type Element msg
     = Line (LineInternal.Config msg) (List Point)
     | Area (AreaInternal.Config msg) (List Point)
-    | Bars (BarsInternal.Config msg) (List Point)
+    | Pile (PileInternal.Config) (List (PileInternal.Element msg))
     | Scatter (ScatterInternal.Config msg) (List Point)
     | Hint (HintInternal.Config msg) (Maybe Point)
     | Axis (AxisInternal.Config msg)
@@ -281,9 +282,9 @@ scatter attrs points =
             []
             [ bars [] [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
 -}
-bars : List (Bars.Attribute msg) -> List Point -> Element msg
-bars attrs points =
-    Bars (List.foldr (<|) BarsInternal.defaultConfig attrs) points
+pile : List Pile.Attribute -> List (Pile.Element msg) -> Element msg
+pile attrs barsConfigs =
+    Pile (List.foldr (<|) PileInternal.defaultConfig attrs) barsConfigs
 
 
 {-| -}
@@ -496,8 +497,8 @@ viewElement meta element ( svgViews, htmlViews ) =
         Scatter config points ->
             ( (ScatterInternal.view meta config points) :: svgViews, htmlViews )
 
-        Bars config points ->
-            ( (BarsInternal.view meta config points) :: svgViews, htmlViews )
+        Pile config barsConfigs ->
+            ( (PileInternal.view meta config barsConfigs) :: svgViews, htmlViews )
         
         Axis ({ orientation } as config) ->
             ( (AxisInternal.view (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
@@ -530,6 +531,11 @@ calculateMeta { size, padding, margin, id, range, domain } elements =
         ( xAxisConfigs, yAxisConfigs ) =
             List.foldr collectAxisConfigs ([], []) elements
 
+        barsMeta =
+            List.foldr collectPiles [] elements
+            |> List.foldr collectBarsStats barsMetaInit 
+            |> addBarsPadding
+
         ( width, height ) =
             size
 
@@ -537,10 +543,10 @@ calculateMeta { size, padding, margin, id, range, domain } elements =
             margin
 
         xScale =
-            getScale width range ( left, right ) ( 0, 0 ) xValues
+            getScale width range ( left, right ) ( 0, 0 ) xValues barsMeta
 
         yScale =
-            getScale height domain ( top, bottom ) padding yValues
+            getScale height domain ( top, bottom ) padding yValues barsMetaInit
 
         xTicks =
             getLastGetTickValues xAxisConfigs xScale
@@ -559,6 +565,7 @@ calculateMeta { size, padding, margin, id, range, domain } elements =
         , oppositeAxisCrossings = getAxisCrossings yAxisConfigs xScale
         , toNearestX = toNearest xValues
         , getHintInfo = getHintInfo elements
+        , barsMeta = barsMeta
         , id = id
         }
 
@@ -590,17 +597,23 @@ getFlippedMeta orientation meta =
 {-| All naming assumes dealing with the x-axis, but can also be used with
  the t-axis, just flip it in your mind.
 -}
-getScale : Float -> ( Maybe Float, Maybe Float ) -> ( Float, Float ) -> ( Float, Float ) -> List Float -> Scale
-getScale lengthTotal ( forcedLowest, forcedHighest ) ( offsetLeft, offsetRight ) ( paddingBottomPx, paddingTopPx ) values =
+getScale : Float -> ( Maybe Float, Maybe Float ) -> ( Float, Float ) -> ( Float, Float ) -> List Float -> BarsMeta -> Scale
+getScale lengthTotal ( forcedLowest, forcedHighest ) ( offsetLeft, offsetRight ) ( paddingBottomPx, paddingTopPx ) values barsMeta =
     let
         length =
             lengthTotal - offsetLeft - offsetRight
 
+        lowest0 =
+            if barsMeta.amount > 0 then min barsMeta.lowest (getLowest values) else (getLowest values)
+
+        highest0 =
+            if barsMeta.amount > 0 then max barsMeta.highest (getHighest values) else (getHighest values)
+
         lowest =
-           Maybe.withDefault (getLowest values) forcedLowest
+           Maybe.withDefault lowest0 forcedLowest
 
         highest =
-            Maybe.withDefault (getHighest values) forcedHighest
+            Maybe.withDefault highest0 forcedHighest
 
         range =
             getRange lowest highest
@@ -688,11 +701,61 @@ collectPoints element allPoints =
         Scatter config points ->
             allPoints ++ points
 
-        Bars config points ->
-            allPoints ++ points
+        Pile config pileElements ->
+            let
+                points =
+                    List.foldr (\(PileInternal.Bars config points) allBarPoints -> allBarPoints ++ points) [] pileElements
+            in
+                allPoints ++ points
 
         _ ->
             allPoints
+
+
+
+collectPiles : Element msg -> List (PileInternal.Element msg) -> List (PileInternal.Element msg)
+collectPiles element pileElements =
+    case element of
+        Pile _ pileElement ->
+            pileElement ++ pileElements
+
+        _ -> 
+            pileElements
+
+
+collectBarsStats : PileInternal.Element msg -> BarsMeta -> BarsMeta
+collectBarsStats element ({ lowest, highest, amount, pointCount } as barsMeta) =
+    case element of
+        PileInternal.Bars config points ->
+            let
+                range =
+                    List.map Tuple.first points
+
+                ( lowestBar, highestBar ) =
+                    ( getLowest range, getHighest range )
+            in
+                { barsMeta
+                | lowest = min lowest lowestBar
+                , highest = max highest highestBar
+                , amount = amount + 1
+                , pointCount = max pointCount (List.length points)
+                }
+
+
+addBarsPadding : BarsMeta -> BarsMeta
+addBarsPadding ({ lowest, highest, amount, pointCount } as barsMeta) =
+    let
+        delta = (highest - lowest) / (innerBarsCount barsMeta)
+    in
+        { barsMeta
+        | lowest = lowest - delta
+        , highest = highest + delta
+        }
+
+
+innerBarsCount : BarsMeta -> Float
+innerBarsCount { lowest, highest, amount, pointCount } =
+    toFloat <| (pointCount - 1) * 2
 
 
 collectYValues : Float -> Element msg -> List (Maybe Float) -> List (Maybe Float)
@@ -707,8 +770,9 @@ collectYValues xValue element yValues =
         Scatter config points ->
             collectYValue xValue points :: yValues
 
-        Bars config points ->
-            collectYValue xValue points :: yValues
+        Pile config barsConfigs ->
+            List.map (\(PileInternal.Bars config points) -> collectYValue xValue points) barsConfigs
+            |> (++) yValues
 
         _ ->
             yValues

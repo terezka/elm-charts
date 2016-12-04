@@ -10,6 +10,7 @@ import Internal.Stuff exposing (..)
 type alias Config a =
     { style : Style
     , maxWidth : Maybe Float
+    , points : List Point
     , customAttrs : List (Svg.Attribute a)
     }
 
@@ -18,12 +19,13 @@ defaultConfig : Config a
 defaultConfig =
     { style = [ ( "fill", "transparent" ) ]
     , maxWidth = Nothing
+    , points = []
     , customAttrs = []
     }
 
 
-view : Meta -> Config a -> List Point -> Svg.Svg a
-view ({ toSvgCoords, scale } as plotProps) ({ style, maxWidth } as config) points =
+view : Meta -> Int -> Config a -> List Point -> Svg.Svg a
+view ({ toSvgCoords, scale, barsMeta } as meta) index ({ style, maxWidth } as config) points =
     let
         svgPoints =
             List.map toSvgCoords points
@@ -32,17 +34,17 @@ view ({ toSvgCoords, scale } as plotProps) ({ style, maxWidth } as config) point
             toSvgCoords ( 0, 0 )
 
         width =
-            toBarWidth scale config points
+            toBarWidth meta config points
     in
         Svg.g
             [ Svg.Attributes.style (toStyle style) ]
-            (List.map (toBar width originY) svgPoints)
+            (List.map (toBar barsMeta index width originY) svgPoints)
 
 
-toBar : Float -> Float -> Point -> Svg.Svg a
-toBar width originY ( x, y ) =
+toBar : BarsMeta -> Int -> Float -> Float -> Point -> Svg.Svg a
+toBar barsMeta index width originY ( x, y ) =
     Svg.rect
-        [ Svg.Attributes.x (toString <| x - (width / 2) )
+        [ Svg.Attributes.x (toString <| x + barOffset barsMeta index width )
         , Svg.Attributes.y (toString <| y)
         , Svg.Attributes.width (toString width)
         , Svg.Attributes.height (toString <| originY - y)
@@ -50,17 +52,11 @@ toBar width originY ( x, y ) =
         []
 
 
-toBarWidth : Scale -> Config a -> List Point -> Float
-toBarWidth { length, range } { maxWidth } points =
+toBarWidth : Meta -> Config a -> List Point -> Float
+toBarWidth { barsMeta, scale } { maxWidth } points =
     let
-        rangeBar =
-            List.map Tuple.first points
-
-        ( lowestX, highestX ) =
-            ( getLowest rangeBar, getHighest rangeBar )
-
         widthAuto =
-            (length * (highestX - lowestX) / range) / (toFloat (List.length points) - 1) |> Debug.log "here"
+            barAutoWidth scale barsMeta
     in
         case maxWidth of
             Nothing ->
@@ -68,3 +64,13 @@ toBarWidth { length, range } { maxWidth } points =
 
             Just max ->
                 if widthAuto > max then max else widthAuto
+
+
+barAutoWidth : Scale -> BarsMeta -> Float
+barAutoWidth { length, range } ({ highest, lowest, pointCount, amount } as barsMeta) =
+    (length * (highest - lowest) / range) / (toFloat <| pointCount * amount)
+
+
+barOffset : BarsMeta -> Int -> Float -> Float
+barOffset { amount } index width =
+    width * (toFloat index - (toFloat amount / 2))

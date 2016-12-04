@@ -1,4 +1,4 @@
-module Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo, Anchor(..))
+module Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo, Anchor(..), BarsMeta, barsMetaInit)
 
 
 type alias Point =
@@ -19,6 +19,24 @@ type Anchor
     | Outer
 
 
+type alias BarsMeta =
+    { lowest : Float
+    , highest : Float
+    , amount : Int
+    , pointCount : Int
+    }
+
+
+barsMetaInit : BarsMeta
+barsMetaInit =
+    { lowest = 0
+    , highest = 0
+    , amount = 0
+    , pointCount = 0
+    }
+
+
+
 type alias Meta =
     { scale : Scale
     , ticks : List Float
@@ -31,6 +49,7 @@ type alias Meta =
     , oppositeAxisCrossings : List Float
     , getHintInfo : Float -> HintInfo
     , toNearestX : Float -> Float
+    , barsMeta : BarsMeta
     , id : String
     }
 

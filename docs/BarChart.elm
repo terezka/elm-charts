@@ -3,6 +3,7 @@ module BarChart exposing (chart, code)
 import Svg
 import Plot exposing (..)
 import Plot.Bars as Bars
+import Plot.Pile as Pile
 import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Line as Line
@@ -16,7 +17,7 @@ data1 =
 
 data : List ( Float, Float )
 data =
-    [ ( 0.0, 20 ), ( 0.1, 15 ), ( 0.2, 20 ), ( 0.3, 20 ), ( 0.4, 31 ), ( 0.5, 36 ), ( 0.6, 35 ), ( 0.7, 40 ) ]
+    [ ( 0.0, 20 ), ( 0.5, 20 ),( 1, 40 ) ]
 
 
 chart : Svg.Svg a
@@ -25,13 +26,30 @@ chart =
         [ size ( 600, 300 )
         , margin ( 10, 20, 40, 40 )
         ]
-        [ line [] data1
-        , bars
-            [ Bars.stroke Colors.pinkStroke
-            , Bars.fill Colors.pinkFill
+        [ pile 
+            []
+            [ Pile.bars
+                [ Bars.stroke Colors.blueStroke
+                , Bars.fill Colors.blueFill
+                ]
+                (List.map (\(x, y) -> (x, y*2)) data)
+            
+            , Pile.bars
+                [ Bars.stroke Colors.skinStroke
+                , Bars.fill Colors.skinFill
+                ]
+                (List.map (\(x, y) -> (x, y*3)) data)
+            
+            , Pile.bars
+                [ Bars.stroke Colors.pinkStroke
+                , Bars.fill Colors.pinkFill
+                ]
+                data
             ]
-            data
-        , xAxis [ Axis.line [ Line.stroke Colors.axisColor ], Axis.tick [ Tick.delta 0.2 ] ]
+        , xAxis
+            [ Axis.line [ Line.stroke Colors.axisColor ]
+            , Axis.tick [ Tick.delta 0.1 ]
+            ]
         ]
 
 code : String
