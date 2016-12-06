@@ -9,7 +9,7 @@ import Tuple exposing (..)
 
 data : List ( Float, Float )
 data =
-    [ ( 12, 0 ), ( 5, 1 ), ( 7, 2 ), ( 2, 3 ), ( 9, 4 ), ( 3, 5) ]
+    [ ( 12, 0 ), ( 5, 1 ), ( 7, 2 ), ( 2, 3 ), ( 9, 4 ), ( 3, 5 ) ]
 
 
 chart : Svg.Svg a
@@ -24,9 +24,10 @@ chart =
             , barOrientation BarHorizontal
             ]
             data
-        , yAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ]
-                , tickValues (List.map second data)
-                ]
+        , yAxis
+            [ axisStyle [ ( "stroke", Colors.axisColor ) ]
+            , tickValues (List.map second data)
+            ]
         ]
 
 
@@ -44,7 +45,7 @@ code =
                 , barOrientation BarHorizontal
                 ]
                 data
-            , yAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ] 
+            , yAxis [ axisStyle [ ( "stroke", Colors.axisColor ) ]
                     , tickValues (List.map second data)
                     ]
             ]
