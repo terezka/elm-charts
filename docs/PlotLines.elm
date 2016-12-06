@@ -18,11 +18,13 @@ plotExample =
 
 
 title : String
-title = "Lines"
+title =
+    "Lines"
 
 
 fileName : String
-fileName = "PlotLines"
+fileName =
+    "PlotLines"
 
 
 data1 : List ( Float, Float )
@@ -33,7 +35,6 @@ data1 =
 data2 : List ( Float, Float )
 data2 =
     [ ( 0, 0 ), ( 1, 5 ), ( 2, 7 ), ( 3, 15 ) ]
-
 
 
 view : Svg.Svg a

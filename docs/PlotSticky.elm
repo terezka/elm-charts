@@ -20,11 +20,13 @@ plotExample =
 
 
 title : String
-title = "Sticky axis"
+title =
+    "Sticky axis"
 
 
 fileName : String
-fileName = "PlotSticky"
+fileName =
+    "PlotSticky"
 
 
 data : List ( Float, Float )
@@ -51,20 +53,20 @@ toLabelAttrs ( index, tick ) =
 
 toLabelAttrsY1 : ( Int, Float ) -> List (Label.StyleAttribute msg)
 toLabelAttrsY1 ( index, tick ) =
-    if not <| isOdd index
-    then [ Label.format (always "") ]
-    else 
+    if not <| isOdd index then
+        [ Label.format (always "") ]
+    else
         [ Label.format (\( _, v ) -> toString (v * 10) ++ " x")
-        , Label.displace (-5, 0)
+        , Label.displace ( -5, 0 )
         ]
 
 
 toLabelAttrsY2 : ( Int, Float ) -> List (Label.StyleAttribute msg)
 toLabelAttrsY2 ( index, tick ) =
-    if isOdd index
-    then [ Label.format (always "") ]
-    else [ Label.format (\( _, v ) -> toString (v / 5) ++ "k") ]
-        
+    if isOdd index then
+        [ Label.format (always "") ]
+    else
+        [ Label.format (\( _, v ) -> toString (v / 5) ++ "k") ]
 
 
 view : Svg.Svg a

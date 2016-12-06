@@ -18,11 +18,13 @@ plotExample =
 
 
 title : String
-title = "Scatters"
+title =
+    "Scatters"
 
 
 fileName : String
-fileName = "PlotScatter"
+fileName =
+    "PlotScatter"
 
 
 data : List ( Float, Float )
@@ -50,6 +52,7 @@ view =
                 [ Tick.delta 2 ]
             ]
         ]
+
 
 code : String
 code =

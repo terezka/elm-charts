@@ -7,6 +7,7 @@ import Internal.Stuff exposing (getEdgesX)
 import Internal.Draw exposing (..)
 import Debug
 
+
 type alias Config a =
     { style : Style
     , customAttrs : List (Svg.Attribute a)

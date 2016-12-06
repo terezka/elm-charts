@@ -40,7 +40,8 @@ type alias Attribute =
     Internal.Config -> Internal.Config
 
 
-type alias Element msg = Internal.Element msg
+type alias Element msg =
+    Internal.Element msg
 
 
 {-| Set the stacking by.
@@ -64,8 +65,8 @@ maxBarWidthPer max config =
     { config | maxWidth = Percentage max }
 
 
-{-| Add a barchart. -} 
+{-| Add a barchart.
+-}
 bars : List (Bars.Attribute msg) -> List Point -> Element msg
 bars attrs points =
     Internal.Bars (List.foldr (<|) BarsInternal.defaultConfig attrs) points
-

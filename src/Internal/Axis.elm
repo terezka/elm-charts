@@ -8,7 +8,6 @@ import Internal.Draw as Draw exposing (..)
 import Round
 import Svg
 import Svg.Attributes
-
 import Debug
 
 
@@ -53,8 +52,8 @@ view ({ scale, toSvgCoords, oppositeScale, oppositeAxisCrossings } as meta) ({ l
     let
         tickValues =
             Tick.getValues tickConfig scale
-            |> filterValues cleanCrossings oppositeAxisCrossings
-            |> Tick.indexValues
+                |> filterValues cleanCrossings oppositeAxisCrossings
+                |> Tick.indexValues
 
         labelValues =
             Label.getValuesIndexed labelConfig.valueConfig tickValues
@@ -84,8 +83,10 @@ viewAxisLine : Line.Config msg -> Meta -> Float -> Svg.Svg msg
 viewAxisLine { style, customAttrs } =
     Draw.fullLine
         ([ Svg.Attributes.style (toStyle style)
-        , Svg.Attributes.class "elm-plot__axis__line"
-        ] ++ customAttrs)
+         , Svg.Attributes.class "elm-plot__axis__line"
+         ]
+            ++ customAttrs
+        )
 
 
 
@@ -114,8 +115,7 @@ placeTick { toSvgCoords } ({ orientation, anchor } as config) axisPosition view 
         [ view ( index, tick ) ]
 
 
-
-getAxisPosition : Scale ->  PositionOption -> Float
+getAxisPosition : Scale -> PositionOption -> Float
 getAxisPosition { lowest, highest } position =
     case position of
         AtZero ->
@@ -131,8 +131,11 @@ getAxisPosition { lowest, highest } position =
 toAnchorStyle : Anchor -> Orientation -> String
 toAnchorStyle anchor orientation =
     case orientation of
-        X -> "text-anchor: middle;"
-        Y -> "text-anchor:" ++ getYAnchorStyle anchor ++ ";"
+        X ->
+            "text-anchor: middle;"
+
+        Y ->
+            "text-anchor:" ++ getYAnchorStyle anchor ++ ";"
 
 
 getYAnchorStyle : Anchor -> String
@@ -140,15 +143,17 @@ getYAnchorStyle anchor =
     case anchor of
         Inner ->
             "start"
+
         Outer ->
             "end"
 
 
-{-| The displacements are just magic numbers, so science. (Just defaults) -}
+{-| The displacements are just magic numbers, so science. (Just defaults)
+-}
 getDisplacement : Anchor -> Orientation -> Point
 getDisplacement anchor orientation =
     case orientation of
-        X -> 
+        X ->
             case anchor of
                 Inner ->
                     ( 0, -15 )
@@ -166,23 +171,28 @@ getDisplacement anchor orientation =
 
 
 addDisplacement : Point -> Point -> Point
-addDisplacement (x, y) (dx, dy) =
-    (x + dx, y + dy)
-
+addDisplacement ( x, y ) ( dx, dy ) =
+    ( x + dx, y + dy )
 
 
 toRotate : Anchor -> Orientation -> String
 toRotate anchor orientation =
     case orientation of
-        X -> 
+        X ->
             case anchor of
-                Inner -> "rotate(180 0 0)"
-                Outer -> "rotate(0 0 0)"
+                Inner ->
+                    "rotate(180 0 0)"
+
+                Outer ->
+                    "rotate(0 0 0)"
 
         Y ->
             case anchor of
-                Inner -> "rotate(-90 0 0)"
-                Outer -> "rotate(90 0 0)"
+                Inner ->
+                    "rotate(-90 0 0)"
+
+                Outer ->
+                    "rotate(90 0 0)"
 
 
 filterValues : Bool -> List Float -> List Float -> List Float
@@ -196,5 +206,3 @@ filterValues cleanCrossings crossings values =
 isCrossing : List Float -> Float -> Bool
 isCrossing crossings value =
     not <| List.member value crossings
-
-

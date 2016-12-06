@@ -19,11 +19,13 @@ plotExample =
 
 
 title : String
-title = "Hints"
+title =
+    "Hints"
 
 
 fileName : String
-fileName = "PlotHint"
+fileName =
+    "PlotHint"
 
 
 data1 : List ( Float, Float )
@@ -34,7 +36,6 @@ data1 =
 data2 : List ( Float, Float )
 data2 =
     [ ( 0, 0 ), ( 1, 5 ), ( 2, 7 ), ( 3, 15 ) ]
-
 
 
 view : State -> Svg.Svg (Interaction c)
@@ -62,8 +63,8 @@ view state =
                 [ Tick.delta 1 ]
             ]
         , hint
-            [ Hint.lineStyle [ ( "background", "#b9b9b9") ] ]
-            (getHoveredValue state) 
+            [ Hint.lineStyle [ ( "background", "#b9b9b9" ) ] ]
+            (getHoveredValue state)
         ]
 
 

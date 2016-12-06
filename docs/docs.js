@@ -14436,6 +14436,25 @@ var _terezka$elm_plot$Docs$update = F2(
 			}
 		}
 	});
+var _terezka$elm_plot$Docs$viewPlotInteractive = F3(
+	function (model, state, _p9) {
+		var _p10 = _p9;
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('view-plot view-plot--interactive'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$map,
+					_terezka$elm_plot$Docs$PlotInteraction(_terezka$elm_plot$Docs$HintExample),
+					_p10.view(state)),
+				_1: {ctor: '[]'}
+			});
+	});
 var _terezka$elm_plot$Docs$Toggle = function (a) {
 	return {ctor: 'Toggle', _0: a};
 };
@@ -14556,8 +14575,8 @@ var _terezka$elm_plot$Docs$viewHeading = F4(
 			});
 	});
 var _terezka$elm_plot$Docs$viewPlot = F2(
-	function (model, _p9) {
-		var _p10 = _p9;
+	function (model, _p11) {
+		var _p12 = _p11;
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -14567,33 +14586,10 @@ var _terezka$elm_plot$Docs$viewPlot = F2(
 			},
 			{
 				ctor: '::',
-				_0: A4(_terezka$elm_plot$Docs$viewHeading, model, _p10.title, _p10.fileName, _p10.code),
-				_1: {
-					ctor: '::',
-					_0: _p10.view,
-					_1: {ctor: '[]'}
-				}
-			});
-	});
-var _terezka$elm_plot$Docs$viewPlotInteractive = F3(
-	function (model, state, _p11) {
-		var _p12 = _p11;
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('view-plot view-plot--interactive'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
 				_0: A4(_terezka$elm_plot$Docs$viewHeading, model, _p12.title, _p12.fileName, _p12.code),
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$map,
-						_terezka$elm_plot$Docs$PlotInteraction(_terezka$elm_plot$Docs$HintExample),
-						_p12.view(state)),
+					_0: _p12.view,
 					_1: {ctor: '[]'}
 				}
 			});

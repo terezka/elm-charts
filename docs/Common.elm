@@ -1,5 +1,6 @@
 module Common exposing (..)
 
+
 plotSizeLarge : ( Int, Int )
 plotSizeLarge =
     ( 800, 400 )

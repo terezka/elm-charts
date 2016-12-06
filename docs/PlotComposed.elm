@@ -27,7 +27,6 @@ dataScat =
     [ ( -8, 50 ), ( -7, 45 ), ( -6.5, 70 ), ( -6, 90 ), ( -4, 81 ), ( -3, 106 ), ( -1, 115 ), ( 0, 140 ) ]
 
 
-
 isOdd : Int -> Bool
 isOdd n =
     rem n 2 > 0
@@ -54,7 +53,7 @@ labelStyle : List (Label.StyleAttribute msg)
 labelStyle =
     [ Label.format (\( _, v ) -> toString v ++ " °C")
     , Label.fontSize 12
-    , Label.displace (0, -2)
+    , Label.displace ( 0, -2 )
     ]
 
 
@@ -74,14 +73,13 @@ view state =
             []
             [ Pile.bars
                 [ Bars.fill Common.blueFill ]
-                (List.map (\(x, y) -> (x / 2 - 2.5, y*2)) data1)
-            
+                (List.map (\( x, y ) -> ( x / 2 - 2.5, y * 2 )) data1)
             , Pile.bars
                 [ Bars.fill Common.skinFill ]
-                (List.map (\(x, y) -> (x / 2 - 2.5, y*3)) data1)
+                (List.map (\( x, y ) -> ( x / 2 - 2.5, y * 3 )) data1)
             , Pile.bars
                 [ Bars.fill Common.pinkFill ]
-                (List.map (\(x, y) -> (x / 2 - 2.5, y)) data1)
+                (List.map (\( x, y ) -> ( x / 2 - 2.5, y )) data1)
             ]
         , area
             [ Area.stroke Common.skinStroke
@@ -99,7 +97,7 @@ view state =
             , Line.strokeWidth 2
             ]
             (List.map (\( x, y ) -> ( x, toFloat <| round y * 3 )) data1)
-        , scatter 
+        , scatter
             []
             dataScat
         , yAxis
@@ -144,7 +142,7 @@ view state =
                 ]
             ]
         , hint
-            [ Hint.lineStyle [ ( "background", "#b9b9b9") ] ]
+            [ Hint.lineStyle [ ( "background", "#b9b9b9" ) ] ]
             (getHoveredValue state)
         ]
 

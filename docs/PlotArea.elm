@@ -19,11 +19,13 @@ plotExample =
 
 
 title : String
-title = "Areas"
+title =
+    "Areas"
 
 
 fileName : String
-fileName = "PlotArea"
+fileName =
+    "PlotArea"
 
 
 data1 : List ( Float, Float )

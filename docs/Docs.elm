@@ -59,6 +59,7 @@ initialModel =
 
 -- UPDATE
 
+
 type PlotId
     = HintExample
     | EverythingExample
@@ -80,19 +81,22 @@ update msg model =
                 Internal internalMsg ->
                     case id of
                         HintExample ->
-                            let 
-                                ( state, cmd ) = Plot.update internalMsg model.hintExample
+                            let
+                                ( state, cmd ) =
+                                    Plot.update internalMsg model.hintExample
                             in
-                                ({ model | hintExample = state }, Cmd.map (PlotInteraction HintExample) cmd)
+                                ( { model | hintExample = state }, Cmd.map (PlotInteraction HintExample) cmd )
 
                         EverythingExample ->
-                            let 
-                                ( state, cmd ) = Plot.update internalMsg model.everythingExample
+                            let
+                                ( state, cmd ) =
+                                    Plot.update internalMsg model.everythingExample
                             in
-                                ({ model | everythingExample = state }, Cmd.map (PlotInteraction EverythingExample) cmd)
+                                ( { model | everythingExample = state }, Cmd.map (PlotInteraction EverythingExample) cmd )
 
                 Custom customMsg ->
                     update customMsg model
+
 
 
 -- VIEW
@@ -115,7 +119,8 @@ view model =
         [ img
             [ src "logo.png"
             , class "view__logo"
-            ] []
+            ]
+            []
         , h1 [ class "view__title" ] [ text "Elm Plot" ]
         , div
             [ class "view__github-link" ]
@@ -125,7 +130,6 @@ view model =
                 [ text "Github" ]
             ]
         , Html.map (PlotInteraction EverythingExample) <| PlotComposed.view model.everythingExample
-
         , viewPlot model PlotScatter.plotExample
         , viewPlot model PlotLines.plotExample
         , viewPlot model PlotArea.plotExample
@@ -144,7 +148,6 @@ view model =
                 [ text "@terexka" ]
             ]
         ]
-
 
 
 getCodeStyle : Bool -> ( String, String )
@@ -211,8 +214,8 @@ viewPlotInteractive : Model -> Plot.State -> PlotExampleInteractive Msg -> Html.
 viewPlotInteractive model state { title, fileName, view, code } =
     Html.div
         [ class "view-plot view-plot--interactive" ]
-        [ viewHeading model title fileName code
-        , Html.map (PlotInteraction HintExample) <| view state
+        -- [ viewHeading model title fileName code
+        [ Html.map (PlotInteraction HintExample) <| view state
         ]
 
 

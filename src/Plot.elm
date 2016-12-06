@@ -101,7 +101,7 @@ type alias Style =
 type Element msg
     = Line (LineInternal.Config msg) (List Point)
     | Area (AreaInternal.Config msg) (List Point)
-    | Pile (PileInternal.Config) (List (PileInternal.Element msg)) PileMeta
+    | Pile PileInternal.Config (List (PileInternal.Element msg)) PileMeta
     | Scatter (ScatterInternal.Config msg) (List Point)
     | Hint (HintInternal.Config msg) (Maybe Point)
     | Axis (AxisInternal.Config msg)
@@ -199,7 +199,7 @@ id id config =
 {-| Specifically set the domain. The format is ( lowest, highest )
  and if left with a `Nothing` value, then it default to the edges of your series y-coordinates.
 
- **Note:** If you are using `padding` as well, the extra padding will still be 
+ **Note:** If you are using `padding` as well, the extra padding will still be
  added outside the domain.
 -}
 domain : ( Maybe Float, Maybe Float ) -> Attribute
@@ -275,6 +275,7 @@ scatter : List (Scatter.Attribute msg) -> List Point -> Element msg
 scatter attrs points =
     Scatter (List.foldr (<|) ScatterInternal.defaultConfig attrs) points
 
+
 {-| Draws a bar chart.
 
     myPlot : Svg.Svg msg
@@ -286,7 +287,8 @@ scatter attrs points =
 pile : List Pile.Attribute -> List (Pile.Element msg) -> Element msg
 pile attrs barsConfigs =
     let
-        config = List.foldr (<|) PileInternal.defaultConfig attrs
+        config =
+            List.foldr (<|) PileInternal.defaultConfig attrs
     in
         Pile config barsConfigs (PileInternal.toPileMeta config barsConfigs)
 
@@ -385,7 +387,8 @@ update msg (State state) =
             ( State { position = Nothing, waiting = False }, Cmd.none )
 
 
-{-| Get the hovered position from state. -}
+{-| Get the hovered position from state.
+-}
 getHoveredValue : State -> Maybe Point
 getHoveredValue (State { position }) =
     position
@@ -394,7 +397,9 @@ getHoveredValue (State { position }) =
 positionChanged : Maybe ( Float, Float ) -> ( Float, Float ) -> Bool
 positionChanged position ( left, top ) =
     case position of
-        Nothing -> True
+        Nothing ->
+            True
+
         Just ( leftOld, topOld ) ->
             topOld /= top || leftOld /= left
 
@@ -505,13 +510,13 @@ viewElement meta element ( svgViews, htmlViews ) =
 
         Area config points ->
             ( (AreaInternal.view meta config points) :: svgViews, htmlViews )
-        
+
         Scatter config points ->
             ( (ScatterInternal.view meta config points) :: svgViews, htmlViews )
 
         Pile config barsConfigs pileMeta ->
             ( (PileInternal.view meta pileMeta config barsConfigs) :: svgViews, htmlViews )
-        
+
         Axis ({ orientation } as config) ->
             ( (AxisInternal.view (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
 
@@ -541,7 +546,7 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
             List.unzip (List.foldr collectPoints [] elements)
 
         ( xAxisConfigs, yAxisConfigs ) =
-            List.foldr collectAxisConfigs ([], []) elements
+            List.foldr collectAxisConfigs ( [], [] ) elements
 
         pileMetas =
             List.foldr collectPileMetas [] elements
@@ -617,7 +622,7 @@ getScale lengthTotal ( forcedLowest, forcedHighest ) ( offsetLeft, offsetRight )
             lengthTotal - offsetLeft - offsetRight
 
         lowest =
-           getScaleLowest forcedLowest values pileEdges
+            getScaleLowest forcedLowest values pileEdges
 
         highest =
             getScaleHighest forcedHighest values pileEdges
@@ -649,7 +654,7 @@ getScaleLowest forcedLowest values pileEdges =
             getAutoLowest pileEdges (getLowest values)
 
 
-getAutoLowest :  Maybe Edges -> Float -> Float
+getAutoLowest : Maybe Edges -> Float -> Float
 getAutoLowest pileEdges lowestFromValues =
     case pileEdges of
         Just { lower } ->
@@ -659,7 +664,7 @@ getAutoLowest pileEdges lowestFromValues =
             lowestFromValues
 
 
-getScaleHighest : Maybe Float -> List Float ->  Maybe Edges -> Float
+getScaleHighest : Maybe Float -> List Float -> Maybe Edges -> Float
 getScaleHighest forcedHighest values pileEdges =
     case forcedHighest of
         Just value ->
@@ -713,7 +718,7 @@ getHintInfo elements xValue =
     HintInfo xValue <| List.foldr (collectYValues xValue) [] elements
 
 
-collectAxisConfigs : Element msg -> (List (AxisInternal.Config msg), List (AxisInternal.Config msg)) -> (List (AxisInternal.Config msg), List (AxisInternal.Config msg))
+collectAxisConfigs : Element msg -> ( List (AxisInternal.Config msg), List (AxisInternal.Config msg) ) -> ( List (AxisInternal.Config msg), List (AxisInternal.Config msg) )
 collectAxisConfigs element ( xAxisConfigs, yAxisConfigs ) =
     case element of
         Axis config ->
@@ -762,10 +767,10 @@ collectPoints element allPoints =
 collectPileMetas : Element msg -> List PileMeta -> List PileMeta
 collectPileMetas element allPileMetas =
     case element of
-        Pile _ _ meta  ->
+        Pile _ _ meta ->
             meta :: allPileMetas
 
-        _ -> 
+        _ ->
             allPileMetas
 
 
@@ -783,7 +788,7 @@ collectYValues xValue element yValues =
 
         Pile config barsConfigs _ ->
             List.map (\(PileInternal.Bars config points) -> collectYValue xValue points) barsConfigs
-            |> (++) yValues
+                |> (++) yValues
 
         _ ->
             yValues
@@ -805,5 +810,3 @@ getYValue xValue ( x, y ) result =
 getAxisCrossings : List (AxisInternal.Config msg) -> Scale -> List Float
 getAxisCrossings axisConfigs oppositeScale =
     List.map (AxisInternal.getAxisPosition oppositeScale << .position) axisConfigs
-
-

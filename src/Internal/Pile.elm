@@ -2,7 +2,7 @@ module Internal.Pile exposing (Config, Element(..), defaultConfig, view, pileMet
 
 import Svg
 import Svg.Attributes
-import Internal.Types exposing (Style, Orientation(..), MaxWidth(..),Meta, Point, PileMeta, Edges, Axis)
+import Internal.Types exposing (Style, Orientation(..), MaxWidth(..), Meta, Point, PileMeta, Edges, Axis)
 import Internal.Draw exposing (..)
 import Internal.Stuff exposing (..)
 import Internal.Bars as BarsInternal
@@ -28,7 +28,7 @@ defaultConfig =
 view : Meta -> PileMeta -> Config -> List (Element msg) -> Svg.Svg msg
 view meta pileMeta ({ maxWidth } as config) bars =
     Svg.g [] (List.indexedMap (viewBars meta pileMeta maxWidth) bars)
-        
+
 
 viewBars : Meta -> PileMeta -> MaxWidth -> Int -> Element msg -> Svg.Svg msg
 viewBars meta pileMeta maxWidth index (Bars config points) =
@@ -52,7 +52,7 @@ pileMetaInit =
 toPileMeta : Config -> List (Element msg) -> PileMeta
 toPileMeta { stackBy } elements =
     List.foldl (foldPileMeta stackBy) pileMetaInit elements
-    |> (\pileMeta -> calcPilePadding pileMeta |> addPadding pileMeta)
+        |> (\pileMeta -> calcPilePadding pileMeta |> addPadding pileMeta)
 
 
 foldPileMeta : Orientation -> Element msg -> PileMeta -> PileMeta
@@ -60,20 +60,19 @@ foldPileMeta stackBy element pileMeta =
     case element of
         Bars _ points ->
             getValues stackBy points
-            |> getEdges
-            |> formPileMeta stackBy points pileMeta
+                |> getEdges
+                |> formPileMeta stackBy points pileMeta
 
 
 formPileMeta : Orientation -> List Point -> PileMeta -> ( Float, Float ) -> PileMeta
 formPileMeta stackBy points ({ lowest, highest, numOfBarSeries, pointCount } as pileMeta) ( serieLowest, serieHighest ) =
     { pileMeta
-    | lowest = min lowest serieLowest
-    , highest = max highest serieHighest
-    , numOfBarSeries = numOfBarSeries + 1
-    , pointCount = max pointCount (List.length points)
-    , stackBy = stackBy
+        | lowest = min lowest serieLowest
+        , highest = max highest serieHighest
+        , numOfBarSeries = numOfBarSeries + 1
+        , pointCount = max pointCount (List.length points)
+        , stackBy = stackBy
     }
-
 
 
 toPileEdges : List PileMeta -> Axis (Maybe Edges)
@@ -84,7 +83,7 @@ toPileEdges =
 foldPileEdges : PileMeta -> Axis (Maybe Edges) -> Axis (Maybe Edges)
 foldPileEdges ({ stackBy } as pileMeta) axisEdges =
     case stackBy of
-        X -> 
+        X ->
             { axisEdges | x = mergeEdges pileMeta axisEdges.x }
 
         Y ->
@@ -92,7 +91,7 @@ foldPileEdges ({ stackBy } as pileMeta) axisEdges =
 
 
 mergeEdges : PileMeta -> Maybe Edges -> Maybe Edges
-mergeEdges { lowest, highest } edges = 
+mergeEdges { lowest, highest } edges =
     case edges of
         Just { lower, upper } ->
             Just { lower = min lowest lower, upper = max highest upper }
@@ -100,16 +99,15 @@ mergeEdges { lowest, highest } edges =
         Nothing ->
             Just { lower = lowest, upper = highest }
 
-    
+
 calcPilePadding : PileMeta -> Float
 calcPilePadding { lowest, highest, pointCount } =
     (highest - lowest) / (toFloat <| (pointCount - 1) * 2)
-    
+
 
 addPadding : PileMeta -> Float -> PileMeta
 addPadding ({ lowest, highest } as pileMeta) padding =
     { pileMeta
-    | lowest = lowest - padding
-    , highest = highest + padding
+        | lowest = lowest - padding
+        , highest = highest + padding
     }
-

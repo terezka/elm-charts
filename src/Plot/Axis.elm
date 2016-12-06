@@ -43,7 +43,6 @@ classes classes config =
     { config | classes = classes }
 
 
-
 {-| Adds styles to the axis line.
 
     myXAxis : Plot.Element msg
@@ -149,4 +148,3 @@ tick attributes config =
 label : List (Label.Attribute msg) -> Attribute msg
 label attributes config =
     { config | labelConfig = List.foldl (<|) LabelInternal.defaultConfig attributes }
-

@@ -26,7 +26,7 @@ view ({ toSvgCoords, scale } as meta) pileMeta maxWidth index ({ style } as conf
         svgPoints =
             List.map toSvgCoords points
 
-        (_, originY) =
+        ( _, originY ) =
             toSvgCoords ( 0, 0 )
 
         width =
@@ -59,7 +59,10 @@ toBarWidth { scale } pileMeta maxWidth points =
                 widthAuto * (toFloat perc) / 100
 
             Fixed max ->
-                if widthAuto > (toFloat max) then toFloat max else widthAuto
+                if widthAuto > (toFloat max) then
+                    toFloat max
+                else
+                    widthAuto
 
 
 barAutoWidth : Scale -> PileMeta -> Float
@@ -70,4 +73,3 @@ barAutoWidth { length, range } ({ highest, lowest, pointCount, numOfBarSeries } 
 barOffset : PileMeta -> Int -> Float -> Float
 barOffset { numOfBarSeries } index width =
     width * (toFloat index - (toFloat numOfBarSeries / 2))
-

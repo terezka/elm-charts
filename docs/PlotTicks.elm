@@ -20,11 +20,13 @@ plotExample =
 
 
 title : String
-title = "Custom ticks and labels"
+title =
+    "Custom ticks and labels"
 
 
 fileName : String
-fileName = "PlotTicks"
+fileName =
+    "PlotTicks"
 
 
 data : List ( Float, Float )

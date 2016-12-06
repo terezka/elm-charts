@@ -20,11 +20,13 @@ plotExample =
 
 
 title : String
-title = "Grids"
+title =
+    "Grids"
 
 
 fileName : String
-fileName = "PlotGrid"
+fileName =
+    "PlotGrid"
 
 
 data : List ( Float, Float )
