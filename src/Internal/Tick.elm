@@ -93,7 +93,7 @@ defaultView : StyleConfig msg -> View msg
 defaultView { length, width, style, classes, customAttrs } orientation ( _, _ ) =
     let
         styleFinal =
-            style ++ [ ( "stroke-width", (toString width) ++ "px" ) ]
+            style ++ [ ( "stroke-width", toPixelsInt width ) ]
 
         attrs =
             [ Svg.Attributes.style (toStyle styleFinal)

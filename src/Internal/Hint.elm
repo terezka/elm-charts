@@ -1,6 +1,7 @@
 module Internal.Hint exposing (..)
 
 import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
+import Internal.Draw exposing (..)
 import Svg
 import Svg.Attributes
 import Html
@@ -38,8 +39,8 @@ view { toSvgCoords, scale, oppositeScale, getHintInfo } { lineStyle, view } posi
         Html.div
             [ Html.Attributes.class "elm-plot__hint"
             , Html.Attributes.style
-                [ ( "left", (toString xSvg) ++ "px" )
-                , ( "top", toString oppositeScale.offset ++ "px" )
+                [ ( "left", toPixels xSvg )
+                , ( "top", toPixels oppositeScale.offset )
                 ]
             ]
             ((view info flipped) :: lineView)
@@ -49,7 +50,7 @@ viewLine : Style -> Float -> Html.Html msg
 viewLine style length =
     Html.div
         [ Html.Attributes.class "elm-plot__hint__line"
-        , Html.Attributes.style <| [ ( "height", toString length ++ "px" ) ] ++ style
+        , Html.Attributes.style <| [ ( "height", toPixels length ) ] ++ style
         ]
         []
 

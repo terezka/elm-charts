@@ -29,6 +29,7 @@ module Plot.Line exposing (..)
 import Svg
 import Internal.Types exposing (Style)
 import Internal.Line as Internal
+import Internal.Draw exposing (..)
 
 
 {-| -}
@@ -47,7 +48,7 @@ stroke stroke config =
 -}
 strokeWidth : Int -> Attribute a
 strokeWidth strokeWidth config =
-    { config | style = ( "stroke-width", toString strokeWidth ++ "px" ) :: config.style }
+    { config | style = ( "stroke-width", toPixelsInt strokeWidth ) :: config.style }
 
 
 {-| Set the opacity.

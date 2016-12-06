@@ -93,3 +93,13 @@ toRotate d x y =
 toStyle : List ( String, String ) -> String
 toStyle styles =
     List.foldr (\( p, v ) r -> r ++ p ++ ":" ++ v ++ "; ") "" styles
+
+
+toPixels : Float -> String
+toPixels pixels =
+    toString pixels ++ "px"
+
+
+toPixelsInt : Int -> String
+toPixelsInt =
+    toPixels << toFloat

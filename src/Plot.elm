@@ -81,6 +81,7 @@ import Internal.Tick as TickInternal
 import Internal.Hint as HintInternal
 import Internal.Stuff exposing (..)
 import Internal.Types exposing (..)
+import Internal.Draw exposing (..)
 
 
 {-| Convinience type to represent coordinates.
@@ -480,7 +481,7 @@ getMousePosition meta =
 
 sizeStyle : ( Float, Float ) -> Style
 sizeStyle ( width, height ) =
-    [ ( "height", toString height ++ "px" ), ( "width", toString width ++ "px" ) ]
+    [ ( "height", toPixels height ), ( "width", toPixels width ) ]
 
 
 viewElements : Meta -> List (Element msg) -> ( List (Svg msg), List (Html msg) )

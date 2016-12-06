@@ -48,6 +48,7 @@ a suspicion that I have missed a very common configuration, then please let me k
 
 import Svg
 import Internal.Types exposing (Style)
+import Internal.Draw exposing (..)
 import Internal.Tick as Internal
     exposing
         ( Config
@@ -129,7 +130,7 @@ stroke stroke config =
 -}
 strokeWidth : Int -> StyleAttribute msg
 strokeWidth strokeWidth config =
-    { config | style = ( "stroke-width", toString strokeWidth ++ "px" ) :: config.style }
+    { config | style = ( "stroke-width", toPixelsInt strokeWidth ) :: config.style }
 
 
 {-| Set the opacity.

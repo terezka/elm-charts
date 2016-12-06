@@ -50,6 +50,7 @@ a suspicion that I have missed a very common configuration, then please let me k
 import Svg
 import Internal.Types exposing (Style)
 import Internal.Label as Internal
+import Internal.Draw exposing (..)
 
 
 {-| -}
@@ -105,7 +106,7 @@ stroke stroke config =
 -}
 strokeWidth : Int -> StyleAttribute a
 strokeWidth strokeWidth config =
-    { config | style = ( "stroke-width", toString strokeWidth ++ "px" ) :: config.style }
+    { config | style = ( "stroke-width", toPixelsInt strokeWidth ) :: config.style }
 
 
 {-| Set the fill color.
@@ -126,7 +127,7 @@ opacity opacity config =
 -}
 fontSize : Int -> StyleAttribute a
 fontSize fontSize config =
-    { config | style = ( "font-size", toString fontSize ++ "px" ) :: config.style }
+    { config | style = ( "font-size", toPixelsInt fontSize ) :: config.style }
 
 
 {-| Add your own attributes.

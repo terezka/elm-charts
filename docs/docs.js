@@ -9496,22 +9496,32 @@ var _terezka$elm_plot$Internal_Stuff$getEdgesY = function (points) {
 		A2(_elm_lang$core$List$map, _elm_lang$core$Tuple$second, points));
 };
 
+var _terezka$elm_plot$Internal_Draw$toPixels = function (pixels) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		_elm_lang$core$Basics$toString(pixels),
+		'px');
+};
+var _terezka$elm_plot$Internal_Draw$toPixelsInt = function (_p0) {
+	return _terezka$elm_plot$Internal_Draw$toPixels(
+		_elm_lang$core$Basics$toFloat(_p0));
+};
 var _terezka$elm_plot$Internal_Draw$toStyle = function (styles) {
 	return A3(
 		_elm_lang$core$List$foldr,
 		F2(
-			function (_p0, r) {
-				var _p1 = _p0;
+			function (_p1, r) {
+				var _p2 = _p1;
 				return A2(
 					_elm_lang$core$Basics_ops['++'],
 					r,
 					A2(
 						_elm_lang$core$Basics_ops['++'],
-						_p1._0,
+						_p2._0,
 						A2(
 							_elm_lang$core$Basics_ops['++'],
 							':',
-							A2(_elm_lang$core$Basics_ops['++'], _p1._1, '; '))));
+							A2(_elm_lang$core$Basics_ops['++'], _p2._1, '; '))));
 			}),
 		'',
 		styles);
@@ -9538,20 +9548,20 @@ var _terezka$elm_plot$Internal_Draw$toRotate = F3(
 								_elm_lang$core$Basics$toString(y),
 								')'))))));
 	});
-var _terezka$elm_plot$Internal_Draw$toTranslate = function (_p2) {
-	var _p3 = _p2;
+var _terezka$elm_plot$Internal_Draw$toTranslate = function (_p3) {
+	var _p4 = _p3;
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
 		'translate(',
 		A2(
 			_elm_lang$core$Basics_ops['++'],
-			_elm_lang$core$Basics$toString(_p3._0),
+			_elm_lang$core$Basics$toString(_p4._0),
 			A2(
 				_elm_lang$core$Basics_ops['++'],
 				',',
 				A2(
 					_elm_lang$core$Basics_ops['++'],
-					_elm_lang$core$Basics$toString(_p3._1),
+					_elm_lang$core$Basics$toString(_p4._1),
 					')'))));
 };
 var _terezka$elm_plot$Internal_Draw$toInstruction = F2(
@@ -9572,17 +9582,17 @@ var _terezka$elm_plot$Internal_Draw$coordsToInstruction = F2(
 			'',
 			A2(
 				_elm_lang$core$List$map,
-				function (_p4) {
-					var _p5 = _p4;
+				function (_p5) {
+					var _p6 = _p5;
 					return A2(
 						_terezka$elm_plot$Internal_Draw$toInstruction,
 						instructionType,
 						{
 							ctor: '::',
-							_0: _p5._0,
+							_0: _p6._0,
 							_1: {
 								ctor: '::',
-								_0: _p5._1,
+								_0: _p6._1,
 								_1: {ctor: '[]'}
 							}
 						});
@@ -9594,12 +9604,12 @@ var _terezka$elm_plot$Internal_Draw$startPath = function (data) {
 		_elm_lang$core$Maybe$withDefault,
 		{ctor: '[]'},
 		_elm_lang$core$List$tail(data));
-	var _p6 = A2(
+	var _p7 = A2(
 		_elm_lang$core$Maybe$withDefault,
 		{ctor: '_Tuple2', _0: 0, _1: 0},
 		_elm_lang$core$List$head(data));
-	var x = _p6._0;
-	var y = _p6._1;
+	var x = _p7._0;
+	var y = _p7._1;
 	return {
 		ctor: '_Tuple2',
 		_0: A2(
@@ -9657,25 +9667,25 @@ var _terezka$elm_plot$Internal_Draw$classAttributeOriented = F3(
 			});
 	});
 var _terezka$elm_plot$Internal_Draw$positionAttributes = F2(
-	function (_p8, _p7) {
-		var _p9 = _p8;
-		var _p10 = _p7;
+	function (_p9, _p8) {
+		var _p10 = _p9;
+		var _p11 = _p8;
 		return {
 			ctor: '::',
 			_0: _elm_lang$svg$Svg_Attributes$x1(
-				_elm_lang$core$Basics$toString(_p9._0)),
+				_elm_lang$core$Basics$toString(_p10._0)),
 			_1: {
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$y1(
-					_elm_lang$core$Basics$toString(_p9._1)),
+					_elm_lang$core$Basics$toString(_p10._1)),
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$svg$Svg_Attributes$x2(
-						_elm_lang$core$Basics$toString(_p10._0)),
+						_elm_lang$core$Basics$toString(_p11._0)),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$svg$Svg_Attributes$y2(
-							_elm_lang$core$Basics$toString(_p10._1)),
+							_elm_lang$core$Basics$toString(_p11._1)),
 						_1: {ctor: '[]'}
 					}
 				}
@@ -9683,15 +9693,15 @@ var _terezka$elm_plot$Internal_Draw$positionAttributes = F2(
 		};
 	});
 var _terezka$elm_plot$Internal_Draw$fullLine = F3(
-	function (attributes, _p11, value) {
-		var _p12 = _p11;
-		var _p14 = _p12.toSvgCoords;
-		var _p13 = _p12.scale;
-		var lowest = _p13.lowest;
-		var highest = _p13.highest;
-		var begin = _p14(
+	function (attributes, _p12, value) {
+		var _p13 = _p12;
+		var _p15 = _p13.toSvgCoords;
+		var _p14 = _p13.scale;
+		var lowest = _p14.lowest;
+		var highest = _p14.highest;
+		var begin = _p15(
 			{ctor: '_Tuple2', _0: lowest, _1: value});
-		var end = _p14(
+		var end = _p15(
 			{ctor: '_Tuple2', _0: highest, _1: value});
 		return A2(
 			_elm_lang$svg$Svg$line,
@@ -9839,10 +9849,7 @@ var _terezka$elm_plot$Internal_Tick$defaultView = F3(
 				_0: {
 					ctor: '_Tuple2',
 					_0: 'stroke-width',
-					_1: A2(
-						_elm_lang$core$Basics_ops['++'],
-						_elm_lang$core$Basics$toString(_p10.width),
-						'px')
+					_1: _terezka$elm_plot$Internal_Draw$toPixelsInt(_p10.width)
 				},
 				_1: {ctor: '[]'}
 			});
@@ -10412,10 +10419,7 @@ var _terezka$elm_plot$Plot_Line$strokeWidth = F2(
 					_0: {
 						ctor: '_Tuple2',
 						_0: 'stroke-width',
-						_1: A2(
-							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(strokeWidth),
-							'px')
+						_1: _terezka$elm_plot$Internal_Draw$toPixelsInt(strokeWidth)
 					},
 					_1: config.style
 				}
@@ -10522,10 +10526,7 @@ var _terezka$elm_plot$Plot_Tick$strokeWidth = F2(
 					_0: {
 						ctor: '_Tuple2',
 						_0: 'stroke-width',
-						_1: A2(
-							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(strokeWidth),
-							'px')
+						_1: _terezka$elm_plot$Internal_Draw$toPixelsInt(strokeWidth)
 					},
 					_1: config.style
 				}
@@ -10640,10 +10641,7 @@ var _terezka$elm_plot$Plot_Label$fontSize = F2(
 					_0: {
 						ctor: '_Tuple2',
 						_0: 'font-size',
-						_1: A2(
-							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(fontSize),
-							'px')
+						_1: _terezka$elm_plot$Internal_Draw$toPixelsInt(fontSize)
 					},
 					_1: config.style
 				}
@@ -10687,10 +10685,7 @@ var _terezka$elm_plot$Plot_Label$strokeWidth = F2(
 					_0: {
 						ctor: '_Tuple2',
 						_0: 'stroke-width',
-						_1: A2(
-							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(strokeWidth),
-							'px')
+						_1: _terezka$elm_plot$Internal_Draw$toPixelsInt(strokeWidth)
 					},
 					_1: config.style
 				}
@@ -11026,10 +11021,7 @@ var _terezka$elm_plot$Plot_Area$strokeWidth = F2(
 					_0: {
 						ctor: '_Tuple2',
 						_0: 'stroke-width',
-						_1: A2(
-							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(strokeWidth),
-							'px')
+						_1: _terezka$elm_plot$Internal_Draw$toPixelsInt(strokeWidth)
 					},
 					_1: config.style
 				}
@@ -11572,10 +11564,7 @@ var _terezka$elm_plot$Internal_Hint$viewLine = F2(
 								_0: {
 									ctor: '_Tuple2',
 									_0: 'height',
-									_1: A2(
-										_elm_lang$core$Basics_ops['++'],
-										_elm_lang$core$Basics$toString(length),
-										'px')
+									_1: _terezka$elm_plot$Internal_Draw$toPixels(length)
 								},
 								_1: {ctor: '[]'}
 							},
@@ -11615,20 +11604,14 @@ var _terezka$elm_plot$Internal_Hint$view = F3(
 							_0: {
 								ctor: '_Tuple2',
 								_0: 'left',
-								_1: A2(
-									_elm_lang$core$Basics_ops['++'],
-									_elm_lang$core$Basics$toString(xSvg),
-									'px')
+								_1: _terezka$elm_plot$Internal_Draw$toPixels(xSvg)
 							},
 							_1: {
 								ctor: '::',
 								_0: {
 									ctor: '_Tuple2',
 									_0: 'top',
-									_1: A2(
-										_elm_lang$core$Basics_ops['++'],
-										_elm_lang$core$Basics$toString(_p8.offset),
-										'px')
+									_1: _terezka$elm_plot$Internal_Draw$toPixels(_p8.offset)
 								},
 								_1: {ctor: '[]'}
 							}
@@ -12116,20 +12099,14 @@ var _terezka$elm_plot$Plot$sizeStyle = function (_p53) {
 		_0: {
 			ctor: '_Tuple2',
 			_0: 'height',
-			_1: A2(
-				_elm_lang$core$Basics_ops['++'],
-				_elm_lang$core$Basics$toString(_p54._1),
-				'px')
+			_1: _terezka$elm_plot$Internal_Draw$toPixels(_p54._1)
 		},
 		_1: {
 			ctor: '::',
 			_0: {
 				ctor: '_Tuple2',
 				_0: 'width',
-				_1: A2(
-					_elm_lang$core$Basics_ops['++'],
-					_elm_lang$core$Basics$toString(_p54._0),
-					'px')
+				_1: _terezka$elm_plot$Internal_Draw$toPixels(_p54._0)
 			},
 			_1: {ctor: '[]'}
 		}
