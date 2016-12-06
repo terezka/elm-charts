@@ -32,7 +32,7 @@ import Svg
 import Plot.Bars as Bars
 import Internal.Bars as BarsInternal
 import Internal.Pile as Internal
-import Internal.Types exposing (Style, Point, Orientation(..))
+import Internal.Types exposing (Style, Point, Orientation(..), MaxWidth(..))
 
 
 {-| -}
@@ -50,7 +50,22 @@ stackByY config =
     { config | stackBy = Y }
 
 
+{-| Set a fixed max width (in pixels) on your bars.
+-}
+maxBarWidth : Int -> Attribute
+maxBarWidth max config =
+    { config | maxWidth = Fixed max }
+
+
+{-| Set a relative max width (in percentage) your bars.
+-}
+maxBarWidthPer : Int -> Attribute
+maxBarWidthPer max config =
+    { config | maxWidth = Percentage max }
+
+
 {-| Add a barchart. -} 
 bars : List (Bars.Attribute msg) -> List Point -> Element msg
 bars attrs points =
     Internal.Bars (List.foldr (<|) BarsInternal.defaultConfig attrs) points
+

@@ -38,20 +38,6 @@ type alias Attribute a =
     Internal.Config a -> Internal.Config a
 
 
-{-| Set the stroke color.
--}
-stroke : String -> Attribute a
-stroke stroke config =
-    { config | style = ( "stroke", stroke ) :: config.style }
-
-
-{-| Set the stroke width (in pixels).
--}
-strokeWidth : Int -> Attribute a
-strokeWidth strokeWidth config =
-    { config | style = ( "stroke-width", toString strokeWidth ++ "px" ) :: config.style }
-
-
 {-| Set the fill color.
 -}
 fill : String -> Attribute a
@@ -64,14 +50,6 @@ fill fill config =
 opacity : Float -> Attribute a
 opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
-
-
-{-| Set a max width on your bars.
--}
-maxWidth : Int -> Attribute a
-maxWidth max config =
-    { config | maxWidth = Just <| toFloat max }
-
 
 
 {-| Add your own attributes.

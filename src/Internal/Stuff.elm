@@ -76,3 +76,12 @@ toNearest values value =
 
         Y ->
             y
+
+
+getValues : Orientation -> List Point -> List Float
+getValues orientation =
+    let
+        toValue = (?) orientation Tuple.first Tuple.second
+    in
+        List.map toValue
+    

@@ -1,4 +1,4 @@
-module Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo, Anchor(..), BarsMeta, barsMetaInit)
+module Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo, Anchor(..), PileMeta, Axis, Edges, MaxWidth(..))
 
 
 type alias Point =
@@ -19,22 +19,30 @@ type Anchor
     | Outer
 
 
-type alias BarsMeta =
+type MaxWidth
+    = Fixed Int
+    | Percentage Int
+
+
+type alias Edges =
+    { lower : Float
+    , upper : Float
+    }
+
+
+type alias Axis a =
+    { x : a
+    , y : a
+    }
+
+
+type alias PileMeta =
     { lowest : Float
     , highest : Float
     , numOfBarSeries : Int
     , pointCount : Int
+    , stackBy : Orientation
     }
-
-
-barsMetaInit : BarsMeta
-barsMetaInit =
-    { lowest = 0
-    , highest = 0
-    , numOfBarSeries = 0
-    , pointCount = 0
-    }
-
 
 
 type alias Meta =
@@ -48,8 +56,8 @@ type alias Meta =
     , axisCrossings : List Float
     , oppositeAxisCrossings : List Float
     , getHintInfo : Float -> HintInfo
+    , pileMetas : List PileMeta
     , toNearestX : Float -> Float
-    , barsMeta : BarsMeta
     , id : String
     }
 

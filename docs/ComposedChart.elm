@@ -10,6 +10,8 @@ import Plot.Grid as Grid
 import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Hint as Hint
+import Plot.Pile as Pile
+import Plot.Bars as Bars
 import Plot.Label as Label
 import Debug
 import Colors
@@ -68,6 +70,19 @@ chart state =
             [ Grid.lines [ Line.stroke "#f2f2f2" ] ]
         , verticalGrid
             [ Grid.lines [ Line.stroke "#f2f2f2" ] ]
+        , pile
+            []
+            [ Pile.bars
+                [ Bars.fill Colors.blueFill ]
+                (List.map (\(x, y) -> (x / 2 - 2.5, y*2)) data1)
+            
+            , Pile.bars
+                [ Bars.fill Colors.skinFill ]
+                (List.map (\(x, y) -> (x / 2 - 2.5, y*3)) data1)
+            , Pile.bars
+                [ Bars.fill Colors.pinkFill ]
+                (List.map (\(x, y) -> (x / 2 - 2.5, y)) data1)
+            ]
         , area
             [ Area.stroke Colors.skinStroke
             , Area.fill Colors.skinFill

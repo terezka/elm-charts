@@ -17,7 +17,7 @@ data1 =
 
 data : List ( Float, Float )
 data =
-    [ ( 0.0, 20 ), ( 0.5, 20 ),( 1, 40 ) ]
+    [ ( 0.0, 20 ), ( 0.5, -20 ),( 1, 40 ) ]
 
 
 chart : Svg.Svg a
@@ -26,26 +26,20 @@ chart =
         [ size ( 600, 300 )
         , margin ( 10, 20, 40, 40 )
         ]
-        [ pile 
-            []
+        [ pile
+            [ Pile.maxBarWidthPer 85 ]
             [ Pile.bars
-                [ Bars.stroke Colors.blueStroke
-                , Bars.fill Colors.blueFill
-                ]
+                [ Bars.fill Colors.blueFill ]
                 (List.map (\(x, y) -> (x, y*2)) data)
             
             , Pile.bars
-                [ Bars.stroke Colors.skinStroke
-                , Bars.fill Colors.skinFill
-                ]
+                [ Bars.fill Colors.skinFill ]
                 (List.map (\(x, y) -> (x, y*3)) data)
-            
             , Pile.bars
-                [ Bars.stroke Colors.pinkStroke
-                , Bars.fill Colors.pinkFill
-                ]
+                [ Bars.fill Colors.pinkFill ]
                 data
             ]
+        , yAxis []
         , xAxis
             [ Axis.line [ Line.stroke Colors.axisColor ]
             , Axis.tick [ Tick.delta 0.5 ]

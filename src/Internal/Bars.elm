@@ -1,4 +1,4 @@
-module Internal.Bars exposing (..)
+module Internal.Bars exposing (Config, defaultConfig, view)
 
 import Svg
 import Svg.Attributes
@@ -9,23 +9,19 @@ import Internal.Stuff exposing (..)
 
 type alias Config a =
     { style : Style
-    , maxWidth : Maybe Float
-    , points : List Point
     , customAttrs : List (Svg.Attribute a)
     }
 
 
 defaultConfig : Config a
 defaultConfig =
-    { style = [ ( "fill", "transparent" ) ]
-    , maxWidth = Nothing
-    , points = []
+    { style = [ ( "stroke", "transparent" ) ]
     , customAttrs = []
     }
 
 
-view : Meta -> Int -> Config a -> List Point -> Svg.Svg a
-view ({ toSvgCoords, scale, barsMeta } as meta) index ({ style, maxWidth } as config) points =
+view : Meta -> PileMeta -> MaxWidth -> Int -> Config a -> List Point -> Svg.Svg a
+view ({ toSvgCoords, scale } as meta) pileMeta maxWidth index ({ style } as config) points =
     let
         svgPoints =
             List.map toSvgCoords points
@@ -34,60 +30,44 @@ view ({ toSvgCoords, scale, barsMeta } as meta) index ({ style, maxWidth } as co
             toSvgCoords ( 0, 0 )
 
         width =
-            toBarWidth meta config points
+            toBarWidth meta pileMeta maxWidth points
     in
         Svg.g
             [ Svg.Attributes.style (toStyle style) ]
-            (List.map (toBar barsMeta index width originY) svgPoints)
+            (List.map (toBar pileMeta index width originY) svgPoints)
 
 
-toBar : BarsMeta -> Int -> Float -> Float -> Point -> Svg.Svg a
-toBar barsMeta index width originY ( x, y ) =
+toBar : PileMeta -> Int -> Float -> Float -> Point -> Svg.Svg a
+toBar pileMeta index width originY ( x, y ) =
     Svg.rect
-        [ Svg.Attributes.x (toString <| x + barOffset barsMeta index width )
-        , Svg.Attributes.y (toString <| y)
-        , Svg.Attributes.width (toString width)
-        , Svg.Attributes.height (toString <| originY - y)
+        [ Svg.Attributes.x <| toString <| x + barOffset pileMeta index width
+        , Svg.Attributes.y <| toString <| min originY y
+        , Svg.Attributes.width <| toString <| width
+        , Svg.Attributes.height <| toString <| abs <| originY - y
         ]
         []
 
 
-toBarWidth : Meta -> Config a -> List Point -> Float
-toBarWidth { barsMeta, scale } { maxWidth } points =
+toBarWidth : Meta -> PileMeta -> MaxWidth -> List Point -> Float
+toBarWidth { scale } pileMeta maxWidth points =
     let
         widthAuto =
-            barAutoWidth scale barsMeta
+            barAutoWidth scale pileMeta
     in
         case maxWidth of
-            Nothing ->
-                widthAuto
+            Percentage perc ->
+                widthAuto * (toFloat perc) / 100
 
-            Just max ->
-                if widthAuto > max then max else widthAuto
+            Fixed max ->
+                if widthAuto > (toFloat max) then toFloat max else widthAuto
 
 
-barAutoWidth : Scale -> BarsMeta -> Float
-barAutoWidth { length, range } ({ highest, lowest, pointCount, numOfBarSeries } as barsMeta) =
+barAutoWidth : Scale -> PileMeta -> Float
+barAutoWidth { length, range } ({ highest, lowest, pointCount, numOfBarSeries } as pileMeta) =
     (length * (highest - lowest) / range) / (toFloat <| pointCount * numOfBarSeries)
 
 
-barOffset : BarsMeta -> Int -> Float -> Float
+barOffset : PileMeta -> Int -> Float -> Float
 barOffset { numOfBarSeries } index width =
     width * (toFloat index - (toFloat numOfBarSeries / 2))
 
-
-collectBarsMeta : List Point -> BarsMeta -> BarsMeta
-collectBarsMeta points ({ lowest, highest, numOfBarSeries, pointCount } as barsMeta) =
-    let
-        range =
-            List.map Tuple.first points
-
-        ( lowestBar, highestBar ) =
-            ( getLowest range, getHighest range )
-    in
-        { barsMeta
-        | lowest = min lowest lowestBar
-        , highest = max highest highestBar
-        , numOfBarSeries = numOfBarSeries + 1
-        , pointCount = max pointCount (List.length points)
-        }

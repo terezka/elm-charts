@@ -100,7 +100,7 @@ type alias Style =
 type Element msg
     = Line (LineInternal.Config msg) (List Point)
     | Area (AreaInternal.Config msg) (List Point)
-    | Pile (PileInternal.Config) (List (PileInternal.Element msg))
+    | Pile (PileInternal.Config) (List (PileInternal.Element msg)) PileMeta
     | Scatter (ScatterInternal.Config msg) (List Point)
     | Hint (HintInternal.Config msg) (Maybe Point)
     | Axis (AxisInternal.Config msg)
@@ -284,7 +284,10 @@ scatter attrs points =
 -}
 pile : List Pile.Attribute -> List (Pile.Element msg) -> Element msg
 pile attrs barsConfigs =
-    Pile (List.foldr (<|) PileInternal.defaultConfig attrs) barsConfigs
+    let
+        config = List.foldr (<|) PileInternal.defaultConfig attrs
+    in
+        Pile config barsConfigs (PileInternal.toPileMeta config barsConfigs)
 
 
 {-| -}
@@ -497,8 +500,8 @@ viewElement meta element ( svgViews, htmlViews ) =
         Scatter config points ->
             ( (ScatterInternal.view meta config points) :: svgViews, htmlViews )
 
-        Pile config barsConfigs ->
-            ( (PileInternal.view meta config barsConfigs) :: svgViews, htmlViews )
+        Pile config barsConfigs pileMeta ->
+            ( (PileInternal.view meta pileMeta config barsConfigs) :: svgViews, htmlViews )
         
         Axis ({ orientation } as config) ->
             ( (AxisInternal.view (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
@@ -523,7 +526,7 @@ viewElement meta element ( svgViews, htmlViews ) =
 
 
 calculateMeta : Config -> List (Element msg) -> Meta
-calculateMeta { size, padding, margin, id, range, domain } elements =
+calculateMeta ({ size, padding, margin, id, range, domain } as config) elements =
     let
         ( xValues, yValues ) =
             List.unzip (List.foldr collectPoints [] elements)
@@ -531,10 +534,11 @@ calculateMeta { size, padding, margin, id, range, domain } elements =
         ( xAxisConfigs, yAxisConfigs ) =
             List.foldr collectAxisConfigs ([], []) elements
 
-        barsMeta =
-            List.foldr collectPiles [] elements
-            |> List.foldr collectBarsMeta barsMetaInit 
-            |> addBarsPadding
+        pileMetas =
+            List.foldr collectPileMetas [] elements
+
+        pileEdges =
+            PileInternal.toPileEdges pileMetas
 
         ( width, height ) =
             size
@@ -543,10 +547,10 @@ calculateMeta { size, padding, margin, id, range, domain } elements =
             margin
 
         xScale =
-            getScale width range ( left, right ) ( 0, 0 ) xValues barsMeta
+            getScale width range ( left, right ) ( 0, 0 ) xValues pileEdges.x
 
         yScale =
-            getScale height domain ( top, bottom ) padding yValues barsMetaInit
+            getScale height domain ( top, bottom ) padding yValues pileEdges.y
 
         xTicks =
             getLastGetTickValues xAxisConfigs xScale
@@ -565,7 +569,7 @@ calculateMeta { size, padding, margin, id, range, domain } elements =
         , oppositeAxisCrossings = getAxisCrossings yAxisConfigs xScale
         , toNearestX = toNearest xValues
         , getHintInfo = getHintInfo elements
-        , barsMeta = barsMeta
+        , pileMetas = pileMetas
         , id = id
         }
 
@@ -597,17 +601,17 @@ getFlippedMeta orientation meta =
 {-| All naming assumes dealing with the x-axis, but can also be used with
  the t-axis, just flip it in your mind.
 -}
-getScale : Float -> ( Maybe Float, Maybe Float ) -> ( Float, Float ) -> ( Float, Float ) -> List Float -> BarsMeta -> Scale
-getScale lengthTotal ( forcedLowest, forcedHighest ) ( offsetLeft, offsetRight ) ( paddingBottomPx, paddingTopPx ) values barsMeta =
+getScale : Float -> ( Maybe Float, Maybe Float ) -> ( Float, Float ) -> ( Float, Float ) -> List Float -> Maybe Edges -> Scale
+getScale lengthTotal ( forcedLowest, forcedHighest ) ( offsetLeft, offsetRight ) ( paddingBottomPx, paddingTopPx ) values pileEdges =
     let
         length =
             lengthTotal - offsetLeft - offsetRight
 
         lowest =
-           getScaleLowest forcedLowest values barsMeta
+           getScaleLowest forcedLowest values pileEdges
 
         highest =
-            getScaleHighest forcedHighest values barsMeta
+            getScaleHighest forcedHighest values pileEdges
 
         range =
             getRange lowest highest
@@ -626,40 +630,44 @@ getScale lengthTotal ( forcedLowest, forcedHighest ) ( offsetLeft, offsetRight )
         }
 
 
-getScaleLowest : Maybe Float -> List Float -> BarsMeta -> Float
-getScaleLowest forcedLowest values barsMeta =
+getScaleLowest : Maybe Float -> List Float -> Maybe Edges -> Float
+getScaleLowest forcedLowest values pileEdges =
     case forcedLowest of
         Just value ->
             value
 
         Nothing ->
-            getAutoLowest barsMeta (getLowest values)
+            getAutoLowest pileEdges (getLowest values)
 
 
-getAutoLowest : BarsMeta -> Float -> Float
-getAutoLowest { lowest, numOfBarSeries } lowestFromValues =
-    if numOfBarSeries > 0 then
-        min lowest lowestFromValues
-    else
-        lowestFromValues
+getAutoLowest :  Maybe Edges -> Float -> Float
+getAutoLowest pileEdges lowestFromValues =
+    case pileEdges of
+        Just { lower } ->
+            min lower lowestFromValues
+
+        Nothing ->
+            lowestFromValues
 
 
-getScaleHighest : Maybe Float -> List Float -> BarsMeta -> Float
-getScaleHighest forcedHighest values barsMeta =
+getScaleHighest : Maybe Float -> List Float ->  Maybe Edges -> Float
+getScaleHighest forcedHighest values pileEdges =
     case forcedHighest of
         Just value ->
             value
 
         Nothing ->
-            getAutoHighest barsMeta (getHighest values)
+            getAutoHighest pileEdges (getHighest values)
 
 
-getAutoHighest : BarsMeta -> Float -> Float
-getAutoHighest { highest, numOfBarSeries } highestFromValues =
-    if numOfBarSeries > 0 then
-        max highest highestFromValues
-    else
-        highestFromValues
+getAutoHighest : Maybe Edges -> Float -> Float
+getAutoHighest pileEdges highestFromValues =
+    case pileEdges of
+        Just { upper } ->
+            max upper highestFromValues
+
+        Nothing ->
+            highestFromValues
 
 
 scaleValue : Scale -> Float -> Float
@@ -731,7 +739,7 @@ collectPoints element allPoints =
         Scatter config points ->
             allPoints ++ points
 
-        Pile config pileElements ->
+        Pile config pileElements _ ->
             let
                 points =
                     List.foldr (\(PileInternal.Bars config points) allBarPoints -> allBarPoints ++ points) [] pileElements
@@ -742,38 +750,14 @@ collectPoints element allPoints =
             allPoints
 
 
-
-collectPiles : Element msg -> List (PileInternal.Element msg) -> List (PileInternal.Element msg)
-collectPiles element pileElements =
+collectPileMetas : Element msg -> List PileMeta -> List PileMeta
+collectPileMetas element allPileMetas =
     case element of
-        Pile _ pileElement ->
-            pileElement ++ pileElements
+        Pile _ _ meta  ->
+            meta :: allPileMetas
 
         _ -> 
-            pileElements
-
-
-collectBarsMeta : PileInternal.Element msg -> BarsMeta -> BarsMeta
-collectBarsMeta element barsMeta =
-    case element of
-        PileInternal.Bars _ points ->
-            BarsInternal.collectBarsMeta points barsMeta
-
-
-addBarsPadding : BarsMeta -> BarsMeta
-addBarsPadding ({ lowest, highest, pointCount } as barsMeta) =
-    let
-        delta = (highest - lowest) / (innerBarsCount barsMeta)
-    in
-        { barsMeta
-        | lowest = lowest - delta
-        , highest = highest + delta
-        }
-
-
-innerBarsCount : BarsMeta -> Float
-innerBarsCount { lowest, highest, pointCount } =
-    toFloat <| (pointCount - 1) * 2
+            allPileMetas
 
 
 collectYValues : Float -> Element msg -> List (Maybe Float) -> List (Maybe Float)
@@ -788,7 +772,7 @@ collectYValues xValue element yValues =
         Scatter config points ->
             collectYValue xValue points :: yValues
 
-        Pile config barsConfigs ->
+        Pile config barsConfigs _ ->
             List.map (\(PileInternal.Bars config points) -> collectYValue xValue points) barsConfigs
             |> (++) yValues
 
