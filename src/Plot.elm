@@ -96,7 +96,7 @@ type alias Style =
     List ( String, String )
 
 
-{-| Represents child element of the plot.
+{-| Represents a child element of the plot.
 -}
 type Element msg
     = Line (LineInternal.Config msg) (List Point)
@@ -572,8 +572,7 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
         yTicks =
             getLastGetTickValues axisConfigs.y yScale
     in
-        { scale = xScale
-        , oppositeScale = yScale
+        { scale = toAxisType xScale yScale
         , oppositeToSvgCoords = toSvgCoordsY xScale yScale
         , toSvgCoords = toSvgCoordsX xScale yScale
         , fromSvgCoords = fromSvgCoords xScale yScale
@@ -588,11 +587,10 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
         }
 
 
-flipToY : Meta -> Meta
-flipToY ({ scale, oppositeScale, toSvgCoords, oppositeToSvgCoords, ticks, oppositeTicks, axisCrossings, oppositeAxisCrossings } as meta) =
+flipMeta : Meta -> Meta
+flipMeta ({ scale, toSvgCoords, oppositeToSvgCoords, ticks, oppositeTicks, axisCrossings, oppositeAxisCrossings } as meta) =
     { meta
-        | scale = oppositeScale
-        , oppositeScale = scale
+        | scale = flipAxis scale
         , toSvgCoords = oppositeToSvgCoords
         , oppositeToSvgCoords = toSvgCoords
         , axisCrossings = oppositeAxisCrossings
@@ -609,7 +607,7 @@ getFlippedMeta orientation meta =
             meta
 
         Y ->
-            flipToY meta
+            flipMeta meta
 
 
 {-| All naming assumes dealing with the x-axis, but can also be used with

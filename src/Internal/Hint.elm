@@ -22,7 +22,7 @@ defaultConfig =
 
 
 view : Meta -> Config msg -> ( Float, Float ) -> Html.Html msg
-view { toSvgCoords, scale, oppositeScale, getHintInfo } { lineStyle, view } position =
+view { toSvgCoords, scale, getHintInfo } { lineStyle, view } position =
     let
         info =
             getHintInfo (Tuple.first position)
@@ -31,16 +31,16 @@ view { toSvgCoords, scale, oppositeScale, getHintInfo } { lineStyle, view } posi
             toSvgCoords ( info.xValue, 0 )
 
         flipped =
-            xSvg < scale.length / 2
+            xSvg < scale.x.length / 2
 
         lineView =
-            [ viewLine lineStyle oppositeScale.length ]
+            [ viewLine lineStyle scale.y.length ]
     in
         Html.div
             [ Html.Attributes.class "elm-plot__hint"
             , Html.Attributes.style
                 [ ( "left", toPixels xSvg )
-                , ( "top", toPixels oppositeScale.offset )
+                , ( "top", toPixels scale.y.offset )
                 ]
             ]
             ((view info flipped) :: lineView)

@@ -13,7 +13,7 @@ fullLine : List (Attribute a) -> Meta -> Float -> Svg a
 fullLine attributes { toSvgCoords, scale } value =
     let
         { lowest, highest } =
-            scale
+            scale.x
 
         begin =
             toSvgCoords ( lowest, value )

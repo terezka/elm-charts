@@ -22,7 +22,7 @@ defaultConfig =
 
 
 view : Meta -> Config a -> List Point -> Svg.Svg a
-view { toSvgCoords, oppositeScale } { style, customAttrs } points =
+view { toSvgCoords, scale } { style, customAttrs } points =
     let
         ( lowestX, highestX ) =
             getEdgesX points
@@ -31,7 +31,7 @@ view { toSvgCoords, oppositeScale } { style, customAttrs } points =
             List.map toSvgCoords points
 
         areaEnd =
-            clamp oppositeScale.lowest oppositeScale.highest 0
+            clamp scale.y.lowest scale.y.highest 0
 
         ( highestSvgX, originY ) =
             toSvgCoords ( highestX, areaEnd )

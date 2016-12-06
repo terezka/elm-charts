@@ -48,10 +48,10 @@ defaultConfigY =
 
 
 view : Meta -> Config msg -> Svg.Svg msg
-view ({ scale, toSvgCoords, oppositeScale, oppositeAxisCrossings } as meta) ({ lineConfig, tickConfig, labelConfig, orientation, cleanCrossings, position, anchor, classes } as config) =
+view ({ scale, toSvgCoords, oppositeAxisCrossings } as meta) ({ lineConfig, tickConfig, labelConfig, orientation, cleanCrossings, position, anchor, classes } as config) =
     let
         tickValues =
-            Tick.getValues tickConfig scale
+            Tick.getValues tickConfig scale.x
                 |> filterValues cleanCrossings oppositeAxisCrossings
                 |> Tick.indexValues
 
@@ -59,7 +59,7 @@ view ({ scale, toSvgCoords, oppositeScale, oppositeAxisCrossings } as meta) ({ l
             Label.getValuesIndexed labelConfig.valueConfig tickValues
 
         axisPosition =
-            getAxisPosition oppositeScale position
+            getAxisPosition scale.y position
     in
         Svg.g
             [ Draw.classAttributeOriented "axis" orientation classes ]

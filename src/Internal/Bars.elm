@@ -21,7 +21,7 @@ defaultConfig =
 
 
 view : Meta -> PileMeta -> MaxWidth -> Int -> Config a -> List Point -> Svg.Svg a
-view ({ toSvgCoords, scale } as meta) pileMeta maxWidth index ({ style } as config) points =
+view ({ toSvgCoords } as meta) pileMeta maxWidth index ({ style } as config) points =
     let
         svgPoints =
             List.map toSvgCoords points
@@ -52,7 +52,7 @@ toBarWidth : Meta -> PileMeta -> MaxWidth -> List Point -> Float
 toBarWidth { scale } pileMeta maxWidth points =
     let
         widthAuto =
-            barAutoWidth scale pileMeta
+            barAutoWidth scale.x pileMeta
     in
         case maxWidth of
             Percentage perc ->

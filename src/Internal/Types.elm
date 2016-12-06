@@ -64,12 +64,11 @@ type alias PileMeta =
 
 
 type alias Meta =
-    { scale : Scale
+    { scale : Axis Scale
     , ticks : List Float
     , toSvgCoords : Point -> Point
     , fromSvgCoords : Point -> Point
     , oppositeTicks : List Float
-    , oppositeScale : Scale
     , oppositeToSvgCoords : Point -> Point
     , axisCrossings : List Float
     , oppositeAxisCrossings : List Float

@@ -85,3 +85,13 @@ getValues orientation =
             (?) orientation Tuple.first Tuple.second
     in
         List.map toValue
+
+
+toAxisType : a -> a -> Axis a
+toAxisType x y =
+    { x = x, y = y }
+
+
+flipAxis : Axis a -> Axis a
+flipAxis { x, y } =
+    { x = y, y = x }

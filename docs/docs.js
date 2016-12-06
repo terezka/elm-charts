@@ -9393,9 +9393,7 @@ var _terezka$elm_plot$Internal_Types$Meta = function (a) {
 									return function (j) {
 										return function (k) {
 											return function (l) {
-												return function (m) {
-													return {scale: a, ticks: b, toSvgCoords: c, fromSvgCoords: d, oppositeTicks: e, oppositeScale: f, oppositeToSvgCoords: g, axisCrossings: h, oppositeAxisCrossings: i, getHintInfo: j, pileMetas: k, toNearestX: l, id: m};
-												};
+												return {scale: a, ticks: b, toSvgCoords: c, fromSvgCoords: d, oppositeTicks: e, oppositeToSvgCoords: f, axisCrossings: g, oppositeAxisCrossings: h, getHintInfo: i, pileMetas: j, toNearestX: k, id: l};
 											};
 										};
 									};
@@ -9427,11 +9425,19 @@ var _terezka$elm_plot$Internal_Types$Fixed = function (a) {
 	return {ctor: 'Fixed', _0: a};
 };
 
+var _terezka$elm_plot$Internal_Stuff$flipAxis = function (_p0) {
+	var _p1 = _p0;
+	return {x: _p1.y, y: _p1.x};
+};
+var _terezka$elm_plot$Internal_Stuff$toAxisType = F2(
+	function (x, y) {
+		return {x: x, y: y};
+	});
 var _terezka$elm_plot$Internal_Stuff_ops = _terezka$elm_plot$Internal_Stuff_ops || {};
 _terezka$elm_plot$Internal_Stuff_ops['?'] = F3(
 	function (orientation, x, y) {
-		var _p0 = orientation;
-		if (_p0.ctor === 'X') {
+		var _p2 = orientation;
+		if (_p2.ctor === 'X') {
 			return x;
 		} else {
 			return y;
@@ -9707,7 +9713,7 @@ var _terezka$elm_plot$Internal_Draw$fullLine = F3(
 	function (attributes, _p12, value) {
 		var _p13 = _p12;
 		var _p15 = _p13.toSvgCoords;
-		var _p14 = _p13.scale;
+		var _p14 = _p13.scale.x;
 		var lowest = _p14.lowest;
 		var highest = _p14.highest;
 		var begin = _p15(
@@ -10307,19 +10313,20 @@ var _terezka$elm_plot$Internal_Axis$viewAxisLine = function (_p31) {
 var _terezka$elm_plot$Internal_Axis$view = F2(
 	function (_p34, _p33) {
 		var _p35 = _p34;
+		var _p42 = _p35.scale;
 		var _p41 = _p35;
 		var _p36 = _p33;
 		var _p40 = _p36.tickConfig;
 		var _p39 = _p36.orientation;
 		var _p38 = _p36.labelConfig;
 		var _p37 = _p36;
-		var axisPosition = A2(_terezka$elm_plot$Internal_Axis$getAxisPosition, _p35.oppositeScale, _p36.position);
+		var axisPosition = A2(_terezka$elm_plot$Internal_Axis$getAxisPosition, _p42.y, _p36.position);
 		var tickValues = _terezka$elm_plot$Internal_Tick$indexValues(
 			A3(
 				_terezka$elm_plot$Internal_Axis$filterValues,
 				_p36.cleanCrossings,
 				_p35.oppositeAxisCrossings,
-				A2(_terezka$elm_plot$Internal_Tick$getValues, _p40, _p35.scale)));
+				A2(_terezka$elm_plot$Internal_Tick$getValues, _p40, _p42.x)));
 		var labelValues = A2(_terezka$elm_plot$Internal_Label$getValuesIndexed, _p38.valueConfig, tickValues);
 		return A2(
 			_elm_lang$svg$Svg$g,
@@ -10925,9 +10932,9 @@ var _terezka$elm_plot$Internal_Area$view = F3(
 	function (_p1, _p0, points) {
 		var _p2 = _p1;
 		var _p8 = _p2.toSvgCoords;
-		var _p7 = _p2.oppositeScale;
+		var _p7 = _p2.scale;
 		var _p3 = _p0;
-		var areaEnd = A3(_elm_lang$core$Basics$clamp, _p7.lowest, _p7.highest, 0);
+		var areaEnd = A3(_elm_lang$core$Basics$clamp, _p7.y.lowest, _p7.y.highest, 0);
 		var svgCoords = A2(_elm_lang$core$List$map, _p8, points);
 		var instructions = A2(_terezka$elm_plot$Internal_Draw$coordsToInstruction, 'L', svgCoords);
 		var _p4 = _terezka$elm_plot$Internal_Stuff$getEdgesX(points);
@@ -11065,7 +11072,7 @@ var _terezka$elm_plot$Internal_Bars$barAutoWidth = F2(
 var _terezka$elm_plot$Internal_Bars$toBarWidth = F4(
 	function (_p6, pileMeta, maxWidth, points) {
 		var _p7 = _p6;
-		var widthAuto = A2(_terezka$elm_plot$Internal_Bars$barAutoWidth, _p7.scale, pileMeta);
+		var widthAuto = A2(_terezka$elm_plot$Internal_Bars$barAutoWidth, _p7.scale.x, pileMeta);
 		var _p8 = maxWidth;
 		if (_p8.ctor === 'Percentage') {
 			return (widthAuto * _elm_lang$core$Basics$toFloat(_p8._0)) / 100;
@@ -11588,11 +11595,11 @@ var _terezka$elm_plot$Internal_Hint$viewLine = F2(
 var _terezka$elm_plot$Internal_Hint$view = F3(
 	function (_p4, _p3, position) {
 		var _p5 = _p4;
-		var _p8 = _p5.oppositeScale;
+		var _p8 = _p5.scale;
 		var _p6 = _p3;
 		var lineView = {
 			ctor: '::',
-			_0: A2(_terezka$elm_plot$Internal_Hint$viewLine, _p6.lineStyle, _p8.length),
+			_0: A2(_terezka$elm_plot$Internal_Hint$viewLine, _p6.lineStyle, _p8.y.length),
 			_1: {ctor: '[]'}
 		};
 		var info = _p5.getHintInfo(
@@ -11601,7 +11608,7 @@ var _terezka$elm_plot$Internal_Hint$view = F3(
 			{ctor: '_Tuple2', _0: info.xValue, _1: 0});
 		var xSvg = _p7._0;
 		var ySvg = _p7._1;
-		var flipped = _elm_lang$core$Native_Utils.cmp(xSvg, _p5.scale.length / 2) < 0;
+		var flipped = _elm_lang$core$Native_Utils.cmp(xSvg, _p8.x.length / 2) < 0;
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -11622,7 +11629,7 @@ var _terezka$elm_plot$Internal_Hint$view = F3(
 								_0: {
 									ctor: '_Tuple2',
 									_0: 'top',
-									_1: _terezka$elm_plot$Internal_Draw$toPixels(_p8.offset)
+									_1: _terezka$elm_plot$Internal_Draw$toPixels(_p8.y.offset)
 								},
 								_1: {ctor: '[]'}
 							}
@@ -11903,11 +11910,19 @@ var _terezka$elm_plot$Plot$getScale = F6(
 		var paddingBottom = A3(_terezka$elm_plot$Internal_Stuff$pixelsToValue, length, range, _p32._0);
 		return {lowest: lowest - paddingBottom, highest: highest + paddingTop, range: (range + paddingBottom) + paddingTop, length: length, offset: _p33};
 	});
-var _terezka$elm_plot$Plot$flipToY = function (_p34) {
+var _terezka$elm_plot$Plot$flipMeta = function (_p34) {
 	var _p35 = _p34;
 	return _elm_lang$core$Native_Utils.update(
 		_p35,
-		{scale: _p35.oppositeScale, oppositeScale: _p35.scale, toSvgCoords: _p35.oppositeToSvgCoords, oppositeToSvgCoords: _p35.toSvgCoords, axisCrossings: _p35.oppositeAxisCrossings, oppositeAxisCrossings: _p35.axisCrossings, ticks: _p35.oppositeTicks, oppositeTicks: _p35.ticks});
+		{
+			scale: _terezka$elm_plot$Internal_Stuff$flipAxis(_p35.scale),
+			toSvgCoords: _p35.oppositeToSvgCoords,
+			oppositeToSvgCoords: _p35.toSvgCoords,
+			axisCrossings: _p35.oppositeAxisCrossings,
+			oppositeAxisCrossings: _p35.axisCrossings,
+			ticks: _p35.oppositeTicks,
+			oppositeTicks: _p35.ticks
+		});
 };
 var _terezka$elm_plot$Plot$getFlippedMeta = F2(
 	function (orientation, meta) {
@@ -11915,7 +11930,7 @@ var _terezka$elm_plot$Plot$getFlippedMeta = F2(
 		if (_p36.ctor === 'X') {
 			return meta;
 		} else {
-			return _terezka$elm_plot$Plot$flipToY(meta);
+			return _terezka$elm_plot$Plot$flipMeta(meta);
 		}
 	});
 var _terezka$elm_plot$Plot$calculateMeta = F2(
@@ -11970,8 +11985,7 @@ var _terezka$elm_plot$Plot$calculateMeta = F2(
 			pileEdges.y);
 		var yTicks = A2(_terezka$elm_plot$Plot$getLastGetTickValues, axisConfigs.y, yScale);
 		return {
-			scale: xScale,
-			oppositeScale: yScale,
+			scale: A2(_terezka$elm_plot$Internal_Stuff$toAxisType, xScale, yScale),
 			oppositeToSvgCoords: A2(_terezka$elm_plot$Plot$toSvgCoordsY, xScale, yScale),
 			toSvgCoords: A2(_terezka$elm_plot$Plot$toSvgCoordsX, xScale, yScale),
 			fromSvgCoords: A2(_terezka$elm_plot$Plot$fromSvgCoords, xScale, yScale),
