@@ -12,15 +12,15 @@ import Plot.Area as Area
 import Plot.Grid as Grid
 import Plot.Axis as Axis
 import Plot.Label as Label
-import MultiAreaChart
-import GridChart
-import MultiLineChart
-import CustomTickChart
-import ComposedChart
-import ScatterChart
-import BarChart
-import HintChart
-import PlotAxis
+import PlotComposed
+import PlotScatter
+import PlotLines
+import PlotArea
+import PlotGrid
+import PlotTicks
+import PlotBars
+import PlotSticky
+import PlotHint
 
 
 -- MODEL
@@ -124,16 +124,16 @@ view model =
                 [ href "https://github.com/terezka/elm-plot" ]
                 [ text "Github" ]
             ]
-        , Html.map (PlotInteraction EverythingExample) <| ComposedChart.chart model.everythingExample
+        , Html.map (PlotInteraction EverythingExample) <| PlotComposed.view model.everythingExample
 
-        , viewPlot model ScatterChart.plotExample
-        , viewPlot model MultiLineChart.plotExample
-        , viewPlot model MultiAreaChart.plotExample
-        , viewPlot model GridChart.plotExample
-        , viewPlot model BarChart.plotExample
-        , viewPlot model CustomTickChart.plotExample
-        , viewPlot model PlotAxis.plotExample
-        , viewPlotInteractive model model.hintExample HintChart.plotExample
+        , viewPlot model PlotScatter.plotExample
+        , viewPlot model PlotLines.plotExample
+        , viewPlot model PlotArea.plotExample
+        , viewPlot model PlotGrid.plotExample
+        , viewPlot model PlotBars.plotExample
+        , viewPlot model PlotTicks.plotExample
+        , viewPlot model PlotSticky.plotExample
+        , viewPlotInteractive model model.hintExample PlotHint.plotExample
         , div
             [ class "view__footer" ]
             [ text "Made by "
