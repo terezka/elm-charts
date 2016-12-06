@@ -1,22 +1,39 @@
-module ScatterChart exposing (chart, code)
+module ScatterChart exposing (plotExample)
 
 import Svg
 import Plot exposing (..)
 import Plot.Scatter as Scatter
 import Plot.Axis as Axis
+import Plot.Tick as Tick
 import Plot.Line as Line
 import Colors
 
 
+plotExample =
+    { title = title
+    , code = code
+    , view = view
+    , fileName = fileName
+    }
+
+
+title : String
+title = "Scatters"
+
+
+fileName : String
+fileName = "ScatterChart"
+
+
 data : List ( Float, Float )
 data =
-    [ ( 0, 20 ), ( 1, 15 ), ( 2, 20 ), ( 3, 20 ), ( 4, 31 ), ( 5, 36 ), ( 6, 35 ), ( 7, 40 ) ]
+    [ ( 0, 10 ), ( 2, 12 ), ( 4, 27 ), ( 6, 25 ), ( 8, 46 ) ]
 
 
-chart : Svg.Svg a
-chart =
+view : Svg.Svg a
+view =
     plot
-        [ size ( 600, 300 )
+        [ size ( 380, 300 )
         , margin ( 10, 20, 40, 40 )
         , domain ( Just 0, Nothing )
         ]
@@ -26,7 +43,12 @@ chart =
             , Scatter.radius 8
             ]
             data
-        , xAxis [ Axis.line [ Line.stroke Colors.axisColor ] ]
+        , xAxis
+            [ Axis.line
+                [ Line.stroke Colors.axisColor ]
+            , Axis.tick
+                [ Tick.delta 2 ]
+            ]
         ]
 
 code : String

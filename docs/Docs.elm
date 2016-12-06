@@ -19,30 +19,54 @@ import CustomTickChart
 import ComposedChart
 import ScatterChart
 import BarChart
+import HintChart
+import PlotAxis
 
 
 -- MODEL
 
 
+type alias PlotExample a =
+    { title : String
+    , fileName : String
+    , view : Svg.Svg a
+    , code : String
+    }
+
+
+type alias PlotExampleInteractive a =
+    { title : String
+    , fileName : String
+    , view : Plot.State -> Svg.Svg (Interaction a)
+    , code : String
+    }
+
+
 type alias Model =
     { openSection : Maybe String
-    , plotState : Plot.State
+    , hintExample : Plot.State
+    , everythingExample : Plot.State
     }
 
 
 initialModel =
     { openSection = Nothing
-    , plotState = Plot.initialState
+    , hintExample = Plot.initialState
+    , everythingExample = Plot.initialState
     }
 
 
 
 -- UPDATE
 
+type PlotId
+    = HintExample
+    | EverythingExample
+
 
 type Msg
     = Toggle (Maybe String)
-    | PlotInteraction (Plot.Interaction Msg)
+    | PlotInteraction PlotId (Plot.Interaction Msg)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -51,14 +75,21 @@ update msg model =
         Toggle id ->
             ( { model | openSection = id }, Cmd.none )
 
-        PlotInteraction interaction ->
+        PlotInteraction id interaction ->
             case interaction of
                 Internal internalMsg ->
-                    let
-                        ( state, cmd ) =
-                            Plot.update internalMsg model.plotState
-                    in
-                        ( { model | plotState = state }, Cmd.map PlotInteraction cmd )
+                    case id of
+                        HintExample ->
+                            let 
+                                ( state, cmd ) = Plot.update internalMsg model.hintExample
+                            in
+                                ({ model | hintExample = state }, Cmd.map (PlotInteraction HintExample) cmd)
+
+                        EverythingExample ->
+                            let 
+                                ( state, cmd ) = Plot.update internalMsg model.everythingExample
+                            in
+                                ({ model | everythingExample = state }, Cmd.map (PlotInteraction EverythingExample) cmd)
 
                 Custom customMsg ->
                     update customMsg model
@@ -75,6 +106,45 @@ isSectionOpen { openSection } title =
 
         Nothing ->
             False
+
+
+view : Model -> Html Msg
+view model =
+    div
+        [ class "view" ]
+        [ img
+            [ src "logo.png"
+            , class "view__logo"
+            ] []
+        , h1 [ class "view__title" ] [ text "Elm Plot" ]
+        , div
+            [ class "view__github-link" ]
+            [ text "Find it on "
+            , a
+                [ href "https://github.com/terezka/elm-plot" ]
+                [ text "Github" ]
+            ]
+        , Html.map (PlotInteraction EverythingExample) <| ComposedChart.chart model.everythingExample
+
+        , viewPlot model ScatterChart.plotExample
+        , viewPlot model MultiLineChart.plotExample
+        , viewPlot model MultiAreaChart.plotExample
+        , viewPlot model GridChart.plotExample
+        , viewPlot model BarChart.plotExample
+        , viewPlot model CustomTickChart.plotExample
+        , viewPlot model PlotAxis.plotExample
+        , viewPlotInteractive model model.hintExample HintChart.plotExample
+        , div
+            [ class "view__footer" ]
+            [ text "Made by "
+            , a
+                [ href "https://twitter.com/terexka"
+                , style [ ( "color", "#84868a" ) ]
+                ]
+                [ text "@terexka" ]
+            ]
+        ]
+
 
 
 getCodeStyle : Bool -> ( String, String )
@@ -128,44 +198,21 @@ viewHeading model title name codeString =
             ]
 
 
-view : Model -> Html Msg
-view model =
-    div
-        [ class "view" ]
-        [ img
-            [ src "logo.png"
-            , class "view__logo"
-            ] []
-        , h1 [ class "view__title" ] [ text "Elm Plot" ]
-        , div
-            [ class "view__github-link" ]
-            [ text "Find it on "
-            , a
-                [ href "https://github.com/terezka/elm-plot" ]
-                [ text "Github" ]
-            ]
-        , Html.map PlotInteraction <| ComposedChart.chart model.plotState
-        , viewHeading model "Scatter Chart" "MultiAreaChart" ScatterChart.code
-        , Html.map PlotInteraction ScatterChart.chart
-        , viewHeading model "Area Chart" "MultiAreaChart" MultiAreaChart.code
-        , Html.map PlotInteraction MultiAreaChart.chart
-        , viewHeading model "Line Chart" "MultiLineChart" MultiLineChart.code
-        , Html.map PlotInteraction MultiLineChart.chart
-        , viewHeading model "Grid" "GridChart" GridChart.code
-        , Html.map PlotInteraction GridChart.chart
-        , viewHeading model "Custom ticks and labels" "CustomTickChart" CustomTickChart.code
-        , Html.map PlotInteraction CustomTickChart.chart
-        , viewHeading model "Bar Chart" "BarChart" BarChart.code
-        , Html.map PlotInteraction BarChart.chart
-        , div
-            [ class "view__footer" ]
-            [ text "Made by "
-            , a
-                [ href "https://twitter.com/terexka"
-                , style [ ( "color", "#84868a" ) ]
-                ]
-                [ text "@terexka" ]
-            ]
+viewPlot : Model -> PlotExample Msg -> Html.Html Msg
+viewPlot model { title, fileName, view, code } =
+    Html.div
+        [ class "view-plot" ]
+        [ viewHeading model title fileName code
+        , view
+        ]
+
+
+viewPlotInteractive : Model -> Plot.State -> PlotExampleInteractive Msg -> Html.Html Msg
+viewPlotInteractive model state { title, fileName, view, code } =
+    Html.div
+        [ class "view-plot view-plot--interactive" ]
+        [ viewHeading model title fileName code
+        , Html.map (PlotInteraction HintExample) <| view state
         ]
 
 

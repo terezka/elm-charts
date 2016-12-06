@@ -1,4 +1,4 @@
-module CustomTickChart exposing (plotExample)
+module PlotAxis exposing (plotExample)
 
 import Svg
 import Svg.Attributes
@@ -20,11 +20,11 @@ plotExample =
 
 
 title : String
-title = "Custom ticks and labels"
+title = "Sticky axis"
 
 
 fileName : String
-fileName = "CustomTickChart"
+fileName = "PlotAxis"
 
 
 data : List ( Float, Float )
@@ -49,14 +49,29 @@ toTickStyle ( index, tick ) =
         ]
 
 
-toLabelStyle : ( Int, Float ) -> List (Label.StyleAttribute msg)
-toLabelStyle ( index, tick ) =
+toLabelAttrs : ( Int, Float ) -> List (Label.StyleAttribute msg)
+toLabelAttrs ( index, tick ) =
     if isOdd index then
         [ Label.format (always "") ]
     else
-        [ Label.format (\( _, v ) -> toString v ++ " s")
-        , Label.stroke "#969696"
+        [ Label.format (\( _, v ) -> toString v ++ " ms")
         ]
+
+
+toLabelAttrsY1 : ( Int, Float ) -> List (Label.StyleAttribute msg)
+toLabelAttrsY1 ( index, tick ) =
+    if isOdd index then
+        [ Label.format (always "") ]
+    else
+        [ Label.format (\( _, v ) -> toString (v * 10) ++ " x")
+        , Label.displace (-5, 0)
+        ]
+
+
+toLabelAttrsY2 : ( Int, Float ) -> List (Label.StyleAttribute msg)
+toLabelAttrsY2 ( index, tick ) =
+    [ Label.format (\( _, v ) -> toString (v / 5) ++ " k") ]
+        
 
 
 view : Svg.Svg a
@@ -64,7 +79,7 @@ view =
     plot
         [ size ( 380, 300 )
         , margin ( 10, 20, 40, 20 )
-        , domain ( Just 0, Nothing )
+        , domain ( Just -21, Nothing )
         ]
         [ line
             [ Line.stroke Colors.pinkStroke
@@ -72,9 +87,21 @@ view =
             ]
             data
         , xAxis
-            [ Axis.line [ Line.stroke Colors.axisColor ]
+            [ Axis.tick [ Tick.viewDynamic toTickStyle ]
+            , Axis.label [ Label.viewDynamic toLabelAttrs ]
+            , Axis.cleanCrossings
+            ]
+        , yAxis
+            [ Axis.positionHighest
+            , Axis.cleanCrossings
             , Axis.tick [ Tick.viewDynamic toTickStyle ]
-            , Axis.label [ Label.viewDynamic toLabelStyle ]
+            , Axis.label [ Label.viewDynamic toLabelAttrsY1 ]
+            ]
+        , yAxis
+            [ Axis.positionLowest
+            , Axis.cleanCrossings
+            , Axis.anchorInside
+            , Axis.label [ Label.viewDynamic toLabelAttrsY2 ]
             ]
         ]
 
@@ -94,8 +121,8 @@ code =
             [ tickLength 10, tickStyle [ ( "stroke", "#b9b9b9" ) ] ]
 
 
-    toLabelStyle : Int -> Float -> List LabelViewAttr
-    toLabelStyle index tick =
+    toLabelAttrs : Int -> Float -> List LabelViewAttr
+    toLabelAttrs index tick =
         if isOdd index then
             [ labelFormat (always "") ]
         else
@@ -119,7 +146,7 @@ code =
             , xAxis
                 [ axisStyle [ ( "stroke", Colors.axisColor ) ]
                 , tickConfigViewFunc toTickStyle
-                , labelConfigViewFunc toLabelStyle
+                , labelConfigViewFunc toLabelAttrs
                 ]
             ]
     """

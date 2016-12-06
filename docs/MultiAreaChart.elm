@@ -1,4 +1,4 @@
-module MultiAreaChart exposing (chart, code)
+module MultiAreaChart exposing (plotExample)
 
 import Svg
 import Svg.Attributes
@@ -10,20 +10,36 @@ import Plot.Axis as Axis
 import Plot.Tick as Tick
 
 
+plotExample =
+    { title = title
+    , code = code
+    , view = view
+    , fileName = fileName
+    }
+
+
+title : String
+title = "Areas"
+
+
+fileName : String
+fileName = "MultiAreaChart"
+
+
 data1 : List ( Float, Float )
 data1 =
-    [ ( 0, 10 ), ( 10, 90 ), ( 20, 25 ), ( 30, 15 ), ( 40, 66 ), ( 50, 16 ) ]
+    [ ( 0, 20 ), ( 10, 65 ), ( 20, 35 ), ( 30, 85 ) ]
 
 
 data2 : List ( Float, Float )
 data2 =
-    [ ( 0, 5 ), ( 10, 20 ), ( 20, 10 ), ( 30, 12 ), ( 40, 20 ), ( 45, 25 ), ( 50, 3 ) ]
+    [ ( 0, 10 ), ( 10, 50 ), ( 20, 0 ), ( 30, 75 ) ]
 
 
-chart : Svg.Svg a
-chart =
+view : Svg.Svg a
+view =
     plot
-        [ size ( 600, 300 )
+        [ size ( 380, 300 )
         , margin ( 10, 20, 40, 20 )
         , domain ( Just 0, Nothing )
         ]

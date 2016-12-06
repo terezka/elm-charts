@@ -80,7 +80,7 @@ viewYValue index yValue =
                     toString value
 
                 Nothing ->
-                    "No data"
+                    "~"
     in
         Html.div []
             [ Html.span [] [ Html.text ("Serie " ++ toString index ++ ": ") ]

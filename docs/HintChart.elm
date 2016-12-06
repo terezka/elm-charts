@@ -1,4 +1,4 @@
-module MultiLineChart exposing (plotExample)
+module HintChart exposing (plotExample)
 
 import Svg
 import Svg.Attributes
@@ -6,6 +6,7 @@ import Plot exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
 import Plot.Tick as Tick
+import Plot.Hint as Hint
 import Colors
 
 
@@ -18,11 +19,11 @@ plotExample =
 
 
 title : String
-title = "Lines"
+title = "Hints"
 
 
 fileName : String
-fileName = "MultiLineChart"
+fileName = "HintChart"
 
 
 data1 : List ( Float, Float )
@@ -36,12 +37,13 @@ data2 =
 
 
 
-view : Svg.Svg a
-view =
-    plot
+view : State -> Svg.Svg (Interaction c)
+view state =
+    plotInteractive
         [ size ( 380, 300 )
         , margin ( 10, 20, 40, 20 )
         , domain ( Just 0, Nothing )
+        , id "HintChart"
         ]
         [ line
             [ Line.stroke Colors.blueStroke
@@ -59,6 +61,9 @@ view =
             , Axis.tick
                 [ Tick.delta 1 ]
             ]
+        , hint
+            [ Hint.lineStyle [ ( "background", "#b9b9b9") ] ]
+            (getHoveredValue state) 
         ]
 
 

@@ -1,36 +1,57 @@
-module GridChart exposing (chart, code)
+module GridChart exposing (plotExample)
 
 import Svg
 import Svg.Attributes
 import Plot exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
+import Plot.Tick as Tick
 import Plot.Grid as Grid
 import Plot.Line as Line
 import Colors
 
 
+plotExample =
+    { title = title
+    , code = code
+    , view = view
+    , fileName = fileName
+    }
+
+
+title : String
+title = "Grids"
+
+
+fileName : String
+fileName = "GridChart"
+
+
 data : List ( Float, Float )
 data =
-    [ ( 0, 8 ), ( 1, 13 ), ( 2, 14 ), ( 3, 12 ), ( 4, 11 ), ( 5, 16 ), ( 6, 22 ), ( 7, 32 ), ( 8, 31 ), ( 9, 37 ), ( 10, 42 ) ]
+    [ ( 0, 8 ), ( 1, 0 ), ( 2, 14 ) ]
 
 
-chart : Svg.Svg a
-chart =
+view : Svg.Svg a
+view =
     plot
-        [ size ( 600, 300 )
-        , padding ( 0, 40 )
+        [ size ( 380, 300 )
         , margin ( 10, 20, 40, 20 )
         , domain ( Just 0, Nothing )
         ]
         [ verticalGrid
-            [ Grid.lines [ Line.stroke Colors.axisColorLight ] ]
+            [ Grid.lines
+                [ Line.stroke Colors.axisColorLight ]
+            ]
         , horizontalGrid
-            [ Grid.values [ 10, 20, 30, 40 ]
-            , Grid.lines [ Line.stroke Colors.axisColorLight ]
+            [ Grid.lines
+                [ Line.stroke Colors.axisColorLight ]
+            , Grid.values [ 4, 8, 12 ]
             ]
         , xAxis
-            [ Axis.line [ Line.stroke Colors.axisColor ] ]
+            [ Axis.line [ Line.stroke Colors.axisColor ]
+            , Axis.tick [ Tick.delta 0.5 ]
+            ]
         , line
             [ Line.stroke Colors.blueStroke
             , Line.strokeWidth 2

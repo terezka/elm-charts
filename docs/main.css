@@ -25,10 +25,6 @@ a {
 	margin: 40px auto 100px;
 }
 
-.elm-plot {
-	margin: 0 auto;
-}
-
 .view-heading__code-toggler {
 	color: #9ea0a2;
 	font-size: 12px;
@@ -53,6 +49,15 @@ a {
 	margin: 15px 20px;
 	top: 0;
 	right: 0;
+}
+
+.view-plot {
+	width: 50%;
+    display: inline-block;
+}
+
+.elm-plot {
+	margin: 0 auto;
 }
 
 .view__footer {
