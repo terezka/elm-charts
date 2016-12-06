@@ -67,10 +67,27 @@ toBarWidth { barsMeta, scale } { maxWidth } points =
 
 
 barAutoWidth : Scale -> BarsMeta -> Float
-barAutoWidth { length, range } ({ highest, lowest, pointCount, amount } as barsMeta) =
-    (length * (highest - lowest) / range) / (toFloat <| pointCount * amount)
+barAutoWidth { length, range } ({ highest, lowest, pointCount, numOfBarSeries } as barsMeta) =
+    (length * (highest - lowest) / range) / (toFloat <| pointCount * numOfBarSeries)
 
 
 barOffset : BarsMeta -> Int -> Float -> Float
-barOffset { amount } index width =
-    width * (toFloat index - (toFloat amount / 2))
+barOffset { numOfBarSeries } index width =
+    width * (toFloat index - (toFloat numOfBarSeries / 2))
+
+
+collectBarsMeta : List Point -> BarsMeta -> BarsMeta
+collectBarsMeta points ({ lowest, highest, numOfBarSeries, pointCount } as barsMeta) =
+    let
+        range =
+            List.map Tuple.first points
+
+        ( lowestBar, highestBar ) =
+            ( getLowest range, getHighest range )
+    in
+        { barsMeta
+        | lowest = min lowest lowestBar
+        , highest = max highest highestBar
+        , numOfBarSeries = numOfBarSeries + 1
+        , pointCount = max pointCount (List.length points)
+        }

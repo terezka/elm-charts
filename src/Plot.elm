@@ -533,7 +533,7 @@ calculateMeta { size, padding, margin, id, range, domain } elements =
 
         barsMeta =
             List.foldr collectPiles [] elements
-            |> List.foldr collectBarsStats barsMetaInit 
+            |> List.foldr collectBarsMeta barsMetaInit 
             |> addBarsPadding
 
         ( width, height ) =
@@ -603,17 +603,11 @@ getScale lengthTotal ( forcedLowest, forcedHighest ) ( offsetLeft, offsetRight )
         length =
             lengthTotal - offsetLeft - offsetRight
 
-        lowest0 =
-            if barsMeta.amount > 0 then min barsMeta.lowest (getLowest values) else (getLowest values)
-
-        highest0 =
-            if barsMeta.amount > 0 then max barsMeta.highest (getHighest values) else (getHighest values)
-
         lowest =
-           Maybe.withDefault lowest0 forcedLowest
+           getScaleLowest forcedLowest values barsMeta
 
         highest =
-            Maybe.withDefault highest0 forcedHighest
+            getScaleHighest forcedHighest values barsMeta
 
         range =
             getRange lowest highest
@@ -630,6 +624,42 @@ getScale lengthTotal ( forcedLowest, forcedHighest ) ( offsetLeft, offsetRight )
         , length = length
         , offset = offsetLeft
         }
+
+
+getScaleLowest : Maybe Float -> List Float -> BarsMeta -> Float
+getScaleLowest forcedLowest values barsMeta =
+    case forcedLowest of
+        Just value ->
+            value
+
+        Nothing ->
+            getAutoLowest barsMeta (getLowest values)
+
+
+getAutoLowest : BarsMeta -> Float -> Float
+getAutoLowest { lowest, numOfBarSeries } lowestFromValues =
+    if numOfBarSeries > 0 then
+        min lowest lowestFromValues
+    else
+        lowestFromValues
+
+
+getScaleHighest : Maybe Float -> List Float -> BarsMeta -> Float
+getScaleHighest forcedHighest values barsMeta =
+    case forcedHighest of
+        Just value ->
+            value
+
+        Nothing ->
+            getAutoHighest barsMeta (getHighest values)
+
+
+getAutoHighest : BarsMeta -> Float -> Float
+getAutoHighest { highest, numOfBarSeries } highestFromValues =
+    if numOfBarSeries > 0 then
+        max highest highestFromValues
+    else
+        highestFromValues
 
 
 scaleValue : Scale -> Float -> Float
@@ -723,27 +753,15 @@ collectPiles element pileElements =
             pileElements
 
 
-collectBarsStats : PileInternal.Element msg -> BarsMeta -> BarsMeta
-collectBarsStats element ({ lowest, highest, amount, pointCount } as barsMeta) =
+collectBarsMeta : PileInternal.Element msg -> BarsMeta -> BarsMeta
+collectBarsMeta element barsMeta =
     case element of
-        PileInternal.Bars config points ->
-            let
-                range =
-                    List.map Tuple.first points
-
-                ( lowestBar, highestBar ) =
-                    ( getLowest range, getHighest range )
-            in
-                { barsMeta
-                | lowest = min lowest lowestBar
-                , highest = max highest highestBar
-                , amount = amount + 1
-                , pointCount = max pointCount (List.length points)
-                }
+        PileInternal.Bars _ points ->
+            BarsInternal.collectBarsMeta points barsMeta
 
 
 addBarsPadding : BarsMeta -> BarsMeta
-addBarsPadding ({ lowest, highest, amount, pointCount } as barsMeta) =
+addBarsPadding ({ lowest, highest, pointCount } as barsMeta) =
     let
         delta = (highest - lowest) / (innerBarsCount barsMeta)
     in
@@ -754,7 +772,7 @@ addBarsPadding ({ lowest, highest, amount, pointCount } as barsMeta) =
 
 
 innerBarsCount : BarsMeta -> Float
-innerBarsCount { lowest, highest, amount, pointCount } =
+innerBarsCount { lowest, highest, pointCount } =
     toFloat <| (pointCount - 1) * 2
 
 

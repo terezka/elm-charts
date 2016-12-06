@@ -22,7 +22,7 @@ type Anchor
 type alias BarsMeta =
     { lowest : Float
     , highest : Float
-    , amount : Int
+    , numOfBarSeries : Int
     , pointCount : Int
     }
 
@@ -31,7 +31,7 @@ barsMetaInit : BarsMeta
 barsMetaInit =
     { lowest = 0
     , highest = 0
-    , amount = 0
+    , numOfBarSeries = 0
     , pointCount = 0
     }
 

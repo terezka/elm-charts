@@ -48,7 +48,7 @@ chart =
             ]
         , xAxis
             [ Axis.line [ Line.stroke Colors.axisColor ]
-            , Axis.tick [ Tick.delta 0.1 ]
+            , Axis.tick [ Tick.delta 0.5 ]
             ]
         ]
 
