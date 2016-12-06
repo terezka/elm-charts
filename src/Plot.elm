@@ -39,6 +39,10 @@ module Plot
         , gridMirrorTicks
         , area
         , areaStyle
+        , bar
+        , barStyle
+        , barOrientation
+        , barBarWidth
         , scatter
         , scatterStyle
         , scatterRadius
@@ -50,10 +54,12 @@ module Plot
         , LabelViewAttr
         , AxisAttr
         , AreaAttr
+        , BarAttr
         , ScatterAttr
         , LineAttr
         , Point
         , Style
+        , BarOrientation (..)
         )
 
 {-|
@@ -62,7 +68,7 @@ module Plot
  It is insprired by the elm-html api, using the `element attrs children` pattern.
 
 # Elements
-@docs Element, plot, area, scatter, line, xAxis, yAxis, Point, Style
+@docs Element, plot, area, bar, scatter, line, xAxis, yAxis, Point, Style
 
 # Configuration
 
@@ -74,6 +80,9 @@ module Plot
 
 ## Area configuration
 @docs AreaAttr, areaStyle
+
+## Bar configuration
+@docs BarAttr, BarOrientation, barStyle, barBarWidth, barOrientation
 
 ## Scatter configuration
 @docs ScatterAttr, scatterRadius, scatterStyle
@@ -137,6 +146,7 @@ type Element msg
     | Grid GridConfig
     | Line LineConfig
     | Area AreaConfig
+    | Bar BarConfig
     | Scatter ScatterConfig
 
 
@@ -162,7 +172,7 @@ defaultMetaConfig =
     { size = ( 800, 500 )
     , padding = ( 0, 0 )
     , classes = []
-    , style = [ ( "padding", "30px" ), ( "stroke", "#000" ) ]
+    , style = [ ( "padding", "40px" ), ( "stroke", "#000" ) ]
     }
 
 
@@ -1062,6 +1072,86 @@ area attrs points =
 
 
 
+-- BAR CONFIG
+
+
+{-| The type representing an bar orientation
+-}
+type BarOrientation
+    = BarHorizontal
+    | BarVertical
+
+
+type alias BarConfig =
+    { style : Style
+    , points : List Point
+    , orientation : BarOrientation
+    , barWidth : Float
+    }
+
+
+{-| The type representing an bar configuration.
+-}
+type alias BarAttr =
+    BarConfig -> BarConfig
+
+
+defaultBarConfig =
+    { style = []
+    , points = []
+    , orientation = BarVertical
+    , barWidth = 0.6
+    }
+
+
+{-| Add styles to your bar chart.
+
+    main =
+        plot
+            []
+            [ bar
+                [ barStyle
+                    [ ( "fill", "deeppink" )
+                    , ( "stroke", "deeppink" )
+                    , ( "opacity", "0.5" ) ]
+                    ]
+                ]
+                barDataPoints
+            ]
+-}
+barStyle : Style -> BarConfig -> BarConfig
+barStyle style config =
+    { config | style = style }
+
+
+{-| set the orientation of your bar chart
+-}
+barOrientation : BarOrientation -> BarConfig -> BarConfig
+barOrientation orientation config =
+  { config | orientation = orientation }
+
+{-| set the fractional width of bar chart bars.
+-}
+barBarWidth : Float -> BarConfig -> BarConfig
+barBarWidth barWidth config =
+  { config | barWidth = barWidth }
+
+
+{-| This returns an bar element resulting in an bar serie rendered in your plot.
+
+    main =
+        plot [] [ bar []  [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
+-}
+bar : List BarAttr -> List Point -> Element msg
+bar attrs points =
+    let
+        config =
+            List.foldr (<|) defaultBarConfig attrs
+    in
+        Bar { config | points = points }
+
+
+
 -- LINE CONFIG
 
 
@@ -1197,6 +1287,9 @@ viewElement plotProps element views =
 
         Area config ->
             (viewArea plotProps config) :: views
+
+        Bar config ->
+            (viewBar plotProps config) :: views
 
         Scatter config ->
             (viewScatter plotProps config) :: views
@@ -1418,6 +1511,62 @@ viewArea { toSvgCoords } { points, style } =
             , Svg.Attributes.style (toStyle style)
             ]
             []
+
+
+viewBar : PlotProps -> BarConfig -> Svg.Svg a
+viewBar { toSvgCoords, scale, oppositeScale } { points, style, barWidth, orientation } =
+    let
+        barSize =
+            barWidth / 2
+
+        geom =
+          case orientation of
+            BarVertical -> verticalGeom
+            BarHorizontal -> horizontalGeom
+
+        verticalGeom ( x, y ) =
+            let
+                ( px, py ) =
+                    toSvgCoords ( x - barSize, 0 )
+
+                ( qx, qy ) =
+                    toSvgCoords ( x + barSize, y )
+            in
+                { x = px
+                , y = qy
+                , width = qx - px
+                , height = py - qy
+                }
+
+        horizontalGeom ( x, y ) =
+            let
+                ( px, py ) =
+                    toSvgCoords ( 0, y - barSize )
+
+                ( qx, qy ) =
+                    toSvgCoords ( x, y + barSize )
+            in
+                { x = px
+                , y = qy
+                , width = qx - px
+                , height = py - qy
+                }
+
+
+
+        rect { x, y, width, height } =
+            Svg.rect
+                [ Svg.Attributes.x <| toString x
+                , Svg.Attributes.y <| toString y
+                , Svg.Attributes.width <| toString width
+                , Svg.Attributes.height <| toString height
+                ]
+                []
+    in
+        Svg.g
+            [ Svg.Attributes.style (toStyle style)
+            ]
+            (List.map (rect << geom) points)
 
 
 viewScatter : PlotProps -> ScatterConfig -> Svg.Svg a
@@ -1658,6 +1807,9 @@ collectPoints : Element msg -> List Point -> List Point
 collectPoints element allPoints =
     case element of
         Area { points } ->
+            allPoints ++ points
+
+        Bar { points } ->
             allPoints ++ points
 
         Scatter { points } ->
