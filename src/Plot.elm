@@ -545,8 +545,8 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
         ( xValues, yValues ) =
             List.unzip (List.foldr collectPoints [] elements)
 
-        ( xAxisConfigs, yAxisConfigs ) =
-            List.foldr collectAxisConfigs ( [], [] ) elements
+        axisConfigs =
+            List.foldr collectAxisConfigs { x = [], y = [] } elements
 
         pileMetas =
             List.foldr collectPileMetas [] elements
@@ -567,10 +567,10 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
             getScale height domain ( top, bottom ) padding yValues pileEdges.y
 
         xTicks =
-            getLastGetTickValues xAxisConfigs xScale
+            getLastGetTickValues axisConfigs.x xScale
 
         yTicks =
-            getLastGetTickValues yAxisConfigs yScale
+            getLastGetTickValues axisConfigs.y yScale
     in
         { scale = xScale
         , oppositeScale = yScale
@@ -579,8 +579,8 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
         , fromSvgCoords = fromSvgCoords xScale yScale
         , ticks = xTicks
         , oppositeTicks = yTicks
-        , axisCrossings = getAxisCrossings xAxisConfigs yScale
-        , oppositeAxisCrossings = getAxisCrossings yAxisConfigs xScale
+        , axisCrossings = getAxisCrossings axisConfigs.x yScale
+        , oppositeAxisCrossings = getAxisCrossings axisConfigs.y xScale
         , toNearestX = toNearest xValues
         , getHintInfo = getHintInfo elements
         , pileMetas = pileMetas
@@ -615,7 +615,7 @@ getFlippedMeta orientation meta =
 {-| All naming assumes dealing with the x-axis, but can also be used with
  the t-axis, just flip it in your mind.
 -}
-getScale : Float -> ( Maybe Float, Maybe Float ) -> ( Float, Float ) -> ( Float, Float ) -> List Float -> Maybe Edges -> Scale
+getScale : Float -> ( Maybe Value, Maybe Value ) -> ( Value, Value ) -> ( Value, Value ) -> List Value -> Maybe Edges -> Scale
 getScale lengthTotal ( forcedLowest, forcedHighest ) ( offsetLeft, offsetRight ) ( paddingBottomPx, paddingTopPx ) values pileEdges =
     let
         length =
@@ -644,7 +644,7 @@ getScale lengthTotal ( forcedLowest, forcedHighest ) ( offsetLeft, offsetRight )
         }
 
 
-getScaleLowest : Maybe Float -> List Float -> Maybe Edges -> Float
+getScaleLowest : Maybe Value -> List Value -> Maybe Edges -> Value
 getScaleLowest forcedLowest values pileEdges =
     case forcedLowest of
         Just value ->
@@ -654,7 +654,7 @@ getScaleLowest forcedLowest values pileEdges =
             getAutoLowest pileEdges (getLowest values)
 
 
-getAutoLowest : Maybe Edges -> Float -> Float
+getAutoLowest : Maybe Edges -> Value -> Value
 getAutoLowest pileEdges lowestFromValues =
     case pileEdges of
         Just { lower } ->
@@ -664,7 +664,7 @@ getAutoLowest pileEdges lowestFromValues =
             lowestFromValues
 
 
-getScaleHighest : Maybe Float -> List Float -> Maybe Edges -> Float
+getScaleHighest : Maybe Value -> List Value -> Maybe Edges -> Value
 getScaleHighest forcedHighest values pileEdges =
     case forcedHighest of
         Just value ->
@@ -674,7 +674,7 @@ getScaleHighest forcedHighest values pileEdges =
             getAutoHighest pileEdges (getHighest values)
 
 
-getAutoHighest : Maybe Edges -> Float -> Float
+getAutoHighest : Maybe Edges -> Value -> Value
 getAutoHighest pileEdges highestFromValues =
     case pileEdges of
         Just { upper } ->
@@ -684,12 +684,12 @@ getAutoHighest pileEdges highestFromValues =
             highestFromValues
 
 
-scaleValue : Scale -> Float -> Float
+scaleValue : Scale -> Value -> Value
 scaleValue { length, range, offset } v =
     (v * length / range) + offset
 
 
-unScaleValue : Scale -> Float -> Float
+unScaleValue : Scale -> Value -> Value
 unScaleValue { length, range, offset, lowest } v =
     ((v - offset) * range / length) + lowest
 
@@ -718,22 +718,22 @@ getHintInfo elements xValue =
     HintInfo xValue <| List.foldr (collectYValues xValue) [] elements
 
 
-collectAxisConfigs : Element msg -> ( List (AxisInternal.Config msg), List (AxisInternal.Config msg) ) -> ( List (AxisInternal.Config msg), List (AxisInternal.Config msg) )
-collectAxisConfigs element ( xAxisConfigs, yAxisConfigs ) =
+collectAxisConfigs : Element msg -> Axis (List (AxisInternal.Config msg)) -> Axis (List (AxisInternal.Config msg))
+collectAxisConfigs element axisConfigs =
     case element of
         Axis config ->
             case config.orientation of
                 X ->
-                    ( config :: xAxisConfigs, yAxisConfigs )
+                    { axisConfigs | x = config :: axisConfigs.x }
 
                 Y ->
-                    ( xAxisConfigs, config :: yAxisConfigs )
+                    { axisConfigs | y = config :: axisConfigs.y }
 
         _ ->
-            ( xAxisConfigs, yAxisConfigs )
+            axisConfigs
 
 
-getLastGetTickValues : List (AxisInternal.Config msg) -> Scale -> List Float
+getLastGetTickValues : List (AxisInternal.Config msg) -> Scale -> List Value
 getLastGetTickValues axisConfigs =
     List.head axisConfigs
         |> Maybe.withDefault AxisInternal.defaultConfigX
@@ -774,7 +774,7 @@ collectPileMetas element allPileMetas =
             allPileMetas
 
 
-collectYValues : Float -> Element msg -> List (Maybe Float) -> List (Maybe Float)
+collectYValues : Float -> Element msg -> List (Maybe Value) -> List (Maybe Value)
 collectYValues xValue element yValues =
     case element of
         Area config points ->
@@ -794,12 +794,12 @@ collectYValues xValue element yValues =
             yValues
 
 
-collectYValue : Float -> List Point -> Maybe Float
+collectYValue : Float -> List Point -> Maybe Value
 collectYValue xValue points =
     List.foldr (getYValue xValue) Nothing points
 
 
-getYValue : Float -> Point -> Maybe Float -> Maybe Float
+getYValue : Float -> Point -> Maybe Value -> Maybe Value
 getYValue xValue ( x, y ) result =
     if x == xValue then
         Just y
@@ -807,6 +807,6 @@ getYValue xValue ( x, y ) result =
         result
 
 
-getAxisCrossings : List (AxisInternal.Config msg) -> Scale -> List Float
+getAxisCrossings : List (AxisInternal.Config msg) -> Scale -> List Value
 getAxisCrossings axisConfigs oppositeScale =
     List.map (AxisInternal.getAxisPosition oppositeScale << .position) axisConfigs

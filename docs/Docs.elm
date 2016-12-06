@@ -59,7 +59,6 @@ initialModel =
 
 -- UPDATE
 
-
 type PlotId
     = HintExample
     | EverythingExample
@@ -81,22 +80,19 @@ update msg model =
                 Internal internalMsg ->
                     case id of
                         HintExample ->
-                            let
-                                ( state, cmd ) =
-                                    Plot.update internalMsg model.hintExample
+                            let 
+                                ( state, cmd ) = Plot.update internalMsg model.hintExample
                             in
-                                ( { model | hintExample = state }, Cmd.map (PlotInteraction HintExample) cmd )
+                                ({ model | hintExample = state }, Cmd.map (PlotInteraction HintExample) cmd)
 
                         EverythingExample ->
-                            let
-                                ( state, cmd ) =
-                                    Plot.update internalMsg model.everythingExample
+                            let 
+                                ( state, cmd ) = Plot.update internalMsg model.everythingExample
                             in
-                                ( { model | everythingExample = state }, Cmd.map (PlotInteraction EverythingExample) cmd )
+                                ({ model | everythingExample = state }, Cmd.map (PlotInteraction EverythingExample) cmd)
 
                 Custom customMsg ->
                     update customMsg model
-
 
 
 -- VIEW
@@ -119,8 +115,7 @@ view model =
         [ img
             [ src "logo.png"
             , class "view__logo"
-            ]
-            []
+            ] []
         , h1 [ class "view__title" ] [ text "Elm Plot" ]
         , div
             [ class "view__github-link" ]
@@ -130,6 +125,7 @@ view model =
                 [ text "Github" ]
             ]
         , Html.map (PlotInteraction EverythingExample) <| PlotComposed.view model.everythingExample
+
         , viewPlot model PlotScatter.plotExample
         , viewPlot model PlotLines.plotExample
         , viewPlot model PlotArea.plotExample
@@ -148,6 +144,7 @@ view model =
                 [ text "@terexka" ]
             ]
         ]
+
 
 
 getCodeStyle : Bool -> ( String, String )
@@ -174,17 +171,10 @@ viewHeading model title name codeString =
 
         codeStyle =
             getCodeStyle isOpen
-
-        onClickMsg =
-            getOnClickMsg isOpen title
     in
         div [ style [ ( "margin", "100px auto 10px" ) ] ]
             [ div [] [ text title ]
-            , p
-                [ class "view-heading__code-toggler"
-                , onClick onClickMsg
-                ]
-                [ text "View code snippet" ]
+            --, viewToggler isOpen title
             , div
                 [ class "view-heading__code"
                 , style [ codeStyle ]
@@ -192,13 +182,26 @@ viewHeading model title name codeString =
                 [ Html.code
                     [ class "elm view-heading__code__inner" ]
                     [ pre [] [ text codeString ] ]
-                , a
-                    [ class "view-heading__code__link"
-                    , href (toUrl name)
-                    ]
-                    [ text "See full source" ]
+                , viewLink name
                 ]
             ]
+
+viewToggler : Bool -> String -> Html.Html Msg
+viewToggler isOpen title =
+    p
+        [ class "view-heading__code-toggler"
+        , onClick <| getOnClickMsg isOpen title
+        ]
+        [ text "View source snippet" ]
+
+
+viewLink : String -> Html.Html Msg
+viewLink name =
+    a 
+        [ class "view-heading__code__link"
+        , href (toUrl name)
+        ]
+        [ text "See full source" ]
 
 
 viewPlot : Model -> PlotExample Msg -> Html.Html Msg
@@ -214,8 +217,8 @@ viewPlotInteractive : Model -> Plot.State -> PlotExampleInteractive Msg -> Html.
 viewPlotInteractive model state { title, fileName, view, code } =
     Html.div
         [ class "view-plot view-plot--interactive" ]
-        -- [ viewHeading model title fileName code
-        [ Html.map (PlotInteraction HintExample) <| view state
+        [ viewHeading model title fileName code
+        , Html.map (PlotInteraction HintExample) <| view state
         ]
 
 

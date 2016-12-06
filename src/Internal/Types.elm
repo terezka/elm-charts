@@ -1,4 +1,22 @@
-module Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo, Anchor(..), PileMeta, Axis, Edges, MaxWidth(..))
+module Internal.Types
+    exposing
+        ( Point
+        , Style
+        , Orientation(..)
+        , Scale
+        , Meta
+        , HintInfo
+        , Anchor(..)
+        , PileMeta
+        , Axis
+        , Edges
+        , MaxWidth(..)
+        , Value
+        )
+
+
+type alias Value =
+    Float
 
 
 type alias Point =
