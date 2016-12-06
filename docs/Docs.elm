@@ -42,7 +42,6 @@ initialModel =
 
 type Msg
     = Toggle (Maybe String)
-    | ClickTick
     | PlotInteraction (Plot.Interaction Msg)
 
 
@@ -64,75 +63,67 @@ update msg model =
                 Custom customMsg ->
                     update customMsg model
 
-        ClickTick ->
-            ( model |> Debug.log "click tick!!!", Cmd.none )
-
-
 
 -- VIEW
 
 
-viewTitle : Model -> String -> String -> String -> Html Msg
-viewTitle { openSection } title name codeString =
+isSectionOpen : Model -> String -> Bool
+isSectionOpen { openSection } title =
+    case openSection of
+        Just id ->
+            id == title
+
+        Nothing ->
+            False
+
+
+getCodeStyle : Bool -> ( String, String )
+getCodeStyle isOpen =
+    if isOpen then
+        ( "display", "block" )
+    else
+        ( "display", "none" )
+
+
+getOnClickMsg : Bool -> String -> Msg
+getOnClickMsg isOpen title =
+    if isOpen then
+        Toggle Nothing
+    else
+        Toggle (Just title)
+
+
+viewHeading : Model -> String -> String -> String -> Html Msg
+viewHeading model title name codeString =
     let
         isOpen =
-            case openSection of
-                Just id ->
-                    id == title
-
-                Nothing ->
-                    False
+            isSectionOpen model title
 
         codeStyle =
-            if isOpen then
-                ( "display", "block" )
-            else
-                ( "display", "none" )
+            getCodeStyle isOpen
 
         onClickMsg =
-            if isOpen then
-                Toggle Nothing
-            else
-                Toggle (Just title)
+            getOnClickMsg isOpen title
     in
         div [ style [ ( "margin", "100px auto 10px" ) ] ]
             [ div [] [ text title ]
             , p
-                [ style
-                    [ ( "color", "#9ea0a2" )
-                    , ( "font-size", "12px" )
-                    , ( "cursor", "pointer" )
-                    ]
+                [ class "view-heading__code-toggler"
                 , onClick onClickMsg
                 ]
                 [ text "View code snippet" ]
             , div
-                [ style
-                    (codeStyle
-                        :: [ ( "text-align", "right" )
-                           , ( "margin", "30px auto" )
-                           , ( "width", "600px" )
-                           , ( "position", "relative" )
-                           ]
-                    )
+                [ class "view-heading__code"
+                , style [ codeStyle ]
                 ]
                 [ Html.code
-                    [ class "elm"
-                    , style [ ( "text-align", "left" ) ]
-                    ]
+                    [ class "elm view-heading__code__inner" ]
                     [ pre [] [ text codeString ] ]
                 , a
-                    [ style
-                        [ ( "font-size", "12px" )
-                        , ( "color", "#9ea0a2" )
-                        , ( "position", "absolute" )
-                        , ( "top", "0" )
-                        , ( "right", "0" )
-                        , ( "margin", "15px 20px" )
-                        ]
+                    [ class "view-heading__code__link"
                     , href (toUrl name)
                     ]
-                    [ text "See full code" ]
+                    [ text "See full source" ]
                 ]
             ]
 
@@ -140,41 +131,34 @@ viewTitle { openSection } title name codeString =
 view : Model -> Html Msg
 view model =
     div
-        [ style
-            [ ( "width", "800px" )
-            , ( "margin", "80px auto" )
-            , ( "font-family", "sans-serif" )
-            , ( "color", "#7F7F7F" )
-            , ( "font-weight", "200" )
-            , ( "text-align", "center" )
-            ]
-        ]
-        [ img [ src "logo.png", style [ ( "width", "100px" ), ( "height", "100px" ) ] ] []
-        , h1 [ style [ ( "font-weight", "200" ) ] ] [ text "Elm Plot" ]
+        [ class "view" ]
+        [ img
+            [ src "logo.png"
+            , class "view__logo"
+            ] []
+        , h1 [ class "view__title" ] [ text "Elm Plot" ]
         , div
-            [ style [ ( "margin", "40px auto 100px" ) ] ]
+            [ class "view__github-link" ]
             [ text "Find it on "
             , a
-                [ href "https://github.com/terezka/elm-plot"
-                , style [ ( "color", "#84868a" ) ]
-                ]
+                [ href "https://github.com/terezka/elm-plot" ]
                 [ text "Github" ]
             ]
         , Html.map PlotInteraction <| ComposedChart.chart model.plotState
-        , viewTitle model "Scatter Chart" "MultiAreaChart" ScatterChart.code
+        , viewHeading model "Scatter Chart" "MultiAreaChart" ScatterChart.code
         , Html.map PlotInteraction ScatterChart.chart
-        , viewTitle model "Area Chart" "MultiAreaChart" MultiAreaChart.code
+        , viewHeading model "Area Chart" "MultiAreaChart" MultiAreaChart.code
         , Html.map PlotInteraction MultiAreaChart.chart
-        , viewTitle model "Line Chart" "MultiLineChart" MultiLineChart.code
+        , viewHeading model "Line Chart" "MultiLineChart" MultiLineChart.code
         , Html.map PlotInteraction MultiLineChart.chart
-        , viewTitle model "Grid" "GridChart" GridChart.code
+        , viewHeading model "Grid" "GridChart" GridChart.code
         , Html.map PlotInteraction GridChart.chart
-        , viewTitle model "Custom ticks and labels" "CustomTickChart" CustomTickChart.code
+        , viewHeading model "Custom ticks and labels" "CustomTickChart" CustomTickChart.code
         , Html.map PlotInteraction CustomTickChart.chart
-        , viewTitle model "Bar Chart" "BarChart" BarChart.code
+        , viewHeading model "Bar Chart" "BarChart" BarChart.code
         , Html.map PlotInteraction BarChart.chart
         , div
-            [ style [ ( "margin", "100px auto 30px" ), ( "font-size", "14px" ) ] ]
+            [ class "view__footer" ]
             [ text "Made by "
             , a
                 [ href "https://twitter.com/terexka"
@@ -183,24 +167,6 @@ view model =
                 [ text "@terexka" ]
             ]
         ]
-
-
-mySvgElement : (Plot.Point -> Plot.Point) -> Svg.Svg msg
-mySvgElement toSvgCoords =
-    let
-        ( x1, y1 ) =
-            toSvgCoords ( 0, 0 )
-
-        ( x2, y2 ) =
-            toSvgCoords ( 2, 2 )
-    in
-        Svg.line
-            [ Svg.Attributes.x1 (toString x1)
-            , Svg.Attributes.y1 (toString y1)
-            , Svg.Attributes.x2 (toString x2)
-            , Svg.Attributes.y2 (toString y2)
-            ]
-            []
 
 
 main =
