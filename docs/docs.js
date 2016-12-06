@@ -12187,9 +12187,19 @@ var _terezka$elm_plot$Plot$getRelativePosition = F4(
 			_1: y
 		};
 	});
-var _terezka$elm_plot$Plot$getHoveredValue = function (_p68) {
-	var _p69 = _p68;
-	return _p69._0.position;
+var _terezka$elm_plot$Plot$positionChanged = F2(
+	function (position, _p68) {
+		var _p69 = _p68;
+		var _p70 = position;
+		if (_p70.ctor === 'Nothing') {
+			return true;
+		} else {
+			return (!_elm_lang$core$Native_Utils.eq(_p70._0._1, _p69._1)) || (!_elm_lang$core$Native_Utils.eq(_p70._0._0, _p69._0));
+		}
+	});
+var _terezka$elm_plot$Plot$getHoveredValue = function (_p71) {
+	var _p72 = _p71;
+	return _p72._0.position;
 };
 var _terezka$elm_plot$Plot$range = F2(
 	function (range, config) {
@@ -12216,43 +12226,43 @@ var _terezka$elm_plot$Plot$classes = F2(
 			{classes: classes});
 	});
 var _terezka$elm_plot$Plot$margin = F2(
-	function (_p70, config) {
-		var _p71 = _p70;
+	function (_p73, config) {
+		var _p74 = _p73;
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{
 				margin: {
 					ctor: '_Tuple4',
-					_0: _elm_lang$core$Basics$toFloat(_p71._0),
-					_1: _elm_lang$core$Basics$toFloat(_p71._1),
-					_2: _elm_lang$core$Basics$toFloat(_p71._2),
-					_3: _elm_lang$core$Basics$toFloat(_p71._3)
+					_0: _elm_lang$core$Basics$toFloat(_p74._0),
+					_1: _elm_lang$core$Basics$toFloat(_p74._1),
+					_2: _elm_lang$core$Basics$toFloat(_p74._2),
+					_3: _elm_lang$core$Basics$toFloat(_p74._3)
 				}
 			});
 	});
 var _terezka$elm_plot$Plot$size = F2(
-	function (_p72, config) {
-		var _p73 = _p72;
+	function (_p75, config) {
+		var _p76 = _p75;
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{
 				size: {
 					ctor: '_Tuple2',
-					_0: _elm_lang$core$Basics$toFloat(_p73._0),
-					_1: _elm_lang$core$Basics$toFloat(_p73._1)
+					_0: _elm_lang$core$Basics$toFloat(_p76._0),
+					_1: _elm_lang$core$Basics$toFloat(_p76._1)
 				}
 			});
 	});
 var _terezka$elm_plot$Plot$padding = F2(
-	function (_p74, config) {
-		var _p75 = _p74;
+	function (_p77, config) {
+		var _p78 = _p77;
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{
 				padding: {
 					ctor: '_Tuple2',
-					_0: _elm_lang$core$Basics$toFloat(_p75._0),
-					_1: _elm_lang$core$Basics$toFloat(_p75._1)
+					_0: _elm_lang$core$Basics$toFloat(_p78._0),
+					_1: _elm_lang$core$Basics$toFloat(_p78._1)
 				}
 			});
 	});
@@ -12487,41 +12497,42 @@ var _terezka$elm_plot$Plot$cmdPosition = F2(
 					_terezka$elm_plot$Dom_Position$top(meta.id))));
 	});
 var _terezka$elm_plot$Plot$update = F2(
-	function (msg, _p76) {
-		var _p77 = _p76;
-		var _p80 = _p77._0;
-		var _p78 = msg;
-		switch (_p78.ctor) {
+	function (msg, _p79) {
+		var _p80 = _p79;
+		var _p84 = _p80._0;
+		var _p81 = msg;
+		switch (_p81.ctor) {
 			case 'Hovering':
 				return {
 					ctor: '_Tuple2',
 					_0: _terezka$elm_plot$Plot$State(
 						_elm_lang$core$Native_Utils.update(
-							_p80,
+							_p84,
 							{waiting: true})),
-					_1: A2(_terezka$elm_plot$Plot$cmdPosition, _p78._0, _p78._1)
+					_1: A2(_terezka$elm_plot$Plot$cmdPosition, _p81._0, _p81._1)
 				};
 			case 'ReceivePosition':
-				var _p79 = _p78._0;
-				if (_p79.ctor === 'Ok') {
-					return _p80.waiting ? {
+				var _p82 = _p81._0;
+				if (_p82.ctor === 'Ok') {
+					var _p83 = _p82._0;
+					return (_p84.waiting && A2(_terezka$elm_plot$Plot$positionChanged, _p84.position, _p83)) ? {
 						ctor: '_Tuple2',
 						_0: _terezka$elm_plot$Plot$State(
 							_elm_lang$core$Native_Utils.update(
-								_p80,
+								_p84,
 								{
-									position: _elm_lang$core$Maybe$Just(_p79._0)
+									position: _elm_lang$core$Maybe$Just(_p83)
 								})),
 						_1: _elm_lang$core$Platform_Cmd$none
 					} : {
 						ctor: '_Tuple2',
-						_0: _terezka$elm_plot$Plot$State(_p80),
+						_0: _terezka$elm_plot$Plot$State(_p84),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: _terezka$elm_plot$Plot$State(_p80),
+						_0: _terezka$elm_plot$Plot$State(_p84),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
@@ -12561,26 +12572,26 @@ var _terezka$elm_plot$Plot$plotAttributesInteraction = function (meta) {
 			_terezka$elm_plot$Plot$getMousePosition(meta)),
 		_1: {
 			ctor: '::',
-			_0: _elm_lang$html$Html_Events$onMouseOut(
+			_0: _elm_lang$html$Html_Events$onMouseLeave(
 				_terezka$elm_plot$Plot$Internal(_terezka$elm_plot$Plot$ResetPosition)),
 			_1: {ctor: '[]'}
 		}
 	};
 };
 var _terezka$elm_plot$Plot$viewPlotInteractive = F3(
-	function (_p82, meta, _p81) {
-		var _p83 = _p82;
-		var _p84 = _p81;
+	function (_p86, meta, _p85) {
+		var _p87 = _p86;
+		var _p88 = _p85;
 		return A2(
 			_elm_lang$html$Html$div,
 			A2(
 				_elm_lang$core$Basics_ops['++'],
-				_terezka$elm_plot$Plot$plotAttributes(_p83),
+				_terezka$elm_plot$Plot$plotAttributes(_p87),
 				_terezka$elm_plot$Plot$plotAttributesInteraction(meta)),
 			{
 				ctor: '::',
-				_0: A2(_terezka$elm_plot$Plot$viewSvg, _p83.size, _p84._0),
-				_1: _p84._1
+				_0: A2(_terezka$elm_plot$Plot$viewSvg, _p87.size, _p88._0),
+				_1: _p88._1
 			});
 	});
 var _terezka$elm_plot$Plot$parsePlotInteractive = F2(

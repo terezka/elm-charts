@@ -373,7 +373,7 @@ update msg (State state) =
         ReceivePosition result ->
             case result of
                 Ok position ->
-                    if state.waiting then
+                    if state.waiting && positionChanged state.position position then
                         ( State { state | position = Just position }, Cmd.none )
                     else
                         ( State state, Cmd.none )
@@ -385,10 +385,18 @@ update msg (State state) =
             ( State { position = Nothing, waiting = False }, Cmd.none )
 
 
-{-| -}
+{-| Get the hovered position from state. -}
 getHoveredValue : State -> Maybe Point
-getHoveredValue (State state) =
-    state.position
+getHoveredValue (State { position }) =
+    position
+
+
+positionChanged : Maybe ( Float, Float ) -> ( Float, Float ) -> Bool
+positionChanged position ( left, top ) =
+    case position of
+        Nothing -> True
+        Just ( leftOld, topOld ) ->
+            topOld /= top || leftOld /= left
 
 
 cmdPosition : Meta -> ( Float, Float ) -> Cmd (Interaction c)
@@ -457,7 +465,7 @@ plotAttributes { size, id } =
 plotAttributesInteraction : Meta -> List (Html.Attribute (Interaction c))
 plotAttributesInteraction meta =
     [ Html.Events.on "mousemove" (getMousePosition meta)
-    , Html.Events.onMouseOut (Internal ResetPosition)
+    , Html.Events.onMouseLeave (Internal ResetPosition)
     ]
 
 

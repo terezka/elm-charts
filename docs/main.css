@@ -26,6 +26,7 @@
 .elm-plot__hint__line {
 	width: 1px;
 	background-color: #000;
+	pointer-events: none;
 }
 
 .elm-plot__hint__default-view {
