@@ -87,40 +87,43 @@ code =
         rem n 2 > 0
 
 
-    toTickStyle : Int -> Float -> List TickViewAttr
-    toTickStyle index tick =
+    toTickStyle : ( Int, Float ) -> List (Tick.StyleAttribute msg)
+    toTickStyle ( index, tick ) =
         if isOdd index then
-            [ tickLength 7, tickStyle [ ( "stroke", "#e4e3e3" ) ] ]
+            [ Tick.length 7
+            , Tick.stroke "#e4e3e3"
+            ]
         else
-            [ tickLength 10, tickStyle [ ( "stroke", "#b9b9b9" ) ] ]
-
-
-    toLabelStyle : Int -> Float -> List LabelViewAttr
-    toLabelStyle index tick =
-        if isOdd index then
-            [ labelFormat (always "") ]
-        else
-            [ labelFormat (\\l -> toString l ++ " s")
-            , labelStyle [ ( "stroke", "#969696" ) ]
-            , labelDisplace ( 0, 27 )
+            [ Tick.length 10
+            , Tick.stroke "#b9b9b9"
             ]
 
 
-    chart : Svg.Svg a
-    chart =
+    toLabelStyle : ( Int, Float ) -> List (Label.StyleAttribute msg)
+    toLabelStyle ( index, tick ) =
+        if isOdd index then
+            [ Label.format (always "") ]
+        else
+            [ Label.format (\\( _, v ) -> toString v ++ " s")
+            , Label.stroke "#969696"
+            ]
+
+
+    view : Svg.Svg a
+    view =
         plot
-            [ size ( 380, 300 ) ]
+            [ size Common.plotSize
+            , margin ( 10, 20, 40, 20 )
+            ]
             [ line
-                [ lineStyle
-                    [ ( "stroke", Common.pinkStroke )
-                    , ( "stroke-width", "2px" )
-                    ]
+                [ Line.stroke Common.pinkStroke
+                , Line.strokeWidth 2
                 ]
                 data
             , xAxis
-                [ axisStyle [ ( "stroke", Common.axisColor ) ]
-                , tickConfigViewFunc toTickStyle
-                , labelConfigViewFunc toLabelStyle
+                [ Axis.line [ Line.stroke Common.axisColor ]
+                , Axis.tick [ Tick.viewDynamic toTickStyle ]
+                , Axis.label [ Label.viewDynamic toLabelStyle ]
                 ]
             ]
     """

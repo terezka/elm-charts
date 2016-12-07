@@ -63,25 +63,28 @@ view =
 
 code =
     """
-    chart : Svg.Svg a
-    chart =
+    view : Svg.Svg a
+    view =
         plot
-            [ size ( 600, 300 ), padding ( 0, 40 ) ]
+            [ size Common.plotSize
+            , margin ( 10, 20, 40, 20 )
+            ]
             [ verticalGrid
-                [ Grid.style [ ( "stroke", Common.axisColorLight ) ] ]
+                [ Grid.lines
+                    [ Line.stroke Common.axisColorLight ]
+                ]
             , horizontalGrid
-                [ Grid.values [ 10, 20, 30, 40 ]
-                , Grid.style [ ( "stroke", Common.axisColorLight ) ]
+                [ Grid.lines
+                    [ Line.stroke Common.axisColorLight ]
+                , Grid.values [ 4, 8, 12 ]
                 ]
             , xAxis
-                [ Axis.view
-                    [ Axis.style [ ( "stroke", Common.axisColor ) ] ]
+                [ Axis.line [ Line.stroke Common.axisColor ]
+                , Axis.tick [ Tick.delta 0.5 ]
                 ]
             , line
-                [ Lne.style
-                    [ ( "stroke", Common.blueStroke )
-                    , ( "stroke-width", "2px" )
-                    ]
+                [ Line.stroke Common.blueStroke
+                , Line.strokeWidth 2
                 ]
                 data
             ]

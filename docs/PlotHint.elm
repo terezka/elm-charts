@@ -38,7 +38,7 @@ data2 =
     [ ( 0, 0 ), ( 1, 5 ), ( 2, 7 ), ( 3, 15 ) ]
 
 
-view : State -> Svg.Svg (Interaction c)
+view : State -> Svg.Svg (Interaction msg)
 view state =
     plotInteractive
         [ size Common.plotSize
@@ -69,27 +69,31 @@ view state =
 
 code =
     """
-    chart : Svg.Svg a
-    chart =
-        plot
-            [ size ( 600, 300 ) ]
+    view : State -> Svg.Svg (Interaction msg)
+    view state =
+        plotInteractive
+            [ size Common.plotSize
+            , margin ( 10, 20, 40, 20 )
+            , id "PlotHint"
+            ]
             [ line
-                [ Line.style
-                    [ ( "stroke", Common.blueStroke )
-                    , ( "stroke-width", "2px" )
-                    ]
-                ]
-                data2
-            , line
-                [ Line.style
-                    [ ( "stroke", Common.pinkStroke )
-                    , ( "stroke-width", "2px" )
-                    ]
+                [ Line.stroke Common.blueStroke
+                , Line.strokeWidth 2
                 ]
                 data1
-            , xAxis
-                [ Axis.view
-                    [ Axis.style [ ( "stroke", Common.axisColor ) ] ]
+            , line
+                [ Line.stroke Common.pinkStroke
+                , Line.strokeWidth 2
                 ]
+                data2
+            , xAxis
+                [ Axis.line
+                    [ Line.stroke Common.axisColor ]
+                , Axis.tick
+                    [ Tick.delta 1 ]
+                ]
+            , hint
+                [ Hint.lineStyle [ ( "background", "#b9b9b9" ) ] ]
+                (getHoveredValue state)
             ]
     """

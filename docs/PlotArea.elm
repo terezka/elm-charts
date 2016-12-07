@@ -63,27 +63,25 @@ view =
 
 code =
     """
-    chart : Svg.Svg a
-    chart =
+    view : Svg.Svg a
+    view =
         plot
-            [ size ( 600, 300 ) ]
+            [ size Common.plotSize
+            , margin ( 10, 20, 40, 20 )
+            ]
             [ area
-                [ Area.style
-                    [ ( "stroke", Common.skinStroke )
-                    , ( "fill", Common.skinFill )
-                    ]
+                [ Area.stroke Common.skinStroke
+                , Area.fill Common.skinFill
                 ]
                 data1
             , area
-                [ Area.style
-                    [ ( "stroke", Common.blueStroke )
-                    , ( "fill", Common.blueFill )
-                    ]
+                [ Area.stroke Common.blueStroke
+                , Area.fill Common.blueFill
                 ]
                 data2
             , xAxis
-                [ axisStyle [ ( "stroke", Common.axisColor ) ]
-                , tickDelta 10
+                [ Axis.line [ Line.stroke Common.axisColor ]
+                , Axis.tick [ Tick.delta 10 ]
                 ]
             ]
     """

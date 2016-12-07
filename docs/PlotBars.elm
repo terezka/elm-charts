@@ -81,18 +81,33 @@ view =
 code : String
 code =
     """
-    chart : Svg.Svg a
-    chart =
+    view : Svg.Svg a
+    view =
         plot
-            [ size ( 600, 250 ) ]
-            [ scatter
-                [ scatterStyle
-                    [ ( "stroke", Common.pinkStroke )
-                    , ( "fill", Common.pinkFill )
-                    ]
-                , scatterRadius 8
+            [ size Common.plotSize
+            , margin ( 10, 20, 40, 20 )
+            ]
+            [ pile
+                [ Pile.maxBarWidthPer 85 ]
+                [ Pile.bars
+                    [ Bars.fill Common.blueFill ]
+                    data1
+                , Pile.bars
+                    [ Bars.fill Common.skinFill ]
+                    data2
+                , Pile.bars
+                    [ Bars.fill Common.pinkFill ]
+                    data3
                 ]
-                data
-            , xAxis [ axisStyle [ ( "stroke", Common.axisColor ) ] ]
+            , xAxis
+                [ Axis.line [ Line.stroke Common.axisColor ]
+                , Axis.tick [ Tick.delta 1 ]
+                , Axis.label
+                    [ Label.view
+                        [ Label.format formatter
+                        , Label.stroke "#969696"
+                        ]
+                    ]
+                ]
             ]
     """

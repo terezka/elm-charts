@@ -64,27 +64,27 @@ view =
 
 code =
     """
-    chart : Svg.Svg a
-    chart =
+    view : Svg.Svg a
+    view =
         plot
-            [ size ( 600, 300 ) ]
+            [ size Common.plotSize
+            , margin ( 10, 20, 40, 20 )
+            ]
             [ line
-                [ Line.style
-                    [ ( "stroke", Common.blueStroke )
-                    , ( "stroke-width", "2px" )
-                    ]
-                ]
-                data2
-            , line
-                [ Line.style
-                    [ ( "stroke", Common.pinkStroke )
-                    , ( "stroke-width", "2px" )
-                    ]
+                [ Line.stroke Common.blueStroke
+                , Line.strokeWidth 2
                 ]
                 data1
+            , line
+                [ Line.stroke Common.pinkStroke
+                , Line.strokeWidth 2
+                ]
+                data2
             , xAxis
-                [ Axis.view
-                    [ Axis.style [ ( "stroke", Common.axisColor ) ] ]
+                [ Axis.line
+                    [ Line.stroke Common.axisColor ]
+                , Axis.tick
+                    [ Tick.delta 1 ]
                 ]
             ]
     """

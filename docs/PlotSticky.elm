@@ -112,40 +112,68 @@ code =
         rem n 2 > 0
 
 
-    toTickAttrs : Int -> Float -> List TickViewAttr
-    toTickAttrs index tick =
-        if isOdd index then
-            [ tickLength 7, tickStyle [ ( "stroke", "#e4e3e3" ) ] ]
-        else
-            [ tickLength 10, tickStyle [ ( "stroke", "#b9b9b9" ) ] ]
+    toTickAttrs : ( Int, Float ) -> List (Tick.StyleAttribute msg)
+    toTickAttrs ( index, tick ) =
+        [ Tick.length 7
+        , Tick.stroke "#e4e3e3"
+        ]
 
 
-    toLabelAttrs : Int -> Float -> List LabelViewAttr
-    toLabelAttrs index tick =
-        if isOdd index then
-            [ labelFormat (always "") ]
+    toLabelAttrs : ( Int, Float ) -> List (Label.StyleAttribute msg)
+    toLabelAttrs ( index, tick ) =
+        [ Label.format (\\( _, v ) -> toString v ++ " ms") ]
+
+
+    toLabelAttrsY1 : ( Int, Float ) -> List (Label.StyleAttribute msg)
+    toLabelAttrsY1 ( index, tick ) =
+        if not <| isOdd index then
+            [ Label.format (always "") ]
         else
-            [ labelFormat (\\l -> toString l ++ " s")
-            , labelStyle [ ( "stroke", "#969696" ) ]
-            , labelDisplace ( 0, 27 )
+            [ Label.format (\\( _, v ) -> toString (v * 10) ++ " x")
+            , Label.displace ( -5, 0 )
             ]
 
 
-    chart : Svg.Svg a
-    chart =
+    toLabelAttrsY2 : ( Int, Float ) -> List (Label.StyleAttribute msg)
+    toLabelAttrsY2 ( index, tick ) =
+        if isOdd index then
+            [ Label.format (always "") ]
+        else
+            [ Label.format (\\( _, v ) -> toString (v / 5) ++ "k") ]
+
+
+    view : Svg.Svg a
+    view =
         plot
-            [ size ( 380, 300 ) ]
+            [ size Common.plotSize
+            , margin ( 10, 20, 40, 20 )
+            , padding ( 0, 20 )
+            , domainLowest (always -21)
+            ]
             [ line
-                [ lineStyle
-                    [ ( "stroke", Common.pinkStroke )
-                    , ( "stroke-width", "2px" )
-                    ]
+                [ Line.stroke Common.pinkStroke
+                , Line.strokeWidth 2
                 ]
                 data
             , xAxis
-                [ axisStyle [ ( "stroke", Common.axisColor ) ]
-                , tickConfigViewFunc toTickAttrs
-                , labelConfigViewFunc toLabelAttrs
+                [ Axis.tick
+                    [ Tick.viewDynamic toTickAttrs
+                    , Tick.values [ 3, 6 ]
+                    ]
+                , Axis.label [ Label.viewDynamic toLabelAttrs ]
+                , Axis.cleanCrossings
+                ]
+            , yAxis
+                [ Axis.positionHighest
+                , Axis.cleanCrossings
+                , Axis.tick [ Tick.viewDynamic toTickAttrs ]
+                , Axis.label [ Label.viewDynamic toLabelAttrsY1 ]
+                ]
+            , yAxis
+                [ Axis.positionLowest
+                , Axis.cleanCrossings
+                , Axis.anchorInside
+                , Axis.label [ Label.viewDynamic toLabelAttrsY2 ]
                 ]
             ]
     """

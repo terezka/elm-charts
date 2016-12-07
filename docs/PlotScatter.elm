@@ -56,18 +56,23 @@ view =
 code : String
 code =
     """
-    chart : Svg.Svg a
-    chart =
+    view : Svg.Svg a
+    view =
         plot
-            [ size ( 600, 250 ) ]
+            [ size Common.plotSize
+            , margin ( 10, 20, 40, 40 )
+            ]
             [ scatter
-                [ scatterStyle
-                    [ ( "stroke", Common.pinkStroke )
-                    , ( "fill", Common.pinkFill )
-                    ]
-                , scatterRadius 8
+                [ Scatter.stroke Common.pinkStroke
+                , Scatter.fill Common.pinkFill
+                , Scatter.radius 8
                 ]
                 data
-            , xAxis [ axisStyle [ ( "stroke", Common.axisColor ) ] ]
+            , xAxis
+                [ Axis.line
+                    [ Line.stroke Common.axisColor ]
+                , Axis.tick
+                    [ Tick.delta 2 ]
+                ]
             ]
     """
