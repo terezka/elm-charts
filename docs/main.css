@@ -1,4 +1,8 @@
 
+body {
+	margin: 0;
+}
+
 a {
 	color: #84868a;
 }
@@ -10,6 +14,11 @@ a {
     color: #7F7F7F;
     font-weight: 200;
     text-align: center;
+}
+
+.view--showing-code {
+	overflow-x: hidden; 
+    overflow-y: auto;
 }
 
 .view__logo {
@@ -25,9 +34,19 @@ a {
 	margin: 40px auto 100px;
 }
 
-.view-heading__code-toggler {
+.view-heading__code-open {
 	color: #9ea0a2;
 	font-size: 12px;
+	cursor: pointer;
+}
+
+.view-heading__code__close {
+	color: #9ea0a2;
+	font-size: 12px;
+	position: absolute;
+	margin: 15px 20px;
+	top: 0;
+	right: 0;
 	cursor: pointer;
 }
 
@@ -35,7 +54,11 @@ a {
 	text-align: right;
 	margin: 30px auto;
 	width: 600px;
-	position: relative;
+	position: fixed;
+	top: 40%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 100;
 }
 
 .view-heading__code__inner {
@@ -47,7 +70,7 @@ a {
 	font-size: 12px;
 	position: absolute;
 	margin: 15px 20px;
-	top: 0;
+	bottom: 0;
 	right: 0;
 }
 

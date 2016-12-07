@@ -14355,101 +14355,6 @@ var _terezka$elm_plot$Docs$isSectionOpen = F2(
 			return false;
 		}
 	});
-var _terezka$elm_plot$Docs$viewHeading = F4(
-	function (model, title, name, codeString) {
-		var isOpen = A2(_terezka$elm_plot$Docs$isSectionOpen, model, title);
-		var codeStyle = _terezka$elm_plot$Docs$getCodeStyle(isOpen);
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$style(
-					{
-						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 'margin', _1: '100px auto 10px'},
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(title),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('view-heading__code'),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$style(
-									{
-										ctor: '::',
-										_0: codeStyle,
-										_1: {ctor: '[]'}
-									}),
-								_1: {ctor: '[]'}
-							}
-						},
-						{
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$code,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('elm view-heading__code__inner'),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$pre,
-										{ctor: '[]'},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text(codeString),
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
-								}),
-							_1: {
-								ctor: '::',
-								_0: _terezka$elm_plot$Docs$viewLink(name),
-								_1: {ctor: '[]'}
-							}
-						}),
-					_1: {ctor: '[]'}
-				}
-			});
-	});
-var _terezka$elm_plot$Docs$viewPlot = F2(
-	function (model, _p3) {
-		var _p4 = _p3;
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('view-plot'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A4(_terezka$elm_plot$Docs$viewHeading, model, _p4.title, _p4.fileName, _p4.code),
-				_1: {
-					ctor: '::',
-					_0: _p4.view,
-					_1: {ctor: '[]'}
-				}
-			});
-	});
 var _terezka$elm_plot$Docs$initialModel = {openSection: _elm_lang$core$Maybe$Nothing, hintExample: _terezka$elm_plot$Plot$initialState, everythingExample: _terezka$elm_plot$Plot$initialState};
 var _terezka$elm_plot$Docs$highlight = _elm_lang$core$Native_Platform.outgoingPort(
 	'highlight',
@@ -14478,24 +14383,24 @@ var _terezka$elm_plot$Docs$update = F2(
 	function (msg, model) {
 		update:
 		while (true) {
-			var _p5 = msg;
-			if (_p5.ctor === 'Toggle') {
+			var _p3 = msg;
+			if (_p3.ctor === 'Toggle') {
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{openSection: _p5._0}),
+						{openSection: _p3._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			} else {
-				var _p6 = _p5._1;
-				if (_p6.ctor === 'Internal') {
-					var _p10 = _p6._0;
-					var _p7 = _p5._0;
-					if (_p7.ctor === 'HintExample') {
-						var _p8 = A2(_terezka$elm_plot$Plot$update, _p10, model.hintExample);
-						var state = _p8._0;
-						var cmd = _p8._1;
+				var _p4 = _p3._1;
+				if (_p4.ctor === 'Internal') {
+					var _p8 = _p4._0;
+					var _p5 = _p3._0;
+					if (_p5.ctor === 'HintExample') {
+						var _p6 = A2(_terezka$elm_plot$Plot$update, _p8, model.hintExample);
+						var state = _p6._0;
+						var cmd = _p6._1;
 						return {
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
@@ -14507,9 +14412,9 @@ var _terezka$elm_plot$Docs$update = F2(
 								cmd)
 						};
 					} else {
-						var _p9 = A2(_terezka$elm_plot$Plot$update, _p10, model.everythingExample);
-						var state = _p9._0;
-						var cmd = _p9._1;
+						var _p7 = A2(_terezka$elm_plot$Plot$update, _p8, model.everythingExample);
+						var state = _p7._0;
+						var cmd = _p7._1;
 						return {
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
@@ -14522,14 +14427,162 @@ var _terezka$elm_plot$Docs$update = F2(
 						};
 					}
 				} else {
-					var _v6 = _p6._0,
-						_v7 = model;
-					msg = _v6;
-					model = _v7;
+					var _v5 = _p4._0,
+						_v6 = model;
+					msg = _v5;
+					model = _v6;
 					continue update;
 				}
 			}
 		}
+	});
+var _terezka$elm_plot$Docs$Toggle = function (a) {
+	return {ctor: 'Toggle', _0: a};
+};
+var _terezka$elm_plot$Docs$getOnClickMsg = F2(
+	function (isOpen, title) {
+		return isOpen ? _terezka$elm_plot$Docs$Toggle(_elm_lang$core$Maybe$Nothing) : _terezka$elm_plot$Docs$Toggle(
+			_elm_lang$core$Maybe$Just(title));
+	});
+var _terezka$elm_plot$Docs$viewToggler = F2(
+	function (isOpen, title) {
+		return A2(
+			_elm_lang$html$Html$p,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('view-heading__code-open'),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Events$onClick(
+						A2(_terezka$elm_plot$Docs$getOnClickMsg, isOpen, title)),
+					_1: {ctor: '[]'}
+				}
+			},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('View source snippet'),
+				_1: {ctor: '[]'}
+			});
+	});
+var _terezka$elm_plot$Docs$viewClose = A2(
+	_elm_lang$html$Html$p,
+	{
+		ctor: '::',
+		_0: _elm_lang$html$Html_Attributes$class('view-heading__code__close'),
+		_1: {
+			ctor: '::',
+			_0: _elm_lang$html$Html_Events$onClick(
+				_terezka$elm_plot$Docs$Toggle(_elm_lang$core$Maybe$Nothing)),
+			_1: {ctor: '[]'}
+		}
+	},
+	{
+		ctor: '::',
+		_0: _elm_lang$html$Html$text('Close'),
+		_1: {ctor: '[]'}
+	});
+var _terezka$elm_plot$Docs$viewHeading = F4(
+	function (model, title, name, codeString) {
+		var isOpen = A2(_terezka$elm_plot$Docs$isSectionOpen, model, title);
+		var codeStyle = _terezka$elm_plot$Docs$getCodeStyle(isOpen);
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$style(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'margin', _1: '100px auto 10px'},
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(title),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(_terezka$elm_plot$Docs$viewToggler, isOpen, title),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('view-heading__code'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$style(
+										{
+											ctor: '::',
+											_0: codeStyle,
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}
+							},
+							{
+								ctor: '::',
+								_0: _terezka$elm_plot$Docs$viewClose,
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$code,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('elm view-heading__code__inner'),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$pre,
+												{ctor: '[]'},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text(codeString),
+													_1: {ctor: '[]'}
+												}),
+											_1: {ctor: '[]'}
+										}),
+									_1: {
+										ctor: '::',
+										_0: _terezka$elm_plot$Docs$viewLink(name),
+										_1: {ctor: '[]'}
+									}
+								}
+							}),
+						_1: {ctor: '[]'}
+					}
+				}
+			});
+	});
+var _terezka$elm_plot$Docs$viewPlot = F2(
+	function (model, _p9) {
+		var _p10 = _p9;
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('view-plot'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A4(_terezka$elm_plot$Docs$viewHeading, model, _p10.title, _p10.fileName, _p10.code),
+				_1: {
+					ctor: '::',
+					_0: _p10.view,
+					_1: {ctor: '[]'}
+				}
+			});
 	});
 var _terezka$elm_plot$Docs$viewPlotInteractive = F3(
 	function (model, state, _p11) {
@@ -14559,7 +14612,20 @@ var _terezka$elm_plot$Docs$view = function (model) {
 		_elm_lang$html$Html$div,
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('view'),
+			_0: _elm_lang$html$Html_Attributes$classList(
+				{
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 'view', _1: true},
+					_1: {
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'view--showing-code',
+							_1: !_elm_lang$core$Native_Utils.eq(model.openSection, _elm_lang$core$Maybe$Nothing)
+						},
+						_1: {ctor: '[]'}
+					}
+				}),
 			_1: {ctor: '[]'}
 		},
 		{
@@ -14714,34 +14780,6 @@ var _terezka$elm_plot$Docs$main = _elm_lang$html$Html$program(
 		subscriptions: _elm_lang$core$Basics$always(_elm_lang$core$Platform_Sub$none),
 		view: _terezka$elm_plot$Docs$view
 	})();
-var _terezka$elm_plot$Docs$Toggle = function (a) {
-	return {ctor: 'Toggle', _0: a};
-};
-var _terezka$elm_plot$Docs$getOnClickMsg = F2(
-	function (isOpen, title) {
-		return isOpen ? _terezka$elm_plot$Docs$Toggle(_elm_lang$core$Maybe$Nothing) : _terezka$elm_plot$Docs$Toggle(
-			_elm_lang$core$Maybe$Just(title));
-	});
-var _terezka$elm_plot$Docs$viewToggler = F2(
-	function (isOpen, title) {
-		return A2(
-			_elm_lang$html$Html$p,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('view-heading__code-toggler'),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$html$Html_Events$onClick(
-						A2(_terezka$elm_plot$Docs$getOnClickMsg, isOpen, title)),
-					_1: {ctor: '[]'}
-				}
-			},
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html$text('View source snippet'),
-				_1: {ctor: '[]'}
-			});
-	});
 
 var Elm = {};
 Elm['Docs'] = Elm['Docs'] || {};

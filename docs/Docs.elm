@@ -4,7 +4,7 @@ import Svg
 import Svg.Events
 import Svg.Attributes
 import Html exposing (Html, div, text, h1, img, a, br, span, code, pre, p)
-import Html.Attributes exposing (style, src, href, class)
+import Html.Attributes exposing (style, src, href, class, classList)
 import Html.Events exposing (onClick)
 import Plot as Plot exposing (Interaction(..))
 import Plot.Line as Line
@@ -111,7 +111,7 @@ isSectionOpen { openSection } title =
 view : Model -> Html Msg
 view model =
     div
-        [ class "view" ]
+        [ classList [("view", True), ("view--showing-code", model.openSection /= Nothing )] ]
         [ img
             [ src "logo.png"
             , class "view__logo"
@@ -174,12 +174,13 @@ viewHeading model title name codeString =
     in
         div [ style [ ( "margin", "100px auto 10px" ) ] ]
             [ div [] [ text title ]
-            --, viewToggler isOpen title
+            , viewToggler isOpen title
             , div
                 [ class "view-heading__code"
                 , style [ codeStyle ]
                 ]
-                [ Html.code
+                [ viewClose
+                , Html.code
                     [ class "elm view-heading__code__inner" ]
                     [ pre [] [ text codeString ] ]
                 , viewLink name
@@ -189,10 +190,19 @@ viewHeading model title name codeString =
 viewToggler : Bool -> String -> Html.Html Msg
 viewToggler isOpen title =
     p
-        [ class "view-heading__code-toggler"
+        [ class "view-heading__code-open"
         , onClick <| getOnClickMsg isOpen title
         ]
         [ text "View source snippet" ]
+
+
+viewClose : Html.Html Msg
+viewClose =
+    p
+        [ class "view-heading__code__close"
+        , onClick (Toggle Nothing)
+        ]
+        [ text "Close" ]
 
 
 viewLink : String -> Html.Html Msg
