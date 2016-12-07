@@ -11851,7 +11851,7 @@ var _terezka$elm_plot$Plot$collectYValues = F3(
 				return yValues;
 		}
 	});
-var _terezka$elm_plot$Plot$collectPileMetas = F2(
+var _terezka$elm_plot$Plot$foldPileMeta = F2(
 	function (element, allPileMetas) {
 		var _p5 = element;
 		if (_p5.ctor === 'Pile') {
@@ -11860,6 +11860,10 @@ var _terezka$elm_plot$Plot$collectPileMetas = F2(
 			return allPileMetas;
 		}
 	});
+var _terezka$elm_plot$Plot$toPileMetas = A2(
+	_elm_lang$core$List$foldr,
+	_terezka$elm_plot$Plot$foldPileMeta,
+	{ctor: '[]'});
 var _terezka$elm_plot$Plot$getLastGetTickValues = function (axisConfigs) {
 	return _terezka$elm_plot$Internal_Tick$getValues(
 		function (_) {
@@ -11870,7 +11874,7 @@ var _terezka$elm_plot$Plot$getLastGetTickValues = function (axisConfigs) {
 				_terezka$elm_plot$Internal_Axis$defaultConfigX,
 				_elm_lang$core$List$head(axisConfigs))));
 };
-var _terezka$elm_plot$Plot$toAxisConfigsOriented = F2(
+var _terezka$elm_plot$Plot$foldAxisConfigs = F2(
 	function (element, axisConfigs) {
 		var _p6 = element;
 		if (_p6.ctor === 'Axis') {
@@ -11884,6 +11888,13 @@ var _terezka$elm_plot$Plot$toAxisConfigsOriented = F2(
 		} else {
 			return axisConfigs;
 		}
+	});
+var _terezka$elm_plot$Plot$toAxisConfigsOriented = A2(
+	_elm_lang$core$List$foldr,
+	_terezka$elm_plot$Plot$foldAxisConfigs,
+	{
+		x: {ctor: '[]'},
+		y: {ctor: '[]'}
 	});
 var _terezka$elm_plot$Plot$getHintInfo = F2(
 	function (elements, xValue) {
@@ -11953,32 +11964,19 @@ var _terezka$elm_plot$Plot$toValuesOriented = function (elements) {
 var _terezka$elm_plot$Plot$calculateMeta = F2(
 	function (_p13, elements) {
 		var _p14 = _p13;
+		var _p16 = _p14.size;
 		var _p15 = _p14.margin;
 		var top = _p15._0;
 		var right = _p15._1;
 		var bottom = _p15._2;
 		var left = _p15._3;
-		var _p16 = _p14.size;
-		var width = _p16._0;
-		var height = _p16._1;
-		var pileMetas = A3(
-			_elm_lang$core$List$foldr,
-			_terezka$elm_plot$Plot$collectPileMetas,
-			{ctor: '[]'},
-			elements);
+		var pileMetas = _terezka$elm_plot$Plot$toPileMetas(elements);
 		var pileEdges = _terezka$elm_plot$Internal_Pile$toPileEdges(pileMetas);
-		var axisConfigs = A3(
-			_elm_lang$core$List$foldr,
-			_terezka$elm_plot$Plot$toAxisConfigsOriented,
-			{
-				x: {ctor: '[]'},
-				y: {ctor: '[]'}
-			},
-			elements);
+		var axisConfigs = _terezka$elm_plot$Plot$toAxisConfigsOriented(elements);
 		var values = _terezka$elm_plot$Plot$toValuesOriented(elements);
 		var xScale = A6(
 			_terezka$elm_plot$Internal_Scale$getScale,
-			width,
+			_p16.x,
 			_p14.range,
 			{ctor: '_Tuple2', _0: left, _1: right},
 			{ctor: '_Tuple2', _0: 0, _1: 0},
@@ -11987,7 +11985,7 @@ var _terezka$elm_plot$Plot$calculateMeta = F2(
 		var xTicks = A2(_terezka$elm_plot$Plot$getLastGetTickValues, axisConfigs.x, xScale);
 		var yScale = A6(
 			_terezka$elm_plot$Internal_Scale$getScale,
-			height,
+			_p16.y,
 			_p14.domain,
 			{ctor: '_Tuple2', _0: top, _1: bottom},
 			_p14.padding,
@@ -11996,8 +11994,8 @@ var _terezka$elm_plot$Plot$calculateMeta = F2(
 		var yTicks = A2(_terezka$elm_plot$Plot$getLastGetTickValues, axisConfigs.y, yScale);
 		return {
 			scale: A2(_terezka$elm_plot$Internal_Types$Oriented, xScale, yScale),
-			oppositeToSvgCoords: A2(_terezka$elm_plot$Internal_Scale$toSvgCoordsY, xScale, yScale),
 			toSvgCoords: A2(_terezka$elm_plot$Internal_Scale$toSvgCoordsX, xScale, yScale),
+			oppositeToSvgCoords: A2(_terezka$elm_plot$Internal_Scale$toSvgCoordsY, xScale, yScale),
 			fromSvgCoords: A2(_terezka$elm_plot$Internal_Scale$fromSvgCoords, xScale, yScale),
 			ticks: xTicks,
 			oppositeTicks: yTicks,
@@ -12128,14 +12126,14 @@ var _terezka$elm_plot$Plot$sizeStyle = function (_p23) {
 		_0: {
 			ctor: '_Tuple2',
 			_0: 'height',
-			_1: _terezka$elm_plot$Internal_Draw$toPixels(_p24._1)
+			_1: _terezka$elm_plot$Internal_Draw$toPixels(_p24.y)
 		},
 		_1: {
 			ctor: '::',
 			_0: {
 				ctor: '_Tuple2',
 				_0: 'width',
-				_1: _terezka$elm_plot$Internal_Draw$toPixels(_p24._0)
+				_1: _terezka$elm_plot$Internal_Draw$toPixels(_p24.x)
 			},
 			_1: {ctor: '[]'}
 		}
@@ -12149,11 +12147,11 @@ var _terezka$elm_plot$Plot$viewSvg = F2(
 			{
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$height(
-					_elm_lang$core$Basics$toString(_p26._1)),
+					_elm_lang$core$Basics$toString(_p26.y)),
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$svg$Svg_Attributes$width(
-						_elm_lang$core$Basics$toString(_p26._0)),
+						_elm_lang$core$Basics$toString(_p26.x)),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__inner'),
@@ -12275,11 +12273,10 @@ var _terezka$elm_plot$Plot$size = F2(
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{
-				size: {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Basics$toFloat(_p46._0),
-					_1: _elm_lang$core$Basics$toFloat(_p46._1)
-				}
+				size: A2(
+					_terezka$elm_plot$Internal_Types$Oriented,
+					_elm_lang$core$Basics$toFloat(_p46._0),
+					_elm_lang$core$Basics$toFloat(_p46._1))
 			});
 	});
 var _terezka$elm_plot$Plot$padding = F2(
@@ -12296,7 +12293,7 @@ var _terezka$elm_plot$Plot$padding = F2(
 			});
 	});
 var _terezka$elm_plot$Plot$defaultConfig = {
-	size: {ctor: '_Tuple2', _0: 800, _1: 500},
+	size: A2(_terezka$elm_plot$Internal_Types$Oriented, 800, 500),
 	padding: {ctor: '_Tuple2', _0: 0, _1: 0},
 	margin: {ctor: '_Tuple4', _0: 0, _1: 0, _2: 0, _3: 0},
 	classes: {ctor: '[]'},

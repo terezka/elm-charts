@@ -111,7 +111,7 @@ type Element msg
 
 
 type alias Config =
-    { size : ( Float, Float )
+    { size : Oriented Float
     , padding : ( Float, Float )
     , margin : ( Float, Float, Float, Float )
     , classes : List String
@@ -124,7 +124,7 @@ type alias Config =
 
 defaultConfig : Config
 defaultConfig =
-    { size = ( 800, 500 )
+    { size = Oriented 800 500
     , padding = ( 0, 0 )
     , margin = ( 0, 0, 0, 0 )
     , classes = []
@@ -158,7 +158,7 @@ padding ( bottom, top ) config =
 -}
 size : ( Int, Int ) -> Attribute
 size ( width, height ) config =
-    { config | size = ( toFloat width, toFloat height ) }
+    { config | size = Oriented ( toFloat width ) ( toFloat height ) }
 
 
 {-| Specify margin around the plot. Useful when your ticks are outside the
@@ -475,11 +475,11 @@ plotAttributesInteraction meta =
     ]
 
 
-viewSvg : ( Float, Float ) -> List (Svg msg) -> Svg msg
-viewSvg ( width, height ) views =
+viewSvg : Oriented Float -> List (Svg msg) -> Svg msg
+viewSvg { x, y } views =
     Svg.svg
-        [ Svg.Attributes.height (toString height)
-        , Svg.Attributes.width (toString width)
+        [ Svg.Attributes.height (toString y)
+        , Svg.Attributes.width (toString x)
         , Svg.Attributes.class "elm-plot__inner"
         ]
         views
@@ -493,9 +493,9 @@ getMousePosition meta =
         (Json.field "clientY" Json.float)
 
 
-sizeStyle : ( Float, Float ) -> Style
-sizeStyle ( width, height ) =
-    [ ( "height", toPixels height ), ( "width", toPixels width ) ]
+sizeStyle : Oriented Float -> Style
+sizeStyle { x, y } =
+    [ ( "height", toPixels y ), ( "width", toPixels x ) ]
 
 
 viewElements : Meta -> List (Element msg) -> ( List (Svg msg), List (Html msg) )
@@ -547,25 +547,22 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
             toValuesOriented elements
 
         axisConfigs =
-            List.foldr toAxisConfigsOriented { x = [], y = [] } elements
+            toAxisConfigsOriented elements
 
         pileMetas =
-            List.foldr collectPileMetas [] elements
+            toPileMetas elements
 
         pileEdges =
             PileInternal.toPileEdges pileMetas
-
-        ( width, height ) =
-            size
 
         ( top, right, bottom, left ) =
             margin
 
         xScale =
-            getScale width range ( left, right ) ( 0, 0 ) values.x pileEdges.x
+            getScale size.x range ( left, right ) ( 0, 0 ) values.x pileEdges.x
 
         yScale =
-            getScale height domain ( top, bottom ) padding values.y pileEdges.y
+            getScale size.y domain ( top, bottom ) padding values.y pileEdges.y
 
         xTicks =
             getLastGetTickValues axisConfigs.x xScale
@@ -574,8 +571,8 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
             getLastGetTickValues axisConfigs.y yScale
     in
         { scale = Oriented xScale yScale
-        , oppositeToSvgCoords = toSvgCoordsY xScale yScale
         , toSvgCoords = toSvgCoordsX xScale yScale
+        , oppositeToSvgCoords = toSvgCoordsY xScale yScale
         , fromSvgCoords = fromSvgCoords xScale yScale
         , ticks = xTicks
         , oppositeTicks = yTicks
@@ -643,8 +640,13 @@ getHintInfo elements xValue =
     HintInfo xValue <| List.foldr (collectYValues xValue) [] elements
 
 
-toAxisConfigsOriented : Element msg -> Oriented (List (AxisInternal.Config msg)) -> Oriented (List (AxisInternal.Config msg))
-toAxisConfigsOriented element axisConfigs =
+toAxisConfigsOriented : List (Element msg) -> Oriented (List (AxisInternal.Config msg))
+toAxisConfigsOriented =
+    List.foldr foldAxisConfigs { x = [], y = [] }
+
+
+foldAxisConfigs : Element msg -> Oriented (List (AxisInternal.Config msg)) -> Oriented (List (AxisInternal.Config msg))
+foldAxisConfigs element axisConfigs =
     case element of
         Axis ({ orientation } as config) ->
             foldOriented (\configs -> config :: configs) orientation axisConfigs
@@ -661,8 +663,13 @@ getLastGetTickValues axisConfigs =
         |> TickInternal.getValues
 
 
-collectPileMetas : Element msg -> List PileMeta -> List PileMeta
-collectPileMetas element allPileMetas =
+toPileMetas : List (Element msg) -> List PileMeta
+toPileMetas =
+    List.foldr foldPileMeta []
+
+
+foldPileMeta : Element msg -> List PileMeta -> List PileMeta
+foldPileMeta element allPileMetas =
     case element of
         Pile _ _ meta ->
             meta :: allPileMetas
