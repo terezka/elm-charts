@@ -11,6 +11,7 @@ module Internal.Tick
         , indexValues
         , getValuesIndexed
         , getValues
+        , getDelta
         )
 
 import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)

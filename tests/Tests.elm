@@ -5,12 +5,14 @@ import Expect
 import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
-import Helpers exposing (..)
+import Internal.Stuff exposing (..)
+import Internal.Draw exposing (..)
+import Internal.Tick exposing (..)
 
 
 all : Test
 all =
-    describe "Helpers"
+    describe "Helpers and draw functions"
         [ testGetGreatest
         , testGetLowest
         , testCoordToInstruction
@@ -44,7 +46,7 @@ testGetLowest =
     describe "getLowest"
         [ test "should return 0 passing in [2, 10, 11]" <|
             \() ->
-                Expect.equal (getLowest [ 2, 10, 11 ]) 0
+                Expect.equal (getLowest [ 2, 10, 11 ]) 2
         , test "should return 0 in case of an empty list" <|
             \() ->
                 Expect.equal (getLowest []) 0
@@ -59,10 +61,10 @@ testCoordToInstruction =
     describe "coordToInstruction"
         [ test "should return \"random 0,0\" when passing in \"random\" [(0,0)]" <|
             \() ->
-                Expect.equal (coordToInstruction "random" [ ( 0, 0 ) ]) "random 0,0"
+                Expect.equal (coordsToInstruction "random" [ ( 0, 0 ) ]) "random 0,0"
         , test "should return \"random 0,0random 1,1\" when passing in \"random\"  [(0,0), (1,1)]" <|
             \() ->
-                Expect.equal (coordToInstruction "random" [ ( 0, 0 ), ( 1, 1 ) ]) "random 0,0random 1,1"
+                Expect.equal (coordsToInstruction "random" [ ( 0, 0 ), ( 1, 1 ) ]) "random 0,0random 1,1"
         ]
 
 
@@ -101,7 +103,7 @@ testToPositionAttr =
     describe ("toPositionAttr")
         [ test "should return a List with Svg x1 y1 x2 y2 Attributes" <|
             \() ->
-                Expect.equal (toPositionAttr 2 3 4 5) [ x1 "2", y1 "3", x2 "4", y2 "5" ]
+                Expect.equal (positionAttributes (2, 3) (4, 5)) [ x1 "2", y1 "3", x2 "4", y2 "5" ]
         ]
 
 
@@ -154,23 +156,23 @@ testCalculateStep =
     describe "getTickDeltaTest"
         [ test "should return Infinity if the distance is 10 and want to get 0 ticks" <|
             \() ->
-                Expect.equal (getTickDelta 10 0) (1 / 0)
+                Expect.equal (getDelta 10 0) (1 / 0)
         , test "should return 1 if the distance is 10 and want to get 10 ticks" <|
             \() ->
-                Expect.equal (getTickDelta 10 10) 1
+                Expect.equal (getDelta 10 10) 1
         , test "should return 5 if the distance is 10 and want to get 2 ticks" <|
             \() ->
-                Expect.equal (getTickDelta 10 2) 5
+                Expect.equal (getDelta 10 2) 5
         , test "should return 5 if the distance is 10 and want to get 3 ticks" <|
             \() ->
-                Expect.equal (getTickDelta 10 3) 5
+                Expect.equal (getDelta 10 3) 5
         , test "should return 10 if the distance is 100 and want to get 10 ticks" <|
             \() ->
-                Expect.equal (getTickDelta 100 10) 10
+                Expect.equal (getDelta 100 10) 10
         , test "should return 10 if the distance is 1000 and want to get 100 ticks" <|
             \() ->
-                Expect.equal (getTickDelta 1000 100) 10
+                Expect.equal (getDelta 1000 100) 10
         , test "should return 1 if the distance is 150 and want to get 150 ticks" <|
             \() ->
-                Expect.equal (getTickDelta 150 150) 1
+                Expect.equal (getDelta 150 150) 1
         ]
