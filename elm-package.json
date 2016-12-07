@@ -5,18 +5,20 @@
     "license": "BSD3",
     "source-directories": [
         "./src",
-        "./docs",
-        "./dom"
+        "./docs"
     ],
     "exposed-modules": [
         "Plot",
-        "Plot.Axis",
-        "Plot.Tick",
-        "Plot.Label",
-        "Plot.Grid",
         "Plot.Area",
+        "Plot.Axis",
+        "Plot.Bars",
+        "Plot.Grid",
+        "Plot.Hint",
+        "Plot.Label",
         "Plot.Line",
-        "Plot.Hint"
+        "Plot.Pile",
+        "Plot.Scatter",
+        "Plot.Tick"
     ],
     "native-modules": true,
     "dependencies": {
