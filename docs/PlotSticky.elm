@@ -75,7 +75,7 @@ view =
         [ size Common.plotSize
         , margin ( 10, 20, 40, 20 )
         , padding ( 0, 20 )
-        , domain ( Just -21, Nothing )
+        , domainLowest (always -21)
         ]
         [ line
             [ Line.stroke Common.pinkStroke

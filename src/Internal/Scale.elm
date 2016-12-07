@@ -4,17 +4,17 @@ import Internal.Types exposing (..)
 import Internal.Stuff exposing (..)
 
 
-getScale : Float -> ( Maybe Value, Maybe Value ) -> ( Value, Value ) -> ( Value, Value ) -> List Value -> Maybe Edges -> Scale
-getScale lengthTotal ( forcedLowest, forcedHighest ) ( offsetLeft, offsetRight ) ( paddingBottomPx, paddingTopPx ) values pileEdges =
+getScale : Float -> EdgesAny (Float -> Float) -> ( Value, Value ) -> ( Value, Value ) -> List Value -> Maybe Edges -> Scale
+getScale lengthTotal restrictRange ( offsetLeft, offsetRight ) ( paddingBottomPx, paddingTopPx ) values pileEdges =
     let
         length =
             lengthTotal - offsetLeft - offsetRight
 
         lowest =
-            getScaleLowest forcedLowest values pileEdges
+            getScaleLowest restrictRange.lower values pileEdges
 
         highest =
-            getScaleHighest forcedHighest values pileEdges
+            getScaleHighest restrictRange.upper values pileEdges
 
         range =
             getRange lowest highest
@@ -33,14 +33,10 @@ getScale lengthTotal ( forcedLowest, forcedHighest ) ( offsetLeft, offsetRight )
         }
 
 
-getScaleLowest : Maybe Value -> List Value -> Maybe Edges -> Value
-getScaleLowest forcedLowest values pileEdges =
-    case forcedLowest of
-        Just value ->
-            value
-
-        Nothing ->
-            getAutoLowest pileEdges (getLowest values)
+getScaleLowest : (Float -> Float) -> List Value -> Maybe Edges -> Value
+getScaleLowest toLowest values pileEdges =
+    getAutoLowest pileEdges (getLowest values)
+    |> toLowest
 
 
 getAutoLowest : Maybe Edges -> Value -> Value
@@ -53,14 +49,10 @@ getAutoLowest pileEdges lowestFromValues =
             lowestFromValues
 
 
-getScaleHighest : Maybe Value -> List Value -> Maybe Edges -> Value
-getScaleHighest forcedHighest values pileEdges =
-    case forcedHighest of
-        Just value ->
-            value
-
-        Nothing ->
-            getAutoHighest pileEdges (getHighest values)
+getScaleHighest : (Float -> Float) -> List Value -> Maybe Edges -> Value
+getScaleHighest toHighest values pileEdges =
+    getAutoHighest pileEdges (getHighest values)
+    |> toHighest
 
 
 getAutoHighest : Maybe Edges -> Value -> Value

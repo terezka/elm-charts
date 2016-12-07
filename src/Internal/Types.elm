@@ -12,6 +12,7 @@ module Internal.Types
         , Edges
         , MaxWidth(..)
         , Value
+        , EdgesAny
         )
 
 
@@ -45,6 +46,12 @@ type MaxWidth
 type alias Edges =
     { lower : Float
     , upper : Float
+    }
+
+
+type alias EdgesAny a =
+    { lower : a
+    , upper : a
     }
 
 

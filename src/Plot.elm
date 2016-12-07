@@ -19,8 +19,10 @@ module Plot
         , padding
         , size
         , style
-        , range
-        , domain
+        , domainLowest
+        , domainHighest
+        , rangeLowest
+        , rangeHighest
         , Element
         , initialState
         , update
@@ -43,7 +45,7 @@ module Plot
 @docs plot, plotInteractive, scatter, line, area, pile, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
 
 # Styling and sizes
-@docs classes, id, margin, padding, size, style, range, domain
+@docs classes, id, margin, padding, size, style, domainLowest, domainHighest, rangeLowest, rangeHighest
 
 # State
 @docs State, initialState, update, Interaction, getHoveredValue
@@ -116,8 +118,8 @@ type alias Config =
     , margin : ( Float, Float, Float, Float )
     , classes : List String
     , style : Style
-    , domain : ( Maybe Float, Maybe Float )
-    , range : ( Maybe Float, Maybe Float )
+    , domain : EdgesAny (Float -> Float)
+    , range : EdgesAny (Float -> Float)
     , id : String
     }
 
@@ -129,8 +131,8 @@ defaultConfig =
     , margin = ( 0, 0, 0, 0 )
     , classes = []
     , style = [ ( "padding", "0" ), ( "stroke", "#000" ) ]
-    , domain = ( Nothing, Nothing )
-    , range = ( Nothing, Nothing )
+    , domain = EdgesAny (min 0) (identity)
+    , range = EdgesAny (min 0) (identity)
     , id = "elm-plot"
     }
 
@@ -197,23 +199,52 @@ id id config =
     { config | id = id }
 
 
-{-| Specifically set the domain. The format is ( lowest, highest )
- and if left with a `Nothing` value, then it default to the edges of your series y-coordinates.
+{-| Alter the domain's lower boundery. The function provided will 
+ be passed the lowest y-value present in any of your series and the result will
+ be the lower boundery of your series. So if you would like
+ the lowest boundery to simply be the edge of your series, then set 
+ this attribute to the function `identity`.
+ If you want it to always be -5, then set this attribute to the function `always -5`.
+ 
+ The default is `min 0`.
 
  **Note:** If you are using `padding` as well, the extra padding will still be
  added outside the domain.
 -}
-domain : ( Maybe Float, Maybe Float ) -> Attribute
-domain domain config =
-    { config | domain = domain }
+domainLowest : (Float -> Float) -> Attribute
+domainLowest toLowest ({ domain } as config) =
+    { config | domain = { domain | lower = toLowest } }
 
 
-{-| Specifically set the range. The format is ( lowest, highest )
- and if left with a `Nothing` value, then it default to the edges of your series x-coordinates.
+{-| Alter the domain's upper boundery. The function provided will 
+ be passed the lowest y-value present in any of your series and the result will
+ be the upper boundery of your series. So if you would like
+ the lowest boundery to  always be 10, then set this attribute to the function `always 10`.
+ 
+ The default is `identity`.
+
+ **Note:** If you are using `padding` as well, the extra padding will still be
+ added outside the domain.
 -}
-range : ( Maybe Float, Maybe Float ) -> Attribute
-range range config =
-    { config | range = range }
+domainHighest : (Float -> Float) -> Attribute
+domainHighest toHighest ({ domain } as config) =
+    { config | domain = { domain | upper = toHighest } }
+
+
+{-| Provide a function to determine the lower boundery of range.
+ See `domainLowest` and imagine we're talking about the x-axis.
+-}
+rangeLowest : (Float -> Float) -> Attribute
+rangeLowest toLowest ({ range } as config) =
+    { config | range = { range | lower = toLowest } }
+
+
+{-| Provide a function to determine the upper boundery of range.
+ See `domainHighest` and imagine we're talking about the x-axis.
+-}
+rangeHighest : (Float -> Float) -> Attribute
+rangeHighest toHighest ({ range } as config) =
+    { config | range = { range | upper = toHighest } }
 
 
 {-| -}

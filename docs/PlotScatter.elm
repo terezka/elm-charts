@@ -37,7 +37,6 @@ view =
     plot
         [ size Common.plotSize
         , margin ( 10, 20, 40, 40 )
-        , domain ( Just 0, Nothing )
         ]
         [ scatter
             [ Scatter.stroke Common.pinkStroke

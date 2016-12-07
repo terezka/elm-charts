@@ -43,7 +43,6 @@ view =
     plot
         [ size Common.plotSize
         , margin ( 10, 20, 40, 20 )
-        , domain ( Just 0, Nothing )
         ]
         [ area
             [ Area.stroke Common.skinStroke
