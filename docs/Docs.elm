@@ -4,7 +4,7 @@ import Svg
 import Svg.Events
 import Svg.Attributes
 import Html exposing (Html, div, text, h1, img, a, br, span, code, pre, p)
-import Html.Attributes exposing (style, src, href, class, classList)
+import Html.Attributes exposing (style, src, href, class, classList, id)
 import Html.Events exposing (onClick)
 import Plot as Plot exposing (Interaction(..))
 import Plot.Line as Line
@@ -73,7 +73,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Toggle id ->
-            ( { model | openSection = id }, Cmd.none )
+            ( { model | openSection = id }, fixBackground (id /= Nothing) )
 
         PlotInteraction id interaction ->
             case interaction of
@@ -124,8 +124,8 @@ view model =
                 [ href "https://github.com/terezka/elm-plot" ]
                 [ text "Github" ]
             ]
+        --, div [ id "overlay-background" ] []
         , Html.map (PlotInteraction EverythingExample) <| PlotComposed.view model.everythingExample
-
         , viewPlot model PlotScatter.plotExample
         , viewPlot model PlotLines.plotExample
         , viewPlot model PlotArea.plotExample
@@ -179,11 +179,10 @@ viewHeading model title name codeString =
                 [ class "view-heading__code"
                 , style [ codeStyle ]
                 ]
-                [ viewClose
+                [ viewClose name
                 , Html.code
                     [ class "elm view-heading__code__inner" ]
                     [ pre [] [ text codeString ] ]
-                , viewLink name
                 ]
             ]
 
@@ -196,13 +195,18 @@ viewToggler isOpen title =
         [ text "View source snippet" ]
 
 
-viewClose : Html.Html Msg
-viewClose =
+viewClose : String -> Html.Html Msg
+viewClose name =
     p
-        [ class "view-heading__code__close"
-        , onClick (Toggle Nothing)
+        [ class "view-heading__code__note" ]
+        [ span [] [ viewLink name ]
+        , span [] [ text " or " ] 
+        , a
+            [ onClick (Toggle Nothing)
+            , class "view-heading__code__close"
+            ]
+            [ text "Close" ] 
         ]
-        [ text "Close" ]
 
 
 viewLink : String -> Html.Html Msg
@@ -246,6 +250,8 @@ main =
 
 
 port highlight : () -> Cmd msg
+
+port fixBackground : Bool -> Cmd msg
 
 
 

@@ -7,6 +7,21 @@ a {
 	color: #84868a;
 }
 
+.code-is-showing {
+	overflow: hidden;
+}
+
+.code-is-showing #overlay-background {
+	position: fixed;
+	background: #000;
+	opacity: 0.1;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 50;
+}
+
 .view {
 	width: 800px;
 	margin: 80px auto;
@@ -40,7 +55,7 @@ a {
 	cursor: pointer;
 }
 
-.view-heading__code__close {
+.view-heading__code__note {
 	color: #9ea0a2;
 	font-size: 12px;
 	position: absolute;
@@ -50,11 +65,18 @@ a {
 	cursor: pointer;
 }
 
+.view-heading__code__close {
+	text-decoration: underline;
+}
+
 .view-heading__code {
 	text-align: right;
 	margin: 30px auto;
 	width: 600px;
+	height: 100vh;
+	max-height: 600px;
 	position: fixed;
+	overflow: scroll;
 	top: 40%;
 	left: 50%;
 	transform: translate(-50%, -50%);
@@ -65,14 +87,6 @@ a {
 	text-align: left;
 }
 
-.view-heading__code__link {
-	color: #9ea0a2;
-	font-size: 12px;
-	position: absolute;
-	margin: 15px 20px;
-	bottom: 0;
-	right: 0;
-}
 
 .view-plot {
 	width: 50%;
