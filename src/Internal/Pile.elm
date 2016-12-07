@@ -52,7 +52,7 @@ pileMetaInit =
 toPileMeta : Config -> List (Element msg) -> PileMeta
 toPileMeta { stackBy } elements =
     List.foldl (foldPileMeta stackBy) pileMetaInit elements
-    |> (\pileMeta -> calcPilePadding pileMeta |> addPadding pileMeta)
+        |> (\pileMeta -> calcPilePadding pileMeta |> addPadding pileMeta)
 
 
 foldPileMeta : Orientation -> Element msg -> PileMeta -> PileMeta

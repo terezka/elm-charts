@@ -31,7 +31,7 @@ view { toSvgCoords, scale, getHintInfo } { lineStyle, view } position =
             toSvgCoords ( info.xValue, 0 )
 
         flipped =
-            xSvg < scale.x.length / 2
+            xSvg - scale.x.offset < scale.x.length / 2
 
         lineView =
             [ viewLine lineStyle scale.y.length ]

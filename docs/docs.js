@@ -9425,13 +9425,6 @@ var _terezka$elm_plot$Internal_Types$Fixed = function (a) {
 	return {ctor: 'Fixed', _0: a};
 };
 
-var _terezka$elm_plot$Internal_Stuff$share = F3(
-	function (shared, toB, toC) {
-		return A2(
-			toC,
-			shared,
-			toB(shared));
-	});
 var _terezka$elm_plot$Internal_Stuff$foldOriented = F3(
 	function (fold, orientation, old) {
 		var _p0 = orientation;
@@ -11618,7 +11611,7 @@ var _terezka$elm_plot$Internal_Hint$view = F3(
 			{ctor: '_Tuple2', _0: info.xValue, _1: 0});
 		var xSvg = _p7._0;
 		var ySvg = _p7._1;
-		var flipped = _elm_lang$core$Native_Utils.cmp(xSvg, _p8.x.length / 2) < 0;
+		var flipped = _elm_lang$core$Native_Utils.cmp(xSvg - _p8.x.offset, _p8.x.length / 2) < 0;
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -12822,7 +12815,7 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 				_1: {
 					ctor: '::',
 					_0: _terezka$elm_plot$Plot$margin(
-						{ctor: '_Tuple4', _0: 10, _1: 20, _2: 40, _3: 15}),
+						{ctor: '_Tuple4', _0: 15, _1: 20, _2: 40, _3: 15}),
 					_1: {
 						ctor: '::',
 						_0: _terezka$elm_plot$Plot$id('PlotComposed'),

@@ -1,8 +1,10 @@
 module Dom.Position exposing (top, left)
 
-{-| This module lets you choose one of these boundaries and then measure its size.
+{-| This module lets you measure the position of an element relative to the viewport.
+
 # Position
 @docs top, left
+
 -}
 
 import Dom exposing (Error, Id)
@@ -10,16 +12,14 @@ import Native.Dom
 import Task exposing (Task)
 
 
-{-| Get the pixels from top relative to the window.
+{-| Get the amount of pixels between the top boundary edge of an element and the viewport.
 -}
 top : Id -> Task Error Float
 top =
     Native.Dom.top
 
 
-{-| Get the width of a node, measured along a certain boundary.
-If the node has the `hidden` attribute or the `display: none` style, this
-will be zero.
+{-| Get the amount of pixels between the left boundary edge of an element and the viewport.
 -}
 left : Id -> Task Error Float
 left =

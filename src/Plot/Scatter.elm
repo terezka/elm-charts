@@ -1,27 +1,28 @@
 module Plot.Scatter exposing (..)
 
 {-|
- Attributes for altering the view of your area serie.
+ Attributes for altering the view of your scatter serie.
 
-    myAreaSerie : Plot.Element (Interaction YourMsg)
-    myAreaSerie =
+    myScatterSerie : Plot.Element (Interaction YourMsg)
+    myScatterSerie =
         line
             [ stroke "deeppink"
             , strokeWidth 2
-            , fill "red"
+            , fill "purple"
             , opacity 0.5
+            , radius 10
             , customAttrs
                 [ Svg.Events.onClick <| Custom MyClickMsg
                 , Svg.Events.onMouseOver <| Custom Glow
                 ]
             ]
-            areaDataPoints
+            scatterDataPoints
 
 # Definition
 @docs Attribute
 
 # Styling
-@docs stroke, strokeWidth, opacity, fill
+@docs stroke, strokeWidth, fill, opacity, radius
 
 # Other
 @docs customAttrs

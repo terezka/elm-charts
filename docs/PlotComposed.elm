@@ -62,7 +62,7 @@ view state =
     plotInteractive
         [ size ( 800, 400 )
         , padding ( 40, 40 )
-        , margin ( 10, 20, 40, 15 )
+        , margin ( 15, 20, 40, 15 )
         , id "PlotComposed"
         ]
         [ horizontalGrid

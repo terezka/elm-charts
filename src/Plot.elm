@@ -354,9 +354,9 @@ initialState =
 
 
 {-| -}
-type Interaction c
+type Interaction msg
     = Internal Msg
-    | Custom c
+    | Custom msg
 
 
 type Msg
@@ -366,7 +366,7 @@ type Msg
 
 
 {-| -}
-update : Msg -> State -> ( State, Cmd (Interaction c) )
+update : Msg -> State -> ( State, Cmd (Interaction msg) )
 update msg (State state) =
     case msg of
         Hovering meta eventPosition ->
@@ -404,7 +404,7 @@ positionChanged position ( left, top ) =
             topOld /= top || leftOld /= left
 
 
-cmdPosition : Meta -> ( Float, Float ) -> Cmd (Interaction c)
+cmdPosition : Meta -> ( Float, Float ) -> Cmd (Interaction msg)
 cmdPosition meta eventPosition =
     Task.map2
         (getRelativePosition meta eventPosition)
@@ -436,7 +436,7 @@ parsePlot config elements =
         viewPlot config meta (viewElements meta elements)
 
 
-parsePlotInteractive : Config -> List (Element (Interaction c)) -> Svg (Interaction c)
+parsePlotInteractive : Config -> List (Element (Interaction msg)) -> Svg (Interaction msg)
 parsePlotInteractive config elements =
     let
         meta =
@@ -445,7 +445,7 @@ parsePlotInteractive config elements =
         viewPlotInteractive config meta (viewElements meta elements)
 
 
-viewPlotInteractive : Config -> Meta -> ( List (Svg (Interaction c)), List (Html (Interaction c)) ) -> Html (Interaction c)
+viewPlotInteractive : Config -> Meta -> ( List (Svg (Interaction msg)), List (Html (Interaction msg)) ) -> Html (Interaction msg)
 viewPlotInteractive ({ size } as config) meta ( svgViews, htmlViews ) =
     Html.div
         (plotAttributes config ++ plotAttributesInteraction meta)
@@ -467,7 +467,7 @@ plotAttributes { size, id } =
     ]
 
 
-plotAttributesInteraction : Meta -> List (Html.Attribute (Interaction c))
+plotAttributesInteraction : Meta -> List (Html.Attribute (Interaction msg))
 plotAttributesInteraction meta =
     [ Html.Events.on "mousemove" (getMousePosition meta)
     , Html.Events.onMouseLeave (Internal ResetPosition)
@@ -484,7 +484,7 @@ viewSvg ( width, height ) views =
         views
 
 
-getMousePosition : Meta -> Json.Decoder (Interaction c)
+getMousePosition : Meta -> Json.Decoder (Interaction msg)
 getMousePosition meta =
     Json.map2
         (\x y -> Internal <| Hovering meta ( x, y ))
