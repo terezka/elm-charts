@@ -46,7 +46,7 @@ module Plot
 # Elements
 @docs plot, plotInteractive, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
 
-## Series 
+## Series
 @docs scatter, line, area, pile
 
 # Styling and sizes
@@ -54,7 +54,7 @@ module Plot
 
 # State
 For an example of the update flow see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm).
-    
+
 @docs State, initialState, update, Interaction, getHoveredValue
 
 
@@ -167,7 +167,7 @@ padding ( bottom, top ) config =
 -}
 size : ( Int, Int ) -> Attribute
 size ( width, height ) config =
-    { config | size = Oriented ( toFloat width ) ( toFloat height ) }
+    { config | size = Oriented (toFloat width) (toFloat height) }
 
 
 {-| Specify margin around the plot. Useful when your ticks are outside the
@@ -202,13 +202,13 @@ id id config =
     { config | id = id }
 
 
-{-| Alter the domain's lower boundery. The function provided will 
+{-| Alter the domain's lower boundery. The function provided will
  be passed the lowest y-value present in any of your series and the result will
  be the lower boundery of your series. So if you would like
- the lowest boundery to simply be the edge of your series, then set 
+ the lowest boundery to simply be the edge of your series, then set
  this attribute to the function `identity`.
  If you want it to always be -5, then set this attribute to the function `always -5`.
- 
+
  The default is `min 0`.
 
  **Note:** If you are using `padding` as well, the extra padding will still be
@@ -219,11 +219,11 @@ domainLowest toLowest ({ domain } as config) =
     { config | domain = { domain | lower = toLowest } }
 
 
-{-| Alter the domain's upper boundery. The function provided will 
+{-| Alter the domain's upper boundery. The function provided will
  be passed the lowest y-value present in any of your series and the result will
  be the upper boundery of your series. So if you would like
  the lowest boundery to  always be 10, then set this attribute to the function `always 10`.
- 
+
  The default is `identity`.
 
  **Note:** If you are using `padding` as well, the extra padding will still be
@@ -292,7 +292,8 @@ scatter attrs points =
     Scatter (List.foldr (<|) ScatterInternal.defaultConfig attrs) points
 
 
-{-| This wraps all your bar series. -}
+{-| This wraps all your bar series.
+-}
 pile : List Pile.Attribute -> List (Pile.Element msg) -> Element msg
 pile attrs barsConfigs =
     let
@@ -606,8 +607,8 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
 toValuesOriented : List (Element msg) -> Oriented (List Value)
 toValuesOriented elements =
     List.foldr foldPoints [] elements
-    |> List.unzip
-    |> (\(x, y) -> Oriented x y)
+        |> List.unzip
+        |> (\( x, y ) -> Oriented x y)
 
 
 foldPoints : Element msg -> List Point -> List Point
@@ -627,7 +628,6 @@ foldPoints element allPoints =
 
         _ ->
             allPoints
-
 
 
 flipMeta : Meta -> Meta

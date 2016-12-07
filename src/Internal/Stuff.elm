@@ -105,4 +105,4 @@ foldOriented fold orientation old =
 shareTo : a -> (a -> b) -> (a -> b -> c) -> c
 shareTo shared toB toC =
     toB shared
-    |> toC shared
+        |> toC shared

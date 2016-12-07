@@ -33,7 +33,7 @@ module Plot.Tick
 ## Style attributes
 If these attributes do not forfill your needs, try out the `viewCustom`! If you have
 a suspicion that I have missed a very common configuration, then please let me know and I'll add it.
-    
+
 @docs classes, width, length, stroke, strokeWidth, opacity, customAttrs
 
 # Values

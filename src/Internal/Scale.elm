@@ -36,7 +36,7 @@ getScale lengthTotal restrictRange ( offsetLeft, offsetRight ) ( paddingBottomPx
 getScaleLowest : (Float -> Float) -> List Value -> Maybe Edges -> Value
 getScaleLowest toLowest values pileEdges =
     getAutoLowest pileEdges (getLowest values)
-    |> toLowest
+        |> toLowest
 
 
 getAutoLowest : Maybe Edges -> Value -> Value
@@ -52,7 +52,7 @@ getAutoLowest pileEdges lowestFromValues =
 getScaleHighest : (Float -> Float) -> List Value -> Maybe Edges -> Value
 getScaleHighest toHighest values pileEdges =
     getAutoHighest pileEdges (getHighest values)
-    |> toHighest
+        |> toHighest
 
 
 getAutoHighest : Maybe Edges -> Value -> Value

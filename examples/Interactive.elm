@@ -47,14 +47,15 @@ update msg model =
         PlotInteraction interaction ->
             case interaction of
                 Internal internalMsg ->
-                    let 
-                        ( state, cmd ) = Plot.update internalMsg model.plotState
+                    let
+                        ( state, cmd ) =
+                            Plot.update internalMsg model.plotState
                     in
-                        ({ model | plotState = state }, Cmd.map PlotInteraction cmd)
-                            
+                        ( { model | plotState = state }, Cmd.map PlotInteraction cmd )
 
                 Custom yourMsg ->
                     update yourMsg model
+
 
 
 -- VIEW
@@ -73,13 +74,13 @@ data2 =
 view : Model -> Html.Html Msg
 view model =
     Html.div
-        [ Html.Attributes.style [ ( "margin", "0 auto" ), ( "width", "800px")]]
+        [ Html.Attributes.style [ ( "margin", "0 auto" ), ( "width", "800px" ) ] ]
         [ h1 [] [ text "Example with interactive plot!" ]
         , Html.map PlotInteraction (viewPlot model.plotState)
         , p [] [ text <| "You clicked a label " ++ toString model.yourState ++ " times! 🌟" ]
         , p [] [ text "P.S. No stylesheet is included here, so that's why the tooltip doesn't look very tooltipy." ]
         ]
-    
+
 
 viewPlot : Plot.State -> Svg.Svg (Interaction Msg)
 viewPlot state =

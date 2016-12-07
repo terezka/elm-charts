@@ -94,7 +94,7 @@ toPileEdges =
 foldPileEdges : PileMeta -> Oriented (Maybe Edges) -> Oriented (Maybe Edges)
 foldPileEdges ({ stackBy } as pileMeta) axisEdges =
     foldOriented (mergeEdges pileMeta) stackBy axisEdges
-   
+
 
 mergeEdges : PileMeta -> Maybe Edges -> Maybe Edges
 mergeEdges { lowest, highest } edges =
@@ -114,7 +114,8 @@ calcPilePadding { lowest, highest, pointCount } =
 addPadding : PileMeta -> PileMeta
 addPadding ({ lowest, highest } as pileMeta) =
     let
-        padding = calcPilePadding pileMeta
+        padding =
+            calcPilePadding pileMeta
     in
         { pileMeta
             | lowest = lowest - padding
@@ -135,4 +136,3 @@ foldPoints (Bars _ points) allPoints =
 toPoints : Element msg -> List Point
 toPoints (Bars _ points) =
     points
-

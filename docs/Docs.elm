@@ -55,6 +55,7 @@ initialModel =
 
 -- UPDATE
 
+
 type PlotId
     = HintExample
     | EverythingExample
@@ -76,19 +77,22 @@ update msg model =
                 Internal internalMsg ->
                     case id of
                         HintExample ->
-                            let 
-                                ( state, cmd ) = Plot.update internalMsg model.hintExample
+                            let
+                                ( state, cmd ) =
+                                    Plot.update internalMsg model.hintExample
                             in
-                                ({ model | hintExample = state }, Cmd.map (PlotInteraction HintExample) cmd)
+                                ( { model | hintExample = state }, Cmd.map (PlotInteraction HintExample) cmd )
 
                         EverythingExample ->
-                            let 
-                                ( state, cmd ) = Plot.update internalMsg model.everythingExample
+                            let
+                                ( state, cmd ) =
+                                    Plot.update internalMsg model.everythingExample
                             in
-                                ({ model | everythingExample = state }, Cmd.map (PlotInteraction EverythingExample) cmd)
+                                ( { model | everythingExample = state }, Cmd.map (PlotInteraction EverythingExample) cmd )
 
                 Custom customMsg ->
                     update customMsg model
+
 
 
 -- VIEW
@@ -107,11 +111,12 @@ isSectionOpen { openSection } title =
 view : Model -> Html Msg
 view model =
     div
-        [ classList [("view", True), ("view--showing-code", model.openSection /= Nothing )] ]
+        [ classList [ ( "view", True ), ( "view--showing-code", model.openSection /= Nothing ) ] ]
         [ img
             [ src "logo.png"
             , class "view__logo"
-            ] []
+            ]
+            []
         , h1 [ class "view__title" ] [ text "Elm Plot" ]
         , div
             [ class "view__github-link" ]
@@ -120,7 +125,7 @@ view model =
                 [ href "https://github.com/terezka/elm-plot" ]
                 [ text "Github" ]
             ]
-        --, div [ id "overlay-background" ] []
+          --, div [ id "overlay-background" ] []
         , Html.map (PlotInteraction EverythingExample) <| PlotComposed.view model.everythingExample
         , viewPlot model PlotScatter.plotExample
         , viewPlot model PlotLines.plotExample
@@ -140,7 +145,6 @@ view model =
                 [ text "@terexka" ]
             ]
         ]
-
 
 
 getCodeStyle : Bool -> ( String, String )
@@ -182,6 +186,7 @@ viewHeading model title name codeString =
                 ]
             ]
 
+
 viewToggler : Bool -> String -> Html.Html Msg
 viewToggler isOpen title =
     p
@@ -196,18 +201,18 @@ viewClose name =
     p
         [ class "view-heading__code__note" ]
         [ span [] [ viewLink name ]
-        , span [] [ text " or " ] 
+        , span [] [ text " or " ]
         , a
             [ onClick (Toggle Nothing)
             , class "view-heading__code__close"
             ]
-            [ text "Close" ] 
+            [ text "Close" ]
         ]
 
 
 viewLink : String -> Html.Html Msg
 viewLink name =
-    a 
+    a
         [ class "view-heading__code__link"
         , href (toUrl name)
         ]
@@ -246,6 +251,7 @@ main =
 
 
 port highlight : () -> Cmd msg
+
 
 port fixBackground : Bool -> Cmd msg
 
