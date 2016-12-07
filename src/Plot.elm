@@ -572,7 +572,7 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
         yTicks =
             getLastGetTickValues axisConfigs.y yScale
     in
-        { scale = toAxisType xScale yScale
+        { scale = Oriented xScale yScale
         , oppositeToSvgCoords = toSvgCoordsY xScale yScale
         , toSvgCoords = toSvgCoordsX xScale yScale
         , fromSvgCoords = fromSvgCoords xScale yScale
@@ -590,7 +590,7 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
 flipMeta : Meta -> Meta
 flipMeta ({ scale, toSvgCoords, oppositeToSvgCoords, ticks, oppositeTicks, axisCrossings, oppositeAxisCrossings } as meta) =
     { meta
-        | scale = flipAxis scale
+        | scale = flipOriented scale
         , toSvgCoords = oppositeToSvgCoords
         , oppositeToSvgCoords = toSvgCoords
         , axisCrossings = oppositeAxisCrossings
@@ -716,7 +716,7 @@ getHintInfo elements xValue =
     HintInfo xValue <| List.foldr (collectYValues xValue) [] elements
 
 
-collectAxisConfigs : Element msg -> Axis (List (AxisInternal.Config msg)) -> Axis (List (AxisInternal.Config msg))
+collectAxisConfigs : Element msg -> Oriented (List (AxisInternal.Config msg)) -> Oriented (List (AxisInternal.Config msg))
 collectAxisConfigs element axisConfigs =
     case element of
         Axis config ->

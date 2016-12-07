@@ -87,11 +87,22 @@ getValues orientation =
         List.map toValue
 
 
-toAxisType : a -> a -> Axis a
-toAxisType x y =
-    { x = x, y = y }
-
-
-flipAxis : Axis a -> Axis a
-flipAxis { x, y } =
+flipOriented : Oriented a -> Oriented a
+flipOriented { x, y } =
     { x = y, y = x }
+
+
+foldOriented : (a -> a) -> Orientation -> Oriented a -> Oriented a
+foldOriented fold orientation old =
+    case orientation of
+        X ->
+            { old | x = fold old.x }
+
+        Y ->
+            { old | y = fold old.y }
+
+
+share : a -> (a -> b) -> (a -> b -> c) -> c
+share shared toB toC =
+    toB shared
+    |> toC shared

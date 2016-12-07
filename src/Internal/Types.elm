@@ -8,7 +8,7 @@ module Internal.Types
         , HintInfo
         , Anchor(..)
         , PileMeta
-        , Axis
+        , Oriented
         , Edges
         , MaxWidth(..)
         , Value
@@ -48,7 +48,7 @@ type alias Edges =
     }
 
 
-type alias Axis a =
+type alias Oriented a =
     { x : a
     , y : a
     }
@@ -64,7 +64,7 @@ type alias PileMeta =
 
 
 type alias Meta =
-    { scale : Axis Scale
+    { scale : Oriented Scale
     , ticks : List Float
     , toSvgCoords : Point -> Point
     , fromSvgCoords : Point -> Point

@@ -2,7 +2,7 @@ module Internal.Pile exposing (Config, Element(..), defaultConfig, view, pileMet
 
 import Svg
 import Svg.Attributes
-import Internal.Types exposing (Style, Orientation(..), MaxWidth(..), Meta, Point, PileMeta, Edges, Axis)
+import Internal.Types exposing (Style, Orientation(..), MaxWidth(..), Meta, Point, PileMeta, Edges, Oriented)
 import Internal.Draw exposing (..)
 import Internal.Stuff exposing (..)
 import Internal.Bars as BarsInternal
@@ -52,7 +52,7 @@ pileMetaInit =
 toPileMeta : Config -> List (Element msg) -> PileMeta
 toPileMeta { stackBy } elements =
     List.foldl (foldPileMeta stackBy) pileMetaInit elements
-        |> (\pileMeta -> calcPilePadding pileMeta |> addPadding pileMeta)
+    |> (\pileMeta -> calcPilePadding pileMeta |> addPadding pileMeta)
 
 
 foldPileMeta : Orientation -> Element msg -> PileMeta -> PileMeta
@@ -75,20 +75,15 @@ formPileMeta stackBy points ({ lowest, highest, numOfBarSeries, pointCount } as 
     }
 
 
-toPileEdges : List PileMeta -> Axis (Maybe Edges)
+toPileEdges : List PileMeta -> Oriented (Maybe Edges)
 toPileEdges =
     List.foldl foldPileEdges { x = Nothing, y = Nothing }
 
 
-foldPileEdges : PileMeta -> Axis (Maybe Edges) -> Axis (Maybe Edges)
+foldPileEdges : PileMeta -> Oriented (Maybe Edges) -> Oriented (Maybe Edges)
 foldPileEdges ({ stackBy } as pileMeta) axisEdges =
-    case stackBy of
-        X ->
-            { axisEdges | x = mergeEdges pileMeta axisEdges.x }
-
-        Y ->
-            { axisEdges | y = mergeEdges pileMeta axisEdges.y }
-
+    foldOriented (mergeEdges pileMeta) stackBy axisEdges
+   
 
 mergeEdges : PileMeta -> Maybe Edges -> Maybe Edges
 mergeEdges { lowest, highest } edges =

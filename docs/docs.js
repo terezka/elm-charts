@@ -9373,7 +9373,7 @@ var _terezka$elm_plot$Internal_Types$Edges = F2(
 	function (a, b) {
 		return {lower: a, upper: b};
 	});
-var _terezka$elm_plot$Internal_Types$Axis = F2(
+var _terezka$elm_plot$Internal_Types$Oriented = F2(
 	function (a, b) {
 		return {x: a, y: b};
 	});
@@ -9425,19 +9425,39 @@ var _terezka$elm_plot$Internal_Types$Fixed = function (a) {
 	return {ctor: 'Fixed', _0: a};
 };
 
-var _terezka$elm_plot$Internal_Stuff$flipAxis = function (_p0) {
-	var _p1 = _p0;
-	return {x: _p1.y, y: _p1.x};
-};
-var _terezka$elm_plot$Internal_Stuff$toAxisType = F2(
-	function (x, y) {
-		return {x: x, y: y};
+var _terezka$elm_plot$Internal_Stuff$share = F3(
+	function (shared, toB, toC) {
+		return A2(
+			toC,
+			shared,
+			toB(shared));
 	});
+var _terezka$elm_plot$Internal_Stuff$foldOriented = F3(
+	function (fold, orientation, old) {
+		var _p0 = orientation;
+		if (_p0.ctor === 'X') {
+			return _elm_lang$core$Native_Utils.update(
+				old,
+				{
+					x: fold(old.x)
+				});
+		} else {
+			return _elm_lang$core$Native_Utils.update(
+				old,
+				{
+					y: fold(old.y)
+				});
+		}
+	});
+var _terezka$elm_plot$Internal_Stuff$flipOriented = function (_p1) {
+	var _p2 = _p1;
+	return {x: _p2.y, y: _p2.x};
+};
 var _terezka$elm_plot$Internal_Stuff_ops = _terezka$elm_plot$Internal_Stuff_ops || {};
 _terezka$elm_plot$Internal_Stuff_ops['?'] = F3(
 	function (orientation, x, y) {
-		var _p2 = orientation;
-		if (_p2.ctor === 'X') {
+		var _p3 = orientation;
+		if (_p3.ctor === 'X') {
 			return x;
 		} else {
 			return y;
@@ -11217,59 +11237,49 @@ var _terezka$elm_plot$Internal_Pile$mergeEdges = F2(
 var _terezka$elm_plot$Internal_Pile$foldPileEdges = F2(
 	function (_p9, axisEdges) {
 		var _p10 = _p9;
-		var _p12 = _p10;
-		var _p11 = _p10.stackBy;
-		if (_p11.ctor === 'X') {
-			return _elm_lang$core$Native_Utils.update(
-				axisEdges,
-				{
-					x: A2(_terezka$elm_plot$Internal_Pile$mergeEdges, _p12, axisEdges.x)
-				});
-		} else {
-			return _elm_lang$core$Native_Utils.update(
-				axisEdges,
-				{
-					y: A2(_terezka$elm_plot$Internal_Pile$mergeEdges, _p12, axisEdges.y)
-				});
-		}
+		return A3(
+			_terezka$elm_plot$Internal_Stuff$foldOriented,
+			_terezka$elm_plot$Internal_Pile$mergeEdges(_p10),
+			_p10.stackBy,
+			axisEdges);
 	});
 var _terezka$elm_plot$Internal_Pile$toPileEdges = A2(
 	_elm_lang$core$List$foldl,
 	_terezka$elm_plot$Internal_Pile$foldPileEdges,
 	{x: _elm_lang$core$Maybe$Nothing, y: _elm_lang$core$Maybe$Nothing});
 var _terezka$elm_plot$Internal_Pile$formPileMeta = F4(
-	function (stackBy, points, _p14, _p13) {
-		var _p15 = _p14;
-		var _p16 = _p13;
+	function (stackBy, points, _p12, _p11) {
+		var _p13 = _p12;
+		var _p14 = _p11;
 		return _elm_lang$core$Native_Utils.update(
-			_p15,
+			_p13,
 			{
-				lowest: A2(_elm_lang$core$Basics$min, _p15.lowest, _p16._0),
-				highest: A2(_elm_lang$core$Basics$max, _p15.highest, _p16._1),
-				numOfBarSeries: _p15.numOfBarSeries + 1,
+				lowest: A2(_elm_lang$core$Basics$min, _p13.lowest, _p14._0),
+				highest: A2(_elm_lang$core$Basics$max, _p13.highest, _p14._1),
+				numOfBarSeries: _p13.numOfBarSeries + 1,
 				pointCount: A2(
 					_elm_lang$core$Basics$max,
-					_p15.pointCount,
+					_p13.pointCount,
 					_elm_lang$core$List$length(points)),
 				stackBy: stackBy
 			});
 	});
 var _terezka$elm_plot$Internal_Pile$foldPileMeta = F3(
 	function (stackBy, element, pileMeta) {
-		var _p17 = element;
-		var _p18 = _p17._1;
+		var _p15 = element;
+		var _p16 = _p15._1;
 		return A4(
 			_terezka$elm_plot$Internal_Pile$formPileMeta,
 			stackBy,
-			_p18,
+			_p16,
 			pileMeta,
 			_terezka$elm_plot$Internal_Stuff$getEdges(
-				A2(_terezka$elm_plot$Internal_Stuff$getValues, stackBy, _p18)));
+				A2(_terezka$elm_plot$Internal_Stuff$getValues, stackBy, _p16)));
 	});
 var _terezka$elm_plot$Internal_Pile$pileMetaInit = {lowest: 0, highest: 0, numOfBarSeries: 0, pointCount: 0, stackBy: _terezka$elm_plot$Internal_Types$X};
 var _terezka$elm_plot$Internal_Pile$toPileMeta = F2(
-	function (_p19, elements) {
-		var _p20 = _p19;
+	function (_p17, elements) {
+		var _p18 = _p17;
 		return function (pileMeta) {
 			return A2(
 				_terezka$elm_plot$Internal_Pile$addPadding,
@@ -11278,24 +11288,24 @@ var _terezka$elm_plot$Internal_Pile$toPileMeta = F2(
 		}(
 			A3(
 				_elm_lang$core$List$foldl,
-				_terezka$elm_plot$Internal_Pile$foldPileMeta(_p20.stackBy),
+				_terezka$elm_plot$Internal_Pile$foldPileMeta(_p18.stackBy),
 				_terezka$elm_plot$Internal_Pile$pileMetaInit,
 				elements));
 	});
 var _terezka$elm_plot$Internal_Pile$viewBars = F5(
-	function (meta, pileMeta, maxWidth, index, _p21) {
-		var _p22 = _p21;
-		return A6(_terezka$elm_plot$Internal_Bars$view, meta, pileMeta, maxWidth, index, _p22._0, _p22._1);
+	function (meta, pileMeta, maxWidth, index, _p19) {
+		var _p20 = _p19;
+		return A6(_terezka$elm_plot$Internal_Bars$view, meta, pileMeta, maxWidth, index, _p20._0, _p20._1);
 	});
 var _terezka$elm_plot$Internal_Pile$view = F4(
-	function (meta, pileMeta, _p23, bars) {
-		var _p24 = _p23;
+	function (meta, pileMeta, _p21, bars) {
+		var _p22 = _p21;
 		return A2(
 			_elm_lang$svg$Svg$g,
 			{ctor: '[]'},
 			A2(
 				_elm_lang$core$List$indexedMap,
-				A3(_terezka$elm_plot$Internal_Pile$viewBars, meta, pileMeta, _p24.maxWidth),
+				A3(_terezka$elm_plot$Internal_Pile$viewBars, meta, pileMeta, _p22.maxWidth),
 				bars));
 	});
 var _terezka$elm_plot$Internal_Pile$defaultConfig = {
@@ -11915,7 +11925,7 @@ var _terezka$elm_plot$Plot$flipMeta = function (_p34) {
 	return _elm_lang$core$Native_Utils.update(
 		_p35,
 		{
-			scale: _terezka$elm_plot$Internal_Stuff$flipAxis(_p35.scale),
+			scale: _terezka$elm_plot$Internal_Stuff$flipOriented(_p35.scale),
 			toSvgCoords: _p35.oppositeToSvgCoords,
 			oppositeToSvgCoords: _p35.toSvgCoords,
 			axisCrossings: _p35.oppositeAxisCrossings,
@@ -11985,7 +11995,7 @@ var _terezka$elm_plot$Plot$calculateMeta = F2(
 			pileEdges.y);
 		var yTicks = A2(_terezka$elm_plot$Plot$getLastGetTickValues, axisConfigs.y, yScale);
 		return {
-			scale: A2(_terezka$elm_plot$Internal_Stuff$toAxisType, xScale, yScale),
+			scale: A2(_terezka$elm_plot$Internal_Types$Oriented, xScale, yScale),
 			oppositeToSvgCoords: A2(_terezka$elm_plot$Plot$toSvgCoordsY, xScale, yScale),
 			toSvgCoords: A2(_terezka$elm_plot$Plot$toSvgCoordsX, xScale, yScale),
 			fromSvgCoords: A2(_terezka$elm_plot$Plot$fromSvgCoords, xScale, yScale),
