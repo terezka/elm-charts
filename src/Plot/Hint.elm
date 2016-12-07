@@ -2,12 +2,17 @@ module Plot.Hint exposing (..)
 
 {-|
  Attributes for altering the view of your hint.
+ 
+ Notice that this element will only be rendered when using `plotInteractive`!
+
+ P.S. You also have to add [elm-plot.css](https://github.com/terezka/elm-plot/tree/master/src/elm-plot.css)
+ for it to look nice.
 
 # Definition
-@docs Attribute
+@docs Attribute, HintInfo, IsLeftSide
 
 # Styling
-@docs viewCustom, HintInfo, IsLeftSide, lineStyle
+@docs viewCustom, lineStyle
 
 -}
 

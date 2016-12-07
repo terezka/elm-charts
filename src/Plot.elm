@@ -38,16 +38,23 @@ module Plot
  an intuitve manner without comprimising flexibility regarding configuration.
  It is insprired by the elm-html api, using the `element attrs children` pattern.
 
+ This is still in beta! The api might and probably will change!
+
 # Definitions
 @docs Attribute, Element, Point, Style
 
 # Elements
-@docs plot, plotInteractive, scatter, line, area, pile, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
+@docs plot, plotInteractive, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
+
+## Series 
+@docs scatter, line, area, pile
 
 # Styling and sizes
 @docs classes, id, margin, padding, size, style, domainLowest, domainHighest, rangeLowest, rangeHighest
 
 # State
+For an example of the update flow see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm).
+    
 @docs State, initialState, update, Interaction, getHoveredValue
 
 
@@ -130,7 +137,7 @@ defaultConfig =
     , padding = ( 0, 0 )
     , margin = ( 0, 0, 0, 0 )
     , classes = []
-    , style = [ ( "padding", "0" ), ( "stroke", "#000" ) ]
+    , style = []
     , domain = EdgesAny (min 0) (identity)
     , range = EdgesAny (min 0) (identity)
     , id = "elm-plot"
@@ -189,10 +196,6 @@ classes classes config =
 
 
 {-| Adds an id to the svg element.
-
- **Note:** If you have more than one plot in your DOM,
- then you most provide a unique id using this attribute for
- the hint to work!
 -}
 id : String -> Attribute
 id id config =
@@ -271,51 +274,25 @@ verticalGrid attrs =
     Grid (List.foldr (<|) GridInternal.defaultConfigY attrs)
 
 
-{-| Draws an area.
-
-    myPlot : Svg.Svg msg
-    myPlot =
-        plot
-            []
-            [ area [] [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
--}
+{-| -}
 area : List (Area.Attribute msg) -> List Point -> Element msg
 area attrs points =
     Area (List.foldr (<|) AreaInternal.defaultConfig attrs) points
 
 
-{-| Draws an line.
-
-    myPlot : Svg.Svg msg
-    myPlot =
-        plot [] [ line [] [ ( 0, 1 ), ( 2, 2 ), ( 3, 4 ) ] ]
--}
+{-| -}
 line : List (Line.Attribute msg) -> List Point -> Element msg
 line attrs points =
     Line (List.foldr (<|) LineInternal.defaultConfig attrs) points
 
 
-{-| Draws a scatter.
-
-    myPlot : Svg.Svg msg
-    myPlot =
-        plot
-            []
-            [ scatter [] [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
--}
+{-| -}
 scatter : List (Scatter.Attribute msg) -> List Point -> Element msg
 scatter attrs points =
     Scatter (List.foldr (<|) ScatterInternal.defaultConfig attrs) points
 
 
-{-| Draws a bar chart.
-
-    myPlot : Svg.Svg msg
-    myPlot =
-        plot
-            []
-            [ bars [] [ ( 0, -2 ), ( 2, 0 ), ( 3, 1 ) ] ]
--}
+{-| This wraps all your bar series. -}
 pile : List Pile.Attribute -> List (Pile.Element msg) -> Element msg
 pile attrs barsConfigs =
     let
@@ -325,20 +302,30 @@ pile attrs barsConfigs =
         Pile config barsConfigs (PileInternal.toPileMeta config barsConfigs)
 
 
-{-| -}
+{-| Adds a hint to your plot. See [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
+
+ **Note:** If you have more than one plot in your DOM,
+ then you most provide a unique id using the `id` attribute for
+ the hint to work!
+
+ Also remember to use `plotInteractive`.
+-}
 hint : List (Hint.Attribute msg) -> Maybe Point -> Element msg
 hint attrs position =
     Hint (List.foldr (<|) HintInternal.defaultConfig attrs) position
 
 
-{-| -}
+{-| This element is passed a function which can translate your values into
+ svg coordinates. This way you can build your own serie types. Although
+ if you feel like you're missing something let me know!
+-}
 custom : ((Point -> Point) -> Svg.Svg msg) -> Element msg
 custom view =
     CustomElement view
 
 
 {-| This is the function processing your entire plot configuration.
- Pass your meta attributes and plot elements to this function and
+ Pass your attributes and elements to this function and
  a svg plot will be returned!
 -}
 plot : List Attribute -> List (Element msg) -> Svg msg
@@ -346,11 +333,11 @@ plot attrs =
     Svg.Lazy.lazy2 parsePlot (toPlotConfig attrs)
 
 
-{-| So this is like `plot`, except the message to is `Interaction yourMsg`. It's a message wrapping
- your message, so you can use down the build in inteactions in the plot as well as adding your own.
- See example here (if I forget to insert link, please let me know).
+{-| So this is like `plot`, except the message to is `Interaction msg`. It's a message wrapping
+ your message, so you can use the build in inteactions (like the hint!) in the plot as well as adding your own.
+ See [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm).
 -}
-plotInteractive : List Attribute -> List (Element (Interaction yourMsg)) -> Svg (Interaction yourMsg)
+plotInteractive : List Attribute -> List (Element (Interaction msg)) -> Svg (Interaction msg)
 plotInteractive attrs =
     Svg.Lazy.lazy2 parsePlotInteractive (toPlotConfig attrs)
 
@@ -492,9 +479,9 @@ viewPlot ({ size } as config) meta ( svgViews, htmlViews ) =
 
 
 plotAttributes : Config -> List (Html.Attribute msg)
-plotAttributes { size, id } =
+plotAttributes { size, id, style } =
     [ Html.Attributes.class "elm-plot"
-    , Html.Attributes.style <| sizeStyle size
+    , Html.Attributes.style <| sizeStyle size ++ style
     , Html.Attributes.id id
     ]
 

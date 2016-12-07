@@ -1,27 +1,25 @@
 module Plot.Bars exposing (..)
 
 {-|
- Attributes for altering the view of your area serie.
+ Attributes for altering the view of your bars serie.
 
-    myAreaSerie : Plot.Element (Interaction YourMsg)
-    myAreaSerie =
-        line
-            [ stroke "deeppink"
-            , strokeWidth 2
-            , fill "red"
-            , opacity 0.5
-            , customAttrs
-                [ Svg.Events.onClick <| Custom MyClickMsg
-                , Svg.Events.onMouseOver <| Custom Glow
+    myBarsSerie : Plot.Element (Interaction YourMsg)
+    myBarsSerie =
+        pile
+            []
+            [ Pile.bars
+                [ Bars.fill "pink"
+                , Bars.opacity 0.5
                 ]
+                data
             ]
-            areaDataPoints
+
 
 # Definition
 @docs Attribute
 
 # Styling
-@docs stroke, strokeWidth, opacity, fill, barsMaxWidth
+@docs opacity, fill
 
 # Other
 @docs customAttrs
@@ -52,7 +50,7 @@ opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
 
 
-{-| Add your own attributes.
+{-| Add your own attributes. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
 -}
 customAttrs : List (Svg.Attribute a) -> Attribute a
 customAttrs attrs config =

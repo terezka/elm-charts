@@ -41,6 +41,7 @@ view { toSvgCoords, scale, getHintInfo } { lineStyle, view } position =
             , Html.Attributes.style
                 [ ( "left", toPixels xSvg )
                 , ( "top", toPixels scale.y.offset )
+                , ( "position", "absolute" )
                 ]
             ]
             ((view info isLeftSide) :: lineView)

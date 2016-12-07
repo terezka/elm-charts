@@ -1,30 +1,27 @@
 module Plot.Pile exposing (..)
 
 {-|
- Attributes for altering the view of your area serie.
+ The `pile` groups your bar series together and you can also
+ add some attributes to alter the view of the bars.
 
-    myAreaSerie : Plot.Element (Interaction YourMsg)
-    myAreaSerie =
-        line
-            [ stroke "deeppink"
-            , strokeWidth 2
-            , fill "red"
-            , opacity 0.5
-            , customAttrs
-                [ Svg.Events.onClick <| Custom MyClickMsg
-                , Svg.Events.onMouseOver <| Custom Glow
-                ]
+    myBarsSerie : Plot.Element (Interaction YourMsg)
+    myBarsSerie =
+        pile
+            [ Pile.maxBarWidthPer 85 ]
+            [ Pile.bars
+                [ Bars.fill Common.pinkFill ]
+                data
             ]
-            areaDataPoints
 
 # Definition
-@docs Attribute
+@docs Element, Attribute
+
+# Elements
+@docs bars
 
 # Styling
-@docs stroke, strokeWidth, opacity, fill, barsMaxWidth
+@docs maxBarWidth, maxBarWidthPer
 
-# Other
-@docs customAttrs
 
 -}
 
@@ -40,15 +37,9 @@ type alias Attribute =
     Internal.Config -> Internal.Config
 
 
+{-| -}
 type alias Element msg =
     Internal.Element msg
-
-
-{-| Set the stacking by.
--}
-stackByY : Attribute
-stackByY config =
-    { config | stackBy = Y }
 
 
 {-| Set a fixed max width (in pixels) on your bars.
@@ -65,7 +56,7 @@ maxBarWidthPer max config =
     { config | maxWidth = Percentage max }
 
 
-{-| Add a barchart.
+{-| Add a bar series.
 -}
 bars : List (Bars.Attribute msg) -> List Point -> Element msg
 bars attrs points =

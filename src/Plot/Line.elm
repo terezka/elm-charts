@@ -58,7 +58,7 @@ opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
 
 
-{-| Add your own attributes. For events, read _insert link, please tell me if I forget_
+{-| Add your own attributes. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
 -}
 customAttrs : List (Svg.Attribute a) -> Attribute a
 customAttrs attrs config =

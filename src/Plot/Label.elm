@@ -22,12 +22,7 @@ module Plot.Label
  Attributes for altering the values and view of your axis' labels.
 
  Before you read any further, please note that when I speak of the label _index_,
- then I'm talking about how many labels this label is from the origin.
-
- Imaging an axis looking like this:
-
- For the label with the value 4, the index will be 2, because there are two labels
- before it. For the label with the value 6, index will be 3 and so on.
+ then I'm talking about how many labels that particular label is from the origin.
 
  Ok, now you can go on!
 
@@ -35,12 +30,12 @@ module Plot.Label
 @docs Attribute
 
 # Styling
-@docs view, viewDynamic, viewCustom
+@docs StyleAttribute, view, viewDynamic, viewCustom
 
 ## Style attributes
 If these attributes do not forfill your needs, try out the viewCustom! If you have
 a suspicion that I have missed a very common configuration, then please let me know and I'll add it.
-@docs StyleAttribute, classes, displace, format, stroke, strokeWidth, opacity, fill, fontSize, customAttrs
+@docs classes, displace, format, stroke, strokeWidth, opacity, fill, fontSize, customAttrs
 
 # Values
 @docs values, filter
@@ -130,7 +125,7 @@ fontSize fontSize config =
     { config | style = ( "font-size", toPixelsInt fontSize ) :: config.style }
 
 
-{-| Add your own attributes.
+{-| Add your own attributes. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
 -}
 customAttrs : List (Svg.Attribute a) -> StyleAttribute a
 customAttrs attrs config =

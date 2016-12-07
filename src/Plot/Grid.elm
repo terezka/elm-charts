@@ -20,13 +20,13 @@ module Plot.Grid exposing (..)
 @docs Attribute
 
 # Styling
-@docs lines
+@docs lines, classes
 
 # Values
 @docs values
 
 # Others
-@docs classes, customAttrs
+@docs customAttrs
 
 -}
 
@@ -73,7 +73,7 @@ classes classes config =
     { config | classes = classes }
 
 
-{-| Add your own attributes to your gridlines. For events, read _insert link, please tell me if I forget_
+{-| Add your own attributes to your gridlines. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
 -}
 customAttrs : List (Svg.Attribute a) -> Attribute a
 customAttrs attrs config =

@@ -11364,11 +11364,6 @@ var _terezka$elm_plot$Plot_Pile$maxBarWidth = F2(
 				maxWidth: _terezka$elm_plot$Internal_Types$Fixed(max)
 			});
 	});
-var _terezka$elm_plot$Plot_Pile$stackByY = function (config) {
-	return _elm_lang$core$Native_Utils.update(
-		config,
-		{stackBy: _terezka$elm_plot$Internal_Types$Y});
-};
 
 var _terezka$elm_plot$Internal_Scatter$toSvgCircle = F2(
 	function (radius, _p0) {
@@ -11654,7 +11649,11 @@ var _terezka$elm_plot$Internal_Hint$view = F3(
 									_0: 'top',
 									_1: _terezka$elm_plot$Internal_Draw$toPixels(_p8.y.offset)
 								},
-								_1: {ctor: '[]'}
+								_1: {
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: 'position', _1: 'absolute'},
+									_1: {ctor: '[]'}
+								}
 							}
 						}),
 					_1: {ctor: '[]'}
@@ -12164,7 +12163,10 @@ var _terezka$elm_plot$Plot$plotAttributes = function (_p27) {
 		_1: {
 			ctor: '::',
 			_0: _elm_lang$html$Html_Attributes$style(
-				_terezka$elm_plot$Plot$sizeStyle(_p28.size)),
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					_terezka$elm_plot$Plot$sizeStyle(_p28.size),
+					_p28.style)),
 			_1: {
 				ctor: '::',
 				_0: _elm_lang$html$Html_Attributes$id(_p28.id),
@@ -12324,15 +12326,7 @@ var _terezka$elm_plot$Plot$defaultConfig = {
 	padding: {ctor: '_Tuple2', _0: 0, _1: 0},
 	margin: {ctor: '_Tuple4', _0: 0, _1: 0, _2: 0, _3: 0},
 	classes: {ctor: '[]'},
-	style: {
-		ctor: '::',
-		_0: {ctor: '_Tuple2', _0: 'padding', _1: '0'},
-		_1: {
-			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: 'stroke', _1: '#000'},
-			_1: {ctor: '[]'}
-		}
-	},
+	style: {ctor: '[]'},
 	domain: A2(
 		_terezka$elm_plot$Internal_Types$EdgesAny,
 		_elm_lang$core$Basics$min(0),

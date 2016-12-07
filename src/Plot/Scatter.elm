@@ -74,7 +74,7 @@ radius radius config =
     { config | radius = radius }
 
 
-{-| Add your own attributes.
+{-| Add your own attributes. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
 -}
 customAttrs : List (Svg.Attribute a) -> Attribute a
 customAttrs attrs config =

@@ -7,11 +7,6 @@ import Html exposing (Html, div, text, h1, img, a, br, span, code, pre, p)
 import Html.Attributes exposing (style, src, href, class, classList, id)
 import Html.Events exposing (onClick)
 import Plot as Plot exposing (Interaction(..))
-import Plot.Line as Line
-import Plot.Area as Area
-import Plot.Grid as Grid
-import Plot.Axis as Axis
-import Plot.Label as Label
 import PlotComposed
 import PlotScatter
 import PlotLines
@@ -49,6 +44,7 @@ type alias Model =
     }
 
 
+initialModel : Model
 initialModel =
     { openSection = Nothing
     , hintExample = Plot.initialState

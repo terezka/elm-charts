@@ -20,13 +20,7 @@ module Plot.Tick
  Attributes for altering the values and view of your axis' ticks.
 
  Before you read any further, please note that when I speak of the tick _index_,
- then I'm talking about how many ticks this tick is from the origin.
-
- Imaging an axis looking like this:
-
-
- For the tick with the value 4, the index will be 2, because there are two ticks
- before it. For the tick with the value 6, index will be 3 and so on.
+ then I'm talking about how many ticks that particular tick is from the origin.
 
  Ok, now you can go on!
 
@@ -34,12 +28,13 @@ module Plot.Tick
 @docs Attribute
 
 # Styling
-@docs view, viewDynamic, viewCustom
+@docs StyleAttribute, view, viewDynamic, viewCustom
 
 ## Style attributes
-If these attributes do not forfill your needs, try out the viewCustom! If you have
+If these attributes do not forfill your needs, try out the `viewCustom`! If you have
 a suspicion that I have missed a very common configuration, then please let me know and I'll add it.
-@docs StyleAttribute, classes, width, length, stroke, strokeWidth, opacity, customAttrs
+    
+@docs classes, width, length, stroke, strokeWidth, opacity, customAttrs
 
 # Values
 @docs values, delta
@@ -140,7 +135,7 @@ opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
 
 
-{-| Add your own attributes.
+{-| Add your own attributes. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
 -}
 customAttrs : List (Svg.Attribute msg) -> StyleAttribute msg
 customAttrs attrs config =
