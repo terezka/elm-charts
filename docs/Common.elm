@@ -1,4 +1,14 @@
-module Colors exposing (..)
+module Common exposing (..)
+
+
+plotSizeLarge : ( Int, Int )
+plotSizeLarge =
+    ( 800, 400 )
+
+
+plotSize : ( Int, Int )
+plotSize =
+    ( 380, 300 )
 
 
 axisColor : String

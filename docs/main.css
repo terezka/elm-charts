@@ -1,0 +1,150 @@
+
+body {
+	margin: 0;
+}
+
+a {
+	color: #84868a;
+}
+
+.code-is-showing {
+	overflow: hidden;
+}
+
+.code-is-showing #overlay-background {
+	position: fixed;
+	background: #000;
+	opacity: 0.1;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 50;
+}
+
+.view {
+	width: 800px;
+	margin: 80px auto;
+    font-family: sans-serif;
+    color: #7F7F7F;
+    font-weight: 200;
+    text-align: center;
+}
+
+.view--showing-code {
+	overflow-x: hidden; 
+    overflow-y: auto;
+}
+
+.view__logo {
+	width: 100px;
+	height: 100px;
+}
+
+.view__title {
+	font-weight: 200;
+}
+
+.view__github-link {
+	margin: 40px auto 100px;
+}
+
+.view-heading__code-open {
+	color: #9ea0a2;
+	font-size: 12px;
+	cursor: pointer;
+}
+
+.view-heading__code__note {
+	color: #9ea0a2;
+	font-size: 12px;
+	position: absolute;
+	margin: 15px 20px;
+	top: 0;
+	right: 0;
+	cursor: pointer;
+}
+
+.view-heading__code__close {
+	text-decoration: underline;
+}
+
+.view-heading__code {
+	text-align: right;
+	margin: 30px auto;
+	width: 600px;
+	height: 100vh;
+	max-height: 600px;
+	position: fixed;
+	overflow: scroll;
+	top: 40%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 100;
+}
+
+.view-heading__code__inner {
+	text-align: left;
+}
+
+
+.view-plot {
+	width: 50%;
+    display: inline-block;
+}
+
+.elm-plot {
+	margin: 0 auto;
+}
+
+.view__footer {
+	margin: 100px auto 30px;
+	font-size: 14px;
+}
+
+/* Standard styles */
+
+.elm-plot {
+	position: relative;
+}
+
+.elm-plot__inner {
+	stroke: #c3c3c3;
+	fill: #c3c3c3;
+}
+
+.elm-plot__grid__line {
+	stroke: #c3c3c3;
+}
+
+.elm-plot__hint {
+	position: absolute;
+	pointer-events: none;
+}
+
+.elm-plot__hint__line {
+	width: 1px;
+	background-color: #000;
+	pointer-events: none;
+}
+
+.elm-plot__hint__default-view {
+	position: absolute;
+	top: 20%;
+	padding: 10px;
+	background-color: #eee;
+	width: 150px;
+	text-align: left;
+	border-radius: 3px;
+	box-shadow: 5px 5px 20px -5px rgba(0,0,0,0.25);
+}
+
+
+.elm-plot__hint__default-view--left {
+	left: 10px; 
+}
+
+.elm-plot__hint__default-view--right {
+	transform: translateX(-100%);
+	left: -10px;
+}

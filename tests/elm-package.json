@@ -8,6 +8,7 @@
         "../src"
     ],
     "exposed-modules": [],
+    "native-modules": true,
     "dependencies": {
         "elm-lang/core": "5.0.0 <= v < 6.0.0",
         "elm-community/elm-test": "3.0.0 <= v < 4.0.0",

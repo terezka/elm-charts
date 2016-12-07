@@ -1,0 +1,47 @@
+
+/* Standard styles */
+
+.elm-plot {
+	position: relative;
+}
+
+.elm-plot__inner {
+	stroke: #c3c3c3;
+	fill: #c3c3c3;
+}
+
+.elm-plot__grid__line {
+	stroke: #c3c3c3;
+}
+
+.elm-plot__hint {
+	position: absolute;
+	pointer-events: none;
+}
+
+.elm-plot__hint__line {
+	width: 1px;
+	background-color: #000;
+	pointer-events: none;
+}
+
+.elm-plot__hint__default-view {
+	position: absolute;
+	top: 20%;
+	padding: 10px;
+	background-color: #eee;
+	width: 150px;
+	text-align: left;
+	border-radius: 3px;
+	box-shadow: 5px 5px 20px -5px rgba(0,0,0,0.25);
+}
+
+
+.elm-plot__hint__default-view--left {
+	left: 10px; 
+}
+
+.elm-plot__hint__default-view--right {
+	transform: translateX(-100%);
+	left: -10px;
+}
