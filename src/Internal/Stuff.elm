@@ -100,3 +100,9 @@ foldOriented fold orientation old =
 
         Y ->
             { old | y = fold old.y }
+
+
+shareTo : a -> (a -> b) -> (a -> b -> c) -> c
+shareTo shared toB toC =
+    toB shared
+    |> toC shared

@@ -30,7 +30,7 @@ view { toSvgCoords, scale, getHintInfo } { lineStyle, view } position =
         ( xSvg, ySvg ) =
             toSvgCoords ( info.xValue, 0 )
 
-        flipped =
+        isLeftSide =
             xSvg - scale.x.offset < scale.x.length / 2
 
         lineView =
@@ -43,7 +43,7 @@ view { toSvgCoords, scale, getHintInfo } { lineStyle, view } position =
                 , ( "top", toPixels scale.y.offset )
                 ]
             ]
-            ((view info flipped) :: lineView)
+            ((view info isLeftSide) :: lineView)
 
 
 viewLine : Style -> Float -> Html.Html msg

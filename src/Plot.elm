@@ -82,6 +82,7 @@ import Internal.Hint as HintInternal
 import Internal.Stuff exposing (..)
 import Internal.Types exposing (..)
 import Internal.Draw exposing (..)
+import Internal.Scale exposing (..)
 
 
 {-| Convinience type to represent coordinates.
@@ -542,11 +543,11 @@ viewElement meta element ( svgViews, htmlViews ) =
 calculateMeta : Config -> List (Element msg) -> Meta
 calculateMeta ({ size, padding, margin, id, range, domain } as config) elements =
     let
-        ( xValues, yValues ) =
-            List.unzip (List.foldr collectPoints [] elements)
+        values =
+            toValuesOriented elements
 
         axisConfigs =
-            List.foldr collectAxisConfigs { x = [], y = [] } elements
+            List.foldr toAxisConfigsOriented { x = [], y = [] } elements
 
         pileMetas =
             List.foldr collectPileMetas [] elements
@@ -561,10 +562,10 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
             margin
 
         xScale =
-            getScale width range ( left, right ) ( 0, 0 ) xValues pileEdges.x
+            getScale width range ( left, right ) ( 0, 0 ) values.x pileEdges.x
 
         yScale =
-            getScale height domain ( top, bottom ) padding yValues pileEdges.y
+            getScale height domain ( top, bottom ) padding values.y pileEdges.y
 
         xTicks =
             getLastGetTickValues axisConfigs.x xScale
@@ -580,11 +581,38 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
         , oppositeTicks = yTicks
         , axisCrossings = getAxisCrossings axisConfigs.x yScale
         , oppositeAxisCrossings = getAxisCrossings axisConfigs.y xScale
-        , toNearestX = toNearest xValues
+        , toNearestX = toNearest values.x
         , getHintInfo = getHintInfo elements
         , pileMetas = pileMetas
         , id = id
         }
+
+
+toValuesOriented : List (Element msg) -> Oriented (List Value)
+toValuesOriented elements =
+    List.foldr foldPoints [] elements
+    |> List.unzip
+    |> (\(x, y) -> Oriented x y)
+
+
+foldPoints : Element msg -> List Point -> List Point
+foldPoints element allPoints =
+    case element of
+        Area config points ->
+            allPoints ++ points
+
+        Line config points ->
+            allPoints ++ points
+
+        Scatter config points ->
+            allPoints ++ points
+
+        Pile config pileElements _ ->
+            allPoints ++ (PileInternal.toPilePoints pileElements)
+
+        _ ->
+            allPoints
+
 
 
 flipMeta : Meta -> Meta
@@ -610,122 +638,16 @@ getFlippedMeta orientation meta =
             flipMeta meta
 
 
-{-| All naming assumes dealing with the x-axis, but can also be used with
- the t-axis, just flip it in your mind.
--}
-getScale : Float -> ( Maybe Value, Maybe Value ) -> ( Value, Value ) -> ( Value, Value ) -> List Value -> Maybe Edges -> Scale
-getScale lengthTotal ( forcedLowest, forcedHighest ) ( offsetLeft, offsetRight ) ( paddingBottomPx, paddingTopPx ) values pileEdges =
-    let
-        length =
-            lengthTotal - offsetLeft - offsetRight
-
-        lowest =
-            getScaleLowest forcedLowest values pileEdges
-
-        highest =
-            getScaleHighest forcedHighest values pileEdges
-
-        range =
-            getRange lowest highest
-
-        paddingTop =
-            pixelsToValue length range paddingTopPx
-
-        paddingBottom =
-            pixelsToValue length range paddingBottomPx
-    in
-        { lowest = lowest - paddingBottom
-        , highest = highest + paddingTop
-        , range = range + paddingBottom + paddingTop
-        , length = length
-        , offset = offsetLeft
-        }
-
-
-getScaleLowest : Maybe Value -> List Value -> Maybe Edges -> Value
-getScaleLowest forcedLowest values pileEdges =
-    case forcedLowest of
-        Just value ->
-            value
-
-        Nothing ->
-            getAutoLowest pileEdges (getLowest values)
-
-
-getAutoLowest : Maybe Edges -> Value -> Value
-getAutoLowest pileEdges lowestFromValues =
-    case pileEdges of
-        Just { lower } ->
-            min lower lowestFromValues
-
-        Nothing ->
-            lowestFromValues
-
-
-getScaleHighest : Maybe Value -> List Value -> Maybe Edges -> Value
-getScaleHighest forcedHighest values pileEdges =
-    case forcedHighest of
-        Just value ->
-            value
-
-        Nothing ->
-            getAutoHighest pileEdges (getHighest values)
-
-
-getAutoHighest : Maybe Edges -> Value -> Value
-getAutoHighest pileEdges highestFromValues =
-    case pileEdges of
-        Just { upper } ->
-            max upper highestFromValues
-
-        Nothing ->
-            highestFromValues
-
-
-scaleValue : Scale -> Value -> Value
-scaleValue { length, range, offset } v =
-    (v * length / range) + offset
-
-
-unScaleValue : Scale -> Value -> Value
-unScaleValue { length, range, offset, lowest } v =
-    ((v - offset) * range / length) + lowest
-
-
-fromSvgCoords : Scale -> Scale -> Point -> Point
-fromSvgCoords xScale yScale ( x, y ) =
-    ( unScaleValue xScale x
-    , unScaleValue yScale (yScale.length - y)
-    )
-
-
-toSvgCoordsX : Scale -> Scale -> Point -> Point
-toSvgCoordsX xScale yScale ( x, y ) =
-    ( scaleValue xScale (abs xScale.lowest + x)
-    , scaleValue yScale (yScale.highest - y)
-    )
-
-
-toSvgCoordsY : Scale -> Scale -> Point -> Point
-toSvgCoordsY xScale yScale ( x, y ) =
-    toSvgCoordsX xScale yScale ( y, x )
-
-
 getHintInfo : List (Element msg) -> Float -> HintInfo
 getHintInfo elements xValue =
     HintInfo xValue <| List.foldr (collectYValues xValue) [] elements
 
 
-collectAxisConfigs : Element msg -> Oriented (List (AxisInternal.Config msg)) -> Oriented (List (AxisInternal.Config msg))
-collectAxisConfigs element axisConfigs =
+toAxisConfigsOriented : Element msg -> Oriented (List (AxisInternal.Config msg)) -> Oriented (List (AxisInternal.Config msg))
+toAxisConfigsOriented element axisConfigs =
     case element of
-        Axis config ->
-            case config.orientation of
-                X ->
-                    { axisConfigs | x = config :: axisConfigs.x }
-
-                Y ->
-                    { axisConfigs | y = config :: axisConfigs.y }
+        Axis ({ orientation } as config) ->
+            foldOriented (\configs -> config :: configs) orientation axisConfigs
 
         _ ->
             axisConfigs
@@ -737,29 +659,6 @@ getLastGetTickValues axisConfigs =
         |> Maybe.withDefault AxisInternal.defaultConfigX
         |> .tickConfig
         |> TickInternal.getValues
-
-
-collectPoints : Element msg -> List Point -> List Point
-collectPoints element allPoints =
-    case element of
-        Area config points ->
-            allPoints ++ points
-
-        Line config points ->
-            allPoints ++ points
-
-        Scatter config points ->
-            allPoints ++ points
-
-        Pile config pileElements _ ->
-            let
-                points =
-                    List.foldr (\(PileInternal.Bars config points) allBarPoints -> allBarPoints ++ points) [] pileElements
-            in
-                allPoints ++ points
-
-        _ ->
-            allPoints
 
 
 collectPileMetas : Element msg -> List PileMeta -> List PileMeta
@@ -785,8 +684,7 @@ collectYValues xValue element yValues =
             collectYValue xValue points :: yValues
 
         Pile config barsConfigs _ ->
-            List.map (\(PileInternal.Bars config points) -> collectYValue xValue points) barsConfigs
-                |> (++) yValues
+            (List.map (PileInternal.toPoints >> collectYValue xValue) barsConfigs) ++ yValues
 
         _ ->
             yValues

@@ -1,4 +1,15 @@
-module Internal.Pile exposing (Config, Element(..), defaultConfig, view, pileMetaInit, toPileEdges, toPileMeta)
+module Internal.Pile
+    exposing
+        ( Config
+        , Element(..)
+        , defaultConfig
+        , view
+        , pileMetaInit
+        , toPileEdges
+        , toPileMeta
+        , toPilePoints
+        , toPoints
+        )
 
 import Svg
 import Svg.Attributes
@@ -52,7 +63,7 @@ pileMetaInit =
 toPileMeta : Config -> List (Element msg) -> PileMeta
 toPileMeta { stackBy } elements =
     List.foldl (foldPileMeta stackBy) pileMetaInit elements
-        |> (\pileMeta -> calcPilePadding pileMeta |> addPadding pileMeta)
+        |> addPadding
 
 
 foldPileMeta : Orientation -> Element msg -> PileMeta -> PileMeta
@@ -100,9 +111,28 @@ calcPilePadding { lowest, highest, pointCount } =
     (highest - lowest) / (toFloat <| (pointCount - 1) * 2)
 
 
-addPadding : PileMeta -> Float -> PileMeta
-addPadding ({ lowest, highest } as pileMeta) padding =
-    { pileMeta
-        | lowest = lowest - padding
-        , highest = highest + padding
-    }
+addPadding : PileMeta -> PileMeta
+addPadding ({ lowest, highest } as pileMeta) =
+    let
+        padding = calcPilePadding pileMeta
+    in
+        { pileMeta
+            | lowest = lowest - padding
+            , highest = highest + padding
+        }
+
+
+toPilePoints : List (Element msg) -> List Point
+toPilePoints =
+    List.foldr foldPoints []
+
+
+foldPoints : Element msg -> List Point -> List Point
+foldPoints (Bars _ points) allPoints =
+    allPoints ++ points
+
+
+toPoints : Element msg -> List Point
+toPoints (Bars _ points) =
+    points
+
