@@ -14545,54 +14545,50 @@ var _terezka$elm_plot$Docs$viewHeading = F4(
 					}),
 				_1: {
 					ctor: '::',
-					_0: A2(_terezka$elm_plot$Docs$viewToggler, isOpen, title),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$div,
-							{
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('view-heading__code'),
+							_1: {
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('view-heading__code'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$style(
-										{
-											ctor: '::',
-											_0: codeStyle,
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
-								}
-							},
-							{
+								_0: _elm_lang$html$Html_Attributes$style(
+									{
+										ctor: '::',
+										_0: codeStyle,
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}
+						},
+						{
+							ctor: '::',
+							_0: _terezka$elm_plot$Docs$viewClose(name),
+							_1: {
 								ctor: '::',
-								_0: _terezka$elm_plot$Docs$viewClose(name),
-								_1: {
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$code,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('elm view-heading__code__inner'),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$pre,
-												{ctor: '[]'},
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html$text(codeString),
-													_1: {ctor: '[]'}
-												}),
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
-								}
-							}),
-						_1: {ctor: '[]'}
-					}
+								_0: A2(
+									_elm_lang$html$Html$code,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('elm view-heading__code__inner'),
+										_1: {ctor: '[]'}
+									},
+									{
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$pre,
+											{ctor: '[]'},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text(codeString),
+												_1: {ctor: '[]'}
+											}),
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}
+						}),
+					_1: {ctor: '[]'}
 				}
 			});
 	});
@@ -14734,10 +14730,10 @@ var _terezka$elm_plot$Docs$view = function (model) {
 									_0: A2(_terezka$elm_plot$Docs$viewPlot, model, _terezka$elm_plot$PlotArea$plotExample),
 									_1: {
 										ctor: '::',
-										_0: A2(_terezka$elm_plot$Docs$viewPlot, model, _terezka$elm_plot$PlotGrid$plotExample),
+										_0: A2(_terezka$elm_plot$Docs$viewPlot, model, _terezka$elm_plot$PlotBars$plotExample),
 										_1: {
 											ctor: '::',
-											_0: A2(_terezka$elm_plot$Docs$viewPlot, model, _terezka$elm_plot$PlotBars$plotExample),
+											_0: A2(_terezka$elm_plot$Docs$viewPlot, model, _terezka$elm_plot$PlotGrid$plotExample),
 											_1: {
 												ctor: '::',
 												_0: A2(_terezka$elm_plot$Docs$viewPlot, model, _terezka$elm_plot$PlotTicks$plotExample),

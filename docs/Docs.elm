@@ -125,13 +125,12 @@ view model =
                 [ href "https://github.com/terezka/elm-plot" ]
                 [ text "Github" ]
             ]
-          --, div [ id "overlay-background" ] []
         , Html.map (PlotInteraction EverythingExample) <| PlotComposed.view model.everythingExample
         , viewPlot model PlotScatter.plotExample
         , viewPlot model PlotLines.plotExample
         , viewPlot model PlotArea.plotExample
-        , viewPlot model PlotGrid.plotExample
         , viewPlot model PlotBars.plotExample
+        , viewPlot model PlotGrid.plotExample
         , viewPlot model PlotTicks.plotExample
         , viewPlot model PlotSticky.plotExample
         , viewPlotInteractive model model.hintExample PlotHint.plotExample
@@ -174,7 +173,7 @@ viewHeading model title name codeString =
     in
         div [ style [ ( "margin", "100px auto 10px" ) ] ]
             [ div [] [ text title ]
-            , viewToggler isOpen title
+            --, viewToggler isOpen title
             , div
                 [ class "view-heading__code"
                 , style [ codeStyle ]
