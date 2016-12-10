@@ -29,6 +29,10 @@ a {
 	margin: 40px auto 100px;
 }
 
+.view-heading {
+	margin: 100px auto 10px;
+}
+
 .view-heading__code-open {
 	color: #9ea0a2;
 	font-size: 12px;

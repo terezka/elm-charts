@@ -12641,7 +12641,7 @@ var _terezka$elm_plot$Common$axisColor = '#949494';
 var _terezka$elm_plot$Common$plotSize = {ctor: '_Tuple2', _0: 600, _1: 300};
 var _terezka$elm_plot$Common$PlotExample = F4(
 	function (a, b, c, d) {
-		return {title: a, fileName: b, view: c, code: d};
+		return {title: a, id: b, view: c, code: d};
 	});
 var _terezka$elm_plot$Common$ViewInteractive = F2(
 	function (a, b) {
@@ -13189,7 +13189,7 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 			}
 		});
 };
-var _terezka$elm_plot$PlotComposed$fileName = 'ComposedPlot';
+var _terezka$elm_plot$PlotComposed$id = 'ComposedPlot';
 
 var _terezka$elm_plot$PlotScatter$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 40 )\n            ]\n            [ scatter\n                [ Scatter.stroke pinkStroke\n                , Scatter.fill pinkFill\n                , Scatter.radius 8\n                ]\n                data\n            , xAxis\n                [ Axis.line\n                    [ Line.stroke axisColor ]\n                , Axis.tick\n                    [ Tick.delta 2 ]\n                ]\n            ]\n    ';
 var _terezka$elm_plot$PlotScatter$data = {
@@ -13268,13 +13268,13 @@ var _terezka$elm_plot$PlotScatter$view = A2(
 			_1: {ctor: '[]'}
 		}
 	});
-var _terezka$elm_plot$PlotScatter$fileName = 'PlotScatter';
+var _terezka$elm_plot$PlotScatter$id = 'PlotScatter';
 var _terezka$elm_plot$PlotScatter$title = 'Scatters';
 var _terezka$elm_plot$PlotScatter$plotExample = {
 	title: _terezka$elm_plot$PlotScatter$title,
 	code: _terezka$elm_plot$PlotScatter$code,
 	view: _terezka$elm_plot$Common$ViewStatic(_terezka$elm_plot$PlotScatter$view),
-	fileName: _terezka$elm_plot$PlotScatter$fileName
+	id: _terezka$elm_plot$PlotScatter$id
 };
 
 var _terezka$elm_plot$PlotLines$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ line\n                [ Line.stroke blueStroke\n                , Line.strokeWidth 2\n                ]\n                data1\n            , line\n                [ Line.stroke pinkStroke\n                , Line.strokeWidth 2\n                ]\n                data2\n            , xAxis\n                [ Axis.line\n                    [ Line.stroke axisColor ]\n                , Axis.tick\n                    [ Tick.delta 1 ]\n                ]\n            ]\n    ';
@@ -13378,13 +13378,13 @@ var _terezka$elm_plot$PlotLines$view = A2(
 			}
 		}
 	});
-var _terezka$elm_plot$PlotLines$fileName = 'PlotLines';
+var _terezka$elm_plot$PlotLines$id = 'PlotLines';
 var _terezka$elm_plot$PlotLines$title = 'Lines';
 var _terezka$elm_plot$PlotLines$plotExample = {
 	title: _terezka$elm_plot$PlotLines$title,
 	code: _terezka$elm_plot$PlotLines$code,
 	view: _terezka$elm_plot$Common$ViewStatic(_terezka$elm_plot$PlotLines$view),
-	fileName: _terezka$elm_plot$PlotLines$fileName
+	id: _terezka$elm_plot$PlotLines$id
 };
 
 var _terezka$elm_plot$PlotArea$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ area\n                [ Area.stroke skinStroke\n                , Area.fill skinFill\n                ]\n                data1\n            , area\n                [ Area.stroke blueStroke\n                , Area.fill blueFill\n                ]\n                data2\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tick [ Tick.delta 10 ]\n                ]\n            ]\n    ';
@@ -13488,13 +13488,13 @@ var _terezka$elm_plot$PlotArea$view = A2(
 			}
 		}
 	});
-var _terezka$elm_plot$PlotArea$fileName = 'PlotArea';
+var _terezka$elm_plot$PlotArea$id = 'PlotArea';
 var _terezka$elm_plot$PlotArea$title = 'Areas';
 var _terezka$elm_plot$PlotArea$plotExample = {
 	title: _terezka$elm_plot$PlotArea$title,
 	code: _terezka$elm_plot$PlotArea$code,
 	view: _terezka$elm_plot$Common$ViewStatic(_terezka$elm_plot$PlotArea$view),
-	fileName: _terezka$elm_plot$PlotArea$fileName
+	id: _terezka$elm_plot$PlotArea$id
 };
 
 var _terezka$elm_plot$PlotGrid$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ verticalGrid\n                [ Grid.lines\n                    [ Line.stroke axisColorLight ]\n                ]\n            , horizontalGrid\n                [ Grid.lines\n                    [ Line.stroke axisColorLight ]\n                , Grid.values [ 4, 8, 12 ]\n                ]\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tick [ Tick.delta 0.5 ]\n                ]\n            , line\n                [ Line.stroke blueStroke\n                , Line.strokeWidth 2\n                ]\n                data\n            ]\n    ';
@@ -13607,13 +13607,13 @@ var _terezka$elm_plot$PlotGrid$view = A2(
 			}
 		}
 	});
-var _terezka$elm_plot$PlotGrid$fileName = 'PlotGrid';
+var _terezka$elm_plot$PlotGrid$id = 'PlotGrid';
 var _terezka$elm_plot$PlotGrid$title = 'Grids';
 var _terezka$elm_plot$PlotGrid$plotExample = {
 	title: _terezka$elm_plot$PlotGrid$title,
 	code: _terezka$elm_plot$PlotGrid$code,
 	view: _terezka$elm_plot$Common$ViewStatic(_terezka$elm_plot$PlotGrid$view),
-	fileName: _terezka$elm_plot$PlotGrid$fileName
+	id: _terezka$elm_plot$PlotGrid$id
 };
 
 var _terezka$elm_plot$PlotTicks$code = '\n    isOdd : Int -> Bool\n    isOdd n =\n        rem n 2 > 0\n\n\n    toTickStyle : ( Int, Float ) -> List (Tick.StyleAttribute msg)\n    toTickStyle ( index, tick ) =\n        if isOdd index then\n            [ Tick.length 7\n            , Tick.stroke \"#e4e3e3\"\n            ]\n        else\n            [ Tick.length 10\n            , Tick.stroke \"#b9b9b9\"\n            ]\n\n\n    toLabelStyle : ( Int, Float ) -> List (Label.StyleAttribute msg)\n    toLabelStyle ( index, tick ) =\n        if isOdd index then\n            [ Label.format (always \"\") ]\n        else\n            [ Label.format (\\( _, v ) -> toString v ++ \" s\")\n            , Label.stroke \"#969696\"\n            ]\n\n\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ line\n                [ Line.stroke pinkStroke\n                , Line.strokeWidth 2\n                ]\n                data\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tick [ Tick.viewDynamic toTickStyle ]\n                , Axis.label [ Label.viewDynamic toLabelStyle ]\n                ]\n            ]\n    ';
@@ -13771,13 +13771,13 @@ var _terezka$elm_plot$PlotTicks$view = A2(
 			_1: {ctor: '[]'}
 		}
 	});
-var _terezka$elm_plot$PlotTicks$fileName = 'PlotTicks';
+var _terezka$elm_plot$PlotTicks$id = 'PlotTicks';
 var _terezka$elm_plot$PlotTicks$title = 'Custom ticks and labels';
 var _terezka$elm_plot$PlotTicks$plotExample = {
 	title: _terezka$elm_plot$PlotTicks$title,
 	code: _terezka$elm_plot$PlotTicks$code,
 	view: _terezka$elm_plot$Common$ViewStatic(_terezka$elm_plot$PlotTicks$view),
-	fileName: _terezka$elm_plot$PlotTicks$fileName
+	id: _terezka$elm_plot$PlotTicks$id
 };
 
 var _terezka$elm_plot$PlotBars$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ pile\n                [ Pile.maxBarWidthPer 85 ]\n                [ Pile.bars\n                    [ Bars.fill blueFill ]\n                    data1\n                , Pile.bars\n                    [ Bars.fill skinFill ]\n                    data2\n                , Pile.bars\n                    [ Bars.fill pinkFill ]\n                    data3\n                ]\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tick [ Tick.delta 1 ]\n                , Axis.label\n                    [ Label.view\n                        [ Label.format formatter\n                        , Label.stroke \"#969696\"\n                        ]\n                    ]\n                ]\n            ]\n    ';
@@ -13932,13 +13932,13 @@ var _terezka$elm_plot$PlotBars$view = A2(
 			_1: {ctor: '[]'}
 		}
 	});
-var _terezka$elm_plot$PlotBars$fileName = 'PlotBars';
+var _terezka$elm_plot$PlotBars$id = 'PlotBars';
 var _terezka$elm_plot$PlotBars$title = 'Bars';
 var _terezka$elm_plot$PlotBars$plotExample = {
 	title: _terezka$elm_plot$PlotBars$title,
 	code: _terezka$elm_plot$PlotBars$code,
 	view: _terezka$elm_plot$Common$ViewStatic(_terezka$elm_plot$PlotBars$view),
-	fileName: _terezka$elm_plot$PlotBars$fileName
+	id: _terezka$elm_plot$PlotBars$id
 };
 
 var _terezka$elm_plot$PlotSticky$code = '\n    isOdd : Int -> Bool\n    isOdd n =\n        rem n 2 > 0\n\n\n    toTickAttrs : ( Int, Float ) -> List (Tick.StyleAttribute msg)\n    toTickAttrs ( index, tick ) =\n        [ Tick.length 7\n        , Tick.stroke \"#e4e3e3\"\n        ]\n\n\n    toLabelAttrs : ( Int, Float ) -> List (Label.StyleAttribute msg)\n    toLabelAttrs ( index, tick ) =\n        [ Label.format (\\( _, v ) -> toString v ++ \" ms\") ]\n\n\n    toLabelAttrsY1 : ( Int, Float ) -> List (Label.StyleAttribute msg)\n    toLabelAttrsY1 ( index, tick ) =\n        if not <| isOdd index then\n            [ Label.format (always \"\") ]\n        else\n            [ Label.format (\\( _, v ) -> toString (v * 10) ++ \" x\")\n            , Label.displace ( -5, 0 )\n            ]\n\n\n    toLabelAttrsY2 : ( Int, Float ) -> List (Label.StyleAttribute msg)\n    toLabelAttrsY2 ( index, tick ) =\n        if isOdd index then\n            [ Label.format (always \"\") ]\n        else\n            [ Label.format (\\( _, v ) -> toString (v / 5) ++ \"k\") ]\n\n\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            , padding ( 0, 20 )\n            , domainLowest (always -21)\n            ]\n            [ line\n                [ Line.stroke pinkStroke\n                , Line.strokeWidth 2\n                ]\n                data\n            , xAxis\n                [ Axis.tick\n                    [ Tick.viewDynamic toTickAttrs\n                    , Tick.values [ 3, 6 ]\n                    ]\n                , Axis.label [ Label.viewDynamic toLabelAttrs ]\n                , Axis.cleanCrossings\n                ]\n            , yAxis\n                [ Axis.positionHighest\n                , Axis.cleanCrossings\n                , Axis.tick [ Tick.viewDynamic toTickAttrs ]\n                , Axis.label [ Label.viewDynamic toLabelAttrsY1 ]\n                ]\n            , yAxis\n                [ Axis.positionLowest\n                , Axis.cleanCrossings\n                , Axis.anchorInside\n                , Axis.label [ Label.viewDynamic toLabelAttrsY2 ]\n                ]\n            ]\n    ';
@@ -14199,13 +14199,13 @@ var _terezka$elm_plot$PlotSticky$view = A2(
 			}
 		}
 	});
-var _terezka$elm_plot$PlotSticky$fileName = 'PlotSticky';
+var _terezka$elm_plot$PlotSticky$id = 'PlotSticky';
 var _terezka$elm_plot$PlotSticky$title = 'Sticky axis';
 var _terezka$elm_plot$PlotSticky$plotExample = {
 	title: _terezka$elm_plot$PlotSticky$title,
 	code: _terezka$elm_plot$PlotSticky$code,
 	view: _terezka$elm_plot$Common$ViewStatic(_terezka$elm_plot$PlotSticky$view),
-	fileName: _terezka$elm_plot$PlotSticky$fileName
+	id: _terezka$elm_plot$PlotSticky$id
 };
 
 var _terezka$elm_plot$PlotHint$code = '\n    view : State -> Svg.Svg (Interaction msg)\n    view state =\n        plotInteractive\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            , id \"PlotHint\"\n            ]\n            [ line\n                [ Line.stroke blueStroke\n                , Line.strokeWidth 2\n                ]\n                data1\n            , line\n                [ Line.stroke pinkStroke\n                , Line.strokeWidth 2\n                ]\n                data2\n            , xAxis\n                [ Axis.line\n                    [ Line.stroke axisColor ]\n                , Axis.tick\n                    [ Tick.delta 1 ]\n                ]\n            , hint\n                [ Hint.lineStyle [ ( \"background\", \"#b9b9b9\" ) ] ]\n                (getHoveredValue state)\n            ]\n    ';
@@ -14331,113 +14331,15 @@ var _terezka$elm_plot$PlotHint$view = function (state) {
 			}
 		});
 };
-var _terezka$elm_plot$PlotHint$fileName = 'PlotHint';
+var _terezka$elm_plot$PlotHint$id = 'PlotHint';
 var _terezka$elm_plot$PlotHint$title = 'Hints';
 var _terezka$elm_plot$PlotHint$plotExample = {
 	title: _terezka$elm_plot$PlotHint$title,
 	code: _terezka$elm_plot$PlotHint$code,
-	fileName: _terezka$elm_plot$PlotHint$fileName,
-	view: A2(_terezka$elm_plot$Common$ViewInteractive, _terezka$elm_plot$PlotHint$fileName, _terezka$elm_plot$PlotHint$view)
+	id: _terezka$elm_plot$PlotHint$id,
+	view: A2(_terezka$elm_plot$Common$ViewInteractive, _terezka$elm_plot$PlotHint$id, _terezka$elm_plot$PlotHint$view)
 };
 
-var _terezka$elm_plot$Docs$getCodeStyle = function (isOpen) {
-	return isOpen ? {
-		ctor: '::',
-		_0: {ctor: '_Tuple2', _0: 'display', _1: 'block'},
-		_1: {ctor: '[]'}
-	} : {
-		ctor: '::',
-		_0: {ctor: '_Tuple2', _0: 'display', _1: 'none'},
-		_1: {ctor: '[]'}
-	};
-};
-var _terezka$elm_plot$Docs$toUrl = function (end) {
-	return A2(
-		_elm_lang$core$Basics_ops['++'],
-		'https://github.com/terezka/elm-plot/blob/master/docs/',
-		A2(_elm_lang$core$Basics_ops['++'], end, '.elm'));
-};
-var _terezka$elm_plot$Docs$viewLink = function (name) {
-	return A2(
-		_elm_lang$html$Html$a,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('view-heading__code__link'),
-			_1: {
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$href(
-					_terezka$elm_plot$Docs$toUrl(name)),
-				_1: {ctor: '[]'}
-			}
-		},
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html$text('See full source'),
-			_1: {ctor: '[]'}
-		});
-};
-var _terezka$elm_plot$Docs$isCodeOpen = F2(
-	function (_p0, title) {
-		var _p1 = _p0;
-		var _p2 = _p1.openSection;
-		if (_p2.ctor === 'Just') {
-			return _elm_lang$core$Native_Utils.eq(_p2._0, title);
-		} else {
-			return false;
-		}
-	});
-var _terezka$elm_plot$Docs$viewCode = F3(
-	function (model, id, codeString) {
-		var isOpen = A2(_terezka$elm_plot$Docs$isCodeOpen, model, id);
-		var codeStyle = _terezka$elm_plot$Docs$getCodeStyle(isOpen);
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$style(codeStyle),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$code,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('elm view-code'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$pre,
-							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text(codeString),
-								_1: {ctor: '[]'}
-							}),
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			});
-	});
-var _terezka$elm_plot$Docs$setPlotState = F3(
-	function (id, newState, states) {
-		return A3(
-			_elm_lang$core$Dict$update,
-			id,
-			_elm_lang$core$Basics$always(
-				_elm_lang$core$Maybe$Just(newState)),
-			states);
-	});
-var _terezka$elm_plot$Docs$getPlotState = F2(
-	function (id, plotStates) {
-		return A2(
-			_elm_lang$core$Maybe$withDefault,
-			_terezka$elm_plot$Plot$initialState,
-			A2(_elm_lang$core$Dict$get, id, plotStates));
-	});
-var _terezka$elm_plot$Docs$initialModel = {openSection: _elm_lang$core$Maybe$Nothing, plotStates: _elm_lang$core$Dict$empty};
 var _terezka$elm_plot$Docs$examples = {
 	ctor: '::',
 	_0: _terezka$elm_plot$PlotScatter$plotExample,
@@ -14471,6 +14373,107 @@ var _terezka$elm_plot$Docs$examples = {
 		}
 	}
 };
+var _terezka$elm_plot$Docs$getVisibility = F2(
+	function (_p0, id) {
+		var _p1 = _p0;
+		return _elm_lang$core$Native_Utils.eq(
+			_p1.focused,
+			_elm_lang$core$Maybe$Just(id)) ? {
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'display', _1: 'block'},
+			_1: {ctor: '[]'}
+		} : {
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'display', _1: 'none'},
+			_1: {ctor: '[]'}
+		};
+	});
+var _terezka$elm_plot$Docs$toUrl = function (end) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		'https://github.com/terezka/elm-plot/blob/master/docs/',
+		A2(_elm_lang$core$Basics_ops['++'], end, '.elm'));
+};
+var _terezka$elm_plot$Docs$viewCode = F2(
+	function (model, _p2) {
+		var _p3 = _p2;
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$style(
+					A2(_terezka$elm_plot$Docs$getVisibility, model, _p3.id)),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$code,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('elm view-code'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$pre,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(_p3.code),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			});
+	});
+var _terezka$elm_plot$Docs$viewLink = function (name) {
+	return A2(
+		_elm_lang$html$Html$a,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('view-heading__code__link'),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$href(
+					_terezka$elm_plot$Docs$toUrl(name)),
+				_1: {ctor: '[]'}
+			}
+		},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text('See full source'),
+			_1: {ctor: '[]'}
+		});
+};
+var _terezka$elm_plot$Docs$setPlotState = F3(
+	function (id, newState, states) {
+		return A3(
+			_elm_lang$core$Dict$update,
+			id,
+			_elm_lang$core$Basics$always(
+				_elm_lang$core$Maybe$Just(newState)),
+			states);
+	});
+var _terezka$elm_plot$Docs$getPlotState = F2(
+	function (id, plotStates) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			_terezka$elm_plot$Plot$initialState,
+			A2(_elm_lang$core$Dict$get, id, plotStates));
+	});
+var _terezka$elm_plot$Docs$updateFocused = F2(
+	function (newId, model) {
+		var _p4 = model;
+		if (_p4.ctor === 'Nothing') {
+			return _elm_lang$core$Maybe$Just(newId);
+		} else {
+			return _elm_lang$core$Native_Utils.eq(_p4._0, newId) ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(newId);
+		}
+	});
+var _terezka$elm_plot$Docs$initialModel = {focused: _elm_lang$core$Maybe$Nothing, plotStates: _elm_lang$core$Dict$empty};
 var _terezka$elm_plot$Docs$highlight = _elm_lang$core$Native_Platform.outgoingPort(
 	'highlight',
 	function (v) {
@@ -14478,114 +14481,105 @@ var _terezka$elm_plot$Docs$highlight = _elm_lang$core$Native_Platform.outgoingPo
 	});
 var _terezka$elm_plot$Docs$Model = F2(
 	function (a, b) {
-		return {openSection: a, plotStates: b};
+		return {focused: a, plotStates: b};
 	});
 var _terezka$elm_plot$Docs$PlotInteraction = F2(
 	function (a, b) {
 		return {ctor: 'PlotInteraction', _0: a, _1: b};
 	});
 var _terezka$elm_plot$Docs$update = F2(
-	function (msg, _p3) {
+	function (msg, _p5) {
 		update:
 		while (true) {
-			var _p4 = _p3;
-			var _p10 = _p4.plotStates;
-			var _p9 = _p4;
-			var _p5 = msg;
-			if (_p5.ctor === 'Toggle') {
+			var _p6 = _p5;
+			var _p12 = _p6.plotStates;
+			var _p11 = _p6;
+			var _p7 = msg;
+			if (_p7.ctor === 'FocusExample') {
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
-						_p9,
-						{openSection: _p5._0}),
+						_p11,
+						{
+							focused: A2(_terezka$elm_plot$Docs$updateFocused, _p7._0, _p6.focused)
+						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			} else {
-				var _p8 = _p5._0;
-				var _p6 = _p5._1;
-				if (_p6.ctor === 'Internal') {
-					var plotState = A2(_terezka$elm_plot$Docs$getPlotState, _p8, _p10);
-					var _p7 = A2(_terezka$elm_plot$Plot$update, _p6._0, plotState);
-					var newState = _p7._0;
-					var cmd = _p7._1;
+				var _p10 = _p7._0;
+				var _p8 = _p7._1;
+				if (_p8.ctor === 'Internal') {
+					var plotState = A2(_terezka$elm_plot$Docs$getPlotState, _p10, _p12);
+					var _p9 = A2(_terezka$elm_plot$Plot$update, _p8._0, plotState);
+					var newState = _p9._0;
+					var cmd = _p9._1;
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
-							_p9,
+							_p11,
 							{
-								plotStates: A3(_terezka$elm_plot$Docs$setPlotState, _p8, newState, _p10)
+								plotStates: A3(_terezka$elm_plot$Docs$setPlotState, _p10, newState, _p12)
 							}),
 						_1: A2(
 							_elm_lang$core$Platform_Cmd$map,
-							_terezka$elm_plot$Docs$PlotInteraction(_p8),
+							_terezka$elm_plot$Docs$PlotInteraction(_p10),
 							cmd)
 					};
 				} else {
-					var _v5 = _p6._0,
-						_v6 = _p9;
-					msg = _v5;
-					_p3 = _v6;
+					var _v6 = _p8._0,
+						_v7 = _p11;
+					msg = _v6;
+					_p5 = _v7;
 					continue update;
 				}
 			}
 		}
 	});
 var _terezka$elm_plot$Docs$viewExampleInner = F2(
-	function (plotStates, view) {
-		var _p11 = view;
-		if (_p11.ctor === 'ViewInteractive') {
-			var _p12 = _p11._0;
+	function (_p13, view) {
+		var _p14 = _p13;
+		var _p15 = view;
+		if (_p15.ctor === 'ViewInteractive') {
+			var _p16 = _p15._0;
 			return A2(
 				_elm_lang$html$Html$map,
-				_terezka$elm_plot$Docs$PlotInteraction(_p12),
-				_p11._1(
-					A2(_terezka$elm_plot$Docs$getPlotState, _p12, plotStates)));
+				_terezka$elm_plot$Docs$PlotInteraction(_p16),
+				_p15._1(
+					A2(_terezka$elm_plot$Docs$getPlotState, _p16, _p14.plotStates)));
 		} else {
-			return _p11._0;
+			return _p15._0;
 		}
 	});
-var _terezka$elm_plot$Docs$Toggle = function (a) {
-	return {ctor: 'Toggle', _0: a};
+var _terezka$elm_plot$Docs$FocusExample = function (a) {
+	return {ctor: 'FocusExample', _0: a};
 };
-var _terezka$elm_plot$Docs$getOnClickMsg = F2(
-	function (isOpen, title) {
-		return isOpen ? _terezka$elm_plot$Docs$Toggle(_elm_lang$core$Maybe$Nothing) : _terezka$elm_plot$Docs$Toggle(
-			_elm_lang$core$Maybe$Just(title));
-	});
-var _terezka$elm_plot$Docs$viewToggler = F2(
-	function (isOpen, title) {
-		return A2(
-			_elm_lang$html$Html$p,
-			{
+var _terezka$elm_plot$Docs$viewToggler = function (id) {
+	return A2(
+		_elm_lang$html$Html$p,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('view-heading__code-open'),
+			_1: {
 				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('view-heading__code-open'),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$html$Html_Events$onClick(
-						A2(_terezka$elm_plot$Docs$getOnClickMsg, isOpen, title)),
-					_1: {ctor: '[]'}
-				}
-			},
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html$text('View source snippet'),
+				_0: _elm_lang$html$Html_Events$onClick(
+					_terezka$elm_plot$Docs$FocusExample(id)),
 				_1: {ctor: '[]'}
-			});
-	});
-var _terezka$elm_plot$Docs$viewHeading = F3(
-	function (model, title, name) {
-		var isOpen = A2(_terezka$elm_plot$Docs$isCodeOpen, model, title);
-		var codeStyle = _terezka$elm_plot$Docs$getCodeStyle(isOpen);
+			}
+		},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text('View source snippet'),
+			_1: {ctor: '[]'}
+		});
+};
+var _terezka$elm_plot$Docs$viewHeading = F2(
+	function (model, _p17) {
+		var _p18 = _p17;
 		return A2(
 			_elm_lang$html$Html$div,
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$style(
-					{
-						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 'margin', _1: '100px auto 10px'},
-						_1: {ctor: '[]'}
-					}),
+				_0: _elm_lang$html$Html_Attributes$class('view-heading'),
 				_1: {ctor: '[]'}
 			},
 			{
@@ -14595,22 +14589,22 @@ var _terezka$elm_plot$Docs$viewHeading = F3(
 					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html$text(title),
+						_0: _elm_lang$html$Html$text(_p18.title),
 						_1: {ctor: '[]'}
 					}),
 				_1: {
 					ctor: '::',
-					_0: A2(_terezka$elm_plot$Docs$viewToggler, isOpen, title),
+					_0: _terezka$elm_plot$Docs$viewToggler(_p18.id),
 					_1: {ctor: '[]'}
 				}
 			});
 	});
 var _terezka$elm_plot$Docs$viewExample = F2(
-	function (_p14, _p13) {
-		var _p15 = _p14;
-		var _p18 = _p15;
-		var _p16 = _p13;
-		var _p17 = _p16.title;
+	function (_p20, _p19) {
+		var _p21 = _p20;
+		var _p24 = _p21;
+		var _p22 = _p19;
+		var _p23 = _p22;
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -14620,13 +14614,13 @@ var _terezka$elm_plot$Docs$viewExample = F2(
 			},
 			{
 				ctor: '::',
-				_0: A3(_terezka$elm_plot$Docs$viewHeading, _p18, _p17, _p16.fileName),
+				_0: A2(_terezka$elm_plot$Docs$viewHeading, _p24, _p23),
 				_1: {
 					ctor: '::',
-					_0: A3(_terezka$elm_plot$Docs$viewCode, _p18, _p17, _p16.code),
+					_0: A2(_terezka$elm_plot$Docs$viewCode, _p24, _p23),
 					_1: {
 						ctor: '::',
-						_0: A2(_terezka$elm_plot$Docs$viewExampleInner, _p15.plotStates, _p16.view),
+						_0: A2(_terezka$elm_plot$Docs$viewExampleInner, _p24, _p22.view),
 						_1: {ctor: '[]'}
 					}
 				}
@@ -14701,9 +14695,9 @@ var _terezka$elm_plot$Docs$view = function (model) {
 						ctor: '::',
 						_0: A2(
 							_elm_lang$html$Html$map,
-							_terezka$elm_plot$Docs$PlotInteraction(_terezka$elm_plot$PlotComposed$fileName),
+							_terezka$elm_plot$Docs$PlotInteraction(_terezka$elm_plot$PlotComposed$id),
 							_terezka$elm_plot$PlotComposed$view(
-								A2(_terezka$elm_plot$Docs$getPlotState, _terezka$elm_plot$PlotComposed$fileName, model.plotStates))),
+								A2(_terezka$elm_plot$Docs$getPlotState, _terezka$elm_plot$PlotComposed$id, model.plotStates))),
 						_1: {
 							ctor: '::',
 							_0: A2(

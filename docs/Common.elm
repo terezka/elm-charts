@@ -24,7 +24,7 @@ type alias Id =
 
 type alias PlotExample msg =
     { title : String
-    , fileName : Id
+    , id : Id
     , view : ViewPlot msg
     , code : String
     }

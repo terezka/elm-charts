@@ -14,7 +14,7 @@ plotExample =
     { title = title
     , code = code
     , view = ViewStatic view
-    , fileName = fileName
+    , id = id
     }
 
 
@@ -23,8 +23,8 @@ title =
     "Custom ticks and labels"
 
 
-fileName : String
-fileName =
+id : String
+id =
     "PlotTicks"
 
 

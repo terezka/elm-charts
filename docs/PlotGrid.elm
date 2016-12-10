@@ -15,7 +15,7 @@ plotExample =
     { title = title
     , code = code
     , view = ViewStatic view
-    , fileName = fileName
+    , id = id
     }
 
 
@@ -24,8 +24,8 @@ title =
     "Grids"
 
 
-fileName : String
-fileName =
+id : String
+id =
     "PlotGrid"
 
 

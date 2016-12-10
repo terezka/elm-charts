@@ -13,8 +13,8 @@ plotExample : PlotExample msg
 plotExample =
     { title = title
     , code = code
-    , fileName = fileName
-    , view = ViewInteractive fileName view
+    , id = id
+    , view = ViewInteractive id view
     }
 
 
@@ -23,8 +23,8 @@ title =
     "Hints"
 
 
-fileName : String
-fileName =
+id : String
+id =
     "PlotHint"
 
 
@@ -43,7 +43,7 @@ view state =
     plotInteractive
         [ size plotSize
         , margin ( 10, 20, 40, 20 )
-        , id "PlotHint"
+        , Plot.id "PlotHint"
         ]
         [ line
             [ Line.stroke blueStroke

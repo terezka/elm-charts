@@ -1,4 +1,4 @@
-module PlotComposed exposing (view, code, fileName)
+module PlotComposed exposing (view, code, id)
 
 import Svg
 import Plot exposing (..)
@@ -14,8 +14,8 @@ import Plot.Label as Label
 import Common
 
 
-fileName : String
-fileName =
+id : String
+id =
     "ComposedPlot"
 
 
@@ -65,7 +65,7 @@ view state =
         [ size ( 800, 400 )
         , padding ( 40, 40 )
         , margin ( 15, 20, 40, 15 )
-        , id "PlotComposed"
+        , Plot.id "PlotComposed"
         ]
         [ horizontalGrid
             [ Grid.lines [ Line.stroke "#f2f2f2" ] ]
