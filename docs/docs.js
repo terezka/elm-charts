@@ -14394,6 +14394,42 @@ var _terezka$elm_plot$Docs$toUrl = function (end) {
 		'https://github.com/terezka/elm-plot/blob/master/docs/',
 		A2(_elm_lang$core$Basics_ops['++'], end, '.elm'));
 };
+var _terezka$elm_plot$Docs$viewFooter = A2(
+	_elm_lang$html$Html$div,
+	{
+		ctor: '::',
+		_0: _elm_lang$html$Html_Attributes$class('view__footer'),
+		_1: {ctor: '[]'}
+	},
+	{
+		ctor: '::',
+		_0: _elm_lang$html$Html$text('Made by '),
+		_1: {
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$a,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$href('https://twitter.com/terexka'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$style(
+							{
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'color', _1: '#84868a'},
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('@terexka'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		}
+	});
 var _terezka$elm_plot$Docs$viewCode = F2(
 	function (model, _p2) {
 		var _p3 = _p2;
@@ -14448,6 +14484,70 @@ var _terezka$elm_plot$Docs$viewLink = function (name) {
 			_1: {ctor: '[]'}
 		});
 };
+var _terezka$elm_plot$Docs$viewTitle = A2(
+	_elm_lang$html$Html$div,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: A2(
+			_elm_lang$html$Html$img,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$src('logo.png'),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('view__logo'),
+					_1: {ctor: '[]'}
+				}
+			},
+			{ctor: '[]'}),
+		_1: {
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$h1,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('view__title'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Elm Plot'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('view__github-link'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Find it on '),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$a,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$href('https://github.com/terezka/elm-plot'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('Github'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}
+					}),
+				_1: {ctor: '[]'}
+			}
+		}
+	});
 var _terezka$elm_plot$Docs$setPlotState = F3(
 	function (id, newState, states) {
 		return A3(
@@ -14535,19 +14635,27 @@ var _terezka$elm_plot$Docs$update = F2(
 			}
 		}
 	});
+var _terezka$elm_plot$Docs$viewExampleLarge = function (_p13) {
+	var _p14 = _p13;
+	return A2(
+		_elm_lang$html$Html$map,
+		_terezka$elm_plot$Docs$PlotInteraction(_terezka$elm_plot$PlotComposed$id),
+		_terezka$elm_plot$PlotComposed$view(
+			A2(_terezka$elm_plot$Docs$getPlotState, _terezka$elm_plot$PlotComposed$id, _p14.plotStates)));
+};
 var _terezka$elm_plot$Docs$viewExampleInner = F2(
-	function (_p13, view) {
-		var _p14 = _p13;
-		var _p15 = view;
-		if (_p15.ctor === 'ViewInteractive') {
-			var _p16 = _p15._0;
+	function (_p15, view) {
+		var _p16 = _p15;
+		var _p17 = view;
+		if (_p17.ctor === 'ViewInteractive') {
+			var _p18 = _p17._0;
 			return A2(
 				_elm_lang$html$Html$map,
-				_terezka$elm_plot$Docs$PlotInteraction(_p16),
-				_p15._1(
-					A2(_terezka$elm_plot$Docs$getPlotState, _p16, _p14.plotStates)));
+				_terezka$elm_plot$Docs$PlotInteraction(_p18),
+				_p17._1(
+					A2(_terezka$elm_plot$Docs$getPlotState, _p18, _p16.plotStates)));
 		} else {
-			return _p15._0;
+			return _p17._0;
 		}
 	});
 var _terezka$elm_plot$Docs$FocusExample = function (a) {
@@ -14573,8 +14681,8 @@ var _terezka$elm_plot$Docs$viewToggler = function (id) {
 		});
 };
 var _terezka$elm_plot$Docs$viewHeading = F2(
-	function (model, _p17) {
-		var _p18 = _p17;
+	function (model, _p19) {
+		var _p20 = _p19;
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -14589,22 +14697,22 @@ var _terezka$elm_plot$Docs$viewHeading = F2(
 					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html$text(_p18.title),
+						_0: _elm_lang$html$Html$text(_p20.title),
 						_1: {ctor: '[]'}
 					}),
 				_1: {
 					ctor: '::',
-					_0: _terezka$elm_plot$Docs$viewToggler(_p18.id),
+					_0: _terezka$elm_plot$Docs$viewToggler(_p20.id),
 					_1: {ctor: '[]'}
 				}
 			});
 	});
 var _terezka$elm_plot$Docs$viewExample = F2(
-	function (_p20, _p19) {
-		var _p21 = _p20;
-		var _p24 = _p21;
-		var _p22 = _p19;
+	function (_p22, _p21) {
 		var _p23 = _p22;
+		var _p26 = _p23;
+		var _p24 = _p21;
+		var _p25 = _p24;
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -14614,13 +14722,13 @@ var _terezka$elm_plot$Docs$viewExample = F2(
 			},
 			{
 				ctor: '::',
-				_0: A2(_terezka$elm_plot$Docs$viewHeading, _p24, _p23),
+				_0: A2(_terezka$elm_plot$Docs$viewHeading, _p26, _p25),
 				_1: {
 					ctor: '::',
-					_0: A2(_terezka$elm_plot$Docs$viewCode, _p24, _p23),
+					_0: A2(_terezka$elm_plot$Docs$viewCode, _p26, _p25),
 					_1: {
 						ctor: '::',
-						_0: A2(_terezka$elm_plot$Docs$viewExampleInner, _p24, _p22.view),
+						_0: A2(_terezka$elm_plot$Docs$viewExampleInner, _p26, _p24.view),
 						_1: {ctor: '[]'}
 					}
 				}
@@ -14636,118 +14744,23 @@ var _terezka$elm_plot$Docs$view = function (model) {
 		},
 		{
 			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$img,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$src('logo.png'),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('view__logo'),
-						_1: {ctor: '[]'}
-					}
-				},
-				{ctor: '[]'}),
+			_0: _terezka$elm_plot$Docs$viewTitle,
 			_1: {
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$h1,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('view__title'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text('Elm Plot'),
-						_1: {ctor: '[]'}
-					}),
+				_0: _terezka$elm_plot$Docs$viewExampleLarge(model),
 				_1: {
 					ctor: '::',
 					_0: A2(
 						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('view__github-link'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text('Find it on '),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$a,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$href('https://github.com/terezka/elm-plot'),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('Github'),
-										_1: {ctor: '[]'}
-									}),
-								_1: {ctor: '[]'}
-							}
-						}),
+						{ctor: '[]'},
+						A2(
+							_elm_lang$core$List$map,
+							_terezka$elm_plot$Docs$viewExample(model),
+							_terezka$elm_plot$Docs$examples)),
 					_1: {
 						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$map,
-							_terezka$elm_plot$Docs$PlotInteraction(_terezka$elm_plot$PlotComposed$id),
-							_terezka$elm_plot$PlotComposed$view(
-								A2(_terezka$elm_plot$Docs$getPlotState, _terezka$elm_plot$PlotComposed$id, model.plotStates))),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{ctor: '[]'},
-								A2(
-									_elm_lang$core$List$map,
-									_terezka$elm_plot$Docs$viewExample(model),
-									_terezka$elm_plot$Docs$examples)),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$div,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('view__footer'),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('Made by '),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$a,
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$href('https://twitter.com/terexka'),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$style(
-															{
-																ctor: '::',
-																_0: {ctor: '_Tuple2', _0: 'color', _1: '#84868a'},
-																_1: {ctor: '[]'}
-															}),
-														_1: {ctor: '[]'}
-													}
-												},
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html$text('@terexka'),
-													_1: {ctor: '[]'}
-												}),
-											_1: {ctor: '[]'}
-										}
-									}),
-								_1: {ctor: '[]'}
-							}
-						}
+						_0: _terezka$elm_plot$Docs$viewFooter,
+						_1: {ctor: '[]'}
 					}
 				}
 			}

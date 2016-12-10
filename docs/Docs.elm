@@ -98,6 +98,17 @@ view : Model -> Html Msg
 view model =
     div
         [ class "view" ]
+        [ viewTitle
+        , viewExampleLarge model
+        , div [] (List.map (viewExample model) examples)
+        , viewFooter
+        ]
+
+
+viewTitle : Html msg
+viewTitle =
+    div
+        []
         [ img
             [ src "logo.png"
             , class "view__logo"
@@ -113,20 +124,14 @@ view model =
                 [ href "https://github.com/terezka/elm-plot" ]
                 [ text "Github" ]
             ]
-        , Html.map
-            (PlotInteraction PlotComposed.id)
-            (PlotComposed.view (getPlotState PlotComposed.id model.plotStates))
-        , div [] (List.map (viewExample model) examples)
-        , div
-            [ class "view__footer" ]
-            [ text "Made by "
-            , a
-                [ href "https://twitter.com/terexka"
-                , style [ ( "color", "#84868a" ) ]
-                ]
-                [ text "@terexka" ]
-            ]
         ]
+
+
+viewExampleLarge : Model -> Html Msg
+viewExampleLarge { plotStates } =
+    Html.map
+        (PlotInteraction PlotComposed.id)
+        (PlotComposed.view (getPlotState PlotComposed.id plotStates))
 
 
 viewExample : Model -> PlotExample Msg -> Html.Html Msg
@@ -183,6 +188,19 @@ viewCode model { id, code } =
         [ Html.code
             [ class "elm view-code" ]
             [ pre [] [ text code ] ]
+        ]
+
+
+viewFooter : Html msg
+viewFooter =
+    div
+        [ class "view__footer" ]
+        [ text "Made by "
+        , a
+            [ href "https://twitter.com/terexka"
+            , style [ ( "color", "#84868a" ) ]
+            ]
+            [ text "@terexka" ]
         ]
 
 
