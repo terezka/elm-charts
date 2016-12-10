@@ -1,20 +1,20 @@
 module PlotGrid exposing (plotExample)
 
 import Svg
-import Svg.Attributes
 import Plot exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Grid as Grid
 import Plot.Line as Line
-import Common
+import Common exposing (..)
 
 
+plotExample : PlotExample msg
 plotExample =
     { title = title
     , code = code
-    , view = view
+    , view = ViewStatic view
     , fileName = fileName
     }
 
@@ -61,6 +61,7 @@ view =
         ]
 
 
+code : String
 code =
     """
     view : Svg.Svg a

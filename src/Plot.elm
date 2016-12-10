@@ -65,14 +65,12 @@ import Html.Attributes
 import Html.Events
 import Svg exposing (Svg)
 import Svg.Attributes
-import Svg.Events
 import Svg.Lazy
 import Task
 import Json.Decode as Json
 import Dom
 import Dom.Position
 import Plot.Axis as Axis
-import Plot.Tick as Tick
 import Plot.Grid as Grid
 import Plot.Area as Area
 import Plot.Pile as Pile
@@ -82,7 +80,6 @@ import Plot.Hint as Hint
 import Internal.Grid as GridInternal
 import Internal.Axis as AxisInternal
 import Internal.Pile as PileInternal
-import Internal.Bars as BarsInternal
 import Internal.Area as AreaInternal
 import Internal.Scatter as ScatterInternal
 import Internal.Line as LineInternal
@@ -354,10 +351,13 @@ toPlotConfig =
 
 {-| -}
 type State
-    = State
-        { position : Maybe ( Float, Float )
-        , waiting : Bool
-        }
+    = State StateInner
+
+
+type alias StateInner =
+    { position : Maybe ( Float, Float )
+    , waiting : Bool
+    }
 
 
 {-| -}
@@ -395,7 +395,7 @@ update msg (State state) =
         ReceivePosition result ->
             case result of
                 Ok position ->
-                    if state.waiting && positionChanged state.position position then
+                    if shouldPositionUpdate state position then
                         ( State { state | position = Just position }, Cmd.none )
                     else
                         ( State state, Cmd.none )
@@ -414,14 +414,14 @@ getHoveredValue (State { position }) =
     position
 
 
-positionChanged : Maybe ( Float, Float ) -> ( Float, Float ) -> Bool
-positionChanged position ( left, top ) =
+shouldPositionUpdate : StateInner -> ( Float, Float ) -> Bool
+shouldPositionUpdate { waiting, position } ( left, top ) =
     case position of
         Nothing ->
-            True
+            waiting && True
 
         Just ( leftOld, topOld ) ->
-            topOld /= top || leftOld /= left
+            waiting && topOld /= top || leftOld /= left
 
 
 cmdPosition : Meta -> ( Float, Float ) -> Cmd (Interaction msg)

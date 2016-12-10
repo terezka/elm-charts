@@ -1,20 +1,20 @@
 module PlotHint exposing (plotExample)
 
 import Svg
-import Svg.Attributes
 import Plot exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Hint as Hint
-import Common
+import Common exposing (..)
 
 
+plotExample : PlotExample msg
 plotExample =
     { title = title
     , code = code
-    , view = view
     , fileName = fileName
+    , view = ViewInteractive fileName view
     }
 
 
@@ -67,6 +67,7 @@ view state =
         ]
 
 
+code : String
 code =
     """
     view : State -> Svg.Svg (Interaction msg)

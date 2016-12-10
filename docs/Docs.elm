@@ -1,11 +1,10 @@
 port module Docs exposing (..)
 
-import Svg
-import Svg.Events
-import Svg.Attributes
+import Dict exposing (..)
 import Html exposing (Html, div, text, h1, img, a, br, span, code, pre, p)
 import Html.Attributes exposing (style, src, href, class, classList, id)
 import Html.Events exposing (onClick)
+import Common exposing (..)
 import Plot as Plot exposing (Interaction(..))
 import PlotComposed
 import PlotScatter
@@ -18,77 +17,90 @@ import PlotSticky
 import PlotHint
 
 
+-- Examples
+
+
+examples : List (PlotExample msg)
+examples =
+    [ PlotScatter.plotExample
+    , PlotLines.plotExample
+    , PlotArea.plotExample
+    , PlotBars.plotExample
+    , PlotGrid.plotExample
+    , PlotTicks.plotExample
+    , PlotSticky.plotExample
+    , PlotHint.plotExample
+    ]
+
+
+
 -- MODEL
-
-
-type alias PlotExample a =
-    { title : String
-    , fileName : String
-    , view : Svg.Svg a
-    , code : String
-    }
-
-
-type alias PlotExampleInteractive a =
-    { title : String
-    , fileName : String
-    , view : Plot.State -> Svg.Svg (Interaction a)
-    , code : String
-    }
 
 
 type alias Model =
     { openSection : Maybe String
-    , hintExample : Plot.State
-    , everythingExample : Plot.State
+    , plotStates : Dict String Plot.State
     }
 
 
 initialModel : Model
 initialModel =
     { openSection = Nothing
-    , hintExample = Plot.initialState
-    , everythingExample = Plot.initialState
+    , plotStates = empty
     }
+
+
+
+-- Model helpers
+
+
+getPlotState : Id -> Dict Id Plot.State -> Plot.State
+getPlotState id plotStates =
+    get id plotStates
+        |> Maybe.withDefault Plot.initialState
+
+
+setPlotState : Id -> Plot.State -> Dict Id Plot.State -> Dict Id Plot.State
+setPlotState id newState states =
+    Dict.update id (always (Just newState)) states
+
+
+isCodeOpen : Model -> String -> Bool
+isCodeOpen { openSection } title =
+    case openSection of
+        Just id ->
+            id == title
+
+        Nothing ->
+            False
 
 
 
 -- UPDATE
 
 
-type PlotId
-    = HintExample
-    | EverythingExample
-
-
 type Msg
     = Toggle (Maybe String)
-    | PlotInteraction PlotId (Plot.Interaction Msg)
+    | PlotInteraction Id (Plot.Interaction Msg)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg ({ plotStates } as model) =
     case msg of
         Toggle id ->
-            ( { model | openSection = id }, fixBackground (id /= Nothing) )
+            ( { model | openSection = id }, Cmd.none )
 
         PlotInteraction id interaction ->
             case interaction of
                 Internal internalMsg ->
-                    case id of
-                        HintExample ->
-                            let
-                                ( state, cmd ) =
-                                    Plot.update internalMsg model.hintExample
-                            in
-                                ( { model | hintExample = state }, Cmd.map (PlotInteraction HintExample) cmd )
+                    let
+                        plotState =
+                            getPlotState id plotStates
 
-                        EverythingExample ->
-                            let
-                                ( state, cmd ) =
-                                    Plot.update internalMsg model.everythingExample
-                            in
-                                ( { model | everythingExample = state }, Cmd.map (PlotInteraction EverythingExample) cmd )
+                        ( newState, cmd ) =
+                            Plot.update internalMsg plotState
+                    in
+                        ( { model | plotStates = setPlotState id newState plotStates }, Cmd.map (PlotInteraction id) cmd )
 
                 Custom customMsg ->
                     update customMsg model
@@ -98,26 +110,18 @@ update msg model =
 -- VIEW
 
 
-isSectionOpen : Model -> String -> Bool
-isSectionOpen { openSection } title =
-    case openSection of
-        Just id ->
-            id == title
-
-        Nothing ->
-            False
-
-
 view : Model -> Html Msg
 view model =
     div
-        [ classList [ ( "view", True ), ( "view--showing-code", model.openSection /= Nothing ) ] ]
+        [ class "view" ]
         [ img
             [ src "logo.png"
             , class "view__logo"
             ]
             []
-        , h1 [ class "view__title" ] [ text "Elm Plot" ]
+        , h1
+            [ class "view__title" ]
+            [ text "Elm Plot" ]
         , div
             [ class "view__github-link" ]
             [ text "Find it on "
@@ -125,15 +129,10 @@ view model =
                 [ href "https://github.com/terezka/elm-plot" ]
                 [ text "Github" ]
             ]
-        , Html.map (PlotInteraction EverythingExample) <| PlotComposed.view model.everythingExample
-        , viewPlot model PlotScatter.plotExample
-        , viewPlot model PlotLines.plotExample
-        , viewPlot model PlotArea.plotExample
-        , viewPlot model PlotBars.plotExample
-        , viewPlot model PlotGrid.plotExample
-        , viewPlot model PlotTicks.plotExample
-        , viewPlot model PlotSticky.plotExample
-        , viewPlotInteractive model model.hintExample PlotHint.plotExample
+        , Html.map
+            (PlotInteraction PlotComposed.fileName)
+            (PlotComposed.view (getPlotState PlotComposed.fileName model.plotStates))
+        , div [] (List.map (viewExample model) examples)
         , div
             [ class "view__footer" ]
             [ text "Made by "
@@ -146,14 +145,6 @@ view model =
         ]
 
 
-getCodeStyle : Bool -> ( String, String )
-getCodeStyle isOpen =
-    if isOpen then
-        ( "display", "block" )
-    else
-        ( "display", "none" )
-
-
 getOnClickMsg : Bool -> String -> Msg
 getOnClickMsg isOpen title =
     if isOpen then
@@ -162,27 +153,18 @@ getOnClickMsg isOpen title =
         Toggle (Just title)
 
 
-viewHeading : Model -> String -> String -> String -> Html Msg
-viewHeading model title name codeString =
+viewHeading : Model -> String -> String -> Html Msg
+viewHeading model title name =
     let
         isOpen =
-            isSectionOpen model title
+            isCodeOpen model title
 
         codeStyle =
             getCodeStyle isOpen
     in
         div [ style [ ( "margin", "100px auto 10px" ) ] ]
             [ div [] [ text title ]
-            --, viewToggler isOpen title
-            , div
-                [ class "view-heading__code"
-                , style [ codeStyle ]
-                ]
-                [ viewClose name
-                , Html.code
-                    [ class "elm view-heading__code__inner" ]
-                    [ pre [] [ text codeString ] ]
-                ]
+              --, viewToggler isOpen title
             ]
 
 
@@ -195,20 +177,6 @@ viewToggler isOpen title =
         [ text "View source snippet" ]
 
 
-viewClose : String -> Html.Html Msg
-viewClose name =
-    p
-        [ class "view-heading__code__note" ]
-        [ span [] [ viewLink name ]
-        , span [] [ text " or " ]
-        , a
-            [ onClick (Toggle Nothing)
-            , class "view-heading__code__close"
-            ]
-            [ text "Close" ]
-        ]
-
-
 viewLink : String -> Html.Html Msg
 viewLink name =
     a
@@ -218,31 +186,57 @@ viewLink name =
         [ text "See full source" ]
 
 
-viewPlot : Model -> PlotExample Msg -> Html.Html Msg
-viewPlot model { title, fileName, view, code } =
+viewCode : Model -> String -> String -> Html Msg
+viewCode model id codeString =
+    let
+        isOpen =
+            isCodeOpen model id
+
+        codeStyle =
+            getCodeStyle isOpen
+    in
+        div [ style codeStyle ]
+            [ Html.code
+                [ class "elm view-code" ]
+                [ pre [] [ text codeString ] ]
+            ]
+
+
+viewExample : Model -> PlotExample Msg -> Html.Html Msg
+viewExample ({ plotStates } as model) { title, fileName, view, code } =
     Html.div
         [ class "view-plot" ]
-        [ viewHeading model title fileName code
-        , view
+        [ viewHeading model title fileName
+        , viewExampleInner plotStates view
+        , viewCode model title code
         ]
 
 
-viewPlotInteractive : Model -> Plot.State -> PlotExampleInteractive Msg -> Html.Html Msg
-viewPlotInteractive model state { title, fileName, view, code } =
-    Html.div
-        [ class "view-plot view-plot--interactive" ]
-        [ viewHeading model title fileName code
-        , Html.map (PlotInteraction HintExample) <| view state
-        ]
+viewExampleInner : Dict Id Plot.State -> ViewPlot Msg -> Html.Html Msg
+viewExampleInner plotStates view =
+    case view of
+        ViewInteractive id view ->
+            Html.map (PlotInteraction id) <| view (getPlotState id plotStates)
+
+        ViewStatic view ->
+            view
 
 
-main =
-    Html.program
-        { init = ( initialModel, highlight () )
-        , update = update
-        , subscriptions = (always Sub.none)
-        , view = view
-        }
+
+-- View helpers
+
+
+toUrl : String -> String
+toUrl end =
+    "https://github.com/terezka/elm-plot/blob/master/docs/" ++ end ++ ".elm"
+
+
+getCodeStyle : Bool -> List ( String, String )
+getCodeStyle isOpen =
+    if isOpen then
+        [ ( "display", "block" ) ]
+    else
+        [ ( "display", "none" ) ]
 
 
 
@@ -252,13 +246,15 @@ main =
 port highlight : () -> Cmd msg
 
 
-port fixBackground : Bool -> Cmd msg
+
+-- Main
 
 
-
--- Helpers
-
-
-toUrl : String -> String
-toUrl end =
-    "https://github.com/terezka/elm-plot/blob/master/docs/" ++ end ++ ".elm"
+main : Program Never Model Msg
+main =
+    Html.program
+        { init = ( initialModel, highlight () )
+        , update = update
+        , subscriptions = (always Sub.none)
+        , view = view
+        }

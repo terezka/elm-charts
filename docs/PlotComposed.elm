@@ -1,8 +1,6 @@
-module PlotComposed exposing (view, code)
+module PlotComposed exposing (view, code, fileName)
 
 import Svg
-import Svg.Attributes
-import Svg.Events
 import Plot exposing (..)
 import Plot.Area as Area
 import Plot.Line as Line
@@ -13,8 +11,12 @@ import Plot.Hint as Hint
 import Plot.Pile as Pile
 import Plot.Bars as Bars
 import Plot.Label as Label
-import Debug
 import Common
+
+
+fileName : String
+fileName =
+    "ComposedPlot"
 
 
 data1 : List ( Float, Float )
@@ -147,6 +149,7 @@ view state =
         ]
 
 
+code : String
 code =
     """
     isOdd : Int -> Bool

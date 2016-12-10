@@ -1,19 +1,19 @@
 module PlotArea exposing (plotExample)
 
 import Svg
-import Svg.Attributes
 import Plot exposing (..)
-import Common
+import Common exposing (..)
 import Plot.Area as Area
 import Plot.Line as Line
 import Plot.Axis as Axis
 import Plot.Tick as Tick
 
 
+plotExample : PlotExample msg
 plotExample =
     { title = title
     , code = code
-    , view = view
+    , view = ViewStatic view
     , fileName = fileName
     }
 
@@ -61,6 +61,7 @@ view =
         ]
 
 
+code : String
 code =
     """
     view : Svg.Svg a

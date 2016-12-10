@@ -1,9 +1,38 @@
-module Common exposing (..)
+module Common
+    exposing
+        ( PlotExample
+        , ViewPlot(..)
+        , Id
+        , plotSize
+        , axisColor
+        , axisColorLight
+        , blueFill
+        , blueStroke
+        , pinkFill
+        , pinkStroke
+        , skinFill
+        , skinStroke
+        )
+
+import Svg
+import Plot
 
 
-plotSizeLarge : ( Int, Int )
-plotSizeLarge =
-    ( 800, 400 )
+type alias Id =
+    String
+
+
+type alias PlotExample msg =
+    { title : String
+    , fileName : Id
+    , view : ViewPlot msg
+    , code : String
+    }
+
+
+type ViewPlot msg
+    = ViewStatic (Svg.Svg msg)
+    | ViewInteractive Id (Plot.State -> Svg.Svg (Plot.Interaction msg))
 
 
 plotSize : ( Int, Int )
