@@ -85,23 +85,23 @@ code =
     view : Svg.Svg a
     view =
         plot
-            [ size Common.plotSize
+            [ size plotSize
             , margin ( 10, 20, 40, 20 )
             ]
             [ pile
                 [ Pile.maxBarWidthPer 85 ]
                 [ Pile.bars
-                    [ Bars.fill Common.blueFill ]
+                    [ Bars.fill blueFill ]
                     data1
                 , Pile.bars
-                    [ Bars.fill Common.skinFill ]
+                    [ Bars.fill skinFill ]
                     data2
                 , Pile.bars
-                    [ Bars.fill Common.pinkFill ]
+                    [ Bars.fill pinkFill ]
                     data3
                 ]
             , xAxis
-                [ Axis.line [ Line.stroke Common.axisColor ]
+                [ Axis.line [ Line.stroke axisColor ]
                 , Axis.tick [ Tick.delta 1 ]
                 , Axis.label
                     [ Label.view

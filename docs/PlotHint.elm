@@ -41,23 +41,23 @@ data2 =
 view : State -> Svg.Svg (Interaction msg)
 view state =
     plotInteractive
-        [ size Common.plotSize
+        [ size plotSize
         , margin ( 10, 20, 40, 20 )
         , id "PlotHint"
         ]
         [ line
-            [ Line.stroke Common.blueStroke
+            [ Line.stroke blueStroke
             , Line.strokeWidth 2
             ]
             data1
         , line
-            [ Line.stroke Common.pinkStroke
+            [ Line.stroke pinkStroke
             , Line.strokeWidth 2
             ]
             data2
         , xAxis
             [ Axis.line
-                [ Line.stroke Common.axisColor ]
+                [ Line.stroke axisColor ]
             , Axis.tick
                 [ Tick.delta 1 ]
             ]
@@ -73,23 +73,23 @@ code =
     view : State -> Svg.Svg (Interaction msg)
     view state =
         plotInteractive
-            [ size Common.plotSize
+            [ size plotSize
             , margin ( 10, 20, 40, 20 )
             , id "PlotHint"
             ]
             [ line
-                [ Line.stroke Common.blueStroke
+                [ Line.stroke blueStroke
                 , Line.strokeWidth 2
                 ]
                 data1
             , line
-                [ Line.stroke Common.pinkStroke
+                [ Line.stroke pinkStroke
                 , Line.strokeWidth 2
                 ]
                 data2
             , xAxis
                 [ Axis.line
-                    [ Line.stroke Common.axisColor ]
+                    [ Line.stroke axisColor ]
                 , Axis.tick
                     [ Tick.delta 1 ]
                 ]

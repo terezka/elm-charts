@@ -37,7 +37,7 @@ type ViewPlot msg
 
 plotSize : ( Int, Int )
 plotSize =
-    ( 380, 300 )
+    ( 500, 300 )
 
 
 axisColor : String

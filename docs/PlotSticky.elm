@@ -71,13 +71,13 @@ toLabelAttrsY2 ( index, tick ) =
 view : Svg.Svg a
 view =
     plot
-        [ size Common.plotSize
+        [ size plotSize
         , margin ( 10, 20, 40, 20 )
         , padding ( 0, 20 )
         , domainLowest (always -21)
         ]
         [ line
-            [ Line.stroke Common.pinkStroke
+            [ Line.stroke pinkStroke
             , Line.strokeWidth 2
             ]
             data
@@ -145,13 +145,13 @@ code =
     view : Svg.Svg a
     view =
         plot
-            [ size Common.plotSize
+            [ size plotSize
             , margin ( 10, 20, 40, 20 )
             , padding ( 0, 20 )
             , domainLowest (always -21)
             ]
             [ line
-                [ Line.stroke Common.pinkStroke
+                [ Line.stroke pinkStroke
                 , Line.strokeWidth 2
                 ]
                 data

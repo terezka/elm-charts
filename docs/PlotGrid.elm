@@ -67,24 +67,24 @@ code =
     view : Svg.Svg a
     view =
         plot
-            [ size Common.plotSize
+            [ size plotSize
             , margin ( 10, 20, 40, 20 )
             ]
             [ verticalGrid
                 [ Grid.lines
-                    [ Line.stroke Common.axisColorLight ]
+                    [ Line.stroke axisColorLight ]
                 ]
             , horizontalGrid
                 [ Grid.lines
-                    [ Line.stroke Common.axisColorLight ]
+                    [ Line.stroke axisColorLight ]
                 , Grid.values [ 4, 8, 12 ]
                 ]
             , xAxis
-                [ Axis.line [ Line.stroke Common.axisColor ]
+                [ Axis.line [ Line.stroke axisColor ]
                 , Axis.tick [ Tick.delta 0.5 ]
                 ]
             , line
-                [ Line.stroke Common.blueStroke
+                [ Line.stroke blueStroke
                 , Line.strokeWidth 2
                 ]
                 data

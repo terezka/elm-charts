@@ -63,22 +63,23 @@ toLabelStyle ( index, tick ) =
 view : Svg.Svg a
 view =
     plot
-        [ size Common.plotSize
+        [ size plotSize
         , margin ( 10, 20, 40, 20 )
         ]
         [ line
-            [ Line.stroke Common.pinkStroke
+            [ Line.stroke pinkStroke
             , Line.strokeWidth 2
             ]
             data
         , xAxis
-            [ Axis.line [ Line.stroke Common.axisColor ]
+            [ Axis.line [ Line.stroke axisColor ]
             , Axis.tick [ Tick.viewDynamic toTickStyle ]
             , Axis.label [ Label.viewDynamic toLabelStyle ]
             ]
         ]
 
 
+code : String
 code =
     """
     isOdd : Int -> Bool
@@ -111,16 +112,16 @@ code =
     view : Svg.Svg a
     view =
         plot
-            [ size Common.plotSize
+            [ size plotSize
             , margin ( 10, 20, 40, 20 )
             ]
             [ line
-                [ Line.stroke Common.pinkStroke
+                [ Line.stroke pinkStroke
                 , Line.strokeWidth 2
                 ]
                 data
             , xAxis
-                [ Axis.line [ Line.stroke Common.axisColor ]
+                [ Axis.line [ Line.stroke axisColor ]
                 , Axis.tick [ Tick.viewDynamic toTickStyle ]
                 , Axis.label [ Label.viewDynamic toLabelStyle ]
                 ]

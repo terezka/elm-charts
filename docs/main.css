@@ -48,21 +48,13 @@ a {
 .view-code {
 	text-align: left;
 	margin: 30px auto;
-	width: 200%;
-	height: 300px;
-	max-height: 600px;
-	overflow: scroll;
-	position: relative;
-}
-
-.view-plot:nth-child(even) .view-code {
-	left: -100%;
+	max-height: 400px;
 }
 
 .view-plot {
-	width: 50%;
-  display: inline-block;
+	width: 600px;
 	vertical-align: top;
+	margin: 0 auto;
 }
 
 .elm-plot {

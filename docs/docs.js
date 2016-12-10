@@ -12638,7 +12638,7 @@ var _terezka$elm_plot$Common$blueStroke = '#cfd8ea';
 var _terezka$elm_plot$Common$blueFill = '#e4eeff';
 var _terezka$elm_plot$Common$axisColorLight = '#e4e4e4';
 var _terezka$elm_plot$Common$axisColor = '#949494';
-var _terezka$elm_plot$Common$plotSize = {ctor: '_Tuple2', _0: 380, _1: 300};
+var _terezka$elm_plot$Common$plotSize = {ctor: '_Tuple2', _0: 500, _1: 300};
 var _terezka$elm_plot$Common$PlotExample = F4(
 	function (a, b, c, d) {
 		return {title: a, fileName: b, view: c, code: d};
@@ -13191,7 +13191,7 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 };
 var _terezka$elm_plot$PlotComposed$fileName = 'ComposedPlot';
 
-var _terezka$elm_plot$PlotScatter$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size Common.plotSize\n            , margin ( 10, 20, 40, 40 )\n            ]\n            [ scatter\n                [ Scatter.stroke Common.pinkStroke\n                , Scatter.fill Common.pinkFill\n                , Scatter.radius 8\n                ]\n                data\n            , xAxis\n                [ Axis.line\n                    [ Line.stroke Common.axisColor ]\n                , Axis.tick\n                    [ Tick.delta 2 ]\n                ]\n            ]\n    ';
+var _terezka$elm_plot$PlotScatter$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 40 )\n            ]\n            [ scatter\n                [ Scatter.stroke pinkStroke\n                , Scatter.fill pinkFill\n                , Scatter.radius 8\n                ]\n                data\n            , xAxis\n                [ Axis.line\n                    [ Line.stroke axisColor ]\n                , Axis.tick\n                    [ Tick.delta 2 ]\n                ]\n            ]\n    ';
 var _terezka$elm_plot$PlotScatter$data = {
 	ctor: '::',
 	_0: {ctor: '_Tuple2', _0: 0, _1: 10},
@@ -13277,7 +13277,7 @@ var _terezka$elm_plot$PlotScatter$plotExample = {
 	fileName: _terezka$elm_plot$PlotScatter$fileName
 };
 
-var _terezka$elm_plot$PlotLines$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size Common.plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ line\n                [ Line.stroke Common.blueStroke\n                , Line.strokeWidth 2\n                ]\n                data1\n            , line\n                [ Line.stroke Common.pinkStroke\n                , Line.strokeWidth 2\n                ]\n                data2\n            , xAxis\n                [ Axis.line\n                    [ Line.stroke Common.axisColor ]\n                , Axis.tick\n                    [ Tick.delta 1 ]\n                ]\n            ]\n    ';
+var _terezka$elm_plot$PlotLines$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ line\n                [ Line.stroke blueStroke\n                , Line.strokeWidth 2\n                ]\n                data1\n            , line\n                [ Line.stroke pinkStroke\n                , Line.strokeWidth 2\n                ]\n                data2\n            , xAxis\n                [ Axis.line\n                    [ Line.stroke axisColor ]\n                , Axis.tick\n                    [ Tick.delta 1 ]\n                ]\n            ]\n    ';
 var _terezka$elm_plot$PlotLines$data2 = {
 	ctor: '::',
 	_0: {ctor: '_Tuple2', _0: 0, _1: 0},
@@ -13387,7 +13387,7 @@ var _terezka$elm_plot$PlotLines$plotExample = {
 	fileName: _terezka$elm_plot$PlotLines$fileName
 };
 
-var _terezka$elm_plot$PlotArea$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size Common.plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ area\n                [ Area.stroke Common.skinStroke\n                , Area.fill Common.skinFill\n                ]\n                data1\n            , area\n                [ Area.stroke Common.blueStroke\n                , Area.fill Common.blueFill\n                ]\n                data2\n            , xAxis\n                [ Axis.line [ Line.stroke Common.axisColor ]\n                , Axis.tick [ Tick.delta 10 ]\n                ]\n            ]\n    ';
+var _terezka$elm_plot$PlotArea$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ area\n                [ Area.stroke skinStroke\n                , Area.fill skinFill\n                ]\n                data1\n            , area\n                [ Area.stroke blueStroke\n                , Area.fill blueFill\n                ]\n                data2\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tick [ Tick.delta 10 ]\n                ]\n            ]\n    ';
 var _terezka$elm_plot$PlotArea$data2 = {
 	ctor: '::',
 	_0: {ctor: '_Tuple2', _0: 0, _1: 10},
@@ -13497,7 +13497,7 @@ var _terezka$elm_plot$PlotArea$plotExample = {
 	fileName: _terezka$elm_plot$PlotArea$fileName
 };
 
-var _terezka$elm_plot$PlotGrid$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size Common.plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ verticalGrid\n                [ Grid.lines\n                    [ Line.stroke Common.axisColorLight ]\n                ]\n            , horizontalGrid\n                [ Grid.lines\n                    [ Line.stroke Common.axisColorLight ]\n                , Grid.values [ 4, 8, 12 ]\n                ]\n            , xAxis\n                [ Axis.line [ Line.stroke Common.axisColor ]\n                , Axis.tick [ Tick.delta 0.5 ]\n                ]\n            , line\n                [ Line.stroke Common.blueStroke\n                , Line.strokeWidth 2\n                ]\n                data\n            ]\n    ';
+var _terezka$elm_plot$PlotGrid$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ verticalGrid\n                [ Grid.lines\n                    [ Line.stroke axisColorLight ]\n                ]\n            , horizontalGrid\n                [ Grid.lines\n                    [ Line.stroke axisColorLight ]\n                , Grid.values [ 4, 8, 12 ]\n                ]\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tick [ Tick.delta 0.5 ]\n                ]\n            , line\n                [ Line.stroke blueStroke\n                , Line.strokeWidth 2\n                ]\n                data\n            ]\n    ';
 var _terezka$elm_plot$PlotGrid$data = {
 	ctor: '::',
 	_0: {ctor: '_Tuple2', _0: 0, _1: 8},
@@ -13616,7 +13616,7 @@ var _terezka$elm_plot$PlotGrid$plotExample = {
 	fileName: _terezka$elm_plot$PlotGrid$fileName
 };
 
-var _terezka$elm_plot$PlotTicks$code = '\n    isOdd : Int -> Bool\n    isOdd n =\n        rem n 2 > 0\n\n\n    toTickStyle : ( Int, Float ) -> List (Tick.StyleAttribute msg)\n    toTickStyle ( index, tick ) =\n        if isOdd index then\n            [ Tick.length 7\n            , Tick.stroke \"#e4e3e3\"\n            ]\n        else\n            [ Tick.length 10\n            , Tick.stroke \"#b9b9b9\"\n            ]\n\n\n    toLabelStyle : ( Int, Float ) -> List (Label.StyleAttribute msg)\n    toLabelStyle ( index, tick ) =\n        if isOdd index then\n            [ Label.format (always \"\") ]\n        else\n            [ Label.format (\\( _, v ) -> toString v ++ \" s\")\n            , Label.stroke \"#969696\"\n            ]\n\n\n    view : Svg.Svg a\n    view =\n        plot\n            [ size Common.plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ line\n                [ Line.stroke Common.pinkStroke\n                , Line.strokeWidth 2\n                ]\n                data\n            , xAxis\n                [ Axis.line [ Line.stroke Common.axisColor ]\n                , Axis.tick [ Tick.viewDynamic toTickStyle ]\n                , Axis.label [ Label.viewDynamic toLabelStyle ]\n                ]\n            ]\n    ';
+var _terezka$elm_plot$PlotTicks$code = '\n    isOdd : Int -> Bool\n    isOdd n =\n        rem n 2 > 0\n\n\n    toTickStyle : ( Int, Float ) -> List (Tick.StyleAttribute msg)\n    toTickStyle ( index, tick ) =\n        if isOdd index then\n            [ Tick.length 7\n            , Tick.stroke \"#e4e3e3\"\n            ]\n        else\n            [ Tick.length 10\n            , Tick.stroke \"#b9b9b9\"\n            ]\n\n\n    toLabelStyle : ( Int, Float ) -> List (Label.StyleAttribute msg)\n    toLabelStyle ( index, tick ) =\n        if isOdd index then\n            [ Label.format (always \"\") ]\n        else\n            [ Label.format (\\( _, v ) -> toString v ++ \" s\")\n            , Label.stroke \"#969696\"\n            ]\n\n\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ line\n                [ Line.stroke pinkStroke\n                , Line.strokeWidth 2\n                ]\n                data\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tick [ Tick.viewDynamic toTickStyle ]\n                , Axis.label [ Label.viewDynamic toLabelStyle ]\n                ]\n            ]\n    ';
 var _terezka$elm_plot$PlotTicks$isOdd = function (n) {
 	return _elm_lang$core$Native_Utils.cmp(
 		A2(_elm_lang$core$Basics$rem, n, 2),
@@ -13780,7 +13780,7 @@ var _terezka$elm_plot$PlotTicks$plotExample = {
 	fileName: _terezka$elm_plot$PlotTicks$fileName
 };
 
-var _terezka$elm_plot$PlotBars$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size Common.plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ pile\n                [ Pile.maxBarWidthPer 85 ]\n                [ Pile.bars\n                    [ Bars.fill Common.blueFill ]\n                    data1\n                , Pile.bars\n                    [ Bars.fill Common.skinFill ]\n                    data2\n                , Pile.bars\n                    [ Bars.fill Common.pinkFill ]\n                    data3\n                ]\n            , xAxis\n                [ Axis.line [ Line.stroke Common.axisColor ]\n                , Axis.tick [ Tick.delta 1 ]\n                , Axis.label\n                    [ Label.view\n                        [ Label.format formatter\n                        , Label.stroke \"#969696\"\n                        ]\n                    ]\n                ]\n            ]\n    ';
+var _terezka$elm_plot$PlotBars$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ pile\n                [ Pile.maxBarWidthPer 85 ]\n                [ Pile.bars\n                    [ Bars.fill blueFill ]\n                    data1\n                , Pile.bars\n                    [ Bars.fill skinFill ]\n                    data2\n                , Pile.bars\n                    [ Bars.fill pinkFill ]\n                    data3\n                ]\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tick [ Tick.delta 1 ]\n                , Axis.label\n                    [ Label.view\n                        [ Label.format formatter\n                        , Label.stroke \"#969696\"\n                        ]\n                    ]\n                ]\n            ]\n    ';
 var _terezka$elm_plot$PlotBars$labels = {
 	ctor: '::',
 	_0: {ctor: '_Tuple2', _0: 0, _1: 'A'},
@@ -13941,7 +13941,7 @@ var _terezka$elm_plot$PlotBars$plotExample = {
 	fileName: _terezka$elm_plot$PlotBars$fileName
 };
 
-var _terezka$elm_plot$PlotSticky$code = '\n    isOdd : Int -> Bool\n    isOdd n =\n        rem n 2 > 0\n\n\n    toTickAttrs : ( Int, Float ) -> List (Tick.StyleAttribute msg)\n    toTickAttrs ( index, tick ) =\n        [ Tick.length 7\n        , Tick.stroke \"#e4e3e3\"\n        ]\n\n\n    toLabelAttrs : ( Int, Float ) -> List (Label.StyleAttribute msg)\n    toLabelAttrs ( index, tick ) =\n        [ Label.format (\\( _, v ) -> toString v ++ \" ms\") ]\n\n\n    toLabelAttrsY1 : ( Int, Float ) -> List (Label.StyleAttribute msg)\n    toLabelAttrsY1 ( index, tick ) =\n        if not <| isOdd index then\n            [ Label.format (always \"\") ]\n        else\n            [ Label.format (\\( _, v ) -> toString (v * 10) ++ \" x\")\n            , Label.displace ( -5, 0 )\n            ]\n\n\n    toLabelAttrsY2 : ( Int, Float ) -> List (Label.StyleAttribute msg)\n    toLabelAttrsY2 ( index, tick ) =\n        if isOdd index then\n            [ Label.format (always \"\") ]\n        else\n            [ Label.format (\\( _, v ) -> toString (v / 5) ++ \"k\") ]\n\n\n    view : Svg.Svg a\n    view =\n        plot\n            [ size Common.plotSize\n            , margin ( 10, 20, 40, 20 )\n            , padding ( 0, 20 )\n            , domainLowest (always -21)\n            ]\n            [ line\n                [ Line.stroke Common.pinkStroke\n                , Line.strokeWidth 2\n                ]\n                data\n            , xAxis\n                [ Axis.tick\n                    [ Tick.viewDynamic toTickAttrs\n                    , Tick.values [ 3, 6 ]\n                    ]\n                , Axis.label [ Label.viewDynamic toLabelAttrs ]\n                , Axis.cleanCrossings\n                ]\n            , yAxis\n                [ Axis.positionHighest\n                , Axis.cleanCrossings\n                , Axis.tick [ Tick.viewDynamic toTickAttrs ]\n                , Axis.label [ Label.viewDynamic toLabelAttrsY1 ]\n                ]\n            , yAxis\n                [ Axis.positionLowest\n                , Axis.cleanCrossings\n                , Axis.anchorInside\n                , Axis.label [ Label.viewDynamic toLabelAttrsY2 ]\n                ]\n            ]\n    ';
+var _terezka$elm_plot$PlotSticky$code = '\n    isOdd : Int -> Bool\n    isOdd n =\n        rem n 2 > 0\n\n\n    toTickAttrs : ( Int, Float ) -> List (Tick.StyleAttribute msg)\n    toTickAttrs ( index, tick ) =\n        [ Tick.length 7\n        , Tick.stroke \"#e4e3e3\"\n        ]\n\n\n    toLabelAttrs : ( Int, Float ) -> List (Label.StyleAttribute msg)\n    toLabelAttrs ( index, tick ) =\n        [ Label.format (\\( _, v ) -> toString v ++ \" ms\") ]\n\n\n    toLabelAttrsY1 : ( Int, Float ) -> List (Label.StyleAttribute msg)\n    toLabelAttrsY1 ( index, tick ) =\n        if not <| isOdd index then\n            [ Label.format (always \"\") ]\n        else\n            [ Label.format (\\( _, v ) -> toString (v * 10) ++ \" x\")\n            , Label.displace ( -5, 0 )\n            ]\n\n\n    toLabelAttrsY2 : ( Int, Float ) -> List (Label.StyleAttribute msg)\n    toLabelAttrsY2 ( index, tick ) =\n        if isOdd index then\n            [ Label.format (always \"\") ]\n        else\n            [ Label.format (\\( _, v ) -> toString (v / 5) ++ \"k\") ]\n\n\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            , padding ( 0, 20 )\n            , domainLowest (always -21)\n            ]\n            [ line\n                [ Line.stroke pinkStroke\n                , Line.strokeWidth 2\n                ]\n                data\n            , xAxis\n                [ Axis.tick\n                    [ Tick.viewDynamic toTickAttrs\n                    , Tick.values [ 3, 6 ]\n                    ]\n                , Axis.label [ Label.viewDynamic toLabelAttrs ]\n                , Axis.cleanCrossings\n                ]\n            , yAxis\n                [ Axis.positionHighest\n                , Axis.cleanCrossings\n                , Axis.tick [ Tick.viewDynamic toTickAttrs ]\n                , Axis.label [ Label.viewDynamic toLabelAttrsY1 ]\n                ]\n            , yAxis\n                [ Axis.positionLowest\n                , Axis.cleanCrossings\n                , Axis.anchorInside\n                , Axis.label [ Label.viewDynamic toLabelAttrsY2 ]\n                ]\n            ]\n    ';
 var _terezka$elm_plot$PlotSticky$toLabelAttrs = function (_p0) {
 	var _p1 = _p0;
 	return {
@@ -14208,7 +14208,7 @@ var _terezka$elm_plot$PlotSticky$plotExample = {
 	fileName: _terezka$elm_plot$PlotSticky$fileName
 };
 
-var _terezka$elm_plot$PlotHint$code = '\n    view : State -> Svg.Svg (Interaction msg)\n    view state =\n        plotInteractive\n            [ size Common.plotSize\n            , margin ( 10, 20, 40, 20 )\n            , id \"PlotHint\"\n            ]\n            [ line\n                [ Line.stroke Common.blueStroke\n                , Line.strokeWidth 2\n                ]\n                data1\n            , line\n                [ Line.stroke Common.pinkStroke\n                , Line.strokeWidth 2\n                ]\n                data2\n            , xAxis\n                [ Axis.line\n                    [ Line.stroke Common.axisColor ]\n                , Axis.tick\n                    [ Tick.delta 1 ]\n                ]\n            , hint\n                [ Hint.lineStyle [ ( \"background\", \"#b9b9b9\" ) ] ]\n                (getHoveredValue state)\n            ]\n    ';
+var _terezka$elm_plot$PlotHint$code = '\n    view : State -> Svg.Svg (Interaction msg)\n    view state =\n        plotInteractive\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            , id \"PlotHint\"\n            ]\n            [ line\n                [ Line.stroke blueStroke\n                , Line.strokeWidth 2\n                ]\n                data1\n            , line\n                [ Line.stroke pinkStroke\n                , Line.strokeWidth 2\n                ]\n                data2\n            , xAxis\n                [ Axis.line\n                    [ Line.stroke axisColor ]\n                , Axis.tick\n                    [ Tick.delta 1 ]\n                ]\n            , hint\n                [ Hint.lineStyle [ ( \"background\", \"#b9b9b9\" ) ] ]\n                (getHoveredValue state)\n            ]\n    ';
 var _terezka$elm_plot$PlotHint$data2 = {
 	ctor: '::',
 	_0: {ctor: '_Tuple2', _0: 0, _1: 0},
@@ -14386,35 +14386,6 @@ var _terezka$elm_plot$Docs$isCodeOpen = F2(
 			return false;
 		}
 	});
-var _terezka$elm_plot$Docs$viewHeading = F3(
-	function (model, title, name) {
-		var isOpen = A2(_terezka$elm_plot$Docs$isCodeOpen, model, title);
-		var codeStyle = _terezka$elm_plot$Docs$getCodeStyle(isOpen);
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$style(
-					{
-						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 'margin', _1: '100px auto 10px'},
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(title),
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			});
-	});
 var _terezka$elm_plot$Docs$viewCode = F3(
 	function (model, id, codeString) {
 		var isOpen = A2(_terezka$elm_plot$Docs$isCodeOpen, model, id);
@@ -14573,6 +14544,67 @@ var _terezka$elm_plot$Docs$viewExampleInner = F2(
 			return _p11._0;
 		}
 	});
+var _terezka$elm_plot$Docs$Toggle = function (a) {
+	return {ctor: 'Toggle', _0: a};
+};
+var _terezka$elm_plot$Docs$getOnClickMsg = F2(
+	function (isOpen, title) {
+		return isOpen ? _terezka$elm_plot$Docs$Toggle(_elm_lang$core$Maybe$Nothing) : _terezka$elm_plot$Docs$Toggle(
+			_elm_lang$core$Maybe$Just(title));
+	});
+var _terezka$elm_plot$Docs$viewToggler = F2(
+	function (isOpen, title) {
+		return A2(
+			_elm_lang$html$Html$p,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('view-heading__code-open'),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Events$onClick(
+						A2(_terezka$elm_plot$Docs$getOnClickMsg, isOpen, title)),
+					_1: {ctor: '[]'}
+				}
+			},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('View source snippet'),
+				_1: {ctor: '[]'}
+			});
+	});
+var _terezka$elm_plot$Docs$viewHeading = F3(
+	function (model, title, name) {
+		var isOpen = A2(_terezka$elm_plot$Docs$isCodeOpen, model, title);
+		var codeStyle = _terezka$elm_plot$Docs$getCodeStyle(isOpen);
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$style(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'margin', _1: '100px auto 10px'},
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(title),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(_terezka$elm_plot$Docs$viewToggler, isOpen, title),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
 var _terezka$elm_plot$Docs$viewExample = F2(
 	function (_p14, _p13) {
 		var _p15 = _p14;
@@ -14591,10 +14623,10 @@ var _terezka$elm_plot$Docs$viewExample = F2(
 				_0: A3(_terezka$elm_plot$Docs$viewHeading, _p18, _p17, _p16.fileName),
 				_1: {
 					ctor: '::',
-					_0: A2(_terezka$elm_plot$Docs$viewExampleInner, _p15.plotStates, _p16.view),
+					_0: A3(_terezka$elm_plot$Docs$viewCode, _p18, _p17, _p16.code),
 					_1: {
 						ctor: '::',
-						_0: A3(_terezka$elm_plot$Docs$viewCode, _p18, _p17, _p16.code),
+						_0: A2(_terezka$elm_plot$Docs$viewExampleInner, _p15.plotStates, _p16.view),
 						_1: {ctor: '[]'}
 					}
 				}
@@ -14739,34 +14771,6 @@ var _terezka$elm_plot$Docs$main = _elm_lang$html$Html$program(
 		subscriptions: _elm_lang$core$Basics$always(_elm_lang$core$Platform_Sub$none),
 		view: _terezka$elm_plot$Docs$view
 	})();
-var _terezka$elm_plot$Docs$Toggle = function (a) {
-	return {ctor: 'Toggle', _0: a};
-};
-var _terezka$elm_plot$Docs$getOnClickMsg = F2(
-	function (isOpen, title) {
-		return isOpen ? _terezka$elm_plot$Docs$Toggle(_elm_lang$core$Maybe$Nothing) : _terezka$elm_plot$Docs$Toggle(
-			_elm_lang$core$Maybe$Just(title));
-	});
-var _terezka$elm_plot$Docs$viewToggler = F2(
-	function (isOpen, title) {
-		return A2(
-			_elm_lang$html$Html$p,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('view-heading__code-open'),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$html$Html_Events$onClick(
-						A2(_terezka$elm_plot$Docs$getOnClickMsg, isOpen, title)),
-					_1: {ctor: '[]'}
-				}
-			},
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html$text('View source snippet'),
-				_1: {ctor: '[]'}
-			});
-	});
 
 var Elm = {};
 Elm['Docs'] = Elm['Docs'] || {};

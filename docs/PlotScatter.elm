@@ -36,18 +36,18 @@ data =
 view : Svg.Svg a
 view =
     plot
-        [ size Common.plotSize
+        [ size plotSize
         , margin ( 10, 20, 40, 40 )
         ]
         [ scatter
-            [ Scatter.stroke Common.pinkStroke
-            , Scatter.fill Common.pinkFill
+            [ Scatter.stroke pinkStroke
+            , Scatter.fill pinkFill
             , Scatter.radius 8
             ]
             data
         , xAxis
             [ Axis.line
-                [ Line.stroke Common.axisColor ]
+                [ Line.stroke axisColor ]
             , Axis.tick
                 [ Tick.delta 2 ]
             ]
@@ -60,18 +60,18 @@ code =
     view : Svg.Svg a
     view =
         plot
-            [ size Common.plotSize
+            [ size plotSize
             , margin ( 10, 20, 40, 40 )
             ]
             [ scatter
-                [ Scatter.stroke Common.pinkStroke
-                , Scatter.fill Common.pinkFill
+                [ Scatter.stroke pinkStroke
+                , Scatter.fill pinkFill
                 , Scatter.radius 8
                 ]
                 data
             , xAxis
                 [ Axis.line
-                    [ Line.stroke Common.axisColor ]
+                    [ Line.stroke axisColor ]
                 , Axis.tick
                     [ Tick.delta 2 ]
                 ]

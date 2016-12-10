@@ -164,7 +164,7 @@ viewHeading model title name =
     in
         div [ style [ ( "margin", "100px auto 10px" ) ] ]
             [ div [] [ text title ]
-              --, viewToggler isOpen title
+            , viewToggler isOpen title
             ]
 
 
@@ -207,8 +207,8 @@ viewExample ({ plotStates } as model) { title, fileName, view, code } =
     Html.div
         [ class "view-plot" ]
         [ viewHeading model title fileName
-        , viewExampleInner plotStates view
         , viewCode model title code
+        , viewExampleInner plotStates view
         ]
 
 
