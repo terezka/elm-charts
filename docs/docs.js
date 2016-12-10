@@ -12638,7 +12638,7 @@ var _terezka$elm_plot$Common$blueStroke = '#cfd8ea';
 var _terezka$elm_plot$Common$blueFill = '#e4eeff';
 var _terezka$elm_plot$Common$axisColorLight = '#e4e4e4';
 var _terezka$elm_plot$Common$axisColor = '#949494';
-var _terezka$elm_plot$Common$plotSize = {ctor: '_Tuple2', _0: 500, _1: 300};
+var _terezka$elm_plot$Common$plotSize = {ctor: '_Tuple2', _0: 600, _1: 300};
 var _terezka$elm_plot$Common$PlotExample = F4(
 	function (a, b, c, d) {
 		return {title: a, fileName: b, view: c, code: d};
