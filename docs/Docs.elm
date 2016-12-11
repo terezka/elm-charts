@@ -161,15 +161,6 @@ viewToggler id =
         [ text "View source snippet" ]
 
 
-viewLink : String -> Html.Html Msg
-viewLink name =
-    a
-        [ class "view-heading__code__link"
-        , href (toUrl name)
-        ]
-        [ text "See full source" ]
-
-
 viewExampleInner : Model -> ViewPlot Msg -> Html.Html Msg
 viewExampleInner { plotStates } view =
     case view of
@@ -184,11 +175,25 @@ viewExampleInner { plotStates } view =
 
 viewCode : Model -> PlotExample msg -> Html Msg
 viewCode model { id, code } =
-    div [ style (getVisibility model id) ]
-        [ Html.code
-            [ class "elm view-code" ]
-            [ pre [] [ text code ] ]
+    div
+        [ style (getVisibility model id)
+        , class "view-code"
         ]
+        [ Html.code
+            [ class "elm view-code__inner" ]
+            [ pre [] [ text code ]
+            ]
+        , viewLink id
+        ]
+
+
+viewLink : String -> Html.Html Msg
+viewLink id =
+    a
+        [ class "view-code__link"
+        , href (toUrl id)
+        ]
+        [ text "See full source" ]
 
 
 viewFooter : Html msg

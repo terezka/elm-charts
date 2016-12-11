@@ -39,7 +39,17 @@ a {
 	cursor: pointer;
 }
 
-.view-heading__code__link {
+.view-code {
+	position: relative;
+}
+
+.view-code__inner {
+	text-align: left;
+	margin: 30px auto;
+	max-height: 400px;
+}
+
+.view-code__link {
 	color: #9ea0a2;
 	font-size: 12px;
 	position: absolute;
@@ -47,12 +57,6 @@ a {
 	bottom: 0;
 	right: 0;
 	cursor: pointer;
-}
-
-.view-code {
-	text-align: left;
-	margin: 30px auto;
-	max-height: 400px;
 }
 
 .view-plot {
