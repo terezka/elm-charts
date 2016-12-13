@@ -14,21 +14,21 @@ Currently, this library can draw line and area series, grids, axis' with easily 
 
 ```elm
     main =
-	plot
-		[ size plotSize
-		, margin ( 10, 20, 40, 20 )
-		]
-		[ line
-		    [ Line.stroke pinkStroke
-		    , Line.strokeWidth 2
-		    ]
-		    data
-		, xAxis
-		    [ Axis.line [ Line.stroke axisColor ]
-		    , Axis.tick [ Tick.viewDynamic toTickStyle ]
-		    , Axis.label [ Label.viewDynamic toLabelStyle ]
-		    ]
-		]
+		plot
+			[ size plotSize
+			, margin ( 10, 20, 40, 20 )
+			]
+			[ line
+			    [ Line.stroke pinkStroke
+			    , Line.strokeWidth 2
+			    ]
+			    data
+			, xAxis
+			    [ Axis.line [ Line.stroke axisColor ]
+			    , Axis.tick [ Tick.viewDynamic toTickStyle ]
+			    , Axis.label [ Label.viewDynamic toLabelStyle ]
+			    ]
+			]
 ```
 
 ### You need something?
