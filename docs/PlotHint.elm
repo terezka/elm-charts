@@ -43,7 +43,6 @@ view state =
     plotInteractive
         [ size plotSize
         , margin ( 10, 20, 40, 20 )
-        , Plot.id "PlotHint"
         ]
         [ line
             [ Line.stroke blueStroke
@@ -75,7 +74,6 @@ code =
         plotInteractive
             [ size plotSize
             , margin ( 10, 20, 40, 20 )
-            , id "PlotHint"
             ]
             [ line
                 [ Line.stroke blueStroke

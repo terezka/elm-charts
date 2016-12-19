@@ -3,14 +3,13 @@ module Interactive exposing (..)
 import Svg
 import Svg.Events
 import Svg.Attributes
-import Html exposing (h1, p, text)
+import Html exposing (h1, p, text, div, node)
 import Html.Attributes
 import Plot exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Label as Label
-import Plot.Hint as Hint
 
 
 -- MODEL
@@ -38,20 +37,20 @@ type Msg
     | PlotInteraction (Plot.Interaction Msg)
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         YourClick ->
-            ( { model | yourState = model.yourState + 1 }, Cmd.none )
+            { model | yourState = model.yourState + 1 }
 
         PlotInteraction interaction ->
             case interaction of
                 Internal internalMsg ->
                     let
-                        ( state, cmd ) =
+                        state =
                             Plot.update internalMsg model.plotState
                     in
-                        ( { model | plotState = state }, Cmd.map PlotInteraction cmd )
+                        { model | plotState = state }
 
                 Custom yourMsg ->
                     update yourMsg model
@@ -84,45 +83,45 @@ view model =
 
 viewPlot : Plot.State -> Svg.Svg (Interaction Msg)
 viewPlot state =
-    plotInteractive
-        [ size ( 600, 300 )
-        , margin ( 100, 100, 40, 100 )
-        , id "PlotHint"
-        , style [ ( "position", "relative" ) ]
-        ]
-        [ line
-            [ Line.stroke "blue"
-            , Line.strokeWidth 2
+    div
+        []
+        [ node "style" [] [ text ".elm-plot__hint { pointer-events: none; }" ]
+        , plotInteractive
+            [ size ( 600, 300 )
+            , margin ( 100, 100, 40, 100 )
+            , id "PlotHint"
+            , style [ ( "position", "relative" ) ]
             ]
-            data1
-        , line
-            [ Line.stroke "red"
-            , Line.strokeWidth 2
-            ]
-            data2
-        , xAxis
-            [ Axis.line
-                [ Line.stroke "grey" ]
-            , Axis.tick
-                [ Tick.delta 1 ]
-            , Axis.label
-                [ Label.view
-                    [ Label.format (always "Click!")
-                    , Label.customAttrs
-                        [ Svg.Events.onClick (Custom YourClick)
-                        , Svg.Attributes.style "cursor: pointer;"
+            [ line
+                [ Line.stroke "blue"
+                , Line.strokeWidth 2
+                ]
+                data1
+            , line
+                [ Line.stroke "red"
+                , Line.strokeWidth 2
+                ]
+                data2
+            , xAxis
+                [ Axis.line
+                    [ Line.stroke "grey" ]
+                , Axis.tick
+                    [ Tick.delta 1 ]
+                , Axis.label
+                    [ Label.view
+                        [ Label.format (always "Click!")
+                        , Label.customAttrs
+                            [ Svg.Events.onClick (Custom YourClick)
+                            , Svg.Attributes.style "cursor: pointer;"
+                            ]
                         ]
                     ]
                 ]
+            , hint [] (getHoveredValue state)
             ]
-        , hint [] (getHoveredValue state)
         ]
 
 
+main : Program Never Model Msg
 main =
-    Html.program
-        { init = ( initialModel, Cmd.none )
-        , update = update
-        , subscriptions = (always Sub.none)
-        , view = view
-        }
+    Html.beginnerProgram { model = initialModel, update = update, view = view }

@@ -33,6 +33,12 @@ initialModel =
     }
 
 
+getPlotState : Id -> Dict Id Plot.State -> Plot.State
+getPlotState id plotStates =
+    get id plotStates
+        |> Maybe.withDefault Plot.initialState
+
+
 
 -- UPDATE
 
@@ -55,12 +61,10 @@ update msg ({ plotStates, focused } as model) =
                         plotState =
                             getPlotState id plotStates
 
-                        ( newState, cmd ) =
+                        newState =
                             Plot.update internalMsg plotState
                     in
-                        ( { model | plotStates = setPlotState id newState plotStates }
-                        , Cmd.map (PlotInteraction id) cmd
-                        )
+                        ( { model | plotStates = setPlotState id newState plotStates }, Cmd.none )
 
                 Custom customMsg ->
                     update customMsg model
@@ -77,12 +81,6 @@ updateFocused newId model =
                 Nothing
             else
                 Just newId
-
-
-getPlotState : Id -> Dict Id Plot.State -> Plot.State
-getPlotState id plotStates =
-    get id plotStates
-        |> Maybe.withDefault Plot.initialState
 
 
 setPlotState : Id -> Plot.State -> Dict Id Plot.State -> Dict Id Plot.State

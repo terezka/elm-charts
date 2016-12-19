@@ -66,10 +66,8 @@ import Html.Events
 import Svg exposing (Svg)
 import Svg.Attributes
 import Svg.Lazy
-import Task
 import Json.Decode as Json
-import Dom
-import Dom.Position
+import DOM
 import Plot.Axis as Axis
 import Plot.Grid as Grid
 import Plot.Area as Area
@@ -302,11 +300,7 @@ pile attrs barsConfigs =
 
 {-| Adds a hint to your plot. See [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
 
- **Note:** If you have more than one plot in your DOM,
- then you most provide a unique id using the `id` attribute for
- the hint to work!
-
- Also remember to use `plotInteractive`.
+ Remember to use `plotInteractive` for the events to be processed!.
 -}
 hint : List (Hint.Attribute msg) -> Maybe Point -> Element msg
 hint attrs position =
@@ -355,18 +349,13 @@ type State
 
 
 type alias StateInner =
-    { position : Maybe ( Float, Float )
-    , waiting : Bool
-    }
+    { position : Maybe ( Float, Float ) }
 
 
 {-| -}
 initialState : State
 initialState =
-    State
-        { position = Nothing
-        , waiting = True
-        }
+    State { position = Nothing }
 
 
 
@@ -380,31 +369,22 @@ type Interaction msg
 
 
 type Msg
-    = Hovering Meta ( Float, Float )
-    | ReceivePosition (Result Dom.Error Point)
+    = Hovering ( Float, Float )
     | ResetPosition
 
 
 {-| -}
-update : Msg -> State -> ( State, Cmd (Interaction msg) )
+update : Msg -> State -> State
 update msg (State state) =
     case msg of
-        Hovering meta eventPosition ->
-            ( State { state | waiting = True }, cmdPosition meta eventPosition )
-
-        ReceivePosition result ->
-            case result of
-                Ok position ->
-                    if shouldPositionUpdate state position then
-                        ( State { state | position = Just position }, Cmd.none )
-                    else
-                        ( State state, Cmd.none )
-
-                Err err ->
-                    ( State state, Cmd.none )
+        Hovering position ->
+            if shouldPositionUpdate state position then
+                State { state | position = Just position }
+            else
+                State state
 
         ResetPosition ->
-            ( State { position = Nothing, waiting = False }, Cmd.none )
+            State { position = Nothing }
 
 
 {-| Get the hovered position from state.
@@ -415,32 +395,49 @@ getHoveredValue (State { position }) =
 
 
 shouldPositionUpdate : StateInner -> ( Float, Float ) -> Bool
-shouldPositionUpdate { waiting, position } ( left, top ) =
+shouldPositionUpdate { position } ( left, top ) =
     case position of
         Nothing ->
-            waiting && True
+            True
 
         Just ( leftOld, topOld ) ->
-            waiting && topOld /= top || leftOld /= left
+            topOld /= top || leftOld /= left
 
 
-cmdPosition : Meta -> ( Float, Float ) -> Cmd (Interaction msg)
-cmdPosition meta eventPosition =
-    Task.map2
-        (getRelativePosition meta eventPosition)
-        (Dom.Position.left meta.id)
-        (Dom.Position.top meta.id)
-        |> Task.attempt ReceivePosition
-        |> Cmd.map Internal
-
-
-getRelativePosition : Meta -> ( Float, Float ) -> Float -> Float -> Point
-getRelativePosition { fromSvgCoords, toNearestX } ( mouseX, mouseY ) left top =
+getRelativePosition : Meta -> ( Float, Float ) -> ( Float, Float ) -> Point
+getRelativePosition { fromSvgCoords, toNearestX } ( mouseX, mouseY ) ( left, top ) =
     let
         ( x, y ) =
             fromSvgCoords ( mouseX - left, mouseY - top )
     in
         ( toNearestX x, y )
+
+
+handleMouseOver : Meta -> Json.Decoder (Interaction msg)
+handleMouseOver meta =
+    Json.map3
+        (\x y p -> Internal <| Hovering <| getRelativePosition meta ( x, y ) p)
+        (Json.field "clientX" Json.float)
+        (Json.field "clientY" Json.float)
+        (DOM.target getPlotPosition)
+
+
+getPlotPosition : Json.Decoder ( Float, Float )
+getPlotPosition =
+    Json.oneOf
+        [ getPosition
+        , Json.lazy (\_ -> getParentPosition)
+        ]
+
+
+getPosition : Json.Decoder ( Float, Float )
+getPosition =
+    Json.map (\{ left, top } -> ( left, top )) DOM.boundingClientRect
+
+
+getParentPosition : Json.Decoder ( Float, Float )
+getParentPosition =
+    DOM.parentElement getPlotPosition
 
 
 
@@ -489,7 +486,7 @@ plotAttributes { size, id, style } =
 
 plotAttributesInteraction : Meta -> List (Html.Attribute (Interaction msg))
 plotAttributesInteraction meta =
-    [ Html.Events.on "mousemove" (getMousePosition meta)
+    [ Html.Events.on "mousemove" (handleMouseOver meta)
     , Html.Events.onMouseLeave (Internal ResetPosition)
     ]
 
@@ -502,14 +499,6 @@ viewSvg { x, y } views =
         , Svg.Attributes.class "elm-plot__inner"
         ]
         views
-
-
-getMousePosition : Meta -> Json.Decoder (Interaction msg)
-getMousePosition meta =
-    Json.map2
-        (\x y -> Internal <| Hovering meta ( x, y ))
-        (Json.field "clientX" Json.float)
-        (Json.field "clientY" Json.float)
 
 
 sizeStyle : Oriented Float -> Style

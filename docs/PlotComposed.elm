@@ -65,7 +65,6 @@ view state =
         [ size ( 800, 400 )
         , padding ( 40, 40 )
         , margin ( 15, 20, 40, 15 )
-        , Plot.id "PlotComposed"
         ]
         [ horizontalGrid
             [ Grid.lines [ Line.stroke "#f2f2f2" ] ]
