@@ -21,6 +21,9 @@ module Plot.Bars exposing (..)
 # Styling
 @docs opacity, fill
 
+# Label
+@docs label
+
 # Other
 @docs customAttrs
 
@@ -28,7 +31,6 @@ module Plot.Bars exposing (..)
 
 import Svg
 import Internal.Bars as Internal
-import Internal.Types exposing (Style)
 
 
 {-| -}
@@ -48,6 +50,20 @@ fill fill config =
 opacity : Float -> Attribute a
 opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
+
+
+{-| Use your own view for your label on top of bar. Will be passed the y value as an argument!
+
+    myBarSeries : Pile.Element msg
+    myBarSeries =
+      Pile.bars
+          [ Bars.label (\_ -> Svg.text_ [] [ Svg.text "my bar" ])
+          ]
+          data
+-}
+label : (Float -> Svg.Svg a) -> Attribute a
+label view config =
+    { config | labelView = view }
 
 
 {-| Add your own attributes. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)

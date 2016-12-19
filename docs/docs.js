@@ -10784,62 +10784,95 @@ var _terezka$elm_plot$Internal_Bars$toBarWidth = F4(
 				_elm_lang$core$Basics$toFloat(_p9)) > 0) ? _elm_lang$core$Basics$toFloat(_p9) : widthAuto;
 		}
 	});
-var _terezka$elm_plot$Internal_Bars$toBar = F5(
-	function (pileMeta, index, width, originY, _p10) {
-		var _p11 = _p10;
-		var _p12 = _p11._1;
-		return A2(
-			_elm_lang$svg$Svg$rect,
-			{
-				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$x(
-					_elm_lang$core$Basics$toString(
-						_p11._0 + A3(_terezka$elm_plot$Internal_Bars$barOffset, pileMeta, index, width))),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$y(
-						_elm_lang$core$Basics$toString(
-							A2(_elm_lang$core$Basics$min, originY, _p12))),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$width(
-							_elm_lang$core$Basics$toString(width)),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$height(
-								_elm_lang$core$Basics$toString(
-									_elm_lang$core$Basics$abs(originY - _p12))),
-							_1: {ctor: '[]'}
-						}
-					}
-				}
-			},
-			{ctor: '[]'});
-	});
-var _terezka$elm_plot$Internal_Bars$view = F6(
-	function (_p14, pileMeta, maxWidth, index, _p13, points) {
-		var _p15 = _p14;
-		var _p18 = _p15.toSvgCoords;
-		var _p16 = _p13;
-		var width = A4(_terezka$elm_plot$Internal_Bars$toBarWidth, _p15, pileMeta, maxWidth, points);
-		var _p17 = _p18(
-			{ctor: '_Tuple2', _0: 0, _1: 0});
-		var originY = _p17._1;
-		var svgPoints = A2(_elm_lang$core$List$map, _p18, points);
+var _terezka$elm_plot$Internal_Bars$viewBar = F6(
+	function (pileMeta, index, _p11, width, originY, _p10) {
+		var _p12 = _p11;
+		var _p13 = _p10;
+		var _p14 = _p13._1;
+		var yPos = A2(_elm_lang$core$Basics$min, originY, _p14);
+		var xPos = _p13._0 + A3(_terezka$elm_plot$Internal_Bars$barOffset, pileMeta, index, width);
 		return A2(
 			_elm_lang$svg$Svg$g,
+			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$style(
-					_terezka$elm_plot$Internal_Draw$toStyle(_p16.style)),
-				_1: {ctor: '[]'}
-			},
+				_0: A2(
+					_elm_lang$svg$Svg$g,
+					{
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$transform(
+							_terezka$elm_plot$Internal_Draw$toTranslate(
+								{ctor: '_Tuple2', _0: xPos + (width / 2), _1: yPos - 5})),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$style('text-anchor: middle;'),
+							_1: {ctor: '[]'}
+						}
+					},
+					{
+						ctor: '::',
+						_0: _p12.labelView(_p14),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$svg$Svg$rect,
+						{
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$x(
+								_elm_lang$core$Basics$toString(xPos)),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Attributes$y(
+									_elm_lang$core$Basics$toString(yPos)),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$width(
+										_elm_lang$core$Basics$toString(width)),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$svg$Svg_Attributes$height(
+											_elm_lang$core$Basics$toString(
+												_elm_lang$core$Basics$abs(originY) - _p14)),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$svg$Svg_Attributes$style(
+												_terezka$elm_plot$Internal_Draw$toStyle(_p12.style)),
+											_1: {ctor: '[]'}
+										}
+									}
+								}
+							}
+						},
+						{ctor: '[]'}),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
+var _terezka$elm_plot$Internal_Bars$defaultLabelView = function (_p15) {
+	return _elm_lang$svg$Svg$text('');
+};
+var _terezka$elm_plot$Internal_Bars$view = F6(
+	function (_p17, pileMeta, maxWidth, index, _p16, points) {
+		var _p18 = _p17;
+		var _p21 = _p18.toSvgCoords;
+		var _p19 = _p16;
+		var width = A4(_terezka$elm_plot$Internal_Bars$toBarWidth, _p18, pileMeta, maxWidth, points);
+		var _p20 = _p21(
+			{ctor: '_Tuple2', _0: 0, _1: 0});
+		var originY = _p20._1;
+		var svgPoints = A2(_elm_lang$core$List$map, _p21, points);
+		return A2(
+			_elm_lang$svg$Svg$g,
+			{ctor: '[]'},
 			A2(
 				_elm_lang$core$List$map,
-				A4(_terezka$elm_plot$Internal_Bars$toBar, pileMeta, index, width, originY),
+				A5(_terezka$elm_plot$Internal_Bars$viewBar, pileMeta, index, _p19, width, originY),
 				svgPoints));
 	});
 var _terezka$elm_plot$Internal_Bars$defaultConfig = {
+	labelView: _terezka$elm_plot$Internal_Bars$defaultLabelView,
 	style: {
 		ctor: '::',
 		_0: {ctor: '_Tuple2', _0: 'stroke', _1: 'transparent'},
@@ -10847,9 +10880,9 @@ var _terezka$elm_plot$Internal_Bars$defaultConfig = {
 	},
 	customAttrs: {ctor: '[]'}
 };
-var _terezka$elm_plot$Internal_Bars$Config = F2(
-	function (a, b) {
-		return {style: a, customAttrs: b};
+var _terezka$elm_plot$Internal_Bars$Config = F3(
+	function (a, b, c) {
+		return {labelView: a, style: b, customAttrs: c};
 	});
 
 var _terezka$elm_plot$Plot_Bars$customAttrs = F2(
@@ -10857,6 +10890,12 @@ var _terezka$elm_plot$Plot_Bars$customAttrs = F2(
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{customAttrs: attrs});
+	});
+var _terezka$elm_plot$Plot_Bars$label = F2(
+	function (view, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{labelView: view});
 	});
 var _terezka$elm_plot$Plot_Bars$opacity = F2(
 	function (opacity, config) {
