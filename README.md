@@ -15,18 +15,19 @@ Currently, this library can draw line and area series, grids, axis' with easily 
 ```elm
     main =
 		plot
-			[ size ( 600, 250 ), padding ( 0, 40 ) ]
-			[ verticalGrid
-				[ gridMirrorTicks
-				, gridStyle [ ( "stroke", "blue" ) ]
-				]
-			, horizontalGrid
-				[ gridValues [ 10, 20, 30, 40 ]
-				, gridStyle [ ( "stroke", "blue" ) ]
-				]
-			, xAxis [ axisStyle [ ( "stroke", "grey" ) ] ]
-			, line [ lineStyle [ ( "stroke", "red" ) ] ] data1
-			, area [ areaStyle [ ( "fill", "deeppink" ) ] ] data2
+			[ size plotSize
+			, margin ( 10, 20, 40, 20 )
+			]
+			[ line
+			    [ Line.stroke pinkStroke
+			    , Line.strokeWidth 2
+			    ]
+			    data
+			, xAxis
+			    [ Axis.line [ Line.stroke axisColor ]
+			    , Axis.tick [ Tick.viewDynamic toTickStyle ]
+			    , Axis.label [ Label.viewDynamic toLabelStyle ]
+			    ]
 			]
 ```
 
