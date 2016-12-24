@@ -7,7 +7,7 @@ import Internal.Draw exposing (..)
 
 
 type alias Config a =
-    { labelView : Float -> Svg.Svg a
+    { labelView : Float -> Float -> Svg.Svg a
     , style : Style
     , customAttrs : List (Svg.Attribute a)
     }
@@ -36,8 +36,8 @@ view ({ toSvgCoords } as meta) pileMeta maxWidth index ({ style, labelView } as 
         Svg.g [] (List.map (viewBar pileMeta index config width originY) svgPoints)
 
 
-defaultLabelView : Float -> Svg.Svg msg
-defaultLabelView _ =
+defaultLabelView : Float -> Float -> Svg.Svg msg
+defaultLabelView _ _ =
     Svg.text ""
 
 
@@ -56,7 +56,7 @@ viewBar pileMeta index ({ style, labelView } as config) width originY ( x, y ) =
                 [ Svg.Attributes.transform (toTranslate ( xPos + width / 2, yPos - 5 ))
                 , Svg.Attributes.style "text-anchor: middle;"
                 ]
-                [ labelView y ]
+                [ labelView x y ]
             , Svg.rect
                 [ Svg.Attributes.x (toString xPos)
                 , Svg.Attributes.y (toString yPos)

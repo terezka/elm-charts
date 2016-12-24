@@ -49,7 +49,7 @@ classes classes config =
     myXAxis =
         Plot.xAxis
             [ Axis.view
-                [ Axis.lineStyle [ ( "stroke", "blue" ) ] ]
+                [ Axis.line [ Line.stroke "blue" ] ]
             ]
 -}
 line : List (Line.Attribute msg) -> Attribute msg

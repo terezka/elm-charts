@@ -61,7 +61,7 @@ opacity opacity config =
           ]
           data
 -}
-label : (Float -> Svg.Svg a) -> Attribute a
+label : (Float -> Float -> Svg.Svg a) -> Attribute a
 label view config =
     { config | labelView = view }
 
