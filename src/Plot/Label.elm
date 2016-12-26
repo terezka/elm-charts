@@ -14,6 +14,7 @@ module Plot.Label
         , customAttrs
         , displace
         , format
+        , formatFromList
         , values
         , filter
         )
@@ -35,7 +36,7 @@ module Plot.Label
 ## Style attributes
 If these attributes do not forfill your needs, try out the viewCustom! If you have
 a suspicion that I have missed a very common configuration, then please let me know and I'll add it.
-@docs classes, displace, format, stroke, strokeWidth, opacity, fill, fontSize, customAttrs
+@docs classes, displace, format, formatFromList, stroke, strokeWidth, opacity, fill, fontSize, customAttrs
 
 # Values
 @docs values, filter
@@ -43,7 +44,6 @@ a suspicion that I have missed a very common configuration, then please let me k
 -}
 
 import Svg
-import Internal.Types exposing (Style)
 import Internal.Label as Internal
 import Internal.Draw exposing (..)
 
@@ -153,6 +153,23 @@ customAttrs attrs config =
 format : (( Int, Float ) -> String) -> StyleAttribute a
 format format config =
     { config | format = format }
+
+
+{-| -}
+formatFromList : List String -> StyleAttribute a
+formatFromList labels config =
+    let
+        indexedLabels =
+            List.indexedMap (\i l -> ( i, l )) labels
+
+        formatter =
+            \( i, v ) ->
+                List.filter (\( il, _ ) -> i == il) indexedLabels
+                    |> List.head
+                    |> Maybe.withDefault ( 0, "" )
+                    |> Tuple.second
+    in
+        { config | format = formatter }
 
 
 toStyleConfig : List (StyleAttribute a) -> Internal.StyleConfig a

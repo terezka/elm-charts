@@ -10,7 +10,7 @@ module Plot
         , hint
         , area
         , line
-        , pile
+        , bars
         , scatter
         , custom
         , classes
@@ -47,7 +47,7 @@ module Plot
 @docs plot, plotInteractive, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
 
 ## Series
-@docs scatter, line, area, pile
+@docs scatter, line, area, bars
 
 # Styling and sizes
 @docs classes, id, margin, padding, size, style, domainLowest, domainHighest, rangeLowest, rangeHighest
@@ -71,13 +71,13 @@ import DOM
 import Plot.Axis as Axis
 import Plot.Grid as Grid
 import Plot.Area as Area
-import Plot.Pile as Pile
+import Plot.Bars as Bars
 import Plot.Scatter as Scatter
 import Plot.Line as Line
 import Plot.Hint as Hint
 import Internal.Grid as GridInternal
 import Internal.Axis as AxisInternal
-import Internal.Pile as PileInternal
+import Internal.Bars as BarsInternal
 import Internal.Area as AreaInternal
 import Internal.Scatter as ScatterInternal
 import Internal.Line as LineInternal
@@ -106,7 +106,7 @@ type alias Style =
 type Element msg
     = Line (LineInternal.Config msg) (List Point)
     | Area (AreaInternal.Config msg) (List Point)
-    | Pile PileInternal.Config (List (PileInternal.Element msg)) PileMeta
+    | Bars (BarsInternal.Config msg) (List (BarsInternal.StyleConfig msg)) (List (List Value))
     | Scatter (ScatterInternal.Config msg) (List Point)
     | Hint (HintInternal.Config msg) (Maybe Point)
     | Axis (AxisInternal.Config msg)
@@ -283,19 +283,18 @@ line attrs points =
 
 {-| -}
 scatter : List (Scatter.Attribute msg) -> List Point -> Element msg
-scatter attrs points =
-    Scatter (List.foldr (<|) ScatterInternal.defaultConfig attrs) points
+scatter attrs =
+    Scatter (List.foldr (<|) ScatterInternal.defaultConfig attrs)
 
 
 {-| This wraps all your bar series.
 -}
-pile : List Pile.Attribute -> List (Pile.Element msg) -> Element msg
-pile attrs barsConfigs =
-    let
-        config =
-            List.foldr (<|) PileInternal.defaultConfig attrs
-    in
-        Pile config barsConfigs (PileInternal.toPileMeta config barsConfigs)
+bars : List (Bars.Attribute msg) -> List (List (Bars.StyleAttribute msg)) -> List (List Value) -> Element msg
+bars attrs styleAttrsList groups =
+    Bars
+        (List.foldr (<|) BarsInternal.defaultConfig attrs)
+        (List.map (List.foldr (<|) BarsInternal.defaultStyleConfig) styleAttrsList)
+        groups
 
 
 {-| Adds a hint to your plot. See [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
@@ -523,8 +522,8 @@ viewElement meta element ( svgViews, htmlViews ) =
         Scatter config points ->
             ( (ScatterInternal.view meta config points) :: svgViews, htmlViews )
 
-        Pile config barsConfigs pileMeta ->
-            ( (PileInternal.view meta pileMeta config barsConfigs) :: svgViews, htmlViews )
+        Bars config styleConfigs groups ->
+            ( (BarsInternal.view meta config styleConfigs groups) :: svgViews, htmlViews )
 
         Axis ({ orientation } as config) ->
             ( (AxisInternal.view (getFlippedMeta orientation meta) config) :: svgViews, htmlViews )
@@ -557,20 +556,14 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
         axisConfigs =
             toAxisConfigsOriented elements
 
-        pileMetas =
-            toPileMetas elements
-
-        pileEdges =
-            PileInternal.toPileEdges pileMetas
-
         ( top, right, bottom, left ) =
             margin
 
         xScale =
-            getScale size.x range ( left, right ) ( 0, 0 ) values.x pileEdges.x
+            getScale size.x range (Edges left right) ( 0, 0 ) values.x
 
         yScale =
-            getScale size.y domain ( top, bottom ) padding values.y pileEdges.y
+            getScale size.y domain (Edges top bottom) padding values.y
 
         xTicks =
             getLastGetTickValues axisConfigs.x xScale
@@ -588,7 +581,6 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
         , oppositeAxisCrossings = getAxisCrossings axisConfigs.y xScale
         , toNearestX = toNearest values.x
         , getHintInfo = getHintInfo elements
-        , pileMetas = pileMetas
         , id = id
         }
 
@@ -612,8 +604,8 @@ foldPoints element allPoints =
         Scatter config points ->
             allPoints ++ points
 
-        Pile config pileElements _ ->
-            allPoints ++ (PileInternal.toPilePoints pileElements)
+        Bars config styleConfigs groups ->
+            allPoints ++ (BarsInternal.toPoints config groups)
 
         _ ->
             allPoints
@@ -670,21 +662,6 @@ getLastGetTickValues axisConfigs =
         |> TickInternal.getValues
 
 
-toPileMetas : List (Element msg) -> List PileMeta
-toPileMetas =
-    List.foldr foldPileMeta []
-
-
-foldPileMeta : Element msg -> List PileMeta -> List PileMeta
-foldPileMeta element allPileMetas =
-    case element of
-        Pile _ _ meta ->
-            meta :: allPileMetas
-
-        _ ->
-            allPileMetas
-
-
 collectYValues : Float -> Element msg -> List (Maybe Value) -> List (Maybe Value)
 collectYValues xValue element yValues =
     case element of
@@ -696,9 +673,6 @@ collectYValues xValue element yValues =
 
         Scatter config points ->
             collectYValue xValue points :: yValues
-
-        Pile config barsConfigs _ ->
-            (List.map (PileInternal.toPoints >> collectYValue xValue) barsConfigs) ++ yValues
 
         _ ->
             yValues

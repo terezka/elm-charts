@@ -2,8 +2,6 @@ module Internal.Hint exposing (..)
 
 import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
 import Internal.Draw exposing (..)
-import Svg
-import Svg.Attributes
 import Html
 import Html.Attributes
 
@@ -31,7 +29,7 @@ view { toSvgCoords, scale, getHintInfo } { lineStyle, view } position =
             toSvgCoords ( info.xValue, 0 )
 
         isLeftSide =
-            xSvg - scale.x.offset < scale.x.length / 2
+            xSvg - scale.x.offset.lower < scale.x.length / 2
 
         lineView =
             [ viewLine lineStyle scale.y.length ]
@@ -40,7 +38,7 @@ view { toSvgCoords, scale, getHintInfo } { lineStyle, view } position =
             [ Html.Attributes.class "elm-plot__hint"
             , Html.Attributes.style
                 [ ( "left", toPixels xSvg )
-                , ( "top", toPixels scale.y.offset )
+                , ( "top", toPixels scale.y.offset.lower )
                 , ( "position", "absolute" )
                 ]
             ]

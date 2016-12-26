@@ -3,7 +3,6 @@ module PlotBars exposing (plotExample)
 import Svg
 import Plot exposing (..)
 import Plot.Bars as Bars
-import Plot.Pile as Pile
 import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Label as Label
@@ -30,49 +29,30 @@ id =
     "PlotBars"
 
 
-data : List ( Float, Float )
-data =
-    [ ( 0, 20 ), ( 1, 10 ), ( 2, 40 ) ]
-
-
-labels : List ( Int, String )
-labels =
-    [ ( 0, "A" ), ( 1, "B" ), ( 2, "C" ) ]
-
-
-formatter : ( Int, Float ) -> String
-formatter ( index, tick ) =
-    List.filter (\( i, label ) -> i == index) labels
-        |> List.head
-        |> Maybe.withDefault ( 0, "-" )
-        |> Tuple.second
-
-
 view : Svg.Svg a
 view =
     plot
         [ size Common.plotSize
         , margin ( 10, 20, 40, 20 )
         ]
-        [ pile
-            [ Pile.maxBarWidthPer 85 ]
-            [ Pile.bars
-                [ Bars.fill Common.blueFill ]
-                (List.map (\( x, y ) -> ( x, y * 2 )) data)
-            , Pile.bars
-                [ Bars.fill Common.skinFill ]
-                (List.map (\( x, y ) -> ( x, y * 3 )) data)
-            , Pile.bars
-                [ Bars.fill Common.pinkFill ]
-                data
+        [ bars
+            [ Bars.maxBarWidthPer 85 ]
+            [ [ Bars.fill Common.blueFill ]
+            , [ Bars.fill Common.skinFill ]
+            , [ Bars.fill Common.pinkFill ]
+            ]
+            [ [ 1, 4, 5, 2 ]
+            , [ 2, 1, 3, 5 ]
+            , [ 4, 5, 2, 1 ]
+            , [ 4, 5, 2, 3 ]
             ]
         , xAxis
             [ Axis.line [ Line.stroke Common.axisColor ]
             , Axis.tick [ Tick.delta 1 ]
             , Axis.label
                 [ Label.view
-                    [ Label.format formatter
-                    , Label.stroke "#969696"
+                    [ Label.stroke "#969696"
+                    , Label.formatFromList [ "1st", "2nd", "3rd", "4th" ]
                     ]
                 ]
             ]
@@ -85,28 +65,27 @@ code =
     view : Svg.Svg a
     view =
         plot
-            [ size plotSize
+            [ size Common.plotSize
             , margin ( 10, 20, 40, 20 )
             ]
-            [ pile
-                [ Pile.maxBarWidthPer 85 ]
-                [ Pile.bars
-                    [ Bars.fill blueFill ]
-                    data1
-                , Pile.bars
-                    [ Bars.fill skinFill ]
-                    data2
-                , Pile.bars
-                    [ Bars.fill pinkFill ]
-                    data3
+            [ bars
+                [ Bars.maxBarWidthPer 85 ]
+                [ [ Bars.fill Common.blueFill ]
+                , [ Bars.fill Common.skinFill ]
+                , [ Bars.fill Common.pinkFill ]
+                ]
+                [ [ 1, 4, 5, 2 ]
+                , [ 2, 1, 3, 5 ]
+                , [ 4, 5, 2, 1 ]
+                , [ 4, 5, 2, 3 ]
                 ]
             , xAxis
-                [ Axis.line [ Line.stroke axisColor ]
+                [ Axis.line [ Line.stroke Common.axisColor ]
                 , Axis.tick [ Tick.delta 1 ]
                 , Axis.label
                     [ Label.view
-                        [ Label.format formatter
-                        , Label.stroke "#969696"
+                        [ Label.stroke "#969696"
+                        , Label.formatFromList [ "1st", "2nd", "3rd", "4th" ]
                         ]
                     ]
                 ]

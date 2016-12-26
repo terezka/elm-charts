@@ -7,7 +7,6 @@ module Internal.Types
         , Meta
         , HintInfo
         , Anchor(..)
-        , PileMeta
         , Oriented
         , Edges
         , MaxWidth(..)
@@ -61,15 +60,6 @@ type alias Oriented a =
     }
 
 
-type alias PileMeta =
-    { lowest : Float
-    , highest : Float
-    , numOfBarSeries : Int
-    , pointCount : Int
-    , stackBy : Orientation
-    }
-
-
 type alias Meta =
     { scale : Oriented Scale
     , ticks : List Float
@@ -80,7 +70,6 @@ type alias Meta =
     , axisCrossings : List Float
     , oppositeAxisCrossings : List Float
     , getHintInfo : Float -> HintInfo
-    , pileMetas : List PileMeta
     , toNearestX : Float -> Float
     , id : String
     }
@@ -91,7 +80,7 @@ type alias Scale =
     , lowest : Float
     , highest : Float
     , length : Float
-    , offset : Float
+    , offset : Edges
     }
 
 

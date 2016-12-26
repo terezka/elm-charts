@@ -4,17 +4,17 @@ import Internal.Types exposing (..)
 import Internal.Stuff exposing (..)
 
 
-getScale : Float -> EdgesAny (Float -> Float) -> ( Value, Value ) -> ( Value, Value ) -> List Value -> Maybe Edges -> Scale
-getScale lengthTotal restrictRange ( offsetLeft, offsetRight ) ( paddingBottomPx, paddingTopPx ) values pileEdges =
+getScale : Float -> EdgesAny (Float -> Float) -> Edges -> ( Value, Value ) -> List Value -> Scale
+getScale lengthTotal restrictRange offset ( paddingBottomPx, paddingTopPx ) values =
     let
         length =
-            lengthTotal - offsetLeft - offsetRight
+            lengthTotal - offset.lower - offset.upper
 
         lowest =
-            getScaleLowest restrictRange.lower values pileEdges
+            restrictRange.lower (getLowest values)
 
         highest =
-            getScaleHighest restrictRange.upper values pileEdges
+            restrictRange.upper (getHighest values)
 
         range =
             getRange lowest highest
@@ -29,50 +29,18 @@ getScale lengthTotal restrictRange ( offsetLeft, offsetRight ) ( paddingBottomPx
         , highest = highest + paddingTop
         , range = range + paddingBottom + paddingTop
         , length = length
-        , offset = offsetLeft
+        , offset = offset
         }
-
-
-getScaleLowest : (Float -> Float) -> List Value -> Maybe Edges -> Value
-getScaleLowest toLowest values pileEdges =
-    getAutoLowest pileEdges (getLowest values)
-        |> toLowest
-
-
-getAutoLowest : Maybe Edges -> Value -> Value
-getAutoLowest pileEdges lowestFromValues =
-    case pileEdges of
-        Just { lower } ->
-            min lower lowestFromValues
-
-        Nothing ->
-            lowestFromValues
-
-
-getScaleHighest : (Float -> Float) -> List Value -> Maybe Edges -> Value
-getScaleHighest toHighest values pileEdges =
-    getAutoHighest pileEdges (getHighest values)
-        |> toHighest
-
-
-getAutoHighest : Maybe Edges -> Value -> Value
-getAutoHighest pileEdges highestFromValues =
-    case pileEdges of
-        Just { upper } ->
-            max upper highestFromValues
-
-        Nothing ->
-            highestFromValues
 
 
 scaleValue : Scale -> Value -> Value
 scaleValue { length, range, offset } v =
-    (v * length / range) + offset
+    (v * length / range) + offset.lower
 
 
 unScaleValue : Scale -> Value -> Value
 unScaleValue { length, range, offset, lowest } v =
-    ((v - offset) * range / length) + lowest
+    ((v - offset.lower) * range / length) + lowest
 
 
 fromSvgCoords : Scale -> Scale -> Point -> Point

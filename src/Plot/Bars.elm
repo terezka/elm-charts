@@ -1,53 +1,77 @@
 module Plot.Bars exposing (..)
 
 {-|
- Attributes for altering the view of your bars serie.
+ The `pile` groups your bar series together and you can also
+ add some attributes to alter the view of the bars.
 
     myBarsSerie : Plot.Element (Interaction YourMsg)
     myBarsSerie =
         pile
-            []
+            [ Pile.maxBarWidthPer 85 ]
             [ Pile.bars
-                [ Bars.fill "pink"
-                , Bars.opacity 0.5
-                ]
+                [ Bars.fill Common.pinkFill ]
                 data
             ]
 
-
 # Definition
-@docs Attribute
+@docs Attribute, StyleAttribute
 
 # Styling
-@docs opacity, fill
+@docs maxBarWidth, maxBarWidthPer, fill, label, opacity, view, customAttrs
 
-# Label
-@docs label
-
-# Other
-@docs customAttrs
 
 -}
 
 import Svg
 import Internal.Bars as Internal
+import Internal.Types exposing (Style, Point, Orientation(..), MaxWidth(..))
 
 
 {-| -}
-type alias Attribute a =
-    Internal.Config a -> Internal.Config a
+type alias Attribute msg =
+    Internal.Config msg -> Internal.Config msg
+
+
+{-| -}
+type alias StyleAttribute msg =
+    Internal.StyleConfig msg -> Internal.StyleConfig msg
+
+
+{-| Set a fixed max width (in pixels) on your bars.
+-}
+maxBarWidth : Int -> Attribute msg
+maxBarWidth max config =
+    { config | maxWidth = Fixed max }
+
+
+{-| Set a relative max width (in percentage) your bars.
+-}
+maxBarWidthPer : Int -> Attribute msg
+maxBarWidthPer max config =
+    { config | maxWidth = Percentage max }
+
+
+
+-- STYLES
+
+
+{-| Add a bar serie styles.
+-}
+view : List (StyleAttribute msg) -> Internal.StyleConfig msg
+view attrs =
+    List.foldr (<|) Internal.defaultStyleConfig attrs
 
 
 {-| Set the fill color.
 -}
-fill : String -> Attribute a
+fill : String -> StyleAttribute a
 fill fill config =
     { config | style = ( "fill", fill ) :: config.style }
 
 
 {-| Set the opacity.
 -}
-opacity : Float -> Attribute a
+opacity : Float -> StyleAttribute a
 opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
 
@@ -68,6 +92,6 @@ label view config =
 
 {-| Add your own attributes. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
 -}
-customAttrs : List (Svg.Attribute a) -> Attribute a
+customAttrs : List (Svg.Attribute a) -> StyleAttribute a
 customAttrs attrs config =
     { config | customAttrs = attrs }
