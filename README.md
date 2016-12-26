@@ -33,8 +33,7 @@ Currently, this library can draw line and area series, grids, axis' with easily 
 
 ### You need something?
 
-Let me know! Open an issue (or PR) or write at #elm-plot in the elm-lang's [slack](http://elmlang.herokuapp.com). I focus on meeting my own needs as well as to that of the community, so please don't hesistate! :sparkles:
-
+Let me know! Open an issue (or PR) or write at #elm-plot in the elm-lang's [slack](http://elmlang.herokuapp.com). I focus on meeting my own needs as well as to that of the community, so please don't hesistate! ✨
 ## Development
 
 ### Setup
