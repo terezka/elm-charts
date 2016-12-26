@@ -3,7 +3,7 @@ port module Docs exposing (..)
 import Dict exposing (..)
 import Html exposing (Html, div, text, h1, img, a, br, span, code, pre, p)
 import Html.Events exposing (onClick)
-import Html.Attributes exposing (style, src, href, class, classList, id)
+import Html.Attributes exposing (style, src, href, class, classList, id, name)
 import Common exposing (..)
 import Plot as Plot exposing (Interaction(..))
 import PlotComposed
@@ -145,7 +145,7 @@ viewExample ({ plotStates } as model) ({ title, id, view, code } as example) =
 viewHeading : Model -> PlotExample msg -> Html Msg
 viewHeading model { title, id } =
     div [ class "view-heading" ]
-        [ div [] [ text title ]
+        [ a [ name id, href ("#" ++ id) ] [ text title ]
         , viewToggler id
         ]
 

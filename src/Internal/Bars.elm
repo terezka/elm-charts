@@ -22,7 +22,7 @@ type alias Group =
 
 type alias Config msg =
     { stackBy : Orientation
-    , labelView : Float -> Float -> Svg.Svg msg
+    , labelView : Int -> Float -> Svg.Svg msg
     , maxWidth : MaxWidth
     }
 
@@ -81,19 +81,22 @@ viewGroup ({ toSvgCoords, scale } as meta) config styleConfigs groupDelta width 
                 )
                 group
 
+        labels =
+            List.indexedMap config.labelView group
+
         offset =
             toFloat (List.length styleConfigs) * width / 2
     in
-        Svg.g [] (List.map2 (viewBar config width originY offset) styleConfigs svgPoints)
+        Svg.g [] (List.map3 (viewBar width originY offset) styleConfigs svgPoints labels)
 
 
-defaultLabelView : Float -> Float -> Svg.Svg msg
+defaultLabelView : Int -> Float -> Svg.Svg msg
 defaultLabelView _ _ =
     Svg.text ""
 
 
-viewBar : Config msg -> Float -> Float -> Float -> StyleConfig msg -> Point -> Svg.Svg msg
-viewBar { labelView } width originY offset styleConfig ( x, y ) =
+viewBar : Float -> Float -> Float -> StyleConfig msg -> Point -> Svg.Svg msg -> Svg.Svg msg
+viewBar width originY offset styleConfig ( x, y ) label =
     let
         xPos =
             x - offset
@@ -107,7 +110,7 @@ viewBar { labelView } width originY offset styleConfig ( x, y ) =
                 [ Svg.Attributes.transform (toTranslate ( xPos + width / 2, yPos - 5 ))
                 , Svg.Attributes.style "text-anchor: middle;"
                 ]
-                [ labelView x y ]
+                [ label ]
             , Svg.rect
                 [ Svg.Attributes.x (toString xPos)
                 , Svg.Attributes.y (toString yPos)

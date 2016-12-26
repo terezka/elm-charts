@@ -33,6 +33,11 @@ a {
 	margin: 100px auto 10px;
 }
 
+.view-heading a {
+	padding-top: 40px;
+	text-decoration: none;
+}
+
 .view-heading__code-open {
 	color: #9ea0a2;
 	font-size: 12px;

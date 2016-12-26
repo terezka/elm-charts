@@ -54,10 +54,10 @@ view state =
             , [ Bars.fill Common.skinFill ]
             , [ Bars.fill Common.pinkFill ]
             ]
-            [ [ 1, 4, 5, 2 ]
-            , [ 2, 1, 3, 5 ]
-            , [ 4, 5, 2, 1 ]
-            , [ 4, 5, 2, 3 ]
+            [ [ 1, 4, 5 ]
+            , [ 2, 1, 3 ]
+            , [ 4, 5, 2 ]
+            , [ 4, 5, 2 ]
             ]
         , xAxis
             [ Axis.line
@@ -89,10 +89,10 @@ code =
                 , [ Bars.fill Common.skinFill ]
                 , [ Bars.fill Common.pinkFill ]
                 ]
-                [ [ 1, 4, 5, 2 ]
-                , [ 2, 1, 3, 5 ]
-                , [ 4, 5, 2, 1 ]
-                , [ 4, 5, 2, 3 ]
+                [ [ 1, 4, 5 ]
+                , [ 2, 1, 3 ]
+                , [ 4, 5, 2 ]
+                , [ 4, 5, 2 ]
                 ]
             , xAxis
                 [ Axis.line

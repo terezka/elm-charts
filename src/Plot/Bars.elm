@@ -1,23 +1,29 @@
 module Plot.Bars exposing (..)
 
 {-|
- The `pile` groups your bar series together and you can also
- add some attributes to alter the view of the bars.
+  Attributes to alter the view of the bars.
 
     myBarsSerie : Plot.Element (Interaction YourMsg)
     myBarsSerie =
-        pile
-            [ Pile.maxBarWidthPer 85 ]
-            [ Pile.bars
-                [ Bars.fill Common.pinkFill ]
-                data
+        bars
+            [ Bars.maxBarWidthPer 85 ]
+            [ [ Bars.fill "blue", Bars.opacity 0.5 ]
+            , [ Bars.fill "red" ]
+            ]
+            [ [ 1, 4 ]
+            , [ 2, 1 ]
+            , [ 4, 5 ]
+            , [ 4, 5 ]
             ]
 
 # Definition
 @docs Attribute, StyleAttribute
 
-# Styling
-@docs maxBarWidth, maxBarWidthPer, fill, label, opacity, view, customAttrs
+# Overall styling
+@docs maxBarWidth, maxBarWidthPer, label
+
+# Individual bar styling
+@docs fill, opacity, customAttrs
 
 
 -}
@@ -55,13 +61,6 @@ maxBarWidthPer max config =
 -- STYLES
 
 
-{-| Add a bar serie styles.
--}
-view : List (StyleAttribute msg) -> Internal.StyleConfig msg
-view attrs =
-    List.foldr (<|) Internal.defaultStyleConfig attrs
-
-
 {-| Set the fill color.
 -}
 fill : String -> StyleAttribute a
@@ -81,11 +80,11 @@ opacity opacity config =
     myBarSeries : Pile.Element msg
     myBarSeries =
       Pile.bars
-          [ Bars.label (\_ -> Svg.text_ [] [ Svg.text "my bar" ])
+          [ Bars.label (\_ _ -> Svg.text_ [] [ Svg.text "my bar" ])
           ]
           data
 -}
-label : (Float -> Float -> Svg.Svg a) -> Attribute a
+label : (Int -> Float -> Svg.Svg a) -> Attribute a
 label view config =
     { config | labelView = view }
 
