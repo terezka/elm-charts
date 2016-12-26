@@ -662,7 +662,7 @@ getLastGetTickValues axisConfigs =
         |> TickInternal.getValues
 
 
-collectYValues : Float -> Element msg -> List (Maybe Value) -> List (Maybe Value)
+collectYValues : Float -> Element msg -> List (Maybe (List Value)) -> List (Maybe (List Value))
 collectYValues xValue element yValues =
     case element of
         Area config points ->
@@ -674,19 +674,22 @@ collectYValues xValue element yValues =
         Scatter config points ->
             collectYValue xValue points :: yValues
 
+        Bars config styleConfigs groups ->
+            BarsInternal.getYValues xValue groups :: yValues
+
         _ ->
             yValues
 
 
-collectYValue : Float -> List Point -> Maybe Value
+collectYValue : Float -> List Point -> Maybe (List Value)
 collectYValue xValue points =
     List.foldr (getYValue xValue) Nothing points
 
 
-getYValue : Float -> Point -> Maybe Value -> Maybe Value
+getYValue : Float -> Point -> Maybe (List Value) -> Maybe (List Value)
 getYValue xValue ( x, y ) result =
     if x == xValue then
-        Just y
+        Just [ y ]
     else
         result
 

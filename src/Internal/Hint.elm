@@ -1,6 +1,6 @@
 module Internal.Hint exposing (..)
 
-import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
+import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo, Value)
 import Internal.Draw exposing (..)
 import Html
 import Html.Attributes
@@ -70,18 +70,23 @@ defaultView { xValue, yValues } isLeftSide =
             ]
 
 
-viewYValue : Int -> Maybe Float -> Html.Html msg
-viewYValue index yValue =
+viewYValue : Int -> Maybe (List Value) -> Html.Html msg
+viewYValue index hintValue =
     let
-        yValueDisplayed =
-            case yValue of
+        hintValueDisplayed =
+            case hintValue of
                 Just value ->
-                    toString value
+                    case value of
+                        [ singleY ] ->
+                            toString singleY
+
+                        _ ->
+                            toString value
 
                 Nothing ->
                     "~"
     in
         Html.div []
             [ Html.span [] [ Html.text ("Serie " ++ toString index ++ ": ") ]
-            , Html.span [] [ Html.text yValueDisplayed ]
+            , Html.span [] [ Html.text hintValueDisplayed ]
             ]

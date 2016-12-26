@@ -34,6 +34,8 @@ view =
     plot
         [ size Common.plotSize
         , margin ( 10, 20, 40, 20 )
+        , rangeLowest (min -0.5)
+        , rangeHighest (\h -> h + 0.5)
         ]
         [ bars
             [ Bars.maxBarWidthPer 85 ]

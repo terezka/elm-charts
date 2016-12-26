@@ -17,7 +17,7 @@ module Plot.Hint exposing (..)
 -}
 
 import Internal.Hint as Internal
-import Internal.Types exposing (Style)
+import Internal.Types exposing (Style, Value)
 import Html exposing (Html)
 
 
@@ -30,7 +30,7 @@ type alias Attribute msg =
 -}
 type alias HintInfo =
     { xValue : Float
-    , yValues : List (Maybe Float)
+    , yValues : List (Maybe (List Value))
     }
 
 

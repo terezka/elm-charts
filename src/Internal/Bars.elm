@@ -6,6 +6,7 @@ module Internal.Bars
         , defaultStyleConfig
         , view
         , toPoints
+        , getYValues
         )
 
 import Svg
@@ -143,4 +144,12 @@ toBarWidth { maxWidth } groups default =
 toPoints : Config msg -> List Group -> List Point
 toPoints config groups =
     List.indexedMap (\i group -> ( toFloat i, getHighest group )) groups
-        |> (++) [ ( -0.5, 0 ), ( toFloat (List.length groups) - 0.5, 0 ) ]
+
+
+getYValues : Value -> List Group -> Maybe (List Value)
+getYValues xValue groups =
+    List.indexedMap (\i group -> ( i, Just group )) groups
+        |> List.filter (\( i, g ) -> toFloat i == xValue)
+        |> List.head
+        |> Maybe.withDefault ( 0, Nothing )
+        |> Tuple.second

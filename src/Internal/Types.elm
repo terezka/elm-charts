@@ -86,5 +86,5 @@ type alias Scale =
 
 type alias HintInfo =
     { xValue : Float
-    , yValues : List (Maybe Float)
+    , yValues : List (Maybe (List Float))
     }

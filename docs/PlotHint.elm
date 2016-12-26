@@ -5,6 +5,7 @@ import Plot exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
 import Plot.Tick as Tick
+import Plot.Bars as Bars
 import Plot.Hint as Hint
 import Common exposing (..)
 
@@ -43,17 +44,21 @@ view state =
     plotInteractive
         [ size plotSize
         , margin ( 10, 20, 40, 20 )
+        , padding ( 0, 40 )
+        , rangeLowest (min -0.5)
+        , rangeHighest (\h -> h + 0.5)
         ]
-        [ line
-            [ Line.stroke blueStroke
-            , Line.strokeWidth 2
+        [ bars
+            [ Bars.maxBarWidthPer 85 ]
+            [ [ Bars.fill Common.blueFill ]
+            , [ Bars.fill Common.skinFill ]
+            , [ Bars.fill Common.pinkFill ]
             ]
-            data1
-        , line
-            [ Line.stroke pinkStroke
-            , Line.strokeWidth 2
+            [ [ 1, 4, 5, 2 ]
+            , [ 2, 1, 3, 5 ]
+            , [ 4, 5, 2, 1 ]
+            , [ 4, 5, 2, 3 ]
             ]
-            data2
         , xAxis
             [ Axis.line
                 [ Line.stroke axisColor ]
@@ -74,17 +79,21 @@ code =
         plotInteractive
             [ size plotSize
             , margin ( 10, 20, 40, 20 )
+            , padding ( 0, 40 )
+            , rangeLowest (min -0.5)
+            , rangeHighest (\\h -> h + 0.5)
             ]
-            [ line
-                [ Line.stroke blueStroke
-                , Line.strokeWidth 2
+            [ bars
+                [ Bars.maxBarWidthPer 85 ]
+                [ [ Bars.fill Common.blueFill ]
+                , [ Bars.fill Common.skinFill ]
+                , [ Bars.fill Common.pinkFill ]
                 ]
-                data1
-            , line
-                [ Line.stroke pinkStroke
-                , Line.strokeWidth 2
+                [ [ 1, 4, 5, 2 ]
+                , [ 2, 1, 3, 5 ]
+                , [ 4, 5, 2, 1 ]
+                , [ 4, 5, 2, 3 ]
                 ]
-                data2
             , xAxis
                 [ Axis.line
                     [ Line.stroke axisColor ]
