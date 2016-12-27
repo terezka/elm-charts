@@ -113,26 +113,12 @@ getPropsStackedX meta config styleConfigs width groupIndex index yValue =
 viewGroupStackedY : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Int -> Group -> Svg.Svg msg
 viewGroupStackedY meta config styleConfigs width groupIndex group =
     let
-        sortedBarsValues =
-            List.sortWith (\( y1, _ ) ( y2, _ ) -> sortStackedY y1 y2) (List.map2 (,) group styleConfigs) |> Debug.log "here"
-
-        ( groupSorted, styleConfigsSorted ) =
-            List.unzip sortedBarsValues
-
         props =
             List.indexedMap
-                (getPropsStackedY meta config styleConfigs width groupIndex groupSorted)
-                groupSorted
+                (getPropsStackedY meta config styleConfigs width groupIndex group)
+                group
     in
-        Svg.g [] (List.map2 viewBar props styleConfigsSorted)
-
-
-sortStackedY : Float -> Float -> Order
-sortStackedY a b =
-    if a > 0 && b <= 0 || b > 0 && a <= 0 then
-        compare a b
-    else
-        EQ
+        Svg.g [] (List.map2 viewBar props styleConfigs)
 
 
 getPropsStackedY : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Int -> Group -> Int -> Value -> ( Float, Float, Point, Svg.Svg msg )
@@ -142,14 +128,9 @@ getPropsStackedY meta config styleConfigs width groupIndex group index yValue =
             width / 2
 
         offsetBar =
-            let
-                amountOfNegatives =
-                    List.length (List.filter (\y -> y < 0) group)
-            in
-                if yValue > 0 then
-                    List.sum (List.take (index - amountOfNegatives) (List.drop amountOfNegatives group))
-                else
-                    List.sum (List.take index group)
+            List.take index group
+                |> List.filter (\y -> (y < 0) == (yValue < 0))
+                |> List.sum
 
         ( xSvgPure, ySvg ) =
             meta.toSvgCoords ( toFloat groupIndex, yValue + offsetBar )

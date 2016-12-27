@@ -47,7 +47,7 @@ view =
             , [ Bars.fill Common.skinFill ]
             , [ Bars.fill Common.pinkFill ]
             ]
-            [ [ 1, -3, -2 ]
+            [ [ -1, -3, 2 ]
             , [ 2, 1, 4 ]
             , [ 4, 2, 1 ]
             , [ 4, 5, 2 ]
