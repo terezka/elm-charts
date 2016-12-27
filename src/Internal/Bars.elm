@@ -48,6 +48,11 @@ defaultStyleConfig =
     }
 
 
+defaultLabelView : Int -> Float -> Svg.Svg msg
+defaultLabelView _ _ =
+    Svg.text ""
+
+
 
 -- VIEW
 
@@ -55,71 +60,139 @@ defaultStyleConfig =
 view : Meta -> Config msg -> List (StyleConfig msg) -> List Group -> Svg.Svg msg
 view meta config styleConfigs groups =
     let
-        groupDelta =
-            meta.scale.x.range / toFloat (List.length groups)
-
         width =
             toBarWidth config groups (toAutoWidth meta config styleConfigs groups)
+
+        viewGroup =
+            case config.stackBy of
+                X ->
+                    viewGroupStackedX
+
+                Y ->
+                    viewGroupStackedY
     in
-        Svg.g [] (List.indexedMap (viewGroup meta config styleConfigs groupDelta width) groups)
+        Svg.g [] (List.indexedMap (viewGroup meta config styleConfigs width) groups)
 
 
-viewGroup : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Float -> Int -> Group -> Svg.Svg msg
-viewGroup ({ toSvgCoords, scale } as meta) config styleConfigs groupDelta width groupIndex group =
+viewGroupStackedX : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Int -> Group -> Svg.Svg msg
+viewGroupStackedX ({ toSvgCoords, scale } as meta) config styleConfigs width groupIndex group =
+    let
+        props =
+            List.indexedMap (getPropsStackedX meta config styleConfigs width groupIndex) group
+    in
+        Svg.g [] (List.map2 viewBar props styleConfigs)
+
+
+getPropsStackedX : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Int -> Int -> Value -> ( Float, Float, Point, Svg.Svg msg )
+getPropsStackedX meta config styleConfigs width groupIndex index yValue =
     let
         ( _, originY ) =
-            toSvgCoords ( 0, 0 )
+            meta.toSvgCoords ( 0, 0 )
 
-        svgPoints =
-            List.indexedMap
-                (\i y ->
-                    let
-                        ( xSvg, ySvg ) =
-                            toSvgCoords ( toFloat groupIndex, y )
-                    in
-                        ( xSvg + toFloat i * width, ySvg )
-                )
-                group
-
-        labels =
-            List.indexedMap config.labelView group
-
-        offset =
+        offsetGroup =
             toFloat (List.length styleConfigs) * width / 2
+
+        offsetBar =
+            toFloat index * width
+
+        ( xSvgPure, ySvg ) =
+            meta.toSvgCoords ( toFloat groupIndex, yValue )
+
+        xSvg =
+            xSvgPure - offsetGroup + offsetBar
+
+        label =
+            config.labelView index yValue
+
+        height =
+            abs (originY - ySvg)
     in
-        Svg.g [] (List.map3 (viewBar width originY offset) styleConfigs svgPoints labels)
+        ( width, height, ( xSvg, min originY ySvg ), label )
 
 
-defaultLabelView : Int -> Float -> Svg.Svg msg
-defaultLabelView _ _ =
-    Svg.text ""
-
-
-viewBar : Float -> Float -> Float -> StyleConfig msg -> Point -> Svg.Svg msg -> Svg.Svg msg
-viewBar width originY offset styleConfig ( x, y ) label =
+viewGroupStackedY : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Int -> Group -> Svg.Svg msg
+viewGroupStackedY ({ toSvgCoords, scale } as meta) config styleConfigs width groupIndex group =
     let
-        xPos =
-            x - offset
+        ( positive, negative ) =
+            List.partition (\( y, _ ) -> y < 0) (List.map2 (,) group styleConfigs)
 
-        yPos =
-            min originY y
+        groupPositive =
+            List.map Tuple.first positive
+
+        styleConfigsPositive =
+            List.map Tuple.second positive
+
+        groupNegative =
+            List.map Tuple.first negative
+
+        styleConfigsNegative =
+            List.map Tuple.second negative
+
+        propsPositive =
+            List.indexedMap (getPropsStackedY meta config styleConfigs width groupIndex groupPositive) groupPositive
+
+        propsNegative =
+            List.indexedMap (getPropsStackedY meta config styleConfigs width groupIndex groupNegative) groupNegative
+
+        bars =
+            (List.map2 viewBar propsPositive styleConfigsPositive) ++ (List.map2 viewBar propsNegative styleConfigsNegative)
     in
-        Svg.g
-            []
-            [ Svg.g
-                [ Svg.Attributes.transform (toTranslate ( xPos + width / 2, yPos - 5 ))
-                , Svg.Attributes.style "text-anchor: middle;"
-                ]
-                [ label ]
-            , Svg.rect
-                [ Svg.Attributes.x (toString xPos)
-                , Svg.Attributes.y (toString yPos)
-                , Svg.Attributes.width (toString width)
-                , Svg.Attributes.height (toString (abs originY - y))
-                , Svg.Attributes.style (toStyle styleConfig.style)
-                ]
-                []
+        Svg.g [] bars
+
+
+getPropsStackedY : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Int -> Group -> Int -> Value -> ( Float, Float, Point, Svg.Svg msg )
+getPropsStackedY meta config styleConfigs width groupIndex group index yValue =
+    let
+        offsetGroup =
+            width / 2
+
+        offsetBar =
+            List.sum (List.take index group)
+
+        ( xSvgPure, ySvg ) =
+            meta.toSvgCoords ( toFloat groupIndex, yValue + offsetBar )
+
+        xSvg =
+            xSvgPure - offsetGroup
+
+        label =
+            config.labelView index yValue
+
+        height =
+            yValue * meta.scale.y.length / meta.scale.y.range
+
+        heightOffset =
+            if height < 0 then
+                height
+            else
+                0
+    in
+        ( width, abs height, ( xSvg, ySvg + heightOffset ), label )
+
+
+viewBar : ( Float, Float, Point, Svg.Svg msg ) -> StyleConfig msg -> Svg.Svg msg
+viewBar ( width, height, ( xSvg, ySvg ), label ) styleConfig =
+    Svg.g
+        []
+        [ Svg.g
+            [ Svg.Attributes.transform (toTranslate ( xSvg + width / 2, ySvg - 5 ))
+            , Svg.Attributes.style "text-anchor: middle;"
             ]
+            [ label ]
+        , viewRect styleConfig ( xSvg, ySvg ) width height
+        ]
+
+
+viewRect : StyleConfig msg -> Point -> Float -> Float -> Svg.Svg msg
+viewRect styleConfig ( xSvg, ySvg ) width height =
+    Svg.rect
+        [ Svg.Attributes.x (toString xSvg)
+        , Svg.Attributes.y (toString ySvg)
+        , Svg.Attributes.width (toString width)
+        , Svg.Attributes.height (toString height)
+        , Svg.Attributes.style (toStyle styleConfig.style)
+        ]
+        []
 
 
 toAutoWidth : Meta -> Config msg -> List (StyleConfig msg) -> List Group -> Float
@@ -128,7 +201,7 @@ toAutoWidth { scale, toSvgCoords } { maxWidth } styleConfigs groups =
         width =
             1 / toFloat (List.length styleConfigs)
     in
-        (width * scale.x.length / scale.x.range)
+        width * scale.x.length / scale.x.range
 
 
 toBarWidth : Config msg -> List Group -> Float -> Float
@@ -146,7 +219,15 @@ toBarWidth { maxWidth } groups default =
 
 toPoints : Config msg -> List Group -> List Point
 toPoints config groups =
-    List.indexedMap (\i group -> ( toFloat i, getHighest group )) groups
+    List.indexedMap (toPoint config) groups
+
+
+toPoint : Config msg -> Int -> Group -> Point
+toPoint { stackBy } index group =
+    if stackBy == X then
+        ( toFloat index, getHighest group )
+    else
+        ( toFloat index, List.sum group )
 
 
 getYValues : Value -> List Group -> Maybe (List Value)

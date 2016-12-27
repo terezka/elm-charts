@@ -35,21 +35,24 @@ view =
         [ size Common.plotSize
         , margin ( 10, 20, 40, 20 )
         , padding ( 0, 20 )
+        , domainLowest (always -10)
         , rangeLowest (min -0.5)
         , rangeHighest (\h -> h + 0.5)
         ]
         [ bars
             [ Bars.maxBarWidthPer 85
+            , Bars.stackByY
             ]
             [ [ Bars.fill Common.blueFill ]
             , [ Bars.fill Common.skinFill ]
             , [ Bars.fill Common.pinkFill ]
             ]
-            [ [ 1, 4, 5 ]
-            , [ 2, 1, 3 ]
-            , [ 4, 5, 2 ]
+            [ [ -5, 3, -1 ]
+            , [ 2, 1, 4 ]
+            , [ 4, 2, 1 ]
             , [ 4, 5, 2 ]
             ]
+        , yAxis []
         , xAxis
             [ Axis.line [ Line.stroke Common.axisColor ]
             , Axis.tick [ Tick.delta 1 ]

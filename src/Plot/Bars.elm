@@ -20,7 +20,7 @@ module Plot.Bars exposing (..)
 @docs Attribute, StyleAttribute
 
 # Overall styling
-@docs maxBarWidth, maxBarWidthPer, label
+@docs stackByY, maxBarWidth, maxBarWidthPer, label
 
 # Individual bar styling
 @docs fill, opacity, customAttrs
@@ -57,6 +57,26 @@ maxBarWidthPer max config =
     { config | maxWidth = Percentage max }
 
 
+{-| Use your own view for your label on top of bar. Will be passed the y value as an argument!
+
+    myBarSeries : Pile.Element msg
+    myBarSeries =
+      Pile.bars
+          [ Bars.label (\_ _ -> Svg.text_ [] [ Svg.text "my bar" ])
+          ]
+          data
+-}
+label : (Int -> Float -> Svg.Svg a) -> Attribute a
+label view config =
+    { config | labelView = view }
+
+
+{-| -}
+stackByY : Attribute a
+stackByY config =
+    { config | stackBy = Y }
+
+
 
 -- STYLES
 
@@ -73,20 +93,6 @@ fill fill config =
 opacity : Float -> StyleAttribute a
 opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
-
-
-{-| Use your own view for your label on top of bar. Will be passed the y value as an argument!
-
-    myBarSeries : Pile.Element msg
-    myBarSeries =
-      Pile.bars
-          [ Bars.label (\_ _ -> Svg.text_ [] [ Svg.text "my bar" ])
-          ]
-          data
--}
-label : (Int -> Float -> Svg.Svg a) -> Attribute a
-label view config =
-    { config | labelView = view }
 
 
 {-| Add your own attributes. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
