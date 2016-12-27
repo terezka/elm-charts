@@ -131,7 +131,7 @@ type alias DataTransformers data =
 
 
 {-| -}
-toBarData : DataTransformers data -> List data -> List ( Value, List Value )
+toBarData : DataTransformers data -> List data -> List Data
 toBarData transform allData =
     List.indexedMap (\index data -> ( getXValue transform index data, transform.yValues data )) allData
 

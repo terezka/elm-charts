@@ -45,7 +45,6 @@ view state =
         [ size plotSize
         , margin ( 10, 20, 40, 20 )
         , padding ( 0, 40 )
-        , rangeLowest (min -0.5)
         , rangeHighest (\h -> h + 0.5)
         ]
         [ bars
@@ -54,10 +53,10 @@ view state =
             , [ Bars.fill Common.skinFill ]
             , [ Bars.fill Common.pinkFill ]
             ]
-            [ [ 1, 4, 5 ]
-            , [ 2, 1, 3 ]
-            , [ 4, 5, 2 ]
-            , [ 4, 5, 2 ]
+            [ ( 1, [ 1, 4, 5 ] )
+            , ( 2, [ 2, 1, 3 ] )
+            , ( 3, [ 4, 5, 2 ] )
+            , ( 4, [ 4, 5, 2 ] )
             ]
         , xAxis
             [ Axis.line
