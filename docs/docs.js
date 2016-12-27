@@ -11059,6 +11059,30 @@ var _terezka$elm_plot$Internal_Bars$StyleConfig = F2(
 		return {style: a, customAttrs: b};
 	});
 
+var _terezka$elm_plot$Plot_Bars$getXValue = F3(
+	function (_p0, index, data) {
+		var _p1 = _p0;
+		var _p2 = _p1.xValue;
+		if (_p2.ctor === 'Just') {
+			return _p2._0(data);
+		} else {
+			return _elm_lang$core$Basics$toFloat(index);
+		}
+	});
+var _terezka$elm_plot$Plot_Bars$toBarData = F2(
+	function (transform, allData) {
+		return A2(
+			_elm_lang$core$List$indexedMap,
+			F2(
+				function (index, data) {
+					return {
+						ctor: '_Tuple2',
+						_0: A3(_terezka$elm_plot$Plot_Bars$getXValue, transform, index, data),
+						_1: transform.yValues(data)
+					};
+				}),
+			allData);
+	});
 var _terezka$elm_plot$Plot_Bars$customAttrs = F2(
 	function (attrs, config) {
 		return _elm_lang$core$Native_Utils.update(
@@ -11119,6 +11143,10 @@ var _terezka$elm_plot$Plot_Bars$maxBarWidth = F2(
 			{
 				maxWidth: _terezka$elm_plot$Internal_Types$Fixed(max)
 			});
+	});
+var _terezka$elm_plot$Plot_Bars$DataTransformers = F2(
+	function (a, b) {
+		return {yValues: a, xValue: b};
 	});
 
 var _terezka$elm_plot$Internal_Scatter$toSvgCircle = F2(
@@ -13539,7 +13567,7 @@ var _terezka$elm_plot$PlotBars$view = A2(
 						_0: 2,
 						_1: {
 							ctor: '::',
-							_0: 1,
+							_0: -1,
 							_1: {
 								ctor: '::',
 								_0: 4,
@@ -13551,7 +13579,7 @@ var _terezka$elm_plot$PlotBars$view = A2(
 						ctor: '::',
 						_0: {
 							ctor: '::',
-							_0: 4,
+							_0: -4,
 							_1: {
 								ctor: '::',
 								_0: 2,
@@ -13569,7 +13597,7 @@ var _terezka$elm_plot$PlotBars$view = A2(
 								_0: 4,
 								_1: {
 									ctor: '::',
-									_0: 5,
+									_0: -5,
 									_1: {
 										ctor: '::',
 										_0: 2,

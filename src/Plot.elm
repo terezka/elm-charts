@@ -106,7 +106,7 @@ type alias Style =
 type Element msg
     = Line (LineInternal.Config msg) (List Point)
     | Area (AreaInternal.Config msg) (List Point)
-    | Bars (BarsInternal.Config msg) (List (BarsInternal.StyleConfig msg)) (List (List Value))
+    | Bars (BarsInternal.Config msg) (List (BarsInternal.StyleConfig msg)) (List Bars.Data)
     | Scatter (ScatterInternal.Config msg) (List Point)
     | Hint (HintInternal.Config msg) (Maybe Point)
     | Axis (AxisInternal.Config msg)
@@ -289,7 +289,7 @@ scatter attrs =
 
 {-| This wraps all your bar series.
 -}
-bars : List (Bars.Attribute msg) -> List (List (Bars.StyleAttribute msg)) -> List (List Value) -> Element msg
+bars : List (Bars.Attribute msg) -> List (List (Bars.StyleAttribute msg)) -> List Bars.Data -> Element msg
 bars attrs styleAttrsList groups =
     Bars
         (List.foldr (<|) BarsInternal.defaultConfig attrs)

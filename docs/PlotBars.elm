@@ -47,11 +47,16 @@ view =
             , [ Bars.fill Common.skinFill ]
             , [ Bars.fill Common.pinkFill ]
             ]
-            [ [ -1, -3, 2 ]
-            , [ 2, 1, 4 ]
-            , [ 4, 2, 1 ]
-            , [ 4, 5, 2 ]
-            ]
+            (Bars.toBarData
+                { yValues = .values
+                , xValue = Nothing
+                }
+                [ { values = [ -1, -3, 2 ] }
+                , { values = [ 2, -1, 4 ] }
+                , { values = [ -4, 2, 1 ] }
+                , { values = [ 4, -5, 2 ] }
+                ]
+            )
         , yAxis []
         , xAxis
             [ Axis.line [ Line.stroke Common.axisColor ]

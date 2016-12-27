@@ -1,4 +1,18 @@
-module Plot.Bars exposing (..)
+module Plot.Bars
+    exposing
+        ( Attribute
+        , StyleAttribute
+        , DataTransformers
+        , Data
+        , stackByY
+        , maxBarWidth
+        , maxBarWidthPer
+        , label
+        , fill
+        , opacity
+        , customAttrs
+        , toBarData
+        )
 
 {-|
   Attributes to alter the view of the bars.
@@ -17,7 +31,7 @@ module Plot.Bars exposing (..)
             ]
 
 # Definition
-@docs Attribute, StyleAttribute
+@docs Attribute, StyleAttribute, Data, DataTransformers
 
 # Overall styling
 @docs stackByY, maxBarWidth, maxBarWidthPer, label
@@ -25,12 +39,14 @@ module Plot.Bars exposing (..)
 # Individual bar styling
 @docs fill, opacity, customAttrs
 
+# General
+@docs toBarData
 
 -}
 
 import Svg
 import Internal.Bars as Internal
-import Internal.Types exposing (Style, Point, Orientation(..), MaxWidth(..))
+import Internal.Types exposing (Style, Point, Orientation(..), MaxWidth(..), Value)
 
 
 {-| -}
@@ -41,6 +57,11 @@ type alias Attribute msg =
 {-| -}
 type alias StyleAttribute msg =
     Internal.StyleConfig msg -> Internal.StyleConfig msg
+
+
+{-| -}
+type alias Data =
+    Internal.Group
 
 
 {-| Set a fixed max width (in pixels) on your bars.
@@ -100,3 +121,26 @@ opacity opacity config =
 customAttrs : List (Svg.Attribute a) -> StyleAttribute a
 customAttrs attrs config =
     { config | customAttrs = attrs }
+
+
+{-| -}
+type alias DataTransformers data =
+    { yValues : data -> List Value
+    , xValue : Maybe (data -> Value)
+    }
+
+
+{-| -}
+toBarData : DataTransformers data -> List data -> List ( Value, List Value )
+toBarData transform allData =
+    List.indexedMap (\index data -> ( getXValue transform index data, transform.yValues data )) allData
+
+
+getXValue : DataTransformers data -> Int -> data -> Value
+getXValue { xValue } index data =
+    case xValue of
+        Just getXValue ->
+            getXValue data
+
+        Nothing ->
+            toFloat index

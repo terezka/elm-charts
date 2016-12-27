@@ -2,6 +2,7 @@ module Internal.Bars
     exposing
         ( Config
         , StyleConfig
+        , Group
         , defaultConfig
         , defaultStyleConfig
         , view
@@ -17,7 +18,7 @@ import Internal.Stuff exposing (..)
 
 
 type alias Group =
-    List Value
+    ( Value, List Value )
 
 
 type alias Config msg =
@@ -75,10 +76,10 @@ view meta config styleConfigs groups =
 
 
 viewGroupStackedX : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Int -> Group -> Svg.Svg msg
-viewGroupStackedX ({ toSvgCoords, scale } as meta) config styleConfigs width groupIndex group =
+viewGroupStackedX ({ toSvgCoords, scale } as meta) config styleConfigs width groupIndex ( _, yValues ) =
     let
         props =
-            List.indexedMap (getPropsStackedX meta config styleConfigs width groupIndex) group
+            List.indexedMap (getPropsStackedX meta config styleConfigs width groupIndex) yValues
     in
         Svg.g [] (List.map2 viewBar props styleConfigs)
 
@@ -111,24 +112,24 @@ getPropsStackedX meta config styleConfigs width groupIndex index yValue =
 
 
 viewGroupStackedY : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Int -> Group -> Svg.Svg msg
-viewGroupStackedY meta config styleConfigs width groupIndex group =
+viewGroupStackedY meta config styleConfigs width groupIndex ( _, yValues ) =
     let
         props =
             List.indexedMap
-                (getPropsStackedY meta config styleConfigs width groupIndex group)
-                group
+                (getPropsStackedY meta config styleConfigs width groupIndex yValues)
+                yValues
     in
         Svg.g [] (List.map2 viewBar props styleConfigs)
 
 
-getPropsStackedY : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Int -> Group -> Int -> Value -> ( Float, Float, Point, Svg.Svg msg )
-getPropsStackedY meta config styleConfigs width groupIndex group index yValue =
+getPropsStackedY : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Int -> List Value -> Int -> Value -> ( Float, Float, Point, Svg.Svg msg )
+getPropsStackedY meta config styleConfigs width groupIndex yValues index yValue =
     let
         offsetGroup =
             width / 2
 
         offsetBar =
-            List.take index group
+            List.take index yValues
                 |> List.filter (\y -> (y < 0) == (yValue < 0))
                 |> List.sum
 
@@ -202,21 +203,21 @@ toBarWidth { maxWidth } groups default =
 
 toPoints : Config msg -> List Group -> List Point
 toPoints config groups =
-    List.indexedMap (toPoint config) groups
+    List.map (toPoint config) groups
 
 
-toPoint : Config msg -> Int -> Group -> Point
-toPoint { stackBy } index group =
+toPoint : Config msg -> Group -> Point
+toPoint { stackBy } ( x, yValues ) =
     if stackBy == X then
-        ( toFloat index, getHighest group )
+        ( x, getHighest yValues )
     else
-        ( toFloat index, List.sum group )
+        ( x, List.sum yValues )
 
 
 getYValues : Value -> List Group -> Maybe (List Value)
 getYValues xValue groups =
-    List.indexedMap (\i group -> ( i, Just group )) groups
-        |> List.filter (\( i, g ) -> toFloat i == xValue)
+    List.map (\( x, ys ) -> ( x, Just ys )) groups
+        |> List.filter (\( x, _ ) -> x == xValue)
         |> List.head
         |> Maybe.withDefault ( 0, Nothing )
         |> Tuple.second
