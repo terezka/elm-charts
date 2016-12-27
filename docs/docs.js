@@ -10929,11 +10929,21 @@ var _terezka$elm_plot$Internal_Bars$getPropsStackedY = F8(
 		var height = (yValue * meta.scale.y.length) / meta.scale.y.range;
 		var heightOffset = (_elm_lang$core$Native_Utils.cmp(height, 0) < 0) ? height : 0;
 		var label = A2(config.labelView, index, yValue);
-		var offsetBar = A2(
-			_elm_lang$core$Debug$log,
-			'here',
-			_elm_lang$core$List$sum(
-				A2(_elm_lang$core$List$take, index, group)));
+		var offsetBar = function () {
+			var amountOfNegatives = _elm_lang$core$List$length(
+				A2(
+					_elm_lang$core$List$filter,
+					function (y) {
+						return _elm_lang$core$Native_Utils.cmp(y, 0) < 0;
+					},
+					group));
+			return (_elm_lang$core$Native_Utils.cmp(yValue, 0) > 0) ? _elm_lang$core$List$sum(
+				A2(
+					_elm_lang$core$List$take,
+					index - amountOfNegatives,
+					A2(_elm_lang$core$List$drop, amountOfNegatives, group))) : _elm_lang$core$List$sum(
+				A2(_elm_lang$core$List$take, index, group));
+		}();
 		var _p20 = meta.toSvgCoords(
 			{
 				ctor: '_Tuple2',
@@ -10952,65 +10962,61 @@ var _terezka$elm_plot$Internal_Bars$getPropsStackedY = F8(
 			_3: label
 		};
 	});
+var _terezka$elm_plot$Internal_Bars$sortStackedY = F2(
+	function (a, b) {
+		return (((_elm_lang$core$Native_Utils.cmp(a, 0) > 0) && (_elm_lang$core$Native_Utils.cmp(b, 0) < 1)) || ((_elm_lang$core$Native_Utils.cmp(b, 0) > 0) && (_elm_lang$core$Native_Utils.cmp(a, 0) < 1))) ? A2(_elm_lang$core$Basics$compare, a, b) : _elm_lang$core$Basics$EQ;
+	});
 var _terezka$elm_plot$Internal_Bars$viewGroupStackedY = F6(
-	function (_p21, config, styleConfigs, width, groupIndex, group) {
-		var _p22 = _p21;
-		var _p26 = _p22;
-		var _p23 = A2(
-			_elm_lang$core$List$partition,
-			function (_p24) {
-				var _p25 = _p24;
-				return _elm_lang$core$Native_Utils.cmp(_p25._0, 0) < 0;
-			},
-			A3(
-				_elm_lang$core$List$map2,
+	function (meta, config, styleConfigs, width, groupIndex, group) {
+		var sortedBarsValues = A2(
+			_elm_lang$core$Debug$log,
+			'here',
+			A2(
+				_elm_lang$core$List$sortWith,
 				F2(
-					function (v0, v1) {
-						return {ctor: '_Tuple2', _0: v0, _1: v1};
+					function (_p22, _p21) {
+						var _p23 = _p22;
+						var _p24 = _p21;
+						return A2(_terezka$elm_plot$Internal_Bars$sortStackedY, _p23._0, _p24._0);
 					}),
-				group,
-				styleConfigs));
-		var positive = _p23._0;
-		var negative = _p23._1;
-		var groupPositive = A2(_elm_lang$core$List$map, _elm_lang$core$Tuple$first, positive);
-		var propsPositive = A2(
+				A3(
+					_elm_lang$core$List$map2,
+					F2(
+						function (v0, v1) {
+							return {ctor: '_Tuple2', _0: v0, _1: v1};
+						}),
+					group,
+					styleConfigs)));
+		var _p25 = _elm_lang$core$List$unzip(sortedBarsValues);
+		var groupSorted = _p25._0;
+		var styleConfigsSorted = _p25._1;
+		var props = A2(
 			_elm_lang$core$List$indexedMap,
-			A6(_terezka$elm_plot$Internal_Bars$getPropsStackedY, _p26, config, styleConfigs, width, groupIndex, groupPositive),
-			groupPositive);
-		var styleConfigsPositive = A2(_elm_lang$core$List$map, _elm_lang$core$Tuple$second, positive);
-		var groupNegative = A2(_elm_lang$core$List$map, _elm_lang$core$Tuple$first, negative);
-		var propsNegative = A2(
-			_elm_lang$core$List$indexedMap,
-			A6(_terezka$elm_plot$Internal_Bars$getPropsStackedY, _p26, config, styleConfigs, width, groupIndex, groupNegative),
-			groupNegative);
-		var styleConfigsNegative = A2(_elm_lang$core$List$map, _elm_lang$core$Tuple$second, negative);
-		var bars = A2(
-			_elm_lang$core$Basics_ops['++'],
-			A3(_elm_lang$core$List$map2, _terezka$elm_plot$Internal_Bars$viewBar, propsPositive, styleConfigsPositive),
-			A3(_elm_lang$core$List$map2, _terezka$elm_plot$Internal_Bars$viewBar, propsNegative, styleConfigsNegative));
+			A6(_terezka$elm_plot$Internal_Bars$getPropsStackedY, meta, config, styleConfigs, width, groupIndex, groupSorted),
+			groupSorted);
 		return A2(
 			_elm_lang$svg$Svg$g,
 			{ctor: '[]'},
-			bars);
+			A3(_elm_lang$core$List$map2, _terezka$elm_plot$Internal_Bars$viewBar, props, styleConfigsSorted));
 	});
 var _terezka$elm_plot$Internal_Bars$getPropsStackedX = F7(
 	function (meta, config, styleConfigs, width, groupIndex, index, yValue) {
 		var label = A2(config.labelView, index, yValue);
-		var _p27 = meta.toSvgCoords(
+		var _p26 = meta.toSvgCoords(
 			{
 				ctor: '_Tuple2',
 				_0: _elm_lang$core$Basics$toFloat(groupIndex),
 				_1: yValue
 			});
-		var xSvgPure = _p27._0;
-		var ySvg = _p27._1;
+		var xSvgPure = _p26._0;
+		var ySvg = _p26._1;
 		var offsetBar = _elm_lang$core$Basics$toFloat(index) * width;
 		var offsetGroup = (_elm_lang$core$Basics$toFloat(
 			_elm_lang$core$List$length(styleConfigs)) * width) / 2;
 		var xSvg = (xSvgPure - offsetGroup) + offsetBar;
-		var _p28 = meta.toSvgCoords(
+		var _p27 = meta.toSvgCoords(
 			{ctor: '_Tuple2', _0: 0, _1: 0});
-		var originY = _p28._1;
+		var originY = _p27._1;
 		var height = _elm_lang$core$Basics$abs(originY - ySvg);
 		return {
 			ctor: '_Tuple4',
@@ -11025,11 +11031,11 @@ var _terezka$elm_plot$Internal_Bars$getPropsStackedX = F7(
 		};
 	});
 var _terezka$elm_plot$Internal_Bars$viewGroupStackedX = F6(
-	function (_p29, config, styleConfigs, width, groupIndex, group) {
-		var _p30 = _p29;
+	function (_p28, config, styleConfigs, width, groupIndex, group) {
+		var _p29 = _p28;
 		var props = A2(
 			_elm_lang$core$List$indexedMap,
-			A5(_terezka$elm_plot$Internal_Bars$getPropsStackedX, _p30, config, styleConfigs, width, groupIndex),
+			A5(_terezka$elm_plot$Internal_Bars$getPropsStackedX, _p29, config, styleConfigs, width, groupIndex),
 			group);
 		return A2(
 			_elm_lang$svg$Svg$g,
@@ -11039,8 +11045,8 @@ var _terezka$elm_plot$Internal_Bars$viewGroupStackedX = F6(
 var _terezka$elm_plot$Internal_Bars$view = F4(
 	function (meta, config, styleConfigs, groups) {
 		var viewGroup = function () {
-			var _p31 = config.stackBy;
-			if (_p31.ctor === 'X') {
+			var _p30 = config.stackBy;
+			if (_p30.ctor === 'X') {
 				return _terezka$elm_plot$Internal_Bars$viewGroupStackedX;
 			} else {
 				return _terezka$elm_plot$Internal_Bars$viewGroupStackedY;
@@ -11060,7 +11066,7 @@ var _terezka$elm_plot$Internal_Bars$view = F4(
 				groups));
 	});
 var _terezka$elm_plot$Internal_Bars$defaultLabelView = F2(
-	function (_p33, _p32) {
+	function (_p32, _p31) {
 		return _elm_lang$svg$Svg$text('');
 	});
 var _terezka$elm_plot$Internal_Bars$defaultStyleConfig = {
@@ -13547,13 +13553,13 @@ var _terezka$elm_plot$PlotBars$view = A2(
 				ctor: '::',
 				_0: {
 					ctor: '::',
-					_0: -5,
+					_0: 1,
 					_1: {
 						ctor: '::',
-						_0: 3,
+						_0: -3,
 						_1: {
 							ctor: '::',
-							_0: -1,
+							_0: -2,
 							_1: {ctor: '[]'}
 						}
 					}
