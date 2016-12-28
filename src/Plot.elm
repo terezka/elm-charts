@@ -570,12 +570,6 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
 
         yTicks =
             getLastGetTickValues axisConfigs.y yScale
-
-        test =
-            xScale |> Debug.log "xScale"
-
-        test2 =
-            toSvgCoordsX xScale yScale ( xScale.lowest, 0 ) |> Debug.log "xScale"
     in
         { scale = Oriented xScale yScale
         , toSvgCoords = toSvgCoordsX xScale yScale

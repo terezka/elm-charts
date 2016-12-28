@@ -11750,7 +11750,6 @@ var _terezka$elm_plot$Plot$calculateMeta = F2(
 			{ctor: '_Tuple2', _0: 0, _1: 0},
 			values.x);
 		var xTicks = A2(_terezka$elm_plot$Plot$getLastGetTickValues, axisConfigs.x, xScale);
-		var test = A2(_elm_lang$core$Debug$log, 'xScale', xScale);
 		var yScale = A5(
 			_terezka$elm_plot$Internal_Scale$getScale,
 			_p14.y,
@@ -11759,14 +11758,6 @@ var _terezka$elm_plot$Plot$calculateMeta = F2(
 			_p12.padding,
 			values.y);
 		var yTicks = A2(_terezka$elm_plot$Plot$getLastGetTickValues, axisConfigs.y, yScale);
-		var test2 = A2(
-			_elm_lang$core$Debug$log,
-			'xScale',
-			A3(
-				_terezka$elm_plot$Internal_Scale$toSvgCoordsX,
-				xScale,
-				yScale,
-				{ctor: '_Tuple2', _0: xScale.lowest, _1: 0}));
 		return {
 			scale: A2(_terezka$elm_plot$Internal_Types$Oriented, xScale, yScale),
 			toSvgCoords: A2(_terezka$elm_plot$Internal_Scale$toSvgCoordsX, xScale, yScale),
@@ -14015,7 +14006,7 @@ var _terezka$elm_plot$PlotHint$view = function (state) {
 					_1: {
 						ctor: '::',
 						_0: _terezka$elm_plot$Plot$rangeLowest(
-							_elm_lang$core$Basics$min(-0.5)),
+							_elm_lang$core$Basics$min(0.5)),
 						_1: {
 							ctor: '::',
 							_0: _terezka$elm_plot$Plot$rangeHighest(

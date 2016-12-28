@@ -45,7 +45,7 @@ view state =
         [ size plotSize
         , margin ( 10, 20, 41, 21 )
         , padding ( 0, 40 )
-        , rangeLowest (min -0.5)
+        , rangeLowest (min 0.5)
         , rangeHighest (\h -> h + 0.5)
         ]
         [ bars
