@@ -11543,10 +11543,7 @@ var _terezka$elm_plot$Internal_Scale$toSvgCoordsX = F3(
 		var _p7 = _p6;
 		return {
 			ctor: '_Tuple2',
-			_0: A2(
-				_terezka$elm_plot$Internal_Scale$scaleValue,
-				xScale,
-				_elm_lang$core$Basics$abs(xScale.lowest) + _p7._0),
+			_0: A2(_terezka$elm_plot$Internal_Scale$scaleValue, xScale, _p7._0 - xScale.lowest),
 			_1: A2(_terezka$elm_plot$Internal_Scale$scaleValue, yScale, yScale.highest - _p7._1)
 		};
 	});
@@ -11753,6 +11750,7 @@ var _terezka$elm_plot$Plot$calculateMeta = F2(
 			{ctor: '_Tuple2', _0: 0, _1: 0},
 			values.x);
 		var xTicks = A2(_terezka$elm_plot$Plot$getLastGetTickValues, axisConfigs.x, xScale);
+		var test = A2(_elm_lang$core$Debug$log, 'xScale', xScale);
 		var yScale = A5(
 			_terezka$elm_plot$Internal_Scale$getScale,
 			_p14.y,
@@ -11761,6 +11759,14 @@ var _terezka$elm_plot$Plot$calculateMeta = F2(
 			_p12.padding,
 			values.y);
 		var yTicks = A2(_terezka$elm_plot$Plot$getLastGetTickValues, axisConfigs.y, yScale);
+		var test2 = A2(
+			_elm_lang$core$Debug$log,
+			'xScale',
+			A3(
+				_terezka$elm_plot$Internal_Scale$toSvgCoordsX,
+				xScale,
+				yScale,
+				{ctor: '_Tuple2', _0: xScale.lowest, _1: 0}));
 		return {
 			scale: A2(_terezka$elm_plot$Internal_Types$Oriented, xScale, yScale),
 			toSvgCoords: A2(_terezka$elm_plot$Internal_Scale$toSvgCoordsX, xScale, yScale),
@@ -14001,18 +14007,23 @@ var _terezka$elm_plot$PlotHint$view = function (state) {
 			_1: {
 				ctor: '::',
 				_0: _terezka$elm_plot$Plot$margin(
-					{ctor: '_Tuple4', _0: 10, _1: 20, _2: 40, _3: 20}),
+					{ctor: '_Tuple4', _0: 10, _1: 20, _2: 41, _3: 21}),
 				_1: {
 					ctor: '::',
 					_0: _terezka$elm_plot$Plot$padding(
 						{ctor: '_Tuple2', _0: 0, _1: 40}),
 					_1: {
 						ctor: '::',
-						_0: _terezka$elm_plot$Plot$rangeHighest(
-							function (h) {
-								return h + 0.5;
-							}),
-						_1: {ctor: '[]'}
+						_0: _terezka$elm_plot$Plot$rangeLowest(
+							_elm_lang$core$Basics$min(-0.5)),
+						_1: {
+							ctor: '::',
+							_0: _terezka$elm_plot$Plot$rangeHighest(
+								function (h) {
+									return h + 0.5;
+								}),
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			}

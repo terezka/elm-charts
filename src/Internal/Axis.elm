@@ -5,10 +5,8 @@ import Internal.Tick as Tick
 import Internal.Label as Label
 import Internal.Line as Line
 import Internal.Draw as Draw exposing (..)
-import Round
 import Svg
 import Svg.Attributes
-import Debug
 
 
 type alias Config msg =
