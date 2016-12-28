@@ -8,12 +8,12 @@ module Internal.Label
         , defaultConfig
         , defaultStyleConfig
         , toView
+        , defaultView
         , getValuesIndexed
         )
 
 import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
 import Internal.Draw as Draw exposing (..)
-import Internal.Stuff exposing ((?))
 import Internal.Tick as Tick
 import Svg
 import Svg.Attributes

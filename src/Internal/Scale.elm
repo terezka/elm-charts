@@ -52,7 +52,7 @@ fromSvgCoords xScale yScale ( x, y ) =
 
 toSvgCoordsX : Scale -> Scale -> Point -> Point
 toSvgCoordsX xScale yScale ( x, y ) =
-    ( scaleValue xScale (abs xScale.lowest + x)
+    ( scaleValue xScale (x - xScale.lowest)
     , scaleValue yScale (yScale.highest - y)
     )
 

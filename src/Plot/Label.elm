@@ -265,8 +265,8 @@ viewCustom view config =
  then this attribute will have no effect.
 -}
 values : List Float -> Attribute msg
-values filter config =
-    { config | valueConfig = Internal.CustomValues filter }
+values values config =
+    { config | valueConfig = Internal.CustomValues values }
 
 
 {-| Add a filter determining which of the _tick values_ are added a label.

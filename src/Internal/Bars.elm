@@ -2,6 +2,7 @@ module Internal.Bars
     exposing
         ( Config
         , StyleConfig
+        , Group
         , defaultConfig
         , defaultStyleConfig
         , view
@@ -14,15 +15,16 @@ import Svg.Attributes
 import Internal.Types exposing (Style, Orientation(..), MaxWidth(..), Meta, Value, Point, Edges, Oriented, Scale)
 import Internal.Draw exposing (..)
 import Internal.Stuff exposing (..)
+import Internal.Label as Label
 
 
 type alias Group =
-    List Value
+    ( Value, List Value )
 
 
 type alias Config msg =
     { stackBy : Orientation
-    , labelView : Int -> Float -> Svg.Svg msg
+    , labelConfig : Label.StyleConfig msg
     , maxWidth : MaxWidth
     }
 
@@ -36,7 +38,7 @@ type alias StyleConfig msg =
 defaultConfig : Config msg
 defaultConfig =
     { stackBy = X
-    , labelView = defaultLabelView
+    , labelConfig = defaultStyleConfigLabel
     , maxWidth = Percentage 100
     }
 
@@ -48,9 +50,13 @@ defaultStyleConfig =
     }
 
 
-defaultLabelView : Int -> Float -> Svg.Svg msg
-defaultLabelView _ _ =
-    Svg.text ""
+defaultStyleConfigLabel : Label.StyleConfig msg
+defaultStyleConfigLabel =
+    let
+        config =
+            Label.defaultStyleConfig
+    in
+        { config | format = always "" }
 
 
 
@@ -71,19 +77,19 @@ view meta config styleConfigs groups =
                 Y ->
                     viewGroupStackedY
     in
-        Svg.g [] (List.indexedMap (viewGroup meta config styleConfigs width) groups)
+        Svg.g [] (List.map (viewGroup meta config styleConfigs width) groups)
 
 
-viewGroupStackedX : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Int -> Group -> Svg.Svg msg
-viewGroupStackedX ({ toSvgCoords, scale } as meta) config styleConfigs width groupIndex group =
+viewGroupStackedX : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Group -> Svg.Svg msg
+viewGroupStackedX meta config styleConfigs width ( xValue, yValues ) =
     let
         props =
-            List.indexedMap (getPropsStackedX meta config styleConfigs width groupIndex) group
+            List.indexedMap (getPropsStackedX meta config styleConfigs width xValue) yValues
     in
         Svg.g [] (List.map2 viewBar props styleConfigs)
 
 
-getPropsStackedX : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Int -> Int -> Value -> ( Float, Float, Point, Svg.Svg msg )
+getPropsStackedX : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Value -> Int -> Value -> ( Float, Float, Point, Svg.Svg msg )
 getPropsStackedX meta config styleConfigs width groupIndex index yValue =
     let
         ( _, originY ) =
@@ -96,13 +102,13 @@ getPropsStackedX meta config styleConfigs width groupIndex index yValue =
             toFloat index * width
 
         ( xSvgPure, ySvg ) =
-            meta.toSvgCoords ( toFloat groupIndex, yValue )
+            meta.toSvgCoords ( groupIndex, yValue )
 
         xSvg =
             xSvgPure - offsetGroup + offsetBar
 
         label =
-            config.labelView index yValue
+            Label.defaultView config.labelConfig X ( index, yValue )
 
         height =
             abs (originY - ySvg)
@@ -110,53 +116,36 @@ getPropsStackedX meta config styleConfigs width groupIndex index yValue =
         ( width, height, ( xSvg, min originY ySvg ), label )
 
 
-viewGroupStackedY : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Int -> Group -> Svg.Svg msg
-viewGroupStackedY ({ toSvgCoords, scale } as meta) config styleConfigs width groupIndex group =
+viewGroupStackedY : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Group -> Svg.Svg msg
+viewGroupStackedY meta config styleConfigs width ( xValue, yValues ) =
     let
-        ( positive, negative ) =
-            List.partition (\( y, _ ) -> y < 0) (List.map2 (,) group styleConfigs)
-
-        groupPositive =
-            List.map Tuple.first positive
-
-        styleConfigsPositive =
-            List.map Tuple.second positive
-
-        groupNegative =
-            List.map Tuple.first negative
-
-        styleConfigsNegative =
-            List.map Tuple.second negative
-
-        propsPositive =
-            List.indexedMap (getPropsStackedY meta config styleConfigs width groupIndex groupPositive) groupPositive
-
-        propsNegative =
-            List.indexedMap (getPropsStackedY meta config styleConfigs width groupIndex groupNegative) groupNegative
-
-        bars =
-            (List.map2 viewBar propsPositive styleConfigsPositive) ++ (List.map2 viewBar propsNegative styleConfigsNegative)
+        props =
+            List.indexedMap
+                (getPropsStackedY meta config styleConfigs width xValue yValues)
+                yValues
     in
-        Svg.g [] bars
+        Svg.g [] (List.map2 viewBar props styleConfigs |> List.reverse)
 
 
-getPropsStackedY : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Int -> Group -> Int -> Value -> ( Float, Float, Point, Svg.Svg msg )
-getPropsStackedY meta config styleConfigs width groupIndex group index yValue =
+getPropsStackedY : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Value -> List Value -> Int -> Value -> ( Float, Float, Point, Svg.Svg msg )
+getPropsStackedY meta config styleConfigs width groupIndex yValues index yValue =
     let
         offsetGroup =
             width / 2
 
         offsetBar =
-            List.sum (List.take index group)
+            List.take index yValues
+                |> List.filter (\y -> (y < 0) == (yValue < 0))
+                |> List.sum
 
         ( xSvgPure, ySvg ) =
-            meta.toSvgCoords ( toFloat groupIndex, yValue + offsetBar )
+            meta.toSvgCoords ( groupIndex, yValue + offsetBar )
 
         xSvg =
             xSvgPure - offsetGroup
 
         label =
-            config.labelView index yValue
+            Label.defaultView config.labelConfig X ( index, yValue )
 
         height =
             yValue * meta.scale.y.length / meta.scale.y.range
@@ -174,12 +163,12 @@ viewBar : ( Float, Float, Point, Svg.Svg msg ) -> StyleConfig msg -> Svg.Svg msg
 viewBar ( width, height, ( xSvg, ySvg ), label ) styleConfig =
     Svg.g
         []
-        [ Svg.g
-            [ Svg.Attributes.transform (toTranslate ( xSvg + width / 2, ySvg - 5 ))
+        [ viewRect styleConfig ( xSvg, ySvg ) width height
+        , Svg.g
+            [ Svg.Attributes.transform (toTranslate ( xSvg + width / 2, ySvg + 5 ))
             , Svg.Attributes.style "text-anchor: middle;"
             ]
             [ label ]
-        , viewRect styleConfig ( xSvg, ySvg ) width height
         ]
 
 
@@ -196,10 +185,15 @@ viewRect styleConfig ( xSvg, ySvg ) width height =
 
 
 toAutoWidth : Meta -> Config msg -> List (StyleConfig msg) -> List Group -> Float
-toAutoWidth { scale, toSvgCoords } { maxWidth } styleConfigs groups =
+toAutoWidth { scale, toSvgCoords } { maxWidth, stackBy } styleConfigs groups =
     let
         width =
-            1 / toFloat (List.length styleConfigs)
+            case stackBy of
+                X ->
+                    1 / toFloat (List.length styleConfigs)
+
+                Y ->
+                    1
     in
         width * scale.x.length / scale.x.range
 
@@ -219,21 +213,25 @@ toBarWidth { maxWidth } groups default =
 
 toPoints : Config msg -> List Group -> List Point
 toPoints config groups =
-    List.indexedMap (toPoint config) groups
+    List.foldl (foldPoints config) [] groups
 
 
-toPoint : Config msg -> Int -> Group -> Point
-toPoint { stackBy } index group =
+foldPoints : Config msg -> Group -> List Point -> List Point
+foldPoints { stackBy } ( x, yValues ) points =
     if stackBy == X then
-        ( toFloat index, getHighest group )
+        points ++ [ ( x, getLowest yValues ), ( x, getHighest yValues ) ]
     else
-        ( toFloat index, List.sum group )
+        let
+            ( positive, negative ) =
+                List.partition (\y -> y >= 0) yValues
+        in
+            points ++ [ ( x, List.sum positive ), ( x, List.sum negative ) ]
 
 
 getYValues : Value -> List Group -> Maybe (List Value)
 getYValues xValue groups =
-    List.indexedMap (\i group -> ( i, Just group )) groups
-        |> List.filter (\( i, g ) -> toFloat i == xValue)
+    List.map (\( x, ys ) -> ( x, Just ys )) groups
+        |> List.filter (\( x, _ ) -> x == xValue)
         |> List.head
         |> Maybe.withDefault ( 0, Nothing )
         |> Tuple.second

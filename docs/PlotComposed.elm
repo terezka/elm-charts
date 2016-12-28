@@ -8,7 +8,6 @@ import Plot.Grid as Grid
 import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Hint as Hint
-import Plot.Bars as Bars
 import Plot.Label as Label
 import Common
 

@@ -33,30 +33,35 @@ view : Svg.Svg a
 view =
     plot
         [ size Common.plotSize
-        , margin ( 10, 20, 40, 20 )
+        , margin ( 10, 20, 40, 30 )
         , padding ( 0, 20 )
         , rangeLowest (min -0.5)
         , rangeHighest (\h -> h + 0.5)
         ]
         [ bars
-            [ Bars.maxBarWidthPer 85
+            [ Bars.maxBarWidth 20
+            , Bars.stackByY
             ]
             [ [ Bars.fill Common.blueFill ]
             , [ Bars.fill Common.skinFill ]
             , [ Bars.fill Common.pinkFill ]
             ]
-            [ [ 5, 3, 1 ]
-            , [ 2, 1, 4 ]
-            , [ 4, 2, 1 ]
-            , [ 4, 5, 2 ]
-            ]
+            (Bars.toBarData
+                { yValues = .values
+                , xValue = Nothing
+                }
+                [ { values = [ 1, 3, 2 ] }
+                , { values = [ 2, 1, 4 ] }
+                , { values = [ 4, 2, 1 ] }
+                , { values = [ 4, 5, 2 ] }
+                ]
+            )
         , xAxis
             [ Axis.line [ Line.stroke Common.axisColor ]
             , Axis.tick [ Tick.delta 1 ]
             , Axis.label
                 [ Label.view
-                    [ Label.stroke "#969696"
-                    , Label.formatFromList [ "1st", "2nd", "3rd", "4th" ]
+                    [ Label.formatFromList [ "1st", "2nd", "3rd", "4th" ]
                     ]
                 ]
             ]

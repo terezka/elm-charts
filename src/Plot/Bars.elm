@@ -1,4 +1,18 @@
-module Plot.Bars exposing (..)
+module Plot.Bars
+    exposing
+        ( Attribute
+        , StyleAttribute
+        , DataTransformers
+        , Data
+        , stackByY
+        , maxBarWidth
+        , maxBarWidthPer
+        , label
+        , fill
+        , opacity
+        , customAttrs
+        , toBarData
+        )
 
 {-|
   Attributes to alter the view of the bars.
@@ -17,7 +31,7 @@ module Plot.Bars exposing (..)
             ]
 
 # Definition
-@docs Attribute, StyleAttribute
+@docs Attribute, StyleAttribute, Data, DataTransformers
 
 # Overall styling
 @docs stackByY, maxBarWidth, maxBarWidthPer, label
@@ -25,12 +39,16 @@ module Plot.Bars exposing (..)
 # Individual bar styling
 @docs fill, opacity, customAttrs
 
+# General
+@docs toBarData
 
 -}
 
 import Svg
+import Internal.Types exposing (Style, Point, Orientation(..), MaxWidth(..), Value)
 import Internal.Bars as Internal
-import Internal.Types exposing (Style, Point, Orientation(..), MaxWidth(..))
+import Internal.Label as LabelInternal
+import Plot.Label as Label
 
 
 {-| -}
@@ -41,6 +59,11 @@ type alias Attribute msg =
 {-| -}
 type alias StyleAttribute msg =
     Internal.StyleConfig msg -> Internal.StyleConfig msg
+
+
+{-| -}
+type alias Data =
+    Internal.Group
 
 
 {-| Set a fixed max width (in pixels) on your bars.
@@ -66,13 +89,13 @@ maxBarWidthPer max config =
           ]
           data
 -}
-label : (Int -> Float -> Svg.Svg a) -> Attribute a
-label view config =
-    { config | labelView = view }
+label : List (Label.StyleAttribute msg) -> Attribute msg
+label attributes config =
+    { config | labelConfig = List.foldl (<|) LabelInternal.defaultStyleConfig attributes }
 
 
 {-| -}
-stackByY : Attribute a
+stackByY : Attribute msg
 stackByY config =
     { config | stackBy = Y }
 
@@ -83,20 +106,43 @@ stackByY config =
 
 {-| Set the fill color.
 -}
-fill : String -> StyleAttribute a
+fill : String -> StyleAttribute msg
 fill fill config =
     { config | style = ( "fill", fill ) :: config.style }
 
 
 {-| Set the opacity.
 -}
-opacity : Float -> StyleAttribute a
+opacity : Float -> StyleAttribute msg
 opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
 
 
 {-| Add your own attributes. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
 -}
-customAttrs : List (Svg.Attribute a) -> StyleAttribute a
+customAttrs : List (Svg.Attribute msg) -> StyleAttribute msg
 customAttrs attrs config =
     { config | customAttrs = attrs }
+
+
+{-| -}
+type alias DataTransformers data =
+    { yValues : data -> List Value
+    , xValue : Maybe (data -> Value)
+    }
+
+
+{-| -}
+toBarData : DataTransformers data -> List data -> List Data
+toBarData transform allData =
+    List.indexedMap (\index data -> ( getXValue transform index data, transform.yValues data )) allData
+
+
+getXValue : DataTransformers data -> Int -> data -> Value
+getXValue { xValue } index data =
+    case xValue of
+        Just getXValue ->
+            getXValue data
+
+        Nothing ->
+            toFloat index
