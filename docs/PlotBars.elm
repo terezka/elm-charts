@@ -39,7 +39,7 @@ view =
         , rangeHighest (\h -> h + 0.5)
         ]
         [ bars
-            [ Bars.maxBarWidth 9
+            [ Bars.maxBarWidth 20
             , Bars.stackByY
             ]
             [ [ Bars.fill Common.blueFill ]

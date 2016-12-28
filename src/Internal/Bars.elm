@@ -180,10 +180,15 @@ viewRect styleConfig ( xSvg, ySvg ) width height =
 
 
 toAutoWidth : Meta -> Config msg -> List (StyleConfig msg) -> List Group -> Float
-toAutoWidth { scale, toSvgCoords } { maxWidth } styleConfigs groups =
+toAutoWidth { scale, toSvgCoords } { maxWidth, stackBy } styleConfigs groups =
     let
         width =
-            1 / toFloat (List.length styleConfigs)
+            case stackBy of
+                X ->
+                    1 / toFloat (List.length styleConfigs)
+
+                Y ->
+                    1
     in
         width * scale.x.length / scale.x.range
 
