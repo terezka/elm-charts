@@ -10285,11 +10285,11 @@ var _terezka$elm_plot$Plot_Label$filter = F2(
 			});
 	});
 var _terezka$elm_plot$Plot_Label$values = F2(
-	function (filter, config) {
+	function (values, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{
-				valueConfig: _terezka$elm_plot$Internal_Label$CustomValues(filter)
+				valueConfig: _terezka$elm_plot$Internal_Label$CustomValues(values)
 			});
 	});
 var _terezka$elm_plot$Plot_Label$viewCustom = F2(
@@ -10945,32 +10945,32 @@ var _terezka$elm_plot$Internal_Bars$viewBar = F2(
 			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: A2(
-					_elm_lang$svg$Svg$g,
-					{
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$transform(
-							_terezka$elm_plot$Internal_Draw$toTranslate(
-								{ctor: '_Tuple2', _0: _p26 + (_p25 / 2), _1: _p27 - 5})),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$style('text-anchor: middle;'),
-							_1: {ctor: '[]'}
-						}
-					},
-					{
-						ctor: '::',
-						_0: _p24._3,
-						_1: {ctor: '[]'}
-					}),
+				_0: A4(
+					_terezka$elm_plot$Internal_Bars$viewRect,
+					styleConfig,
+					{ctor: '_Tuple2', _0: _p26, _1: _p27},
+					_p25,
+					_p24._1),
 				_1: {
 					ctor: '::',
-					_0: A4(
-						_terezka$elm_plot$Internal_Bars$viewRect,
-						styleConfig,
-						{ctor: '_Tuple2', _0: _p26, _1: _p27},
-						_p25,
-						_p24._1),
+					_0: A2(
+						_elm_lang$svg$Svg$g,
+						{
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$transform(
+								_terezka$elm_plot$Internal_Draw$toTranslate(
+									{ctor: '_Tuple2', _0: _p26 + (_p25 / 2), _1: _p27 + 5})),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Attributes$style('text-anchor: middle;'),
+								_1: {ctor: '[]'}
+							}
+						},
+						{
+							ctor: '::',
+							_0: _p24._3,
+							_1: {ctor: '[]'}
+						}),
 					_1: {ctor: '[]'}
 				}
 			});
@@ -10979,7 +10979,11 @@ var _terezka$elm_plot$Internal_Bars$getPropsStackedY = F8(
 	function (meta, config, styleConfigs, width, groupIndex, yValues, index, yValue) {
 		var height = (yValue * meta.scale.y.length) / meta.scale.y.range;
 		var heightOffset = (_elm_lang$core$Native_Utils.cmp(height, 0) < 0) ? height : 0;
-		var label = A2(config.labelView, index, yValue);
+		var label = A3(
+			_terezka$elm_plot$Internal_Label$defaultView,
+			config.labelConfig,
+			_terezka$elm_plot$Internal_Types$X,
+			{ctor: '_Tuple2', _0: index, _1: yValue});
 		var offsetBar = _elm_lang$core$List$sum(
 			A2(
 				_elm_lang$core$List$filter,
@@ -11014,11 +11018,16 @@ var _terezka$elm_plot$Internal_Bars$viewGroupStackedY = F5(
 		return A2(
 			_elm_lang$svg$Svg$g,
 			{ctor: '[]'},
-			A3(_elm_lang$core$List$map2, _terezka$elm_plot$Internal_Bars$viewBar, props, styleConfigs));
+			_elm_lang$core$List$reverse(
+				A3(_elm_lang$core$List$map2, _terezka$elm_plot$Internal_Bars$viewBar, props, styleConfigs)));
 	});
 var _terezka$elm_plot$Internal_Bars$getPropsStackedX = F7(
 	function (meta, config, styleConfigs, width, groupIndex, index, yValue) {
-		var label = A2(config.labelView, index, yValue);
+		var label = A3(
+			_terezka$elm_plot$Internal_Label$defaultView,
+			config.labelConfig,
+			_terezka$elm_plot$Internal_Types$X,
+			{ctor: '_Tuple2', _0: index, _1: yValue});
 		var _p32 = meta.toSvgCoords(
 			{ctor: '_Tuple2', _0: groupIndex, _1: yValue});
 		var xSvgPure = _p32._0;
@@ -11078,10 +11087,14 @@ var _terezka$elm_plot$Internal_Bars$view = F4(
 				A4(viewGroup, meta, config, styleConfigs, width),
 				groups));
 	});
-var _terezka$elm_plot$Internal_Bars$defaultLabelView = F2(
-	function (_p38, _p37) {
-		return _elm_lang$svg$Svg$text('');
-	});
+var _terezka$elm_plot$Internal_Bars$defaultStyleConfigLabel = function () {
+	var config = _terezka$elm_plot$Internal_Label$defaultStyleConfig;
+	return _elm_lang$core$Native_Utils.update(
+		config,
+		{
+			format: _elm_lang$core$Basics$always('')
+		});
+}();
 var _terezka$elm_plot$Internal_Bars$defaultStyleConfig = {
 	style: {
 		ctor: '::',
@@ -11092,12 +11105,12 @@ var _terezka$elm_plot$Internal_Bars$defaultStyleConfig = {
 };
 var _terezka$elm_plot$Internal_Bars$defaultConfig = {
 	stackBy: _terezka$elm_plot$Internal_Types$X,
-	labelView: _terezka$elm_plot$Internal_Bars$defaultLabelView,
+	labelConfig: _terezka$elm_plot$Internal_Bars$defaultStyleConfigLabel,
 	maxWidth: _terezka$elm_plot$Internal_Types$Percentage(100)
 };
 var _terezka$elm_plot$Internal_Bars$Config = F3(
 	function (a, b, c) {
-		return {stackBy: a, labelView: b, maxWidth: c};
+		return {stackBy: a, labelConfig: b, maxWidth: c};
 	});
 var _terezka$elm_plot$Internal_Bars$StyleConfig = F2(
 	function (a, b) {
@@ -11168,10 +11181,19 @@ var _terezka$elm_plot$Plot_Bars$stackByY = function (config) {
 		{stackBy: _terezka$elm_plot$Internal_Types$Y});
 };
 var _terezka$elm_plot$Plot_Bars$label = F2(
-	function (view, config) {
+	function (attributes, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
-			{labelView: view});
+			{
+				labelConfig: A3(
+					_elm_lang$core$List$foldl,
+					F2(
+						function (x, y) {
+							return x(y);
+						}),
+					_terezka$elm_plot$Internal_Label$defaultStyleConfig,
+					attributes)
+			});
 	});
 var _terezka$elm_plot$Plot_Bars$maxBarWidthPer = F2(
 	function (max, config) {

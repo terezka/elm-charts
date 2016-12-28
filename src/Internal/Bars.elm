@@ -15,6 +15,7 @@ import Svg.Attributes
 import Internal.Types exposing (Style, Orientation(..), MaxWidth(..), Meta, Value, Point, Edges, Oriented, Scale)
 import Internal.Draw exposing (..)
 import Internal.Stuff exposing (..)
+import Internal.Label as Label
 
 
 type alias Group =
@@ -23,7 +24,7 @@ type alias Group =
 
 type alias Config msg =
     { stackBy : Orientation
-    , labelView : Int -> Float -> Svg.Svg msg
+    , labelConfig : Label.StyleConfig msg
     , maxWidth : MaxWidth
     }
 
@@ -37,7 +38,7 @@ type alias StyleConfig msg =
 defaultConfig : Config msg
 defaultConfig =
     { stackBy = X
-    , labelView = defaultLabelView
+    , labelConfig = defaultStyleConfigLabel
     , maxWidth = Percentage 100
     }
 
@@ -49,9 +50,13 @@ defaultStyleConfig =
     }
 
 
-defaultLabelView : Int -> Float -> Svg.Svg msg
-defaultLabelView _ _ =
-    Svg.text ""
+defaultStyleConfigLabel : Label.StyleConfig msg
+defaultStyleConfigLabel =
+    let
+        config =
+            Label.defaultStyleConfig
+    in
+        { config | format = always "" }
 
 
 
@@ -103,7 +108,7 @@ getPropsStackedX meta config styleConfigs width groupIndex index yValue =
             xSvgPure - offsetGroup + offsetBar
 
         label =
-            config.labelView index yValue
+            Label.defaultView config.labelConfig X ( index, yValue )
 
         height =
             abs (originY - ySvg)
@@ -119,7 +124,7 @@ viewGroupStackedY meta config styleConfigs width ( xValue, yValues ) =
                 (getPropsStackedY meta config styleConfigs width xValue yValues)
                 yValues
     in
-        Svg.g [] (List.map2 viewBar props styleConfigs)
+        Svg.g [] (List.map2 viewBar props styleConfigs |> List.reverse)
 
 
 getPropsStackedY : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Value -> List Value -> Int -> Value -> ( Float, Float, Point, Svg.Svg msg )
@@ -140,7 +145,7 @@ getPropsStackedY meta config styleConfigs width groupIndex yValues index yValue 
             xSvgPure - offsetGroup
 
         label =
-            config.labelView index yValue
+            Label.defaultView config.labelConfig X ( index, yValue )
 
         height =
             yValue * meta.scale.y.length / meta.scale.y.range
@@ -158,12 +163,12 @@ viewBar : ( Float, Float, Point, Svg.Svg msg ) -> StyleConfig msg -> Svg.Svg msg
 viewBar ( width, height, ( xSvg, ySvg ), label ) styleConfig =
     Svg.g
         []
-        [ Svg.g
-            [ Svg.Attributes.transform (toTranslate ( xSvg + width / 2, ySvg - 5 ))
+        [ viewRect styleConfig ( xSvg, ySvg ) width height
+        , Svg.g
+            [ Svg.Attributes.transform (toTranslate ( xSvg + width / 2, ySvg + 5 ))
             , Svg.Attributes.style "text-anchor: middle;"
             ]
             [ label ]
-        , viewRect styleConfig ( xSvg, ySvg ) width height
         ]
 
 

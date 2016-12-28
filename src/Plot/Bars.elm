@@ -45,8 +45,10 @@ module Plot.Bars
 -}
 
 import Svg
-import Internal.Bars as Internal
 import Internal.Types exposing (Style, Point, Orientation(..), MaxWidth(..), Value)
+import Internal.Bars as Internal
+import Internal.Label as LabelInternal
+import Plot.Label as Label
 
 
 {-| -}
@@ -87,13 +89,13 @@ maxBarWidthPer max config =
           ]
           data
 -}
-label : (Int -> Float -> Svg.Svg a) -> Attribute a
-label view config =
-    { config | labelView = view }
+label : List (Label.StyleAttribute msg) -> Attribute msg
+label attributes config =
+    { config | labelConfig = List.foldl (<|) LabelInternal.defaultStyleConfig attributes }
 
 
 {-| -}
-stackByY : Attribute a
+stackByY : Attribute msg
 stackByY config =
     { config | stackBy = Y }
 
@@ -104,21 +106,21 @@ stackByY config =
 
 {-| Set the fill color.
 -}
-fill : String -> StyleAttribute a
+fill : String -> StyleAttribute msg
 fill fill config =
     { config | style = ( "fill", fill ) :: config.style }
 
 
 {-| Set the opacity.
 -}
-opacity : Float -> StyleAttribute a
+opacity : Float -> StyleAttribute msg
 opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
 
 
 {-| Add your own attributes. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
 -}
-customAttrs : List (Svg.Attribute a) -> StyleAttribute a
+customAttrs : List (Svg.Attribute msg) -> StyleAttribute msg
 customAttrs attrs config =
     { config | customAttrs = attrs }
 
