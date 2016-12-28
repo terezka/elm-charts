@@ -154,8 +154,7 @@ toStyleConfig attributes =
         Plot.yAxis
             [ Axis.tick
                 [ Tick.view
-                    [ Tick.style
-                        [ ( "stroke", "deeppink" ) ]
+                    [ Tick.stroke "deeppink"
                     , Tick.length 5
                     , Tick.width 2
                     ]
@@ -177,11 +176,11 @@ view styles config =
     toTickStyles ( index, value ) =
         if isOdd index then
             [ Tick.length 7
-            , Tick.style [ ( "stroke", "#e4e3e3" ) ]
+            , Tick.stroke , "#e4e3e3"
             ]
         else
             [ Tick.length 10
-            , Tick.style [ ( "stroke", "#b9b9b9" ) ]
+            , Tick.stroke "#b9b9b9"
             ]
 
     myYAxis : Plot.Element msg
