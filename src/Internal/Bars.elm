@@ -175,12 +175,14 @@ viewBar ( width, height, ( xSvg, ySvg ), label ) styleConfig =
 viewRect : StyleConfig msg -> Point -> Float -> Float -> Svg.Svg msg
 viewRect styleConfig ( xSvg, ySvg ) width height =
     Svg.rect
-        [ Svg.Attributes.x (toString xSvg)
-        , Svg.Attributes.y (toString ySvg)
-        , Svg.Attributes.width (toString width)
-        , Svg.Attributes.height (toString height)
-        , Svg.Attributes.style (toStyle styleConfig.style)
-        ]
+        ([ Svg.Attributes.x (toString xSvg)
+         , Svg.Attributes.y (toString ySvg)
+         , Svg.Attributes.width (toString width)
+         , Svg.Attributes.height (toString height)
+         , Svg.Attributes.style (toStyle styleConfig.style)
+         ]
+            ++ styleConfig.customAttrs
+        )
         []
 
 

@@ -10906,32 +10906,35 @@ var _terezka$elm_plot$Internal_Bars$viewRect = F4(
 		var _p22 = _p21;
 		return A2(
 			_elm_lang$svg$Svg$rect,
-			{
-				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$x(
-					_elm_lang$core$Basics$toString(_p22._0)),
-				_1: {
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				{
 					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$y(
-						_elm_lang$core$Basics$toString(_p22._1)),
+					_0: _elm_lang$svg$Svg_Attributes$x(
+						_elm_lang$core$Basics$toString(_p22._0)),
 					_1: {
 						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$width(
-							_elm_lang$core$Basics$toString(width)),
+						_0: _elm_lang$svg$Svg_Attributes$y(
+							_elm_lang$core$Basics$toString(_p22._1)),
 						_1: {
 							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$height(
-								_elm_lang$core$Basics$toString(height)),
+							_0: _elm_lang$svg$Svg_Attributes$width(
+								_elm_lang$core$Basics$toString(width)),
 							_1: {
 								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$style(
-									_terezka$elm_plot$Internal_Draw$toStyle(styleConfig.style)),
-								_1: {ctor: '[]'}
+								_0: _elm_lang$svg$Svg_Attributes$height(
+									_elm_lang$core$Basics$toString(height)),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$style(
+										_terezka$elm_plot$Internal_Draw$toStyle(styleConfig.style)),
+									_1: {ctor: '[]'}
+								}
 							}
 						}
 					}
-				}
-			},
+				},
+				styleConfig.customAttrs),
 			{ctor: '[]'});
 	});
 var _terezka$elm_plot$Internal_Bars$viewBar = F2(

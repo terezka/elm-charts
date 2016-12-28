@@ -31,16 +31,16 @@ module Plot.Bars
             ]
 
 # Definition
-@docs Attribute, StyleAttribute, Data, DataTransformers
+@docs Attribute, StyleAttribute
 
 # Overall styling
-@docs stackByY, maxBarWidth, maxBarWidthPer, label
+@docs maxBarWidth, maxBarWidthPer, stackByY, label
 
 # Individual bar styling
 @docs fill, opacity, customAttrs
 
-# General
-@docs toBarData
+# Custom data
+@docs Data, DataTransformers, toBarData
 
 -}
 
@@ -61,7 +61,8 @@ type alias StyleAttribute msg =
     Internal.StyleConfig msg -> Internal.StyleConfig msg
 
 
-{-| -}
+{-| The data format the bars element requires.
+-}
 type alias Data =
     Internal.Group
 
@@ -80,13 +81,17 @@ maxBarWidthPer max config =
     { config | maxWidth = Percentage max }
 
 
-{-| Use your own view for your label on top of bar. Will be passed the y value as an argument!
+{-| Alter the view of your label.
 
-    myBarSeries : Pile.Element msg
+    myBarSeries : Plot.Element msg
     myBarSeries =
-      Pile.bars
-          [ Bars.label (\_ _ -> Svg.text_ [] [ Svg.text "my bar" ])
+      bars
+          [ Bars.label
+              [ Label.classes [ "label-class" ]
+              , Label.displace ( 12, 0 )
+              ]
           ]
+          barStyles
           data
 -}
 label : List (Label.StyleAttribute msg) -> Attribute msg
@@ -94,7 +99,8 @@ label attributes config =
     { config | labelConfig = List.foldl (<|) LabelInternal.defaultStyleConfig attributes }
 
 
-{-| -}
+{-| By default your bars are stacked by x. If you want to stack them y, add this attribute.
+-}
 stackByY : Attribute msg
 stackByY config =
     { config | stackBy = Y }
@@ -125,14 +131,29 @@ customAttrs attrs config =
     { config | customAttrs = attrs }
 
 
-{-| -}
+{-| The functions necessary to transform your data into the format the plot requires.
+ If you provide the `xValue` with `Nothing`, the bars xValues will just be the index
+ of the bar in the list.
+-}
 type alias DataTransformers data =
     { yValues : data -> List Value
     , xValue : Maybe (data -> Value)
     }
 
 
-{-| -}
+{-| This function can be used to transform your own data format
+ into something the plot can understand.
+
+    Bars.toBarData
+        { yValues = .revenueByYear
+        , xValue = Just .quarter
+        }
+        [ { quarter = 1, revenueByYear = [ 10000, 30000, 20000 ] }
+        , { quarter = 2, revenueByYear = [ 20000, 10000, 40000 ] }
+        , { quarter = 3, revenueByYear = [ 40000, 20000, 10000 ] }
+        , { quarter = 4, revenueByYear = [ 40000, 50000, 20000 ] }
+        ]
+-}
 toBarData : DataTransformers data -> List data -> List Data
 toBarData transform allData =
     List.indexedMap (\index data -> ( getXValue transform index data, transform.yValues data )) allData
