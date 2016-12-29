@@ -11127,7 +11127,7 @@ var _terezka$elm_plot$Plot_Bars$getXValue = F3(
 		if (_p2.ctor === 'Just') {
 			return _p2._0(data);
 		} else {
-			return _elm_lang$core$Basics$toFloat(index);
+			return _elm_lang$core$Basics$toFloat(index) + 1;
 		}
 	});
 var _terezka$elm_plot$Plot_Bars$toBarData = F2(
@@ -12153,14 +12153,8 @@ var _terezka$elm_plot$Plot$defaultConfig = {
 	margin: {ctor: '_Tuple4', _0: 0, _1: 0, _2: 0, _3: 0},
 	classes: {ctor: '[]'},
 	style: {ctor: '[]'},
-	domain: A2(
-		_terezka$elm_plot$Internal_Types$EdgesAny,
-		_elm_lang$core$Basics$min(0),
-		_elm_lang$core$Basics$identity),
-	range: A2(
-		_terezka$elm_plot$Internal_Types$EdgesAny,
-		_elm_lang$core$Basics$min(0),
-		_elm_lang$core$Basics$identity),
+	domain: A2(_terezka$elm_plot$Internal_Types$EdgesAny, _elm_lang$core$Basics$identity, _elm_lang$core$Basics$identity),
+	range: A2(_terezka$elm_plot$Internal_Types$EdgesAny, _elm_lang$core$Basics$identity, _elm_lang$core$Basics$identity),
 	id: 'elm-plot'
 };
 var _terezka$elm_plot$Plot$style = F2(
@@ -13553,19 +13547,7 @@ var _terezka$elm_plot$PlotBars$view = A2(
 				ctor: '::',
 				_0: _terezka$elm_plot$Plot$padding(
 					{ctor: '_Tuple2', _0: 0, _1: 20}),
-				_1: {
-					ctor: '::',
-					_0: _terezka$elm_plot$Plot$rangeLowest(
-						_elm_lang$core$Basics$min(-0.5)),
-					_1: {
-						ctor: '::',
-						_0: _terezka$elm_plot$Plot$rangeHighest(
-							function (h) {
-								return h + 0.5;
-							}),
-						_1: {ctor: '[]'}
-					}
-				}
+				_1: {ctor: '[]'}
 			}
 		}
 	},
@@ -13575,7 +13557,7 @@ var _terezka$elm_plot$PlotBars$view = A2(
 			_terezka$elm_plot$Plot$bars,
 			{
 				ctor: '::',
-				_0: _terezka$elm_plot$Plot_Bars$maxBarWidth(20),
+				_0: _terezka$elm_plot$Plot_Bars$maxBarWidthPer(85),
 				_1: {
 					ctor: '::',
 					_0: _terezka$elm_plot$Plot_Bars$stackByY,
@@ -13690,58 +13672,67 @@ var _terezka$elm_plot$PlotBars$view = A2(
 				})),
 		_1: {
 			ctor: '::',
-			_0: _terezka$elm_plot$Plot$xAxis(
-				{
-					ctor: '::',
-					_0: _terezka$elm_plot$Plot_Axis$line(
-						{
-							ctor: '::',
-							_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Common$axisColor),
-							_1: {ctor: '[]'}
-						}),
-					_1: {
+			_0: _terezka$elm_plot$Plot$yAxis(
+				{ctor: '[]'}),
+			_1: {
+				ctor: '::',
+				_0: _terezka$elm_plot$Plot$xAxis(
+					{
 						ctor: '::',
-						_0: _terezka$elm_plot$Plot_Axis$tick(
+						_0: _terezka$elm_plot$Plot_Axis$line(
 							{
 								ctor: '::',
-								_0: _terezka$elm_plot$Plot_Tick$delta(1),
+								_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Common$axisColor),
 								_1: {ctor: '[]'}
 							}),
 						_1: {
 							ctor: '::',
-							_0: _terezka$elm_plot$Plot_Axis$label(
+							_0: _terezka$elm_plot$Plot_Axis$tick(
 								{
 									ctor: '::',
-									_0: _terezka$elm_plot$Plot_Label$view(
-										{
-											ctor: '::',
-											_0: _terezka$elm_plot$Plot_Label$formatFromList(
-												{
-													ctor: '::',
-													_0: '1st',
-													_1: {
-														ctor: '::',
-														_0: '2nd',
-														_1: {
-															ctor: '::',
-															_0: '3rd',
-															_1: {
-																ctor: '::',
-																_0: '4th',
-																_1: {ctor: '[]'}
-															}
-														}
-													}
-												}),
-											_1: {ctor: '[]'}
-										}),
+									_0: _terezka$elm_plot$Plot_Tick$delta(1),
 									_1: {ctor: '[]'}
 								}),
-							_1: {ctor: '[]'}
+							_1: {
+								ctor: '::',
+								_0: _terezka$elm_plot$Plot_Axis$label(
+									{
+										ctor: '::',
+										_0: _terezka$elm_plot$Plot_Label$view(
+											{
+												ctor: '::',
+												_0: _terezka$elm_plot$Plot_Label$formatFromList(
+													{
+														ctor: '::',
+														_0: 'here',
+														_1: {
+															ctor: '::',
+															_0: '1st',
+															_1: {
+																ctor: '::',
+																_0: '2nd',
+																_1: {
+																	ctor: '::',
+																	_0: '3rd',
+																	_1: {
+																		ctor: '::',
+																		_0: '4th',
+																		_1: {ctor: '[]'}
+																	}
+																}
+															}
+														}
+													}),
+												_1: {ctor: '[]'}
+											}),
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}
 						}
-					}
-				}),
-			_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
 		}
 	});
 var _terezka$elm_plot$PlotBars$id = 'PlotBars';

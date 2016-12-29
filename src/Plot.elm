@@ -133,8 +133,8 @@ defaultConfig =
     , margin = ( 0, 0, 0, 0 )
     , classes = []
     , style = []
-    , domain = EdgesAny (min 0) (identity)
-    , range = EdgesAny (min 0) (identity)
+    , domain = EdgesAny (identity) (identity)
+    , range = EdgesAny (identity) (identity)
     , id = "elm-plot"
     }
 

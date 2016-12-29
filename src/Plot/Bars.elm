@@ -166,4 +166,4 @@ getXValue { xValue } index data =
             getXValue data
 
         Nothing ->
-            toFloat index
+            toFloat index + 1
