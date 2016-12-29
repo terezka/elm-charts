@@ -11127,7 +11127,7 @@ var _terezka$elm_plot$Plot_Bars$getXValue = F3(
 		if (_p2.ctor === 'Just') {
 			return _p2._0(data);
 		} else {
-			return _elm_lang$core$Basics$toFloat(index) + 1;
+			return _elm_lang$core$Basics$toFloat(index);
 		}
 	});
 var _terezka$elm_plot$Plot_Bars$toBarData = F2(
@@ -13556,7 +13556,7 @@ var _terezka$elm_plot$PlotBars$view = A2(
 				_1: {
 					ctor: '::',
 					_0: _terezka$elm_plot$Plot$rangeLowest(
-						_elm_lang$core$Basics$always(0.5)),
+						_elm_lang$core$Basics$always(-0.5)),
 					_1: {
 						ctor: '::',
 						_0: _terezka$elm_plot$Plot$rangeHighest(
@@ -13718,21 +13718,17 @@ var _terezka$elm_plot$PlotBars$view = A2(
 											_0: _terezka$elm_plot$Plot_Label$formatFromList(
 												{
 													ctor: '::',
-													_0: '',
+													_0: '1st',
 													_1: {
 														ctor: '::',
-														_0: '1st',
+														_0: '2nd',
 														_1: {
 															ctor: '::',
-															_0: '2nd',
+															_0: '3rd',
 															_1: {
 																ctor: '::',
-																_0: '3rd',
-																_1: {
-																	ctor: '::',
-																	_0: '4th',
-																	_1: {ctor: '[]'}
-																}
+																_0: '4th',
+																_1: {ctor: '[]'}
 															}
 														}
 													}
@@ -14042,7 +14038,7 @@ var _terezka$elm_plot$PlotHint$view = function (state) {
 					_1: {
 						ctor: '::',
 						_0: _terezka$elm_plot$Plot$rangeLowest(
-							_elm_lang$core$Basics$min(0.5)),
+							_elm_lang$core$Basics$min(-0.5)),
 						_1: {
 							ctor: '::',
 							_0: _terezka$elm_plot$Plot$rangeHighest(
@@ -14089,39 +14085,26 @@ var _terezka$elm_plot$PlotHint$view = function (state) {
 						}
 					}
 				},
-				{
-					ctor: '::',
-					_0: {
-						ctor: '_Tuple2',
-						_0: 1,
-						_1: {
-							ctor: '::',
-							_0: 1,
-							_1: {
-								ctor: '::',
-								_0: 4,
-								_1: {
-									ctor: '::',
-									_0: 5,
-									_1: {ctor: '[]'}
-								}
-							}
-						}
+				A2(
+					_terezka$elm_plot$Plot_Bars$toBarData,
+					{
+						yValues: function (_) {
+							return _.values;
+						},
+						xValue: _elm_lang$core$Maybe$Nothing
 					},
-					_1: {
+					{
 						ctor: '::',
 						_0: {
-							ctor: '_Tuple2',
-							_0: 2,
-							_1: {
+							values: {
 								ctor: '::',
-								_0: 2,
+								_0: 1,
 								_1: {
 									ctor: '::',
-									_0: 1,
+									_0: 3,
 									_1: {
 										ctor: '::',
-										_0: 3,
+										_0: 2,
 										_1: {ctor: '[]'}
 									}
 								}
@@ -14130,17 +14113,15 @@ var _terezka$elm_plot$PlotHint$view = function (state) {
 						_1: {
 							ctor: '::',
 							_0: {
-								ctor: '_Tuple2',
-								_0: 3,
-								_1: {
+								values: {
 									ctor: '::',
-									_0: 4,
+									_0: 2,
 									_1: {
 										ctor: '::',
-										_0: 5,
+										_0: 1,
 										_1: {
 											ctor: '::',
-											_0: 2,
+											_0: 4,
 											_1: {ctor: '[]'}
 										}
 									}
@@ -14149,27 +14130,42 @@ var _terezka$elm_plot$PlotHint$view = function (state) {
 							_1: {
 								ctor: '::',
 								_0: {
-									ctor: '_Tuple2',
-									_0: 4,
-									_1: {
+									values: {
 										ctor: '::',
 										_0: 4,
 										_1: {
 											ctor: '::',
-											_0: 5,
+											_0: 2,
 											_1: {
 												ctor: '::',
-												_0: 2,
+												_0: 1,
 												_1: {ctor: '[]'}
 											}
 										}
 									}
 								},
-								_1: {ctor: '[]'}
+								_1: {
+									ctor: '::',
+									_0: {
+										values: {
+											ctor: '::',
+											_0: 4,
+											_1: {
+												ctor: '::',
+												_0: 5,
+												_1: {
+													ctor: '::',
+													_0: 2,
+													_1: {ctor: '[]'}
+												}
+											}
+										}
+									},
+									_1: {ctor: '[]'}
+								}
 							}
 						}
-					}
-				}),
+					})),
 			_1: {
 				ctor: '::',
 				_0: _terezka$elm_plot$Plot$xAxis(
