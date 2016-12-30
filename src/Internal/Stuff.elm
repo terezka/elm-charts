@@ -1,8 +1,6 @@
 module Internal.Stuff exposing (..)
 
 import Internal.Types exposing (..)
-import Svg
-import Svg.Attributes
 
 
 {-| ...Sorry for the bad filename
@@ -23,6 +21,18 @@ getLowest values =
 getRange : Float -> Float -> Float
 getRange lowest highest =
     highest - lowest
+
+
+foldBounds : Maybe Edges -> Edges -> Edges
+foldBounds oldBounds newBounds =
+    case oldBounds of
+        Just bounds ->
+            { lower = min bounds.lower newBounds.lower
+            , upper = max bounds.upper newBounds.upper
+            }
+
+        Nothing ->
+            newBounds
 
 
 getEdgesX : List Point -> ( Float, Float )
@@ -55,17 +65,22 @@ getDifference a b =
     abs <| a - b
 
 
-getClosest : Float -> Float -> Float -> Float
+getClosest : Float -> Float -> Maybe Float -> Maybe Float
 getClosest value candidate closest =
-    if getDifference value candidate < getDifference value closest then
-        candidate
-    else
-        closest
+    case closest of
+        Just closeValue ->
+            if getDifference value candidate < getDifference value closeValue then
+                Just candidate
+            else
+                Just closeValue
+
+        Nothing ->
+            Just candidate
 
 
-toNearest : List Float -> Float -> Float
+toNearest : List Float -> Float -> Maybe Float
 toNearest values value =
-    List.foldr (getClosest value) 0 values
+    List.foldr (getClosest value) Nothing values
 
 
 (?) : Orientation -> a -> a -> a

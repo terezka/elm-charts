@@ -133,8 +133,8 @@ defaultConfig =
     , margin = ( 0, 0, 0, 0 )
     , classes = []
     , style = []
-    , domain = EdgesAny (min 0) (identity)
-    , range = EdgesAny (min 0) (identity)
+    , domain = EdgesAny (identity) (identity)
+    , range = EdgesAny (identity) (identity)
     , id = "elm-plot"
     }
 
@@ -403,7 +403,7 @@ shouldPositionUpdate { position } ( left, top ) =
             topOld /= top || leftOld /= left
 
 
-getRelativePosition : Meta -> ( Float, Float ) -> ( Float, Float ) -> Point
+getRelativePosition : Meta -> ( Float, Float ) -> ( Float, Float ) -> ( Maybe Float, Float )
 getRelativePosition { fromSvgCoords, toNearestX } ( mouseX, mouseY ) ( left, top ) =
     let
         ( x, y ) =
@@ -415,10 +415,24 @@ getRelativePosition { fromSvgCoords, toNearestX } ( mouseX, mouseY ) ( left, top
 handleMouseOver : Meta -> Json.Decoder (Interaction msg)
 handleMouseOver meta =
     Json.map3
-        (\x y p -> Internal <| Hovering <| getRelativePosition meta ( x, y ) p)
+        (toMouseOverMsg meta)
         (Json.field "clientX" Json.float)
         (Json.field "clientY" Json.float)
         (DOM.target getPlotPosition)
+
+
+toMouseOverMsg : Meta -> Float -> Float -> ( Float, Float ) -> Interaction msg
+toMouseOverMsg meta mouseX mouseY position =
+    let
+        relativePosition =
+            getRelativePosition meta ( mouseX, mouseY ) position
+    in
+        case Tuple.first relativePosition of
+            Just x ->
+                Internal (Hovering ( x, Tuple.second relativePosition ))
+
+            Nothing ->
+                Internal ResetPosition
 
 
 getPlotPosition : Json.Decoder ( Float, Float )
@@ -553,6 +567,9 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
         values =
             toValuesOriented elements
 
+        internalBounds =
+            List.foldl foldInternalBounds (Oriented Nothing Nothing) elements
+
         axisConfigs =
             toAxisConfigsOriented elements
 
@@ -560,10 +577,10 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
             margin
 
         xScale =
-            getScale size.x range (Edges left right) ( 0, 0 ) values.x
+            getScale size.x range internalBounds.x (Edges left right) ( 0, 0 ) values.x
 
         yScale =
-            getScale size.y domain (Edges top bottom) padding values.y
+            getScale size.y domain internalBounds.y (Edges top bottom) padding values.y
 
         xTicks =
             getLastGetTickValues axisConfigs.x xScale
@@ -609,6 +626,48 @@ foldPoints element allPoints =
 
         _ ->
             allPoints
+
+
+foldInternalBounds : Element msg -> Oriented (Maybe Edges) -> Oriented (Maybe Edges)
+foldInternalBounds element =
+    case element of
+        Area config points ->
+            foldInternalBoundsArea
+
+        Bars config styleConfigs groups ->
+            foldInternalBoundsBars config groups >> foldInternalBoundsArea
+
+        _ ->
+            identity
+
+
+foldInternalBoundsArea : Oriented (Maybe Edges) -> Oriented (Maybe Edges)
+foldInternalBoundsArea bounds =
+    { bounds | y = Just (foldBounds bounds.y { lower = 0, upper = 0 }) }
+
+
+foldInternalBoundsBars : BarsInternal.Config msg -> List BarsInternal.Group -> Oriented (Maybe Edges) -> Oriented (Maybe Edges)
+foldInternalBoundsBars config groups bounds =
+    let
+        allBarPoints =
+            BarsInternal.toPoints config groups
+
+        ( allBarXValues, _ ) =
+            List.unzip allBarPoints
+
+        newXBounds =
+            updateInternalBounds
+                bounds.x
+                { lower = getLowest allBarXValues - 0.5
+                , upper = getHighest allBarXValues + 0.5
+                }
+    in
+        { bounds | x = newXBounds }
+
+
+updateInternalBounds : Maybe Edges -> Edges -> Maybe Edges
+updateInternalBounds old new =
+    Just (foldBounds old new)
 
 
 flipMeta : Meta -> Meta

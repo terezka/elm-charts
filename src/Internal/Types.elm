@@ -70,7 +70,7 @@ type alias Meta =
     , axisCrossings : List Float
     , oppositeAxisCrossings : List Float
     , getHintInfo : Float -> HintInfo
-    , toNearestX : Float -> Float
+    , toNearestX : Float -> Maybe Float
     , id : String
     }
 

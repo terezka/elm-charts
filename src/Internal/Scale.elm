@@ -4,20 +4,22 @@ import Internal.Types exposing (..)
 import Internal.Stuff exposing (..)
 
 
-getScale : Float -> EdgesAny (Float -> Float) -> Edges -> ( Value, Value ) -> List Value -> Scale
-getScale lengthTotal restrictRange offset ( paddingBottomPx, paddingTopPx ) values =
+getScale : Float -> EdgesAny (Float -> Float) -> Maybe Edges -> Edges -> ( Value, Value ) -> List Value -> Scale
+getScale lengthTotal restrictRange internalBounds offset ( paddingBottomPx, paddingTopPx ) values =
     let
         length =
             lengthTotal - offset.lower - offset.upper
 
-        lowest =
-            restrictRange.lower (getLowest values)
+        boundsNatural =
+            { lower = restrictRange.lower (getLowest values)
+            , upper = restrictRange.upper (getHighest values)
+            }
 
-        highest =
-            restrictRange.upper (getHighest values)
+        bounds =
+            foldBounds internalBounds boundsNatural
 
         range =
-            getRange lowest highest
+            getRange bounds.lower bounds.upper
 
         paddingTop =
             pixelsToValue length range paddingTopPx
@@ -25,8 +27,8 @@ getScale lengthTotal restrictRange offset ( paddingBottomPx, paddingTopPx ) valu
         paddingBottom =
             pixelsToValue length range paddingBottomPx
     in
-        { lowest = lowest - paddingBottom
-        , highest = highest + paddingTop
+        { lowest = bounds.lower - paddingBottom
+        , highest = bounds.upper + paddingTop
         , range = range + paddingBottom + paddingTop
         , length = length
         , offset = offset
