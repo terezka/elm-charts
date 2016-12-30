@@ -53,7 +53,6 @@ view =
                 , { values = [ 4, 5, 2 ] }
                 ]
             )
-        , yAxis []
         , xAxis
             [ Axis.line [ Line.stroke Common.axisColor ]
             , Axis.tick [ Tick.delta 1 ]

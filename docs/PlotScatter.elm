@@ -38,6 +38,7 @@ view =
     plot
         [ size plotSize
         , margin ( 10, 20, 40, 40 )
+        , domainLowest (min 0)
         ]
         [ scatter
             [ Scatter.stroke pinkStroke

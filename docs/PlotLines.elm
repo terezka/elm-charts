@@ -42,6 +42,7 @@ view =
     plot
         [ size plotSize
         , margin ( 10, 20, 40, 20 )
+        , domainLowest (min 0)
         ]
         [ line
             [ Line.stroke blueStroke
