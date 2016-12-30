@@ -81,10 +81,8 @@ code =
     view state =
         plotInteractive
             [ size plotSize
-            , margin ( 10, 20, 40, 20 )
+            , margin ( 10, 20, 41, 21 )
             , padding ( 0, 40 )
-            , rangeLowest (min -0.5)
-            , rangeHighest (\\h -> h + 0.5)
             ]
             [ bars
                 [ Bars.maxBarWidthPer 85 ]
@@ -92,11 +90,16 @@ code =
                 , [ Bars.fill Common.skinFill ]
                 , [ Bars.fill Common.pinkFill ]
                 ]
-                [ [ 1, 4, 5 ]
-                , [ 2, 1, 3 ]
-                , [ 4, 5, 2 ]
-                , [ 4, 5, 2 ]
-                ]
+                (Bars.toBarData
+                    { yValues = .values
+                    , xValue = Nothing
+                    }
+                    [ { values = [ 1, 3, 2 ] }
+                    , { values = [ 2, 1, 4 ] }
+                    , { values = [ 4, 2, 1 ] }
+                    , { values = [ 4, 5, 2 ] }
+                    ]
+                )
             , xAxis
                 [ Axis.line
                     [ Line.stroke axisColor ]
