@@ -13629,7 +13629,7 @@ var _terezka$elm_plot$PlotTicks$plotExample = {
 	id: _terezka$elm_plot$PlotTicks$id
 };
 
-var _terezka$elm_plot$PlotBars$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size Common.plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ bars\n                [ Bars.maxBarWidthPer 85 ]\n                [ [ Bars.fill Common.blueFill ]\n                , [ Bars.fill Common.skinFill ]\n                , [ Bars.fill Common.pinkFill ]\n                ]\n                [ [ 1, 4, 5, 2 ]\n                , [ 2, 1, 3, 5 ]\n                , [ 4, 5, 2, 1 ]\n                , [ 4, 5, 2, 3 ]\n                ]\n            , xAxis\n                [ Axis.line [ Line.stroke Common.axisColor ]\n                , Axis.tick [ Tick.delta 1 ]\n                , Axis.label\n                    [ Label.view\n                        [ Label.stroke \"#969696\"\n                        , Label.formatFromList [ \"1st\", \"2nd\", \"3rd\", \"4th\" ]\n                        ]\n                    ]\n                ]\n            ]\n    ';
+var _terezka$elm_plot$PlotBars$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size Common.plotSize\n            , margin ( 10, 20, 40, 30 )\n            , padding ( 0, 20 )\n            ]\n            [ bars\n                [ Bars.maxBarWidth 9\n                , Bars.stackByY\n                ]\n                [ [ Bars.fill Common.blueFill ]\n                , [ Bars.fill Common.skinFill ]\n                , [ Bars.fill Common.pinkFill ]\n                ]\n                (Bars.toBarData\n                    { yValues = .values\n                    , xValue = Nothing\n                    }\n                    [ { values = [ 1, 3, 2 ] }\n                    , { values = [ 2, 1, 4 ] }\n                    , { values = [ 4, 2, 1 ] }\n                    , { values = [ 4, 5, 2 ] }\n                    ]\n                )\n            , xAxis\n                [ Axis.line [ Line.stroke Common.axisColor ]\n                , Axis.tick [ Tick.delta 1 ]\n                ]\n            ]\n\n    ';
 var _terezka$elm_plot$PlotBars$view = A2(
 	_terezka$elm_plot$Plot$plot,
 	{
@@ -13653,7 +13653,7 @@ var _terezka$elm_plot$PlotBars$view = A2(
 			_terezka$elm_plot$Plot$bars,
 			{
 				ctor: '::',
-				_0: _terezka$elm_plot$Plot_Bars$maxBarWidthPer(85),
+				_0: _terezka$elm_plot$Plot_Bars$maxBarWidth(9),
 				_1: {
 					ctor: '::',
 					_0: _terezka$elm_plot$Plot_Bars$stackByY,
