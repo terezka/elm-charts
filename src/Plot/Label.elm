@@ -14,8 +14,7 @@ module Plot.Label
         , customAttrs
         , displace
         , format
-        , values
-        , filter
+        , formatFromList
         )
 
 {-|
@@ -35,10 +34,10 @@ module Plot.Label
 ## Style attributes
 If these attributes do not forfill your needs, try out the viewCustom! If you have
 a suspicion that I have missed a very common configuration, then please let me know and I'll add it.
-@docs classes, displace, format, stroke, strokeWidth, opacity, fill, fontSize, customAttrs
+@docs classes, displace, stroke, strokeWidth, opacity, fill, fontSize, customAttrs
 
-# Values
-@docs values, filter
+# Format
+@docs format, formatFromList
 
 -}
 
@@ -53,8 +52,8 @@ type alias Attribute a msg =
 
 
 {-| -}
-type alias StyleAttribute a msg =
-    Internal.StyleConfig a msg -> Internal.StyleConfig a msg
+type alias StyleAttribute msg =
+    Internal.StyleConfig msg -> Internal.StyleConfig msg
 
 
 {-| Displaces the label.
@@ -68,7 +67,7 @@ type alias StyleAttribute a msg =
                 ]
             ]
 -}
-displace : ( Int, Int ) -> StyleAttribute a msg
+displace : ( Int, Int ) -> StyleAttribute msg
 displace displace config =
     { config | displace = Just displace }
 
@@ -84,77 +83,54 @@ displace displace config =
                 ]
             ]
 -}
-classes : List String -> StyleAttribute a msg
+classes : List String -> StyleAttribute msg
 classes classes config =
     { config | classes = classes }
 
 
 {-| Set the stroke color.
 -}
-stroke : String -> StyleAttribute a msg
+stroke : String -> StyleAttribute msg
 stroke stroke config =
     { config | style = ( "stroke", stroke ) :: config.style }
 
 
 {-| Set the stroke width (in pixels).
 -}
-strokeWidth : Int -> StyleAttribute a msg
+strokeWidth : Int -> StyleAttribute msg
 strokeWidth strokeWidth config =
     { config | style = ( "stroke-width", toPixelsInt strokeWidth ) :: config.style }
 
 
 {-| Set the fill color.
 -}
-fill : String -> StyleAttribute a msg
+fill : String -> StyleAttribute msg
 fill fill config =
     { config | style = ( "fill", fill ) :: config.style }
 
 
 {-| Set the opacity.
 -}
-opacity : Float -> StyleAttribute a msg
+opacity : Float -> StyleAttribute msg
 opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
 
 
 {-| Set the font size (in pixels).
 -}
-fontSize : Int -> StyleAttribute a msg
+fontSize : Int -> StyleAttribute msg
 fontSize fontSize config =
     { config | style = ( "font-size", toPixelsInt fontSize ) :: config.style }
 
 
 {-| Add your own attributes. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
 -}
-customAttrs : List (Svg.Attribute msg) -> StyleAttribute a msg
+customAttrs : List (Svg.Attribute msg) -> StyleAttribute msg
 customAttrs attrs config =
     { config | customAttrs = attrs }
 
 
-{-| Format the label based on its value and index.
-
-    formatter : Int -> Float -> String
-    formatter index value =
-        if isDivisibleBy5 index then
-            formatEveryFifth value
-        else
-            normalFormat value
-
-    myYAxis : Plot.Element msg
-    myYAxis =
-        Plot.yAxis
-            [ Axis.label
-                [ Label.view
-                    [ Label.format formatter ]
-                ]
-            ]
--}
-format : (a -> String) -> StyleAttribute a msg
-format format config =
-    { config | format = format }
-
-
-toStyleConfig : List (StyleAttribute a msg) -> Internal.StyleConfig a msg
+toStyleConfig : List (StyleAttribute msg) -> Internal.StyleConfig msg
 toStyleConfig styleAttributes =
     List.foldl (<|) Internal.defaultStyleConfig styleAttributes
 
@@ -175,7 +151,7 @@ toStyleConfig styleAttributes =
  **Note:** If you add another attribute altering the view like `viewDynamic` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
-view : List (StyleAttribute a msg) -> Attribute a msg
+view : List (StyleAttribute msg) -> Attribute a msg
 view styles config =
     { config | viewConfig = Internal.FromStyle (toStyleConfig styles) }
 
@@ -204,7 +180,7 @@ view styles config =
  **Note:** If you add another attribute altering the view like `view` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
-viewDynamic : (a -> List (StyleAttribute a msg)) -> Attribute a msg
+viewDynamic : (a -> List (StyleAttribute msg)) -> Attribute a msg
 viewDynamic toStyles config =
     { config | viewConfig = Internal.FromStyleDynamic (toStyleConfig << toStyles) }
 
@@ -231,39 +207,31 @@ viewDynamic toStyles config =
 -}
 viewCustom : (a -> Svg.Svg msg) -> Attribute a msg
 viewCustom view config =
-    { config | viewConfig = Internal.FromCustomView (always view) }
+    { config | viewConfig = Internal.FromCustomView view }
 
 
-{-| Specify the values which you want a label for.
+{-| Format the label based on its value and index.
 
-    myYAxis : Plot.Element msg
-    myYAxis =
-        Plot.yAxis
-            [ Axis.label
-                [ Label.values [ 0, 5, 10, 11 ] ]
-            ]
-
- **Note:** If you add another attribute altering the values like `filter` _after_ this attribute,
- then this attribute will have no effect.
--}
-values : List Float -> Attribute a msg
-values values config =
-    { config | valueConfig = Internal.CustomValues values }
-
-
-{-| Add a filter determining which of the _tick values_ are added a label.
- Your filter will be passed label's value and index (amount of ticks from origin).
+    formatter : Int -> Float -> String
+    formatter index value =
+        if isDivisibleBy5 index then
+            formatEveryFifth value
+        else
+            normalFormat value
 
     myYAxis : Plot.Element msg
     myYAxis =
         Plot.yAxis
             [ Axis.label
-                [ Label.filter onlyEven ]
+                [ Label.format formatter ]
             ]
-
- **Note:** If you add another attribute altering the values like `values` _after_ this attribute,
- then this attribute will have no effect.
 -}
-filter : (a -> Bool) -> Attribute a msg
-filter filter config =
-    { config | valueConfig = Internal.CustomFilter filter }
+format : (a -> String) -> Attribute a msg
+format format config =
+    { config | format = Internal.FromFunc format }
+
+
+{-| -}
+formatFromList : List String -> Attribute a msg
+formatFromList format config =
+    { config | format = Internal.FromList format }

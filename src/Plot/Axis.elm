@@ -10,7 +10,7 @@ module Plot.Axis exposing (..)
 @docs classes, line, positionLowest, positionHighest, cleanCrossings, anchorInside
 
 ## Ticks and labels
-@docs LabelInfo, tick, label
+@docs LabelInfo, tick, label, filter, values
 
 -}
 
@@ -155,3 +155,38 @@ tick attributes config =
 label : List (Label.Attribute LabelInfo msg) -> Attribute msg
 label attributes config =
     { config | labelConfig = List.foldl (<|) LabelInternal.defaultConfig attributes }
+
+
+{-| Specify the values which you want a label for.
+
+    myYAxis : Plot.Element msg
+    myYAxis =
+        Plot.yAxis
+            [ Axis.label
+                [ Label.values [ 0, 5, 10, 11 ] ]
+            ]
+
+ **Note:** If you add another attribute altering the values like `filter` _after_ this attribute,
+ then this attribute will have no effect.
+-}
+values : List Float -> Attribute msg
+values values config =
+    { config | valueConfig = Internal.CustomValues values }
+
+
+{-| Add a filter determining which of the _tick values_ are added a label.
+ Your filter will be passed label's value and index (amount of ticks from origin).
+
+    myYAxis : Plot.Element msg
+    myYAxis =
+        Plot.yAxis
+            [ Axis.label
+                [ Label.filter onlyEven ]
+            ]
+
+ **Note:** If you add another attribute altering the values like `values` _after_ this attribute,
+ then this attribute will have no effect.
+-}
+filter : (LabelInfo -> Bool) -> Attribute msg
+filter filter config =
+    { config | valueConfig = Internal.CustomFilter filter }

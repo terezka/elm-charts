@@ -49,10 +49,9 @@ toTickStyle { index } =
         ]
 
 
-labelStyle : List (Label.StyleAttribute Axis.LabelInfo msg)
+labelStyle : List (Label.StyleAttribute msg)
 labelStyle =
-    [ Label.format (\{ value } -> toString value ++ " °C")
-    , Label.fontSize 12
+    [ Label.fontSize 12
     , Label.displace ( 0, -2 )
     ]
 
@@ -96,7 +95,10 @@ view state =
             , Axis.tick
                 [ Tick.delta 50 ]
             , Axis.label
-                [ Label.view labelStyle ]
+                [ Label.view labelStyle
+                , Label.format (\{ value } -> toString value ++ " °C")
+                , Label.formatFromList [ "het", "hey", "the" ]
+                ]
             ]
         , xAxis
             [ Axis.cleanCrossings
@@ -108,10 +110,10 @@ view state =
                 ]
             , Axis.label
                 [ Label.view
-                    [ Label.format (\{ value } -> toString value ++ " x")
-                    , Label.fontSize 12
+                    [ Label.fontSize 12
                     , Label.stroke "#b9b9b9"
                     ]
+                , Label.format (\{ value } -> toString value ++ " x")
                 ]
             ]
         , xAxis
@@ -121,12 +123,12 @@ view state =
                 [ Tick.viewDynamic toTickStyle ]
             , Axis.label
                 [ Label.view
-                    [ Label.format (\{ value } -> toString value ++ " t")
-                    , Label.fontSize 12
+                    [ Label.fontSize 12
                     , Label.stroke "#b9b9b9"
                     ]
-                , Label.filter filterLabels
+                , Label.format (\{ value } -> toString value ++ " t")
                 ]
+            , Axis.filter filterLabels
             ]
         , hint
             [ Hint.lineStyle [ ( "background", "#b9b9b9" ) ] ]

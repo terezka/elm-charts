@@ -27,7 +27,7 @@ type alias Group =
 
 type alias Config msg =
     { stackBy : Orientation
-    , labelConfig : Label.StyleConfig LabelInfo msg
+    , labelConfig : Label.Config LabelInfo msg
     , maxWidth : MaxWidth
     }
 
@@ -48,7 +48,7 @@ type alias LabelInfo =
 defaultConfig : Config msg
 defaultConfig =
     { stackBy = X
-    , labelConfig = defaultStyleConfigLabel
+    , labelConfig = Label.defaultConfig
     , maxWidth = Percentage 100
     }
 
@@ -60,15 +60,6 @@ defaultStyleConfig =
     }
 
 
-defaultStyleConfigLabel : Label.StyleConfig LabelInfo msg
-defaultStyleConfigLabel =
-    let
-        config =
-            Label.defaultStyleConfig
-    in
-        { config | format = always "" }
-
-
 
 -- VIEW
 
@@ -78,122 +69,102 @@ view meta config styleConfigs groups =
     let
         width =
             toBarWidth config groups (toAutoWidth meta config styleConfigs groups)
-
-        viewGroup =
-            case config.stackBy of
-                X ->
-                    viewGroupStackedX
-
-                Y ->
-                    viewGroupStackedY
     in
         Svg.g [] (List.map (viewGroup meta config styleConfigs width) groups)
 
 
-viewGroupStackedX : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Group -> Svg.Svg msg
-viewGroupStackedX meta config styleConfigs width { xValue, yValues } =
+viewGroup : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Group -> Svg.Svg msg
+viewGroup meta config styleConfigs width group =
     let
-        props =
-            List.indexedMap (getPropsStackedX meta config styleConfigs width xValue) yValues
+        labelInfos =
+            List.indexedMap
+                (\i y -> { index = i, xValue = group.xValue, yValue = y })
+                group.yValues
+
+        toCoords =
+            toStackedCoords meta config styleConfigs width group
     in
-        Svg.g [] (List.map2 viewBar props styleConfigs)
+        Svg.g []
+            [ Svg.g []
+                (List.map2
+                    (\config info -> viewBar meta width (toCoords info) config info)
+                    styleConfigs
+                    labelInfos
+                )
+            , Svg.g []
+                (Label.view
+                    config.labelConfig
+                    (\info -> placeLabel width (toCoords info))
+                    labelInfos
+                )
+            ]
 
 
-getPropsStackedX : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Value -> Int -> Value -> ( Float, Float, Point, Svg.Svg msg )
-getPropsStackedX meta config styleConfigs width xValue index yValue =
+toLength : Meta -> Value -> Value
+toLength meta yValue =
+    yValue * meta.scale.y.length / meta.scale.y.range
+
+
+toXStackedOffset : List (StyleConfig msg) -> Float -> LabelInfo -> Value
+toXStackedOffset styleConfigs width { index, yValue } =
     let
-        ( _, originY ) =
-            meta.toSvgCoords ( 0, 0 )
-
         offsetGroup =
             toFloat (List.length styleConfigs) * width / 2
 
         offsetBar =
             toFloat index * width
-
-        ( xSvgPure, ySvg ) =
-            meta.toSvgCoords ( xValue, yValue )
-
-        xSvg =
-            xSvgPure - offsetGroup + offsetBar
-
-        label =
-            Label.defaultView config.labelConfig X { index = index, yValue = yValue, xValue = xValue }
-
-        height =
-            abs (originY - ySvg)
     in
-        ( width, height, ( xSvg, min originY ySvg ), label )
+        offsetBar - offsetGroup
 
 
-viewGroupStackedY : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Group -> Svg.Svg msg
-viewGroupStackedY meta config styleConfigs width { xValue, yValues } =
-    let
-        props =
-            List.indexedMap
-                (getPropsStackedY meta config styleConfigs width xValue yValues)
-                yValues
-    in
-        Svg.g [] (List.map2 viewBar props styleConfigs |> List.reverse)
+toYStackedOffset : Group -> LabelInfo -> Value
+toYStackedOffset { yValues } { index, yValue } =
+    List.take index yValues
+        |> List.filter (\y -> (y < 0) == (yValue < 0))
+        |> List.sum
 
 
-getPropsStackedY : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Value -> List Value -> Int -> Value -> ( Float, Float, Point, Svg.Svg msg )
-getPropsStackedY meta config styleConfigs width xValue yValues index yValue =
-    let
-        offsetGroup =
-            width / 2
+toStackedCoords : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Group -> LabelInfo -> Point
+toStackedCoords meta config styleConfigs width group info =
+    case config.stackBy of
+        X ->
+            ( info.xValue, max 0 info.yValue )
+                |> meta.toSvgCoords
+                |> addDisplacement ( toXStackedOffset styleConfigs width info, 0 )
 
-        offsetBar =
-            List.take index yValues
-                |> List.filter (\y -> (y < 0) == (yValue < 0))
-                |> List.sum
-
-        ( xSvgPure, ySvg ) =
-            meta.toSvgCoords ( xValue, yValue + offsetBar )
-
-        xSvg =
-            xSvgPure - offsetGroup
-
-        label =
-            Label.defaultView config.labelConfig X { index = index, yValue = yValue, xValue = xValue }
-
-        height =
-            yValue * meta.scale.y.length / meta.scale.y.range
-
-        heightOffset =
-            if height < 0 then
-                height
-            else
-                0
-    in
-        ( width, abs height, ( xSvg, ySvg + heightOffset ), label )
+        Y ->
+            ( info.xValue, info.yValue )
+                |> addDisplacement ( 0, toYStackedOffset group info )
+                |> meta.toSvgCoords
+                |> addDisplacement
+                    ( -width / 2
+                    , min 0 (toLength meta info.yValue)
+                    )
 
 
-viewBar : ( Float, Float, Point, Svg.Svg msg ) -> StyleConfig msg -> Svg.Svg msg
-viewBar ( width, height, ( xSvg, ySvg ), label ) styleConfig =
-    Svg.g
-        []
-        [ viewRect styleConfig ( xSvg, ySvg ) width height
-        , Svg.g
-            [ Svg.Attributes.transform (toTranslate ( xSvg + width / 2, ySvg + 5 ))
-            , Svg.Attributes.style "text-anchor: middle;"
-            ]
-            [ label ]
-        ]
+placeLabel : Float -> Point -> List (Svg.Attribute msg)
+placeLabel width ( xSvg, ySvg ) =
+    [ Svg.Attributes.transform (toTranslate ( xSvg + width / 2, ySvg ))
+    , Svg.Attributes.style "text-anchor: middle;"
+    ]
 
 
-viewRect : StyleConfig msg -> Point -> Float -> Float -> Svg.Svg msg
-viewRect styleConfig ( xSvg, ySvg ) width height =
+viewBar : Meta -> Float -> Point -> StyleConfig msg -> LabelInfo -> Svg.Svg msg
+viewBar meta width ( xSvg, ySvg ) styleConfig info =
     Svg.rect
         ([ Svg.Attributes.x (toString xSvg)
          , Svg.Attributes.y (toString ySvg)
          , Svg.Attributes.width (toString width)
-         , Svg.Attributes.height (toString height)
+         , Svg.Attributes.height (toString (abs (toLength meta info.yValue)))
          , Svg.Attributes.style (toStyle styleConfig.style)
          ]
             ++ styleConfig.customAttrs
         )
         []
+
+
+
+-- Calculate width
 
 
 toAutoWidth : Meta -> Config msg -> List (StyleConfig msg) -> List Group -> Float
@@ -221,6 +192,10 @@ toBarWidth { maxWidth } groups default =
                 toFloat max
             else
                 default
+
+
+
+-- For meta calculations
 
 
 toPoints : Config msg -> List Group -> List Point

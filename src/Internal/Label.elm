@@ -3,64 +3,55 @@ module Internal.Label
         ( ViewConfig(..)
         , Config
         , StyleConfig
-        , ValueConfig(..)
-        , View
+        , FormatConfig(..)
         , defaultConfig
         , toDefaultConfig
         , defaultStyleConfig
-        , toView
+        , view
         , defaultView
-        , getValues
         )
 
 import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo, Value, IndexedInfo)
 import Internal.Draw as Draw exposing (..)
-import Internal.Tick as Tick
 import Svg
 import Svg.Attributes
 
 
 type alias Config a msg =
     { viewConfig : ViewConfig a msg
-    , valueConfig : ValueConfig a
+    , format : FormatConfig a
     }
 
 
-type alias StyleConfig a msg =
+type alias StyleConfig msg =
     { displace : Maybe ( Int, Int )
-    , format : a -> String
     , style : Style
     , classes : List String
     , customAttrs : List (Svg.Attribute msg)
     }
 
 
+type FormatConfig a
+    = FromFunc (a -> String)
+    | FromList (List String)
+
+
 type ViewConfig a msg
-    = FromStyle (StyleConfig a msg)
-    | FromStyleDynamic (a -> StyleConfig a msg)
-    | FromCustomView (View a msg)
-
-
-type ValueConfig a
-    = CustomValues (List Value)
-    | CustomFilter (a -> Bool)
-
-
-type alias View a msg =
-    Orientation -> a -> Svg.Svg msg
+    = FromStyle (StyleConfig msg)
+    | FromStyleDynamic (a -> StyleConfig msg)
+    | FromCustomView (a -> Svg.Svg msg)
 
 
 defaultConfig : Config a msg
 defaultConfig =
     { viewConfig = FromStyle defaultStyleConfig
-    , valueConfig = CustomFilter (always True)
+    , format = FromFunc (always "")
     }
 
 
-defaultStyleConfig : StyleConfig a msg
+defaultStyleConfig : StyleConfig msg
 defaultStyleConfig =
     { displace = Nothing
-    , format = always ""
     , style = []
     , classes = []
     , customAttrs = []
@@ -69,31 +60,36 @@ defaultStyleConfig =
 
 toDefaultConfig : (a -> String) -> Config a msg
 toDefaultConfig format =
-    { viewConfig = FromStyle { defaultStyleConfig | format = format }
-    , valueConfig = CustomFilter (always True)
+    { viewConfig = FromStyle defaultStyleConfig
+    , format = FromFunc format
     }
 
 
-toView : Config a msg -> View a msg
-toView { viewConfig } =
-    case viewConfig of
+view : Config a msg -> (a -> List (Svg.Attribute msg)) -> List a -> List (Svg.Svg msg)
+view config toAttributes infos =
+    case config.viewConfig of
         FromStyle styles ->
-            defaultView styles
+            viewLabels config (\info text -> Svg.g (toAttributes info) [ defaultView styles text ]) infos
 
-        FromStyleDynamic toConfig ->
-            toViewFromStyleDynamic toConfig
+        FromStyleDynamic toStyleAttributes ->
+            viewLabels config (\info text -> Svg.g (toAttributes info) [ defaultView (toStyleAttributes info) text ]) infos
 
         FromCustomView view ->
-            view
+            List.map (\info -> Svg.g (toAttributes info) [ view info ]) infos
 
 
-toViewFromStyleDynamic : (a -> StyleConfig a msg) -> View a msg
-toViewFromStyleDynamic toStyleAttributes orientation info =
-    defaultView (toStyleAttributes info) orientation info
+viewLabels : Config a msg -> (a -> String -> Svg.Svg msg) -> List a -> List (Svg.Svg msg)
+viewLabels config view infos =
+    case config.format of
+        FromFunc formatter ->
+            List.map (\info -> view info (formatter info)) infos
+
+        FromList texts ->
+            List.map2 view infos texts
 
 
-defaultView : StyleConfig a msg -> View a msg
-defaultView { displace, format, style, classes, customAttrs } orientation info =
+defaultView : StyleConfig msg -> String -> Svg.Svg msg
+defaultView { displace, style, classes, customAttrs } text =
     let
         ( dx, dy ) =
             Maybe.withDefault ( 0, 0 ) displace
@@ -105,18 +101,4 @@ defaultView { displace, format, style, classes, customAttrs } orientation info =
             ]
                 ++ customAttrs
     in
-        Svg.text_ attrs [ Svg.tspan [] [ Svg.text (format info) ] ]
-
-
-
--- resolve values
-
-
-getValues : Config (IndexedInfo {}) msg -> List (IndexedInfo {}) -> List (IndexedInfo {})
-getValues config tickValues =
-    case config.valueConfig of
-        CustomValues values ->
-            Tick.toIndexInfo values
-
-        CustomFilter filter ->
-            List.filter filter tickValues
+        Svg.text_ attrs [ Svg.tspan [] [ Svg.text text ] ]

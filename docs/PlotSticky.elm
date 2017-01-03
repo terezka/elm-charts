@@ -45,27 +45,12 @@ toTickAttrs =
     ]
 
 
-toLabelAttrs : List (Label.StyleAttribute Axis.LabelInfo msg)
-toLabelAttrs =
-    [ Label.format (\{ value } -> toString value ++ " ms") ]
-
-
-toLabelAttrsY1 : Axis.LabelInfo -> List (Label.StyleAttribute Axis.LabelInfo msg)
+toLabelAttrsY1 : Axis.LabelInfo -> List (Label.StyleAttribute msg)
 toLabelAttrsY1 { index, value } =
     if not <| isOdd index then
-        [ Label.format (always "") ]
+        []
     else
-        [ Label.format (\{ value } -> toString (value * 10) ++ " x")
-        , Label.displace ( -5, 0 )
-        ]
-
-
-toLabelAttrsY2 : Axis.LabelInfo -> List (Label.StyleAttribute Axis.LabelInfo msg)
-toLabelAttrsY2 { index, value } =
-    if isOdd index then
-        [ Label.format (always "") ]
-    else
-        [ Label.format (\{ value } -> toString (value / 5) ++ "k") ]
+        [ Label.displace ( -5, 0 ) ]
 
 
 view : Svg.Svg a
@@ -86,20 +71,38 @@ view =
                 [ Tick.view toTickAttrs
                 , Tick.values [ 3, 6 ]
                 ]
-            , Axis.label [ Label.view toLabelAttrs ]
+            , Axis.label
+                [ Label.format (\{ value } -> toString value ++ " ms") ]
             , Axis.cleanCrossings
             ]
         , yAxis
             [ Axis.positionHighest
             , Axis.cleanCrossings
             , Axis.tick [ Tick.view toTickAttrs ]
-            , Axis.label [ Label.viewDynamic toLabelAttrsY1 ]
+            , Axis.label
+                [ Label.viewDynamic toLabelAttrsY1
+                , Label.format
+                    (\{ index, value } ->
+                        if not <| isOdd index then
+                            ""
+                        else
+                            toString (value * 10) ++ " x"
+                    )
+                ]
             ]
         , yAxis
             [ Axis.positionLowest
             , Axis.cleanCrossings
             , Axis.anchorInside
-            , Axis.label [ Label.viewDynamic toLabelAttrsY2 ]
+            , Axis.label
+                [ Label.format
+                    (\{ index, value } ->
+                        if isOdd index then
+                            ""
+                        else
+                            toString (value / 5) ++ "k"
+                    )
+                ]
             ]
         ]
 

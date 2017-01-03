@@ -50,13 +50,12 @@ toTickStyle { index } =
         ]
 
 
-toLabelStyle : Axis.LabelInfo -> List (Label.StyleAttribute Axis.LabelInfo msg)
+toLabelStyle : Axis.LabelInfo -> List (Label.StyleAttribute msg)
 toLabelStyle { index } =
     if isOdd index then
-        [ Label.format (always "") ]
+        []
     else
-        [ Label.format (\{ value } -> toString value ++ " s")
-        , Label.stroke "#969696"
+        [ Label.stroke "#969696"
         ]
 
 
@@ -74,7 +73,16 @@ view =
         , xAxis
             [ Axis.line [ Line.stroke axisColor ]
             , Axis.tick [ Tick.viewDynamic toTickStyle ]
-            , Axis.label [ Label.viewDynamic toLabelStyle ]
+            , Axis.label
+                [ Label.format
+                    (\{ index, value } ->
+                        if isOdd index then
+                            ""
+                        else
+                            toString value ++ " s"
+                    )
+                , Label.viewDynamic toLabelStyle
+                ]
             ]
         ]
 

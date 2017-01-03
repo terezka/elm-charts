@@ -124,9 +124,9 @@ maxBarWidthPer max config =
           barStyles
           data
 -}
-label : List (Label.StyleAttribute LabelInfo msg) -> Attribute msg
+label : List (Label.Attribute LabelInfo msg) -> Attribute msg
 label attributes config =
-    { config | labelConfig = List.foldl (<|) LabelInternal.defaultStyleConfig attributes }
+    { config | labelConfig = List.foldl (<|) LabelInternal.defaultConfig attributes }
 
 
 {-| By default your bars are stacked by x. If you want to stack them y, add this attribute.

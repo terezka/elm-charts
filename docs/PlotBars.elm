@@ -45,8 +45,11 @@ view =
             [ Bars.maxBarWidth 30
             , Bars.stackByY
             , Bars.label
-                [ Label.format formatter
-                , Label.displace ( 0, 10 )
+                [ Label.formatFromList [ "A", "B", "C" ]
+                , Label.view
+                    [ Label.displace ( 0, 13 )
+                    , Label.fontSize 10
+                    ]
                 ]
             ]
             [ [ Bars.fill Common.blueFill ]
