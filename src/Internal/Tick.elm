@@ -8,13 +8,12 @@ module Internal.Tick
         , defaultConfig
         , defaultStyleConfig
         , toView
-        , indexValues
-        , getValuesIndexed
+        , toIndexInfo
         , getValues
         , getDelta
         )
 
-import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, HintInfo)
+import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, IndexedInfo, Value)
 import Internal.Draw as Draw exposing (..)
 import Internal.Stuff exposing (..)
 import Round
@@ -23,29 +22,29 @@ import Svg
 import Svg.Attributes
 
 
-type alias Config msg =
-    { viewConfig : ViewConfig msg
+type alias Config a msg =
+    { viewConfig : ViewConfig a msg
     , valueConfig : ValueConfig
     }
 
 
-type alias StyleConfig a =
+type alias StyleConfig msg =
     { length : Int
     , width : Int
     , style : Style
     , classes : List String
-    , customAttrs : List (Svg.Attribute a)
+    , customAttrs : List (Svg.Attribute msg)
     }
 
 
-type ViewConfig msg
+type ViewConfig a msg
     = FromStyle (StyleConfig msg)
-    | FromStyleDynamic (( Int, Float ) -> StyleConfig msg)
-    | FromCustomView (View msg)
+    | FromStyleDynamic (a -> StyleConfig msg)
+    | FromCustomView (View a msg)
 
 
-type alias View msg =
-    Orientation -> ( Int, Float ) -> Svg.Svg msg
+type alias View a msg =
+    Orientation -> a -> Svg.Svg msg
 
 
 type ValueConfig
@@ -55,7 +54,7 @@ type ValueConfig
     | FromCustom (List Float)
 
 
-defaultConfig : Config msg
+defaultConfig : Config a msg
 defaultConfig =
     { viewConfig = FromStyle defaultStyleConfig
     , valueConfig = AutoValues
@@ -72,7 +71,7 @@ defaultStyleConfig =
     }
 
 
-toView : Config msg -> View msg
+toView : Config a msg -> View a msg
 toView { viewConfig } =
     case viewConfig of
         FromStyle styleConfig ->
@@ -85,13 +84,13 @@ toView { viewConfig } =
             view
 
 
-toViewFromStyleDynamic : (( Int, Float ) -> StyleConfig msg) -> View msg
-toViewFromStyleDynamic toStyleConfig orientation ( index, value ) =
-    defaultView (toStyleConfig ( index, value )) orientation ( index, value )
+toViewFromStyleDynamic : (a -> StyleConfig msg) -> View a msg
+toViewFromStyleDynamic toStyleConfig orientation info =
+    defaultView (toStyleConfig info) orientation info
 
 
-defaultView : StyleConfig msg -> View msg
-defaultView { length, width, style, classes, customAttrs } orientation ( _, _ ) =
+defaultView : StyleConfig msg -> View a msg
+defaultView { length, width, style, classes, customAttrs } orientation _ =
     let
         styleFinal =
             style ++ [ ( "stroke-width", toPixelsInt width ) ]
@@ -110,19 +109,9 @@ defaultView { length, width, style, classes, customAttrs } orientation ( _, _ ) 
 -- Resolve values
 
 
-getValuesIndexed : Config msg -> Scale -> List ( Int, Float )
-getValuesIndexed { valueConfig } scale =
-    getRawValues valueConfig scale |> indexValues
-
-
-getValues : Config msg -> Scale -> List Float
-getValues { valueConfig } scale =
-    getRawValues valueConfig scale
-
-
-getRawValues : ValueConfig -> Scale -> List Float
-getRawValues config =
-    case config of
+getValues : Config a msg -> Scale -> List Value
+getValues config =
+    case config.valueConfig of
         AutoValues ->
             toValuesAuto
 
@@ -228,19 +217,19 @@ toValuesAuto =
 -- Helpers
 
 
-indexValues : List Float -> List ( Int, Float )
-indexValues values =
+toIndexInfo : List Value -> List (IndexedInfo {})
+toIndexInfo values =
     let
         lowerThanZero =
-            List.length (List.filter (\i -> i < 0) values)
+            List.length (List.filter (\v -> v < 0) values)
 
         hasZero =
-            List.any (\t -> t == 0) values
+            List.any (\v -> v == 0) values
     in
         List.indexedMap (zipWithDistance hasZero lowerThanZero) values
 
 
-zipWithDistance : Bool -> Int -> Int -> Float -> ( Int, Float )
+zipWithDistance : Bool -> Int -> Int -> Value -> IndexedInfo {}
 zipWithDistance hasZero lowerThanZero index value =
     let
         distance =
@@ -253,4 +242,4 @@ zipWithDistance hasZero lowerThanZero index value =
             else
                 lowerThanZero - index
     in
-        ( distance, value )
+        { index = distance, value = value }

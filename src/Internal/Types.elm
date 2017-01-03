@@ -12,6 +12,7 @@ module Internal.Types
         , MaxWidth(..)
         , Value
         , EdgesAny
+        , IndexedInfo
         )
 
 
@@ -25,6 +26,10 @@ type alias Point =
 
 type alias Style =
     List ( String, String )
+
+
+type alias IndexedInfo a =
+    { a | index : Int, value : Float }
 
 
 type Orientation

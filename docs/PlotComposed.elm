@@ -32,13 +32,13 @@ isOdd n =
     rem n 2 > 0
 
 
-filterLabels : ( Int, Float ) -> Bool
-filterLabels ( index, _ ) =
+filterLabels : Label.Info -> Bool
+filterLabels { index } =
     not (isOdd index)
 
 
-toTickStyle : ( Int, Float ) -> List (Tick.StyleAttribute msg)
-toTickStyle ( index, tick ) =
+toTickStyle : Label.Info -> List (Tick.StyleAttribute msg)
+toTickStyle { index } =
     if isOdd index then
         [ Tick.length 7
         , Tick.stroke "#e4e3e3"
@@ -49,9 +49,9 @@ toTickStyle ( index, tick ) =
         ]
 
 
-labelStyle : List (Label.StyleAttribute msg)
+labelStyle : List (Label.StyleAttribute Label.Info msg)
 labelStyle =
-    [ Label.format (\( _, v ) -> toString v ++ " °C")
+    [ Label.format (\{ value } -> toString value ++ " °C")
     , Label.fontSize 12
     , Label.displace ( 0, -2 )
     ]
@@ -108,7 +108,7 @@ view state =
                 ]
             , Axis.label
                 [ Label.view
-                    [ Label.format (\( _, v ) -> toString v ++ " x")
+                    [ Label.format (\{ value } -> toString value ++ " x")
                     , Label.fontSize 12
                     , Label.stroke "#b9b9b9"
                     ]
@@ -121,7 +121,7 @@ view state =
                 [ Tick.viewDynamic toTickStyle ]
             , Axis.label
                 [ Label.view
-                    [ Label.format (\( _, v ) -> toString v ++ " t")
+                    [ Label.format (\{ value } -> toString value ++ " t")
                     , Label.fontSize 12
                     , Label.stroke "#b9b9b9"
                     ]

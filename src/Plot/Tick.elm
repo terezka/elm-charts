@@ -42,7 +42,6 @@ a suspicion that I have missed a very common configuration, then please let me k
 -}
 
 import Svg
-import Internal.Types exposing (Style)
 import Internal.Draw exposing (..)
 import Internal.Tick as Internal
     exposing
@@ -57,8 +56,8 @@ import Internal.Tick as Internal
 
 
 {-| -}
-type alias Attribute msg =
-    Config msg -> Config msg
+type alias Attribute a msg =
+    Config a msg -> Config a msg
 
 
 {-| -}
@@ -164,7 +163,7 @@ toStyleConfig attributes =
  **Note:** If you add another attribute msgltering the view like `viewDynamic` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
-view : List (StyleAttribute msg) -> Attribute msg
+view : List (StyleAttribute msg) -> Attribute a msg
 view styles config =
     { config | viewConfig = FromStyle (toStyleConfig styles) }
 
@@ -193,7 +192,7 @@ view styles config =
  **Note:** If you add another attribute msgltering the view like `view` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
-viewDynamic : (( Int, Float ) -> List (StyleAttribute msg)) -> Attribute msg
+viewDynamic : (a -> List (StyleAttribute msg)) -> Attribute a msg
 viewDynamic toStyles config =
     { config | viewConfig = FromStyleDynamic (toStyleConfig << toStyles) }
 
@@ -221,7 +220,7 @@ viewDynamic toStyles config =
  **Note:** If you add another attribute msgltering the view like `view` or `viewDynamic` _after_ this attribute,
  then this attribute will have no effect.
 -}
-viewCustom : (( Int, Float ) -> Svg.Svg msg) -> Attribute msg
+viewCustom : (a -> Svg.Svg msg) -> Attribute a msg
 viewCustom view config =
     { config | viewConfig = FromCustomView (always view) }
 
@@ -238,7 +237,7 @@ viewCustom view config =
  **Note:** If you add another attribute msgltering the values like `delta` _after_ this attribute,
  then this attribute will have no effect.
 -}
-values : List Float -> Attribute msg
+values : List Float -> Attribute a msg
 values values config =
     { config | valueConfig = FromCustom values }
 
@@ -255,6 +254,6 @@ values values config =
  **Note:** If you add another attribute msgltering the values like `values` _after_ this attribute,
  then this attribute will have no effect.
 -}
-delta : Float -> Attribute msg
+delta : Float -> Attribute a msg
 delta delta config =
     { config | valueConfig = FromDelta delta }

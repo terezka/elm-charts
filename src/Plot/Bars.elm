@@ -45,7 +45,7 @@ module Plot.Bars
 -}
 
 import Svg
-import Internal.Types exposing (Style, Point, Orientation(..), MaxWidth(..), Value)
+import Internal.Types exposing (Style, Point, Orientation(..), MaxWidth(..), Value, IndexedInfo)
 import Internal.Bars as Internal
 import Internal.Label as LabelInternal
 import Plot.Label as Label
@@ -94,7 +94,7 @@ maxBarWidthPer max config =
           barStyles
           data
 -}
-label : List (Label.StyleAttribute msg) -> Attribute msg
+label : List (Label.StyleAttribute (IndexedInfo {}) msg) -> Attribute msg
 label attributes config =
     { config | labelConfig = List.foldl (<|) LabelInternal.defaultStyleConfig attributes }
 

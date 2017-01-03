@@ -1,6 +1,6 @@
 module Internal.Axis exposing (..)
 
-import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, Anchor(..))
+import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, Anchor(..), Value, IndexedInfo)
 import Internal.Tick as Tick
 import Internal.Label as Label
 import Internal.Line as Line
@@ -10,8 +10,8 @@ import Svg.Attributes
 
 
 type alias Config msg =
-    { tickConfig : Tick.Config msg
-    , labelConfig : Label.Config msg
+    { tickConfig : Tick.Config TickInfo msg
+    , labelConfig : Label.Config TickInfo msg
     , lineConfig : Line.Config msg
     , orientation : Orientation
     , anchor : Anchor
@@ -27,10 +27,14 @@ type PositionOption
     | AtZero
 
 
+type alias TickInfo =
+    IndexedInfo {}
+
+
 defaultConfigX : Config msg
 defaultConfigX =
     { tickConfig = Tick.defaultConfig
-    , labelConfig = Label.defaultConfig
+    , labelConfig = Label.toDefaultConfig (.value >> toString)
     , lineConfig = Line.defaultConfig
     , orientation = X
     , cleanCrossings = False
@@ -49,12 +53,10 @@ view : Meta -> Config msg -> Svg.Svg msg
 view ({ scale, toSvgCoords, oppositeAxisCrossings } as meta) ({ lineConfig, tickConfig, labelConfig, orientation, cleanCrossings, position, anchor, classes } as config) =
     let
         tickValues =
-            Tick.getValues tickConfig scale.x
-                |> filterValues cleanCrossings oppositeAxisCrossings
-                |> Tick.indexValues
+            toTickValues meta config
 
         labelValues =
-            Label.getValuesIndexed labelConfig.valueConfig tickValues
+            Label.getValues labelConfig tickValues
 
         axisPosition =
             getAxisPosition scale.y position
@@ -91,26 +93,26 @@ viewAxisLine { style, customAttrs } =
 -- View labels
 
 
-placeLabel : Meta -> Config msg -> Float -> (( Int, Float ) -> Svg.Svg msg) -> ( Int, Float ) -> Svg.Svg msg
-placeLabel { toSvgCoords } ({ orientation, anchor } as config) axisPosition view ( index, tick ) =
+placeLabel : Meta -> Config msg -> Float -> (TickInfo -> Svg.Svg msg) -> TickInfo -> Svg.Svg msg
+placeLabel { toSvgCoords } ({ orientation, anchor } as config) axisPosition view info =
     Svg.g
-        [ Svg.Attributes.transform <| toTranslate <| addDisplacement (getDisplacement anchor orientation) <| toSvgCoords ( tick, axisPosition )
+        [ Svg.Attributes.transform <| toTranslate <| addDisplacement (getDisplacement anchor orientation) <| toSvgCoords ( info.value, axisPosition )
         , Svg.Attributes.class "elm-plot__axis__label"
         ]
-        [ view ( index, tick ) ]
+        [ view info ]
 
 
 
 -- View ticks
 
 
-placeTick : Meta -> Config msg -> Float -> (( Int, Float ) -> Svg.Svg msg) -> ( Int, Float ) -> Svg.Svg msg
-placeTick { toSvgCoords } ({ orientation, anchor } as config) axisPosition view ( index, tick ) =
+placeTick : Meta -> Config msg -> Float -> (TickInfo -> Svg.Svg msg) -> TickInfo -> Svg.Svg msg
+placeTick { toSvgCoords } ({ orientation, anchor } as config) axisPosition view info =
     Svg.g
-        [ Svg.Attributes.transform <| (toTranslate <| toSvgCoords ( tick, axisPosition )) ++ " " ++ (toRotate anchor orientation)
+        [ Svg.Attributes.transform <| (toTranslate <| toSvgCoords ( info.value, axisPosition )) ++ " " ++ (toRotate anchor orientation)
         , Svg.Attributes.class "elm-plot__axis__tick"
         ]
-        [ view ( index, tick ) ]
+        [ view info ]
 
 
 getAxisPosition : Scale -> PositionOption -> Float
@@ -193,10 +195,10 @@ toRotate anchor orientation =
                     "rotate(90 0 0)"
 
 
-filterValues : Bool -> List Float -> List Float -> List Float
-filterValues cleanCrossings crossings values =
-    if cleanCrossings then
-        List.filter (isCrossing crossings) values
+filterValues : Meta -> Config msg -> List Float -> List Float
+filterValues meta config values =
+    if config.cleanCrossings then
+        List.filter (isCrossing meta.oppositeAxisCrossings) values
     else
         values
 
@@ -204,3 +206,10 @@ filterValues cleanCrossings crossings values =
 isCrossing : List Float -> Float -> Bool
 isCrossing crossings value =
     not <| List.member value crossings
+
+
+toTickValues : Meta -> Config msg -> List TickInfo
+toTickValues meta config =
+    Tick.getValues config.tickConfig meta.scale.x
+        |> filterValues meta config
+        |> Tick.toIndexInfo

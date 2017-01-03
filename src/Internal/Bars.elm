@@ -24,7 +24,7 @@ type alias Group =
 
 type alias Config msg =
     { stackBy : Orientation
-    , labelConfig : Label.StyleConfig msg
+    , labelConfig : Label.StyleConfig LabelInfo msg
     , maxWidth : MaxWidth
     }
 
@@ -32,6 +32,12 @@ type alias Config msg =
 type alias StyleConfig msg =
     { style : Style
     , customAttrs : List (Svg.Attribute msg)
+    }
+
+
+type alias LabelInfo =
+    { value : Float
+    , index : Int
     }
 
 
@@ -50,7 +56,7 @@ defaultStyleConfig =
     }
 
 
-defaultStyleConfigLabel : Label.StyleConfig msg
+defaultStyleConfigLabel : Label.StyleConfig LabelInfo msg
 defaultStyleConfigLabel =
     let
         config =
@@ -108,7 +114,7 @@ getPropsStackedX meta config styleConfigs width groupIndex index yValue =
             xSvgPure - offsetGroup + offsetBar
 
         label =
-            Label.defaultView config.labelConfig X ( index, yValue )
+            Label.defaultView config.labelConfig X { index = index, value = yValue }
 
         height =
             abs (originY - ySvg)
@@ -145,7 +151,7 @@ getPropsStackedY meta config styleConfigs width groupIndex yValues index yValue 
             xSvgPure - offsetGroup
 
         label =
-            Label.defaultView config.labelConfig X ( index, yValue )
+            Label.defaultView config.labelConfig X { index = index, value = yValue }
 
         height =
             yValue * meta.scale.y.length / meta.scale.y.range

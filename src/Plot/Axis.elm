@@ -4,7 +4,7 @@ module Plot.Axis exposing (..)
  Attributes for altering the view of your axis.
 
 # Definition
-@docs Attribute
+@docs Attribute, TickInfo
 
 # Attributes
 @docs classes, line, positionLowest, positionHighest, cleanCrossings, anchorInside
@@ -27,6 +27,11 @@ import Plot.Label as Label
 {-| -}
 type alias Attribute msg =
     Internal.Config msg -> Internal.Config msg
+
+
+{-| -}
+type alias TickInfo =
+    Internal.TickInfo
 
 
 {-| Adds classes to the container holding your axis.
@@ -125,7 +130,7 @@ cleanCrossings config =
                 ]
             ]
 -}
-tick : List (Tick.Attribute msg) -> Attribute msg
+tick : List (Tick.Attribute TickInfo msg) -> Attribute msg
 tick attributes config =
     { config | tickConfig = List.foldl (<|) TickInternal.defaultConfig attributes }
 
@@ -145,6 +150,6 @@ tick attributes config =
                 ]
             ]
 -}
-label : List (Label.Attribute msg) -> Attribute msg
+label : List (Label.Attribute TickInfo msg) -> Attribute msg
 label attributes config =
     { config | labelConfig = List.foldl (<|) LabelInternal.defaultConfig attributes }

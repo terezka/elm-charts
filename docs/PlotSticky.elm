@@ -38,34 +38,34 @@ isOdd n =
     rem n 2 > 0
 
 
-toTickAttrs : ( Int, Float ) -> List (Tick.StyleAttribute msg)
-toTickAttrs ( index, tick ) =
+toTickAttrs : List (Tick.StyleAttribute msg)
+toTickAttrs =
     [ Tick.length 7
     , Tick.stroke "#e4e3e3"
     ]
 
 
-toLabelAttrs : ( Int, Float ) -> List (Label.StyleAttribute msg)
-toLabelAttrs ( index, tick ) =
-    [ Label.format (\( _, v ) -> toString v ++ " ms") ]
+toLabelAttrs : List (Label.StyleAttribute Label.Info msg)
+toLabelAttrs =
+    [ Label.format (\{ value } -> toString value ++ " ms") ]
 
 
-toLabelAttrsY1 : ( Int, Float ) -> List (Label.StyleAttribute msg)
-toLabelAttrsY1 ( index, tick ) =
+toLabelAttrsY1 : Label.Info -> List (Label.StyleAttribute Label.Info msg)
+toLabelAttrsY1 { index, value } =
     if not <| isOdd index then
         [ Label.format (always "") ]
     else
-        [ Label.format (\( _, v ) -> toString (v * 10) ++ " x")
+        [ Label.format (\{ value } -> toString (value * 10) ++ " x")
         , Label.displace ( -5, 0 )
         ]
 
 
-toLabelAttrsY2 : ( Int, Float ) -> List (Label.StyleAttribute msg)
-toLabelAttrsY2 ( index, tick ) =
+toLabelAttrsY2 : Label.Info -> List (Label.StyleAttribute Label.Info msg)
+toLabelAttrsY2 { index, value } =
     if isOdd index then
         [ Label.format (always "") ]
     else
-        [ Label.format (\( _, v ) -> toString (v / 5) ++ "k") ]
+        [ Label.format (\{ value } -> toString (value / 5) ++ "k") ]
 
 
 view : Svg.Svg a
@@ -83,16 +83,16 @@ view =
             data
         , xAxis
             [ Axis.tick
-                [ Tick.viewDynamic toTickAttrs
+                [ Tick.view toTickAttrs
                 , Tick.values [ 3, 6 ]
                 ]
-            , Axis.label [ Label.viewDynamic toLabelAttrs ]
+            , Axis.label [ Label.view toLabelAttrs ]
             , Axis.cleanCrossings
             ]
         , yAxis
             [ Axis.positionHighest
             , Axis.cleanCrossings
-            , Axis.tick [ Tick.viewDynamic toTickAttrs ]
+            , Axis.tick [ Tick.view toTickAttrs ]
             , Axis.label [ Label.viewDynamic toLabelAttrsY1 ]
             ]
         , yAxis

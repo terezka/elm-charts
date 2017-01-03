@@ -2,6 +2,7 @@ module Plot.Label
     exposing
         ( Attribute
         , StyleAttribute
+        , Info
         , view
         , viewDynamic
         , viewCustom
@@ -14,7 +15,6 @@ module Plot.Label
         , customAttrs
         , displace
         , format
-        , formatFromList
         , values
         , filter
         )
@@ -28,7 +28,7 @@ module Plot.Label
  Ok, now you can go on!
 
 # Definition
-@docs Attribute
+@docs Attribute, Info
 
 # Styling
 @docs StyleAttribute, view, viewDynamic, viewCustom
@@ -36,7 +36,7 @@ module Plot.Label
 ## Style attributes
 If these attributes do not forfill your needs, try out the viewCustom! If you have
 a suspicion that I have missed a very common configuration, then please let me know and I'll add it.
-@docs classes, displace, format, formatFromList, stroke, strokeWidth, opacity, fill, fontSize, customAttrs
+@docs classes, displace, format, stroke, strokeWidth, opacity, fill, fontSize, customAttrs
 
 # Values
 @docs values, filter
@@ -49,13 +49,20 @@ import Internal.Draw exposing (..)
 
 
 {-| -}
-type alias Attribute msg =
-    Internal.Config msg -> Internal.Config msg
+type alias Attribute a msg =
+    Internal.Config a msg -> Internal.Config a msg
 
 
 {-| -}
-type alias StyleAttribute msg =
-    Internal.StyleConfig msg -> Internal.StyleConfig msg
+type alias StyleAttribute a msg =
+    Internal.StyleConfig a msg -> Internal.StyleConfig a msg
+
+
+{-| -}
+type alias Info =
+    { value : Float
+    , index : Int
+    }
 
 
 {-| Displaces the label.
@@ -69,7 +76,7 @@ type alias StyleAttribute msg =
                 ]
             ]
 -}
-displace : ( Int, Int ) -> StyleAttribute a
+displace : ( Int, Int ) -> StyleAttribute a msg
 displace displace config =
     { config | displace = Just displace }
 
@@ -85,49 +92,49 @@ displace displace config =
                 ]
             ]
 -}
-classes : List String -> StyleAttribute a
+classes : List String -> StyleAttribute a msg
 classes classes config =
     { config | classes = classes }
 
 
 {-| Set the stroke color.
 -}
-stroke : String -> StyleAttribute a
+stroke : String -> StyleAttribute a msg
 stroke stroke config =
     { config | style = ( "stroke", stroke ) :: config.style }
 
 
 {-| Set the stroke width (in pixels).
 -}
-strokeWidth : Int -> StyleAttribute a
+strokeWidth : Int -> StyleAttribute a msg
 strokeWidth strokeWidth config =
     { config | style = ( "stroke-width", toPixelsInt strokeWidth ) :: config.style }
 
 
 {-| Set the fill color.
 -}
-fill : String -> StyleAttribute a
+fill : String -> StyleAttribute a msg
 fill fill config =
     { config | style = ( "fill", fill ) :: config.style }
 
 
 {-| Set the opacity.
 -}
-opacity : Float -> StyleAttribute a
+opacity : Float -> StyleAttribute a msg
 opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
 
 
 {-| Set the font size (in pixels).
 -}
-fontSize : Int -> StyleAttribute a
+fontSize : Int -> StyleAttribute a msg
 fontSize fontSize config =
     { config | style = ( "font-size", toPixelsInt fontSize ) :: config.style }
 
 
 {-| Add your own attributes. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
 -}
-customAttrs : List (Svg.Attribute a) -> StyleAttribute a
+customAttrs : List (Svg.Attribute msg) -> StyleAttribute a msg
 customAttrs attrs config =
     { config | customAttrs = attrs }
 
@@ -150,29 +157,12 @@ customAttrs attrs config =
                 ]
             ]
 -}
-format : (( Int, Float ) -> String) -> StyleAttribute a
+format : (a -> String) -> StyleAttribute a msg
 format format config =
     { config | format = format }
 
 
-{-| -}
-formatFromList : List String -> StyleAttribute a
-formatFromList labels config =
-    let
-        indexedLabels =
-            List.indexedMap (\i l -> ( i, l )) labels
-
-        formatter =
-            \( i, v ) ->
-                List.filter (\( il, _ ) -> i == il) indexedLabels
-                    |> List.head
-                    |> Maybe.withDefault ( 0, "" )
-                    |> Tuple.second
-    in
-        { config | format = formatter }
-
-
-toStyleConfig : List (StyleAttribute a) -> Internal.StyleConfig a
+toStyleConfig : List (StyleAttribute a msg) -> Internal.StyleConfig a msg
 toStyleConfig styleAttributes =
     List.foldl (<|) Internal.defaultStyleConfig styleAttributes
 
@@ -193,7 +183,7 @@ toStyleConfig styleAttributes =
  **Note:** If you add another attribute altering the view like `viewDynamic` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
-view : List (StyleAttribute msg) -> Attribute msg
+view : List (StyleAttribute a msg) -> Attribute a msg
 view styles config =
     { config | viewConfig = Internal.FromStyle (toStyleConfig styles) }
 
@@ -222,7 +212,7 @@ view styles config =
  **Note:** If you add another attribute altering the view like `view` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
-viewDynamic : (( Int, Float ) -> List (StyleAttribute msg)) -> Attribute msg
+viewDynamic : (a -> List (StyleAttribute a msg)) -> Attribute a msg
 viewDynamic toStyles config =
     { config | viewConfig = Internal.FromStyleDynamic (toStyleConfig << toStyles) }
 
@@ -247,7 +237,7 @@ viewDynamic toStyles config =
  **Note:** If you add another attribute altering the view like `view` or `viewDynamic` _after_ this attribute,
  then this attribute will have no effect.
 -}
-viewCustom : (( Int, Float ) -> Svg.Svg msg) -> Attribute msg
+viewCustom : (a -> Svg.Svg msg) -> Attribute a msg
 viewCustom view config =
     { config | viewConfig = Internal.FromCustomView (always view) }
 
@@ -264,7 +254,7 @@ viewCustom view config =
  **Note:** If you add another attribute altering the values like `filter` _after_ this attribute,
  then this attribute will have no effect.
 -}
-values : List Float -> Attribute msg
+values : List Float -> Attribute a msg
 values values config =
     { config | valueConfig = Internal.CustomValues values }
 
@@ -282,6 +272,6 @@ values values config =
  **Note:** If you add another attribute altering the values like `values` _after_ this attribute,
  then this attribute will have no effect.
 -}
-filter : (( Int, Float ) -> Bool) -> Attribute msg
+filter : (a -> Bool) -> Attribute a msg
 filter filter config =
     { config | valueConfig = Internal.CustomFilter filter }
