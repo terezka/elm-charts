@@ -12889,24 +12889,7 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 																						_elm_lang$core$Basics$toString(_p9.value),
 																						' °C');
 																				}),
-																			_1: {
-																				ctor: '::',
-																				_0: _terezka$elm_plot$Plot_Label$formatFromList(
-																					{
-																						ctor: '::',
-																						_0: 'het',
-																						_1: {
-																							ctor: '::',
-																							_0: 'hey',
-																							_1: {
-																								ctor: '::',
-																								_0: 'the',
-																								_1: {ctor: '[]'}
-																							}
-																						}
-																					}),
-																				_1: {ctor: '[]'}
-																			}
+																			_1: {ctor: '[]'}
 																		}
 																	}),
 																_1: {ctor: '[]'}

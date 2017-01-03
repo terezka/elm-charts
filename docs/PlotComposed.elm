@@ -97,7 +97,6 @@ view state =
             , Axis.label
                 [ Label.view labelStyle
                 , Label.format (\{ value } -> toString value ++ " °C")
-                , Label.formatFromList [ "het", "hey", "the" ]
                 ]
             ]
         , xAxis
