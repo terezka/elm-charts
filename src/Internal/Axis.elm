@@ -10,8 +10,8 @@ import Svg.Attributes
 
 
 type alias Config msg =
-    { tickConfig : Tick.Config TickInfo msg
-    , labelConfig : Label.Config TickInfo msg
+    { tickConfig : Tick.Config LabelInfo msg
+    , labelConfig : Label.Config LabelInfo msg
     , lineConfig : Line.Config msg
     , orientation : Orientation
     , anchor : Anchor
@@ -27,8 +27,10 @@ type PositionOption
     | AtZero
 
 
-type alias TickInfo =
-    IndexedInfo {}
+type alias LabelInfo =
+    { value : Float
+    , index : Int
+    }
 
 
 defaultConfigX : Config msg
@@ -93,7 +95,7 @@ viewAxisLine { style, customAttrs } =
 -- View labels
 
 
-placeLabel : Meta -> Config msg -> Float -> (TickInfo -> Svg.Svg msg) -> TickInfo -> Svg.Svg msg
+placeLabel : Meta -> Config msg -> Float -> (LabelInfo -> Svg.Svg msg) -> LabelInfo -> Svg.Svg msg
 placeLabel { toSvgCoords } ({ orientation, anchor } as config) axisPosition view info =
     Svg.g
         [ Svg.Attributes.transform <| toTranslate <| addDisplacement (getDisplacement anchor orientation) <| toSvgCoords ( info.value, axisPosition )
@@ -106,7 +108,7 @@ placeLabel { toSvgCoords } ({ orientation, anchor } as config) axisPosition view
 -- View ticks
 
 
-placeTick : Meta -> Config msg -> Float -> (TickInfo -> Svg.Svg msg) -> TickInfo -> Svg.Svg msg
+placeTick : Meta -> Config msg -> Float -> (LabelInfo -> Svg.Svg msg) -> LabelInfo -> Svg.Svg msg
 placeTick { toSvgCoords } ({ orientation, anchor } as config) axisPosition view info =
     Svg.g
         [ Svg.Attributes.transform <| (toTranslate <| toSvgCoords ( info.value, axisPosition )) ++ " " ++ (toRotate anchor orientation)
@@ -208,7 +210,7 @@ isCrossing crossings value =
     not <| List.member value crossings
 
 
-toTickValues : Meta -> Config msg -> List TickInfo
+toTickValues : Meta -> Config msg -> List LabelInfo
 toTickValues meta config =
     Tick.getValues config.tickConfig meta.scale.x
         |> filterValues meta config

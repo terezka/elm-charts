@@ -38,7 +38,7 @@ isOdd n =
     rem n 2 > 0
 
 
-toTickStyle : Label.Info -> List (Tick.StyleAttribute msg)
+toTickStyle : Axis.LabelInfo -> List (Tick.StyleAttribute msg)
 toTickStyle { index } =
     if isOdd index then
         [ Tick.length 7
@@ -50,7 +50,7 @@ toTickStyle { index } =
         ]
 
 
-toLabelStyle : Label.Info -> List (Label.StyleAttribute Label.Info msg)
+toLabelStyle : Axis.LabelInfo -> List (Label.StyleAttribute Axis.LabelInfo msg)
 toLabelStyle { index } =
     if isOdd index then
         [ Label.format (always "") ]

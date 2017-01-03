@@ -32,12 +32,12 @@ isOdd n =
     rem n 2 > 0
 
 
-filterLabels : Label.Info -> Bool
+filterLabels : Axis.LabelInfo -> Bool
 filterLabels { index } =
     not (isOdd index)
 
 
-toTickStyle : Label.Info -> List (Tick.StyleAttribute msg)
+toTickStyle : Axis.LabelInfo -> List (Tick.StyleAttribute msg)
 toTickStyle { index } =
     if isOdd index then
         [ Tick.length 7
@@ -49,7 +49,7 @@ toTickStyle { index } =
         ]
 
 
-labelStyle : List (Label.StyleAttribute Label.Info msg)
+labelStyle : List (Label.StyleAttribute Axis.LabelInfo msg)
 labelStyle =
     [ Label.format (\{ value } -> toString value ++ " °C")
     , Label.fontSize 12

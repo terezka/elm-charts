@@ -3,6 +3,7 @@ module Internal.Bars
         ( Config
         , StyleConfig
         , Group
+        , LabelInfo
         , defaultConfig
         , defaultStyleConfig
         , view
@@ -38,6 +39,7 @@ type alias StyleConfig msg =
 type alias LabelInfo =
     { value : Float
     , index : Int
+    , groupIndex : Value
     }
 
 
@@ -114,7 +116,7 @@ getPropsStackedX meta config styleConfigs width groupIndex index yValue =
             xSvgPure - offsetGroup + offsetBar
 
         label =
-            Label.defaultView config.labelConfig X { index = index, value = yValue }
+            Label.defaultView config.labelConfig X { index = index, value = yValue, groupIndex = groupIndex }
 
         height =
             abs (originY - ySvg)
@@ -151,7 +153,7 @@ getPropsStackedY meta config styleConfigs width groupIndex yValues index yValue 
             xSvgPure - offsetGroup
 
         label =
-            Label.defaultView config.labelConfig X { index = index, value = yValue }
+            Label.defaultView config.labelConfig X { index = index, value = yValue, groupIndex = groupIndex }
 
         height =
             yValue * meta.scale.y.length / meta.scale.y.range

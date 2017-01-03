@@ -2,7 +2,6 @@ module Plot.Label
     exposing
         ( Attribute
         , StyleAttribute
-        , Info
         , view
         , viewDynamic
         , viewCustom
@@ -28,7 +27,7 @@ module Plot.Label
  Ok, now you can go on!
 
 # Definition
-@docs Attribute, Info
+@docs Attribute
 
 # Styling
 @docs StyleAttribute, view, viewDynamic, viewCustom
@@ -56,13 +55,6 @@ type alias Attribute a msg =
 {-| -}
 type alias StyleAttribute a msg =
     Internal.StyleConfig a msg -> Internal.StyleConfig a msg
-
-
-{-| -}
-type alias Info =
-    { value : Float
-    , index : Int
-    }
 
 
 {-| Displaces the label.

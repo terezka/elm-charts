@@ -10083,6 +10083,10 @@ var _terezka$elm_plot$Internal_Axis$Config = F8(
 	function (a, b, c, d, e, f, g, h) {
 		return {tickConfig: a, labelConfig: b, lineConfig: c, orientation: d, anchor: e, cleanCrossings: f, position: g, classes: h};
 	});
+var _terezka$elm_plot$Internal_Axis$LabelInfo = F2(
+	function (a, b) {
+		return {value: a, index: b};
+	});
 var _terezka$elm_plot$Internal_Axis$AtZero = {ctor: 'AtZero'};
 var _terezka$elm_plot$Internal_Axis$defaultConfigX = {
 	tickConfig: _terezka$elm_plot$Internal_Tick$defaultConfig,
@@ -10436,10 +10440,6 @@ var _terezka$elm_plot$Plot_Label$displace = F2(
 				displace: _elm_lang$core$Maybe$Just(displace)
 			});
 	});
-var _terezka$elm_plot$Plot_Label$Info = F2(
-	function (a, b) {
-		return {value: a, index: b};
-	});
 
 var _terezka$elm_plot$Plot_Axis$label = F2(
 	function (attributes, config) {
@@ -10511,6 +10511,10 @@ var _terezka$elm_plot$Plot_Axis$classes = F2(
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{classes: classes});
+	});
+var _terezka$elm_plot$Plot_Axis$LabelInfo = F2(
+	function (a, b) {
+		return {value: a, index: b};
 	});
 
 var _terezka$elm_plot$Internal_Grid$viewLine = function (_p0) {
@@ -10968,7 +10972,7 @@ var _terezka$elm_plot$Internal_Bars$getPropsStackedY = F8(
 			_terezka$elm_plot$Internal_Label$defaultView,
 			config.labelConfig,
 			_terezka$elm_plot$Internal_Types$X,
-			{index: index, value: yValue});
+			{index: index, value: yValue, groupIndex: groupIndex});
 		var offsetBar = _elm_lang$core$List$sum(
 			A2(
 				_elm_lang$core$List$filter,
@@ -11012,7 +11016,7 @@ var _terezka$elm_plot$Internal_Bars$getPropsStackedX = F7(
 			_terezka$elm_plot$Internal_Label$defaultView,
 			config.labelConfig,
 			_terezka$elm_plot$Internal_Types$X,
-			{index: index, value: yValue});
+			{index: index, value: yValue, groupIndex: groupIndex});
 		var _p32 = meta.toSvgCoords(
 			{ctor: '_Tuple2', _0: groupIndex, _1: yValue});
 		var xSvgPure = _p32._0;
@@ -11101,9 +11105,9 @@ var _terezka$elm_plot$Internal_Bars$StyleConfig = F2(
 	function (a, b) {
 		return {style: a, customAttrs: b};
 	});
-var _terezka$elm_plot$Internal_Bars$LabelInfo = F2(
-	function (a, b) {
-		return {value: a, index: b};
+var _terezka$elm_plot$Internal_Bars$LabelInfo = F3(
+	function (a, b, c) {
+		return {value: a, index: b, groupIndex: c};
 	});
 
 var _terezka$elm_plot$Plot_Bars$getXValue = F3(
@@ -11199,6 +11203,10 @@ var _terezka$elm_plot$Plot_Bars$maxBarWidth = F2(
 			{
 				maxWidth: _terezka$elm_plot$Internal_Types$Fixed(max)
 			});
+	});
+var _terezka$elm_plot$Plot_Bars$LabelInfo = F3(
+	function (a, b, c) {
+		return {value: a, index: b, groupIndex: c};
 	});
 var _terezka$elm_plot$Plot_Bars$DataTransformers = F2(
 	function (a, b) {

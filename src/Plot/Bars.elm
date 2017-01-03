@@ -4,6 +4,7 @@ module Plot.Bars
         , StyleAttribute
         , DataTransformers
         , Data
+        , LabelInfo
         , stackByY
         , maxBarWidth
         , maxBarWidthPer
@@ -33,10 +34,25 @@ module Plot.Bars
 # Definition
 @docs Attribute, StyleAttribute
 
-# Overall styling
-@docs maxBarWidth, maxBarWidthPer, stackByY, label
+# Attributes
+@docs maxBarWidth, maxBarWidthPer, stackByY
 
-# Individual bar styling
+## Labels
+@docs LabelInfo, label
+
+# Individual bar attributes
+  These are the attributes which can be passed in the list of bar styles in the
+  second argument of your series.
+
+    myBarsSerie : Plot.Element msg
+    myBarsSerie =
+        bars
+            []
+            [ [ Bars.fill "blue", Bars.opacity 0.5 ]
+            , [ Bars.fill "red" ]
+            ]
+            data
+
 @docs fill, opacity, customAttrs
 
 # Custom data
@@ -67,6 +83,15 @@ type alias Data =
     Internal.Group
 
 
+{-| The info your label format option will be passed.
+-}
+type alias LabelInfo =
+    { value : Float
+    , index : Int
+    , groupIndex : Value
+    }
+
+
 {-| Set a fixed max width (in pixels) on your bars.
 -}
 maxBarWidth : Int -> Attribute msg
@@ -94,7 +119,7 @@ maxBarWidthPer max config =
           barStyles
           data
 -}
-label : List (Label.StyleAttribute (IndexedInfo {}) msg) -> Attribute msg
+label : List (Label.StyleAttribute LabelInfo msg) -> Attribute msg
 label attributes config =
     { config | labelConfig = List.foldl (<|) LabelInternal.defaultStyleConfig attributes }
 

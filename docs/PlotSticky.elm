@@ -45,12 +45,12 @@ toTickAttrs =
     ]
 
 
-toLabelAttrs : List (Label.StyleAttribute Label.Info msg)
+toLabelAttrs : List (Label.StyleAttribute Axis.LabelInfo msg)
 toLabelAttrs =
     [ Label.format (\{ value } -> toString value ++ " ms") ]
 
 
-toLabelAttrsY1 : Label.Info -> List (Label.StyleAttribute Label.Info msg)
+toLabelAttrsY1 : Axis.LabelInfo -> List (Label.StyleAttribute Axis.LabelInfo msg)
 toLabelAttrsY1 { index, value } =
     if not <| isOdd index then
         [ Label.format (always "") ]
@@ -60,7 +60,7 @@ toLabelAttrsY1 { index, value } =
         ]
 
 
-toLabelAttrsY2 : Label.Info -> List (Label.StyleAttribute Label.Info msg)
+toLabelAttrsY2 : Axis.LabelInfo -> List (Label.StyleAttribute Axis.LabelInfo msg)
 toLabelAttrsY2 { index, value } =
     if isOdd index then
         [ Label.format (always "") ]

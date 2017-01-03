@@ -4,13 +4,13 @@ module Plot.Axis exposing (..)
  Attributes for altering the view of your axis.
 
 # Definition
-@docs Attribute, TickInfo
+@docs Attribute
 
 # Attributes
 @docs classes, line, positionLowest, positionHighest, cleanCrossings, anchorInside
 
-# Ticks and labels
-@docs tick, label
+## Ticks and labels
+@docs LabelInfo, tick, label
 
 -}
 
@@ -30,8 +30,10 @@ type alias Attribute msg =
 
 
 {-| -}
-type alias TickInfo =
-    Internal.TickInfo
+type alias LabelInfo =
+    { value : Float
+    , index : Int
+    }
 
 
 {-| Adds classes to the container holding your axis.
@@ -130,7 +132,7 @@ cleanCrossings config =
                 ]
             ]
 -}
-tick : List (Tick.Attribute TickInfo msg) -> Attribute msg
+tick : List (Tick.Attribute LabelInfo msg) -> Attribute msg
 tick attributes config =
     { config | tickConfig = List.foldl (<|) TickInternal.defaultConfig attributes }
 
@@ -150,6 +152,6 @@ tick attributes config =
                 ]
             ]
 -}
-label : List (Label.Attribute TickInfo msg) -> Attribute msg
+label : List (Label.Attribute LabelInfo msg) -> Attribute msg
 label attributes config =
     { config | labelConfig = List.foldl (<|) LabelInternal.defaultConfig attributes }
