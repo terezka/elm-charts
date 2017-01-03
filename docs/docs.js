@@ -10786,8 +10786,8 @@ var _terezka$elm_plot$Internal_Bars$getYValues = F2(
 								var _p3 = _p2;
 								return {
 									ctor: '_Tuple2',
-									_0: _p3._0,
-									_1: _elm_lang$core$Maybe$Just(_p3._1)
+									_0: _p3.xValue,
+									_1: _elm_lang$core$Maybe$Just(_p3.yValues)
 								};
 							},
 							groups)))));
@@ -10796,8 +10796,8 @@ var _terezka$elm_plot$Internal_Bars$foldPoints = F3(
 	function (_p5, _p4, points) {
 		var _p6 = _p5;
 		var _p7 = _p4;
-		var _p10 = _p7._1;
-		var _p9 = _p7._0;
+		var _p10 = _p7.yValues;
+		var _p9 = _p7.xValue;
 		if (_elm_lang$core$Native_Utils.eq(_p6.stackBy, _terezka$elm_plot$Internal_Types$X)) {
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
@@ -10965,14 +10965,14 @@ var _terezka$elm_plot$Internal_Bars$viewBar = F2(
 			});
 	});
 var _terezka$elm_plot$Internal_Bars$getPropsStackedY = F8(
-	function (meta, config, styleConfigs, width, groupIndex, yValues, index, yValue) {
+	function (meta, config, styleConfigs, width, xValue, yValues, index, yValue) {
 		var height = (yValue * meta.scale.y.length) / meta.scale.y.range;
 		var heightOffset = (_elm_lang$core$Native_Utils.cmp(height, 0) < 0) ? height : 0;
 		var label = A3(
 			_terezka$elm_plot$Internal_Label$defaultView,
 			config.labelConfig,
 			_terezka$elm_plot$Internal_Types$X,
-			{index: index, value: yValue, groupIndex: groupIndex});
+			{index: index, yValue: yValue, xValue: xValue});
 		var offsetBar = _elm_lang$core$List$sum(
 			A2(
 				_elm_lang$core$List$filter,
@@ -10983,7 +10983,7 @@ var _terezka$elm_plot$Internal_Bars$getPropsStackedY = F8(
 				},
 				A2(_elm_lang$core$List$take, index, yValues)));
 		var _p28 = meta.toSvgCoords(
-			{ctor: '_Tuple2', _0: groupIndex, _1: yValue + offsetBar});
+			{ctor: '_Tuple2', _0: xValue, _1: yValue + offsetBar});
 		var xSvgPure = _p28._0;
 		var ySvg = _p28._1;
 		var offsetGroup = width / 2;
@@ -10999,10 +10999,10 @@ var _terezka$elm_plot$Internal_Bars$getPropsStackedY = F8(
 var _terezka$elm_plot$Internal_Bars$viewGroupStackedY = F5(
 	function (meta, config, styleConfigs, width, _p29) {
 		var _p30 = _p29;
-		var _p31 = _p30._1;
+		var _p31 = _p30.yValues;
 		var props = A2(
 			_elm_lang$core$List$indexedMap,
-			A6(_terezka$elm_plot$Internal_Bars$getPropsStackedY, meta, config, styleConfigs, width, _p30._0, _p31),
+			A6(_terezka$elm_plot$Internal_Bars$getPropsStackedY, meta, config, styleConfigs, width, _p30.xValue, _p31),
 			_p31);
 		return A2(
 			_elm_lang$svg$Svg$g,
@@ -11011,14 +11011,14 @@ var _terezka$elm_plot$Internal_Bars$viewGroupStackedY = F5(
 				A3(_elm_lang$core$List$map2, _terezka$elm_plot$Internal_Bars$viewBar, props, styleConfigs)));
 	});
 var _terezka$elm_plot$Internal_Bars$getPropsStackedX = F7(
-	function (meta, config, styleConfigs, width, groupIndex, index, yValue) {
+	function (meta, config, styleConfigs, width, xValue, index, yValue) {
 		var label = A3(
 			_terezka$elm_plot$Internal_Label$defaultView,
 			config.labelConfig,
 			_terezka$elm_plot$Internal_Types$X,
-			{index: index, value: yValue, groupIndex: groupIndex});
+			{index: index, yValue: yValue, xValue: xValue});
 		var _p32 = meta.toSvgCoords(
-			{ctor: '_Tuple2', _0: groupIndex, _1: yValue});
+			{ctor: '_Tuple2', _0: xValue, _1: yValue});
 		var xSvgPure = _p32._0;
 		var ySvg = _p32._1;
 		var offsetBar = _elm_lang$core$Basics$toFloat(index) * width;
@@ -11046,8 +11046,8 @@ var _terezka$elm_plot$Internal_Bars$viewGroupStackedX = F5(
 		var _p35 = _p34;
 		var props = A2(
 			_elm_lang$core$List$indexedMap,
-			A5(_terezka$elm_plot$Internal_Bars$getPropsStackedX, meta, config, styleConfigs, width, _p35._0),
-			_p35._1);
+			A5(_terezka$elm_plot$Internal_Bars$getPropsStackedX, meta, config, styleConfigs, width, _p35.xValue),
+			_p35.yValues);
 		return A2(
 			_elm_lang$svg$Svg$g,
 			{ctor: '[]'},
@@ -11097,6 +11097,10 @@ var _terezka$elm_plot$Internal_Bars$defaultConfig = {
 	labelConfig: _terezka$elm_plot$Internal_Bars$defaultStyleConfigLabel,
 	maxWidth: _terezka$elm_plot$Internal_Types$Percentage(100)
 };
+var _terezka$elm_plot$Internal_Bars$Group = F2(
+	function (a, b) {
+		return {xValue: a, yValues: b};
+	});
 var _terezka$elm_plot$Internal_Bars$Config = F3(
 	function (a, b, c) {
 		return {stackBy: a, labelConfig: b, maxWidth: c};
@@ -11107,7 +11111,7 @@ var _terezka$elm_plot$Internal_Bars$StyleConfig = F2(
 	});
 var _terezka$elm_plot$Internal_Bars$LabelInfo = F3(
 	function (a, b, c) {
-		return {value: a, index: b, groupIndex: c};
+		return {index: a, xValue: b, yValue: c};
 	});
 
 var _terezka$elm_plot$Plot_Bars$getXValue = F3(
@@ -11127,9 +11131,8 @@ var _terezka$elm_plot$Plot_Bars$toBarData = F2(
 			F2(
 				function (index, data) {
 					return {
-						ctor: '_Tuple2',
-						_0: A3(_terezka$elm_plot$Plot_Bars$getXValue, transform, index, data),
-						_1: transform.yValues(data)
+						xValue: A3(_terezka$elm_plot$Plot_Bars$getXValue, transform, index, data),
+						yValues: transform.yValues(data)
 					};
 				}),
 			allData);
@@ -11206,7 +11209,7 @@ var _terezka$elm_plot$Plot_Bars$maxBarWidth = F2(
 	});
 var _terezka$elm_plot$Plot_Bars$LabelInfo = F3(
 	function (a, b, c) {
-		return {value: a, index: b, groupIndex: c};
+		return {index: a, xValue: b, yValue: c};
 	});
 var _terezka$elm_plot$Plot_Bars$DataTransformers = F2(
 	function (a, b) {
@@ -13605,6 +13608,25 @@ var _terezka$elm_plot$PlotTicks$plotExample = {
 };
 
 var _terezka$elm_plot$PlotBars$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size Common.plotSize\n            , margin ( 10, 20, 40, 30 )\n            , padding ( 0, 20 )\n            ]\n            [ bars\n                [ Bars.maxBarWidth 9\n                , Bars.stackByY\n                ]\n                [ [ Bars.fill Common.blueFill ]\n                , [ Bars.fill Common.skinFill ]\n                , [ Bars.fill Common.pinkFill ]\n                ]\n                (Bars.toBarData\n                    { yValues = .values\n                    , xValue = Nothing\n                    }\n                    [ { values = [ 1, 3, 2 ] }\n                    , { values = [ 2, 1, 4 ] }\n                    , { values = [ 4, 2, 1 ] }\n                    , { values = [ 4, 5, 2 ] }\n                    ]\n                )\n            , xAxis\n                [ Axis.line [ Line.stroke Common.axisColor ]\n                , Axis.tick [ Tick.delta 1 ]\n                ]\n            ]\n\n    ';
+var _terezka$elm_plot$PlotBars$formatter = function (_p0) {
+	var _p1 = _p0;
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		_elm_lang$core$Basics$toString(_p1.index),
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			': (',
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				_elm_lang$core$Basics$toString(_p1.xValue),
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					', ',
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						_elm_lang$core$Basics$toString(_p1.yValue),
+						')')))));
+};
 var _terezka$elm_plot$PlotBars$view = A2(
 	_terezka$elm_plot$Plot$plot,
 	{
@@ -13628,11 +13650,25 @@ var _terezka$elm_plot$PlotBars$view = A2(
 			_terezka$elm_plot$Plot$bars,
 			{
 				ctor: '::',
-				_0: _terezka$elm_plot$Plot_Bars$maxBarWidth(9),
+				_0: _terezka$elm_plot$Plot_Bars$maxBarWidth(30),
 				_1: {
 					ctor: '::',
 					_0: _terezka$elm_plot$Plot_Bars$stackByY,
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: _terezka$elm_plot$Plot_Bars$label(
+							{
+								ctor: '::',
+								_0: _terezka$elm_plot$Plot_Label$format(_terezka$elm_plot$PlotBars$formatter),
+								_1: {
+									ctor: '::',
+									_0: _terezka$elm_plot$Plot_Label$displace(
+										{ctor: '_Tuple2', _0: 0, _1: 10}),
+									_1: {ctor: '[]'}
+								}
+							}),
+						_1: {ctor: '[]'}
+					}
 				}
 			},
 			{

@@ -29,6 +29,11 @@ id =
     "PlotBars"
 
 
+formatter : Bars.LabelInfo -> String
+formatter { index, xValue, yValue } =
+    toString index ++ ": (" ++ toString xValue ++ ", " ++ toString yValue ++ ")"
+
+
 view : Svg.Svg a
 view =
     plot
@@ -37,8 +42,12 @@ view =
         , padding ( 0, 20 )
         ]
         [ bars
-            [ Bars.maxBarWidth 9
+            [ Bars.maxBarWidth 30
             , Bars.stackByY
+            , Bars.label
+                [ Label.format formatter
+                , Label.displace ( 0, 10 )
+                ]
             ]
             [ [ Bars.fill Common.blueFill ]
             , [ Bars.fill Common.skinFill ]

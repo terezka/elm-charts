@@ -25,11 +25,16 @@ module Plot.Bars
             [ [ Bars.fill "blue", Bars.opacity 0.5 ]
             , [ Bars.fill "red" ]
             ]
-            [ [ 1, 4 ]
-            , [ 2, 1 ]
-            , [ 4, 5 ]
-            , [ 4, 5 ]
-            ]
+            (Bars.toBarData
+                { yValues = .revenueByYear
+                , xValue = Just .quarter
+                }
+                [ { quarter = 1, revenueByYear = [ 10000, 30000, 20000 ] }
+                , { quarter = 2, revenueByYear = [ 20000, 10000, 40000 ] }
+                , { quarter = 3, revenueByYear = [ 40000, 20000, 10000 ] }
+                , { quarter = 4, revenueByYear = [ 40000, 50000, 20000 ] }
+                ]
+            )
 
 # Definition
 @docs Attribute, StyleAttribute
@@ -86,9 +91,9 @@ type alias Data =
 {-| The info your label format option will be passed.
 -}
 type alias LabelInfo =
-    { value : Float
-    , index : Int
-    , groupIndex : Value
+    { index : Int
+    , xValue : Value
+    , yValue : Value
     }
 
 
@@ -181,7 +186,13 @@ type alias DataTransformers data =
 -}
 toBarData : DataTransformers data -> List data -> List Data
 toBarData transform allData =
-    List.indexedMap (\index data -> ( getXValue transform index data, transform.yValues data )) allData
+    List.indexedMap
+        (\index data ->
+            { xValue = getXValue transform index data
+            , yValues = transform.yValues data
+            }
+        )
+        allData
 
 
 getXValue : DataTransformers data -> Int -> data -> Value
