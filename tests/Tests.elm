@@ -7,7 +7,7 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Internal.Stuff exposing (..)
 import Internal.Draw exposing (..)
-import Internal.Tick exposing (..)
+import Internal.Axis exposing (..)
 
 
 all : Test
@@ -103,7 +103,7 @@ testToPositionAttr =
     describe ("positionAttributes")
         [ test "should return a List with Svg x1 y1 x2 y2 Attributes" <|
             \() ->
-                Expect.equal (positionAttributes (2, 3) (4, 5)) [ x1 "2", y1 "3", x2 "4", y2 "5" ]
+                Expect.equal (positionAttributes ( 2, 3 ) ( 4, 5 )) [ x1 "2", y1 "3", x2 "4", y2 "5" ]
         ]
 
 

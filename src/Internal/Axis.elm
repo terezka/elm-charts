@@ -8,6 +8,7 @@ module Internal.Axis
         , view
         , getAxisPosition
         , getValues
+        , getDelta
         )
 
 import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, Anchor(..), Value, IndexedInfo)
