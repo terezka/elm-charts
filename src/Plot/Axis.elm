@@ -10,7 +10,7 @@ module Plot.Axis exposing (..)
 @docs classes, line, positionLowest, positionHighest, cleanCrossings, anchorInside
 
 ## Ticks and labels
-@docs tick, tickValues, tickDelta, LabelInfo, label, labelValues
+@docs LabelInfo, tick, tickValues, tickDelta, label, labelValues
 
 -}
 
