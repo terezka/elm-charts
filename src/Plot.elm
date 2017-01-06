@@ -81,7 +81,6 @@ import Internal.Bars as BarsInternal
 import Internal.Area as AreaInternal
 import Internal.Scatter as ScatterInternal
 import Internal.Line as LineInternal
-import Internal.Tick as TickInternal
 import Internal.Hint as HintInternal
 import Internal.Stuff exposing (..)
 import Internal.Types exposing (..)
@@ -133,8 +132,8 @@ defaultConfig =
     , margin = ( 0, 0, 0, 0 )
     , classes = []
     , style = []
-    , domain = EdgesAny (identity) (identity)
-    , range = EdgesAny (identity) (identity)
+    , domain = EdgesAny (min 0) (max 1)
+    , range = EdgesAny (min 0) (max 1)
     , id = "elm-plot"
     }
 
@@ -219,7 +218,7 @@ domainLowest toLowest ({ domain } as config) =
  be the upper boundery of your series. So if you would like
  the lowest boundery to  always be 10, then set this attribute to the function `always 10`.
 
- The default is `identity`.
+ The default is `max 1`.
 
  **Note:** If you are using `padding` as well, the extra padding will still be
  added outside the domain.

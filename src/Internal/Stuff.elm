@@ -20,7 +20,15 @@ getLowest values =
 
 getRange : Float -> Float -> Float
 getRange lowest highest =
-    highest - lowest
+    if (highest - lowest) > 0 then
+        highest - lowest
+    else
+        Debug.crash rangeErrorMsg
+
+
+rangeErrorMsg : String
+rangeErrorMsg =
+    "elm-plot: Looks like you are trying to plot something with a range/domain of zero! That will end badly. Maybe try one of these range restricting attributes on your plot: domainLowest, domainHighest, rangeLowest, rangeHighest. If you get stuck, you can just write me on the elm-lang slack (@terezka)!"
 
 
 foldBounds : Maybe Edges -> Edges -> Edges
