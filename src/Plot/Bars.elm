@@ -41,7 +41,7 @@ module Plot.Bars
             )
 
 # Definition
-@docs Attribute, StyleAttribute
+@docs Attribute
 
 # Attributes
 @docs maxBarWidth, maxBarWidthPer, stackByY
@@ -62,7 +62,7 @@ module Plot.Bars
             ]
             data
 
-@docs fill, opacity, customAttrs
+@docs StyleAttribute, fill, opacity, customAttrs
 
 # Custom data
 @docs Data, DataTransformers, toBarData
