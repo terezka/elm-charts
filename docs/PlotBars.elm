@@ -83,8 +83,15 @@ code =
             , padding ( 0, 20 )
             ]
             [ bars
-                [ Bars.maxBarWidth 9
+                [ Bars.maxBarWidth 30
                 , Bars.stackByY
+                , Bars.label
+                    [ Label.formatFromList [ "A", "B", "C" ]
+                    , Label.view
+                        [ Label.displace ( 0, 13 )
+                        , Label.fontSize 10
+                        ]
+                    ]
                 ]
                 [ [ Bars.fill Common.blueFill ]
                 , [ Bars.fill Common.skinFill ]
@@ -102,8 +109,7 @@ code =
                 )
             , xAxis
                 [ Axis.line [ Line.stroke Common.axisColor ]
-                , Axis.tick [ Tick.delta 1 ]
+                , Axis.tickDelta 1
                 ]
             ]
-
     """

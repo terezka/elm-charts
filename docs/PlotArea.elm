@@ -6,7 +6,6 @@ import Common exposing (..)
 import Plot.Area as Area
 import Plot.Line as Line
 import Plot.Axis as Axis
-import Plot.Tick as Tick
 
 
 plotExample : PlotExample msg
@@ -41,21 +40,21 @@ data2 =
 view : Svg.Svg a
 view =
     plot
-        [ size Common.plotSize
+        [ size plotSize
         , margin ( 10, 20, 40, 20 )
         ]
         [ area
-            [ Area.stroke Common.skinStroke
-            , Area.fill Common.skinFill
+            [ Area.stroke skinStroke
+            , Area.fill skinFill
             ]
             data1
         , area
-            [ Area.stroke Common.blueStroke
-            , Area.fill Common.blueFill
+            [ Area.stroke blueStroke
+            , Area.fill blueFill
             ]
             data2
         , xAxis
-            [ Axis.line [ Line.stroke Common.axisColor ]
+            [ Axis.line [ Line.stroke axisColor ]
             , Axis.tickDelta 10
             ]
         ]
@@ -82,7 +81,7 @@ code =
                 data2
             , xAxis
                 [ Axis.line [ Line.stroke axisColor ]
-                , Axis.tick [ Tick.delta 10 ]
+                , Axis.tickDelta 10
                 ]
             ]
     """

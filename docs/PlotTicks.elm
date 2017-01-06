@@ -95,8 +95,8 @@ code =
         rem n 2 > 0
 
 
-    toTickStyle : ( Int, Float ) -> List (Tick.StyleAttribute msg)
-    toTickStyle ( index, tick ) =
+    toTickStyle : Axis.LabelInfo -> List (Tick.StyleAttribute msg)
+    toTickStyle { index } =
         if isOdd index then
             [ Tick.length 7
             , Tick.stroke "#e4e3e3"
@@ -107,13 +107,12 @@ code =
             ]
 
 
-    toLabelStyle : ( Int, Float ) -> List (Label.StyleAttribute msg)
-    toLabelStyle ( index, tick ) =
+    toLabelStyle : Axis.LabelInfo -> List (Label.StyleAttribute msg)
+    toLabelStyle { index } =
         if isOdd index then
-            [ Label.format (always "") ]
+            []
         else
-            [ Label.format (\\( _, v ) -> toString v ++ " s")
-            , Label.stroke "#969696"
+            [ Label.stroke "#969696"
             ]
 
 
@@ -131,7 +130,16 @@ code =
             , xAxis
                 [ Axis.line [ Line.stroke axisColor ]
                 , Axis.tick [ Tick.viewDynamic toTickStyle ]
-                , Axis.label [ Label.viewDynamic toLabelStyle ]
+                , Axis.label
+                    [ Label.format
+                        (\\{ index, value } ->
+                            if isOdd index then
+                                ""
+                            else
+                                toString value ++ " s"
+                        )
+                    , Label.viewDynamic toLabelStyle
+                    ]
                 ]
             ]
     """

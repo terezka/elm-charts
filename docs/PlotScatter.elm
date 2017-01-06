@@ -62,6 +62,7 @@ code =
         plot
             [ size plotSize
             , margin ( 10, 20, 40, 40 )
+            , domainLowest (min 0)
             ]
             [ scatter
                 [ Scatter.stroke pinkStroke
@@ -72,8 +73,7 @@ code =
             , xAxis
                 [ Axis.line
                     [ Line.stroke axisColor ]
-                , Axis.tick
-                    [ Tick.delta 2 ]
+                , Axis.tickDelta 2
                 ]
             ]
     """
