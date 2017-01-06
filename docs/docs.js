@@ -13124,116 +13124,6 @@ var _terezka$elm_plot$PlotScatter$plotExample = {
 	id: _terezka$elm_plot$PlotScatter$id
 };
 
-var _terezka$elm_plot$PlotLines$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            , domainLowest (min 0)\n            ]\n            [ line\n                [ Line.stroke blueStroke\n                , Line.strokeWidth 2\n                ]\n                data1\n            , line\n                [ Line.stroke pinkStroke\n                , Line.strokeWidth 2\n                ]\n                data2\n            , xAxis\n                [ Axis.line\n                    [ Line.stroke axisColor ]\n                , Axis.tickDelta 1\n                ]\n            ]\n    ';
-var _terezka$elm_plot$PlotLines$data2 = {
-	ctor: '::',
-	_0: {ctor: '_Tuple2', _0: 0, _1: 0},
-	_1: {
-		ctor: '::',
-		_0: {ctor: '_Tuple2', _0: 1, _1: 5},
-		_1: {
-			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: 2, _1: 7},
-			_1: {
-				ctor: '::',
-				_0: {ctor: '_Tuple2', _0: 3, _1: 15},
-				_1: {ctor: '[]'}
-			}
-		}
-	}
-};
-var _terezka$elm_plot$PlotLines$data1 = {
-	ctor: '::',
-	_0: {ctor: '_Tuple2', _0: 0, _1: 2},
-	_1: {
-		ctor: '::',
-		_0: {ctor: '_Tuple2', _0: 1, _1: 4},
-		_1: {
-			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: 2, _1: 5},
-			_1: {
-				ctor: '::',
-				_0: {ctor: '_Tuple2', _0: 3, _1: 10},
-				_1: {ctor: '[]'}
-			}
-		}
-	}
-};
-var _terezka$elm_plot$PlotLines$view = A2(
-	_terezka$elm_plot$Plot$plot,
-	{
-		ctor: '::',
-		_0: _terezka$elm_plot$Plot$size(_terezka$elm_plot$Common$plotSize),
-		_1: {
-			ctor: '::',
-			_0: _terezka$elm_plot$Plot$margin(
-				{ctor: '_Tuple4', _0: 10, _1: 20, _2: 40, _3: 20}),
-			_1: {
-				ctor: '::',
-				_0: _terezka$elm_plot$Plot$domainLowest(
-					_elm_lang$core$Basics$min(0)),
-				_1: {ctor: '[]'}
-			}
-		}
-	},
-	{
-		ctor: '::',
-		_0: A2(
-			_terezka$elm_plot$Plot$line,
-			{
-				ctor: '::',
-				_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Common$blueStroke),
-				_1: {
-					ctor: '::',
-					_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
-					_1: {ctor: '[]'}
-				}
-			},
-			_terezka$elm_plot$PlotLines$data1),
-		_1: {
-			ctor: '::',
-			_0: A2(
-				_terezka$elm_plot$Plot$line,
-				{
-					ctor: '::',
-					_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Common$pinkStroke),
-					_1: {
-						ctor: '::',
-						_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
-						_1: {ctor: '[]'}
-					}
-				},
-				_terezka$elm_plot$PlotLines$data2),
-			_1: {
-				ctor: '::',
-				_0: _terezka$elm_plot$Plot$xAxis(
-					{
-						ctor: '::',
-						_0: _terezka$elm_plot$Plot_Axis$line(
-							{
-								ctor: '::',
-								_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Common$axisColor),
-								_1: {ctor: '[]'}
-							}),
-						_1: {
-							ctor: '::',
-							_0: _terezka$elm_plot$Plot_Axis$tickDelta(1),
-							_1: {ctor: '[]'}
-						}
-					}),
-				_1: {ctor: '[]'}
-			}
-		}
-	});
-var _terezka$elm_plot$PlotLines$id = 'PlotLines';
-var _terezka$elm_plot$PlotLines$title = 'Lines';
-var _terezka$elm_plot$PlotLines$plotExample = {
-	title: _terezka$elm_plot$PlotLines$title,
-	code: _terezka$elm_plot$PlotLines$code,
-	view: _terezka$elm_plot$Common$ViewStatic(_terezka$elm_plot$PlotLines$view),
-	id: _terezka$elm_plot$PlotLines$id
-};
-
 var _terezka$elm_plot$PlotArea$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ area\n                [ Area.stroke skinStroke\n                , Area.fill skinFill\n                ]\n                data1\n            , area\n                [ Area.stroke blueStroke\n                , Area.fill blueFill\n                ]\n                data2\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tickDelta 10\n                ]\n            ]\n    ';
 var _terezka$elm_plot$PlotArea$data2 = {
 	ctor: '::',
@@ -14302,15 +14192,11 @@ var _terezka$elm_plot$Docs$examples = {
 					_0: _terezka$elm_plot$PlotTicks$plotExample,
 					_1: {
 						ctor: '::',
-						_0: _terezka$elm_plot$PlotLines$plotExample,
+						_0: _terezka$elm_plot$PlotArea$plotExample,
 						_1: {
 							ctor: '::',
-							_0: _terezka$elm_plot$PlotArea$plotExample,
-							_1: {
-								ctor: '::',
-								_0: _terezka$elm_plot$PlotGrid$plotExample,
-								_1: {ctor: '[]'}
-							}
+							_0: _terezka$elm_plot$PlotGrid$plotExample,
+							_1: {ctor: '[]'}
 						}
 					}
 				}
