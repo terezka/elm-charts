@@ -45,11 +45,7 @@ update msg model =
         PlotInteraction interaction ->
             case interaction of
                 Internal internalMsg ->
-                    let
-                        state =
-                            Plot.update internalMsg model.plotState
-                    in
-                        { model | plotState = state }
+                    { model | plotState = Plot.update internalMsg model.plotState }
 
                 Custom yourMsg ->
                     update yourMsg model
