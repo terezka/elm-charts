@@ -92,8 +92,7 @@ view state =
             , Axis.positionLowest
             , Axis.line
                 [ Line.stroke "#b9b9b9" ]
-            , Axis.tick
-                [ Tick.delta 50 ]
+            , Axis.tickDelta 50
             , Axis.label
                 [ Label.view labelStyle
                 , Label.format (\{ value } -> toString value ++ " °C")
@@ -103,10 +102,9 @@ view state =
             [ Axis.cleanCrossings
             , Axis.line
                 [ Line.stroke "#b9b9b9" ]
+            , Axis.tickDelta 2.5
             , Axis.tick
-                [ Tick.viewDynamic toTickStyle
-                , Tick.delta 2.5
-                ]
+                [ Tick.viewDynamic toTickStyle ]
             , Axis.label
                 [ Label.view
                     [ Label.fontSize 12
@@ -125,9 +123,14 @@ view state =
                     [ Label.fontSize 12
                     , Label.stroke "#b9b9b9"
                     ]
-                , Label.format (\{ value } -> toString value ++ " t")
+                , Label.format
+                    (\{ value, index } ->
+                        if isOdd index then
+                            ""
+                        else
+                            toString value ++ " t"
+                    )
                 ]
-            , Axis.filter filterLabels
             ]
         , hint
             [ Hint.lineStyle [ ( "background", "#b9b9b9" ) ] ]

@@ -12,8 +12,6 @@ module Plot.Tick
         , customAttrs
         , length
         , width
-        , values
-        , delta
         )
 
 {-|
@@ -36,8 +34,6 @@ a suspicion that I have missed a very common configuration, then please let me k
 
 @docs classes, width, length, stroke, strokeWidth, opacity, customAttrs
 
-# Values
-@docs values, delta
 
 -}
 
@@ -47,7 +43,6 @@ import Internal.Tick as Internal
     exposing
         ( Config
         , StyleConfig
-        , ValueConfig(..)
         , ViewConfig(..)
         , View
         , defaultConfig
@@ -223,37 +218,3 @@ viewDynamic toStyles config =
 viewCustom : (a -> Svg.Svg msg) -> Attribute a msg
 viewCustom view config =
     { config | viewConfig = FromCustomView (always view) }
-
-
-{-| Specify what values will be added a tick.
-
-    myXAxis : Plot.Element msg
-    myXAxis =
-        Plot.xAxis
-            [ Axis.tick
-                [ Tick.values [ 0, 1, 2, 4, 8 ] ]
-            ]
-
- **Note:** If you add another attribute msgltering the values like `delta` _after_ this attribute,
- then this attribute will have no effect.
--}
-values : List Float -> Attribute a msg
-values values config =
-    { config | valueConfig = FromCustom values }
-
-
-{-| Specify what values will be added a tick by specifying the space between each tick.
-
-    myXAxis : Plot.Element msg
-    myXAxis =
-        Plot.xAxis
-            [ Axis.tick
-                [ Tick.delta 4 ]
-            ]
-
- **Note:** If you add another attribute msgltering the values like `values` _after_ this attribute,
- then this attribute will have no effect.
--}
-delta : Float -> Attribute a msg
-delta delta config =
-    { config | valueConfig = FromDelta delta }

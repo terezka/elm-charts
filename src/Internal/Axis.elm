@@ -7,6 +7,7 @@ module Internal.Axis
         , defaultConfigY
         , view
         , getAxisPosition
+        , getValues
         )
 
 import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, Anchor(..), Value, IndexedInfo)
@@ -14,14 +15,18 @@ import Internal.Tick as Tick
 import Internal.Label as Label
 import Internal.Line as Line
 import Internal.Draw as Draw exposing (..)
+import Internal.Stuff exposing (..)
 import Svg
 import Svg.Attributes
+import Round
+import Regex
 
 
 type alias Config msg =
     { tickConfig : Tick.Config LabelInfo msg
+    , tickValues : ValueConfig
     , labelConfig : Label.Config LabelInfo msg
-    , valueConfig : ValueConfig
+    , labelValues : Maybe (List Value)
     , lineConfig : Line.Config msg
     , orientation : Orientation
     , anchor : Anchor
@@ -38,8 +43,10 @@ type PositionOption
 
 
 type ValueConfig
-    = CustomValues (List Value)
-    | CustomFilter (LabelInfo -> Bool)
+    = AutoValues
+    | FromDelta Float
+    | FromCount Int
+    | FromCustom (List Float)
 
 
 type alias LabelInfo =
@@ -51,8 +58,9 @@ type alias LabelInfo =
 defaultConfigX : Config msg
 defaultConfigX =
     { tickConfig = Tick.defaultConfig
+    , tickValues = AutoValues
     , labelConfig = Label.toDefaultConfig (.value >> toString)
-    , valueConfig = CustomFilter (always True)
+    , labelValues = Nothing
     , lineConfig = Line.defaultConfig
     , orientation = X
     , cleanCrossings = False
@@ -74,7 +82,7 @@ view ({ scale, toSvgCoords, oppositeAxisCrossings } as meta) ({ lineConfig, tick
             toTickValues meta config
 
         labelValues =
-            getValues config tickValues
+            toLabelValues config tickValues
 
         axisPosition =
             getAxisPosition scale.y position
@@ -84,12 +92,12 @@ view ({ scale, toSvgCoords, oppositeAxisCrossings } as meta) ({ lineConfig, tick
             [ viewAxisLine lineConfig meta axisPosition
             , Svg.g
                 [ Svg.Attributes.class "elm-plot__axis__ticks" ]
-                (List.map (placeTick meta config axisPosition (Tick.toView tickConfig orientation)) tickValues)
+                (List.map (placeTick meta config axisPosition (Tick.toView tickConfig orientation)) (toIndexInfo tickValues))
             , Svg.g
                 [ Svg.Attributes.class "elm-plot__axis__labels"
                 , Svg.Attributes.style <| toAnchorStyle anchor orientation
                 ]
-                (Label.view labelConfig (placeLabel meta config axisPosition) labelValues)
+                (Label.view labelConfig (placeLabel meta config axisPosition) (toIndexInfo labelValues))
             ]
 
 
@@ -219,18 +227,157 @@ isCrossing crossings value =
     not <| List.member value crossings
 
 
-toTickValues : Meta -> Config msg -> List LabelInfo
+
+-- Remember we always assume we're working with the x-axis. scale.x is therefore
+-- just the scale we work with. It will also be the right one for the y-axis.
+
+
+toTickValues : Meta -> Config msg -> List Value
 toTickValues meta config =
-    Tick.getValues config.tickConfig meta.scale.x
+    getValues config.tickValues meta.scale.x
         |> filterValues meta config
-        |> Tick.toIndexInfo
 
 
-getValues : Config msg -> List LabelInfo -> List LabelInfo
-getValues config tickValues =
-    case config.valueConfig of
-        CustomValues values ->
-            Tick.toIndexInfo values
+toLabelValues : Config msg -> List Value -> List Value
+toLabelValues config tickValues =
+    Maybe.withDefault tickValues config.labelValues
 
-        CustomFilter filter ->
-            List.filter filter tickValues
+
+
+-- Resolve values
+
+
+getValues : ValueConfig -> Scale -> List Value
+getValues config =
+    case config of
+        AutoValues ->
+            toValuesAuto
+
+        FromDelta delta ->
+            toValuesFromDelta delta
+
+        FromCount count ->
+            toValuesFromCount count
+
+        FromCustom values ->
+            always values
+
+
+getFirstValue : Float -> Float -> Float
+getFirstValue delta lowest =
+    ceilToNearest delta lowest
+
+
+getCount : Float -> Float -> Float -> Float -> Int
+getCount delta lowest range firstValue =
+    floor ((range - (abs lowest - abs firstValue)) / delta)
+
+
+getDeltaPrecision : Float -> Int
+getDeltaPrecision delta =
+    delta
+        |> toString
+        |> Regex.find (Regex.AtMost 1) (Regex.regex "\\.[0-9]*")
+        |> List.map .match
+        |> List.head
+        |> Maybe.withDefault ""
+        |> String.length
+        |> (-) 1
+        |> min 0
+        |> abs
+
+
+getDelta : Float -> Int -> Float
+getDelta range totalTicks =
+    let
+        -- calculate an initial guess at step size
+        delta0 =
+            range / (toFloat totalTicks)
+
+        -- get the magnitude of the step size
+        mag =
+            floor (logBase 10 delta0)
+
+        magPow =
+            toFloat (10 ^ mag)
+
+        -- calculate most significant digit of the new step size
+        magMsd =
+            round (delta0 / magPow)
+
+        -- promote the MSD to either 1, 2, or 5
+        magMsdFinal =
+            if magMsd > 5 then
+                10
+            else if magMsd > 2 then
+                5
+            else if magMsd > 1 then
+                1
+            else
+                magMsd
+    in
+        (toFloat magMsdFinal) * magPow
+
+
+toValue : Float -> Float -> Int -> Float
+toValue delta firstValue index =
+    firstValue
+        + (toFloat index)
+        * delta
+        |> Round.round (getDeltaPrecision delta)
+        |> String.toFloat
+        |> Result.withDefault 0
+
+
+toValuesFromDelta : Float -> Scale -> List Float
+toValuesFromDelta delta { lowest, range } =
+    let
+        firstValue =
+            getFirstValue delta lowest
+
+        tickCount =
+            getCount delta lowest range firstValue
+    in
+        List.map (toValue delta firstValue) (List.range 0 tickCount)
+
+
+toValuesFromCount : Int -> Scale -> List Float
+toValuesFromCount appxCount scale =
+    toValuesFromDelta (getDelta scale.range appxCount) scale
+
+
+toValuesAuto : Scale -> List Float
+toValuesAuto =
+    toValuesFromCount 10
+
+
+
+-- Helpers
+
+
+toIndexInfo : List Value -> List (IndexedInfo {})
+toIndexInfo values =
+    let
+        lowerThanZero =
+            List.length (List.filter (\v -> v < 0) values)
+
+        hasZero =
+            List.any (\v -> v == 0) values
+    in
+        List.indexedMap (zipWithDistance hasZero lowerThanZero) values
+
+
+zipWithDistance : Bool -> Int -> Int -> Value -> IndexedInfo {}
+zipWithDistance hasZero lowerThanZero index value =
+    let
+        distance =
+            if value == 0 then
+                0
+            else if value > 0 && hasZero then
+                index - lowerThanZero
+            else if value > 0 then
+                index - lowerThanZero + 1
+            else
+                lowerThanZero - index
+    in
+        { index = distance, value = value }

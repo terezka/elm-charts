@@ -10,12 +10,12 @@ module Plot.Axis exposing (..)
 @docs classes, line, positionLowest, positionHighest, cleanCrossings, anchorInside
 
 ## Ticks and labels
-@docs LabelInfo, tick, label, filter, values
+@docs LabelInfo, tick, label, labelValues, tickValues, tickDelta
 
 -}
 
-import Internal.Types exposing (Style, Orientation(..), Anchor(..))
-import Internal.Axis as Internal
+import Internal.Types exposing (Style, Orientation(..), Anchor(..), Value)
+import Internal.Axis as Internal exposing (ValueConfig(..))
 import Internal.Label as LabelInternal
 import Internal.Tick as TickInternal
 import Internal.Line as LineInternal
@@ -143,12 +143,12 @@ tick attributes config =
     myYAxis : Plot.Element msg
     myYAxis =
         Plot.yAxis
-            [ Axis.tick
+            [ Axis.label
                 [ Label.view
                     [ Label.displace (10, 0)
-                    , Label.format formatFunc
+                    , Label.stroke "blue"
                     ]
-                , Label.values [ 3, 5, 7 ]
+                , Label.format (.value >> toString)
                 ]
             ]
 -}
@@ -157,36 +157,48 @@ label attributes config =
     { config | labelConfig = List.foldl (<|) LabelInternal.defaultConfig attributes }
 
 
-{-| Specify the values which you want a label for.
+{-| Specify the values which you want a label for. If not specified, it will mirror
+  the ticks.
 
     myYAxis : Plot.Element msg
     myYAxis =
         Plot.yAxis
-            [ Axis.label
-                [ Label.values [ 0, 5, 10, 11 ] ]
+            [ Axis.labelValues [ 0, 5, 10, 11 ] ]
+-}
+labelValues : List Value -> Attribute msg
+labelValues values config =
+    { config | labelValues = Just values }
+
+
+{-| Specify what values will be added a tick.
+
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.tick
+                [ Tick.values [ 0, 1, 2, 4, 8 ] ]
             ]
 
- **Note:** If you add another attribute altering the values like `filter` _after_ this attribute,
+ **Note:** If you add another attribute msgltering the values like `delta` _after_ this attribute,
  then this attribute will have no effect.
 -}
-values : List Float -> Attribute msg
-values values config =
-    { config | valueConfig = Internal.CustomValues values }
+tickValues : List Float -> Attribute msg
+tickValues values config =
+    { config | tickValues = FromCustom values }
 
 
-{-| Add a filter determining which of the _tick values_ are added a label.
- Your filter will be passed label's value and index (amount of ticks from origin).
+{-| Specify what values will be added a tick by specifying the space between each tick.
 
-    myYAxis : Plot.Element msg
-    myYAxis =
-        Plot.yAxis
-            [ Axis.label
-                [ Label.filter onlyEven ]
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.tick
+                [ Tick.delta 4 ]
             ]
 
- **Note:** If you add another attribute altering the values like `values` _after_ this attribute,
+ **Note:** If you add another attribute msgltering the values like `values` _after_ this attribute,
  then this attribute will have no effect.
 -}
-filter : (LabelInfo -> Bool) -> Attribute msg
-filter filter config =
-    { config | valueConfig = Internal.CustomFilter filter }
+tickDelta : Float -> Attribute msg
+tickDelta delta config =
+    { config | tickValues = FromDelta delta }

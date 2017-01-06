@@ -68,9 +68,8 @@ view =
             data
         , xAxis
             [ Axis.tick
-                [ Tick.view toTickAttrs
-                , Tick.values [ 3, 6 ]
-                ]
+                [ Tick.view toTickAttrs ]
+            , Axis.tickValues [ 3, 6 ]
             , Axis.label
                 [ Label.format (\{ value } -> toString value ++ " ms") ]
             , Axis.cleanCrossings

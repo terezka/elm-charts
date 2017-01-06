@@ -51,7 +51,7 @@ view =
             ]
         , xAxis
             [ Axis.line [ Line.stroke Common.axisColor ]
-            , Axis.tick [ Tick.delta 0.5 ]
+            , Axis.tickDelta 0.5
             ]
         , line
             [ Line.stroke Common.blueStroke

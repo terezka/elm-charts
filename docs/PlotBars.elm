@@ -68,7 +68,7 @@ view =
             )
         , xAxis
             [ Axis.line [ Line.stroke Common.axisColor ]
-            , Axis.tick [ Tick.delta 1 ]
+            , Axis.tickDelta 1
             ]
         ]
 
