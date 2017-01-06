@@ -132,8 +132,8 @@ defaultConfig =
     , margin = ( 0, 0, 0, 0 )
     , classes = []
     , style = []
-    , domain = EdgesAny (min 0) (max 1)
-    , range = EdgesAny (min 0) (max 1)
+    , domain = EdgesAny (identity) (identity)
+    , range = EdgesAny (identity) (identity)
     , id = "elm-plot"
     }
 
@@ -203,7 +203,7 @@ id id config =
  this attribute to the function `identity`.
  If you want it to always be -5, then set this attribute to the function `always -5`.
 
- The default is `min 0`.
+ The default is `identity`.
 
  **Note:** If you are using `padding` as well, the extra padding will still be
  added outside the domain.
@@ -218,7 +218,7 @@ domainLowest toLowest ({ domain } as config) =
  be the upper boundery of your series. So if you would like
  the lowest boundery to  always be 10, then set this attribute to the function `always 10`.
 
- The default is `max 1`.
+ The default is `identity`.
 
  **Note:** If you are using `padding` as well, the extra padding will still be
  added outside the domain.

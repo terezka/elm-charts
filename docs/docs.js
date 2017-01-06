@@ -9195,7 +9195,7 @@ var _terezka$elm_plot$Internal_Stuff$foldBounds = F2(
 			return newBounds;
 		}
 	});
-var _terezka$elm_plot$Internal_Stuff$rangeErrorMsg = 'elm-plot: Looks like you are trying to plot something with a range of zero! That will end badly. Maybe try one of these range restricting attributes on your plot: domainLowest, domainHighest, rangeLowest, rangeHighest. If you get stuck, you can just write me on the elm-lang slack (@terezka)!';
+var _terezka$elm_plot$Internal_Stuff$rangeErrorMsg = 'elm-plot: Looks like you are trying to plot something with a range/domain of zero! That will end badly. Maybe try one of these range restricting attributes on your plot: domainLowest, domainHighest, rangeLowest, rangeHighest. If you get stuck, you can just write me on the elm-lang slack (@terezka)!';
 var _terezka$elm_plot$Internal_Stuff$getRange = F2(
 	function (lowest, highest) {
 		return (_elm_lang$core$Native_Utils.cmp(highest - lowest, 0) > 0) ? (highest - lowest) : _elm_lang$core$Native_Utils.crash(
@@ -12245,14 +12245,8 @@ var _terezka$elm_plot$Plot$defaultConfig = {
 	margin: {ctor: '_Tuple4', _0: 0, _1: 0, _2: 0, _3: 0},
 	classes: {ctor: '[]'},
 	style: {ctor: '[]'},
-	domain: A2(
-		_terezka$elm_plot$Internal_Types$EdgesAny,
-		_elm_lang$core$Basics$min(0),
-		_elm_lang$core$Basics$max(1)),
-	range: A2(
-		_terezka$elm_plot$Internal_Types$EdgesAny,
-		_elm_lang$core$Basics$min(0),
-		_elm_lang$core$Basics$max(1)),
+	domain: A2(_terezka$elm_plot$Internal_Types$EdgesAny, _elm_lang$core$Basics$identity, _elm_lang$core$Basics$identity),
+	range: A2(_terezka$elm_plot$Internal_Types$EdgesAny, _elm_lang$core$Basics$identity, _elm_lang$core$Basics$identity),
 	id: 'elm-plot'
 };
 var _terezka$elm_plot$Plot$style = F2(

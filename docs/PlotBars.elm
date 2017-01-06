@@ -4,7 +4,6 @@ import Svg
 import Plot exposing (..)
 import Plot.Bars as Bars
 import Plot.Axis as Axis
-import Plot.Tick as Tick
 import Plot.Line as Line
 import Plot.Label as Label
 import Common exposing (..)
