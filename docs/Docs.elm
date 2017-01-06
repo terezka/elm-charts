@@ -237,14 +237,14 @@ port highlight : () -> Cmd msg
 
 examples : List (PlotExample msg)
 examples =
-    [ PlotScatter.plotExample
+    [ PlotBars.plotExample
+    , PlotHint.plotExample
+    , PlotSticky.plotExample
+    , PlotScatter.plotExample
+    , PlotTicks.plotExample
     , PlotLines.plotExample
     , PlotArea.plotExample
-    , PlotBars.plotExample
     , PlotGrid.plotExample
-    , PlotTicks.plotExample
-    , PlotSticky.plotExample
-    , PlotHint.plotExample
     ]
 
 

@@ -14287,28 +14287,28 @@ var _terezka$elm_plot$PlotHint$plotExample = {
 
 var _terezka$elm_plot$Docs$examples = {
 	ctor: '::',
-	_0: _terezka$elm_plot$PlotScatter$plotExample,
+	_0: _terezka$elm_plot$PlotBars$plotExample,
 	_1: {
 		ctor: '::',
-		_0: _terezka$elm_plot$PlotLines$plotExample,
+		_0: _terezka$elm_plot$PlotHint$plotExample,
 		_1: {
 			ctor: '::',
-			_0: _terezka$elm_plot$PlotArea$plotExample,
+			_0: _terezka$elm_plot$PlotSticky$plotExample,
 			_1: {
 				ctor: '::',
-				_0: _terezka$elm_plot$PlotBars$plotExample,
+				_0: _terezka$elm_plot$PlotScatter$plotExample,
 				_1: {
 					ctor: '::',
-					_0: _terezka$elm_plot$PlotGrid$plotExample,
+					_0: _terezka$elm_plot$PlotTicks$plotExample,
 					_1: {
 						ctor: '::',
-						_0: _terezka$elm_plot$PlotTicks$plotExample,
+						_0: _terezka$elm_plot$PlotLines$plotExample,
 						_1: {
 							ctor: '::',
-							_0: _terezka$elm_plot$PlotSticky$plotExample,
+							_0: _terezka$elm_plot$PlotArea$plotExample,
 							_1: {
 								ctor: '::',
-								_0: _terezka$elm_plot$PlotHint$plotExample,
+								_0: _terezka$elm_plot$PlotGrid$plotExample,
 								_1: {ctor: '[]'}
 							}
 						}
