@@ -6,6 +6,7 @@ import Plot.Bars as Bars
 import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Line as Line
+import Plot.Label as Label
 import Common exposing (..)
 
 
@@ -28,6 +29,11 @@ id =
     "PlotBars"
 
 
+formatter : Bars.LabelInfo -> String
+formatter { index, xValue, yValue } =
+    toString index ++ ": (" ++ toString xValue ++ ", " ++ toString yValue ++ ")"
+
+
 view : Svg.Svg a
 view =
     plot
@@ -36,8 +42,15 @@ view =
         , padding ( 0, 20 )
         ]
         [ bars
-            [ Bars.maxBarWidth 9
+            [ Bars.maxBarWidth 30
             , Bars.stackByY
+            , Bars.label
+                [ Label.formatFromList [ "A", "B", "C" ]
+                , Label.view
+                    [ Label.displace ( 0, 13 )
+                    , Label.fontSize 10
+                    ]
+                ]
             ]
             [ [ Bars.fill Common.blueFill ]
             , [ Bars.fill Common.skinFill ]
@@ -55,7 +68,7 @@ view =
             )
         , xAxis
             [ Axis.line [ Line.stroke Common.axisColor ]
-            , Axis.tick [ Tick.delta 1 ]
+            , Axis.tickDelta 1
             ]
         ]
 

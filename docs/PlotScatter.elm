@@ -49,8 +49,7 @@ view =
         , xAxis
             [ Axis.line
                 [ Line.stroke axisColor ]
-            , Axis.tick
-                [ Tick.delta 2 ]
+            , Axis.tickDelta 2
             ]
         ]
 

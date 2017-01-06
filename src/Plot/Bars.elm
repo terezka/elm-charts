@@ -4,6 +4,7 @@ module Plot.Bars
         , StyleAttribute
         , DataTransformers
         , Data
+        , LabelInfo
         , stackByY
         , maxBarWidth
         , maxBarWidthPer
@@ -20,24 +21,48 @@ module Plot.Bars
     myBarsSerie : Plot.Element (Interaction YourMsg)
     myBarsSerie =
         bars
-            [ Bars.maxBarWidthPer 85 ]
+            [ Bars.maxBarWidthPer 85
+            , Bars.stackByY
+            , Bars.label
+                [ Label.formatFromList [ "A", "B", "C" ] ]
+            ]
             [ [ Bars.fill "blue", Bars.opacity 0.5 ]
             , [ Bars.fill "red" ]
             ]
-            [ [ 1, 4 ]
-            , [ 2, 1 ]
-            , [ 4, 5 ]
-            , [ 4, 5 ]
-            ]
+            (Bars.toBarData
+                { yValues = .revenueByYear
+                , xValue = Just .quarter
+                }
+                [ { quarter = 1, revenueByYear = [ 10000, 30000, 20000 ] }
+                , { quarter = 2, revenueByYear = [ 20000, 10000, 40000 ] }
+                , { quarter = 3, revenueByYear = [ 40000, 20000, 10000 ] }
+                , { quarter = 4, revenueByYear = [ 40000, 50000, 20000 ] }
+                ]
+            )
 
 # Definition
-@docs Attribute, StyleAttribute
+@docs Attribute
 
-# Overall styling
-@docs maxBarWidth, maxBarWidthPer, stackByY, label
+# Attributes
+@docs maxBarWidth, maxBarWidthPer, stackByY
 
-# Individual bar styling
-@docs fill, opacity, customAttrs
+## Labels
+@docs LabelInfo, label
+
+# Individual bar attributes
+  These are the attributes which can be passed in the list of bar styles in the
+  second argument of your series.
+
+    myBarsSerie : Plot.Element msg
+    myBarsSerie =
+        bars
+            []
+            [ [ Bars.fill "blue", Bars.opacity 0.5 ]
+            , [ Bars.fill "red" ]
+            ]
+            data
+
+@docs StyleAttribute, fill, opacity, customAttrs
 
 # Custom data
 @docs Data, DataTransformers, toBarData
@@ -45,7 +70,7 @@ module Plot.Bars
 -}
 
 import Svg
-import Internal.Types exposing (Style, Point, Orientation(..), MaxWidth(..), Value)
+import Internal.Types exposing (Style, Point, Orientation(..), MaxWidth(..), Value, IndexedInfo)
 import Internal.Bars as Internal
 import Internal.Label as LabelInternal
 import Plot.Label as Label
@@ -65,6 +90,15 @@ type alias StyleAttribute msg =
 -}
 type alias Data =
     Internal.Group
+
+
+{-| The info your label format option will be passed.
+-}
+type alias LabelInfo =
+    { index : Int
+    , xValue : Value
+    , yValue : Value
+    }
 
 
 {-| Set a fixed max width (in pixels) on your bars.
@@ -94,9 +128,9 @@ maxBarWidthPer max config =
           barStyles
           data
 -}
-label : List (Label.StyleAttribute msg) -> Attribute msg
+label : List (Label.Attribute LabelInfo msg) -> Attribute msg
 label attributes config =
-    { config | labelConfig = List.foldl (<|) LabelInternal.defaultStyleConfig attributes }
+    { config | labelConfig = List.foldl (<|) LabelInternal.defaultConfig attributes }
 
 
 {-| By default your bars are stacked by x. If you want to stack them y, add this attribute.
@@ -156,7 +190,13 @@ type alias DataTransformers data =
 -}
 toBarData : DataTransformers data -> List data -> List Data
 toBarData transform allData =
-    List.indexedMap (\index data -> ( getXValue transform index data, transform.yValues data )) allData
+    List.indexedMap
+        (\index data ->
+            { xValue = getXValue transform index data
+            , yValues = transform.yValues data
+            }
+        )
+        allData
 
 
 getXValue : DataTransformers data -> Int -> data -> Value

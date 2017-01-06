@@ -717,8 +717,8 @@ getLastGetTickValues : List (AxisInternal.Config msg) -> Scale -> List Value
 getLastGetTickValues axisConfigs =
     List.head axisConfigs
         |> Maybe.withDefault AxisInternal.defaultConfigX
-        |> .tickConfig
-        |> TickInternal.getValues
+        |> .tickValues
+        |> AxisInternal.getValues
 
 
 collectYValues : Float -> Element msg -> List (Maybe (List Value)) -> List (Maybe (List Value))

@@ -12,12 +12,10 @@ module Plot.Tick
         , customAttrs
         , length
         , width
-        , values
-        , delta
         )
 
 {-|
- Attributes for altering the values and view of your axis' ticks.
+ Attributes for altering the view of your axis' ticks.
 
  Before you read any further, please note that when I speak of the tick _index_,
  then I'm talking about how many ticks that particular tick is from the origin.
@@ -27,28 +25,24 @@ module Plot.Tick
 # Definition
 @docs Attribute
 
-# Styling
-@docs StyleAttribute, view, viewDynamic, viewCustom
+# View options
+@docs view, viewDynamic, viewCustom
 
 ## Style attributes
 If these attributes do not forfill your needs, try out the `viewCustom`! If you have
 a suspicion that I have missed a very common configuration, then please let me know and I'll add it.
 
-@docs classes, width, length, stroke, strokeWidth, opacity, customAttrs
+@docs StyleAttribute, classes, width, length, stroke, strokeWidth, opacity, customAttrs
 
-# Values
-@docs values, delta
 
 -}
 
 import Svg
-import Internal.Types exposing (Style)
 import Internal.Draw exposing (..)
 import Internal.Tick as Internal
     exposing
         ( Config
         , StyleConfig
-        , ValueConfig(..)
         , ViewConfig(..)
         , View
         , defaultConfig
@@ -57,8 +51,8 @@ import Internal.Tick as Internal
 
 
 {-| -}
-type alias Attribute msg =
-    Config msg -> Config msg
+type alias Attribute a msg =
+    Config a msg -> Config a msg
 
 
 {-| -}
@@ -164,7 +158,7 @@ toStyleConfig attributes =
  **Note:** If you add another attribute msgltering the view like `viewDynamic` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
-view : List (StyleAttribute msg) -> Attribute msg
+view : List (StyleAttribute msg) -> Attribute a msg
 view styles config =
     { config | viewConfig = FromStyle (toStyleConfig styles) }
 
@@ -193,7 +187,7 @@ view styles config =
  **Note:** If you add another attribute msgltering the view like `view` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
-viewDynamic : (( Int, Float ) -> List (StyleAttribute msg)) -> Attribute msg
+viewDynamic : (a -> List (StyleAttribute msg)) -> Attribute a msg
 viewDynamic toStyles config =
     { config | viewConfig = FromStyleDynamic (toStyleConfig << toStyles) }
 
@@ -221,40 +215,6 @@ viewDynamic toStyles config =
  **Note:** If you add another attribute msgltering the view like `view` or `viewDynamic` _after_ this attribute,
  then this attribute will have no effect.
 -}
-viewCustom : (( Int, Float ) -> Svg.Svg msg) -> Attribute msg
+viewCustom : (a -> Svg.Svg msg) -> Attribute a msg
 viewCustom view config =
     { config | viewConfig = FromCustomView (always view) }
-
-
-{-| Specify what values will be added a tick.
-
-    myXAxis : Plot.Element msg
-    myXAxis =
-        Plot.xAxis
-            [ Axis.tick
-                [ Tick.values [ 0, 1, 2, 4, 8 ] ]
-            ]
-
- **Note:** If you add another attribute msgltering the values like `delta` _after_ this attribute,
- then this attribute will have no effect.
--}
-values : List Float -> Attribute msg
-values values config =
-    { config | valueConfig = FromCustom values }
-
-
-{-| Specify what values will be added a tick by specifying the space between each tick.
-
-    myXAxis : Plot.Element msg
-    myXAxis =
-        Plot.xAxis
-            [ Axis.tick
-                [ Tick.delta 4 ]
-            ]
-
- **Note:** If you add another attribute msgltering the values like `values` _after_ this attribute,
- then this attribute will have no effect.
--}
-delta : Float -> Attribute msg
-delta delta config =
-    { config | valueConfig = FromDelta delta }

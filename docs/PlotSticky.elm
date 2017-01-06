@@ -38,34 +38,19 @@ isOdd n =
     rem n 2 > 0
 
 
-toTickAttrs : ( Int, Float ) -> List (Tick.StyleAttribute msg)
-toTickAttrs ( index, tick ) =
+toTickAttrs : List (Tick.StyleAttribute msg)
+toTickAttrs =
     [ Tick.length 7
     , Tick.stroke "#e4e3e3"
     ]
 
 
-toLabelAttrs : ( Int, Float ) -> List (Label.StyleAttribute msg)
-toLabelAttrs ( index, tick ) =
-    [ Label.format (\( _, v ) -> toString v ++ " ms") ]
-
-
-toLabelAttrsY1 : ( Int, Float ) -> List (Label.StyleAttribute msg)
-toLabelAttrsY1 ( index, tick ) =
+toLabelAttrsY1 : Axis.LabelInfo -> List (Label.StyleAttribute msg)
+toLabelAttrsY1 { index, value } =
     if not <| isOdd index then
-        [ Label.format (always "") ]
+        []
     else
-        [ Label.format (\( _, v ) -> toString (v * 10) ++ " x")
-        , Label.displace ( -5, 0 )
-        ]
-
-
-toLabelAttrsY2 : ( Int, Float ) -> List (Label.StyleAttribute msg)
-toLabelAttrsY2 ( index, tick ) =
-    if isOdd index then
-        [ Label.format (always "") ]
-    else
-        [ Label.format (\( _, v ) -> toString (v / 5) ++ "k") ]
+        [ Label.displace ( -5, 0 ) ]
 
 
 view : Svg.Svg a
@@ -83,23 +68,40 @@ view =
             data
         , xAxis
             [ Axis.tick
-                [ Tick.viewDynamic toTickAttrs
-                , Tick.values [ 3, 6 ]
-                ]
-            , Axis.label [ Label.viewDynamic toLabelAttrs ]
+                [ Tick.view toTickAttrs ]
+            , Axis.tickValues [ 3, 6 ]
+            , Axis.label
+                [ Label.format (\{ value } -> toString value ++ " ms") ]
             , Axis.cleanCrossings
             ]
         , yAxis
             [ Axis.positionHighest
             , Axis.cleanCrossings
-            , Axis.tick [ Tick.viewDynamic toTickAttrs ]
-            , Axis.label [ Label.viewDynamic toLabelAttrsY1 ]
+            , Axis.tick [ Tick.view toTickAttrs ]
+            , Axis.label
+                [ Label.viewDynamic toLabelAttrsY1
+                , Label.format
+                    (\{ index, value } ->
+                        if not <| isOdd index then
+                            ""
+                        else
+                            toString (value * 10) ++ " x"
+                    )
+                ]
             ]
         , yAxis
             [ Axis.positionLowest
             , Axis.cleanCrossings
             , Axis.anchorInside
-            , Axis.label [ Label.viewDynamic toLabelAttrsY2 ]
+            , Axis.label
+                [ Label.format
+                    (\{ index, value } ->
+                        if isOdd index then
+                            ""
+                        else
+                            toString (value / 5) ++ "k"
+                    )
+                ]
             ]
         ]
 

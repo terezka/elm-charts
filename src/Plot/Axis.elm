@@ -9,13 +9,13 @@ module Plot.Axis exposing (..)
 # Attributes
 @docs classes, line, positionLowest, positionHighest, cleanCrossings, anchorInside
 
-# Ticks and labels
-@docs tick, label
+## Ticks and labels
+@docs tick, tickValues, tickDelta, LabelInfo, label, labelValues
 
 -}
 
-import Internal.Types exposing (Style, Orientation(..), Anchor(..))
-import Internal.Axis as Internal
+import Internal.Types exposing (Style, Orientation(..), Anchor(..), Value)
+import Internal.Axis as Internal exposing (ValueConfig(..))
 import Internal.Label as LabelInternal
 import Internal.Tick as TickInternal
 import Internal.Line as LineInternal
@@ -27,6 +27,13 @@ import Plot.Label as Label
 {-| -}
 type alias Attribute msg =
     Internal.Config msg -> Internal.Config msg
+
+
+{-| -}
+type alias LabelInfo =
+    { value : Float
+    , index : Int
+    }
 
 
 {-| Adds classes to the container holding your axis.
@@ -120,12 +127,11 @@ cleanCrossings config =
     myYAxis =
         Plot.yAxis
             [ Axis.tick
-                [ Tick.view [ Tick.length 3 ]
-                , Tick.values [ 2, 4, 6 ]
-                ]
+                [ Tick.view [ Tick.length 3 ] ]
+            , Axis.tickValues [ 2, 4, 6 ]
             ]
 -}
-tick : List (Tick.Attribute msg) -> Attribute msg
+tick : List (Tick.Attribute LabelInfo msg) -> Attribute msg
 tick attributes config =
     { config | tickConfig = List.foldl (<|) TickInternal.defaultConfig attributes }
 
@@ -136,15 +142,58 @@ tick attributes config =
     myYAxis : Plot.Element msg
     myYAxis =
         Plot.yAxis
-            [ Axis.tick
+            [ Axis.label
                 [ Label.view
                     [ Label.displace (10, 0)
-                    , Label.format formatFunc
+                    , Label.stroke "blue"
                     ]
-                , Label.values [ 3, 5, 7 ]
+                , Label.format (.value >> toString)
                 ]
             ]
 -}
-label : List (Label.Attribute msg) -> Attribute msg
+label : List (Label.Attribute LabelInfo msg) -> Attribute msg
 label attributes config =
     { config | labelConfig = List.foldl (<|) LabelInternal.defaultConfig attributes }
+
+
+{-| Specify the values which you want a label for. If not specified, it will mirror
+  the tick values.
+
+    myYAxis : Plot.Element msg
+    myYAxis =
+        Plot.yAxis
+            [ Axis.labelValues [ 0, 5, 10, 11 ] ]
+-}
+labelValues : List Value -> Attribute msg
+labelValues values config =
+    { config | labelValues = Just values }
+
+
+{-| Specify at what values will be added a tick.
+
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.tickValues [ 0, 1, 2, 4, 8 ] ]
+
+ **Note:** If you add another attribute msgltering the values like `tickDelta` _after_ this attribute,
+ then this attribute will have no effect.
+-}
+tickValues : List Float -> Attribute msg
+tickValues values config =
+    { config | tickValues = FromCustom values }
+
+
+{-| Specify what values will be added a tick by specifying the space between each tick.
+
+    myXAxis : Plot.Element msg
+    myXAxis =
+        Plot.xAxis
+            [ Axis.tickDelta 4 ]
+
+ **Note:** If you add another attribute msgltering the values like `tickValues` _after_ this attribute,
+ then this attribute will have no effect.
+-}
+tickDelta : Float -> Attribute msg
+tickDelta delta config =
+    { config | tickValues = FromDelta delta }

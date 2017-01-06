@@ -56,7 +56,7 @@ view =
             data2
         , xAxis
             [ Axis.line [ Line.stroke Common.axisColor ]
-            , Axis.tick [ Tick.delta 10 ]
+            , Axis.tickDelta 10
             ]
         ]
 

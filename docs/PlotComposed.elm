@@ -32,13 +32,13 @@ isOdd n =
     rem n 2 > 0
 
 
-filterLabels : ( Int, Float ) -> Bool
-filterLabels ( index, _ ) =
+filterLabels : Axis.LabelInfo -> Bool
+filterLabels { index } =
     not (isOdd index)
 
 
-toTickStyle : ( Int, Float ) -> List (Tick.StyleAttribute msg)
-toTickStyle ( index, tick ) =
+toTickStyle : Axis.LabelInfo -> List (Tick.StyleAttribute msg)
+toTickStyle { index } =
     if isOdd index then
         [ Tick.length 7
         , Tick.stroke "#e4e3e3"
@@ -51,8 +51,7 @@ toTickStyle ( index, tick ) =
 
 labelStyle : List (Label.StyleAttribute msg)
 labelStyle =
-    [ Label.format (\( _, v ) -> toString v ++ " °C")
-    , Label.fontSize 12
+    [ Label.fontSize 12
     , Label.displace ( 0, -2 )
     ]
 
@@ -93,25 +92,25 @@ view state =
             , Axis.positionLowest
             , Axis.line
                 [ Line.stroke "#b9b9b9" ]
-            , Axis.tick
-                [ Tick.delta 50 ]
+            , Axis.tickDelta 50
             , Axis.label
-                [ Label.view labelStyle ]
+                [ Label.view labelStyle
+                , Label.format (\{ value } -> toString value ++ " °C")
+                ]
             ]
         , xAxis
             [ Axis.cleanCrossings
             , Axis.line
                 [ Line.stroke "#b9b9b9" ]
+            , Axis.tickDelta 2.5
             , Axis.tick
-                [ Tick.viewDynamic toTickStyle
-                , Tick.delta 2.5
-                ]
+                [ Tick.viewDynamic toTickStyle ]
             , Axis.label
                 [ Label.view
-                    [ Label.format (\( _, v ) -> toString v ++ " x")
-                    , Label.fontSize 12
+                    [ Label.fontSize 12
                     , Label.stroke "#b9b9b9"
                     ]
+                , Label.format (\{ value } -> toString value ++ " x")
                 ]
             ]
         , xAxis
@@ -121,11 +120,16 @@ view state =
                 [ Tick.viewDynamic toTickStyle ]
             , Axis.label
                 [ Label.view
-                    [ Label.format (\( _, v ) -> toString v ++ " t")
-                    , Label.fontSize 12
+                    [ Label.fontSize 12
                     , Label.stroke "#b9b9b9"
                     ]
-                , Label.filter filterLabels
+                , Label.format
+                    (\{ value, index } ->
+                        if isOdd index then
+                            ""
+                        else
+                            toString value ++ " t"
+                    )
                 ]
             ]
         , hint

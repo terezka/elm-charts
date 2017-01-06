@@ -16,7 +16,6 @@
         "Plot.Hint",
         "Plot.Label",
         "Plot.Line",
-        "Plot.Pile",
         "Plot.Scatter",
         "Plot.Tick"
     ],

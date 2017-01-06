@@ -65,8 +65,7 @@ view state =
         , xAxis
             [ Axis.line
                 [ Line.stroke axisColor ]
-            , Axis.tick
-                [ Tick.delta 1 ]
+            , Axis.tickDelta 1
             ]
         , hint
             [ Hint.lineStyle [ ( "background", "#b9b9b9" ) ] ]

@@ -2,7 +2,7 @@ module Internal.Draw exposing (..)
 
 import Svg exposing (Svg, Attribute)
 import Svg.Attributes
-import Internal.Types exposing (Meta, Orientation)
+import Internal.Types exposing (Meta, Orientation, Point)
 import Internal.Stuff exposing (..)
 
 
@@ -103,3 +103,8 @@ toPixels pixels =
 toPixelsInt : Int -> String
 toPixelsInt =
     toPixels << toFloat
+
+
+addDisplacement : Point -> Point -> Point
+addDisplacement ( x, y ) ( dx, dy ) =
+    ( x + dx, y + dy )
