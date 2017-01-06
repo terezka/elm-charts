@@ -15,7 +15,7 @@ module Plot.Tick
         )
 
 {-|
- Attributes for altering the values and view of your axis' ticks.
+ Attributes for altering the view of your axis' ticks.
 
  Before you read any further, please note that when I speak of the tick _index_,
  then I'm talking about how many ticks that particular tick is from the origin.
@@ -25,14 +25,14 @@ module Plot.Tick
 # Definition
 @docs Attribute
 
-# Styling
-@docs StyleAttribute, view, viewDynamic, viewCustom
+# View options
+@docs view, viewDynamic, viewCustom
 
 ## Style attributes
 If these attributes do not forfill your needs, try out the `viewCustom`! If you have
 a suspicion that I have missed a very common configuration, then please let me know and I'll add it.
 
-@docs classes, width, length, stroke, strokeWidth, opacity, customAttrs
+@docs StyleAttribute, classes, width, length, stroke, strokeWidth, opacity, customAttrs
 
 
 -}

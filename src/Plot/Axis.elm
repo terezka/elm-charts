@@ -10,7 +10,7 @@ module Plot.Axis exposing (..)
 @docs classes, line, positionLowest, positionHighest, cleanCrossings, anchorInside
 
 ## Ticks and labels
-@docs LabelInfo, tick, label, labelValues, tickValues, tickDelta
+@docs tick, tickValues, tickDelta, LabelInfo, label, labelValues
 
 -}
 
@@ -127,9 +127,8 @@ cleanCrossings config =
     myYAxis =
         Plot.yAxis
             [ Axis.tick
-                [ Tick.view [ Tick.length 3 ]
-                , Tick.values [ 2, 4, 6 ]
-                ]
+                [ Tick.view [ Tick.length 3 ] ]
+            , Axis.tickValues [ 2, 4, 6 ]
             ]
 -}
 tick : List (Tick.Attribute LabelInfo msg) -> Attribute msg
@@ -158,7 +157,7 @@ label attributes config =
 
 
 {-| Specify the values which you want a label for. If not specified, it will mirror
-  the ticks.
+  the tick values.
 
     myYAxis : Plot.Element msg
     myYAxis =
@@ -170,16 +169,14 @@ labelValues values config =
     { config | labelValues = Just values }
 
 
-{-| Specify what values will be added a tick.
+{-| Specify at what values will be added a tick.
 
     myXAxis : Plot.Element msg
     myXAxis =
         Plot.xAxis
-            [ Axis.tick
-                [ Tick.values [ 0, 1, 2, 4, 8 ] ]
-            ]
+            [ Axis.tickValues [ 0, 1, 2, 4, 8 ] ]
 
- **Note:** If you add another attribute msgltering the values like `delta` _after_ this attribute,
+ **Note:** If you add another attribute msgltering the values like `tickDelta` _after_ this attribute,
  then this attribute will have no effect.
 -}
 tickValues : List Float -> Attribute msg
@@ -192,11 +189,9 @@ tickValues values config =
     myXAxis : Plot.Element msg
     myXAxis =
         Plot.xAxis
-            [ Axis.tick
-                [ Tick.delta 4 ]
-            ]
+            [ Axis.tickDelta 4 ]
 
- **Note:** If you add another attribute msgltering the values like `values` _after_ this attribute,
+ **Note:** If you add another attribute msgltering the values like `tickValues` _after_ this attribute,
  then this attribute will have no effect.
 -}
 tickDelta : Float -> Attribute msg

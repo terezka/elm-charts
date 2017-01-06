@@ -21,7 +21,11 @@ module Plot.Bars
     myBarsSerie : Plot.Element (Interaction YourMsg)
     myBarsSerie =
         bars
-            [ Bars.maxBarWidthPer 85 ]
+            [ Bars.maxBarWidthPer 85
+            , Bars.stackByY
+            , Bars.label
+                [ Label.formatFromList [ "A", "B", "C" ] ]
+            ]
             [ [ Bars.fill "blue", Bars.opacity 0.5 ]
             , [ Bars.fill "red" ]
             ]

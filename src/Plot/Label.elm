@@ -18,7 +18,7 @@ module Plot.Label
         )
 
 {-|
- Attributes for altering the values and view of your axis' labels.
+ Attributes for altering the view of your labels.
 
  Before you read any further, please note that when I speak of the label _index_,
  then I'm talking about how many labels that particular label is from the origin.
@@ -28,15 +28,15 @@ module Plot.Label
 # Definition
 @docs Attribute
 
-# Styling
-@docs StyleAttribute, view, viewDynamic, viewCustom
+# View options
+@docs view, viewDynamic, viewCustom
 
 ## Style attributes
 If these attributes do not forfill your needs, try out the viewCustom! If you have
 a suspicion that I have missed a very common configuration, then please let me know and I'll add it.
-@docs classes, displace, stroke, strokeWidth, opacity, fill, fontSize, customAttrs
+@docs StyleAttribute, classes, displace, stroke, strokeWidth, opacity, fill, fontSize, customAttrs
 
-# Format
+# Value formatting
 @docs format, formatFromList
 
 -}
