@@ -8,7 +8,6 @@ import Html.Attributes
 import Plot exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
-import Plot.Tick as Tick
 import Plot.Label as Label
 
 
@@ -73,7 +72,7 @@ data2 =
 view : Model -> Html.Html Msg
 view model =
     Html.div
-        [ Html.Attributes.style [ ( "margin", "0 auto" ), ( "width", "800px" ) ] ]
+        [ Html.Attributes.style [ ( "margin", "0 auto" ), ( "width", "600px" ), ( "text-align", "center" ) ] ]
         [ h1 [] [ text "Example with interactive plot!" ]
         , Html.map PlotInteraction (viewPlot model.plotState)
         , p [] [ text <| "You clicked a label " ++ toString model.yourState ++ " times! 🌟" ]
@@ -105,12 +104,11 @@ viewPlot state =
             , xAxis
                 [ Axis.line
                     [ Line.stroke "grey" ]
-                , Axis.tick
-                    [ Tick.delta 1 ]
+                , Axis.tickDelta 1
                 , Axis.label
-                    [ Label.view
-                        [ Label.format (always "Click!")
-                        , Label.customAttrs
+                    [ Label.format (always "Click me!")
+                    , Label.view
+                        [ Label.customAttrs
                             [ Svg.Events.onClick (Custom YourClick)
                             , Svg.Attributes.style "cursor: pointer;"
                             ]
