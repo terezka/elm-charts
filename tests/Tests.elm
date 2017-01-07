@@ -5,54 +5,23 @@ import Expect
 import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
-import Internal.Stuff exposing (..)
 import Internal.Draw exposing (..)
 import Internal.Axis exposing (..)
+import Internal.TestStuff exposing (..)
 
 
 all : Test
 all =
     describe "Helpers"
-        [ testGetGreatest
-        , testGetLowest
-        , testCoordToInstruction
+        [ testCoordToInstruction
         , testToInstruction
         , testStartPath
         , testToPositionAttr
         , testToTranslate
         , testToRotate
         , testToStyle
-        , testCalculateStep
-        ]
-
-
-testGetGreatest : Test
-testGetGreatest =
-    describe "getHighest"
-        [ test "should return 11 when passing in [2, 10, 11]" <|
-            \() ->
-                Expect.equal (getHighest [ 2, 10, 11 ]) 11
-        , test "should return 1 in case of an empty list" <|
-            \() ->
-                Expect.equal (getHighest []) 10
-        , test "should return -1 when passing in [-1, -2, -3]" <|
-            \() ->
-                Expect.equal (getHighest [ -1, -2, -3 ]) -1
-        ]
-
-
-testGetLowest : Test
-testGetLowest =
-    describe "getLowest"
-        [ test "should return 0 passing in [2, 10, 11]" <|
-            \() ->
-                Expect.equal (getLowest [ 2, 10, 11 ]) 2
-        , test "should return 0 in case of an empty list" <|
-            \() ->
-                Expect.equal (getLowest []) 0
-        , test "should return -3 when passing in [-1, -2, -3]" <|
-            \() ->
-                Expect.equal (getLowest [ -1, -2, -3 ]) -3
+        , testTickDeltaTest
+        , Internal.TestStuff.all
         ]
 
 
@@ -146,13 +115,11 @@ testToStyle =
                     "border:2px; padding:10px; color:green; "
         ]
 
-
-
 -- No finished
 
 
-testCalculateStep : Test
-testCalculateStep =
+testTickDeltaTest : Test
+testTickDeltaTest =
     describe "getTickDeltaTest"
         [ test "should return Infinity if the distance is 10 and want to get 0 ticks" <|
             \() ->
