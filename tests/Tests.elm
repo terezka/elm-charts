@@ -7,12 +7,13 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Internal.Draw exposing (..)
 import Internal.Axis exposing (..)
-import Internal.TestStuff exposing (..)
+import Plot.TestArea
+import Internal.TestStuff
 
 
 all : Test
 all =
-    describe "Helpers"
+    describe "Test Elm-Plot"
         [ testCoordToInstruction
         , testToInstruction
         , testStartPath
@@ -21,6 +22,7 @@ all =
         , testToRotate
         , testToStyle
         , testTickDeltaTest
+        , Plot.TestArea.all
         , Internal.TestStuff.all
         ]
 
