@@ -9,7 +9,8 @@ module Internal.Tick
         , toView
         )
 
-import Internal.Types exposing (Point, Style, Orientation(..), Scale, Meta, IndexedInfo, Value)
+import Plot.Types exposing (Point, Style)
+import Internal.Types exposing (Orientation(..), Scale, Meta, IndexedInfo, Value)
 import Internal.Draw as Draw exposing (..)
 import Svg
 import Svg.Attributes

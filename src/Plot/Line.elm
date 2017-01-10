@@ -27,7 +27,7 @@ module Plot.Line exposing (..)
 -}
 
 import Svg
-import Internal.Types exposing (Style)
+import Plot.Types exposing (Style)
 import Internal.Line as Internal
 import Internal.Draw exposing (..)
 

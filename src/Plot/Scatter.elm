@@ -31,7 +31,7 @@ module Plot.Scatter exposing (..)
 
 import Svg
 import Internal.Scatter as Internal
-import Internal.Types exposing (Style)
+import Plot.Types exposing (Style)
 
 
 {-| -}

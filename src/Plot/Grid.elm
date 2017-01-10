@@ -31,7 +31,7 @@ module Plot.Grid exposing (..)
 -}
 
 import Svg
-import Internal.Types exposing (Style)
+import Plot.Types exposing (Style)
 import Internal.Grid as Internal exposing (Config, Values(..), defaultConfigX)
 import Internal.Line as LineInternal
 import Plot.Line as Line

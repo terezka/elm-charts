@@ -29,8 +29,6 @@ module Plot
         , Interaction(..)
         , State
         , getHoveredValue
-        , Point
-        , Style
         )
 
 {-|
@@ -41,7 +39,7 @@ module Plot
  This is still in beta! The api might and probably will change!
 
 # Definitions
-@docs Attribute, Element, Point, Style
+@docs Attribute, Element
 
 # Elements
 @docs plot, plotInteractive, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
@@ -68,6 +66,7 @@ import Svg.Attributes
 import Svg.Lazy
 import Json.Decode as Json
 import DOM
+import Plot.Types exposing (..)
 import Plot.Axis as Axis
 import Plot.Grid as Grid
 import Plot.Area as Area
@@ -86,18 +85,6 @@ import Internal.Stuff exposing (..)
 import Internal.Types exposing (..)
 import Internal.Draw exposing (..)
 import Internal.Scale exposing (..)
-
-
-{-| Convinience type to represent coordinates.
--}
-type alias Point =
-    ( Float, Float )
-
-
-{-| Convinience type to represent style.
--}
-type alias Style =
-    List ( String, String )
 
 
 {-| Represents a child element of the plot.

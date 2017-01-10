@@ -2,7 +2,8 @@ module Internal.Draw exposing (..)
 
 import Svg exposing (Svg, Attribute)
 import Svg.Attributes
-import Internal.Types exposing (Meta, Orientation, Point)
+import Plot.Types exposing (Point)
+import Internal.Types exposing (Meta, Orientation)
 import Internal.Stuff exposing (..)
 
 
