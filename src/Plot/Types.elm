@@ -2,6 +2,7 @@ module Plot.Types
     exposing
         ( Point
         , Style
+        , Smoothing (..)
         , HintInfo
         )
 
@@ -16,6 +17,11 @@ type alias Point =
 -}
 type alias Style =
     List ( String, String )
+
+
+type Smoothing
+    = None
+    | Cosmetic
 
 
 type alias HintInfo =

@@ -9,6 +9,7 @@ module Plot.Line exposing (..)
             [ stroke "deeppink"
             , strokeWidth 2
             , opacity 0.5
+            , smoothing Cosmetic
             , customAttrs
                 [ Svg.Events.onClick <| Custom MyClickMsg ]
             ]
@@ -19,7 +20,7 @@ module Plot.Line exposing (..)
 @docs Attribute
 
 # Styling
-@docs stroke, strokeWidth, opacity
+@docs stroke, strokeWidth, opacity, smoothing
 
 # Other
 @docs customAttrs
@@ -27,7 +28,7 @@ module Plot.Line exposing (..)
 -}
 
 import Svg
-import Plot.Types exposing (Style)
+import Plot.Types exposing (Style, Smoothing)
 import Internal.Line as Internal
 import Internal.Draw exposing (..)
 
@@ -56,6 +57,13 @@ strokeWidth strokeWidth config =
 opacity : Float -> Attribute a
 opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
+
+
+{-| Which Smoothing strategy to use
+-}
+smoothing : Smoothing -> Attribute a
+smoothing smoothing config =
+    { config | smoothing = smoothing }
 
 
 {-| Add your own attributes. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
