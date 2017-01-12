@@ -67,6 +67,11 @@ data3 =
     ]
 
 
+data4 : List ( Point )
+data4 =
+    [ ( 0, 0 ), ( 0.2, 80 ), ( 0.4, 20 ), ( 0.6, 50 ), ( 0.8, 10 ), ( 3, 30 ), ( 6, 40 ), ( 10, 50 ) ]
+
+
 view : Model -> Html.Html Msg
 view model =
     Html.div
@@ -89,41 +94,52 @@ viewPlot state =
             , style [ ( "position", "relative" ) ]
             ]
             [ line
-                [ Line.stroke "grey"
+                [ Line.stroke "#556270"
                 , Line.strokeWidth 1
                 ]
                 data1
             , line
-                [ Line.stroke "blue"
+                [ Line.stroke "#C44D58"
                 , Line.strokeWidth 2
                 , Line.smoothing Cosmetic
                 ]
                 data1
             , line
-                [ Line.stroke "grey"
+                [ Line.stroke "#556270"
                 , Line.strokeWidth 1
                 ]
                 data2
             , line
-                [ Line.stroke "blue"
+                [ Line.stroke "#4ECDC4"
                 , Line.strokeWidth 2
                 , Line.smoothing Cosmetic
                 ]
                 data2
             , line
-                [ Line.stroke "grey"
+                [ Line.stroke "#556270"
                 , Line.strokeWidth 1
                 ]
                 data3
             , line
-                [ Line.stroke "blue"
+                [ Line.stroke "#C7F464"
                 , Line.strokeWidth 2
                 , Line.smoothing Cosmetic
                 ]
                 data3
+            , line
+                [ Line.stroke "#556270"
+                , Line.strokeWidth 1
+                ]
+                data4
+            , line
+                [ Line.stroke "#FF6B6B"
+                , Line.strokeWidth 2
+                , Line.smoothing Cosmetic
+                ]
+                data4
             , xAxis
                 [ Axis.line
-                    [ Line.stroke "grey" ]
+                    [ Line.stroke "#556270" ]
                 , Axis.tickDelta 1
                 ]
             , hint [] (getHoveredValue state)
