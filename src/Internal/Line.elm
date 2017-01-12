@@ -1,6 +1,5 @@
 module Internal.Line exposing (..)
 
-import Array
 import Svg
 import Svg.Attributes
 import Plot.Types exposing (..)
@@ -48,26 +47,34 @@ view { toSvgCoords } { style, smoothing, customAttrs } points =
 coordsToSmoothBezierCoords : List Point -> List ( List ( Point ) )
 coordsToSmoothBezierCoords coords =
     let
-        coordsArray = Array.fromList coords
-        last = Array.length coordsArray - 1
+        first = List.head coords |> Maybe.withDefault (0, 0)
+        last = List.reverse coords |> List.head |> Maybe.withDefault (0, 0)
+        paddedCoords = [first] ++ coords ++ [last]
+
+        lefts = paddedCoords
+        middles = Maybe.withDefault [] (List.tail lefts)
+        rights = Maybe.withDefault [] (List.tail middles)
+
+        pointsWithNeighbours =
+            List.map3
+                (\(x1, y1) (x2, y2) (x3, y3) -> {left={x=x1, y=y1}, point={x=x2, y=y2}, right={x=x3, y=y3}})
+                lefts
+                middles
+                rights
     in
-        Array.indexedMap (\i (x, y) ->
-            if i==0 || i==last then
-                [ (x, y), (x, y) ]
-
-            else
-                let
-                    -- calculate a guide point for the bezier
-                    -- that creates a guideline paralel to the line connecting the previous and next point
-                    (previousX, previousY) = Maybe.withDefault (0, 0) (Array.get (i-1) coordsArray)
-                    (nextX, nextY) = Maybe.withDefault (0, 0) (Array.get (i+1) coordsArray)
-
-                    dx = nextX-previousX
-                    dy = nextY-previousY
-                    magnitude = 0.5
-                in
-                    [ (x-(dx/2*magnitude), y-(dy/2*magnitude)), (x, y) ]
-        ) coordsArray |> Array.toList
+        List.map (\ pointWithNeighbours ->
+            let
+                -- calculate a guide point for the bezier
+                -- that creates a guideline paralel to the line connecting the previous and next point
+                x = pointWithNeighbours.point.x
+                y = pointWithNeighbours.point.y
+                dx = pointWithNeighbours.right.x - pointWithNeighbours.left.x
+                dy = pointWithNeighbours.right.y - pointWithNeighbours.left.y
+                magnitude = 0.5
+            in
+                [ (x-(dx/2*magnitude), y-(dy/2*magnitude)), (x, y) ]
+        )
+        pointsWithNeighbours
 
 
 stdAttributes : String -> Style -> List (Svg.Attribute a)
