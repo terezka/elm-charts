@@ -6,7 +6,7 @@ Plot stuff in SVG with Elm!
 
 ## Overview
 
-Currently, this library can draw scatter, line, bar and area-series, grids, and as many axis' as you could wish for with easily configurable ticks and labels. I'm still working on catching up with common features of the plotting libraries already around and the API might change, so please bear with me!
+Currently, this library can draw scatter, line, bar and area-series, grids, hints, and as many axis' as you could wish for with easily configurable ticks and labels. I'm still working on catching up with common features of the plotting libraries already around and the API might change, so please bear with me!
 
 ![alt tag](https://raw.githubusercontent.com/terezka/elm-plot/master/example.png)
 
