@@ -47,9 +47,8 @@ view { toSvgCoords } { style, smoothing, customAttrs } points =
 coordsToSmoothBezierCoords : List Point -> List ( List ( Point ) )
 coordsToSmoothBezierCoords coords =
     let
-        first = List.head coords |> Maybe.withDefault (0, 0)
         last = List.reverse coords |> List.head |> Maybe.withDefault (0, 0)
-        paddedCoords = [first] ++ coords ++ [last]
+        paddedCoords = coords ++ [last]
 
         lefts = paddedCoords
         middles = Maybe.withDefault [] (List.tail lefts)
