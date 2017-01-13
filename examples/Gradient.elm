@@ -7,6 +7,9 @@ import Plot.Area as Area
 import Plot.Axis as Axis
 
 
+-- Example inspired by https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Gradients
+
+
 data : List ( Float, Float )
 data =
     [ ( 0, 10 ), ( 2, 12 ), ( 4, 27 ), ( 6, 25 ), ( 8, 46 ) ]
