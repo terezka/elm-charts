@@ -32,7 +32,6 @@ main =
     plot
         [ size ( 600, 300 )
         , margin ( 10, 20, 40, 40 )
-        , domainLowest (min 0)
         ]
         [ custom defs
         , area
