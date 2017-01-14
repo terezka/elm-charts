@@ -9092,6 +9092,8 @@ var _terezka$elm_plot$Internal_Types$Scale = F5(
 	});
 var _terezka$elm_plot$Internal_Types$Y = {ctor: 'Y'};
 var _terezka$elm_plot$Internal_Types$X = {ctor: 'X'};
+var _terezka$elm_plot$Internal_Types$Bezier = {ctor: 'Bezier'};
+var _terezka$elm_plot$Internal_Types$None = {ctor: 'None'};
 var _terezka$elm_plot$Internal_Types$Outer = {ctor: 'Outer'};
 var _terezka$elm_plot$Internal_Types$Inner = {ctor: 'Inner'};
 var _terezka$elm_plot$Internal_Types$Percentage = function (a) {
@@ -9308,6 +9310,50 @@ var _terezka$elm_plot$Internal_Draw$toTranslate = function (_p7) {
 					_elm_lang$core$Basics$toString(_p8._1),
 					')'))));
 };
+var _terezka$elm_plot$Internal_Draw$magnitude = 0.5;
+var _terezka$elm_plot$Internal_Draw$toBezierPoints = F3(
+	function (_p11, _p10, _p9) {
+		var _p12 = _p11;
+		var _p13 = _p10;
+		var _p16 = _p13._1;
+		var _p15 = _p13._0;
+		var _p14 = _p9;
+		var dy = _p14._1 - _p12._1;
+		var dx = _p14._0 - _p12._0;
+		return {
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: _p15 - ((dx / 2) * _terezka$elm_plot$Internal_Draw$magnitude), _1: _p16 - ((dy / 2) * _terezka$elm_plot$Internal_Draw$magnitude)},
+			_1: {
+				ctor: '::',
+				_0: {ctor: '_Tuple2', _0: _p15, _1: _p16},
+				_1: {ctor: '[]'}
+			}
+		};
+	});
+var _terezka$elm_plot$Internal_Draw$coordsToSmoothBezierCoords = function (coords) {
+	var last = A2(
+		_elm_lang$core$Maybe$withDefault,
+		{ctor: '_Tuple2', _0: 0, _1: 0},
+		_elm_lang$core$List$head(
+			_elm_lang$core$List$reverse(coords)));
+	var lefts = A2(
+		_elm_lang$core$Basics_ops['++'],
+		coords,
+		{
+			ctor: '::',
+			_0: last,
+			_1: {ctor: '[]'}
+		});
+	var middles = A2(
+		_elm_lang$core$Maybe$withDefault,
+		{ctor: '[]'},
+		_elm_lang$core$List$tail(lefts));
+	var rights = A2(
+		_elm_lang$core$Maybe$withDefault,
+		{ctor: '[]'},
+		_elm_lang$core$List$tail(middles));
+	return A4(_elm_lang$core$List$map3, _terezka$elm_plot$Internal_Draw$toBezierPoints, lefts, middles, rights);
+};
 var _terezka$elm_plot$Internal_Draw$toInstruction = F2(
 	function (instructionType, coords) {
 		var coordsString = A2(
@@ -9326,17 +9372,17 @@ var _terezka$elm_plot$Internal_Draw$coordsToInstruction = F2(
 			'',
 			A2(
 				_elm_lang$core$List$map,
-				function (_p9) {
-					var _p10 = _p9;
+				function (_p17) {
+					var _p18 = _p17;
 					return A2(
 						_terezka$elm_plot$Internal_Draw$toInstruction,
 						instructionType,
 						{
 							ctor: '::',
-							_0: _p10._0,
+							_0: _p18._0,
 							_1: {
 								ctor: '::',
-								_0: _p10._1,
+								_0: _p18._1,
 								_1: {ctor: '[]'}
 							}
 						});
@@ -9357,16 +9403,16 @@ var _terezka$elm_plot$Internal_Draw$coordsListToInstruction = F2(
 						A3(
 							_elm_lang$core$List$foldr,
 							F2(
-								function (_p11, all) {
-									var _p12 = _p11;
+								function (_p19, all) {
+									var _p20 = _p19;
 									return A2(
 										_elm_lang$core$Basics_ops['++'],
 										{
 											ctor: '::',
-											_0: _p12._0,
+											_0: _p20._0,
 											_1: {
 												ctor: '::',
-												_0: _p12._1,
+												_0: _p20._1,
 												_1: {ctor: '[]'}
 											}
 										},
@@ -9377,17 +9423,30 @@ var _terezka$elm_plot$Internal_Draw$coordsListToInstruction = F2(
 				},
 				coords));
 	});
+var _terezka$elm_plot$Internal_Draw$toLineInstructions = function (smoothing) {
+	var _p21 = smoothing;
+	if (_p21.ctor === 'None') {
+		return _terezka$elm_plot$Internal_Draw$coordsToInstruction('L');
+	} else {
+		return function (_p22) {
+			return A2(
+				_terezka$elm_plot$Internal_Draw$coordsListToInstruction,
+				'S',
+				_terezka$elm_plot$Internal_Draw$coordsToSmoothBezierCoords(_p22));
+		};
+	}
+};
 var _terezka$elm_plot$Internal_Draw$startPath = function (data) {
 	var tail = A2(
 		_elm_lang$core$Maybe$withDefault,
 		{ctor: '[]'},
 		_elm_lang$core$List$tail(data));
-	var _p13 = A2(
+	var _p23 = A2(
 		_elm_lang$core$Maybe$withDefault,
 		{ctor: '_Tuple2', _0: 0, _1: 0},
 		_elm_lang$core$List$head(data));
-	var x = _p13._0;
-	var y = _p13._1;
+	var x = _p23._0;
+	var y = _p23._1;
 	return {
 		ctor: '_Tuple2',
 		_0: A2(
@@ -9445,25 +9504,25 @@ var _terezka$elm_plot$Internal_Draw$classAttributeOriented = F3(
 			});
 	});
 var _terezka$elm_plot$Internal_Draw$positionAttributes = F2(
-	function (_p15, _p14) {
-		var _p16 = _p15;
-		var _p17 = _p14;
+	function (_p25, _p24) {
+		var _p26 = _p25;
+		var _p27 = _p24;
 		return {
 			ctor: '::',
 			_0: _elm_lang$svg$Svg_Attributes$x1(
-				_elm_lang$core$Basics$toString(_p16._0)),
+				_elm_lang$core$Basics$toString(_p26._0)),
 			_1: {
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$y1(
-					_elm_lang$core$Basics$toString(_p16._1)),
+					_elm_lang$core$Basics$toString(_p26._1)),
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$svg$Svg_Attributes$x2(
-						_elm_lang$core$Basics$toString(_p17._0)),
+						_elm_lang$core$Basics$toString(_p27._0)),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$svg$Svg_Attributes$y2(
-							_elm_lang$core$Basics$toString(_p17._1)),
+							_elm_lang$core$Basics$toString(_p27._1)),
 						_1: {ctor: '[]'}
 					}
 				}
@@ -9471,15 +9530,15 @@ var _terezka$elm_plot$Internal_Draw$positionAttributes = F2(
 		};
 	});
 var _terezka$elm_plot$Internal_Draw$fullLine = F3(
-	function (attributes, _p18, value) {
-		var _p19 = _p18;
-		var _p21 = _p19.toSvgCoords;
-		var _p20 = _p19.scale.x;
-		var lowest = _p20.lowest;
-		var highest = _p20.highest;
-		var begin = _p21(
+	function (attributes, _p28, value) {
+		var _p29 = _p28;
+		var _p31 = _p29.toSvgCoords;
+		var _p30 = _p29.scale.x;
+		var lowest = _p30.lowest;
+		var highest = _p30.highest;
+		var begin = _p31(
 			{ctor: '_Tuple2', _0: lowest, _1: value});
-		var end = _p21(
+		var end = _p31(
 			{ctor: '_Tuple2', _0: highest, _1: value});
 		return A2(
 			_elm_lang$svg$Svg$line,
@@ -9761,95 +9820,39 @@ var _terezka$elm_plot$Internal_Line$stdAttributes = F2(
 			}
 		};
 	});
-var _terezka$elm_plot$Internal_Line$magnitude = 0.5;
-var _terezka$elm_plot$Internal_Line$toBezierPoints = F3(
-	function (_p2, _p1, _p0) {
-		var _p3 = _p2;
-		var _p4 = _p1;
-		var _p7 = _p4._1;
-		var _p6 = _p4._0;
-		var _p5 = _p0;
-		var dy = _p5._1 - _p3._1;
-		var dx = _p5._0 - _p3._0;
-		return {
-			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: _p6 - ((dx / 2) * _terezka$elm_plot$Internal_Line$magnitude), _1: _p7 - ((dy / 2) * _terezka$elm_plot$Internal_Line$magnitude)},
-			_1: {
-				ctor: '::',
-				_0: {ctor: '_Tuple2', _0: _p6, _1: _p7},
-				_1: {ctor: '[]'}
-			}
-		};
-	});
-var _terezka$elm_plot$Internal_Line$coordsToSmoothBezierCoords = function (coords) {
-	var last = A2(
-		_elm_lang$core$Maybe$withDefault,
-		{ctor: '_Tuple2', _0: 0, _1: 0},
-		_elm_lang$core$List$head(
-			_elm_lang$core$List$reverse(coords)));
-	var lefts = A2(
-		_elm_lang$core$Basics_ops['++'],
-		coords,
-		{
-			ctor: '::',
-			_0: last,
-			_1: {ctor: '[]'}
-		});
-	var middles = A2(
-		_elm_lang$core$Maybe$withDefault,
-		{ctor: '[]'},
-		_elm_lang$core$List$tail(lefts));
-	var rights = A2(
-		_elm_lang$core$Maybe$withDefault,
-		{ctor: '[]'},
-		_elm_lang$core$List$tail(middles));
-	return A4(_elm_lang$core$List$map3, _terezka$elm_plot$Internal_Line$toBezierPoints, lefts, middles, rights);
-};
 var _terezka$elm_plot$Internal_Line$view = F3(
-	function (_p9, _p8, points) {
-		var _p10 = _p9;
-		var _p11 = _p8;
-		var svgPoints = A2(_elm_lang$core$List$map, _p10.toSvgCoords, points);
-		var _p12 = _terezka$elm_plot$Internal_Draw$startPath(svgPoints);
-		var startInstruction = _p12._0;
-		var instructions = function () {
-			var _p13 = _p11.smoothing;
-			if (_p13.ctor === 'None') {
-				return A2(_terezka$elm_plot$Internal_Draw$coordsToInstruction, 'L', svgPoints);
-			} else {
-				return A2(
-					_terezka$elm_plot$Internal_Draw$coordsListToInstruction,
-					'S',
-					_terezka$elm_plot$Internal_Line$coordsToSmoothBezierCoords(svgPoints));
-			}
-		}();
+	function (_p1, _p0, points) {
+		var _p2 = _p1;
+		var _p3 = _p0;
+		var svgPoints = A2(_elm_lang$core$List$map, _p2.toSvgCoords, points);
+		var _p4 = _terezka$elm_plot$Internal_Draw$startPath(svgPoints);
+		var startInstruction = _p4._0;
+		var instructions = A2(_terezka$elm_plot$Internal_Draw$toLineInstructions, _p3.smoothing, svgPoints);
 		var attrs = A2(
 			_elm_lang$core$Basics_ops['++'],
 			A2(
 				_terezka$elm_plot$Internal_Line$stdAttributes,
 				A2(_elm_lang$core$Basics_ops['++'], startInstruction, instructions),
-				_p11.style),
-			_p11.customAttrs);
+				_p3.style),
+			_p3.customAttrs);
 		return A2(
 			_elm_lang$svg$Svg$path,
 			attrs,
 			{ctor: '[]'});
 	});
-var _terezka$elm_plot$Internal_Line$Config = F3(
-	function (a, b, c) {
-		return {style: a, smoothing: b, customAttrs: c};
-	});
-var _terezka$elm_plot$Internal_Line$Bezier = {ctor: 'Bezier'};
-var _terezka$elm_plot$Internal_Line$None = {ctor: 'None'};
 var _terezka$elm_plot$Internal_Line$defaultConfig = {
 	style: {
 		ctor: '::',
 		_0: {ctor: '_Tuple2', _0: 'fill', _1: 'transparent'},
 		_1: {ctor: '[]'}
 	},
-	smoothing: _terezka$elm_plot$Internal_Line$None,
+	smoothing: _terezka$elm_plot$Internal_Types$None,
 	customAttrs: {ctor: '[]'}
 };
+var _terezka$elm_plot$Internal_Line$Config = F3(
+	function (a, b, c) {
+		return {style: a, smoothing: b, customAttrs: c};
+	});
 
 var _terezka$elm_plot$Internal_Axis$zipWithDistance = F4(
 	function (hasZero, lowerThanZero, index, value) {
@@ -10259,10 +10262,10 @@ var _terezka$elm_plot$Plot_Line$customAttrs = F2(
 			config,
 			{customAttrs: attrs});
 	});
-var _terezka$elm_plot$Plot_Line$smoothBezier = function (config) {
+var _terezka$elm_plot$Plot_Line$smoothingBezier = function (config) {
 	return _elm_lang$core$Native_Utils.update(
 		config,
-		{smoothing: _terezka$elm_plot$Internal_Line$Bezier});
+		{smoothing: _terezka$elm_plot$Internal_Types$Bezier});
 };
 var _terezka$elm_plot$Plot_Line$opacity = F2(
 	function (opacity, config) {
@@ -10794,7 +10797,7 @@ var _terezka$elm_plot$Internal_Area$view = F3(
 		var _p3 = _p0;
 		var areaEnd = A3(_elm_lang$core$Basics$clamp, _p7.y.lowest, _p7.y.highest, 0);
 		var svgCoords = A2(_elm_lang$core$List$map, _p8, points);
-		var instructions = A2(_terezka$elm_plot$Internal_Draw$coordsToInstruction, 'L', svgCoords);
+		var instructions = A2(_terezka$elm_plot$Internal_Draw$toLineInstructions, _p3.smoothing, svgCoords);
 		var _p4 = _terezka$elm_plot$Internal_Stuff$getEdgesX(points);
 		var lowestX = _p4._0;
 		var highestX = _p4._1;
@@ -10846,11 +10849,12 @@ var _terezka$elm_plot$Internal_Area$view = F3(
 	});
 var _terezka$elm_plot$Internal_Area$defaultConfig = {
 	style: {ctor: '[]'},
+	smoothing: _terezka$elm_plot$Internal_Types$None,
 	customAttrs: {ctor: '[]'}
 };
-var _terezka$elm_plot$Internal_Area$Config = F2(
-	function (a, b) {
-		return {style: a, customAttrs: b};
+var _terezka$elm_plot$Internal_Area$Config = F3(
+	function (a, b, c) {
+		return {style: a, smoothing: b, customAttrs: c};
 	});
 
 var _terezka$elm_plot$Plot_Area$customAttrs = F2(
@@ -10859,6 +10863,11 @@ var _terezka$elm_plot$Plot_Area$customAttrs = F2(
 			config,
 			{customAttrs: attrs});
 	});
+var _terezka$elm_plot$Plot_Area$smoothingBezier = function (config) {
+	return _elm_lang$core$Native_Utils.update(
+		config,
+		{smoothing: _terezka$elm_plot$Internal_Types$Bezier});
+};
 var _terezka$elm_plot$Plot_Area$opacity = F2(
 	function (opacity, config) {
 		return _elm_lang$core$Native_Utils.update(
@@ -12882,7 +12891,11 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 								_1: {
 									ctor: '::',
 									_0: _terezka$elm_plot$Plot_Area$opacity(0.5),
-									_1: {ctor: '[]'}
+									_1: {
+										ctor: '::',
+										_0: _terezka$elm_plot$Plot_Area$smoothingBezier,
+										_1: {ctor: '[]'}
+									}
 								}
 							}
 						},
@@ -12908,7 +12921,11 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 								_1: {
 									ctor: '::',
 									_0: _terezka$elm_plot$Plot_Area$fill(_terezka$elm_plot$Common$blueFill),
-									_1: {ctor: '[]'}
+									_1: {
+										ctor: '::',
+										_0: _terezka$elm_plot$Plot_Area$smoothingBezier,
+										_1: {ctor: '[]'}
+									}
 								}
 							},
 							_terezka$elm_plot$PlotComposed$data1),
@@ -12921,8 +12938,12 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 									_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Common$pinkStroke),
 									_1: {
 										ctor: '::',
-										_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
-										_1: {ctor: '[]'}
+										_0: _terezka$elm_plot$Plot_Line$smoothingBezier,
+										_1: {
+											ctor: '::',
+											_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
+											_1: {ctor: '[]'}
+										}
 									}
 								},
 								A2(
@@ -13219,111 +13240,6 @@ var _terezka$elm_plot$PlotScatter$plotExample = {
 	code: _terezka$elm_plot$PlotScatter$code,
 	view: _terezka$elm_plot$Common$ViewStatic(_terezka$elm_plot$PlotScatter$view),
 	id: _terezka$elm_plot$PlotScatter$id
-};
-
-var _terezka$elm_plot$PlotArea$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ area\n                [ Area.stroke skinStroke\n                , Area.fill skinFill\n                ]\n                data1\n            , area\n                [ Area.stroke blueStroke\n                , Area.fill blueFill\n                ]\n                data2\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tickDelta 10\n                ]\n            ]\n    ';
-var _terezka$elm_plot$PlotArea$data2 = {
-	ctor: '::',
-	_0: {ctor: '_Tuple2', _0: 0, _1: 10},
-	_1: {
-		ctor: '::',
-		_0: {ctor: '_Tuple2', _0: 10, _1: 50},
-		_1: {
-			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: 20, _1: 10},
-			_1: {
-				ctor: '::',
-				_0: {ctor: '_Tuple2', _0: 30, _1: 75},
-				_1: {ctor: '[]'}
-			}
-		}
-	}
-};
-var _terezka$elm_plot$PlotArea$data1 = {
-	ctor: '::',
-	_0: {ctor: '_Tuple2', _0: 0, _1: 20},
-	_1: {
-		ctor: '::',
-		_0: {ctor: '_Tuple2', _0: 10, _1: 65},
-		_1: {
-			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: 20, _1: 35},
-			_1: {
-				ctor: '::',
-				_0: {ctor: '_Tuple2', _0: 30, _1: 85},
-				_1: {ctor: '[]'}
-			}
-		}
-	}
-};
-var _terezka$elm_plot$PlotArea$view = A2(
-	_terezka$elm_plot$Plot$plot,
-	{
-		ctor: '::',
-		_0: _terezka$elm_plot$Plot$size(_terezka$elm_plot$Common$plotSize),
-		_1: {
-			ctor: '::',
-			_0: _terezka$elm_plot$Plot$margin(
-				{ctor: '_Tuple4', _0: 10, _1: 20, _2: 40, _3: 20}),
-			_1: {ctor: '[]'}
-		}
-	},
-	{
-		ctor: '::',
-		_0: A2(
-			_terezka$elm_plot$Plot$area,
-			{
-				ctor: '::',
-				_0: _terezka$elm_plot$Plot_Area$stroke(_terezka$elm_plot$Common$skinStroke),
-				_1: {
-					ctor: '::',
-					_0: _terezka$elm_plot$Plot_Area$fill(_terezka$elm_plot$Common$skinFill),
-					_1: {ctor: '[]'}
-				}
-			},
-			_terezka$elm_plot$PlotArea$data1),
-		_1: {
-			ctor: '::',
-			_0: A2(
-				_terezka$elm_plot$Plot$area,
-				{
-					ctor: '::',
-					_0: _terezka$elm_plot$Plot_Area$stroke(_terezka$elm_plot$Common$blueStroke),
-					_1: {
-						ctor: '::',
-						_0: _terezka$elm_plot$Plot_Area$fill(_terezka$elm_plot$Common$blueFill),
-						_1: {ctor: '[]'}
-					}
-				},
-				_terezka$elm_plot$PlotArea$data2),
-			_1: {
-				ctor: '::',
-				_0: _terezka$elm_plot$Plot$xAxis(
-					{
-						ctor: '::',
-						_0: _terezka$elm_plot$Plot_Axis$line(
-							{
-								ctor: '::',
-								_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Common$axisColor),
-								_1: {ctor: '[]'}
-							}),
-						_1: {
-							ctor: '::',
-							_0: _terezka$elm_plot$Plot_Axis$tickDelta(10),
-							_1: {ctor: '[]'}
-						}
-					}),
-				_1: {ctor: '[]'}
-			}
-		}
-	});
-var _terezka$elm_plot$PlotArea$id = 'PlotArea';
-var _terezka$elm_plot$PlotArea$title = 'Areas';
-var _terezka$elm_plot$PlotArea$plotExample = {
-	title: _terezka$elm_plot$PlotArea$title,
-	code: _terezka$elm_plot$PlotArea$code,
-	view: _terezka$elm_plot$Common$ViewStatic(_terezka$elm_plot$PlotArea$view),
-	id: _terezka$elm_plot$PlotArea$id
 };
 
 var _terezka$elm_plot$PlotGrid$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ verticalGrid\n                [ Grid.lines\n                    [ Line.stroke axisColorLight ]\n                ]\n            , horizontalGrid\n                [ Grid.lines\n                    [ Line.stroke axisColorLight ]\n                , Grid.values [ 4, 8, 12 ]\n                ]\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tickDelta 0.5\n                ]\n            , line\n                [ Line.stroke blueStroke\n                , Line.strokeWidth 2\n                ]\n                data\n            ]\n    ';
@@ -14272,7 +14188,7 @@ var _terezka$elm_plot$PlotHint$plotExample = {
 	view: A2(_terezka$elm_plot$Common$ViewInteractive, _terezka$elm_plot$PlotHint$id, _terezka$elm_plot$PlotHint$view)
 };
 
-var _terezka$elm_plot$PlotSmooth$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ line\n                [ Line.stroke pinkStroke\n                , Line.strokeWidth 4\n                , Line.smoothBezier\n                ]\n                data1\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tickDelta 1\n                ]\n            ]\n    ';
+var _terezka$elm_plot$PlotSmooth$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ area\n                [ Area.stroke pinkStroke\n                , Area.fill pinkFill\n                , Area.strokeWidth 1\n                , Area.smoothingBezier\n                ]\n                data1\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tickDelta 1\n                ]\n            ]\n    ';
 var _terezka$elm_plot$PlotSmooth$data1 = {
 	ctor: '::',
 	_0: {ctor: '_Tuple2', _0: 0, _1: 0},
@@ -14321,17 +14237,21 @@ var _terezka$elm_plot$PlotSmooth$view = A2(
 	{
 		ctor: '::',
 		_0: A2(
-			_terezka$elm_plot$Plot$line,
+			_terezka$elm_plot$Plot$area,
 			{
 				ctor: '::',
-				_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Common$pinkStroke),
+				_0: _terezka$elm_plot$Plot_Area$stroke(_terezka$elm_plot$Common$pinkStroke),
 				_1: {
 					ctor: '::',
-					_0: _terezka$elm_plot$Plot_Line$strokeWidth(4),
+					_0: _terezka$elm_plot$Plot_Area$fill(_terezka$elm_plot$Common$pinkFill),
 					_1: {
 						ctor: '::',
-						_0: _terezka$elm_plot$Plot_Line$smoothBezier,
-						_1: {ctor: '[]'}
+						_0: _terezka$elm_plot$Plot_Area$strokeWidth(1),
+						_1: {
+							ctor: '::',
+							_0: _terezka$elm_plot$Plot_Area$smoothingBezier,
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			},
@@ -14385,12 +14305,8 @@ var _terezka$elm_plot$Docs$examples = {
 						_0: _terezka$elm_plot$PlotTicks$plotExample,
 						_1: {
 							ctor: '::',
-							_0: _terezka$elm_plot$PlotArea$plotExample,
-							_1: {
-								ctor: '::',
-								_0: _terezka$elm_plot$PlotGrid$plotExample,
-								_1: {ctor: '[]'}
-							}
+							_0: _terezka$elm_plot$PlotGrid$plotExample,
+							_1: {ctor: '[]'}
 						}
 					}
 				}

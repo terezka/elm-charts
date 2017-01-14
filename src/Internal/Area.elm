@@ -6,11 +6,11 @@ import Plot.Types exposing (..)
 import Internal.Types exposing (..)
 import Internal.Stuff exposing (getEdgesX)
 import Internal.Draw exposing (..)
-import Debug
 
 
 type alias Config a =
     { style : Style
+    , smoothing : Smoothing
     , customAttrs : List (Svg.Attribute a)
     }
 
@@ -18,12 +18,13 @@ type alias Config a =
 defaultConfig : Config a
 defaultConfig =
     { style = []
+    , smoothing = None
     , customAttrs = []
     }
 
 
 view : Meta -> Config a -> List Point -> Svg.Svg a
-view { toSvgCoords, scale } { style, customAttrs } points =
+view { toSvgCoords, scale } { style, smoothing, customAttrs } points =
     let
         ( lowestX, highestX ) =
             getEdgesX points
@@ -47,7 +48,7 @@ view { toSvgCoords, scale } { style, customAttrs } points =
             toInstruction "L" [ highestSvgX, originY ]
 
         instructions =
-            coordsToInstruction "L" svgCoords
+            toLineInstructions smoothing svgCoords
 
         attrs =
             (stdAttributes (startInstruction ++ instructions ++ endInstructions) style) ++ customAttrs

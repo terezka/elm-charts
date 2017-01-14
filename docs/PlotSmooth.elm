@@ -3,8 +3,8 @@ module PlotSmooth exposing (plotExample)
 import Svg
 import Plot exposing (..)
 import Plot.Line as Line
+import Plot.Area as Area
 import Plot.Axis as Axis
-import Plot.Types exposing (..)
 import Common exposing (..)
 
 
@@ -38,10 +38,11 @@ view =
         [ size plotSize
         , margin ( 10, 20, 40, 20 )
         ]
-        [ line
-            [ Line.stroke pinkStroke
-            , Line.strokeWidth 4
-            , Line.smoothBezier
+        [ area
+            [ Area.stroke pinkStroke
+            , Area.fill pinkFill
+            , Area.strokeWidth 1
+            , Area.smoothingBezier
             ]
             data1
         , xAxis
@@ -60,10 +61,11 @@ code =
             [ size plotSize
             , margin ( 10, 20, 40, 20 )
             ]
-            [ line
-                [ Line.stroke pinkStroke
-                , Line.strokeWidth 4
-                , Line.smoothBezier
+            [ area
+                [ Area.stroke pinkStroke
+                , Area.fill pinkFill
+                , Area.strokeWidth 1
+                , Area.smoothingBezier
                 ]
                 data1
             , xAxis

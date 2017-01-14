@@ -8,7 +8,6 @@ import Common exposing (..)
 import Plot as Plot exposing (Interaction(..))
 import PlotComposed
 import PlotScatter
-import PlotArea
 import PlotGrid
 import PlotTicks
 import PlotBars
@@ -243,7 +242,6 @@ examples =
     , PlotSticky.plotExample
     , PlotScatter.plotExample
     , PlotTicks.plotExample
-    , PlotArea.plotExample
     , PlotGrid.plotExample
     ]
 

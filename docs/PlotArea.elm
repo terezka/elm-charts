@@ -45,11 +45,13 @@ view =
         ]
         [ area
             [ Area.stroke skinStroke
+            , Area.smoothingBezier
             , Area.fill skinFill
             ]
             data1
         , area
             [ Area.stroke blueStroke
+            , Area.smoothingBezier
             , Area.fill blueFill
             ]
             data2

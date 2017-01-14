@@ -10,10 +10,11 @@ module Internal.Types
         , Value
         , EdgesAny
         , IndexedInfo
+        , Smoothing(..)
         )
 
+import Plot.Types exposing (..)
 
-import Plot.Types exposing(..)
 
 type alias Value =
     Float
@@ -26,6 +27,11 @@ type alias IndexedInfo a =
 type Orientation
     = X
     | Y
+
+
+type Smoothing
+    = None
+    | Bezier
 
 
 type Anchor

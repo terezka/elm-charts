@@ -3,7 +3,7 @@ module Internal.Draw exposing (..)
 import Svg exposing (Svg, Attribute)
 import Svg.Attributes
 import Plot.Types exposing (Point)
-import Internal.Types exposing (Meta, Orientation)
+import Internal.Types exposing (Meta, Orientation, Smoothing(..))
 import Internal.Stuff exposing (..)
 
 
@@ -62,6 +62,53 @@ toInstruction instructionType coords =
                 |> String.join ","
     in
         instructionType ++ " " ++ coordsString
+
+
+toLineInstructions : Smoothing -> List Point -> String
+toLineInstructions smoothing =
+    case smoothing of
+        None ->
+            coordsToInstruction "L"
+
+        Bezier ->
+            coordsToSmoothBezierCoords >> coordsListToInstruction "S"
+
+
+coordsToSmoothBezierCoords : List Point -> List (List Point)
+coordsToSmoothBezierCoords coords =
+    let
+        last =
+            List.reverse coords |> List.head |> Maybe.withDefault ( 0, 0 )
+
+        lefts =
+            coords ++ [ last ]
+
+        middles =
+            Maybe.withDefault [] (List.tail lefts)
+
+        rights =
+            Maybe.withDefault [] (List.tail middles)
+    in
+        -- calculate a guide point for the bezier
+        -- that creates a guideline paralel to the line connecting the previous and next point
+        List.map3 toBezierPoints lefts middles rights
+
+
+magnitude : Float
+magnitude =
+    0.5
+
+
+toBezierPoints : Point -> Point -> Point -> List Point
+toBezierPoints ( x0, y0 ) ( x, y ) ( x1, y1 ) =
+    let
+        dx =
+            x1 - x0
+
+        dy =
+            y1 - y0
+    in
+        [ ( x - (dx / 2 * magnitude), y - (dy / 2 * magnitude) ), ( x, y ) ]
 
 
 coordsToInstruction : String -> List ( Float, Float ) -> String
