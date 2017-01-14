@@ -72,7 +72,7 @@ viewPlot =
         , line
             [ Line.stroke "#C44D58"
             , Line.strokeWidth 2
-            , Line.smoothBezier
+            , Line.smoothingBezier
             ]
             data1
         , line
@@ -83,7 +83,7 @@ viewPlot =
         , line
             [ Line.stroke "#4ECDC4"
             , Line.strokeWidth 2
-            , Line.smoothBezier
+            , Line.smoothingBezier
             ]
             data2
         , line
@@ -94,7 +94,7 @@ viewPlot =
         , line
             [ Line.stroke "#C7F464"
             , Line.strokeWidth 2
-            , Line.smoothBezier
+            , Line.smoothingBezier
             ]
             data3
         , line
@@ -105,7 +105,7 @@ viewPlot =
         , line
             [ Line.stroke "#FF6B6B"
             , Line.strokeWidth 2
-            , Line.smoothBezier
+            , Line.smoothingBezier
             ]
             data4
         , xAxis
