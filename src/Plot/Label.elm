@@ -32,7 +32,7 @@ module Plot.Label
 @docs view, viewDynamic, viewCustom
 
 ## Style attributes
-If these attributes do not forfill your needs, try out the viewCustom! If you have
+If these attributes do not fulfill your needs, try out the viewCustom! If you have
 a suspicion that I have missed a very common configuration, then please let me know and I'll add it.
 @docs StyleAttribute, classes, displace, stroke, strokeWidth, opacity, fill, fontSize, customAttrs
 

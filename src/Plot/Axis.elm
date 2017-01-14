@@ -176,7 +176,7 @@ labelValues values config =
         Plot.xAxis
             [ Axis.tickValues [ 0, 1, 2, 4, 8 ] ]
 
- **Note:** If you add another attribute msgltering the values like `tickDelta` _after_ this attribute,
+ **Note:** If you add another attribute altering the values like `tickDelta` _after_ this attribute,
  then this attribute will have no effect.
 -}
 tickValues : List Float -> Attribute msg
@@ -191,7 +191,7 @@ tickValues values config =
         Plot.xAxis
             [ Axis.tickDelta 4 ]
 
- **Note:** If you add another attribute msgltering the values like `tickValues` _after_ this attribute,
+ **Note:** If you add another attribute altering the values like `tickValues` _after_ this attribute,
  then this attribute will have no effect.
 -}
 tickDelta : Float -> Attribute msg

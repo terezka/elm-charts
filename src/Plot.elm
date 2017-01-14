@@ -35,8 +35,8 @@ module Plot
 
 {-|
  This library aims to allow you to visualize a variety of graphs in
- an intuitve manner without comprimising flexibility regarding configuration.
- It is insprired by the elm-html api, using the `element attrs children` pattern.
+ an intuitive manner without compromising flexibility regarding configuration.
+ It is inspired by the elm-html api, using the `element attrs children` pattern.
 
  This is still in beta! The api might and probably will change!
 
@@ -88,13 +88,13 @@ import Internal.Draw exposing (..)
 import Internal.Scale exposing (..)
 
 
-{-| Convinience type to represent coordinates.
+{-| Convenience type to represent coordinates.
 -}
 type alias Point =
     ( Float, Float )
 
 
-{-| Convinience type to represent style.
+{-| Convenience type to represent style.
 -}
 type alias Style =
     List ( String, String )
@@ -324,7 +324,7 @@ plot attrs =
 
 
 {-| So this is like `plot`, except the message to is `Interaction msg`. It's a message wrapping
- your message, so you can use the build in inteactions (like the hint!) in the plot as well as adding your own.
+ your message, so you can use the build in interactions (like the hint!) in the plot as well as adding your own.
  See [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm).
 -}
 plotInteractive : List Attribute -> List (Element (Interaction msg)) -> Svg (Interaction msg)
