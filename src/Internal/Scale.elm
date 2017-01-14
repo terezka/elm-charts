@@ -12,12 +12,15 @@ getScale lengthTotal restrictRange internalBounds offset ( paddingBottomPx, padd
             lengthTotal - offset.lower - offset.upper
 
         boundsNatural =
-            { lower = restrictRange.lower (getLowest values)
-            , upper = restrictRange.upper (getHighest values)
-            }
+            Edges (getLowest values) (getHighest values)
+
+        boundsPadded =
+            foldBounds internalBounds boundsNatural
 
         bounds =
-            foldBounds internalBounds boundsNatural
+            { lower = restrictRange.lower boundsPadded.lower
+            , upper = restrictRange.upper boundsPadded.upper
+            }
 
         range =
             getRange bounds.lower bounds.upper

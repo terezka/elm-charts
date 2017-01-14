@@ -4,7 +4,6 @@ import Svg
 import Plot exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
-import Plot.Tick as Tick
 import Plot.Bars as Bars
 import Plot.Hint as Hint
 import Common exposing (..)
@@ -43,8 +42,7 @@ view : State -> Svg.Svg (Interaction msg)
 view state =
     plotInteractive
         [ size plotSize
-        , margin ( 10, 20, 41, 21 )
-        , padding ( 0, 40 )
+        , margin ( 10, 20, 40, 40 )
         ]
         [ bars
             [ Bars.maxBarWidthPer 85 ]
@@ -63,8 +61,7 @@ view state =
                 ]
             )
         , xAxis
-            [ Axis.line
-                [ Line.stroke axisColor ]
+            [ Axis.line [ Line.stroke axisColor ]
             , Axis.tickDelta 1
             ]
         , hint
@@ -80,8 +77,7 @@ code =
     view state =
         plotInteractive
             [ size plotSize
-            , margin ( 10, 20, 41, 21 )
-            , padding ( 0, 40 )
+            , margin ( 10, 20, 40, 40 )
             ]
             [ bars
                 [ Bars.maxBarWidthPer 85 ]
@@ -100,8 +96,7 @@ code =
                     ]
                 )
             , xAxis
-                [ Axis.line
-                    [ Line.stroke axisColor ]
+                [ Axis.line [ Line.stroke axisColor ]
                 , Axis.tickDelta 1
                 ]
             , hint

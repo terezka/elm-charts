@@ -11082,26 +11082,41 @@ var _terezka$elm_plot$Internal_Bars$toXStackedOffset = F3(
 			_elm_lang$core$List$length(styleConfigs)) * width) / 2;
 		return offsetBar - offsetGroup;
 	});
-var _terezka$elm_plot$Internal_Bars$toLength = F2(
-	function (meta, yValue) {
-		return (yValue * meta.scale.y.length) / meta.scale.y.range;
+var _terezka$elm_plot$Internal_Bars$toLengthTouchingXAxis = F3(
+	function (_p30, config, _p29) {
+		var _p31 = _p30;
+		var _p33 = _p31.scale;
+		var _p32 = _p29;
+		return ((_p32.yValue - A3(_elm_lang$core$Basics$clamp, _p33.y.lowest, _p33.y.highest, 0)) * _p33.y.length) / _p33.y.range;
+	});
+var _terezka$elm_plot$Internal_Bars$toLength = F3(
+	function (meta, config, bar) {
+		var _p34 = config.stackBy;
+		if (_p34.ctor === 'X') {
+			return A3(_terezka$elm_plot$Internal_Bars$toLengthTouchingXAxis, meta, config, bar);
+		} else {
+			return _elm_lang$core$Native_Utils.eq(bar.index, 0) ? A3(_terezka$elm_plot$Internal_Bars$toLengthTouchingXAxis, meta, config, bar) : ((bar.yValue * meta.scale.y.length) / meta.scale.y.range);
+		}
 	});
 var _terezka$elm_plot$Internal_Bars$toStackedCoords = F6(
-	function (meta, config, styleConfigs, width, group, info) {
-		var _p29 = config.stackBy;
-		if (_p29.ctor === 'X') {
+	function (meta, config, styleConfigs, width, group, bar) {
+		var _p35 = config.stackBy;
+		if (_p35.ctor === 'X') {
 			return A2(
 				_terezka$elm_plot$Internal_Draw$addDisplacement,
 				{
 					ctor: '_Tuple2',
-					_0: A3(_terezka$elm_plot$Internal_Bars$toXStackedOffset, styleConfigs, width, info),
+					_0: A3(_terezka$elm_plot$Internal_Bars$toXStackedOffset, styleConfigs, width, bar),
 					_1: 0
 				},
 				meta.toSvgCoords(
 					{
 						ctor: '_Tuple2',
-						_0: info.xValue,
-						_1: A2(_elm_lang$core$Basics$max, 0, info.yValue)
+						_0: bar.xValue,
+						_1: A2(
+							_elm_lang$core$Basics$max,
+							A2(_elm_lang$core$Basics$min, 0, meta.scale.y.highest),
+							bar.yValue)
 					}));
 		} else {
 			return A2(
@@ -11112,7 +11127,7 @@ var _terezka$elm_plot$Internal_Bars$toStackedCoords = F6(
 					_1: A2(
 						_elm_lang$core$Basics$min,
 						0,
-						A2(_terezka$elm_plot$Internal_Bars$toLength, meta, info.yValue))
+						A3(_terezka$elm_plot$Internal_Bars$toLength, meta, config, bar))
 				},
 				meta.toSvgCoords(
 					A2(
@@ -11120,14 +11135,14 @@ var _terezka$elm_plot$Internal_Bars$toStackedCoords = F6(
 						{
 							ctor: '_Tuple2',
 							_0: 0,
-							_1: A2(_terezka$elm_plot$Internal_Bars$toYStackedOffset, group, info)
+							_1: A2(_terezka$elm_plot$Internal_Bars$toYStackedOffset, group, bar)
 						},
-						{ctor: '_Tuple2', _0: info.xValue, _1: info.yValue})));
+						{ctor: '_Tuple2', _0: bar.xValue, _1: bar.yValue})));
 		}
 	});
-var _terezka$elm_plot$Internal_Bars$viewBar = F5(
-	function (meta, width, _p30, styleConfig, info) {
-		var _p31 = _p30;
+var _terezka$elm_plot$Internal_Bars$viewBar = F6(
+	function (meta, width, _p36, config, styleConfig, info) {
+		var _p37 = _p36;
 		return A2(
 			_elm_lang$svg$Svg$rect,
 			A2(
@@ -11135,11 +11150,11 @@ var _terezka$elm_plot$Internal_Bars$viewBar = F5(
 				{
 					ctor: '::',
 					_0: _elm_lang$svg$Svg_Attributes$x(
-						_elm_lang$core$Basics$toString(_p31._0)),
+						_elm_lang$core$Basics$toString(_p37._0)),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$svg$Svg_Attributes$y(
-							_elm_lang$core$Basics$toString(_p31._1)),
+							_elm_lang$core$Basics$toString(_p37._1)),
 						_1: {
 							ctor: '::',
 							_0: _elm_lang$svg$Svg_Attributes$width(
@@ -11149,7 +11164,7 @@ var _terezka$elm_plot$Internal_Bars$viewBar = F5(
 								_0: _elm_lang$svg$Svg_Attributes$height(
 									_elm_lang$core$Basics$toString(
 										_elm_lang$core$Basics$abs(
-											A2(_terezka$elm_plot$Internal_Bars$toLength, meta, info.yValue)))),
+											A3(_terezka$elm_plot$Internal_Bars$toLength, meta, config, info)))),
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$svg$Svg_Attributes$style(
@@ -11184,13 +11199,14 @@ var _terezka$elm_plot$Internal_Bars$viewGroup = F5(
 					A3(
 						_elm_lang$core$List$map2,
 						F2(
-							function (config, info) {
-								return A5(
+							function (styleConfig, info) {
+								return A6(
 									_terezka$elm_plot$Internal_Bars$viewBar,
 									meta,
 									width,
 									toCoords(info),
 									config,
+									styleConfig,
 									info);
 							}),
 						styleConfigs,
@@ -11733,13 +11749,15 @@ var _terezka$elm_plot$Internal_Scale$toSvgCoordsY = F3(
 var _terezka$elm_plot$Internal_Scale$getScale = F6(
 	function (lengthTotal, restrictRange, internalBounds, offset, _p10, values) {
 		var _p11 = _p10;
-		var boundsNatural = {
-			lower: restrictRange.lower(
-				_terezka$elm_plot$Internal_Stuff$getLowest(values)),
-			upper: restrictRange.upper(
-				_terezka$elm_plot$Internal_Stuff$getHighest(values))
+		var boundsNatural = A2(
+			_terezka$elm_plot$Internal_Types$Edges,
+			_terezka$elm_plot$Internal_Stuff$getLowest(values),
+			_terezka$elm_plot$Internal_Stuff$getHighest(values));
+		var boundsPadded = A2(_terezka$elm_plot$Internal_Stuff$foldBounds, internalBounds, boundsNatural);
+		var bounds = {
+			lower: restrictRange.lower(boundsPadded.lower),
+			upper: restrictRange.upper(boundsPadded.upper)
 		};
-		var bounds = A2(_terezka$elm_plot$Internal_Stuff$foldBounds, internalBounds, boundsNatural);
 		var range = A2(_terezka$elm_plot$Internal_Stuff$getRange, bounds.lower, bounds.upper);
 		var length = (lengthTotal - offset.lower) - offset.upper;
 		var paddingTop = A3(_terezka$elm_plot$Internal_Stuff$pixelsToValue, length, range, _p11._1);
@@ -13620,13 +13638,13 @@ var _terezka$elm_plot$PlotBars$view = A2(
 					_0: {
 						values: {
 							ctor: '::',
-							_0: 1,
+							_0: 40,
 							_1: {
 								ctor: '::',
-								_0: 3,
+								_0: 30,
 								_1: {
 									ctor: '::',
-									_0: 2,
+									_0: 20,
 									_1: {ctor: '[]'}
 								}
 							}
@@ -13637,13 +13655,13 @@ var _terezka$elm_plot$PlotBars$view = A2(
 						_0: {
 							values: {
 								ctor: '::',
-								_0: 2,
+								_0: 20,
 								_1: {
 									ctor: '::',
-									_0: 1,
+									_0: 30,
 									_1: {
 										ctor: '::',
-										_0: 4,
+										_0: 40,
 										_1: {ctor: '[]'}
 									}
 								}
@@ -13654,13 +13672,13 @@ var _terezka$elm_plot$PlotBars$view = A2(
 							_0: {
 								values: {
 									ctor: '::',
-									_0: 4,
+									_0: 40,
 									_1: {
 										ctor: '::',
-										_0: 2,
+										_0: 20,
 										_1: {
 											ctor: '::',
-											_0: 1,
+											_0: 10,
 											_1: {ctor: '[]'}
 										}
 									}
@@ -13671,13 +13689,13 @@ var _terezka$elm_plot$PlotBars$view = A2(
 								_0: {
 									values: {
 										ctor: '::',
-										_0: 4,
+										_0: 40,
 										_1: {
 											ctor: '::',
-											_0: 5,
+											_0: 50,
 											_1: {
 												ctor: '::',
-												_0: 2,
+												_0: 20,
 												_1: {ctor: '[]'}
 											}
 										}
@@ -13974,7 +13992,7 @@ var _terezka$elm_plot$PlotSticky$plotExample = {
 	id: _terezka$elm_plot$PlotSticky$id
 };
 
-var _terezka$elm_plot$PlotHint$code = '\n    view : State -> Svg.Svg (Interaction msg)\n    view state =\n        plotInteractive\n            [ size plotSize\n            , margin ( 10, 20, 41, 21 )\n            , padding ( 0, 40 )\n            ]\n            [ bars\n                [ Bars.maxBarWidthPer 85 ]\n                [ [ Bars.fill Common.blueFill ]\n                , [ Bars.fill Common.skinFill ]\n                , [ Bars.fill Common.pinkFill ]\n                ]\n                (Bars.toBarData\n                    { yValues = .values\n                    , xValue = Nothing\n                    }\n                    [ { values = [ 1, 3, 2 ] }\n                    , { values = [ 2, 1, 4 ] }\n                    , { values = [ 4, 2, 1 ] }\n                    , { values = [ 4, 5, 2 ] }\n                    ]\n                )\n            , xAxis\n                [ Axis.line\n                    [ Line.stroke axisColor ]\n                , Axis.tickDelta 1\n                ]\n            , hint\n                [ Hint.lineStyle [ ( \"background\", \"#b9b9b9\" ) ] ]\n                (getHoveredValue state)\n            ]\n    ';
+var _terezka$elm_plot$PlotHint$code = '\n    view : State -> Svg.Svg (Interaction msg)\n    view state =\n        plotInteractive\n            [ size plotSize\n            , margin ( 10, 20, 40, 40 )\n            ]\n            [ bars\n                [ Bars.maxBarWidthPer 85 ]\n                [ [ Bars.fill Common.blueFill ]\n                , [ Bars.fill Common.skinFill ]\n                , [ Bars.fill Common.pinkFill ]\n                ]\n                (Bars.toBarData\n                    { yValues = .values\n                    , xValue = Nothing\n                    }\n                    [ { values = [ 1, 3, 2 ] }\n                    , { values = [ 2, 1, 4 ] }\n                    , { values = [ 4, 2, 1 ] }\n                    , { values = [ 4, 5, 2 ] }\n                    ]\n                )\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tickDelta 1\n                ]\n            , hint\n                [ Hint.lineStyle [ ( \"background\", \"#b9b9b9\" ) ] ]\n                (getHoveredValue state)\n            ]\n    ';
 var _terezka$elm_plot$PlotHint$view = function (state) {
 	return A2(
 		_terezka$elm_plot$Plot$plotInteractive,
@@ -13984,13 +14002,8 @@ var _terezka$elm_plot$PlotHint$view = function (state) {
 			_1: {
 				ctor: '::',
 				_0: _terezka$elm_plot$Plot$margin(
-					{ctor: '_Tuple4', _0: 10, _1: 20, _2: 41, _3: 21}),
-				_1: {
-					ctor: '::',
-					_0: _terezka$elm_plot$Plot$padding(
-						{ctor: '_Tuple2', _0: 0, _1: 40}),
-					_1: {ctor: '[]'}
-				}
+					{ctor: '_Tuple4', _0: 10, _1: 20, _2: 40, _3: 40}),
+				_1: {ctor: '[]'}
 			}
 		},
 		{
@@ -14191,10 +14204,10 @@ var _terezka$elm_plot$PlotHint$plotExample = {
 var _terezka$elm_plot$PlotSmooth$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ area\n                [ Area.stroke pinkStroke\n                , Area.fill pinkFill\n                , Area.strokeWidth 1\n                , Area.smoothingBezier\n                ]\n                data1\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tickDelta 1\n                ]\n            ]\n    ';
 var _terezka$elm_plot$PlotSmooth$data1 = {
 	ctor: '::',
-	_0: {ctor: '_Tuple2', _0: 0, _1: 0},
+	_0: {ctor: '_Tuple2', _0: 0, _1: 10},
 	_1: {
 		ctor: '::',
-		_0: {ctor: '_Tuple2', _0: 0.5, _1: 2},
+		_0: {ctor: '_Tuple2', _0: 0.5, _1: 20},
 		_1: {
 			ctor: '::',
 			_0: {ctor: '_Tuple2', _0: 1, _1: 5},

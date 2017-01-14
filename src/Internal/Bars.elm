@@ -88,7 +88,9 @@ viewGroup meta config styleConfigs width group =
         Svg.g []
             [ Svg.g []
                 (List.map2
-                    (\config info -> viewBar meta width (toCoords info) config info)
+                    (\styleConfig info ->
+                        viewBar meta width (toCoords info) config styleConfig info
+                    )
                     styleConfigs
                     labelInfos
                 )
@@ -101,9 +103,22 @@ viewGroup meta config styleConfigs width group =
             ]
 
 
-toLength : Meta -> Value -> Value
-toLength meta yValue =
-    yValue * meta.scale.y.length / meta.scale.y.range
+toLength : Meta -> Config msg -> LabelInfo -> Value
+toLength meta config bar =
+    case config.stackBy of
+        X ->
+            toLengthTouchingXAxis meta config bar
+
+        Y ->
+            if bar.index == 0 then
+                toLengthTouchingXAxis meta config bar
+            else
+                bar.yValue * meta.scale.y.length / meta.scale.y.range
+
+
+toLengthTouchingXAxis : Meta -> Config msg -> LabelInfo -> Value
+toLengthTouchingXAxis { scale } config { yValue, index } =
+    (yValue - (clamp scale.y.lowest scale.y.highest 0)) * scale.y.length / scale.y.range
 
 
 toXStackedOffset : List (StyleConfig msg) -> Float -> LabelInfo -> Value
@@ -126,20 +141,20 @@ toYStackedOffset { yValues } { index, yValue } =
 
 
 toStackedCoords : Meta -> Config msg -> List (StyleConfig msg) -> Float -> Group -> LabelInfo -> Point
-toStackedCoords meta config styleConfigs width group info =
+toStackedCoords meta config styleConfigs width group bar =
     case config.stackBy of
         X ->
-            ( info.xValue, max 0 info.yValue )
+            ( bar.xValue, max (min 0 meta.scale.y.highest) bar.yValue )
                 |> meta.toSvgCoords
-                |> addDisplacement ( toXStackedOffset styleConfigs width info, 0 )
+                |> addDisplacement ( toXStackedOffset styleConfigs width bar, 0 )
 
         Y ->
-            ( info.xValue, info.yValue )
-                |> addDisplacement ( 0, toYStackedOffset group info )
+            ( bar.xValue, bar.yValue )
+                |> addDisplacement ( 0, toYStackedOffset group bar )
                 |> meta.toSvgCoords
                 |> addDisplacement
                     ( -width / 2
-                    , min 0 (toLength meta info.yValue)
+                    , min 0 (toLength meta config bar)
                     )
 
 
@@ -150,13 +165,13 @@ placeLabel width ( xSvg, ySvg ) =
     ]
 
 
-viewBar : Meta -> Float -> Point -> StyleConfig msg -> LabelInfo -> Svg.Svg msg
-viewBar meta width ( xSvg, ySvg ) styleConfig info =
+viewBar : Meta -> Float -> Point -> Config msg -> StyleConfig msg -> LabelInfo -> Svg.Svg msg
+viewBar meta width ( xSvg, ySvg ) config styleConfig info =
     Svg.rect
         ([ Svg.Attributes.x (toString xSvg)
          , Svg.Attributes.y (toString ySvg)
          , Svg.Attributes.width (toString width)
-         , Svg.Attributes.height (toString (abs (toLength meta info.yValue)))
+         , Svg.Attributes.height (toString (abs (toLength meta config info)))
          , Svg.Attributes.style (toStyle styleConfig.style)
          ]
             ++ styleConfig.customAttrs
