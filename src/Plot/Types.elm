@@ -2,13 +2,14 @@ module Plot.Types
     exposing
         ( Point
         , Style
-        , Smoothing (..)
+        , Smoothing(..)
         , HintInfo
         )
 
-
 {-| Convenience type to represent coordinates.
 -}
+
+
 type alias Point =
     ( Float, Float )
 

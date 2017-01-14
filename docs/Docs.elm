@@ -14,6 +14,7 @@ import PlotTicks
 import PlotBars
 import PlotSticky
 import PlotHint
+import PlotSmooth
 
 
 -- MODEL
@@ -236,7 +237,8 @@ port highlight : () -> Cmd msg
 
 examples : List (PlotExample msg)
 examples =
-    [ PlotBars.plotExample
+    [ PlotSmooth.plotExample
+    , PlotBars.plotExample
     , PlotHint.plotExample
     , PlotSticky.plotExample
     , PlotScatter.plotExample
