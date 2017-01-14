@@ -29,7 +29,7 @@ module Plot.Tick
 @docs view, viewDynamic, viewCustom
 
 ## Style attributes
-If these attributes do not forfill your needs, try out the `viewCustom`! If you have
+If these attributes do not fulfill your needs, try out the `viewCustom`! If you have
 a suspicion that I have missed a very common configuration, then please let me know and I'll add it.
 
 @docs StyleAttribute, classes, width, length, stroke, strokeWidth, opacity, customAttrs
@@ -155,7 +155,7 @@ toStyleConfig attributes =
                 ]
             ]
 
- **Note:** If you add another attribute msgltering the view like `viewDynamic` or `viewCustom` _after_ this attribute,
+ **Note:** If you add another attribute altering the view like `viewDynamic` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
 view : List (StyleAttribute msg) -> Attribute a msg
@@ -184,7 +184,7 @@ view styles config =
                 [ Tick.viewDynamic toTickStyles ]
             ]
 
- **Note:** If you add another attribute msgltering the view like `view` or `viewCustom` _after_ this attribute,
+ **Note:** If you add another attribute altering the view like `view` or `viewCustom` _after_ this attribute,
  then this attribute will have no effect.
 -}
 viewDynamic : (a -> List (StyleAttribute msg)) -> Attribute a msg
@@ -212,7 +212,7 @@ viewDynamic toStyles config =
                 [ Tick.viewCustom viewTick ]
             ]
 
- **Note:** If you add another attribute msgltering the view like `view` or `viewDynamic` _after_ this attribute,
+ **Note:** If you add another attribute altering the view like `view` or `viewDynamic` _after_ this attribute,
  then this attribute will have no effect.
 -}
 viewCustom : (a -> Svg.Svg msg) -> Attribute a msg

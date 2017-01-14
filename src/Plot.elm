@@ -33,8 +33,8 @@ module Plot
 
 {-|
  This library aims to allow you to visualize a variety of graphs in
- an intuitve manner without comprimising flexibility regarding configuration.
- It is insprired by the elm-html api, using the `element attrs children` pattern.
+ an intuitive manner without compromising flexibility regarding configuration.
+ It is inspired by the elm-html api, using the `element attrs children` pattern.
 
  This is still in beta! The api might and probably will change!
 
@@ -183,10 +183,10 @@ id id config =
     { config | id = id }
 
 
-{-| Alter the domain's lower boundery. The function provided will
+{-| Alter the domain's lower boundary. The function provided will
  be passed the lowest y-value present in any of your series and the result will
- be the lower boundery of your series. So if you would like
- the lowest boundery to simply be the edge of your series, then set
+ be the lower boundary of your series. So if you would like
+ the lowest boundary to simply be the edge of your series, then set
  this attribute to the function `identity`.
  If you want it to always be -5, then set this attribute to the function `always -5`.
 
@@ -200,10 +200,10 @@ domainLowest toLowest ({ domain } as config) =
     { config | domain = { domain | lower = toLowest } }
 
 
-{-| Alter the domain's upper boundery. The function provided will
+{-| Alter the domain's upper boundary. The function provided will
  be passed the lowest y-value present in any of your series and the result will
- be the upper boundery of your series. So if you would like
- the lowest boundery to  always be 10, then set this attribute to the function `always 10`.
+ be the upper boundary of your series. So if you would like
+ the lowest boundary to  always be 10, then set this attribute to the function `always 10`.
 
  The default is `identity`.
 
@@ -215,7 +215,7 @@ domainHighest toHighest ({ domain } as config) =
     { config | domain = { domain | upper = toHighest } }
 
 
-{-| Provide a function to determine the lower boundery of range.
+{-| Provide a function to determine the lower boundary of range.
  See `domainLowest` and imagine we're talking about the x-axis.
 -}
 rangeLowest : (Float -> Float) -> Attribute
@@ -223,7 +223,7 @@ rangeLowest toLowest ({ range } as config) =
     { config | range = { range | lower = toLowest } }
 
 
-{-| Provide a function to determine the upper boundery of range.
+{-| Provide a function to determine the upper boundary of range.
  See `domainHighest` and imagine we're talking about the x-axis.
 -}
 rangeHighest : (Float -> Float) -> Attribute
@@ -311,7 +311,7 @@ plot attrs =
 
 
 {-| So this is like `plot`, except the message to is `Interaction msg`. It's a message wrapping
- your message, so you can use the build in inteactions (like the hint!) in the plot as well as adding your own.
+ your message, so you can use the build in interactions (like the hint!) in the plot as well as adding your own.
  See [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm).
 -}
 plotInteractive : List Attribute -> List (Element (Interaction msg)) -> Svg (Interaction msg)

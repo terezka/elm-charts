@@ -9050,8 +9050,6 @@ var _terezka$elm_plot$Plot_Types$HintInfo = F2(
 	function (a, b) {
 		return {xValue: a, yValues: b};
 	});
-var _terezka$elm_plot$Plot_Types$Cosmetic = {ctor: 'Cosmetic'};
-var _terezka$elm_plot$Plot_Types$None = {ctor: 'None'};
 
 var _terezka$elm_plot$Internal_Types$Edges = F2(
 	function (a, b) {
