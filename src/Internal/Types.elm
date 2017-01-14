@@ -1,11 +1,8 @@
 module Internal.Types
     exposing
-        ( Point
-        , Style
-        , Orientation(..)
+        ( Orientation(..)
         , Scale
         , Meta
-        , HintInfo
         , Anchor(..)
         , Oriented
         , Edges
@@ -16,16 +13,10 @@ module Internal.Types
         )
 
 
+import Plot.Types exposing(..)
+
 type alias Value =
     Float
-
-
-type alias Point =
-    ( Float, Float )
-
-
-type alias Style =
-    List ( String, String )
 
 
 type alias IndexedInfo a =
@@ -86,10 +77,4 @@ type alias Scale =
     , highest : Float
     , length : Float
     , offset : Edges
-    }
-
-
-type alias HintInfo =
-    { xValue : Float
-    , yValues : List (Maybe (List Float))
     }

@@ -2,7 +2,8 @@ module Internal.Draw exposing (..)
 
 import Svg exposing (Svg, Attribute)
 import Svg.Attributes
-import Internal.Types exposing (Meta, Orientation, Point)
+import Plot.Types exposing (Point)
+import Internal.Types exposing (Meta, Orientation)
 import Internal.Stuff exposing (..)
 
 
@@ -66,6 +67,15 @@ toInstruction instructionType coords =
 coordsToInstruction : String -> List ( Float, Float ) -> String
 coordsToInstruction instructionType coords =
     List.map (\( x, y ) -> toInstruction instructionType [ x, y ]) coords |> String.join ""
+
+
+coordsListToInstruction : String -> List ( List ( Point ) ) -> String
+coordsListToInstruction instructionType coords =
+    List.map (\points ->
+        toInstruction instructionType
+            (List.foldr (\(x, y) all -> [x, y] ++ all) [] points)
+    ) coords
+    |> String.join ""
 
 
 startPath : List ( Float, Float ) -> ( String, List ( Float, Float ) )

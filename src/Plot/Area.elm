@@ -30,7 +30,7 @@ module Plot.Area exposing (..)
 
 import Svg
 import Internal.Area as Internal
-import Internal.Types exposing (Style)
+import Plot.Types exposing (Style)
 import Internal.Draw exposing (..)
 
 
