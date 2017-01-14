@@ -9,6 +9,7 @@ import Internal.Draw exposing (..)
 import Internal.Axis exposing (..)
 import Plot.TestArea
 import Internal.TestStuff
+import Internal.TestScale
 
 
 all : Test
@@ -24,6 +25,7 @@ all =
         , testTickDeltaTest
         , Plot.TestArea.all
         , Internal.TestStuff.all
+        , Internal.TestScale.all
         ]
 
 
