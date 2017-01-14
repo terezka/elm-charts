@@ -17,7 +17,8 @@
         "Plot.Label",
         "Plot.Line",
         "Plot.Scatter",
-        "Plot.Tick"
+        "Plot.Tick",
+        "Plot.Types"
     ],
     "dependencies": {
         "debois/elm-dom": "1.2.3 <= v < 2.0.0",

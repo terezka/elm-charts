@@ -5,10 +5,17 @@ module Plot.Types
         , HintInfo
         )
 
-{-| Convenience type to represent coordinates.
+{-|
+ Convenience types.
+
+# Types
+@docs Point, Style, HintInfo, HintInfo
+
 -}
 
 
+{-| Convenience type to represent coordinates.
+-}
 type alias Point =
     ( Float, Float )
 
@@ -19,6 +26,8 @@ type alias Style =
     List ( String, String )
 
 
+{-| The info you from the hint.
+-}
 type alias HintInfo =
     { xValue : Float
     , yValues : List (Maybe (List Float))
