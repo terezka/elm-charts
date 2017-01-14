@@ -13352,10 +13352,10 @@ var _terezka$elm_plot$PlotGrid$view = A2(
 						_terezka$elm_plot$Plot$line,
 						{
 							ctor: '::',
-							_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Common$blueStroke),
+							_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Common$pinkStroke),
 							_1: {
 								ctor: '::',
-								_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
+								_0: _terezka$elm_plot$Plot_Line$strokeWidth(3),
 								_1: {ctor: '[]'}
 							}
 						},
