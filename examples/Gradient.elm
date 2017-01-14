@@ -2,6 +2,7 @@ module Gradient exposing (..)
 
 import Svg
 import Svg.Attributes as Attrs
+import Plot.Types exposing (..)
 import Plot exposing (..)
 import Plot.Area as Area
 import Plot.Axis as Axis
