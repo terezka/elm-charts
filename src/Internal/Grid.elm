@@ -2,8 +2,7 @@ module Internal.Grid exposing (..)
 
 import Svg
 import Svg.Attributes
-import Plot.Types exposing (Point, Style)
-import Internal.Types exposing (Meta, Orientation(..))
+import Internal.Types exposing (Meta, Orientation(..), Point, Style)
 import Internal.Draw as Draw exposing (..)
 import Internal.Line as Line
 
