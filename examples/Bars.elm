@@ -2,13 +2,14 @@ module Bars exposing (..)
 
 import Svg
 import Html exposing (div)
+import Plot.Types exposing (Point)
 import Plot exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
 import Plot.Bars as Bars
 
 
-data1 : List ( Float, Float )
+data1 : List Point
 data1 =
     [ ( 0, 2 ), ( 1, 4 ), ( 2, 5 ), ( 3, 10 ) ]
 
