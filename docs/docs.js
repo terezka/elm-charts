@@ -9073,9 +9073,7 @@ var _terezka$elm_plot$Internal_Types$Meta = function (a) {
 							return function (h) {
 								return function (i) {
 									return function (j) {
-										return function (k) {
-											return {scale: a, ticks: b, toSvgCoords: c, fromSvgCoords: d, oppositeTicks: e, oppositeToSvgCoords: f, axisCrossings: g, oppositeAxisCrossings: h, getHintInfo: i, toNearestX: j, id: k};
-										};
+										return {scale: a, ticks: b, toSvgCoords: c, fromSvgCoords: d, oppositeTicks: e, oppositeToSvgCoords: f, axisCrossings: g, oppositeAxisCrossings: h, getHintInfo: i, toNearestX: j};
 									};
 								};
 							};
@@ -12018,8 +12016,7 @@ var _terezka$elm_plot$Plot$calculateMeta = F2(
 			axisCrossings: A2(_terezka$elm_plot$Plot$getAxisCrossings, axisConfigs.x, yScale),
 			oppositeAxisCrossings: A2(_terezka$elm_plot$Plot$getAxisCrossings, axisConfigs.y, xScale),
 			toNearestX: _terezka$elm_plot$Internal_Stuff$toNearest(values.x),
-			getHintInfo: _terezka$elm_plot$Plot$getHintInfo(elements),
-			id: _p15.id
+			getHintInfo: _terezka$elm_plot$Plot$getHintInfo(elements)
 		};
 	});
 var _terezka$elm_plot$Plot$viewElement = F3(
@@ -12188,11 +12185,7 @@ var _terezka$elm_plot$Plot$plotAttributes = function (_p28) {
 					_elm_lang$core$Basics_ops['++'],
 					_terezka$elm_plot$Plot$sizeStyle(_p29.size),
 					_p29.style)),
-			_1: {
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$id(_p29.id),
-				_1: {ctor: '[]'}
-			}
+			_1: {ctor: '[]'}
 		}
 	};
 };
@@ -12313,12 +12306,6 @@ var _terezka$elm_plot$Plot$domainLowest = F2(
 					{lower: toLowest})
 			});
 	});
-var _terezka$elm_plot$Plot$id = F2(
-	function (id, config) {
-		return _elm_lang$core$Native_Utils.update(
-			config,
-			{id: id});
-	});
 var _terezka$elm_plot$Plot$classes = F2(
 	function (classes, config) {
 		return _elm_lang$core$Native_Utils.update(
@@ -12372,8 +12359,7 @@ var _terezka$elm_plot$Plot$defaultConfig = {
 	classes: {ctor: '[]'},
 	style: {ctor: '[]'},
 	domain: A2(_terezka$elm_plot$Internal_Types$EdgesAny, _elm_lang$core$Basics$identity, _elm_lang$core$Basics$identity),
-	range: A2(_terezka$elm_plot$Internal_Types$EdgesAny, _elm_lang$core$Basics$identity, _elm_lang$core$Basics$identity),
-	id: 'elm-plot'
+	range: A2(_terezka$elm_plot$Internal_Types$EdgesAny, _elm_lang$core$Basics$identity, _elm_lang$core$Basics$identity)
 };
 var _terezka$elm_plot$Plot$style = F2(
 	function (style, config) {
@@ -12406,9 +12392,9 @@ var _terezka$elm_plot$Plot$plot = function (attrs) {
 		_terezka$elm_plot$Plot$parsePlot,
 		_terezka$elm_plot$Plot$toPlotConfig(attrs));
 };
-var _terezka$elm_plot$Plot$Config = F8(
-	function (a, b, c, d, e, f, g, h) {
-		return {size: a, padding: b, margin: c, classes: d, style: e, domain: f, range: g, id: h};
+var _terezka$elm_plot$Plot$Config = F7(
+	function (a, b, c, d, e, f, g) {
+		return {size: a, padding: b, margin: c, classes: d, style: e, domain: f, range: g};
 	});
 var _terezka$elm_plot$Plot$StateInner = function (a) {
 	return {position: a};

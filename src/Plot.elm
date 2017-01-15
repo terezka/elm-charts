@@ -16,7 +16,6 @@ module Plot
         , scatter
         , custom
         , classes
-        , id
         , margin
         , padding
         , size
@@ -54,7 +53,7 @@ module Plot
 @docs scatter, line, area, bars
 
 # Styling and sizes
-@docs classes, id, margin, padding, size, style, domainLowest, domainHighest, rangeLowest, rangeHighest
+@docs classes, margin, padding, size, style, domainLowest, domainHighest, rangeLowest, rangeHighest
 
 # State
 For an example of the update flow see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm).
@@ -125,7 +124,6 @@ type alias Config =
     , style : Style
     , domain : EdgesAny (Float -> Float)
     , range : EdgesAny (Float -> Float)
-    , id : String
     }
 
 
@@ -138,7 +136,6 @@ defaultConfig =
     , style = []
     , domain = EdgesAny (identity) (identity)
     , range = EdgesAny (identity) (identity)
-    , id = "elm-plot"
     }
 
 
@@ -191,13 +188,6 @@ style style config =
 classes : List String -> Attribute
 classes classes config =
     { config | classes = classes }
-
-
-{-| Adds an id to the svg element.
--}
-id : String -> Attribute
-id id config =
-    { config | id = id }
 
 
 {-| Alter the domain's lower boundary. The function provided will
@@ -493,10 +483,9 @@ viewPlot ({ size } as config) meta ( svgViews, htmlViews ) =
 
 
 plotAttributes : Config -> List (Html.Attribute msg)
-plotAttributes { size, id, style } =
+plotAttributes { size, style } =
     [ Html.Attributes.class "elm-plot"
     , Html.Attributes.style <| sizeStyle size ++ style
-    , Html.Attributes.id id
     ]
 
 
@@ -565,7 +554,7 @@ viewElement meta element ( svgViews, htmlViews ) =
 
 
 calculateMeta : Config -> List (Element msg) -> Meta
-calculateMeta ({ size, padding, margin, id, range, domain } as config) elements =
+calculateMeta ({ size, padding, margin, range, domain } as config) elements =
     let
         values =
             toValuesOriented elements
@@ -601,7 +590,6 @@ calculateMeta ({ size, padding, margin, id, range, domain } as config) elements 
         , oppositeAxisCrossings = getAxisCrossings axisConfigs.y xScale
         , toNearestX = toNearest values.x
         , getHintInfo = getHintInfo elements
-        , id = id
         }
 
 
