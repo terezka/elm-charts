@@ -17,8 +17,7 @@ module Plot.Hint exposing (..)
 -}
 
 import Internal.Hint as Internal
-import Plot.Types exposing (Style)
-import Internal.Types exposing (Value)
+import Internal.Types exposing (Value, Style)
 import Html exposing (Html)
 
 

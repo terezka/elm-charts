@@ -9090,6 +9090,10 @@ var _terezka$elm_plot$Internal_Types$Scale = F5(
 	function (a, b, c, d, e) {
 		return {range: a, lowest: b, highest: c, length: d, offset: e};
 	});
+var _terezka$elm_plot$Internal_Types$HintInfo = F2(
+	function (a, b) {
+		return {xValue: a, yValues: b};
+	});
 var _terezka$elm_plot$Internal_Types$Y = {ctor: 'Y'};
 var _terezka$elm_plot$Internal_Types$X = {ctor: 'X'};
 var _terezka$elm_plot$Internal_Types$Bezier = {ctor: 'Bezier'};
@@ -11862,7 +11866,7 @@ var _terezka$elm_plot$Plot$toAxisConfigsOriented = A2(
 var _terezka$elm_plot$Plot$getHintInfo = F2(
 	function (elements, xValue) {
 		return A2(
-			_terezka$elm_plot$Plot_Types$HintInfo,
+			_terezka$elm_plot$Plot_Hint$HintInfo,
 			xValue,
 			A3(
 				_elm_lang$core$List$foldr,

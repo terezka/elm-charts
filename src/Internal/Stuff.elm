@@ -1,6 +1,5 @@
 module Internal.Stuff exposing (..)
 
-import Plot.Types exposing (..)
 import Internal.Types exposing (..)
 
 

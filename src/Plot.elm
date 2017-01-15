@@ -1,6 +1,8 @@
 module Plot
     exposing
         ( Attribute
+        , Point
+        , Style
         , plot
         , plotInteractive
         , xAxis
@@ -39,7 +41,7 @@ module Plot
  This is still in beta! The api might and probably will change!
 
 # Definitions
-@docs Attribute, Element
+@docs Attribute, Element, Point, Style
 
 # Elements
 @docs plot, plotInteractive, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
@@ -66,7 +68,6 @@ import Svg.Attributes
 import Svg.Lazy
 import Json.Decode as Json
 import DOM
-import Plot.Types exposing (..)
 import Plot.Axis as Axis
 import Plot.Grid as Grid
 import Plot.Area as Area
@@ -85,6 +86,18 @@ import Internal.Stuff exposing (..)
 import Internal.Types exposing (..)
 import Internal.Draw exposing (..)
 import Internal.Scale exposing (..)
+
+
+{-| Convenience type to represent coordinates.
+-}
+type alias Point =
+    ( Float, Float )
+
+
+{-| Convenience type to represent style.
+-}
+type alias Style =
+    List ( String, String )
 
 
 {-| Represents a child element of the plot.
@@ -679,9 +692,9 @@ getFlippedMeta orientation meta =
             flipMeta meta
 
 
-getHintInfo : List (Element msg) -> Float -> HintInfo
+getHintInfo : List (Element msg) -> Float -> Hint.HintInfo
 getHintInfo elements xValue =
-    HintInfo xValue <| List.foldr (collectYValues xValue) [] elements
+    Hint.HintInfo xValue <| List.foldr (collectYValues xValue) [] elements
 
 
 toAxisConfigsOriented : List (Element msg) -> Oriented (List (AxisInternal.Config msg))

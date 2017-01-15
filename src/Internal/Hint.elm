@@ -1,7 +1,6 @@
 module Internal.Hint exposing (..)
 
-import Plot.Types exposing (Point, Style, HintInfo)
-import Internal.Types exposing (Orientation(..), Scale, Meta, Value)
+import Internal.Types exposing (Orientation(..), Scale, Meta, Value, HintInfo, Style)
 import Internal.Draw exposing (..)
 import Html
 import Html.Attributes

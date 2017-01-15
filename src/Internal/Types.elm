@@ -11,9 +11,23 @@ module Internal.Types
         , EdgesAny
         , IndexedInfo
         , Smoothing(..)
+        , Style
+        , Point
+        , HintInfo
         )
 
-import Plot.Types exposing (..)
+{-| Convenience type to represent coordinates.
+-}
+
+
+type alias Point =
+    ( Float, Float )
+
+
+{-| Convenience type to represent style.
+-}
+type alias Style =
+    List ( String, String )
 
 
 type alias Value =
@@ -83,4 +97,10 @@ type alias Scale =
     , highest : Float
     , length : Float
     , offset : Edges
+    }
+
+
+type alias HintInfo =
+    { xValue : Float
+    , yValues : List (Maybe (List Value))
     }
