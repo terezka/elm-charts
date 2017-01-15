@@ -4,7 +4,7 @@ import Svg
 import Svg.Attributes
 import Internal.Types exposing (..)
 import Internal.Stuff exposing (getEdgesX)
-import Internal.Draw exposing (..)
+import Internal.Draw exposing (PathType(..), toPath, toLinePath, toStyle)
 
 
 type alias Config a =
@@ -23,34 +23,24 @@ defaultConfig =
 
 
 view : Meta -> Config a -> List Point -> Svg.Svg a
-view { toSvgCoords, scale } { style, smoothing, customAttrs } points =
+view meta { style, smoothing, customAttrs } points =
     let
         ( lowestX, highestX ) =
             getEdgesX points
 
-        svgCoords =
-            List.map toSvgCoords points
-
-        areaEnd =
-            clamp scale.y.lowest scale.y.highest 0
-
-        ( highestSvgX, originY ) =
-            toSvgCoords ( highestX, areaEnd )
-
-        ( lowestSvgX, _ ) =
-            toSvgCoords ( lowestX, areaEnd )
-
-        startInstruction =
-            toInstruction "M" [ lowestSvgX, originY ]
-
-        endInstructions =
-            toInstruction "L" [ highestSvgX, originY ]
+        lowestY =
+            clamp meta.scale.y.lowest meta.scale.y.highest 0
 
         instructions =
-            toLineInstructions smoothing svgCoords
+            List.concat
+                [ [ M ( lowestX, lowestY ) ]
+                , (toLinePath smoothing points)
+                , [ L ( highestX, lowestY ) ]
+                ]
+                |> toPath meta
 
         attrs =
-            (stdAttributes (startInstruction ++ instructions ++ endInstructions) style) ++ customAttrs
+            (stdAttributes instructions style) ++ customAttrs
     in
         Svg.path attrs []
 

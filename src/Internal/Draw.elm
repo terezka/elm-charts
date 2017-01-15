@@ -1,4 +1,20 @@
-module Internal.Draw exposing (..)
+module Internal.Draw
+    exposing
+        ( fullLine
+        , positionAttributes
+        , PathType(..)
+        , toPath
+        , classAttribute
+        , classBase
+        , classAttributeOriented
+        , toLinePath
+        , toTranslate
+        , toRotate
+        , toStyle
+        , toPixels
+        , toPixelsInt
+        , addDisplacement
+        )
 
 import Svg exposing (Svg, Attribute)
 import Svg.Attributes
@@ -54,44 +70,50 @@ classBase base =
     "elm-plot__" ++ base
 
 
-toInstruction : String -> List Float -> String
-toInstruction instructionType coords =
+
+-- Path Stuff
+
+
+type PathType
+    = L Point
+    | M Point
+    | S Point Point Point
+    | Z
+
+
+toPath : Meta -> List PathType -> String
+toPath meta pathParts =
+    List.foldl (\part result -> result ++ toPathTypeString meta part) "" pathParts
+
+
+toPathTypeString : Meta -> PathType -> String
+toPathTypeString meta pathType =
+    case pathType of
+        M point ->
+            toPathTypeStringSinglePoint meta "M" point
+
+        L point ->
+            toPathTypeStringSinglePoint meta "L" point
+
+        S p1 p2 p3 ->
+            toPathTypeStringS meta p1 p2 p3
+
+        Z ->
+            "Z"
+
+
+toPathTypeStringSinglePoint : Meta -> String -> Point -> String
+toPathTypeStringSinglePoint meta typeString point =
+    typeString ++ " " ++ pointToString meta point
+
+
+toPathTypeStringS : Meta -> Point -> Point -> Point -> String
+toPathTypeStringS meta p1 p2 p3 =
     let
-        coordsString =
-            List.map toString coords
-                |> String.join ","
+        ( point1, point2 ) =
+            toBezierPoints p1 p2 p3
     in
-        instructionType ++ " " ++ coordsString
-
-
-toLineInstructions : Smoothing -> List Point -> String
-toLineInstructions smoothing =
-    case smoothing of
-        None ->
-            coordsToInstruction "L"
-
-        Bezier ->
-            coordsToSmoothBezierCoords >> coordsListToInstruction "S"
-
-
-coordsToSmoothBezierCoords : List Point -> List (List Point)
-coordsToSmoothBezierCoords coords =
-    let
-        last =
-            List.reverse coords |> List.head |> Maybe.withDefault ( 0, 0 )
-
-        lefts =
-            coords ++ [ last ]
-
-        middles =
-            Maybe.withDefault [] (List.tail lefts)
-
-        rights =
-            Maybe.withDefault [] (List.tail middles)
-    in
-        -- calculate a guide point for the bezier
-        -- that creates a guideline paralel to the line connecting the previous and next point
-        List.map3 toBezierPoints lefts middles rights
+        "S" ++ " " ++ pointToString meta point1 ++ "," ++ pointToString meta point2
 
 
 magnitude : Float
@@ -99,44 +121,50 @@ magnitude =
     0.5
 
 
-toBezierPoints : Point -> Point -> Point -> List Point
+toBezierPoints : Point -> Point -> Point -> ( Point, Point )
 toBezierPoints ( x0, y0 ) ( x, y ) ( x1, y1 ) =
-    let
-        dx =
-            x1 - x0
-
-        dy =
-            y1 - y0
-    in
-        [ ( x - (dx / 2 * magnitude), y - (dy / 2 * magnitude) ), ( x, y ) ]
+    ( ( x - ((x1 - x0) / 2 * magnitude), y - ((y1 - y0) / 2 * magnitude) )
+    , ( x, y )
+    )
 
 
-coordsToInstruction : String -> List ( Float, Float ) -> String
-coordsToInstruction instructionType coords =
-    List.map (\( x, y ) -> toInstruction instructionType [ x, y ]) coords |> String.join ""
-
-
-coordsListToInstruction : String -> List (List Point) -> String
-coordsListToInstruction instructionType coords =
-    List.map
-        (\points ->
-            toInstruction instructionType
-                (List.foldr (\( x, y ) all -> [ x, y ] ++ all) [] points)
-        )
-        coords
-        |> String.join ""
-
-
-startPath : List ( Float, Float ) -> ( String, List ( Float, Float ) )
-startPath data =
+pointToString : Meta -> Point -> String
+pointToString meta point =
     let
         ( x, y ) =
-            Maybe.withDefault ( 0, 0 ) (List.head data)
-
-        tail =
-            Maybe.withDefault [] (List.tail data)
+            meta.toSvgCoords point
     in
-        ( toInstruction "M" [ x, y ], tail )
+        (toString x) ++ "," ++ (toString y)
+
+
+toLinePath : Smoothing -> List Point -> List PathType
+toLinePath smoothing =
+    case smoothing of
+        None ->
+            List.map L
+
+        Bezier ->
+            toSPathTypes [] >> List.reverse
+
+
+toSPathTypes : List PathType -> List Point -> List PathType
+toSPathTypes result points =
+    case points of
+        [ p1, p2 ] ->
+            S p1 p2 p2 :: result
+
+        [ p1, p2, p3 ] ->
+            toSPathTypes (S p1 p2 p3 :: result) [ p2, p3 ]
+
+        p1 :: p2 :: p3 :: rest ->
+            toSPathTypes (S p1 p2 p3 :: result) (p2 :: p3 :: rest)
+
+        _ ->
+            result
+
+
+
+-- Utils
 
 
 toTranslate : ( Float, Float ) -> String

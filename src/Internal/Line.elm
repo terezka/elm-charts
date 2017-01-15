@@ -22,19 +22,18 @@ defaultConfig =
 
 
 view : Meta -> Config a -> List Point -> Svg.Svg a
-view { toSvgCoords } { style, smoothing, customAttrs } points =
+view meta { style, smoothing, customAttrs } points =
     let
-        svgPoints =
-            List.map toSvgCoords points
-
-        ( startInstruction, _ ) =
-            startPath svgPoints
-
         instructions =
-            toLineInstructions smoothing svgPoints
+            case points of
+                p1 :: rest ->
+                    M p1 :: (toLinePath smoothing (p1 :: rest)) |> toPath meta
+
+                _ ->
+                    ""
 
         attrs =
-            (stdAttributes (startInstruction ++ instructions) style) ++ customAttrs
+            (stdAttributes instructions style) ++ customAttrs
     in
         Svg.path attrs []
 
