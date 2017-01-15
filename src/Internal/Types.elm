@@ -1,11 +1,8 @@
 module Internal.Types
     exposing
-        ( Point
-        , Style
-        , Orientation(..)
+        ( Orientation(..)
         , Scale
         , Meta
-        , HintInfo
         , Anchor(..)
         , Oriented
         , Edges
@@ -13,19 +10,28 @@ module Internal.Types
         , Value
         , EdgesAny
         , IndexedInfo
+        , Smoothing(..)
+        , Style
+        , Point
+        , HintInfo
         )
 
-
-type alias Value =
-    Float
+{-| Convenience type to represent coordinates.
+-}
 
 
 type alias Point =
     ( Float, Float )
 
 
+{-| Convenience type to represent style.
+-}
 type alias Style =
     List ( String, String )
+
+
+type alias Value =
+    Float
 
 
 type alias IndexedInfo a =
@@ -35,6 +41,11 @@ type alias IndexedInfo a =
 type Orientation
     = X
     | Y
+
+
+type Smoothing
+    = None
+    | Bezier
 
 
 type Anchor
@@ -91,5 +102,5 @@ type alias Scale =
 
 type alias HintInfo =
     { xValue : Float
-    , yValues : List (Maybe (List Float))
+    , yValues : List (Maybe (List Value))
     }

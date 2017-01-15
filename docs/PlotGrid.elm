@@ -4,7 +4,6 @@ import Svg
 import Plot exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
-import Plot.Tick as Tick
 import Plot.Grid as Grid
 import Plot.Line as Line
 import Common exposing (..)
@@ -54,8 +53,8 @@ view =
             , Axis.tickDelta 0.5
             ]
         , line
-            [ Line.stroke blueStroke
-            , Line.strokeWidth 2
+            [ Line.stroke pinkStroke
+            , Line.strokeWidth 3
             ]
             data
         ]

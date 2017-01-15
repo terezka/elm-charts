@@ -8,12 +8,12 @@ import Common exposing (..)
 import Plot as Plot exposing (Interaction(..))
 import PlotComposed
 import PlotScatter
-import PlotArea
 import PlotGrid
 import PlotTicks
 import PlotBars
 import PlotSticky
 import PlotHint
+import PlotSmooth
 
 
 -- MODEL
@@ -236,12 +236,12 @@ port highlight : () -> Cmd msg
 
 examples : List (PlotExample msg)
 examples =
-    [ PlotBars.plotExample
+    [ PlotSmooth.plotExample
+    , PlotBars.plotExample
     , PlotHint.plotExample
     , PlotSticky.plotExample
     , PlotScatter.plotExample
     , PlotTicks.plotExample
-    , PlotArea.plotExample
     , PlotGrid.plotExample
     ]
 

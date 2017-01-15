@@ -8,19 +8,21 @@ import Internal.Draw exposing (..)
 
 type alias Config a =
     { style : Style
+    , smoothing : Smoothing
     , customAttrs : List (Svg.Attribute a)
     }
 
 
 defaultConfig : Config a
 defaultConfig =
-    { style = [ ( "fill", "transparent" ) ]
+    { style = [ ( "fill", "transparent" ), ( "stroke", "black" ) ]
+    , smoothing = None
     , customAttrs = []
     }
 
 
 view : Meta -> Config a -> List Point -> Svg.Svg a
-view { toSvgCoords } { style, customAttrs } points =
+view { toSvgCoords } { style, smoothing, customAttrs } points =
     let
         svgPoints =
             List.map toSvgCoords points
@@ -29,7 +31,7 @@ view { toSvgCoords } { style, customAttrs } points =
             startPath svgPoints
 
         instructions =
-            coordsToInstruction "L" svgPoints
+            toLineInstructions smoothing svgPoints
 
         attrs =
             (stdAttributes (startInstruction ++ instructions) style) ++ customAttrs

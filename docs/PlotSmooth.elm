@@ -1,11 +1,11 @@
-module PlotArea exposing (plotExample)
+module PlotSmooth exposing (plotExample)
 
 import Svg
 import Plot exposing (..)
-import Common exposing (..)
-import Plot.Area as Area
 import Plot.Line as Line
+import Plot.Area as Area
 import Plot.Axis as Axis
+import Common exposing (..)
 
 
 plotExample : PlotExample msg
@@ -19,22 +19,17 @@ plotExample =
 
 title : String
 title =
-    "Areas"
+    "Interpolation"
 
 
 id : String
 id =
-    "PlotArea"
+    "PlotSmooth"
 
 
 data1 : List ( Float, Float )
 data1 =
-    [ ( 0, 20 ), ( 10, 65 ), ( 20, 35 ), ( 30, 85 ) ]
-
-
-data2 : List ( Float, Float )
-data2 =
-    [ ( 0, 10 ), ( 10, 50 ), ( 20, 10 ), ( 30, 75 ) ]
+    [ ( 0, 10 ), ( 0.5, 20 ), ( 1, 5 ), ( 1.5, 4 ), ( 2, 7 ), ( 2.5, 5 ), ( 3, 10 ), ( 3.5, 15 ) ]
 
 
 view : Svg.Svg a
@@ -44,20 +39,15 @@ view =
         , margin ( 10, 20, 40, 20 )
         ]
         [ area
-            [ Area.stroke skinStroke
+            [ Area.stroke pinkStroke
+            , Area.fill pinkFill
+            , Area.strokeWidth 1
             , Area.smoothingBezier
-            , Area.fill skinFill
             ]
             data1
-        , area
-            [ Area.stroke blueStroke
-            , Area.smoothingBezier
-            , Area.fill blueFill
-            ]
-            data2
         , xAxis
             [ Axis.line [ Line.stroke axisColor ]
-            , Axis.tickDelta 10
+            , Axis.tickDelta 1
             ]
         ]
 
@@ -72,18 +62,15 @@ code =
             , margin ( 10, 20, 40, 20 )
             ]
             [ area
-                [ Area.stroke skinStroke
-                , Area.fill skinFill
+                [ Area.stroke pinkStroke
+                , Area.fill pinkFill
+                , Area.strokeWidth 1
+                , Area.smoothingBezier
                 ]
                 data1
-            , area
-                [ Area.stroke blueStroke
-                , Area.fill blueFill
-                ]
-                data2
             , xAxis
                 [ Axis.line [ Line.stroke axisColor ]
-                , Axis.tickDelta 10
+                , Axis.tickDelta 1
                 ]
             ]
     """

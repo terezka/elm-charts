@@ -70,7 +70,8 @@ module Plot.Bars
 -}
 
 import Svg
-import Internal.Types exposing (Style, Point, Orientation(..), MaxWidth(..), Value, IndexedInfo)
+import Plot.Types exposing (Style, Point)
+import Internal.Types exposing (Orientation(..), MaxWidth(..), Value, IndexedInfo)
 import Internal.Bars as Internal
 import Internal.Label as LabelInternal
 import Plot.Label as Label

@@ -71,15 +71,18 @@ view state =
             [ Area.stroke skinStroke
             , Area.fill skinFill
             , Area.opacity 0.5
+            , Area.smoothingBezier
             ]
             (List.map (\( x, y ) -> ( x, toFloat <| round (y * 2.1) )) data1)
         , area
             [ Area.stroke blueStroke
             , Area.fill blueFill
+            , Area.smoothingBezier
             ]
             data1
         , line
             [ Line.stroke pinkStroke
+            , Line.smoothingBezier
             , Line.strokeWidth 2
             ]
             (List.map (\( x, y ) -> ( x, toFloat <| round y * 3 )) data1)

@@ -14,7 +14,8 @@ module Plot.Axis exposing (..)
 
 -}
 
-import Internal.Types exposing (Style, Orientation(..), Anchor(..), Value)
+import Plot.Types exposing (Style)
+import Internal.Types exposing (Orientation(..), Anchor(..), Value)
 import Internal.Axis as Internal exposing (ValueConfig(..))
 import Internal.Label as LabelInternal
 import Internal.Tick as TickInternal
@@ -176,7 +177,7 @@ labelValues values config =
         Plot.xAxis
             [ Axis.tickValues [ 0, 1, 2, 4, 8 ] ]
 
- **Note:** If you add another attribute msgltering the values like `tickDelta` _after_ this attribute,
+ **Note:** If you add another attribute altering the values like `tickDelta` _after_ this attribute,
  then this attribute will have no effect.
 -}
 tickValues : List Float -> Attribute msg
@@ -191,7 +192,7 @@ tickValues values config =
         Plot.xAxis
             [ Axis.tickDelta 4 ]
 
- **Note:** If you add another attribute msgltering the values like `tickValues` _after_ this attribute,
+ **Note:** If you add another attribute altering the values like `tickValues` _after_ this attribute,
  then this attribute will have no effect.
 -}
 tickDelta : Float -> Attribute msg
