@@ -94,7 +94,7 @@ viewGroup meta config styleConfigs width group =
                     styleConfigs
                     labelInfos
                 )
-            , Svg.g []
+            , Svg.g [ Svg.Attributes.clipPath ("url(#" ++ toClipPathId meta ++ ")") ]
                 (Label.view
                     config.labelConfig
                     (\info -> placeLabel width (toCoords info))

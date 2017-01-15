@@ -22,13 +22,15 @@ defaultConfig =
 
 
 view : Meta -> Config a -> List Point -> Svg.Svg a
-view { toSvgCoords } { style, radius } points =
+view meta { style, radius } points =
     let
         svgPoints =
-            List.map toSvgCoords points
+            List.map meta.toSvgCoords points
     in
         Svg.g
-            [ Svg.Attributes.style (toStyle style) ]
+            [ Svg.Attributes.style (toStyle style)
+            , Svg.Attributes.clipPath ("url(#" ++ toClipPathId meta ++ ")")
+            ]
             (List.map (toSvgCircle radius) svgPoints)
 
 

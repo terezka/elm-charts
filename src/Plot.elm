@@ -124,6 +124,7 @@ type alias Config =
     , style : Style
     , domain : EdgesAny (Float -> Float)
     , range : EdgesAny (Float -> Float)
+    , id : String
     }
 
 
@@ -136,6 +137,7 @@ defaultConfig =
     , style = []
     , domain = EdgesAny (identity) (identity)
     , range = EdgesAny (identity) (identity)
+    , id = "elm-plot"
     }
 
 
@@ -188,6 +190,13 @@ style style config =
 classes : List String -> Attribute
 classes classes config =
     { config | classes = classes }
+
+
+{-| Adds an id to the svg element.
+-}
+id : String -> Attribute
+id id config =
+    { config | id = id }
 
 
 {-| Alter the domain's lower boundary. The function provided will
@@ -469,22 +478,23 @@ parsePlotInteractive config elements =
 
 
 viewPlotInteractive : Config -> Meta -> ( List (Svg (Interaction msg)), List (Html (Interaction msg)) ) -> Html (Interaction msg)
-viewPlotInteractive ({ size } as config) meta ( svgViews, htmlViews ) =
+viewPlotInteractive config meta ( svgViews, htmlViews ) =
     Html.div
         (plotAttributes config ++ plotAttributesInteraction meta)
-        (viewSvg size svgViews :: htmlViews)
+        (viewSvg meta config svgViews :: htmlViews)
 
 
 viewPlot : Config -> Meta -> ( List (Svg msg), List (Html msg) ) -> Svg msg
-viewPlot ({ size } as config) meta ( svgViews, htmlViews ) =
+viewPlot config meta ( svgViews, htmlViews ) =
     Html.div
         (plotAttributes config)
-        (viewSvg size svgViews :: htmlViews)
+        (viewSvg meta config svgViews :: htmlViews)
 
 
 plotAttributes : Config -> List (Html.Attribute msg)
-plotAttributes { size, style } =
+plotAttributes { size, style, id } =
     [ Html.Attributes.class "elm-plot"
+    , Html.Attributes.id id
     , Html.Attributes.style <| sizeStyle size ++ style
     ]
 
@@ -496,14 +506,29 @@ plotAttributesInteraction meta =
     ]
 
 
-viewSvg : Oriented Float -> List (Svg msg) -> Svg msg
-viewSvg { x, y } views =
+viewSvg : Meta -> Config -> List (Svg msg) -> Svg msg
+viewSvg meta config views =
     Svg.svg
-        [ Svg.Attributes.height (toString y)
-        , Svg.Attributes.width (toString x)
+        [ Svg.Attributes.height (toString config.size.y)
+        , Svg.Attributes.width (toString config.size.x)
         , Svg.Attributes.class "elm-plot__inner"
         ]
-        views
+        (scaleDefs meta :: views)
+
+
+scaleDefs : Meta -> Svg.Svg msg
+scaleDefs meta =
+    Svg.defs []
+        [ Svg.clipPath [ Svg.Attributes.id (toClipPathId meta) ]
+            [ Svg.rect
+                [ Svg.Attributes.x (toString meta.scale.x.offset.lower)
+                , Svg.Attributes.y (toString meta.scale.y.offset.lower)
+                , Svg.Attributes.width (toString meta.scale.x.length)
+                , Svg.Attributes.height (toString meta.scale.y.length)
+                ]
+                []
+            ]
+        ]
 
 
 sizeStyle : Oriented Float -> Style
@@ -554,7 +579,7 @@ viewElement meta element ( svgViews, htmlViews ) =
 
 
 calculateMeta : Config -> List (Element msg) -> Meta
-calculateMeta ({ size, padding, margin, range, domain } as config) elements =
+calculateMeta ({ size, padding, margin, range, domain, id } as config) elements =
     let
         values =
             toValuesOriented elements
@@ -590,6 +615,7 @@ calculateMeta ({ size, padding, margin, range, domain } as config) elements =
         , oppositeAxisCrossings = getAxisCrossings axisConfigs.y xScale
         , toNearestX = toNearest values.x
         , getHintInfo = getHintInfo elements
+        , id = id
         }
 
 

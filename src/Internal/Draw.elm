@@ -14,6 +14,7 @@ module Internal.Draw
         , toPixels
         , toPixelsInt
         , addDisplacement
+        , toClipPathId
         )
 
 import Svg exposing (Svg, Attribute)
@@ -165,6 +166,11 @@ toSPathTypes result points =
 
 
 -- Utils
+
+
+toClipPathId : Meta -> String
+toClipPathId meta =
+    meta.id ++ "__scale-clip-path"
 
 
 toTranslate : ( Float, Float ) -> String

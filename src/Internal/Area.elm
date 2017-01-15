@@ -4,7 +4,7 @@ import Svg
 import Svg.Attributes
 import Internal.Types exposing (..)
 import Internal.Stuff exposing (getEdgesX)
-import Internal.Draw exposing (PathType(..), toPath, toLinePath, toStyle)
+import Internal.Draw exposing (PathType(..), toPath, toLinePath, toStyle, toClipPathId)
 
 
 type alias Config a =
@@ -40,14 +40,15 @@ view meta { style, smoothing, customAttrs } points =
                 |> toPath meta
 
         attrs =
-            (stdAttributes instructions style) ++ customAttrs
+            (stdAttributes meta instructions style) ++ customAttrs
     in
         Svg.path attrs []
 
 
-stdAttributes : String -> Style -> List (Svg.Attribute a)
-stdAttributes d style =
+stdAttributes : Meta -> String -> Style -> List (Svg.Attribute a)
+stdAttributes meta d style =
     [ Svg.Attributes.d (d ++ "Z")
     , Svg.Attributes.style (toStyle style)
     , Svg.Attributes.class "elm-plot__serie--area"
+    , Svg.Attributes.clipPath ("url(#" ++ toClipPathId meta ++ ")")
     ]

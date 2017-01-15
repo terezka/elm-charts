@@ -33,14 +33,15 @@ view meta { style, smoothing, customAttrs } points =
                     ""
 
         attrs =
-            (stdAttributes instructions style) ++ customAttrs
+            (stdAttributes meta instructions style) ++ customAttrs
     in
         Svg.path attrs []
 
 
-stdAttributes : String -> Style -> List (Svg.Attribute a)
-stdAttributes d style =
+stdAttributes : Meta -> String -> Style -> List (Svg.Attribute a)
+stdAttributes meta d style =
     [ Svg.Attributes.d d
     , Svg.Attributes.style (toStyle style)
     , Svg.Attributes.class "elm-plot__serie--line"
+    , Svg.Attributes.clipPath ("url(#" ++ toClipPathId meta ++ ")")
     ]
