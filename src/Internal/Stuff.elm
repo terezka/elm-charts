@@ -24,7 +24,7 @@ getRange lowest highest =
     if (highest - lowest) > 0 then
         highest - lowest
     else
-        Debug.crash rangeErrorMsg
+        1
 
 
 rangeErrorMsg : String

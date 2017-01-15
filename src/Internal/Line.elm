@@ -16,7 +16,7 @@ type alias Config a =
 
 defaultConfig : Config a
 defaultConfig =
-    { style = [ ( "fill", "transparent" ) ]
+    { style = [ ( "fill", "transparent" ), ( "stroke", "black" ) ]
     , smoothing = None
     , customAttrs = []
     }
