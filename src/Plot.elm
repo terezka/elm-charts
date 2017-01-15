@@ -40,6 +40,10 @@ module Plot
 
  This is still in beta! The api might and probably will change!
 
+ Just FYI, [`Svg msg`](http://package.elm-lang.org/packages/elm-lang/svg/2.0.0/Svg#Svg)
+ is an alias to `VirtualDom.Node msg` and so is [`Html msg`](http://package.elm-lang.org/packages/elm-lang/html/2.0.0/Html#Html).
+ This means that the types are basically interchangable and you can use the same methods on them.
+
 # Definitions
 @docs Attribute, Element, Point, Style
 
@@ -316,7 +320,7 @@ custom view =
 
 {-| This is the function processing your entire plot configuration.
  Pass your attributes and elements to this function and
- a svg plot will be returned!
+ a SVG plot will be returned!
 -}
 plot : List Attribute -> List (Element msg) -> Svg msg
 plot attrs =
