@@ -9198,15 +9198,9 @@ var _terezka$elm_plot$Internal_Stuff$foldBounds = F2(
 			return newBounds;
 		}
 	});
-var _terezka$elm_plot$Internal_Stuff$rangeErrorMsg = 'elm-plot: Looks like you are trying to plot something with a range/domain of zero! That will end badly. Maybe try one of these range restricting attributes on your plot: domainLowest, domainHighest, rangeLowest, rangeHighest. If you get stuck, you can just write me on the elm-lang slack (@terezka)!';
 var _terezka$elm_plot$Internal_Stuff$getRange = F2(
 	function (lowest, highest) {
-		return (_elm_lang$core$Native_Utils.cmp(highest - lowest, 0) > 0) ? (highest - lowest) : _elm_lang$core$Native_Utils.crash(
-			'Internal.Stuff',
-			{
-				start: {line: 27, column: 9},
-				end: {line: 27, column: 20}
-			})(_terezka$elm_plot$Internal_Stuff$rangeErrorMsg);
+		return (_elm_lang$core$Native_Utils.cmp(highest - lowest, 0) > 0) ? (highest - lowest) : 1;
 	});
 var _terezka$elm_plot$Internal_Stuff$getLowest = function (values) {
 	return A2(
@@ -9844,7 +9838,11 @@ var _terezka$elm_plot$Internal_Line$defaultConfig = {
 	style: {
 		ctor: '::',
 		_0: {ctor: '_Tuple2', _0: 'fill', _1: 'transparent'},
-		_1: {ctor: '[]'}
+		_1: {
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'stroke', _1: 'black'},
+			_1: {ctor: '[]'}
+		}
 	},
 	smoothing: _terezka$elm_plot$Internal_Types$None,
 	customAttrs: {ctor: '[]'}
@@ -13754,7 +13752,7 @@ var _terezka$elm_plot$PlotBars$plotExample = {
 	id: _terezka$elm_plot$PlotBars$id
 };
 
-var _terezka$elm_plot$PlotSticky$code = '\n    isOdd : Int -> Bool\n    isOdd n =\n        rem n 2 > 0\n\n\n    toTickAttrs : List (Tick.StyleAttribute msg)\n    toTickAttrs =\n        [ Tick.length 7\n        , Tick.stroke \"#e4e3e3\"\n        ]\n\n\n    toLabelAttrsY : Axis.LabelInfo -> List (Label.StyleAttribute msg)\n    toLabelAttrsY { index, value } =\n        if not <| isOdd index then\n            []\n        else\n            [ Label.displace ( -5, 0 ) ]\n\n\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            , padding ( 0, 20 )\n            , domainLowest (always -21)\n            ]\n            [ line\n                [ Line.stroke pinkStroke\n                , Line.strokeWidth 2\n                ]\n                data\n            , xAxis\n                [ Axis.tick\n                    [ Tick.view toTickAttrs ]\n                , Axis.tickValues [ 3, 6 ]\n                , Axis.label\n                    [ Label.format (\\{ value } -> toString value ++ \" ms\") ]\n                , Axis.cleanCrossings\n                ]\n            , yAxis\n                [ Axis.positionHighest\n                , Axis.cleanCrossings\n                , Axis.tick [ Tick.view toTickAttrs ]\n                , Axis.label\n                    [ Label.viewDynamic toLabelAttrsY\n                    , Label.format\n                        (\\{ index, value } ->\n                            if not <| isOdd index then\n                                \"\"\n                            else\n                                toString (value * 10) ++ \" x\"\n                        )\n                    ]\n                ]\n            , yAxis\n                [ Axis.positionLowest\n                , Axis.cleanCrossings\n                , Axis.anchorInside\n                , Axis.label\n                    [ Label.format\n                        (\\{ index, value } ->\n                            if isOdd index then\n                                \"\"\n                            else\n                                toString (value / 5) ++ \"k\"\n                        )\n                    ]\n                ]\n            ]\n    ';
+var _terezka$elm_plot$PlotSticky$code = '\n    isOdd : Int -> Bool\n    isOdd n =\n        rem n 2 > 0\n\n\n    toTickAttrs : List (Tick.StyleAttribute msg)\n    toTickAttrs =\n        [ Tick.length 7\n        , Tick.stroke \"#e4e3e3\"\n        ]\n\n\n    toLabelAttrsY : Axis.LabelInfo -> List (Label.StyleAttribute msg)\n    toLabelAttrsY { index, value } =\n        if not <| isOdd index then\n            []\n        else\n            [ Label.displace ( -5, 0 ) ]\n\n\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            , padding ( 0, 20 )\n            , domainLowest (always -21)\n            ]\n            [ line\n                [ Line.stroke pinkStroke\n                , Line.strokeWidth 2\n                ]\n                data\n            , xAxis\n                [ Axis.tick\n                    [ Tick.view toTickAttrs ]\n                , Axis.tickValues [ 3, 6 ]\n                , Axis.line [ Line.stroke axisColor ]\n                , Axis.label\n                    [ Label.format (\\{ value } -> toString value ++ \" ms\") ]\n                , Axis.cleanCrossings\n                ]\n            , yAxis\n                [ Axis.positionHighest\n                , Axis.line [ Line.stroke axisColor ]\n                , Axis.cleanCrossings\n                , Axis.tick [ Tick.view toTickAttrs ]\n                , Axis.label\n                    [ Label.viewDynamic toLabelAttrsY\n                    , Label.format\n                        (\\{ index, value } ->\n                            if not <| isOdd index then\n                                \"\"\n                            else\n                                toString (value * 10) ++ \" x\"\n                        )\n                    ]\n                ]\n            , yAxis\n                [ Axis.positionLowest\n                , Axis.cleanCrossings\n                , Axis.line [ Line.stroke axisColor ]\n                , Axis.anchorInside\n                , Axis.label\n                    [ Label.format\n                        (\\{ index, value } ->\n                            if isOdd index then\n                                \"\"\n                            else\n                                toString (value / 5) ++ \"k\"\n                        )\n                    ]\n                ]\n            ]\n    ';
 var _terezka$elm_plot$PlotSticky$toTickAttrs = {
 	ctor: '::',
 	_0: _terezka$elm_plot$Plot_Tick$length(7),
@@ -13884,23 +13882,32 @@ var _terezka$elm_plot$PlotSticky$view = A2(
 							}),
 						_1: {
 							ctor: '::',
-							_0: _terezka$elm_plot$Plot_Axis$label(
+							_0: _terezka$elm_plot$Plot_Axis$line(
 								{
 									ctor: '::',
-									_0: _terezka$elm_plot$Plot_Label$format(
-										function (_p2) {
-											var _p3 = _p2;
-											return A2(
-												_elm_lang$core$Basics_ops['++'],
-												_elm_lang$core$Basics$toString(_p3.value),
-												' ms');
-										}),
+									_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Common$axisColor),
 									_1: {ctor: '[]'}
 								}),
 							_1: {
 								ctor: '::',
-								_0: _terezka$elm_plot$Plot_Axis$cleanCrossings,
-								_1: {ctor: '[]'}
+								_0: _terezka$elm_plot$Plot_Axis$label(
+									{
+										ctor: '::',
+										_0: _terezka$elm_plot$Plot_Label$format(
+											function (_p2) {
+												var _p3 = _p2;
+												return A2(
+													_elm_lang$core$Basics_ops['++'],
+													_elm_lang$core$Basics$toString(_p3.value),
+													' ms');
+											}),
+										_1: {ctor: '[]'}
+									}),
+								_1: {
+									ctor: '::',
+									_0: _terezka$elm_plot$Plot_Axis$cleanCrossings,
+									_1: {ctor: '[]'}
+								}
 							}
 						}
 					}
@@ -13924,24 +13931,33 @@ var _terezka$elm_plot$PlotSticky$view = A2(
 									}),
 								_1: {
 									ctor: '::',
-									_0: _terezka$elm_plot$Plot_Axis$label(
+									_0: _terezka$elm_plot$Plot_Axis$line(
 										{
 											ctor: '::',
-											_0: _terezka$elm_plot$Plot_Label$viewDynamic(_terezka$elm_plot$PlotSticky$toLabelAttrsY),
-											_1: {
-												ctor: '::',
-												_0: _terezka$elm_plot$Plot_Label$format(
-													function (_p4) {
-														var _p5 = _p4;
-														return (!_terezka$elm_plot$PlotSticky$isOdd(_p5.index)) ? '' : A2(
-															_elm_lang$core$Basics_ops['++'],
-															_elm_lang$core$Basics$toString(_p5.value * 10),
-															' x');
-													}),
-												_1: {ctor: '[]'}
-											}
+											_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Common$axisColor),
+											_1: {ctor: '[]'}
 										}),
-									_1: {ctor: '[]'}
+									_1: {
+										ctor: '::',
+										_0: _terezka$elm_plot$Plot_Axis$label(
+											{
+												ctor: '::',
+												_0: _terezka$elm_plot$Plot_Label$viewDynamic(_terezka$elm_plot$PlotSticky$toLabelAttrsY),
+												_1: {
+													ctor: '::',
+													_0: _terezka$elm_plot$Plot_Label$format(
+														function (_p4) {
+															var _p5 = _p4;
+															return (!_terezka$elm_plot$PlotSticky$isOdd(_p5.index)) ? '' : A2(
+																_elm_lang$core$Basics_ops['++'],
+																_elm_lang$core$Basics$toString(_p5.value * 10),
+																' x');
+														}),
+													_1: {ctor: '[]'}
+												}
+											}),
+										_1: {ctor: '[]'}
+									}
 								}
 							}
 						}
@@ -13960,20 +13976,29 @@ var _terezka$elm_plot$PlotSticky$view = A2(
 									_0: _terezka$elm_plot$Plot_Axis$anchorInside,
 									_1: {
 										ctor: '::',
-										_0: _terezka$elm_plot$Plot_Axis$label(
+										_0: _terezka$elm_plot$Plot_Axis$line(
 											{
 												ctor: '::',
-												_0: _terezka$elm_plot$Plot_Label$format(
-													function (_p6) {
-														var _p7 = _p6;
-														return _terezka$elm_plot$PlotSticky$isOdd(_p7.index) ? '' : A2(
-															_elm_lang$core$Basics_ops['++'],
-															_elm_lang$core$Basics$toString(_p7.value / 5),
-															'k');
-													}),
+												_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Common$axisColor),
 												_1: {ctor: '[]'}
 											}),
-										_1: {ctor: '[]'}
+										_1: {
+											ctor: '::',
+											_0: _terezka$elm_plot$Plot_Axis$label(
+												{
+													ctor: '::',
+													_0: _terezka$elm_plot$Plot_Label$format(
+														function (_p6) {
+															var _p7 = _p6;
+															return _terezka$elm_plot$PlotSticky$isOdd(_p7.index) ? '' : A2(
+																_elm_lang$core$Basics_ops['++'],
+																_elm_lang$core$Basics$toString(_p7.value / 5),
+																'k');
+														}),
+													_1: {ctor: '[]'}
+												}),
+											_1: {ctor: '[]'}
+										}
 									}
 								}
 							}
