@@ -5,6 +5,7 @@ import Svg.Events
 import Svg.Attributes
 import Html exposing (h1, p, text, div, node)
 import Html.Attributes
+import Plot.Types exposing (Point)
 import Plot exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
@@ -55,12 +56,12 @@ update msg model =
 -- VIEW
 
 
-data1 : List ( Float, Float )
+data1 : List Point
 data1 =
     [ ( 0, 2 ), ( 1, 4 ), ( 2, 5 ), ( 3, 10 ) ]
 
 
-data2 : List ( Float, Float )
+data2 : List Point
 data2 =
     [ ( 0, 0 ), ( 1, 5 ), ( 2, 7 ), ( 3, 15 ) ]
 

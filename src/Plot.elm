@@ -1,7 +1,6 @@
 module Plot
     exposing
         ( Attribute
-        , Point
         , Style
         , plot
         , plotInteractive
@@ -45,7 +44,7 @@ module Plot
  This means that the types are basically interchangable and you can use the same methods on them.
 
 # Definitions
-@docs Attribute, Element, Point, Style
+@docs Attribute, Element, Style
 
 # Elements
 @docs plot, plotInteractive, xAxis, yAxis, hint, verticalGrid, horizontalGrid, custom
@@ -90,12 +89,6 @@ import Internal.Stuff exposing (..)
 import Internal.Types exposing (..)
 import Internal.Draw exposing (..)
 import Internal.Scale exposing (..)
-
-
-{-| Convenience type to represent coordinates.
--}
-type alias Point =
-    ( Float, Float )
 
 
 {-| Convenience type to represent style.

@@ -9,17 +9,17 @@ import Plot.Line as Line
 import Plot.Axis as Axis
 
 
-data1 : List ( Float, Float )
+data1 : List Point
 data1 =
     [ ( 0, 0 ), ( 1, 1 ), ( 2, 2 ), ( 3, 3 ), ( 4, 5 ), ( 5, 8 ), ( 6, 13 ), ( 7, 21 ), ( 8, 34 ), ( 9, 55 ), ( 10, 87 ) ]
 
 
-data2 : List ( Float, Float )
+data2 : List Point
 data2 =
     [ ( 0, 40 ), ( 1, 45 ), ( 2, 35 ), ( 3, 50 ), ( 4, 30 ), ( 5, 55 ), ( 6, 20 ), ( 7, 60 ), ( 8, 15 ), ( 9, 65 ), ( 10, 10 ) ]
 
 
-data3 : List ( Float, Float )
+data3 : List Point
 data3 =
     [ ( 0, 60 )
     , ( 1, 60 )
