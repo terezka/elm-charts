@@ -29,9 +29,7 @@ view meta { style, radius } points =
             List.map meta.toSvgCoords points
     in
         Svg.g
-            [ Svg.Attributes.style (toStyle style)
-            , Svg.Attributes.clipPath ("url(#" ++ toClipPathId meta ++ ")")
-            ]
+            [ Svg.Attributes.style (toStyle style) ]
             (List.map (toSvgCircle radius) svgPoints)
 
 

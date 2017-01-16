@@ -11452,18 +11452,7 @@ var _terezka$elm_plot$Internal_Scatter$view = F3(
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$style(
 					_terezka$elm_plot$Internal_Draw$toStyle(_p3.style)),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$clipPath(
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							'url(#',
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								_terezka$elm_plot$Internal_Draw$toClipPathId(meta),
-								')'))),
-					_1: {ctor: '[]'}
-				}
+				_1: {ctor: '[]'}
 			},
 			A2(
 				_elm_lang$core$List$map,
@@ -14326,7 +14315,7 @@ var _terezka$elm_plot$PlotHint$plotExample = {
 	view: A2(_terezka$elm_plot$Common$ViewInteractive, _terezka$elm_plot$PlotHint$id, _terezka$elm_plot$PlotHint$view)
 };
 
-var _terezka$elm_plot$PlotSmooth$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            ]\n            [ area\n                [ Area.stroke pinkStroke\n                , Area.fill pinkFill\n                , Area.strokeWidth 1\n                , Area.smoothingBezier\n                ]\n                data1\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tickDelta 1\n                ]\n            ]\n    ';
+var _terezka$elm_plot$PlotSmooth$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            , domainHighest (\\y -> y + 1)\n            , domainLowest (\\y -> y - 1)\n            ]\n            [ area\n                [ Area.stroke pinkStroke\n                , Area.fill pinkFill\n                , Area.strokeWidth 1\n                , Area.smoothingBezier\n                ]\n                data1\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tickDelta 1\n                ]\n            ]\n    ';
 var _terezka$elm_plot$PlotSmooth$data1 = {
 	ctor: '::',
 	_0: {ctor: '_Tuple2', _0: 0, _1: 10},
@@ -14335,23 +14324,27 @@ var _terezka$elm_plot$PlotSmooth$data1 = {
 		_0: {ctor: '_Tuple2', _0: 0.5, _1: 20},
 		_1: {
 			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: 1, _1: 5},
+			_0: {ctor: '_Tuple2', _0: 1, _1: -5},
 			_1: {
 				ctor: '::',
 				_0: {ctor: '_Tuple2', _0: 1.5, _1: 4},
 				_1: {
 					ctor: '::',
-					_0: {ctor: '_Tuple2', _0: 2, _1: 7},
+					_0: {ctor: '_Tuple2', _0: 2, _1: -7},
 					_1: {
 						ctor: '::',
 						_0: {ctor: '_Tuple2', _0: 2.5, _1: 5},
 						_1: {
 							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 3, _1: 10},
+							_0: {ctor: '_Tuple2', _0: 3, _1: 20},
 							_1: {
 								ctor: '::',
-								_0: {ctor: '_Tuple2', _0: 3.5, _1: 15},
-								_1: {ctor: '[]'}
+								_0: {ctor: '_Tuple2', _0: 3.5, _1: 7},
+								_1: {
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: 4, _1: 28},
+									_1: {ctor: '[]'}
+								}
 							}
 						}
 					}
@@ -14369,7 +14362,21 @@ var _terezka$elm_plot$PlotSmooth$view = A2(
 			ctor: '::',
 			_0: _terezka$elm_plot$Plot$margin(
 				{ctor: '_Tuple4', _0: 10, _1: 20, _2: 40, _3: 20}),
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: _terezka$elm_plot$Plot$domainHighest(
+					function (y) {
+						return y + 1;
+					}),
+				_1: {
+					ctor: '::',
+					_0: _terezka$elm_plot$Plot$domainLowest(
+						function (y) {
+							return y - 1;
+						}),
+					_1: {ctor: '[]'}
+				}
+			}
 		}
 	},
 	{

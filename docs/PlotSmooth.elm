@@ -29,7 +29,7 @@ id =
 
 data1 : List ( Float, Float )
 data1 =
-    [ ( 0, 10 ), ( 0.5, 20 ), ( 1, 5 ), ( 1.5, 4 ), ( 2, 7 ), ( 2.5, 5 ), ( 3, 10 ), ( 3.5, 15 ) ]
+    [ ( 0, 10 ), ( 0.5, 20 ), ( 1, -5 ), ( 1.5, 4 ), ( 2, -7 ), ( 2.5, 5 ), ( 3, 20 ), ( 3.5, 7 ), ( 4, 28 ) ]
 
 
 view : Svg.Svg a
@@ -37,6 +37,8 @@ view =
     plot
         [ size plotSize
         , margin ( 10, 20, 40, 20 )
+        , domainHighest (\y -> y + 1)
+        , domainLowest (\y -> y - 1)
         ]
         [ area
             [ Area.stroke pinkStroke
@@ -60,6 +62,8 @@ code =
         plot
             [ size plotSize
             , margin ( 10, 20, 40, 20 )
+            , domainHighest (\\y -> y + 1)
+            , domainLowest (\\y -> y - 1)
             ]
             [ area
                 [ Area.stroke pinkStroke
