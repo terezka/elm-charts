@@ -10,7 +10,7 @@ module Internal.Tick
         )
 
 import Plot.Types exposing (Point, Style)
-import Internal.Types exposing (Orientation(..), Scale, Meta, IndexedInfo, Value)
+import Internal.Types exposing (Orientation(..), Scale, Meta, IndexedInfo)
 import Internal.Draw as Draw exposing (..)
 import Svg
 import Svg.Attributes

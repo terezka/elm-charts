@@ -14,8 +14,8 @@ module Plot.Axis exposing (..)
 
 -}
 
-import Plot.Types exposing (Style)
-import Internal.Types exposing (Orientation(..), Anchor(..), Value)
+import Plot.Types exposing (Style, Value)
+import Internal.Types exposing (Orientation(..), Anchor(..))
 import Internal.Axis as Internal exposing (ValueConfig(..))
 import Internal.Label as LabelInternal
 import Internal.Tick as TickInternal

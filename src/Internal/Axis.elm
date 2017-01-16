@@ -11,8 +11,8 @@ module Internal.Axis
         , getDelta
         )
 
-import Plot.Types exposing (Point, Style)
-import Internal.Types exposing (Orientation(..), Scale, Meta, Anchor(..), Value, IndexedInfo)
+import Plot.Types exposing (..)
+import Internal.Types exposing (Orientation(..), Scale, Meta, Anchor(..), IndexedInfo)
 import Internal.Tick as Tick
 import Internal.Label as Label
 import Internal.Line as Line

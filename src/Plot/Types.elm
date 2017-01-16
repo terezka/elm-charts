@@ -3,15 +3,21 @@ module Plot.Types
         ( Point
         , Style
         , HintInfo
+        , Value
         )
 
 {-|
  Convenience types.
 
 # Types
-@docs Point, Style, HintInfo, HintInfo
+@docs Point, Style, HintInfo, Value
 
 -}
+
+
+{-| -}
+type alias Value =
+    Float
 
 
 {-| Convenience type to represent coordinates.

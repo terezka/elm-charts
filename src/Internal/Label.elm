@@ -11,8 +11,7 @@ module Internal.Label
         , defaultView
         )
 
-import Plot.Types exposing (Point, Style, HintInfo)
-import Internal.Types exposing (Orientation(..), Scale, Meta, Value, IndexedInfo)
+import Plot.Types exposing (..)
 import Internal.Draw as Draw exposing (..)
 import Svg
 import Svg.Attributes

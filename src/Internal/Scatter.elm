@@ -2,6 +2,7 @@ module Internal.Scatter exposing (..)
 
 import Svg
 import Svg.Attributes
+import Plot.Types exposing (..)
 import Internal.Types exposing (..)
 import Internal.Draw exposing (..)
 

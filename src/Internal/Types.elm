@@ -7,31 +7,12 @@ module Internal.Types
         , Oriented
         , Edges
         , MaxWidth(..)
-        , Value
         , EdgesAny
         , IndexedInfo
         , Smoothing(..)
-        , Style
-        , Point
-        , HintInfo
         )
 
-{-| Convenience type to represent coordinates.
--}
-
-
-type alias Point =
-    ( Float, Float )
-
-
-{-| Convenience type to represent style.
--}
-type alias Style =
-    List ( String, String )
-
-
-type alias Value =
-    Float
+import Plot.Types exposing (..)
 
 
 type alias IndexedInfo a =
@@ -97,10 +78,4 @@ type alias Scale =
     , highest : Float
     , length : Float
     , offset : Edges
-    }
-
-
-type alias HintInfo =
-    { xValue : Float
-    , yValues : List (Maybe (List Value))
     }
