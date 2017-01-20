@@ -493,9 +493,9 @@ viewPlot ({ size } as config) meta ( svgViews, htmlViews ) =
 
 
 plotAttributes : Config -> List (Html.Attribute msg)
-plotAttributes { size, id, style } =
+plotAttributes { id, style } =
     [ Html.Attributes.class "elm-plot"
-    , Html.Attributes.style <| sizeStyle size ++ style
+    , Html.Attributes.style style
     , Html.Attributes.id id
     ]
 
@@ -510,16 +510,15 @@ plotAttributesInteraction meta =
 viewSvg : Oriented Float -> List (Svg msg) -> Svg msg
 viewSvg { x, y } views =
     Svg.svg
-        [ Svg.Attributes.height (toString y)
-        , Svg.Attributes.width (toString x)
-        , Svg.Attributes.class "elm-plot__inner"
+        [ Svg.Attributes.class "elm-plot__inner"
+        , Svg.Attributes.viewBox
+            ("0 0 "
+                ++ (toString x)
+                ++ " "
+                ++ (toString y)
+            )
         ]
         views
-
-
-sizeStyle : Oriented Float -> Style
-sizeStyle { x, y } =
-    [ ( "height", toPixels y ), ( "width", toPixels x ) ]
 
 
 viewElements : Meta -> List (Element msg) -> ( List (Svg msg), List (Html msg) )
