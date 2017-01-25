@@ -9,7 +9,7 @@ module Plot.Line exposing (..)
             [ stroke "deeppink"
             , strokeWidth 2
             , opacity 0.5
-            , smoothing Cosmetic
+            , smoothingBezier
             , customAttrs
                 [ Svg.Events.onClick <| Custom MyClickMsg ]
             ]
