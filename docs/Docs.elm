@@ -199,10 +199,10 @@ viewFooter =
         [ class "view__footer" ]
         [ text "Made by "
         , a
-            [ href "https://twitter.com/terexka"
+            [ href "https://twitter.com/terezk_a"
             , style [ ( "color", "#84868a" ) ]
             ]
-            [ text "@terexka" ]
+            [ text "@terezk_a" ]
         ]
 
 
