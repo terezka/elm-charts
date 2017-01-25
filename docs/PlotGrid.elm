@@ -47,7 +47,7 @@ view =
         , horizontalGrid
             [ Grid.lines
                 [ Line.stroke axisColorLight ]
-            , Grid.values [ 4, 8, 12 ]
+            , Grid.values (FromList [ 4, 8, 12 ])
             ]
         , xAxis
             [ Axis.line [ Line.stroke axisColor ]

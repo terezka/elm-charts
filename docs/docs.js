@@ -10721,46 +10721,44 @@ var _terezka$elm_plot$Internal_Grid$viewLine = function (_p0) {
 			},
 			_p1.customAttrs));
 };
-var _terezka$elm_plot$Internal_Grid$getValues = F2(
-	function (tickValues, values) {
+var _terezka$elm_plot$Internal_Grid$getValues = F3(
+	function (meta, tickValues, values) {
 		var _p2 = values;
-		if (_p2.ctor === 'MirrorTicks') {
-			return tickValues;
-		} else {
-			return _p2._0;
+		switch (_p2.ctor) {
+			case 'FromDefault':
+				return tickValues;
+			case 'FromDelta':
+				return A2(_terezka$elm_plot$Internal_Axis$toValuesFromDelta, _p2._0, meta.scale.x);
+			case 'FromBounds':
+				return A2(_p2._0, meta.scale.x.lowest, meta.scale.x.highest);
+			default:
+				return _p2._0;
 		}
 	});
 var _terezka$elm_plot$Internal_Grid$viewLines = F2(
 	function (_p4, _p3) {
 		var _p5 = _p4;
+		var _p7 = _p5;
 		var _p6 = _p3;
 		return A2(
 			_elm_lang$core$List$map,
-			A2(_terezka$elm_plot$Internal_Grid$viewLine, _p6.linesConfig, _p5),
-			A2(_terezka$elm_plot$Internal_Grid$getValues, _p5.oppositeTicks, _p6.values));
+			A2(_terezka$elm_plot$Internal_Grid$viewLine, _p6.linesConfig, _p7),
+			A3(_terezka$elm_plot$Internal_Grid$getValues, _p7, _p5.oppositeTicks, _p6.values));
 	});
 var _terezka$elm_plot$Internal_Grid$view = F2(
-	function (meta, _p7) {
-		var _p8 = _p7;
+	function (meta, _p8) {
+		var _p9 = _p8;
 		return A2(
 			_elm_lang$svg$Svg$g,
 			{
 				ctor: '::',
-				_0: A3(_terezka$elm_plot$Internal_Draw$classAttributeOriented, 'grid', _p8.orientation, _p8.classes),
+				_0: A3(_terezka$elm_plot$Internal_Draw$classAttributeOriented, 'grid', _p9.orientation, _p9.classes),
 				_1: {ctor: '[]'}
 			},
-			A2(_terezka$elm_plot$Internal_Grid$viewLines, meta, _p8));
+			A2(_terezka$elm_plot$Internal_Grid$viewLines, meta, _p9));
 	});
-var _terezka$elm_plot$Internal_Grid$Config = F5(
-	function (a, b, c, d, e) {
-		return {values: a, linesConfig: b, classes: c, orientation: d, customAttrs: e};
-	});
-var _terezka$elm_plot$Internal_Grid$CustomValues = function (a) {
-	return {ctor: 'CustomValues', _0: a};
-};
-var _terezka$elm_plot$Internal_Grid$MirrorTicks = {ctor: 'MirrorTicks'};
 var _terezka$elm_plot$Internal_Grid$defaultConfigX = {
-	values: _terezka$elm_plot$Internal_Grid$MirrorTicks,
+	values: _terezka$elm_plot$Plot_Types$FromDefault,
 	linesConfig: _terezka$elm_plot$Internal_Line$defaultConfig,
 	classes: {ctor: '[]'},
 	orientation: _terezka$elm_plot$Internal_Types$X,
@@ -10769,6 +10767,10 @@ var _terezka$elm_plot$Internal_Grid$defaultConfigX = {
 var _terezka$elm_plot$Internal_Grid$defaultConfigY = _elm_lang$core$Native_Utils.update(
 	_terezka$elm_plot$Internal_Grid$defaultConfigX,
 	{orientation: _terezka$elm_plot$Internal_Types$Y});
+var _terezka$elm_plot$Internal_Grid$Config = F5(
+	function (a, b, c, d, e) {
+		return {values: a, linesConfig: b, classes: c, orientation: d, customAttrs: e};
+	});
 
 var _terezka$elm_plot$Plot_Grid$customAttrs = F2(
 	function (attrs, config) {
@@ -10801,9 +10803,7 @@ var _terezka$elm_plot$Plot_Grid$values = F2(
 	function (values, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
-			{
-				values: _terezka$elm_plot$Internal_Grid$CustomValues(values)
-			});
+			{values: values});
 	});
 
 var _terezka$elm_plot$Internal_Area$stdAttributes = F3(
@@ -13384,19 +13384,20 @@ var _terezka$elm_plot$PlotGrid$view = A2(
 					_1: {
 						ctor: '::',
 						_0: _terezka$elm_plot$Plot_Grid$values(
-							{
-								ctor: '::',
-								_0: 4,
-								_1: {
+							_terezka$elm_plot$Plot_Types$FromList(
+								{
 									ctor: '::',
-									_0: 8,
+									_0: 4,
 									_1: {
 										ctor: '::',
-										_0: 12,
-										_1: {ctor: '[]'}
+										_0: 8,
+										_1: {
+											ctor: '::',
+											_0: 12,
+											_1: {ctor: '[]'}
+										}
 									}
-								}
-							}),
+								})),
 						_1: {ctor: '[]'}
 					}
 				}),

@@ -8,6 +8,7 @@ module Internal.Axis
         , getAxisPosition
         , getValues
         , getDelta
+        , toValuesFromDelta
         )
 
 import Plot.Types exposing (Value, Point, ValueOption(..))

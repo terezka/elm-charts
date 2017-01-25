@@ -31,8 +31,8 @@ module Plot.Grid exposing (..)
 -}
 
 import Svg
-import Plot.Types exposing (Style)
-import Internal.Grid as Internal exposing (Config, Values(..), defaultConfigX)
+import Plot.Types exposing (Style, ValueOption)
+import Internal.Grid as Internal exposing (Config, defaultConfigX)
 import Internal.Line as LineInternal
 import Plot.Line as Line
 
@@ -46,13 +46,13 @@ type alias Attribute a =
 
     myGrid : Plot.Element msg
     myGrid =
-        verticalGrid [ Grid.values [ 2, 4, 6 ] ]
+        verticalGrid [ Grid.values (FromList [ 2, 4, 6 ]) ]
 
  If values are not specified with this attribute, the grid will mirror the ticks.
 -}
-values : List Float -> Attribute a
+values : ValueOption -> Attribute a
 values values config =
-    { config | values = CustomValues values }
+    { config | values = values }
 
 
 {-| Configure the view of the grid lines.

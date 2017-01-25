@@ -2,18 +2,15 @@ module Internal.Grid exposing (..)
 
 import Svg
 import Svg.Attributes
+import Plot.Types exposing (..)
 import Internal.Types exposing (..)
 import Internal.Draw as Draw exposing (..)
+import Internal.Axis as Axis
 import Internal.Line as Line
 
 
-type Values
-    = MirrorTicks
-    | CustomValues (List Float)
-
-
 type alias Config a =
-    { values : Values
+    { values : ValueOption
     , linesConfig : Line.Config a
     , classes : List String
     , orientation : Orientation
@@ -23,7 +20,7 @@ type alias Config a =
 
 defaultConfigX : Config a
 defaultConfigX =
-    { values = MirrorTicks
+    { values = FromDefault
     , linesConfig = Line.defaultConfig
     , classes = []
     , orientation = X
@@ -36,14 +33,20 @@ defaultConfigY =
     { defaultConfigX | orientation = Y }
 
 
-getValues : List Float -> Values -> List Float
-getValues tickValues values =
+getValues : Meta -> List Float -> ValueOption -> List Float
+getValues meta tickValues values =
     case values of
-        MirrorTicks ->
+        FromDefault ->
             tickValues
 
-        CustomValues customValues ->
-            customValues
+        FromDelta delta ->
+            Axis.toValuesFromDelta delta meta.scale.x
+
+        FromBounds toValues ->
+            toValues meta.scale.x.lowest meta.scale.x.highest
+
+        FromList values ->
+            values
 
 
 view : Meta -> Config a -> Svg.Svg a
@@ -55,7 +58,7 @@ view meta ({ values, classes, orientation } as config) =
 
 viewLines : Meta -> Config a -> List (Svg.Svg a)
 viewLines ({ oppositeTicks } as meta) { values, linesConfig } =
-    List.map (viewLine linesConfig meta) <| getValues oppositeTicks values
+    List.map (viewLine linesConfig meta) <| getValues meta oppositeTicks values
 
 
 viewLine : Line.Config a -> Meta -> Float -> Svg.Svg a
