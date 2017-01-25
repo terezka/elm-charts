@@ -10,7 +10,7 @@ import Internal.Draw exposing (PathType(..), toPath, toLinePath, toStyle, toClip
 
 type alias Config a =
     { style : Style
-    , smoothing : Smoothing
+    , smoothing : SmoothingOption
     , customAttrs : List (Svg.Attribute a)
     }
 

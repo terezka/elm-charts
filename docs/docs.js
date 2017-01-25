@@ -9060,6 +9060,8 @@ var _terezka$elm_plot$Plot_Types$FromDelta = function (a) {
 var _terezka$elm_plot$Plot_Types$FromList = function (a) {
 	return {ctor: 'FromList', _0: a};
 };
+var _terezka$elm_plot$Plot_Types$Bezier = {ctor: 'Bezier'};
+var _terezka$elm_plot$Plot_Types$None = {ctor: 'None'};
 
 var _terezka$elm_plot$Internal_Types$Edges = F2(
 	function (a, b) {
@@ -9102,8 +9104,6 @@ var _terezka$elm_plot$Internal_Types$Scale = F5(
 	});
 var _terezka$elm_plot$Internal_Types$Y = {ctor: 'Y'};
 var _terezka$elm_plot$Internal_Types$X = {ctor: 'X'};
-var _terezka$elm_plot$Internal_Types$Bezier = {ctor: 'Bezier'};
-var _terezka$elm_plot$Internal_Types$None = {ctor: 'None'};
 var _terezka$elm_plot$Internal_Types$Outer = {ctor: 'Outer'};
 var _terezka$elm_plot$Internal_Types$Inner = {ctor: 'Inner'};
 var _terezka$elm_plot$Internal_Types$Percentage = function (a) {
@@ -9891,7 +9891,7 @@ var _terezka$elm_plot$Internal_Line$defaultConfig = {
 			_1: {ctor: '[]'}
 		}
 	},
-	smoothing: _terezka$elm_plot$Internal_Types$None,
+	smoothing: _terezka$elm_plot$Plot_Types$None,
 	customAttrs: {ctor: '[]'}
 };
 var _terezka$elm_plot$Internal_Line$Config = F3(
@@ -10308,11 +10308,12 @@ var _terezka$elm_plot$Plot_Line$customAttrs = F2(
 			config,
 			{customAttrs: attrs});
 	});
-var _terezka$elm_plot$Plot_Line$smoothingBezier = function (config) {
-	return _elm_lang$core$Native_Utils.update(
-		config,
-		{smoothing: _terezka$elm_plot$Internal_Types$Bezier});
-};
+var _terezka$elm_plot$Plot_Line$smoothing = F2(
+	function (smoothing, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{smoothing: smoothing});
+	});
 var _terezka$elm_plot$Plot_Line$opacity = F2(
 	function (opacity, config) {
 		return _elm_lang$core$Native_Utils.update(
@@ -10879,7 +10880,7 @@ var _terezka$elm_plot$Internal_Area$view = F3(
 	});
 var _terezka$elm_plot$Internal_Area$defaultConfig = {
 	style: {ctor: '[]'},
-	smoothing: _terezka$elm_plot$Internal_Types$None,
+	smoothing: _terezka$elm_plot$Plot_Types$None,
 	customAttrs: {ctor: '[]'}
 };
 var _terezka$elm_plot$Internal_Area$Config = F3(
@@ -10893,11 +10894,12 @@ var _terezka$elm_plot$Plot_Area$customAttrs = F2(
 			config,
 			{customAttrs: attrs});
 	});
-var _terezka$elm_plot$Plot_Area$smoothingBezier = function (config) {
-	return _elm_lang$core$Native_Utils.update(
-		config,
-		{smoothing: _terezka$elm_plot$Internal_Types$Bezier});
-};
+var _terezka$elm_plot$Plot_Area$smoothing = F2(
+	function (smoothing, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{smoothing: smoothing});
+	});
 var _terezka$elm_plot$Plot_Area$opacity = F2(
 	function (opacity, config) {
 		return _elm_lang$core$Native_Utils.update(
@@ -12977,7 +12979,7 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 									_0: _terezka$elm_plot$Plot_Area$opacity(0.5),
 									_1: {
 										ctor: '::',
-										_0: _terezka$elm_plot$Plot_Area$smoothingBezier,
+										_0: _terezka$elm_plot$Plot_Area$smoothing(_terezka$elm_plot$Plot_Types$Bezier),
 										_1: {ctor: '[]'}
 									}
 								}
@@ -13007,7 +13009,7 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 									_0: _terezka$elm_plot$Plot_Area$fill(_terezka$elm_plot$Common$blueFill),
 									_1: {
 										ctor: '::',
-										_0: _terezka$elm_plot$Plot_Area$smoothingBezier,
+										_0: _terezka$elm_plot$Plot_Area$smoothing(_terezka$elm_plot$Plot_Types$Bezier),
 										_1: {ctor: '[]'}
 									}
 								}
@@ -13022,7 +13024,7 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 									_0: _terezka$elm_plot$Plot_Line$stroke(_terezka$elm_plot$Common$pinkStroke),
 									_1: {
 										ctor: '::',
-										_0: _terezka$elm_plot$Plot_Line$smoothingBezier,
+										_0: _terezka$elm_plot$Plot_Line$smoothing(_terezka$elm_plot$Plot_Types$Bezier),
 										_1: {
 											ctor: '::',
 											_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
@@ -14301,7 +14303,7 @@ var _terezka$elm_plot$PlotHint$plotExample = {
 	view: A2(_terezka$elm_plot$Common$ViewInteractive, _terezka$elm_plot$PlotHint$id, _terezka$elm_plot$PlotHint$view)
 };
 
-var _terezka$elm_plot$PlotSmooth$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            , domainHighest (\\y -> y + 1)\n            , domainLowest (\\y -> y - 1)\n            ]\n            [ area\n                [ Area.stroke pinkStroke\n                , Area.fill pinkFill\n                , Area.strokeWidth 1\n                , Area.smoothingBezier\n                ]\n                data1\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tickDelta 1\n                ]\n            ]\n    ';
+var _terezka$elm_plot$PlotSmooth$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 20 )\n            , domainHighest (\\y -> y + 1)\n            , domainLowest (\\y -> y - 1)\n            ]\n            [ area\n                [ Area.stroke pinkStroke\n                , Area.fill pinkFill\n                , Area.strokeWidth 1\n                , Area.smoothing Bezier\n                ]\n                data1\n            , xAxis\n                [ Axis.line [ Line.stroke axisColor ]\n                , Axis.tickDelta 1\n                ]\n            ]\n    ';
 var _terezka$elm_plot$PlotSmooth$data1 = {
 	ctor: '::',
 	_0: {ctor: '_Tuple2', _0: 0, _1: 10},
@@ -14380,7 +14382,7 @@ var _terezka$elm_plot$PlotSmooth$view = A2(
 						_0: _terezka$elm_plot$Plot_Area$strokeWidth(1),
 						_1: {
 							ctor: '::',
-							_0: _terezka$elm_plot$Plot_Area$smoothingBezier,
+							_0: _terezka$elm_plot$Plot_Area$smoothing(_terezka$elm_plot$Plot_Types$Bezier),
 							_1: {ctor: '[]'}
 						}
 					}

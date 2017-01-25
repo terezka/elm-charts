@@ -45,7 +45,7 @@ view =
             [ Area.stroke pinkStroke
             , Area.fill pinkFill
             , Area.strokeWidth 1
-            , Area.smoothingBezier
+            , Area.smoothing Bezier
             ]
             data1
         , xAxis
@@ -70,7 +70,7 @@ code =
                 [ Area.stroke pinkStroke
                 , Area.fill pinkFill
                 , Area.strokeWidth 1
-                , Area.smoothingBezier
+                , Area.smoothing Bezier
                 ]
                 data1
             , xAxis

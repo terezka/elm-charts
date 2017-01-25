@@ -21,7 +21,7 @@ module Plot.Area exposing (..)
 @docs Attribute
 
 # Styling
-@docs stroke, strokeWidth, opacity, fill, smoothingBezier
+@docs stroke, strokeWidth, opacity, fill, smoothing
 
 # Other
 @docs customAttrs
@@ -30,7 +30,7 @@ module Plot.Area exposing (..)
 
 import Svg
 import Internal.Area as Internal
-import Internal.Types exposing (Smoothing(..))
+import Plot.Types exposing (SmoothingOption(..))
 import Internal.Draw exposing (..)
 
 
@@ -69,9 +69,9 @@ opacity opacity config =
 
 {-| Smooth line with [Bézier curves] (https://en.wikipedia.org/wiki/B%C3%A9zier_curve).
 -}
-smoothingBezier : Attribute a
-smoothingBezier config =
-    { config | smoothing = Bezier }
+smoothing : SmoothingOption -> Attribute a
+smoothing smoothing config =
+    { config | smoothing = smoothing }
 
 
 {-| Add your own attributes. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)

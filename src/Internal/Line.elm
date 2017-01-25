@@ -9,7 +9,7 @@ import Internal.Draw exposing (..)
 
 type alias Config a =
     { style : Style
-    , smoothing : Smoothing
+    , smoothing : SmoothingOption
     , customAttrs : List (Svg.Attribute a)
     }
 

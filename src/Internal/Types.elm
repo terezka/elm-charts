@@ -9,7 +9,6 @@ module Internal.Types
         , MaxWidth(..)
         , EdgesAny
         , IndexedInfo
-        , Smoothing(..)
         )
 
 import Plot.Types exposing (..)
@@ -22,11 +21,6 @@ type alias IndexedInfo a =
 type Orientation
     = X
     | Y
-
-
-type Smoothing
-    = None
-    | Bezier
 
 
 type Anchor

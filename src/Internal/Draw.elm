@@ -19,8 +19,8 @@ module Internal.Draw
 
 import Svg exposing (Svg, Attribute)
 import Svg.Attributes
-import Plot.Types exposing (Point)
-import Internal.Types exposing (Meta, Orientation, Smoothing(..))
+import Plot.Types exposing (Point, SmoothingOption(..))
+import Internal.Types exposing (Meta, Orientation)
 import Internal.Stuff exposing (..)
 
 
@@ -138,7 +138,7 @@ pointToString meta point =
         (toString x) ++ "," ++ (toString y)
 
 
-toLinePath : Smoothing -> List Point -> List PathType
+toLinePath : SmoothingOption -> List Point -> List PathType
 toLinePath smoothing =
     case smoothing of
         None ->
