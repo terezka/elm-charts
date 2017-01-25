@@ -12173,26 +12173,6 @@ var _terezka$elm_plot$Plot$viewElements = F2(
 			},
 			elements);
 	});
-var _terezka$elm_plot$Plot$sizeStyle = function (_p24) {
-	var _p25 = _p24;
-	return {
-		ctor: '::',
-		_0: {
-			ctor: '_Tuple2',
-			_0: 'height',
-			_1: _terezka$elm_plot$Internal_Draw$toPixels(_p25.y)
-		},
-		_1: {
-			ctor: '::',
-			_0: {
-				ctor: '_Tuple2',
-				_0: 'width',
-				_1: _terezka$elm_plot$Internal_Draw$toPixels(_p25.x)
-			},
-			_1: {ctor: '[]'}
-		}
-	};
-};
 var _terezka$elm_plot$Plot$scaleDefs = function (meta) {
 	return A2(
 		_elm_lang$svg$Svg$defs,
@@ -12244,17 +12224,21 @@ var _terezka$elm_plot$Plot$viewSvg = F3(
 			_elm_lang$svg$Svg$svg,
 			{
 				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$height(
-					_elm_lang$core$Basics$toString(config.size.y)),
+				_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__inner'),
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$width(
-						_elm_lang$core$Basics$toString(config.size.x)),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__inner'),
-						_1: {ctor: '[]'}
-					}
+					_0: _elm_lang$svg$Svg_Attributes$viewBox(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							'0 0 ',
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								_elm_lang$core$Basics$toString(config.size.x),
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									' ',
+									_elm_lang$core$Basics$toString(config.size.y))))),
+					_1: {ctor: '[]'}
 				}
 			},
 			{
@@ -12263,36 +12247,32 @@ var _terezka$elm_plot$Plot$viewSvg = F3(
 				_1: views
 			});
 	});
-var _terezka$elm_plot$Plot$plotAttributes = function (_p26) {
-	var _p27 = _p26;
+var _terezka$elm_plot$Plot$plotAttributes = function (_p24) {
+	var _p25 = _p24;
 	return {
 		ctor: '::',
 		_0: _elm_lang$html$Html_Attributes$class('elm-plot'),
 		_1: {
 			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$id(_p27.id),
+			_0: _elm_lang$html$Html_Attributes$style(_p25.style),
 			_1: {
 				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$style(
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						_terezka$elm_plot$Plot$sizeStyle(_p27.size),
-						_p27.style)),
+				_0: _elm_lang$html$Html_Attributes$id(_p25.id),
 				_1: {ctor: '[]'}
 			}
 		}
 	};
 };
 var _terezka$elm_plot$Plot$viewPlot = F3(
-	function (config, meta, _p28) {
-		var _p29 = _p28;
+	function (config, meta, _p26) {
+		var _p27 = _p26;
 		return A2(
 			_elm_lang$html$Html$div,
 			_terezka$elm_plot$Plot$plotAttributes(config),
 			{
 				ctor: '::',
-				_0: A3(_terezka$elm_plot$Plot$viewSvg, meta, config, _p29._0),
-				_1: _p29._1
+				_0: A3(_terezka$elm_plot$Plot$viewSvg, meta, config, _p27._0),
+				_1: _p27._1
 			});
 	});
 var _terezka$elm_plot$Plot$parsePlot = F2(
@@ -12306,9 +12286,9 @@ var _terezka$elm_plot$Plot$parsePlot = F2(
 	});
 var _terezka$elm_plot$Plot$getPosition = A2(
 	_elm_lang$core$Json_Decode$map,
-	function (_p30) {
-		var _p31 = _p30;
-		return {ctor: '_Tuple2', _0: _p31.left, _1: _p31.top};
+	function (_p28) {
+		var _p29 = _p28;
+		return {ctor: '_Tuple2', _0: _p29.left, _1: _p29.top};
 	},
 	_debois$elm_dom$DOM$boundingClientRect);
 var _terezka$elm_plot$Plot$getPlotPosition = _elm_lang$core$Json_Decode$oneOf(
@@ -12318,7 +12298,7 @@ var _terezka$elm_plot$Plot$getPlotPosition = _elm_lang$core$Json_Decode$oneOf(
 		_1: {
 			ctor: '::',
 			_0: _elm_lang$core$Json_Decode$lazy(
-				function (_p32) {
+				function (_p30) {
 					return _terezka$elm_plot$Plot$getParentPosition;
 				}),
 			_1: {ctor: '[]'}
@@ -12326,76 +12306,76 @@ var _terezka$elm_plot$Plot$getPlotPosition = _elm_lang$core$Json_Decode$oneOf(
 	});
 var _terezka$elm_plot$Plot$getParentPosition = _debois$elm_dom$DOM$parentElement(_terezka$elm_plot$Plot$getPlotPosition);
 var _terezka$elm_plot$Plot$getRelativePosition = F3(
-	function (_p35, _p34, _p33) {
-		var _p36 = _p35;
-		var _p37 = _p34;
-		var _p38 = _p33;
-		var _p39 = _p36.fromSvgCoords(
-			{ctor: '_Tuple2', _0: _p37._0 - _p38._0, _1: _p37._1 - _p38._1});
-		var x = _p39._0;
-		var y = _p39._1;
+	function (_p33, _p32, _p31) {
+		var _p34 = _p33;
+		var _p35 = _p32;
+		var _p36 = _p31;
+		var _p37 = _p34.fromSvgCoords(
+			{ctor: '_Tuple2', _0: _p35._0 - _p36._0, _1: _p35._1 - _p36._1});
+		var x = _p37._0;
+		var y = _p37._1;
 		return {
 			ctor: '_Tuple2',
-			_0: _p36.toNearestX(x),
+			_0: _p34.toNearestX(x),
 			_1: y
 		};
 	});
 var _terezka$elm_plot$Plot$shouldPositionUpdate = F2(
-	function (_p41, _p40) {
-		var _p42 = _p41;
-		var _p43 = _p40;
-		var _p44 = _p42.position;
-		if (_p44.ctor === 'Nothing') {
+	function (_p39, _p38) {
+		var _p40 = _p39;
+		var _p41 = _p38;
+		var _p42 = _p40.position;
+		if (_p42.ctor === 'Nothing') {
 			return true;
 		} else {
-			return (!_elm_lang$core$Native_Utils.eq(_p44._0._1, _p43._1)) || (!_elm_lang$core$Native_Utils.eq(_p44._0._0, _p43._0));
+			return (!_elm_lang$core$Native_Utils.eq(_p42._0._1, _p41._1)) || (!_elm_lang$core$Native_Utils.eq(_p42._0._0, _p41._0));
 		}
 	});
-var _terezka$elm_plot$Plot$getHoveredValue = function (_p45) {
-	var _p46 = _p45;
-	return _p46._0.position;
+var _terezka$elm_plot$Plot$getHoveredValue = function (_p43) {
+	var _p44 = _p43;
+	return _p44._0.position;
 };
 var _terezka$elm_plot$Plot$rangeHighest = F2(
-	function (toHighest, _p47) {
+	function (toHighest, _p45) {
+		var _p46 = _p45;
+		return _elm_lang$core$Native_Utils.update(
+			_p46,
+			{
+				range: _elm_lang$core$Native_Utils.update(
+					_p46.range,
+					{upper: toHighest})
+			});
+	});
+var _terezka$elm_plot$Plot$rangeLowest = F2(
+	function (toLowest, _p47) {
 		var _p48 = _p47;
 		return _elm_lang$core$Native_Utils.update(
 			_p48,
 			{
 				range: _elm_lang$core$Native_Utils.update(
 					_p48.range,
-					{upper: toHighest})
-			});
-	});
-var _terezka$elm_plot$Plot$rangeLowest = F2(
-	function (toLowest, _p49) {
-		var _p50 = _p49;
-		return _elm_lang$core$Native_Utils.update(
-			_p50,
-			{
-				range: _elm_lang$core$Native_Utils.update(
-					_p50.range,
 					{lower: toLowest})
 			});
 	});
 var _terezka$elm_plot$Plot$domainHighest = F2(
-	function (toHighest, _p51) {
+	function (toHighest, _p49) {
+		var _p50 = _p49;
+		return _elm_lang$core$Native_Utils.update(
+			_p50,
+			{
+				domain: _elm_lang$core$Native_Utils.update(
+					_p50.domain,
+					{upper: toHighest})
+			});
+	});
+var _terezka$elm_plot$Plot$domainLowest = F2(
+	function (toLowest, _p51) {
 		var _p52 = _p51;
 		return _elm_lang$core$Native_Utils.update(
 			_p52,
 			{
 				domain: _elm_lang$core$Native_Utils.update(
 					_p52.domain,
-					{upper: toHighest})
-			});
-	});
-var _terezka$elm_plot$Plot$domainLowest = F2(
-	function (toLowest, _p53) {
-		var _p54 = _p53;
-		return _elm_lang$core$Native_Utils.update(
-			_p54,
-			{
-				domain: _elm_lang$core$Native_Utils.update(
-					_p54.domain,
 					{lower: toLowest})
 			});
 	});
@@ -12412,42 +12392,42 @@ var _terezka$elm_plot$Plot$classes = F2(
 			{classes: classes});
 	});
 var _terezka$elm_plot$Plot$margin = F2(
-	function (_p55, config) {
-		var _p56 = _p55;
+	function (_p53, config) {
+		var _p54 = _p53;
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{
 				margin: {
 					ctor: '_Tuple4',
-					_0: _elm_lang$core$Basics$toFloat(_p56._0),
-					_1: _elm_lang$core$Basics$toFloat(_p56._1),
-					_2: _elm_lang$core$Basics$toFloat(_p56._2),
-					_3: _elm_lang$core$Basics$toFloat(_p56._3)
+					_0: _elm_lang$core$Basics$toFloat(_p54._0),
+					_1: _elm_lang$core$Basics$toFloat(_p54._1),
+					_2: _elm_lang$core$Basics$toFloat(_p54._2),
+					_3: _elm_lang$core$Basics$toFloat(_p54._3)
 				}
 			});
 	});
 var _terezka$elm_plot$Plot$size = F2(
-	function (_p57, config) {
-		var _p58 = _p57;
+	function (_p55, config) {
+		var _p56 = _p55;
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{
 				size: A2(
 					_terezka$elm_plot$Internal_Types$Oriented,
-					_elm_lang$core$Basics$toFloat(_p58._0),
-					_elm_lang$core$Basics$toFloat(_p58._1))
+					_elm_lang$core$Basics$toFloat(_p56._0),
+					_elm_lang$core$Basics$toFloat(_p56._1))
 			});
 	});
 var _terezka$elm_plot$Plot$padding = F2(
-	function (_p59, config) {
-		var _p60 = _p59;
+	function (_p57, config) {
+		var _p58 = _p57;
 		return _elm_lang$core$Native_Utils.update(
 			config,
 			{
 				padding: {
 					ctor: '_Tuple2',
-					_0: _elm_lang$core$Basics$toFloat(_p60._0),
-					_1: _elm_lang$core$Basics$toFloat(_p60._1)
+					_0: _elm_lang$core$Basics$toFloat(_p58._0),
+					_1: _elm_lang$core$Basics$toFloat(_p58._1)
 				}
 			});
 	});
@@ -12658,18 +12638,18 @@ var _terezka$elm_plot$Plot$State = function (a) {
 var _terezka$elm_plot$Plot$initialState = _terezka$elm_plot$Plot$State(
 	{position: _elm_lang$core$Maybe$Nothing});
 var _terezka$elm_plot$Plot$update = F2(
-	function (msg, _p61) {
-		var _p62 = _p61;
-		var _p65 = _p62._0;
-		var _p63 = msg;
-		if (_p63.ctor === 'Hovering') {
-			var _p64 = _p63._0;
-			return A2(_terezka$elm_plot$Plot$shouldPositionUpdate, _p65, _p64) ? _terezka$elm_plot$Plot$State(
+	function (msg, _p59) {
+		var _p60 = _p59;
+		var _p63 = _p60._0;
+		var _p61 = msg;
+		if (_p61.ctor === 'Hovering') {
+			var _p62 = _p61._0;
+			return A2(_terezka$elm_plot$Plot$shouldPositionUpdate, _p63, _p62) ? _terezka$elm_plot$Plot$State(
 				_elm_lang$core$Native_Utils.update(
-					_p65,
+					_p63,
 					{
-						position: _elm_lang$core$Maybe$Just(_p64)
-					})) : _terezka$elm_plot$Plot$State(_p65);
+						position: _elm_lang$core$Maybe$Just(_p62)
+					})) : _terezka$elm_plot$Plot$State(_p63);
 		} else {
 			return _terezka$elm_plot$Plot$State(
 				{position: _elm_lang$core$Maybe$Nothing});
@@ -12692,13 +12672,13 @@ var _terezka$elm_plot$Plot$toMouseOverMsg = F4(
 			meta,
 			{ctor: '_Tuple2', _0: mouseX, _1: mouseY},
 			position);
-		var _p66 = _elm_lang$core$Tuple$first(relativePosition);
-		if (_p66.ctor === 'Just') {
+		var _p64 = _elm_lang$core$Tuple$first(relativePosition);
+		if (_p64.ctor === 'Just') {
 			return _terezka$elm_plot$Plot$Internal(
 				_terezka$elm_plot$Plot$Hovering(
 					{
 						ctor: '_Tuple2',
-						_0: _p66._0,
+						_0: _p64._0,
 						_1: _elm_lang$core$Tuple$second(relativePosition)
 					}));
 		} else {
@@ -12729,8 +12709,8 @@ var _terezka$elm_plot$Plot$plotAttributesInteraction = function (meta) {
 	};
 };
 var _terezka$elm_plot$Plot$viewPlotInteractive = F3(
-	function (config, meta, _p67) {
-		var _p68 = _p67;
+	function (config, meta, _p65) {
+		var _p66 = _p65;
 		return A2(
 			_elm_lang$html$Html$div,
 			A2(
@@ -12739,8 +12719,8 @@ var _terezka$elm_plot$Plot$viewPlotInteractive = F3(
 				_terezka$elm_plot$Plot$plotAttributesInteraction(meta)),
 			{
 				ctor: '::',
-				_0: A3(_terezka$elm_plot$Plot$viewSvg, meta, config, _p68._0),
-				_1: _p68._1
+				_0: A3(_terezka$elm_plot$Plot$viewSvg, meta, config, _p66._0),
+				_1: _p66._1
 			});
 	});
 var _terezka$elm_plot$Plot$parsePlotInteractive = F2(
