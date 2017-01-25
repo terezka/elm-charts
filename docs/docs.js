@@ -9054,6 +9054,9 @@ var _terezka$elm_plot$Plot_Types$FromDefault = {ctor: 'FromDefault'};
 var _terezka$elm_plot$Plot_Types$FromBounds = function (a) {
 	return {ctor: 'FromBounds', _0: a};
 };
+var _terezka$elm_plot$Plot_Types$FromDelta = function (a) {
+	return {ctor: 'FromDelta', _0: a};
+};
 var _terezka$elm_plot$Plot_Types$FromList = function (a) {
 	return {ctor: 'FromList', _0: a};
 };
@@ -9997,19 +10000,20 @@ var _terezka$elm_plot$Internal_Axis$toValuesFromCount = F2(
 			scale);
 	});
 var _terezka$elm_plot$Internal_Axis$toValuesAuto = _terezka$elm_plot$Internal_Axis$toValuesFromCount(10);
-var _terezka$elm_plot$Internal_Axis$getValues = function (config) {
-	var _p3 = config;
-	switch (_p3.ctor) {
-		case 'AutoValues':
-			return _terezka$elm_plot$Internal_Axis$toValuesAuto;
-		case 'FromDelta':
-			return _terezka$elm_plot$Internal_Axis$toValuesFromDelta(_p3._0);
-		case 'FromCount':
-			return _terezka$elm_plot$Internal_Axis$toValuesFromCount(_p3._0);
-		default:
-			return _elm_lang$core$Basics$always(_p3._0);
-	}
-};
+var _terezka$elm_plot$Internal_Axis$getValues = F2(
+	function (config, scale) {
+		var _p3 = config;
+		switch (_p3.ctor) {
+			case 'FromDefault':
+				return _terezka$elm_plot$Internal_Axis$toValuesAuto(scale);
+			case 'FromDelta':
+				return A2(_terezka$elm_plot$Internal_Axis$toValuesFromDelta, _p3._0, scale);
+			case 'FromBounds':
+				return A2(_p3._0, scale.lowest, scale.highest);
+			default:
+				return _p3._0;
+		}
+	});
 var _terezka$elm_plot$Internal_Axis$toLabelValues = F3(
 	function (meta, config, tickValues) {
 		var _p4 = config.labelValues;
@@ -10018,6 +10022,8 @@ var _terezka$elm_plot$Internal_Axis$toLabelValues = F3(
 				return _p4._0;
 			case 'FromBounds':
 				return A2(_p4._0, meta.scale.x.lowest, meta.scale.x.highest);
+			case 'FromDelta':
+				return A2(_terezka$elm_plot$Internal_Axis$toValuesFromDelta, _p4._0, meta.scale.x);
 			default:
 				return tickValues;
 		}
@@ -10272,21 +10278,9 @@ var _terezka$elm_plot$Internal_Axis$LabelInfo = F2(
 		return {value: a, index: b};
 	});
 var _terezka$elm_plot$Internal_Axis$AtZero = {ctor: 'AtZero'};
-var _terezka$elm_plot$Internal_Axis$Highest = {ctor: 'Highest'};
-var _terezka$elm_plot$Internal_Axis$Lowest = {ctor: 'Lowest'};
-var _terezka$elm_plot$Internal_Axis$FromCustom = function (a) {
-	return {ctor: 'FromCustom', _0: a};
-};
-var _terezka$elm_plot$Internal_Axis$FromCount = function (a) {
-	return {ctor: 'FromCount', _0: a};
-};
-var _terezka$elm_plot$Internal_Axis$FromDelta = function (a) {
-	return {ctor: 'FromDelta', _0: a};
-};
-var _terezka$elm_plot$Internal_Axis$AutoValues = {ctor: 'AutoValues'};
 var _terezka$elm_plot$Internal_Axis$defaultConfigX = {
 	tickConfig: _terezka$elm_plot$Internal_Tick$defaultConfig,
-	tickValues: _terezka$elm_plot$Internal_Axis$AutoValues,
+	tickValues: _terezka$elm_plot$Plot_Types$FromDefault,
 	labelConfig: _terezka$elm_plot$Internal_Label$toDefaultConfig(
 		function (_p35) {
 			return _elm_lang$core$Basics$toString(
@@ -10305,6 +10299,8 @@ var _terezka$elm_plot$Internal_Axis$defaultConfigX = {
 var _terezka$elm_plot$Internal_Axis$defaultConfigY = _elm_lang$core$Native_Utils.update(
 	_terezka$elm_plot$Internal_Axis$defaultConfigX,
 	{orientation: _terezka$elm_plot$Internal_Types$Y});
+var _terezka$elm_plot$Internal_Axis$Highest = {ctor: 'Highest'};
+var _terezka$elm_plot$Internal_Axis$Lowest = {ctor: 'Lowest'};
 
 var _terezka$elm_plot$Plot_Line$customAttrs = F2(
 	function (attrs, config) {
@@ -10619,21 +10615,11 @@ var _terezka$elm_plot$Plot_Label$displace = F2(
 			});
 	});
 
-var _terezka$elm_plot$Plot_Axis$tickDelta = F2(
-	function (delta, config) {
-		return _elm_lang$core$Native_Utils.update(
-			config,
-			{
-				tickValues: _terezka$elm_plot$Internal_Axis$FromDelta(delta)
-			});
-	});
 var _terezka$elm_plot$Plot_Axis$tickValues = F2(
 	function (values, config) {
 		return _elm_lang$core$Native_Utils.update(
 			config,
-			{
-				tickValues: _terezka$elm_plot$Internal_Axis$FromCustom(values)
-			});
+			{tickValues: values});
 	});
 var _terezka$elm_plot$Plot_Axis$labelValues = F2(
 	function (values, config) {
@@ -13084,7 +13070,8 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 															}),
 														_1: {
 															ctor: '::',
-															_0: _terezka$elm_plot$Plot_Axis$tickDelta(50),
+															_0: _terezka$elm_plot$Plot_Axis$tickValues(
+																_terezka$elm_plot$Plot_Types$FromDelta(50)),
 															_1: {
 																ctor: '::',
 																_0: _terezka$elm_plot$Plot_Axis$label(
@@ -13127,7 +13114,8 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 														}),
 													_1: {
 														ctor: '::',
-														_0: _terezka$elm_plot$Plot_Axis$tickDelta(2.5),
+														_0: _terezka$elm_plot$Plot_Axis$tickValues(
+															_terezka$elm_plot$Plot_Types$FromDelta(2.5)),
 														_1: {
 															ctor: '::',
 															_0: _terezka$elm_plot$Plot_Axis$tick(
@@ -13324,7 +13312,8 @@ var _terezka$elm_plot$PlotScatter$view = A2(
 						}),
 					_1: {
 						ctor: '::',
-						_0: _terezka$elm_plot$Plot_Axis$tickDelta(2),
+						_0: _terezka$elm_plot$Plot_Axis$tickValues(
+							_terezka$elm_plot$Plot_Types$FromDelta(2)),
 						_1: {ctor: '[]'}
 					}
 				}),
@@ -13422,7 +13411,8 @@ var _terezka$elm_plot$PlotGrid$view = A2(
 							}),
 						_1: {
 							ctor: '::',
-							_0: _terezka$elm_plot$Plot_Axis$tickDelta(0.5),
+							_0: _terezka$elm_plot$Plot_Axis$tickValues(
+								_terezka$elm_plot$Plot_Types$FromDelta(0.5)),
 							_1: {ctor: '[]'}
 						}
 					}),
@@ -13799,7 +13789,8 @@ var _terezka$elm_plot$PlotBars$view = A2(
 						}),
 					_1: {
 						ctor: '::',
-						_0: _terezka$elm_plot$Plot_Axis$tickDelta(1),
+						_0: _terezka$elm_plot$Plot_Axis$tickValues(
+							_terezka$elm_plot$Plot_Types$FromDelta(1)),
 						_1: {ctor: '[]'}
 					}
 				}),
@@ -13953,15 +13944,16 @@ var _terezka$elm_plot$PlotSticky$view = A2(
 					_1: {
 						ctor: '::',
 						_0: _terezka$elm_plot$Plot_Axis$tickValues(
-							{
-								ctor: '::',
-								_0: 3,
-								_1: {
+							_terezka$elm_plot$Plot_Types$FromList(
+								{
 									ctor: '::',
-									_0: 6,
-									_1: {ctor: '[]'}
-								}
-							}),
+									_0: 3,
+									_1: {
+										ctor: '::',
+										_0: 6,
+										_1: {ctor: '[]'}
+									}
+								})),
 						_1: {
 							ctor: '::',
 							_0: _terezka$elm_plot$Plot_Axis$line(
@@ -14241,7 +14233,8 @@ var _terezka$elm_plot$PlotHint$view = function (state) {
 							}),
 						_1: {
 							ctor: '::',
-							_0: _terezka$elm_plot$Plot_Axis$tickDelta(1),
+							_0: _terezka$elm_plot$Plot_Axis$tickValues(
+								_terezka$elm_plot$Plot_Types$FromDelta(1)),
 							_1: {ctor: '[]'}
 						}
 					}),
@@ -14407,7 +14400,8 @@ var _terezka$elm_plot$PlotSmooth$view = A2(
 						}),
 					_1: {
 						ctor: '::',
-						_0: _terezka$elm_plot$Plot_Axis$tickDelta(1),
+						_0: _terezka$elm_plot$Plot_Axis$tickValues(
+							_terezka$elm_plot$Plot_Types$FromDelta(1)),
 						_1: {ctor: '[]'}
 					}
 				}),

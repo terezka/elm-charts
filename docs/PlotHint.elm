@@ -2,6 +2,7 @@ module PlotHint exposing (plotExample)
 
 import Svg
 import Plot exposing (..)
+import Plot.Types exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
 import Plot.Bars as Bars
@@ -62,7 +63,7 @@ view state =
             )
         , xAxis
             [ Axis.line [ Line.stroke axisColor ]
-            , Axis.tickDelta 1
+            , Axis.tickValues (FromDelta 1)
             ]
         , hint
             [ Hint.lineStyle [ ( "background", "#b9b9b9" ) ] ]

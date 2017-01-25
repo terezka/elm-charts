@@ -96,7 +96,7 @@ view state =
             , Axis.positionLowest
             , Axis.line
                 [ Line.stroke "#b9b9b9" ]
-            , Axis.tickDelta 50
+            , Axis.tickValues (FromDelta 50)
             , Axis.label
                 [ Label.view labelStyle
                 , Label.format (\{ value } -> toString value ++ " °C")
@@ -106,7 +106,7 @@ view state =
             [ Axis.cleanCrossings
             , Axis.line
                 [ Line.stroke "#b9b9b9" ]
-            , Axis.tickDelta 2.5
+            , Axis.tickValues (FromDelta 2.5)
             , Axis.tick
                 [ Tick.viewDynamic toTickStyle ]
             , Axis.label

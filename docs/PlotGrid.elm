@@ -2,6 +2,7 @@ module PlotGrid exposing (plotExample)
 
 import Svg
 import Plot exposing (..)
+import Plot.Types exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
 import Plot.Grid as Grid
@@ -50,7 +51,7 @@ view =
             ]
         , xAxis
             [ Axis.line [ Line.stroke axisColor ]
-            , Axis.tickDelta 0.5
+            , Axis.tickValues (FromDelta 0.5)
             ]
         , line
             [ Line.stroke pinkStroke

@@ -2,7 +2,6 @@ module Internal.Axis
     exposing
         ( Config
         , PositionOption(..)
-        , ValueConfig(..)
         , defaultConfigX
         , defaultConfigY
         , view
@@ -11,7 +10,7 @@ module Internal.Axis
         , getDelta
         )
 
-import Plot.Types exposing (Value, Point, ValueOptions(..))
+import Plot.Types exposing (Value, Point, ValueOption(..))
 import Internal.Types exposing (Orientation(..), Scale, Meta, Anchor(..), IndexedInfo)
 import Internal.Tick as Tick
 import Internal.Label as Label
@@ -26,9 +25,9 @@ import Regex
 
 type alias Config msg =
     { tickConfig : Tick.Config LabelInfo msg
-    , tickValues : ValueConfig
+    , tickValues : ValueOption
     , labelConfig : Label.Config LabelInfo msg
-    , labelValues : ValueOptions
+    , labelValues : ValueOption
     , lineConfig : Line.Config msg
     , orientation : Orientation
     , anchor : Anchor
@@ -44,13 +43,6 @@ type PositionOption
     | AtZero
 
 
-type ValueConfig
-    = AutoValues
-    | FromDelta Float
-    | FromCount Int
-    | FromCustom (List Float)
-
-
 type alias LabelInfo =
     { value : Float
     , index : Int
@@ -60,7 +52,7 @@ type alias LabelInfo =
 defaultConfigX : Config msg
 defaultConfigX =
     { tickConfig = Tick.defaultConfig
-    , tickValues = AutoValues
+    , tickValues = FromDefault
     , labelConfig = Label.toDefaultConfig (.value >> toString)
     , labelValues = FromDefault
     , lineConfig = Line.defaultConfig
@@ -249,6 +241,9 @@ toLabelValues meta config tickValues =
         FromBounds toValues ->
             toValues meta.scale.x.lowest meta.scale.x.highest
 
+        FromDelta delta ->
+            toValuesFromDelta delta meta.scale.x
+
         FromDefault ->
             tickValues
 
@@ -257,20 +252,20 @@ toLabelValues meta config tickValues =
 -- Resolve values
 
 
-getValues : ValueConfig -> Scale -> List Value
-getValues config =
+getValues : ValueOption -> Scale -> List Value
+getValues config scale =
     case config of
-        AutoValues ->
-            toValuesAuto
+        FromDefault ->
+            toValuesAuto scale
 
         FromDelta delta ->
-            toValuesFromDelta delta
+            toValuesFromDelta delta scale
 
-        FromCount count ->
-            toValuesFromCount count
+        FromBounds toValues ->
+            toValues scale.lowest scale.highest
 
-        FromCustom values ->
-            always values
+        FromList values ->
+            values
 
 
 getFirstValue : Float -> Float -> Float

@@ -2,6 +2,7 @@ module PlotScatter exposing (plotExample)
 
 import Svg
 import Plot exposing (..)
+import Plot.Types exposing (..)
 import Plot.Scatter as Scatter
 import Plot.Axis as Axis
 import Plot.Line as Line
@@ -48,7 +49,7 @@ view =
         , xAxis
             [ Axis.line
                 [ Line.stroke axisColor ]
-            , Axis.tickDelta 2
+            , Axis.tickValues (FromDelta 2)
             ]
         ]
 

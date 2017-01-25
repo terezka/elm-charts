@@ -10,13 +10,13 @@ module Plot.Axis exposing (..)
 @docs classes, line, positionLowest, positionHighest, cleanCrossings, anchorInside
 
 ## Ticks and labels
-@docs LabelInfo, tick, tickValues, tickDelta, label, labelValues
+@docs LabelInfo, tick, tickValues, label, labelValues
 
 -}
 
-import Plot.Types exposing (Style, Value, ValueOptions)
+import Plot.Types exposing (Style, Value, ValueOption)
 import Internal.Types exposing (Orientation(..), Anchor(..))
-import Internal.Axis as Internal exposing (ValueConfig(..))
+import Internal.Axis as Internal
 import Internal.Label as LabelInternal
 import Internal.Tick as TickInternal
 import Internal.Line as LineInternal
@@ -165,7 +165,7 @@ label attributes config =
         Plot.yAxis
             [ Axis.labelValues [ 0, 5, 10, 11 ] ]
 -}
-labelValues : ValueOptions -> Attribute msg
+labelValues : ValueOption -> Attribute msg
 labelValues values config =
     { config | labelValues = values }
 
@@ -180,21 +180,6 @@ labelValues values config =
  **Note:** If you add another attribute altering the values like `tickDelta` _after_ this attribute,
  then this attribute will have no effect.
 -}
-tickValues : List Float -> Attribute msg
+tickValues : ValueOption -> Attribute msg
 tickValues values config =
-    { config | tickValues = FromCustom values }
-
-
-{-| Specify what values will be added a tick by specifying the space between each tick.
-
-    myXAxis : Plot.Element msg
-    myXAxis =
-        Plot.xAxis
-            [ Axis.tickDelta 4 ]
-
- **Note:** If you add another attribute altering the values like `tickValues` _after_ this attribute,
- then this attribute will have no effect.
--}
-tickDelta : Float -> Attribute msg
-tickDelta delta config =
-    { config | tickValues = FromDelta delta }
+    { config | tickValues = values }

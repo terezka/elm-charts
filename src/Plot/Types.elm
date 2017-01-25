@@ -4,14 +4,14 @@ module Plot.Types
         , Style
         , HintInfo
         , Value
-        , ValueOptions(..)
+        , ValueOption(..)
         )
 
 {-|
  Convenience types.
 
 # Types
-@docs Point, Style, HintInfo, Value, ValueOptions
+@docs Point, Style, HintInfo, Value, ValueOption
 
 -}
 
@@ -43,7 +43,8 @@ type alias HintInfo =
 
 {-| Value types
 -}
-type ValueOptions
+type ValueOption
     = FromList (List Value)
+    | FromDelta Float
     | FromBounds (Value -> Value -> List Value)
     | FromDefault

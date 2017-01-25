@@ -2,6 +2,7 @@ module PlotSticky exposing (plotExample)
 
 import Svg
 import Plot exposing (..)
+import Plot.Types exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
 import Plot.Tick as Tick
@@ -69,7 +70,7 @@ view =
         , xAxis
             [ Axis.tick
                 [ Tick.view toTickAttrs ]
-            , Axis.tickValues [ 3, 6 ]
+            , Axis.tickValues (FromList [ 3, 6 ])
             , Axis.line [ Line.stroke Common.axisColor ]
             , Axis.label
                 [ Label.format (\{ value } -> toString value ++ " ms") ]

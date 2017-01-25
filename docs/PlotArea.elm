@@ -3,6 +3,7 @@ module PlotArea exposing (plotExample)
 import Svg
 import Plot exposing (..)
 import Common exposing (..)
+import Plot.Types exposing (..)
 import Plot.Area as Area
 import Plot.Line as Line
 import Plot.Axis as Axis
@@ -57,7 +58,7 @@ view =
             data2
         , xAxis
             [ Axis.line [ Line.stroke axisColor ]
-            , Axis.tickDelta 10
+            , Axis.tickValues (FromDelta 10)
             ]
         ]
 

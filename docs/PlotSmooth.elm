@@ -2,6 +2,7 @@ module PlotSmooth exposing (plotExample)
 
 import Svg
 import Plot exposing (..)
+import Plot.Types exposing (..)
 import Plot.Line as Line
 import Plot.Area as Area
 import Plot.Axis as Axis
@@ -49,7 +50,7 @@ view =
             data1
         , xAxis
             [ Axis.line [ Line.stroke axisColor ]
-            , Axis.tickDelta 1
+            , Axis.tickValues (FromDelta 1)
             ]
         ]
 
