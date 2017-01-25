@@ -59,7 +59,7 @@ opacity opacity config =
     { config | style = ( "opacity", toString opacity ) :: config.style }
 
 
-{-| Smooth line with [Bézier curves] (https://en.wikipedia.org/wiki/B%C3%A9zier_curve).
+{-| Smooth line with [Bézier curves](https://en.wikipedia.org/wiki/B%C3%A9zier_curve).
 -}
 smoothingBezier : Attribute a
 smoothingBezier config =

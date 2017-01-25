@@ -14,7 +14,7 @@ module Plot.Axis exposing (..)
 
 -}
 
-import Plot.Types exposing (Style, Value)
+import Plot.Types exposing (Style, Value, ValueOptions)
 import Internal.Types exposing (Orientation(..), Anchor(..))
 import Internal.Axis as Internal exposing (ValueConfig(..))
 import Internal.Label as LabelInternal
@@ -165,9 +165,9 @@ label attributes config =
         Plot.yAxis
             [ Axis.labelValues [ 0, 5, 10, 11 ] ]
 -}
-labelValues : List Value -> Attribute msg
+labelValues : ValueOptions -> Attribute msg
 labelValues values config =
-    { config | labelValues = Just values }
+    { config | labelValues = values }
 
 
 {-| Specify at what values will be added a tick.

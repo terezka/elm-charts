@@ -2,6 +2,7 @@ module PlotComposed exposing (view, code, id)
 
 import Svg
 import Plot exposing (..)
+import Plot.Types exposing (..)
 import Plot.Area as Area
 import Plot.Line as Line
 import Plot.Grid as Grid

@@ -11,7 +11,7 @@ module Internal.Axis
         , getDelta
         )
 
-import Plot.Types exposing (..)
+import Plot.Types exposing (Value, Point, ValueOptions(..))
 import Internal.Types exposing (Orientation(..), Scale, Meta, Anchor(..), IndexedInfo)
 import Internal.Tick as Tick
 import Internal.Label as Label
@@ -28,7 +28,7 @@ type alias Config msg =
     { tickConfig : Tick.Config LabelInfo msg
     , tickValues : ValueConfig
     , labelConfig : Label.Config LabelInfo msg
-    , labelValues : Maybe (List Value)
+    , labelValues : ValueOptions
     , lineConfig : Line.Config msg
     , orientation : Orientation
     , anchor : Anchor
@@ -62,7 +62,7 @@ defaultConfigX =
     { tickConfig = Tick.defaultConfig
     , tickValues = AutoValues
     , labelConfig = Label.toDefaultConfig (.value >> toString)
-    , labelValues = Nothing
+    , labelValues = FromDefault
     , lineConfig = Line.defaultConfig
     , orientation = X
     , cleanCrossings = False
@@ -84,7 +84,7 @@ view ({ scale, toSvgCoords, oppositeAxisCrossings } as meta) ({ lineConfig, tick
             toTickValues meta config
 
         labelValues =
-            toLabelValues config tickValues
+            toLabelValues meta config tickValues
 
         axisPosition =
             getAxisPosition scale.y position
@@ -240,9 +240,17 @@ toTickValues meta config =
         |> filterValues meta config
 
 
-toLabelValues : Config msg -> List Value -> List Value
-toLabelValues config tickValues =
-    Maybe.withDefault tickValues config.labelValues
+toLabelValues : Meta -> Config msg -> List Value -> List Value
+toLabelValues meta config tickValues =
+    case config.labelValues of
+        FromList values ->
+            values
+
+        FromBounds toValues ->
+            toValues meta.scale.x.lowest meta.scale.x.highest
+
+        FromDefault ->
+            tickValues
 
 
 
