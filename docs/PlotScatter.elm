@@ -73,7 +73,7 @@ code =
             , xAxis
                 [ Axis.line
                     [ Line.stroke axisColor ]
-                , Axis.tickDelta 2
+                , Axis.tickValues (FromDelta 2)
                 ]
             ]
     """

@@ -189,28 +189,31 @@ code =
                 [ Area.stroke skinStroke
                 , Area.fill skinFill
                 , Area.opacity 0.5
+                , Area.smoothing Bezier
                 ]
                 data1
             , area
                 [ Area.stroke blueStroke
                 , Area.fill blueFill
+                , Area.smoothing Bezier
                 ]
                 data1
             , line
                 [ Line.stroke pinkStroke
+                , Line.smoothing Bezier
                 , Line.strokeWidth 2
                 ]
                 data2
             , scatter
                 []
-                data3
+                dataScat
             , yAxis
                 [ Axis.anchorInside
                 , Axis.cleanCrossings
                 , Axis.positionLowest
                 , Axis.line
                     [ Line.stroke "#b9b9b9" ]
-                , Axis.tickDelta 50
+                , Axis.tickValues (FromDelta 50)
                 , Axis.label
                     [ Label.view labelStyle
                     , Label.format (\\{ value } -> toString value ++ " °C")
@@ -220,7 +223,7 @@ code =
                 [ Axis.cleanCrossings
                 , Axis.line
                     [ Line.stroke "#b9b9b9" ]
-                , Axis.tickDelta 2.5
+                , Axis.tickValues (FromDelta 2.5)
                 , Axis.tick
                     [ Tick.viewDynamic toTickStyle ]
                 , Axis.label

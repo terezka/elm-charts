@@ -74,17 +74,19 @@ code =
             ]
             [ area
                 [ Area.stroke skinStroke
+                , Area.smoothing Bezier
                 , Area.fill skinFill
                 ]
                 data1
             , area
                 [ Area.stroke blueStroke
+                , Area.smoothing Bezier
                 , Area.fill blueFill
                 ]
                 data2
             , xAxis
                 [ Axis.line [ Line.stroke axisColor ]
-                , Axis.tickDelta 10
+                , Axis.tickValues (FromDelta 10)
                 ]
             ]
     """

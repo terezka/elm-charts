@@ -149,17 +149,17 @@ code =
             , xAxis
                 [ Axis.tick
                     [ Tick.view toTickAttrs ]
-                , Axis.tickValues [ 3, 6 ]
-                , Axis.line [ Line.stroke axisColor ]
+                , Axis.tickValues (FromList [ 3, 6 ])
+                , Axis.line [ Line.stroke Common.axisColor ]
                 , Axis.label
                     [ Label.format (\\{ value } -> toString value ++ " ms") ]
                 , Axis.cleanCrossings
                 ]
             , yAxis
                 [ Axis.positionHighest
-                , Axis.line [ Line.stroke axisColor ]
                 , Axis.cleanCrossings
                 , Axis.tick [ Tick.view toTickAttrs ]
+                , Axis.line [ Line.stroke Common.axisColor ]
                 , Axis.label
                     [ Label.viewDynamic toLabelAttrsY
                     , Label.format
@@ -174,8 +174,8 @@ code =
             , yAxis
                 [ Axis.positionLowest
                 , Axis.cleanCrossings
-                , Axis.line [ Line.stroke axisColor ]
                 , Axis.anchorInside
+                , Axis.line [ Line.stroke Common.axisColor ]
                 , Axis.label
                     [ Label.format
                         (\\{ index, value } ->

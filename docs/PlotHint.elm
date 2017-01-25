@@ -98,7 +98,7 @@ code =
                 )
             , xAxis
                 [ Axis.line [ Line.stroke axisColor ]
-                , Axis.tickDelta 1
+                , Axis.tickValues (FromDelta 1)
                 ]
             , hint
                 [ Hint.lineStyle [ ( "background", "#b9b9b9" ) ] ]

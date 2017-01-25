@@ -102,15 +102,15 @@ code =
                     { yValues = .values
                     , xValue = Nothing
                     }
-                    [ { values = [ 1, 3, 2 ] }
-                    , { values = [ 2, 1, 4 ] }
-                    , { values = [ 4, 2, 1 ] }
-                    , { values = [ 4, 5, 2 ] }
+                    [ { values = [ 40, 30, 20 ] }
+                    , { values = [ 20, 30, 40 ] }
+                    , { values = [ 40, 20, 10 ] }
+                    , { values = [ 40, 50, 20 ] }
                     ]
                 )
             , xAxis
                 [ Axis.line [ Line.stroke Common.axisColor ]
-                , Axis.tickDelta 1
+                , Axis.tickValues (FromDelta 1)
                 ]
             ]
     """

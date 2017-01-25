@@ -81,11 +81,11 @@ code =
                 ]
             , xAxis
                 [ Axis.line [ Line.stroke axisColor ]
-                , Axis.tickDelta 0.5
+                , Axis.tickValues (FromDelta 0.5)
                 ]
             , line
-                [ Line.stroke blueStroke
-                , Line.strokeWidth 2
+                [ Line.stroke pinkStroke
+                , Line.strokeWidth 3
                 ]
                 data
             ]
