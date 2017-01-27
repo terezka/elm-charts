@@ -10529,6 +10529,22 @@ var _terezka$elm_plot$Plot_Label$customAttrs = F2(
 			config,
 			{customAttrs: attrs});
 	});
+var _terezka$elm_plot$Plot_Label$fontWeight = F2(
+	function (fontWeight, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{
+				style: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'font-weight',
+						_1: _elm_lang$core$Basics$toString(fontWeight)
+					},
+					_1: config.style
+				}
+			});
+	});
 var _terezka$elm_plot$Plot_Label$fontSize = F2(
 	function (fontSize, config) {
 		return _elm_lang$core$Native_Utils.update(
@@ -10721,41 +10737,38 @@ var _terezka$elm_plot$Internal_Grid$viewLine = function (_p0) {
 			},
 			_p1.customAttrs));
 };
-var _terezka$elm_plot$Internal_Grid$getValues = F3(
-	function (meta, tickValues, values) {
-		var _p2 = values;
+var _terezka$elm_plot$Internal_Grid$getValues = F2(
+	function (meta, config) {
+		var _p2 = config.values;
 		switch (_p2.ctor) {
 			case 'FromDefault':
-				return tickValues;
+				return meta.oppositeTicks;
 			case 'FromDelta':
-				return A2(_terezka$elm_plot$Internal_Axis$toValuesFromDelta, _p2._0, meta.scale.x);
+				return A2(_terezka$elm_plot$Internal_Axis$toValuesFromDelta, _p2._0, meta.scale.y);
 			case 'FromBounds':
-				return A2(_p2._0, meta.scale.x.lowest, meta.scale.x.highest);
+				return A2(_p2._0, meta.scale.y.lowest, meta.scale.y.highest);
 			default:
 				return _p2._0;
 		}
 	});
 var _terezka$elm_plot$Internal_Grid$viewLines = F2(
-	function (_p4, _p3) {
-		var _p5 = _p4;
-		var _p7 = _p5;
-		var _p6 = _p3;
+	function (meta, config) {
 		return A2(
 			_elm_lang$core$List$map,
-			A2(_terezka$elm_plot$Internal_Grid$viewLine, _p6.linesConfig, _p7),
-			A3(_terezka$elm_plot$Internal_Grid$getValues, _p7, _p5.oppositeTicks, _p6.values));
+			A2(_terezka$elm_plot$Internal_Grid$viewLine, config.linesConfig, meta),
+			A2(_terezka$elm_plot$Internal_Grid$getValues, meta, config));
 	});
 var _terezka$elm_plot$Internal_Grid$view = F2(
-	function (meta, _p8) {
-		var _p9 = _p8;
+	function (meta, _p3) {
+		var _p4 = _p3;
 		return A2(
 			_elm_lang$svg$Svg$g,
 			{
 				ctor: '::',
-				_0: A3(_terezka$elm_plot$Internal_Draw$classAttributeOriented, 'grid', _p9.orientation, _p9.classes),
+				_0: A3(_terezka$elm_plot$Internal_Draw$classAttributeOriented, 'grid', _p4.orientation, _p4.classes),
 				_1: {ctor: '[]'}
 			},
-			A2(_terezka$elm_plot$Internal_Grid$viewLines, meta, _p9));
+			A2(_terezka$elm_plot$Internal_Grid$viewLines, meta, _p4));
 	});
 var _terezka$elm_plot$Internal_Grid$defaultConfigX = {
 	values: _terezka$elm_plot$Plot_Types$FromDefault,

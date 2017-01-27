@@ -33,17 +33,17 @@ defaultConfigY =
     { defaultConfigX | orientation = Y }
 
 
-getValues : Meta -> List Float -> ValueOption -> List Float
-getValues meta tickValues values =
-    case values of
+getValues : Meta -> Config msg -> List Float
+getValues meta config =
+    case config.values of
         FromDefault ->
-            tickValues
+            meta.oppositeTicks
 
         FromDelta delta ->
-            Axis.toValuesFromDelta delta meta.scale.x
+            Axis.toValuesFromDelta delta meta.scale.y
 
         FromBounds toValues ->
-            toValues meta.scale.x.lowest meta.scale.x.highest
+            toValues meta.scale.y.lowest meta.scale.y.highest
 
         FromList values ->
             values
@@ -57,8 +57,8 @@ view meta ({ values, classes, orientation } as config) =
 
 
 viewLines : Meta -> Config a -> List (Svg.Svg a)
-viewLines ({ oppositeTicks } as meta) { values, linesConfig } =
-    List.map (viewLine linesConfig meta) <| getValues meta oppositeTicks values
+viewLines meta config =
+    List.map (viewLine config.linesConfig meta) <| getValues meta config
 
 
 viewLine : Line.Config a -> Meta -> Float -> Svg.Svg a

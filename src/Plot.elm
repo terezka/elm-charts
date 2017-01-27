@@ -17,6 +17,7 @@ module Plot
         , margin
         , padding
         , size
+        , id
         , style
         , domainLowest
         , domainHighest
@@ -51,7 +52,7 @@ module Plot
 @docs scatter, line, area, bars
 
 # Styling and sizes
-@docs classes, margin, padding, size, style, domainLowest, domainHighest, rangeLowest, rangeHighest
+@docs id, classes, margin, padding, size, style, domainLowest, domainHighest, rangeLowest, rangeHighest
 
 # State
 For an example of the update flow see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm).

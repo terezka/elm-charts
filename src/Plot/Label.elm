@@ -10,6 +10,7 @@ module Plot.Label
         , opacity
         , fill
         , fontSize
+        , fontWeight
         , classes
         , customAttrs
         , displace
@@ -34,7 +35,7 @@ module Plot.Label
 ## Style attributes
 If these attributes do not fulfill your needs, try out the viewCustom! If you have
 a suspicion that I have missed a very common configuration, then please let me know and I'll add it.
-@docs StyleAttribute, classes, displace, stroke, strokeWidth, opacity, fill, fontSize, customAttrs
+@docs StyleAttribute, classes, displace, stroke, strokeWidth, opacity, fill, fontSize, fontWeight, customAttrs
 
 # Value formatting
 @docs format, formatFromList
@@ -121,6 +122,13 @@ opacity opacity config =
 fontSize : Int -> StyleAttribute msg
 fontSize fontSize config =
     { config | style = ( "font-size", toPixelsInt fontSize ) :: config.style }
+
+
+{-| Set the font width.
+-}
+fontWeight : Int -> StyleAttribute msg
+fontWeight fontWeight config =
+    { config | style = ( "font-weight", toString fontWeight ) :: config.style }
 
 
 {-| Add your own attributes. For events, see [this example](https://github.com/terezka/elm-plot/blob/master/examples/Interactive.elm)
