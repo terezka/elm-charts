@@ -87,12 +87,11 @@ type alias Scale =
     }
 
 
-type alias Meta a msg =
+type alias Meta =
     { id : String
     , orientation : Orientation
     , axisPosition : Float
     , scale : Axised Scale
-    , elements : List (Element a msg)
     }
 
 
@@ -102,12 +101,12 @@ type Orientation
 
 
 {-| -}
-type Element a msg
-    = Axis (Meta a msg -> Value) (Meta a msg -> Meta a msg) (List (Element a msg))
+type Element msg
+    = Axis (Meta -> Value) (Meta -> Meta) (List (Element msg))
     | SerieElement (Axised Reach) (Serie msg)
-    | Line (List (Attribute msg)) (Meta a msg -> List Point)
-    | Position (Meta a msg -> Point) (List (Svg msg))
-    | Map (List (Attribute msg)) (a -> Element a msg) (Meta a msg -> List a)
+    | Line (List (Attribute msg)) (Meta -> List Point)
+    | Position (Meta -> Point) (List (Svg msg))
+    | List (List (Attribute msg)) (Meta -> List (Element msg))
     | SVGView (Svg msg)
 
 
@@ -121,94 +120,94 @@ type Serie msg
 
 
 {-| -}
-plot : List (MetaAttribute a msg) -> List (Element a msg) -> Html msg
+plot : List MetaAttribute -> List (Element msg) -> Html msg
 plot attributes elements =
     findPlotReach elements
         |> toInitialPlot elements
         |> applyAttributes attributes
-        |> viewPlot
+        |> viewPlot elements
 
 
 {-| -}
-positionBy : (Meta a msg -> Point) -> List (Svg msg) -> Element a msg
+positionBy : (Meta -> Point) -> List (Svg msg) -> Element msg
 positionBy =
     Position
 
 
 {-| -}
-positionAt : Point -> List (Svg msg) -> Element a msg
+positionAt : Point -> List (Svg msg) -> Element msg
 positionAt point =
     Position (always point)
 
 
 {-| -}
-xAxis : List (Element a msg) -> Element a msg
+xAxis : List (Element msg) -> Element msg
 xAxis =
     Axis (fromOppositeReach (\l h -> clamp 0 l h)) identity
 
 
 {-| -}
-xAxisAt : (Meta a msg -> Value) -> List (Element a msg) -> Element a msg
+xAxisAt : (Meta -> Value) -> List (Element msg) -> Element msg
 xAxisAt toPosition =
     Axis toPosition identity
 
 
 {-| -}
-yAxis : List (Element a msg) -> Element a msg
+yAxis : List (Element msg) -> Element msg
 yAxis =
     Axis (fromReach (\l h -> clamp 0 l h)) flipToY
 
 
 {-| -}
-yAxisAt : (Meta a msg -> Value) -> List (Element a msg) -> Element a msg
+yAxisAt : (Meta -> Value) -> List (Element msg) -> Element msg
 yAxisAt toPosition =
     Axis toPosition flipToY
 
 
 {-| -}
-axisLine : List (Attribute msg) -> Element a msg
+axisLine : List (Attribute msg) -> Element msg
 axisLine attributes =
     Line attributes (fromAxis (\v l h -> [ ( l, v ), ( h, v ) ]))
 
 
 {-| -}
-fullLengthline : List (Attribute msg) -> Value -> Element a msg
+fullLengthline : List (Attribute msg) -> Value -> Element msg
 fullLengthline attributes value =
     Line attributes (fromReach (\l h -> [ ( l, value ), ( h, value ) ]))
 
 
 {-| -}
-labels : List (Attribute msg) -> (Value -> String) -> (Meta Value msg -> List Value) -> Element Value msg
+labels : List (Attribute msg) -> (Value -> String) -> (Meta -> List Value) -> Element msg
 labels attributes valueToString toValues =
     map [ class "elm-plot__labels" ] (label attributes valueToString) toValues
 
 
 {-| -}
-ticks : List (Attribute msg) -> List TickAttribute -> (Meta Value msg -> List Value) -> Element Value msg
+ticks : List (Attribute msg) -> List TickAttribute -> (Meta -> List Value) -> Element msg
 ticks attributes tickAttributes toValues =
     map [ class "elm-plot__ticks" ] (tick attributes tickAttributes) toValues
 
 
 {-| -}
-grid : List (Attribute msg) -> (Meta Value msg -> List Value) -> Element Value msg
+grid : List (Attribute msg) -> (Meta -> List Value) -> Element msg
 grid attributes toValues =
     map [ class "elm-plot__grid" ] (fullLengthline attributes) toValues
 
 
 {-| -}
-map : List (Attribute msg) -> (a -> Element a msg) -> (Meta a msg -> List a) -> Element a msg
-map =
-    Map
+map : List (Attribute msg) -> (a -> Element msg) -> (Meta -> List a) -> Element msg
+map attributes toElement toValues =
+    List attributes (toValues >> List.map toElement)
 
 
 {-| -}
-label : List (Attribute msg) -> (Value -> String) -> Value -> Element a msg
+label : List (Attribute msg) -> (Value -> String) -> Value -> Element msg
 label attributes valueToString value =
     positionBy (onAxis value) [ defaultLabelView attributes (valueToString value) ]
 
 
 {-| -}
-tick : List (Attribute msg) -> List TickAttribute -> Value -> Element a msg
+tick : List (Attribute msg) -> List TickAttribute -> Value -> Element msg
 tick attributes tickAttibutes value =
     positionBy (onAxis value) [ defaultTickView attributes tickAttibutes ]
 
@@ -218,12 +217,12 @@ tick attributes tickAttibutes value =
 
 
 {-| -}
-lineSerie : Interpolation -> List (Attribute msg) -> List Point -> Element a msg
+lineSerie : Interpolation -> List (Attribute msg) -> List Point -> Element msg
 lineSerie interpolation attributes points =
     SerieElement (findReachFromPoints points) (LineSerie attributes interpolation points)
 
 
-dotsSerie : List (Attribute msg) -> List Point -> Element a msg
+dotsSerie : List (Attribute msg) -> List Point -> Element msg
 dotsSerie attributes points =
     SerieElement (findReachFromPoints points) (DotsSerie attributes points)
 
@@ -233,44 +232,44 @@ dotsSerie attributes points =
 
 
 {-| -}
-flipToY : Meta a msg -> Meta a msg
+flipToY : Meta -> Meta
 flipToY =
     (\meta -> { meta | orientation = Y, scale = Axised meta.scale.y meta.scale.x })
 
 
 {-| -}
-fromCount : Int -> Meta a msg -> List Float
+fromCount : Int -> Meta -> List Float
 fromCount count meta =
     toDelta meta.scale.x.reach.lower meta.scale.x.reach.upper count
         |> toValuesFromDelta meta.scale.x.reach.lower meta.scale.x.reach.upper
 
 
 {-| -}
-fromReach : (Value -> Value -> b) -> Meta a msg -> b
+fromReach : (Value -> Value -> b) -> Meta -> b
 fromReach toPoints meta =
     toPoints meta.scale.x.reach.lower meta.scale.x.reach.upper
 
 
 {-| -}
-fromOppositeReach : (Value -> Value -> b) -> Meta a msg -> b
+fromOppositeReach : (Value -> Value -> b) -> Meta -> b
 fromOppositeReach toPoints meta =
     toPoints meta.scale.y.reach.lower meta.scale.y.reach.upper
 
 
 {-| -}
-fromPlotReach : (Value -> Value -> Value -> Value -> b) -> Meta a msg -> b
+fromPlotReach : (Value -> Value -> Value -> Value -> b) -> Meta -> b
 fromPlotReach toPoints meta =
     toPoints meta.scale.x.reach.lower meta.scale.x.reach.upper meta.scale.y.reach.lower meta.scale.y.reach.upper
 
 
 {-| -}
-onAxis : Value -> Meta a msg -> Point
+onAxis : Value -> Meta -> Point
 onAxis value meta =
     ( value, meta.axisPosition )
 
 
 {-| -}
-fromAxis : (Value -> Value -> Value -> b) -> Meta a msg -> b
+fromAxis : (Value -> Value -> Value -> b) -> Meta -> b
 fromAxis toSomething meta =
     toSomething meta.axisPosition meta.scale.x.reach.lower meta.scale.x.reach.upper
 
@@ -318,8 +317,8 @@ length length config =
     { config | length = length }
 
 
-type alias MetaAttribute a msg =
-    Meta a msg -> Meta a msg
+type alias MetaAttribute =
+    Meta -> Meta
 
 
 {-| Specify the size of the plot in pixels.
@@ -327,7 +326,7 @@ type alias MetaAttribute a msg =
  Format: `( width, height )`
  Default: `( 800, 500 )`
 -}
-size : ( Int, Int ) -> MetaAttribute a msg
+size : ( Int, Int ) -> MetaAttribute
 size ( width, height ) plot =
     plot
         |> updateXScale (updateScaleLength width plot.scale.x)
@@ -340,7 +339,7 @@ size ( width, height ) plot =
  Format: `( top, right, bottom, left )`
  Default: `( 10, 10, 10, 10 )`
 -}
-margin : ( Int, Int, Int, Int ) -> MetaAttribute a msg
+margin : ( Int, Int, Int, Int ) -> MetaAttribute
 margin ( top, right, bottom, left ) plot =
     plot
         |> updateXScale (updateScaleOffset left right plot.scale.x)
@@ -353,7 +352,7 @@ margin ( top, right, bottom, left ) plot =
 
  Default: `identity`.
 -}
-domainLowest : (Float -> Float) -> MetaAttribute a msg
+domainLowest : (Float -> Float) -> MetaAttribute
 domainLowest toLowest plot =
     updateYScale (updateScaleLowerReach toLowest plot.scale.y) plot
 
@@ -364,7 +363,7 @@ domainLowest toLowest plot =
 
  Default: `identity`.
 -}
-domainHighest : (Float -> Float) -> MetaAttribute a msg
+domainHighest : (Float -> Float) -> MetaAttribute
 domainHighest toHighest plot =
     updateYScale (updateScaleUpperReach toHighest plot.scale.y) plot
 
@@ -375,7 +374,7 @@ domainHighest toHighest plot =
 
  Default: `identity`.
 -}
-rangeLowest : (Float -> Float) -> MetaAttribute a msg
+rangeLowest : (Float -> Float) -> MetaAttribute
 rangeLowest toLowest plot =
     updateXScale (updateScaleLowerReach toLowest plot.scale.x) plot
 
@@ -386,7 +385,7 @@ rangeLowest toLowest plot =
 
  Default: `identity`.
 -}
-rangeHighest : (Float -> Float) -> MetaAttribute a msg
+rangeHighest : (Float -> Float) -> MetaAttribute
 rangeHighest toHighest plot =
     updateXScale (updateScaleUpperReach toHighest plot.scale.x) plot
 
@@ -395,8 +394,8 @@ rangeHighest toHighest plot =
 -- VIEW
 
 
-viewPlot : Meta a msg -> Html msg
-viewPlot meta =
+viewPlot : List (Element msg) -> Meta -> Html msg
+viewPlot elements meta =
     Html.div
         [ Html.Attributes.class "elm-plot"
         , Html.Attributes.id meta.id
@@ -405,11 +404,11 @@ viewPlot meta =
             [ Svg.Attributes.class "elm-plot__inner"
             , Svg.Attributes.viewBox ("0 0 " ++ toString meta.scale.x.length ++ " " ++ toString meta.scale.y.length)
             ]
-            (scaleDefs meta :: (viewElements meta meta.elements))
+            (scaleDefs meta :: (viewElements meta elements))
         ]
 
 
-scaleDefs : Meta a msg -> Svg.Svg msg
+scaleDefs : Meta -> Svg.Svg msg
 scaleDefs meta =
     Svg.defs []
         [ Svg.clipPath [ Svg.Attributes.id (toClipPathId meta) ]
@@ -424,12 +423,12 @@ scaleDefs meta =
         ]
 
 
-viewElements : Meta a msg -> List (Element a msg) -> List (Svg msg)
+viewElements : Meta -> List (Element msg) -> List (Svg msg)
 viewElements meta elements =
-    List.map (viewElement meta) meta.elements
+    List.map (viewElement meta) elements
 
 
-viewElement : Meta a msg -> Element a msg -> Svg msg
+viewElement : Meta -> Element msg -> Svg msg
 viewElement meta element =
     case element of
         Axis toPosition toMeta elements ->
@@ -444,14 +443,14 @@ viewElement meta element =
         Position toPosition children ->
             viewPositioned (toPosition meta) children meta
 
-        Map attributes toElement toValues ->
-            g attributes (List.map (toElement >> viewElement meta) (toValues meta))
+        List attributes toElements ->
+            g attributes (List.map (viewElement meta) (toElements meta))
 
         SVGView view ->
             view
 
 
-viewSerie : Meta a msg -> Serie msg -> Svg msg
+viewSerie : Meta -> Serie msg -> Svg msg
 viewSerie meta serie =
     case serie of
         LineSerie attributes interpolation points ->
@@ -461,7 +460,7 @@ viewSerie meta serie =
             g [] []
 
 
-viewPositioned : Point -> List (Svg msg) -> Meta a msg -> Svg msg
+viewPositioned : Point -> List (Svg msg) -> Meta -> Svg msg
 viewPositioned point children meta =
     g [ transform (toTranslate (toSVGPoint meta point)) ] children
 
@@ -475,7 +474,7 @@ viewPath attributes pathString =
     path (d pathString :: fill "transparent" :: attributes |> List.reverse) []
 
 
-makeLinePath : Interpolation -> List Point -> Meta a msg -> String
+makeLinePath : Interpolation -> List Point -> Meta -> String
 makeLinePath interpolation points meta =
     case points of
         p1 :: rest ->
@@ -496,12 +495,12 @@ type PathType
     | Z
 
 
-toPath : Meta a msg -> List PathType -> String
+toPath : Meta -> List PathType -> String
 toPath plot pathParts =
     List.foldl (\part result -> result ++ toPathTypeString plot part) "" pathParts
 
 
-toPathTypeString : Meta a msg -> PathType -> String
+toPathTypeString : Meta -> PathType -> String
 toPathTypeString plot pathType =
     case pathType of
         M point ->
@@ -517,12 +516,12 @@ toPathTypeString plot pathType =
             "Z"
 
 
-toPathTypeStringSinglePoint : Meta a msg -> String -> Point -> String
+toPathTypeStringSinglePoint : Meta -> String -> Point -> String
 toPathTypeStringSinglePoint plot typeString point =
     typeString ++ " " ++ pointToString plot point
 
 
-toPathTypeStringS : Meta a msg -> Point -> Point -> Point -> String
+toPathTypeStringS : Meta -> Point -> Point -> Point -> String
 toPathTypeStringS plot p1 p2 p3 =
     let
         ( point1, point2 ) =
@@ -543,7 +542,7 @@ toBezierPoints ( x0, y0 ) ( x, y ) ( x1, y1 ) =
     )
 
 
-pointToString : Meta a msg -> Point -> String
+pointToString : Meta -> Point -> String
 pointToString plot point =
     let
         ( x, y ) =
@@ -582,7 +581,7 @@ toSPathTypes result points =
 -- VIEW HELPERS
 
 
-toClipPathId : Meta a msg -> String
+toClipPathId : Meta -> String
 toClipPathId plot =
     plot.id ++ "__scale-clip-path"
 
@@ -643,7 +642,7 @@ scaleValue scale v =
     (v * (getInnerLength scale) / (getRange scale)) + scale.offset.lower
 
 
-toSVGPoint : Meta a msg -> Point -> Point
+toSVGPoint : Meta -> Point -> Point
 toSVGPoint plot ( x, y ) =
     case plot.orientation of
         X ->
@@ -666,14 +665,14 @@ applyAttributes attributes config =
     List.foldl (<|) config attributes
 
 
-findPlotReach : List (Element a msg) -> Axised Reach
+findPlotReach : List (Element msg) -> Axised Reach
 findPlotReach elements =
     List.filterMap getReach elements
         |> List.foldl strechReach Nothing
         |> Maybe.withDefault (Axised (Reach 0 1) (Reach 0 1))
 
 
-getReach : Element a msg -> Maybe (Axised Reach)
+getReach : Element msg -> Maybe (Axised Reach)
 getReach element =
     case element of
         SerieElement reach _ ->
@@ -725,7 +724,7 @@ strechSingleReach elementReach plotReach =
     }
 
 
-toInitialPlot : List (Element a msg) -> Axised Reach -> Meta a msg
+toInitialPlot : List (Element msg) -> Axised Reach -> Meta
 toInitialPlot elements reach =
     { id = "elm-plot"
     , orientation = X
@@ -734,7 +733,6 @@ toInitialPlot elements reach =
         Axised
             (Scale reach.x (Reach 0 0) 100)
             (Scale reach.y (Reach 0 0) 100)
-    , elements = elements
     }
 
 
@@ -742,7 +740,7 @@ toInitialPlot elements reach =
 -- UPDATE HELPERS
 
 
-updateAxisPosition : Value -> Meta a msg -> Meta a msg
+updateAxisPosition : Value -> Meta -> Meta
 updateAxisPosition value meta =
     { meta | axisPosition = value }
 
