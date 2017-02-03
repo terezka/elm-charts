@@ -12,7 +12,7 @@ module Plot
         , plot
         , lineSerie
         , axisLine
-        , fromReach
+        , fromAxis
         , fromCount
         , margin
         , size
@@ -27,7 +27,6 @@ module Plot
         , fromDomain
         , length
         , positionBy
-        , fromOppositeReach
         )
 
 {-| Plot primities!
@@ -36,7 +35,7 @@ module Plot
 @docs Value, Point, Interpolation, Element, margin, size, xAxis, xAxisAt, yAxis, yAxisAt, ticks, labels, grid, fromRange, fromDomain
 
 # other
-@docs plot, lineSerie, axisLine, fromReach, label,onAxis, map, fromCount, defaultLabelView, defaultTickView, length, positionBy, fromOppositeReach
+@docs plot, lineSerie, axisLine, fromAxis, label,onAxis, map, fromCount, defaultLabelView, defaultTickView, length, positionBy
 -}
 
 import Html exposing (Html)
@@ -103,7 +102,7 @@ type alias AxisMeta =
     { orientation : Orientation
     , axisScale : Scale
     , oppositeAxisScale : Scale
-    , toAxisIntercept : Value -> Value -> Value
+    , axisIntercept : Value
     }
 
 
@@ -161,7 +160,7 @@ xAxis =
             { orientation = X
             , axisScale = meta.scale.x
             , oppositeAxisScale = meta.scale.y
-            , toAxisIntercept = clampToZero
+            , axisIntercept = clampToZero meta.scale.y.reach.lower meta.scale.y.reach.upper
             , toSVGPoint = meta.toSVGPoint
             , scale = meta.scale
             }
@@ -177,7 +176,7 @@ xAxisAt toAxisIntercept =
             { orientation = X
             , axisScale = meta.scale.x
             , oppositeAxisScale = meta.scale.y
-            , toAxisIntercept = toAxisIntercept
+            , axisIntercept = toAxisIntercept meta.scale.y.reach.lower meta.scale.y.reach.upper
             , toSVGPoint = meta.toSVGPoint
             , scale = meta.scale
             }
@@ -193,7 +192,7 @@ yAxis =
             { orientation = Y
             , axisScale = meta.scale.y
             , oppositeAxisScale = meta.scale.x
-            , toAxisIntercept = clampToZero
+            , axisIntercept = clampToZero meta.scale.x.reach.lower meta.scale.x.reach.upper
             , toSVGPoint = \( x, y ) -> meta.toSVGPoint ( y, x )
             , scale = meta.scale
             }
@@ -209,7 +208,7 @@ yAxisAt toAxisIntercept =
             { orientation = Y
             , axisScale = meta.scale.y
             , oppositeAxisScale = meta.scale.x
-            , toAxisIntercept = toAxisIntercept
+            , axisIntercept = toAxisIntercept meta.scale.x.reach.lower meta.scale.x.reach.upper
             , toSVGPoint = \( x, y ) -> meta.toSVGPoint ( y, x )
             , scale = meta.scale
             }
@@ -220,13 +219,13 @@ yAxisAt toAxisIntercept =
 {-| -}
 axisLine : List (Attribute msg) -> Element AxisMeta msg
 axisLine attributes =
-    Line attributes (fromAxis (\v l h -> [ ( l, v ), ( h, v ) ]))
+    Line attributes (fromAxis (\p l h -> [ ( l, p ), ( h, p ) ]))
 
 
 {-| -}
 fullLengthline : List (Attribute msg) -> Value -> Element AxisMeta msg
 fullLengthline attributes value =
-    Line attributes (fromReach (\l h -> [ ( l, value ), ( h, value ) ]))
+    Line attributes (fromAxis (\_ l h -> [ ( l, value ), ( h, value ) ]))
 
 
 {-| -}
@@ -236,9 +235,21 @@ labels attributes valueToString toValues =
 
 
 {-| -}
+label : List (Attribute msg) -> (Value -> String) -> Value -> Element AxisMeta msg
+label attributes valueToString value =
+    positionBy (onAxis value) [ defaultLabelView attributes (valueToString value) ]
+
+
+{-| -}
 ticks : List (Attribute msg) -> List TickAttribute -> (Meta AxisMeta -> List Value) -> Element AxisMeta msg
 ticks attributes tickAttributes toValues =
     map [ class "elm-plot__ticks" ] (tick attributes tickAttributes) toValues
+
+
+{-| -}
+tick : List (Attribute msg) -> List TickAttribute -> Value -> Element AxisMeta msg
+tick attributes tickAttibutes value =
+    positionBy (onAxis value) [ defaultTickView attributes tickAttibutes ]
 
 
 {-| -}
@@ -251,18 +262,6 @@ grid attributes toValues =
 map : List (Attribute msg) -> (b -> Element a msg) -> (Meta a -> List b) -> Element a msg
 map attributes toElement toValues =
     List attributes (toValues >> List.map toElement)
-
-
-{-| -}
-label : List (Attribute msg) -> (Value -> String) -> Value -> Element AxisMeta msg
-label attributes valueToString value =
-    positionBy (onAxis value) [ defaultLabelView attributes (valueToString value) ]
-
-
-{-| -}
-tick : List (Attribute msg) -> List TickAttribute -> Value -> Element AxisMeta msg
-tick attributes tickAttibutes value =
-    positionBy (onAxis value) [ defaultTickView attributes tickAttibutes ]
 
 
 
@@ -299,45 +298,28 @@ fromCount count meta =
 {-| Produce a value from the range of the plot.
 -}
 fromRange : (Value -> Value -> b) -> Meta a -> b
-fromRange toPoints meta =
-    toPoints meta.scale.x.reach.lower meta.scale.x.reach.upper
+fromRange toPoints { scale } =
+    toPoints scale.x.reach.lower scale.x.reach.upper
 
 
 {-| Produce a value from the domain of the plot.
 -}
 fromDomain : (Value -> Value -> b) -> Meta a -> b
-fromDomain toPoints meta =
-    toPoints meta.scale.y.reach.lower meta.scale.y.reach.upper
+fromDomain toSomething { scale } =
+    toSomething scale.y.reach.lower scale.y.reach.upper
 
 
-{-| -}
-fromReach : (Value -> Value -> b) -> Meta AxisMeta -> b
-fromReach toPoints meta =
-    toPoints meta.axisScale.reach.lower meta.axisScale.reach.upper
-
-
-{-| -}
-fromOppositeReach : (Value -> Value -> b) -> Meta AxisMeta -> b
-fromOppositeReach toPoints meta =
-    toPoints meta.oppositeAxisScale.reach.lower meta.oppositeAxisScale.reach.upper
-
-
-{-| -}
-fromPlotReach : (Value -> Value -> Value -> Value -> b) -> Meta a -> b
-fromPlotReach toPoints meta =
-    toPoints meta.scale.x.reach.lower meta.scale.x.reach.upper meta.scale.y.reach.lower meta.scale.y.reach.upper
-
-
-{-| -}
+{-| Place at `value` on current axis.
+-}
 onAxis : Value -> Meta AxisMeta -> Point
 onAxis value meta =
-    ( value, fromOppositeReach meta.toAxisIntercept meta )
+    ( value, meta.axisIntercept )
 
 
 {-| -}
 fromAxis : (Value -> Value -> Value -> b) -> Meta AxisMeta -> b
 fromAxis toSomething meta =
-    toSomething ((fromOppositeReach meta.toAxisIntercept) meta) meta.axisScale.reach.lower meta.axisScale.reach.upper
+    toSomething meta.axisIntercept meta.axisScale.reach.lower meta.axisScale.reach.upper
 
 
 
