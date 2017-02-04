@@ -695,10 +695,10 @@ viewSerie meta serie =
             viewPath config.attributes (makeLinePath config.interpolation data meta)
 
         DotsSerie (DotsConfig config) data ->
-            g [] (List.map (meta.toSVGPoint >> toSVGCircle config.radius) data)
+            g [] (List.map (meta.toSVGPoint >> viewCircle config.radius) data)
 
-        AreaSerie (AreaConfig config) data ->
-            g [] []
+        AreaSerie config data ->
+            viewArea config data meta
 
 
 viewPositioned : Point -> List (Svg msg) -> Meta a -> Svg msg
@@ -725,14 +725,54 @@ makeLinePath interpolation points meta =
             ""
 
 
-toSVGCircle : Float -> Point -> Svg.Svg a
-toSVGCircle radius ( x, y ) =
+viewArea : AreaConfig msg -> List Point -> Meta a -> Svg msg
+viewArea (AreaConfig config) data meta =
+    let
+        ( lowestX, highestX ) =
+            getEdgesX data
+
+        lowestY =
+            clamp meta.scale.y.reach.lower meta.scale.y.reach.upper 0
+
+        firstPoint =
+            Maybe.withDefault ( 0, 0 ) (List.head data)
+
+        pathString =
+            List.concat
+                [ [ M ( lowestX, lowestY ) ]
+                , [ L firstPoint ]
+                , (toLinePath config.interpolation data)
+                , [ L ( highestX, lowestY ) ]
+                , [ Z ]
+                ]
+                |> toPath meta
+    in
+        path (d pathString :: config.attributes |> List.reverse) []
+
+
+viewCircle : Float -> Point -> Svg.Svg a
+viewCircle radius ( x, y ) =
     Svg.circle
         [ Svg.Attributes.cx (toString x)
         , Svg.Attributes.cy (toString y)
         , Svg.Attributes.r (toString radius)
         ]
         []
+
+
+getEdgesX : List Point -> ( Float, Float )
+getEdgesX points =
+    getEdges <| List.map Tuple.first points
+
+
+getEdgesY : List Point -> ( Float, Float )
+getEdgesY points =
+    getEdges <| List.map Tuple.second points
+
+
+getEdges : List Float -> ( Float, Float )
+getEdges range =
+    ( getLowest range, getHighest range )
 
 
 
@@ -844,11 +884,6 @@ toTranslate ( x, y ) =
 
 
 -- META
-
-
-applyAttributes : List (a -> a) -> a -> a
-applyAttributes attributes config =
-    List.foldl (<|) config attributes
 
 
 findPlotReach : List (Element a msg) -> Axised Reach
