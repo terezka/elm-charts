@@ -2,49 +2,100 @@ module Plot
     exposing
         ( Value
         , Point
-        , Interpolation(..)
         , Element
+        , PlotConfig
+        , toPlotConfig
+        , toPlotConfigCustom
+        , plot
+        , AreaConfig
+        , toAreaConfig
+        , areaSerie
+        , LineConfig
+        , toLineConfig
+        , lineSerie
+        , DotsConfig
+        , toDotsConfig
+        , dotsSerie
+        , TickConfig
+        , toTickConfig
+        , ticks
+        , viewTick
+        , LabelConfig
+        , toLabelConfig
+        , labels
         , label
         , viewLabel
-        , defaultTickView
-        , list
-        , onAxis
-        , plot
-        , lineSerie
-        , areaSerie
-        , interpolation
-        , radius
+        , AxisLineConfig
+        , toAxisLineConfig
         , axisLine
-        , dotsSerie
-        , fromAxis
-        , fromCount
-        , margin
-        , size
         , xAxis
-        , displace
         , xAxisAt
         , yAxis
         , yAxisAt
-        , ticks
-        , labels
+        , onAxis
+        , Interpolation(..)
+        , length
+        , list
+        , fromAxis
+        , fromCount
+        , displace
         , grid
         , fromRange
         , fromDomain
-        , length
         , positionBy
         )
 
 {-| Plot primities!
 
-# elements
-@docs Value, Point, Interpolation, radius, dotsSerie, interpolation, Element, margin, size, xAxis, xAxisAt, yAxis, yAxisAt, ticks, labels, grid, fromRange, fromDomain
+# Definitions
+@docs Value, Point, Element
 
-# other
-@docs plot, lineSerie, axisLine,displace,  areaSerie, fromAxis, label,onAxis, list, fromCount, viewLabel, defaultTickView, length, positionBy
+# Plot elements
+@docs PlotConfig, toPlotConfig, toPlotConfigCustom, plot
+
+## Series
+
+### Line
+@docs LineConfig, toLineConfig, lineSerie
+
+### Area
+@docs AreaConfig, toAreaConfig, areaSerie
+
+### Dots
+@docs DotsConfig, toDotsConfig, dotsSerie
+
+## Axis elements
+@docs xAxis, xAxisAt, yAxis, yAxisAt
+
+### Value and position helpers
+@docs onAxis, fromAxis, fromCount
+
+### Axis line
+@docs toAxisLineConfig, AxisLineConfig, axisLine
+
+### Grid lines
+@docs grid
+
+### Labels
+@docs LabelConfig, toLabelConfig, labels, label, viewLabel
+
+### Ticks
+@docs TickConfig, toTickConfig, ticks, viewTick
+
+# General
+
+## Value Helpers
+@docs fromRange, fromDomain
+
+## Helpers
+@docs Interpolation, positionBy, list
+
+## Fake SVG Attributes
+@docs length, displace
+
 -}
 
 import Html exposing (Html)
-import Html.Attributes
 import Svg exposing (Svg, g, text_, tspan, path, text, line)
 import Svg.Attributes exposing (d, fill, transform, class, y2, x2)
 import Utils exposing (..)
@@ -63,44 +114,8 @@ type alias Point =
     ( Value, Value )
 
 
-{-| -}
-type Interpolation
-    = Bezier
-    | NoInterpolation
-
-
 
 -- INTERNAL TYPES
-
-
-type alias Axised a =
-    { x : a
-    , y : a
-    }
-
-
-type alias Reach =
-    { lower : Float
-    , upper : Float
-    }
-
-
-type alias Scale =
-    { reach : Reach
-    , offset : Reach
-    , length : Float
-    }
-
-
-type alias Meta a =
-    { a
-        | toSVGPoint : Point -> Point
-        , scale : Axised Scale
-    }
-
-
-type alias PlotMeta =
-    { id : String }
 
 
 type alias AxisMeta =
@@ -127,23 +142,13 @@ type Element a msg
 
 
 type Serie msg
-    = LineSerie (List (Svg.Attribute msg)) LineConfig (List Point)
-    | DotsSerie (List (Svg.Attribute msg)) DotsConfig (List Point)
-    | AreaSerie (List (Svg.Attribute msg)) AreaConfig (List Point)
+    = LineSerie (LineConfig msg)
+    | DotsSerie (DotsConfig msg)
+    | AreaSerie (AreaConfig msg)
 
 
 
 -- PRIMITIVES
-
-
-{-| -}
-plot : List (MetaAttribute PlotMeta) -> List (Element PlotMeta msg) -> Html msg
-plot attributes elements =
-    findPlotReach elements
-        |> toInitialPlot elements
-        |> applyAttributes attributes
-        |> applyTranslators
-        |> viewPlot elements
 
 
 {-| -}
@@ -223,33 +228,33 @@ yAxisAt toAxisIntercept =
 
 
 {-| -}
-axisLine : List (Svg.Attribute msg) -> Element AxisMeta msg
-axisLine attributes =
+axisLine : AxisLineConfig msg -> Element AxisMeta msg
+axisLine (AxisLineConfig { attributes }) =
     Line attributes (fromAxis (\p l h -> [ ( l, p ), ( h, p ) ]))
 
 
 {-| -}
-labels : List (Svg.Attribute msg) -> (Value -> String) -> (Meta AxisMeta -> List Value) -> Element AxisMeta msg
-labels attributes valueToString toValues =
-    list [ class "elm-plot__labels" ] (label attributes valueToString) toValues
+labels : LabelConfig msg -> Element AxisMeta msg
+labels (LabelConfig config) =
+    list [ class "elm-plot__labels" ] (label config.attributes config.format) config.positions
 
 
 {-| -}
 label : List (Svg.Attribute msg) -> (Value -> String) -> Value -> Element AxisMeta msg
-label attributes valueToString value =
-    positionBy (onAxis value) [ viewLabel attributes (valueToString value) ]
+label attributes format value =
+    positionBy (onAxis value) [ viewLabel attributes (format value) ]
 
 
 {-| -}
-ticks : List (Svg.Attribute msg) -> List TickAttribute -> (Meta AxisMeta -> List Value) -> Element AxisMeta msg
-ticks attributes tickAttributes toValues =
-    list [ class "elm-plot__ticks" ] (tick attributes tickAttributes) toValues
+ticks : TickConfig msg -> Element AxisMeta msg
+ticks (TickConfig config) =
+    list [ class "elm-plot__ticks" ] (tick config.attributes) config.positions
 
 
 {-| -}
-tick : List (Svg.Attribute msg) -> List TickAttribute -> Value -> Element AxisMeta msg
-tick attributes tickAttibutes value =
-    positionBy (onAxis value) [ defaultTickView attributes tickAttibutes ]
+tick : List (Svg.Attribute msg) -> Value -> Element AxisMeta msg
+tick attributes value =
+    positionBy (onAxis value) [ viewTick attributes ]
 
 
 {-| -}
@@ -275,27 +280,33 @@ fullLengthline attributes value =
 
 
 {-| -}
-lineSerie : List (Svg.Attribute msg) -> List LineAttribute -> List Point -> Element a msg
-lineSerie svgAttributes attributes points =
-    SerieElement
-        (findReachFromPoints points)
-        (LineSerie svgAttributes (applyAttributes attributes defaultLineConfig) points)
+lineSerie : LineConfig msg -> Element a msg
+lineSerie config =
+    let
+        (LineConfig innerConfig) =
+            config
+    in
+        SerieElement (findReachFromPoints innerConfig.data) (LineSerie config)
 
 
 {-| -}
-dotsSerie : List (Svg.Attribute msg) -> List DotsAttribute -> List Point -> Element a msg
-dotsSerie svgAttributes attributes points =
-    SerieElement
-        (findReachFromPoints points)
-        (DotsSerie svgAttributes (applyAttributes attributes defaultDotsConfig) points)
+dotsSerie : DotsConfig msg -> Element a msg
+dotsSerie config =
+    let
+        (DotsConfig innerConfig) =
+            config
+    in
+        SerieElement (findReachFromPoints innerConfig.data) (DotsSerie config)
 
 
 {-| -}
-areaSerie : List (Svg.Attribute msg) -> List AreaAttribute -> List Point -> Element a msg
-areaSerie svgAttributes attributes points =
-    SerieElement
-        (findReachFromPoints points)
-        (AreaSerie svgAttributes (applyAttributes attributes defaultAreaConfig) points)
+areaSerie : AreaConfig msg -> Element a msg
+areaSerie config =
+    let
+        (AreaConfig innerConfig) =
+            config
+    in
+        SerieElement (findReachFromPoints innerConfig.data) (AreaSerie config)
 
 
 
@@ -353,21 +364,128 @@ viewLabel attributes formattetValue =
 
 
 {-| -}
-defaultTickView : List (Svg.Attribute msg) -> List TickAttribute -> Svg msg
-defaultTickView attributes tickAttibutes =
-    let
-        config =
-            applyAttributes tickAttibutes defaultTickConfig
-    in
-        line (y2 (toString config.length) :: attributes) []
+viewTick : List (Svg.Attribute msg) -> Svg msg
+viewTick attributes =
+    line attributes []
+
+
+
+-- CONFIGS
+
+
+{-| -}
+type LineConfig msg
+    = LineConfig
+        { attributes : List (Svg.Attribute msg)
+        , interpolation : Interpolation
+        , data : List Point
+        }
+
+
+{-| -}
+toLineConfig :
+    { attributes : List (Svg.Attribute msg)
+    , interpolation : Interpolation
+    , data : List Point
+    }
+    -> LineConfig msg
+toLineConfig config =
+    LineConfig config
+
+
+{-| -}
+type AreaConfig msg
+    = AreaConfig
+        { attributes : List (Svg.Attribute msg)
+        , interpolation : Interpolation
+        , data : List Point
+        }
+
+
+{-| -}
+toAreaConfig :
+    { attributes : List (Svg.Attribute msg)
+    , interpolation : Interpolation
+    , data : List Point
+    }
+    -> AreaConfig msg
+toAreaConfig config =
+    AreaConfig config
+
+
+{-| -}
+type DotsConfig msg
+    = DotsConfig
+        { attributes : List (Svg.Attribute msg)
+        , data : List Point
+        , radius : Float
+        }
+
+
+{-| -}
+toDotsConfig :
+    { attributes : List (Svg.Attribute msg)
+    , data : List Point
+    , radius : Float
+    }
+    -> DotsConfig msg
+toDotsConfig config =
+    DotsConfig config
+
+
+{-| -}
+type TickConfig msg
+    = TickConfig
+        { attributes : List (Svg.Attribute msg)
+        , positions : Meta AxisMeta -> List Value
+        }
+
+
+{-| -}
+toTickConfig :
+    { attributes : List (Svg.Attribute msg)
+    , positions : Meta AxisMeta -> List Value
+    }
+    -> TickConfig msg
+toTickConfig config =
+    TickConfig config
+
+
+{-| -}
+type LabelConfig msg
+    = LabelConfig
+        { attributes : List (Svg.Attribute msg)
+        , format : Value -> String
+        , positions : Meta AxisMeta -> List Value
+        }
+
+
+{-| -}
+toLabelConfig :
+    { attributes : List (Svg.Attribute msg)
+    , format : Value -> String
+    , positions : Meta AxisMeta -> List Value
+    }
+    -> LabelConfig msg
+toLabelConfig config =
+    LabelConfig config
+
+
+{-| -}
+type AxisLineConfig msg
+    = AxisLineConfig { attributes : List (Svg.Attribute msg) }
+
+
+{-| -}
+toAxisLineConfig :
+    { attributes : List (Svg.Attribute msg) }
+    -> AxisLineConfig msg
+toAxisLineConfig config =
+    AxisLineConfig config
 
 
 
 -- ATTRIBUTES
-
-
-type alias Attribute c =
-    c -> c
 
 
 {-| -}
@@ -376,177 +494,182 @@ displace displacement =
     transform (toTranslate displacement)
 
 
-
--- LINE CONFIG
-
-
-type alias LineConfig =
-    { interpolation : Interpolation }
+{-| -}
+length : Float -> Svg.Attribute msg
+length length =
+    y2 (toString length)
 
 
-type alias LineAttribute =
-    LineConfig -> LineConfig
-
-
-type alias AreaConfig =
-    { interpolation : Interpolation }
-
-
-type alias AreaAttribute =
-    AreaConfig -> AreaConfig
-
-
-defaultLineConfig : LineConfig
-defaultLineConfig =
-    { interpolation = NoInterpolation }
-
-
-defaultAreaConfig : AreaConfig
-defaultAreaConfig =
-    { interpolation = NoInterpolation }
+type alias Attribute c =
+    c -> c
 
 
 {-| -}
-interpolation : Interpolation -> Attribute { interpolation : Interpolation }
-interpolation interpolation config =
-    { config | interpolation = interpolation }
+type Interpolation
+    = Bezier
+    | NoInterpolation
 
 
 
--- DOTS CONFIG
-
-
-type alias DotsConfig =
-    { radius : Float }
-
-
-type alias DotsAttribute =
-    DotsConfig -> DotsConfig
-
-
-defaultDotsConfig : DotsConfig
-defaultDotsConfig =
-    { radius = 5 }
+-- PLOT CUSTOMIZATIONS
 
 
 {-| -}
-radius : Float -> Attribute { radius : Float }
-radius radius config =
-    { config | radius = radius }
-
-
-
--- TICK CONFIG
-
-
-type alias TickConfig =
-    { length : Float }
-
-
-defaultTickConfig : TickConfig
-defaultTickConfig =
-    { length = 5 }
-
-
-type alias TickAttribute =
-    TickConfig -> TickConfig
+type PlotConfig msg
+    = PlotConfig
+        { attributes : List (Svg.Attribute msg)
+        , id : String
+        , margin :
+            { top : Int
+            , right : Int
+            , bottom : Int
+            , left : Int
+            }
+        , proportions :
+            { x : Int
+            , y : Int
+            }
+        , toDomain : Value -> Value -> { lower : Value, upper : Value }
+        , toRange : Value -> Value -> { lower : Value, upper : Value }
+        }
 
 
 {-| -}
-length : Float -> TickAttribute
-length length config =
-    { config | length = length }
+toPlotConfig :
+    { attributes : List (Svg.Attribute msg)
+    , id : String
+    , margin :
+        { top : Int
+        , right : Int
+        , bottom : Int
+        , left : Int
+        }
+    , proportions :
+        { x : Int
+        , y : Int
+        }
+    }
+    -> PlotConfig msg
+toPlotConfig { attributes, id, margin, proportions } =
+    PlotConfig
+        { attributes = []
+        , id = id
+        , margin = margin
+        , proportions = proportions
+        , toDomain = \min max -> { lower = min, upper = max }
+        , toRange = \min max -> { lower = min, upper = max }
+        }
 
 
-type alias MetaAttribute a =
-    Meta a -> Meta a
+{-| -}
+toPlotConfigCustom :
+    { attributes : List (Svg.Attribute msg)
+    , id : String
+    , margin :
+        { top : Int
+        , right : Int
+        , bottom : Int
+        , left : Int
+        }
+    , proportions :
+        { x : Int
+        , y : Int
+        }
+    , toDomain : Value -> Value -> { lower : Value, upper : Value }
+    , toRange : Value -> Value -> { lower : Value, upper : Value }
+    }
+    -> PlotConfig msg
+toPlotConfigCustom config =
+    PlotConfig config
 
 
-{-| Specify the size of the plot in pixels.
-
- Format: `( width, height )`
- Default: `( 800, 500 )`
+{-| Render your plot!
 -}
-size : ( Int, Int ) -> MetaAttribute a
-size ( width, height ) plot =
-    plot
-        |> updateXScale (updateScaleLength width plot.scale.x)
-        |> updateYScale (updateScaleLength height plot.scale.y)
-
-
-{-| Specify margin around the plot in pixels. Particularly useful if your ticks
- or labels are not showing.
-
- Format: `( top, right, bottom, left )`
- Default: `( 10, 10, 10, 10 )`
--}
-margin : ( Int, Int, Int, Int ) -> MetaAttribute a
-margin ( top, right, bottom, left ) plot =
-    plot
-        |> updateXScale (updateScaleOffset left right plot.scale.x)
-        |> updateYScale (updateScaleOffset bottom top plot.scale.y)
-
-
-{-| Specify the lowest value on your y-axis based on the your elements lowest y-value.
-
-    plot [ domainLowest (\lowestY -> ceiling (lowestY / 10) * 10) ] elements
-
- Default: `identity`.
--}
-domainLowest : (Float -> Float) -> MetaAttribute a
-domainLowest toLowest plot =
-    updateYScale (updateScaleLowerReach toLowest plot.scale.y) plot
-
-
-{-| Specify the highest value on your y-axis based on the your elements highest y-value.
-
-    plot [ domainHighest (\highestY -> floor (highestY / 10) * 10) ] elements
-
- Default: `identity`.
--}
-domainHighest : (Float -> Float) -> MetaAttribute a
-domainHighest toHighest plot =
-    updateYScale (updateScaleUpperReach toHighest plot.scale.y) plot
-
-
-{-| Specify the lowest value on your x-axis based on the your elements lowest x-value.
-
-    plot [ rangeLowest (\lowestX -> ceiling (lowestX / 10) * 10) ] elements
-
- Default: `identity`.
--}
-rangeLowest : (Float -> Float) -> MetaAttribute a
-rangeLowest toLowest plot =
-    updateXScale (updateScaleLowerReach toLowest plot.scale.x) plot
-
-
-{-| Specify the highest value on your x-axis based on the your elements highest x-value.
-
-    plot [ rangeHighest (\highestX -> floor (highestX / 10) * 10) ] elements
-
- Default: `identity`.
--}
-rangeHighest : (Float -> Float) -> MetaAttribute a
-rangeHighest toHighest plot =
-    updateXScale (updateScaleUpperReach toHighest plot.scale.x) plot
+plot : PlotConfig msg -> List (Element PlotMeta msg) -> Svg msg
+plot config elements =
+    viewPlot config elements (toPlotMeta config elements)
 
 
 
--- VIEW
+-- PLOT META
 
 
-viewPlot : List (Element PlotMeta msg) -> Meta PlotMeta -> Html msg
-viewPlot elements meta =
-    Html.div
-        [ Html.Attributes.class "elm-plot"
-        , Html.Attributes.id meta.id
-        ]
-        [ Svg.svg
-            [ Svg.Attributes.class "elm-plot__inner"
-            , Svg.Attributes.viewBox ("0 0 " ++ toString meta.scale.x.length ++ " " ++ toString meta.scale.y.length)
-            ]
-            (scaleDefs meta :: (viewElements meta elements))
-        ]
+type alias Axised a =
+    { x : a
+    , y : a
+    }
+
+
+type alias Reach =
+    { lower : Float
+    , upper : Float
+    }
+
+
+type alias Scale =
+    { reach : Reach
+    , offset : Reach
+    , length : Float
+    }
+
+
+type alias Meta a =
+    { a
+        | toSVGPoint : Point -> Point
+        , scale : Axised Scale
+    }
+
+
+type alias PlotMeta =
+    { id : String }
+
+
+toPlotMeta : PlotConfig msg -> List (Element PlotMeta msg) -> Meta PlotMeta
+toPlotMeta (PlotConfig { id, margin, proportions, toRange, toDomain }) elements =
+    let
+        reach =
+            findPlotReach elements
+
+        range =
+            toRange reach.x.lower reach.x.upper
+
+        domain =
+            toDomain reach.y.lower reach.y.upper
+
+        scale =
+            { x = toScale proportions.x range margin.left margin.right
+            , y = toScale proportions.y domain margin.top margin.bottom
+            }
+    in
+        { scale = scale
+        , toSVGPoint = toSVGPoint scale.x scale.y
+        , id = id
+        }
+
+
+toScale : Int -> Reach -> Int -> Int -> Scale
+toScale length reach offsetLower offsetUpper =
+    { length = toFloat length
+    , offset = Reach (toFloat offsetLower) (toFloat offsetUpper)
+    , reach = reach
+    }
+
+
+
+-- VIEW PLOT
+
+
+viewPlot : PlotConfig msg -> List (Element PlotMeta msg) -> Meta PlotMeta -> Html msg
+viewPlot (PlotConfig config) elements meta =
+    let
+        viewBoxValue =
+            "0 0 " ++ toString meta.scale.x.length ++ " " ++ toString meta.scale.y.length
+
+        attributes =
+            config.attributes
+                ++ [ Svg.Attributes.viewBox viewBoxValue, Svg.Attributes.id meta.id ]
+    in
+        Svg.svg attributes (scaleDefs meta :: (viewElements meta elements))
 
 
 scaleDefs : Meta PlotMeta -> Svg.Svg msg
@@ -564,6 +687,10 @@ scaleDefs meta =
         ]
 
 
+
+-- VIEW ELEMENTS
+
+
 viewElements : Meta a -> List (Element a msg) -> List (Svg msg)
 viewElements meta elements =
     List.map (viewElement meta) elements
@@ -579,7 +706,7 @@ viewElement meta element =
             viewSerie meta serie
 
         Line attributes toPoints ->
-            viewPath attributes (makeLinePath NoInterpolation (toPoints meta |> Debug.log "here") meta)
+            viewPath attributes (makeLinePath NoInterpolation (toPoints meta) meta)
 
         Position toPosition children ->
             viewPositioned (toPosition meta) children meta
@@ -594,14 +721,14 @@ viewElement meta element =
 viewSerie : Meta a -> Serie msg -> Svg msg
 viewSerie meta serie =
     case serie of
-        LineSerie svgAttributes config points ->
-            viewPath svgAttributes (makeLinePath config.interpolation points meta)
+        LineSerie (LineConfig config) ->
+            viewPath config.attributes (makeLinePath config.interpolation config.data meta)
 
-        DotsSerie svgAttributes config points ->
-            g [] (List.map (meta.toSVGPoint >> toSVGCircle config.radius) points)
+        DotsSerie (DotsConfig config) ->
+            g [] (List.map (meta.toSVGPoint >> toSVGCircle config.radius) config.data)
 
-        AreaSerie svgAttributes config points ->
-            viewPath svgAttributes (makeLinePath config.interpolation points meta)
+        AreaSerie (AreaConfig config) ->
+            g [] []
 
 
 viewPositioned : Point -> List (Svg msg) -> Meta a -> Svg msg
