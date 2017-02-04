@@ -118,19 +118,6 @@ type alias Point =
 -- INTERNAL TYPES
 
 
-type alias AxisMeta =
-    { orientation : Orientation
-    , axisScale : Scale
-    , oppositeAxisScale : Scale
-    , axisIntercept : Value
-    }
-
-
-type Orientation
-    = X
-    | Y
-
-
 {-| -}
 type Element a msg
     = Axis (Meta a -> Meta AxisMeta) (List (Element AxisMeta msg))
@@ -622,6 +609,19 @@ type alias Meta a =
 
 type alias PlotMeta =
     { id : String }
+
+
+type alias AxisMeta =
+    { orientation : Orientation
+    , axisScale : Scale
+    , oppositeAxisScale : Scale
+    , axisIntercept : Value
+    }
+
+
+type Orientation
+    = X
+    | Y
 
 
 toPlotMeta : PlotConfig msg -> List (Element PlotMeta msg) -> Meta PlotMeta
