@@ -114,10 +114,6 @@ type alias Point =
     ( Value, Value )
 
 
-
--- INTERNAL TYPES
-
-
 {-| -}
 type Element a msg
     = Axis (Meta a -> Meta AxisMeta) (List (Element AxisMeta msg))
@@ -129,9 +125,9 @@ type Element a msg
 
 
 type Serie msg
-    = LineSerie (LineConfig msg)
-    | DotsSerie (DotsConfig msg)
-    | AreaSerie (AreaConfig msg)
+    = LineSerie (LineConfig msg) (List Point)
+    | DotsSerie (DotsConfig msg) (List Point)
+    | AreaSerie (AreaConfig msg) (List Point)
 
 
 
@@ -221,30 +217,6 @@ axisLine (AxisLineConfig { attributes }) =
 
 
 {-| -}
-labels : LabelConfig msg -> Element AxisMeta msg
-labels (LabelConfig config) =
-    list [ class "elm-plot__labels" ] (label config.attributes config.format) config.positions
-
-
-{-| -}
-label : List (Svg.Attribute msg) -> (Value -> String) -> Value -> Element AxisMeta msg
-label attributes format value =
-    positionBy (onAxis value) [ viewLabel attributes (format value) ]
-
-
-{-| -}
-ticks : TickConfig msg -> Element AxisMeta msg
-ticks (TickConfig config) =
-    list [ class "elm-plot__ticks" ] (tick config.attributes) config.positions
-
-
-{-| -}
-tick : List (Svg.Attribute msg) -> Value -> Element AxisMeta msg
-tick attributes value =
-    positionBy (onAxis value) [ viewTick attributes ]
-
-
-{-| -}
 grid : List (Svg.Attribute msg) -> (Meta AxisMeta -> List Value) -> Element AxisMeta msg
 grid attributes toValues =
     list [ class "elm-plot__grid" ] (fullLengthline attributes) toValues
@@ -260,40 +232,6 @@ list attributes toElement toValues =
 fullLengthline : List (Svg.Attribute msg) -> Value -> Element AxisMeta msg
 fullLengthline attributes value =
     Line attributes (fromAxis (\_ l h -> [ ( l, value ), ( h, value ) ]))
-
-
-
--- SERIES
-
-
-{-| -}
-lineSerie : LineConfig msg -> Element a msg
-lineSerie config =
-    let
-        (LineConfig innerConfig) =
-            config
-    in
-        SerieElement (findReachFromPoints innerConfig.data) (LineSerie config)
-
-
-{-| -}
-dotsSerie : DotsConfig msg -> Element a msg
-dotsSerie config =
-    let
-        (DotsConfig innerConfig) =
-            config
-    in
-        SerieElement (findReachFromPoints innerConfig.data) (DotsSerie config)
-
-
-{-| -}
-areaSerie : AreaConfig msg -> Element a msg
-areaSerie config =
-    let
-        (AreaConfig innerConfig) =
-            config
-    in
-        SerieElement (findReachFromPoints innerConfig.data) (AreaSerie config)
 
 
 
@@ -341,22 +279,6 @@ onAxis value meta =
 
 
 
--- PUBLIC VIEWS
-
-
-{-| -}
-viewLabel : List (Svg.Attribute msg) -> String -> Svg msg
-viewLabel attributes formattetValue =
-    text_ attributes [ tspan [] [ text formattetValue ] ]
-
-
-{-| -}
-viewTick : List (Svg.Attribute msg) -> Svg msg
-viewTick attributes =
-    line attributes []
-
-
-
 -- CONFIGS
 
 
@@ -365,7 +287,6 @@ type LineConfig msg
     = LineConfig
         { attributes : List (Svg.Attribute msg)
         , interpolation : Interpolation
-        , data : List Point
         }
 
 
@@ -373,7 +294,6 @@ type LineConfig msg
 toLineConfig :
     { attributes : List (Svg.Attribute msg)
     , interpolation : Interpolation
-    , data : List Point
     }
     -> LineConfig msg
 toLineConfig config =
@@ -381,11 +301,16 @@ toLineConfig config =
 
 
 {-| -}
+lineSerie : LineConfig msg -> List Point -> Element a msg
+lineSerie config data =
+    SerieElement (findReachFromPoints data) (LineSerie config data)
+
+
+{-| -}
 type AreaConfig msg
     = AreaConfig
         { attributes : List (Svg.Attribute msg)
         , interpolation : Interpolation
-        , data : List Point
         }
 
 
@@ -393,7 +318,6 @@ type AreaConfig msg
 toAreaConfig :
     { attributes : List (Svg.Attribute msg)
     , interpolation : Interpolation
-    , data : List Point
     }
     -> AreaConfig msg
 toAreaConfig config =
@@ -401,10 +325,15 @@ toAreaConfig config =
 
 
 {-| -}
+areaSerie : AreaConfig msg -> List Point -> Element a msg
+areaSerie config data =
+    SerieElement (findReachFromPoints data) (AreaSerie config data)
+
+
+{-| -}
 type DotsConfig msg
     = DotsConfig
         { attributes : List (Svg.Attribute msg)
-        , data : List Point
         , radius : Float
         }
 
@@ -412,12 +341,17 @@ type DotsConfig msg
 {-| -}
 toDotsConfig :
     { attributes : List (Svg.Attribute msg)
-    , data : List Point
     , radius : Float
     }
     -> DotsConfig msg
 toDotsConfig config =
     DotsConfig config
+
+
+{-| -}
+dotsSerie : DotsConfig msg -> List Point -> Element a msg
+dotsSerie config data =
+    SerieElement (findReachFromPoints data) (DotsSerie config data)
 
 
 {-| -}
@@ -439,6 +373,24 @@ toTickConfig config =
 
 
 {-| -}
+ticks : TickConfig msg -> Element AxisMeta msg
+ticks (TickConfig config) =
+    list [ class "elm-plot__ticks" ] (tick config.attributes) config.positions
+
+
+{-| -}
+tick : List (Svg.Attribute msg) -> Value -> Element AxisMeta msg
+tick attributes value =
+    positionBy (onAxis value) [ viewTick attributes ]
+
+
+{-| -}
+viewTick : List (Svg.Attribute msg) -> Svg msg
+viewTick attributes =
+    line attributes []
+
+
+{-| -}
 type LabelConfig msg
     = LabelConfig
         { attributes : List (Svg.Attribute msg)
@@ -456,6 +408,24 @@ toLabelConfig :
     -> LabelConfig msg
 toLabelConfig config =
     LabelConfig config
+
+
+{-| -}
+labels : LabelConfig msg -> Element AxisMeta msg
+labels (LabelConfig config) =
+    list [ class "elm-plot__labels" ] (label config.attributes config.format) config.positions
+
+
+{-| -}
+label : List (Svg.Attribute msg) -> (Value -> String) -> Value -> Element AxisMeta msg
+label attributes format value =
+    positionBy (onAxis value) [ viewLabel attributes (format value) ]
+
+
+{-| -}
+viewLabel : List (Svg.Attribute msg) -> String -> Svg msg
+viewLabel attributes formattetValue =
+    text_ attributes [ tspan [] [ text formattetValue ] ]
 
 
 {-| -}
@@ -721,13 +691,13 @@ viewElement meta element =
 viewSerie : Meta a -> Serie msg -> Svg msg
 viewSerie meta serie =
     case serie of
-        LineSerie (LineConfig config) ->
-            viewPath config.attributes (makeLinePath config.interpolation config.data meta)
+        LineSerie (LineConfig config) data ->
+            viewPath config.attributes (makeLinePath config.interpolation data meta)
 
-        DotsSerie (DotsConfig config) ->
-            g [] (List.map (meta.toSVGPoint >> toSVGCircle config.radius) config.data)
+        DotsSerie (DotsConfig config) data ->
+            g [] (List.map (meta.toSVGPoint >> toSVGCircle config.radius) data)
 
-        AreaSerie (AreaConfig config) ->
+        AreaSerie (AreaConfig config) data ->
             g [] []
 
 
@@ -872,64 +842,6 @@ toTranslate ( x, y ) =
     "translate(" ++ (toString x) ++ "," ++ (toString y) ++ ")"
 
 
-toRotate : Float -> Float -> Float -> String
-toRotate d x y =
-    "rotate(" ++ (toString d) ++ " " ++ (toString x) ++ " " ++ (toString y) ++ ")"
-
-
-toStyle : List ( String, String ) -> String
-toStyle styles =
-    List.foldr (\( p, v ) r -> r ++ p ++ ":" ++ v ++ "; ") "" styles
-
-
-toPixels : Float -> String
-toPixels pixels =
-    toString pixels ++ "px"
-
-
-toPixelsInt : Int -> String
-toPixelsInt =
-    toPixels << toFloat
-
-
-addDisplacement : Point -> Point -> Point
-addDisplacement ( x, y ) ( dx, dy ) =
-    ( x + dx, y + dy )
-
-
-
--- SCALING HELPERS
-
-
-getRange : Scale -> Value
-getRange scale =
-    let
-        range =
-            scale.reach.upper - scale.reach.lower
-    in
-        if range > 0 then
-            range
-        else
-            1
-
-
-getInnerLength : Scale -> Value
-getInnerLength scale =
-    scale.length - scale.offset.lower - scale.offset.upper
-
-
-scaleValue : Scale -> Value -> Value
-scaleValue scale v =
-    (v * (getInnerLength scale) / (getRange scale)) + scale.offset.lower
-
-
-toSVGPoint : Scale -> Scale -> Point -> Point
-toSVGPoint xScale yScale ( x, y ) =
-    ( scaleValue xScale (x - xScale.reach.lower)
-    , scaleValue yScale (yScale.reach.upper - y)
-    )
-
-
 
 -- META
 
@@ -998,56 +910,30 @@ strechSingleReach elementReach plotReach =
     }
 
 
-toInitialPlot : List (Element PlotMeta msg) -> Axised Reach -> Meta PlotMeta
-toInitialPlot elements reach =
-    { id = "elm-plot"
-    , toSVGPoint = identity
-    , scale =
-        Axised
-            (Scale reach.x (Reach 0 0) 100)
-            (Scale reach.y (Reach 0 0) 100)
-    }
+getRange : Scale -> Value
+getRange scale =
+    let
+        range =
+            scale.reach.upper - scale.reach.lower
+    in
+        if range > 0 then
+            range
+        else
+            1
 
 
-applyTranslators : Meta PlotMeta -> Meta PlotMeta
-applyTranslators meta =
-    { meta | toSVGPoint = toSVGPoint meta.scale.x meta.scale.y }
+getInnerLength : Scale -> Value
+getInnerLength scale =
+    scale.length - scale.offset.lower - scale.offset.upper
 
 
-
--- UPDATE HELPERS
-
-
-updateXScale : scale -> { p | scale : Axised scale } -> { p | scale : Axised scale }
-updateXScale xScale ({ scale } as config) =
-    { config | scale = { scale | x = xScale } }
+scaleValue : Scale -> Value -> Value
+scaleValue scale v =
+    (v * (getInnerLength scale) / (getRange scale)) + scale.offset.lower
 
 
-updateYScale : scale -> { p | scale : Axised scale } -> { p | scale : Axised scale }
-updateYScale yScale ({ scale } as config) =
-    { config | scale = { scale | y = yScale } }
-
-
-updateScaleLength : Int -> Scale -> Scale
-updateScaleLength length scale =
-    { scale | length = toFloat length }
-
-
-updateScaleOffset : Int -> Int -> Scale -> Scale
-updateScaleOffset lower upper ({ offset } as scale) =
-    { scale | offset = { offset | lower = toFloat lower, upper = toFloat upper } }
-
-
-updateScaleReach : Reach -> Scale -> Scale
-updateScaleReach reach scale =
-    { scale | reach = reach }
-
-
-updateScaleLowerReach : (Float -> Float) -> Scale -> Scale
-updateScaleLowerReach toLowest ({ reach } as scale) =
-    { scale | reach = { reach | lower = toLowest reach.lower } }
-
-
-updateScaleUpperReach : (Float -> Float) -> Scale -> Scale
-updateScaleUpperReach toHighest ({ reach } as scale) =
-    { scale | reach = { reach | upper = toHighest reach.upper } }
+toSVGPoint : Scale -> Scale -> Point -> Point
+toSVGPoint xScale yScale ( x, y ) =
+    ( scaleValue xScale (x - xScale.reach.lower)
+    , scaleValue yScale (yScale.reach.upper - y)
+    )
