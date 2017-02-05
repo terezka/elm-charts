@@ -256,7 +256,7 @@ fullLengthline attributes value =
 
 clampToZero : Value -> Value -> Value
 clampToZero lower upper =
-    clamp 0 lower upper
+    clamp lower upper 0
 
 
 {-| -}
@@ -981,16 +981,14 @@ viewBars (BarsConfig config) groups meta =
                 []
 
         wrapBarLabel group (BarConfig barConfig) valueInfo =
-            viewPositioned
-                (position group valueInfo)
+            g [ transform (toTranslate (position group valueInfo |> addDisplacement ( width / 2, 0 ))) ]
                 [ viewBarLabel barConfig.labelConfig valueInfo ]
-                meta
 
         viewBarLabel (LabelConfig labelConfig) valueInfo =
             viewLabel labelConfig.attributes (labelConfig.format valueInfo)
 
         viewGroup group =
-            Svg.g [ class "elm-plot__series--bars__bar" ]
+            Svg.g [ class "elm-plot__series--bars__group" ]
                 [ Svg.g
                     []
                     (List.map2
