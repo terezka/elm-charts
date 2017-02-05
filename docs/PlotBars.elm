@@ -101,8 +101,7 @@ axisLabelConfig : LabelConfig (ValueInfo a) AxisMeta msg
 axisLabelConfig =
     toAxisLabelConfig
         { attributes =
-            [ stroke axisColor
-            , fill axisColor
+            [ fill axisColor
             , style "text-anchor: middle;"
             , displace ( 0, 24 )
             ]
@@ -113,12 +112,7 @@ axisLabelConfig =
 axisLineConfig : AxisLineConfig msg
 axisLineConfig =
     toAxisLineConfig
-        { attributes =
-            [ stroke axisColor
-            , fill axisColor
-            , fill pinkFill
-            ]
-        }
+        { attributes = [ stroke axisColor ] }
 
 
 tickConfig : TickConfig msg

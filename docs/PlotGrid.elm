@@ -57,8 +57,7 @@ axisLabelConfig : LabelConfig (ValueInfo a) AxisMeta msg
 axisLabelConfig =
     toAxisLabelConfig
         { attributes =
-            [ stroke axisColor
-            , fill axisColor
+            [ fill axisColor
             , style "text-anchor: end;"
             , displace ( -10, 5 )
             ]
@@ -68,12 +67,7 @@ axisLabelConfig =
 
 axisLineConfig : AxisLineConfig msg
 axisLineConfig =
-    toAxisLineConfig
-        { attributes =
-            [ stroke axisColor
-            , fill axisColor
-            ]
-        }
+    toAxisLineConfig { attributes = [ fill axisColor ] }
 
 
 gridConfig : GridConfig msg
