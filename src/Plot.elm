@@ -176,7 +176,7 @@ xAxis =
             { orientation = X
             , axisScale = meta.scale.x
             , oppositeAxisScale = meta.scale.y
-            , axisIntercept = clampToZero meta.scale.y.reach.lower meta.scale.y.reach.upper
+            , axisIntercept = valueClosestToZero meta.scale.y
             , toSVGPoint = meta.toSVGPoint
             , scale = meta.scale
             }
@@ -208,7 +208,7 @@ yAxis =
             { orientation = Y
             , axisScale = meta.scale.y
             , oppositeAxisScale = meta.scale.x
-            , axisIntercept = clampToZero meta.scale.x.reach.lower meta.scale.x.reach.upper
+            , axisIntercept = valueClosestToZero meta.scale.x
             , toSVGPoint = \( x, y ) -> meta.toSVGPoint ( y, x )
             , scale = meta.scale
             }
@@ -254,9 +254,9 @@ fullLengthline attributes value =
 -- POSITION HELPERS
 
 
-clampToZero : Value -> Value -> Value
-clampToZero lower upper =
-    clamp lower upper 0
+valueClosestToZero : Scale -> Value
+valueClosestToZero scale =
+    clamp scale.reach.lower scale.reach.upper 0
 
 
 {-| -}
@@ -948,37 +948,38 @@ getEdges range =
 
 
 viewBars : BarsConfig msg -> List Group -> Meta a -> Svg msg
-viewBars (BarsConfig config) groups meta =
+viewBars (BarsConfig { stackBy, barConfigs }) groups meta =
     let
+        barsPerGroup =
+            toFloat (List.length barConfigs)
+
         width =
-            toDefaultBarWidth meta config.stackBy config.barConfigs
+            toDefaultBarWidth meta stackBy barsPerGroup
 
         toValueInfo group =
             List.indexedMap (BarValueInfo group.xValue) group.yValues
 
         position group ({ xValue, yValue, index } as bar) =
-            case config.stackBy of
+            case stackBy of
                 X ->
-                    ( xValue, max (min 0 meta.scale.y.reach.upper) bar.yValue )
+                    ( xValue, max (min 0 meta.scale.y.reach.upper) yValue )
                         |> meta.toSVGPoint
-                        |> addDisplacement ( toBarXOffset config.barConfigs width index, 0 )
+                        |> addDisplacement ( toBarXOffset barsPerGroup width index, 0 )
 
                 Y ->
                     ( xValue, yValue )
                         |> addDisplacement ( 0, toBarYOffset group bar )
                         |> meta.toSVGPoint
-                        |> addDisplacement ( -width / 2, min 0 (toBarLength meta config.stackBy bar) )
+                        |> addDisplacement ( -width / 2, min 0 (toBarLength meta stackBy bar) )
 
-        viewBar (BarConfig barConfig) bar ( x, y ) =
-            Svg.rect
-                ([ Svg.Attributes.x (toString x)
-                 , Svg.Attributes.y (toString y)
-                 , Svg.Attributes.width (toString width)
-                 , Svg.Attributes.height (toString (abs (toBarLength meta config.stackBy bar)))
-                 ]
-                    ++ barConfig.attributes
-                )
-                []
+        viewBar group (BarConfig barConfig) bar =
+            Svg.rect (barConfig.attributes ++ viewBarAttributes group bar) []
+
+        viewBarAttributes group bar =
+            [ Svg.Attributes.transform (toTranslate (position group bar))
+            , Svg.Attributes.width (toString width)
+            , Svg.Attributes.height (toString (abs (toBarLength meta stackBy bar)))
+            ]
 
         wrapBarLabel group (BarConfig barConfig) valueInfo =
             g [ transform (toTranslate (position group valueInfo |> addDisplacement ( width / 2, 0 ))) ]
@@ -989,32 +990,28 @@ viewBars (BarsConfig config) groups meta =
 
         viewGroup group =
             Svg.g [ class "elm-plot__series--bars__group" ]
-                [ Svg.g
-                    []
-                    (List.map2
-                        (\barConfig bar -> viewBar barConfig bar (position group bar))
-                        config.barConfigs
-                        (toValueInfo group)
-                    )
-                , Svg.g [] (List.map2 (wrapBarLabel group) config.barConfigs (toValueInfo group))
+                [ Svg.g [ class "elm-plot__series--bars__group__bars" ]
+                    (List.map2 (viewBar group) barConfigs (toValueInfo group))
+                , Svg.g [ class "elm-plot__series--bars__group__labels" ]
+                    (List.map2 (wrapBarLabel group) barConfigs (toValueInfo group))
                 ]
     in
         g [ class "elm-plot__series--bars" ] (List.map viewGroup groups)
 
 
-toDefaultBarWidth : Meta a -> Orientation -> List (BarConfig msg) -> Float
-toDefaultBarWidth meta stackBy groups =
+toDefaultBarWidth : Meta a -> Orientation -> Float -> Float
+toDefaultBarWidth meta stackBy barsPerGroup =
     case stackBy of
         X ->
-            (getInnerLength meta.scale.x) / (toFloat (List.length groups) * (getRange meta.scale.x))
+            (scaleValue meta.scale.x 1) / barsPerGroup
 
         Y ->
-            (getInnerLength meta.scale.x) / (getRange meta.scale.x)
+            scaleValue meta.scale.x 1
 
 
-toBarXOffset : List (BarConfig msg) -> Float -> Int -> Value
-toBarXOffset groups width index =
-    toFloat index * width - toFloat (List.length groups) * width / 2
+toBarXOffset : Float -> Float -> Int -> Value
+toBarXOffset barsPerGroup width index =
+    toFloat index * width - (barsPerGroup * width / 2)
 
 
 toBarYOffset : Group -> BarValueInfo -> Value
@@ -1025,21 +1022,11 @@ toBarYOffset { yValues } { index, yValue } =
 
 
 toBarLength : Meta a -> Orientation -> BarValueInfo -> Value
-toBarLength meta stackBy bar =
-    case stackBy of
-        X ->
-            toLengthTouchingXAxis meta bar
-
-        Y ->
-            if bar.index == 0 then
-                toLengthTouchingXAxis meta bar
-            else
-                bar.yValue * (getInnerLength meta.scale.y) / (getRange meta.scale.y)
-
-
-toLengthTouchingXAxis : Meta a -> BarValueInfo -> Value
-toLengthTouchingXAxis { scale } { yValue, index } =
-    (yValue - (clamp scale.y.reach.lower scale.y.reach.upper 0)) * (getInnerLength scale.y) / (getRange scale.y)
+toBarLength { scale } stackBy { index, yValue } =
+    if stackBy == X || index == 0 then
+        scaleValue scale.y (yValue - valueClosestToZero scale.y)
+    else
+        scaleValue scale.y yValue
 
 
 addDisplacement : Point -> Point -> Point
@@ -1258,12 +1245,12 @@ getInnerLength scale =
 
 
 scaleValue : Scale -> Value -> Value
-scaleValue scale v =
-    (v * (getInnerLength scale) / (getRange scale)) + scale.offset.lower
+scaleValue scale value =
+    value * (getInnerLength scale) / (getRange scale)
 
 
 toSVGPoint : Scale -> Scale -> Point -> Point
 toSVGPoint xScale yScale ( x, y ) =
-    ( scaleValue xScale (x - xScale.reach.lower)
-    , scaleValue yScale (yScale.reach.upper - y)
+    ( scaleValue xScale (x - xScale.reach.lower) + xScale.offset.lower
+    , scaleValue yScale (yScale.reach.upper - y) + yScale.offset.lower
     )
