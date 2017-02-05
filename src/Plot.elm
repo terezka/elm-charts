@@ -40,6 +40,10 @@ module Plot
         , AxisLineConfig
         , toAxisLineConfig
         , axisLine
+        , GridConfig
+        , toGridConfig
+        , grid
+        , gridLine
         , xAxis
         , xAxisAt
         , yAxis
@@ -50,10 +54,10 @@ module Plot
         , length
         , list
         , fromAxis
+        , fromDelta
         , fromCount
         , fromList
         , displace
-        , grid
         , fromRange
         , fromDomain
         , positionBy
@@ -85,13 +89,13 @@ module Plot
 @docs xAxis, xAxisAt, yAxis, yAxisAt
 
 ### Value and position helpers
-@docs onAxis, fromAxis, fromCount, fromList
+@docs onAxis, fromAxis, fromCount, fromList, fromDelta
 
 ### Axis line
-@docs toAxisLineConfig, AxisLineConfig, axisLine
+@docs AxisLineConfig, toAxisLineConfig, axisLine
 
 ### Grid lines
-@docs grid
+@docs GridConfig, toGridConfig, grid, gridLine
 
 ### Labels
 @docs LabelConfig, toAxisLabelConfig, toBarLabelConfig, toAnyLabelConfig, labels, viewLabel, ValueInfo
@@ -240,21 +244,9 @@ yAxisAt toAxisIntercept =
 
 
 {-| -}
-grid : List (Svg.Attribute msg) -> (Meta AxisMeta -> List Value) -> Element AxisMeta msg
-grid attributes toValues =
-    list [ class "elm-plot__grid" ] (fullLengthline attributes) toValues
-
-
-{-| -}
 list : List (Svg.Attribute msg) -> (b -> Element a msg) -> (Meta a -> List b) -> Element a msg
 list attributes toElement toValues =
     List attributes (toValues >> List.map toElement)
-
-
-{-| -}
-fullLengthline : List (Svg.Attribute msg) -> Value -> Element AxisMeta msg
-fullLengthline attributes value =
-    Line attributes (fromAxis (\_ l h -> [ ( l, value ), ( h, value ) ]))
 
 
 
@@ -266,6 +258,13 @@ fromCount : Int -> Meta AxisMeta -> List (ValueInfo {})
 fromCount count meta =
     toDelta meta.axisScale.reach.lower meta.axisScale.reach.upper count
         |> toValuesFromDelta meta.axisScale.reach.lower meta.axisScale.reach.upper
+        |> List.map (\value -> { value = value })
+
+
+{-| -}
+fromDelta : Float -> Meta AxisMeta -> List (ValueInfo {})
+fromDelta delta meta =
+    toValuesFromDelta meta.axisScale.reach.lower meta.axisScale.reach.upper delta
         |> List.map (\value -> { value = value })
 
 
@@ -289,11 +288,18 @@ fromDomain toSomething { scale } =
     toSomething scale.y.reach.lower scale.y.reach.upper
 
 
-{-| Provides you with the axis' interception with the opposite axis, the lowerst and highest value.
+{-| Provides you with the axis' interception with the opposite axis, the lowest and highest value.
 -}
 fromAxis : (Value -> Value -> Value -> b) -> Meta AxisMeta -> b
 fromAxis toSomething meta =
     toSomething meta.axisIntercept meta.axisScale.reach.lower meta.axisScale.reach.upper
+
+
+{-| Provides you with the opposite axis lowest and highest value.
+-}
+fromOpposteAxis : (Value -> Value -> b) -> Meta AxisMeta -> b
+fromOpposteAxis toSomething meta =
+    toSomething meta.oppositeAxisScale.reach.lower meta.oppositeAxisScale.reach.upper
 
 
 {-| Place at `value` on current axis.
@@ -419,7 +425,7 @@ barsSerie config data =
 
 
 {-| The functions necessary to transform your data into the format the plot requires.
- If you provide the `xValue` with `Nothing`, the bars xValues will just be the index
+ If you provide the `xValue` with `Nothing`, the bars xValues will just be the index + 1
  of the bar in the list.
 -}
 type alias GroupTransformers data =
@@ -614,7 +620,36 @@ axisLine (AxisLineConfig { attributes }) =
 
 
 
--- ATTRIBUTES
+-- AXIS LINE CONFIG
+
+
+{-| -}
+type GridConfig msg
+    = GridConfig { attributes : List (Svg.Attribute msg) }
+
+
+{-| -}
+toGridConfig :
+    { attributes : List (Svg.Attribute msg) }
+    -> GridConfig msg
+toGridConfig config =
+    GridConfig config
+
+
+{-| -}
+grid : GridConfig msg -> (Meta AxisMeta -> List (ValueInfo a)) -> Element AxisMeta msg
+grid (GridConfig config) toValueInfo =
+    list [ class "elm-plot__grid" ] (gridLine config.attributes << .value) toValueInfo
+
+
+{-| -}
+gridLine : List (Svg.Attribute msg) -> Value -> Element AxisMeta msg
+gridLine attributes value =
+    Line attributes (fromOpposteAxis (\l h -> [ ( value, l ), ( value, h ) ]))
+
+
+
+-- HELPER ATTRIBUTES
 
 
 {-| -}
@@ -658,8 +693,10 @@ type PlotConfig msg
             { x : Int
             , y : Int
             }
-        , toDomain : Value -> Value -> { lower : Value, upper : Value }
-        , toRange : Value -> Value -> { lower : Value, upper : Value }
+        , toDomainLowest : Value -> Value
+        , toDomainHighest : Value -> Value
+        , toRangeLowest : Value -> Value
+        , toRangeHighest : Value -> Value
         }
 
 
@@ -685,8 +722,10 @@ toPlotConfig { attributes, id, margin, proportions } =
         , id = id
         , margin = margin
         , proportions = proportions
-        , toDomain = \min max -> { lower = min, upper = max }
-        , toRange = \min max -> { lower = min, upper = max }
+        , toDomainLowest = identity
+        , toDomainHighest = identity
+        , toRangeLowest = identity
+        , toRangeHighest = identity
         }
 
 
@@ -704,8 +743,10 @@ toPlotConfigCustom :
         { x : Int
         , y : Int
         }
-    , toDomain : Value -> Value -> { lower : Value, upper : Value }
-    , toRange : Value -> Value -> { lower : Value, upper : Value }
+    , toDomainLowest : Value -> Value
+    , toDomainHighest : Value -> Value
+    , toRangeLowest : Value -> Value
+    , toRangeHighest : Value -> Value
     }
     -> PlotConfig msg
 toPlotConfigCustom config =
@@ -809,8 +850,11 @@ viewPositioned point children meta =
 
 viewLine : LineConfig msg -> List Point -> Meta a -> Svg msg
 viewLine (LineConfig config) data meta =
-    g [ class "elm-plot__serie--line", clipPath ("url(#" ++ toClipPathId meta ++ ")") ]
-        [ viewPath (fill "transparent" :: config.attributes) (makeLinePath config.interpolation data meta) ]
+    g
+        [ class "elm-plot__serie--line"
+        , clipPath ("url(#" ++ toClipPathId meta ++ ")")
+        ]
+        [ viewPath (config.attributes ++ [ fill "transparent" ]) (makeLinePath config.interpolation data meta) ]
 
 
 
@@ -856,7 +900,10 @@ viewArea (AreaConfig config) data meta reach =
                 ]
                 |> toPath meta
     in
-        g [ class "elm-plot__serie--area", clipPath ("url(#" ++ toClipPathId meta ++ ")") ]
+        g
+            [ class "elm-plot__serie--area"
+            , clipPath ("url(#" ++ toClipPathId meta ++ ")")
+            ]
             [ viewPath config.attributes pathString ]
 
 
@@ -1127,16 +1174,20 @@ type Orientation
 
 
 toPlotMeta : PlotConfig msg -> List (Element PlotMeta msg) -> Meta PlotMeta
-toPlotMeta (PlotConfig { id, margin, proportions, toRange, toDomain }) elements =
+toPlotMeta (PlotConfig { id, margin, proportions, toRangeLowest, toRangeHighest, toDomainLowest, toDomainHighest }) elements =
     let
         reach =
             findPlotReach elements
 
         range =
-            toRange reach.x.lower reach.x.upper
+            { lower = toRangeLowest reach.x.lower
+            , upper = toRangeHighest reach.x.upper
+            }
 
         domain =
-            toDomain reach.y.lower reach.y.upper
+            { lower = toDomainLowest reach.y.lower
+            , upper = toDomainHighest reach.y.upper
+            }
 
         scale =
             { x = toScale proportions.x range margin.left margin.right

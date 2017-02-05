@@ -1,12 +1,8 @@
 module PlotGrid exposing (plotExample)
 
 import Svg
+import Svg.Attributes exposing (..)
 import Plot exposing (..)
-import Plot.Types exposing (..)
-import Plot.Line as Line
-import Plot.Axis as Axis
-import Plot.Grid as Grid
-import Plot.Line as Line
 import Common exposing (..)
 
 
@@ -14,79 +10,204 @@ plotExample : PlotExample msg
 plotExample =
     { title = title
     , code = code
-    , view = ViewStatic view
-    , id = id
+    , view = view
+    , id = title
     }
 
 
 title : String
 title =
-    "Grids"
+    "Grid"
 
 
 id : String
 id =
-    "PlotGrid"
+    "Grid"
+
+
+plotConfig : PlotConfig msg
+plotConfig =
+    toPlotConfigCustom
+        { attributes = []
+        , id = id
+        , margin =
+            { top = 20
+            , left = 40
+            , right = 20
+            , bottom = 20
+            }
+        , proportions =
+            { x = 600, y = 400 }
+        , toDomainLowest = \l -> l - 0.25
+        , toDomainHighest = \h -> h + 0.25
+        , toRangeLowest = identity
+        , toRangeHighest = identity
+        }
+
+
+lineConfig : LineConfig msg
+lineConfig =
+    toLineConfig
+        { attributes = [ stroke pinkStroke, fill pinkFill, strokeWidth "3px" ]
+        , interpolation = Bezier
+        }
+
+
+axisLabelConfig : LabelConfig (ValueInfo a) AxisMeta msg
+axisLabelConfig =
+    toAxisLabelConfig
+        { attributes =
+            [ stroke axisColor
+            , fill axisColor
+            , style "text-anchor: end;"
+            , displace ( -10, 5 )
+            ]
+        , format = toString << .value
+        }
+
+
+axisLineConfig : AxisLineConfig msg
+axisLineConfig =
+    toAxisLineConfig
+        { attributes =
+            [ stroke axisColor
+            , fill axisColor
+            ]
+        }
+
+
+gridConfig : GridConfig msg
+gridConfig =
+    toGridConfig
+        { attributes =
+            [ stroke axisColorLight
+            , fill axisColorLight
+            ]
+        }
+
+
+tickConfig : TickConfig msg
+tickConfig =
+    toTickConfig
+        { attributes =
+            [ stroke axisColorLight
+            , length 10
+            ]
+        }
 
 
 data : List ( Float, Float )
 data =
-    [ ( 0, 8 ), ( 1, 0 ), ( 2, 14 ) ]
+    List.map (\v -> ( toFloat v, sin (toFloat v * pi / 10) )) (List.range 0 100)
 
 
 view : Svg.Svg a
 view =
-    plot
-        [ size plotSize
-        , margin ( 10, 20, 40, 20 )
-        ]
-        [ verticalGrid
-            [ Grid.lines
-                [ Line.stroke axisColorLight ]
-            ]
-        , horizontalGrid
-            [ Grid.lines
-                [ Line.stroke axisColorLight ]
-            , Grid.values (FromList [ 4, 8, 12 ])
+    plot plotConfig
+        [ yAxis
+            [ labels axisLabelConfig (fromDelta 0.5)
+            , grid gridConfig (fromDelta 0.5)
             ]
         , xAxis
-            [ Axis.line [ Line.stroke axisColor ]
-            , Axis.tickValues (FromDelta 0.5)
+            [ ticks tickConfig (fromDelta 10)
+            , grid gridConfig (fromDelta 10)
+            , axisLine axisLineConfig
             ]
-        , line
-            [ Line.stroke pinkStroke
-            , Line.strokeWidth 3
-            ]
-            data
+        , lineSerie lineConfig data
         ]
 
 
 code : String
 code =
     """
-    view : Svg.Svg a
-    view =
-        plot
-            [ size plotSize
-            , margin ( 10, 20, 40, 20 )
+plotConfig : PlotConfig msg
+plotConfig =
+    toPlotConfigCustom
+        { attributes = []
+        , id = id
+        , margin =
+            { top = 20
+            , left = 40
+            , right = 20
+            , bottom = 20
+            }
+        , proportions =
+            { x = 600, y = 400 }
+        , toDomainLowest = \\l -> l - 0.25
+        , toDomainHighest = \\h -> h + 0.25
+        , toRangeLowest = identity
+        , toRangeHighest = identity
+        }
+
+
+lineConfig : LineConfig msg
+lineConfig =
+    toLineConfig
+        { attributes = [ stroke pinkStroke, fill pinkFill, strokeWidth "3px" ]
+        , interpolation = Bezier
+        }
+
+
+axisLabelConfig : LabelConfig (ValueInfo a) AxisMeta msg
+axisLabelConfig =
+    toAxisLabelConfig
+        { attributes =
+            [ stroke axisColor
+            , fill axisColor
+            , style "text-anchor: end;"
+            , displace ( -10, 5 )
             ]
-            [ verticalGrid
-                [ Grid.lines
-                    [ Line.stroke axisColorLight ]
-                ]
-            , horizontalGrid
-                [ Grid.lines
-                    [ Line.stroke axisColorLight ]
-                , Grid.values [ 4, 8, 12 ]
-                ]
-            , xAxis
-                [ Axis.line [ Line.stroke axisColor ]
-                , Axis.tickValues (FromDelta 0.5)
-                ]
-            , line
-                [ Line.stroke pinkStroke
-                , Line.strokeWidth 3
-                ]
-                data
+        , format = toString << .value
+        }
+
+
+axisLineConfig : AxisLineConfig msg
+axisLineConfig =
+    toAxisLineConfig
+        { attributes =
+            [ stroke axisColor
+            , fill axisColor
             ]
+        }
+
+
+gridConfig : GridConfig msg
+gridConfig =
+    toGridConfig
+        { attributes =
+            [ stroke axisColorLight
+            , fill axisColorLight
+            ]
+        }
+
+
+tickConfig : TickConfig msg
+tickConfig =
+    toTickConfig
+        { attributes =
+            [ stroke axisColorLight
+            , length 10
+            ]
+        }
+
+
+data : List ( Float, Float )
+data =
+    List.map (\\v -> ( toFloat v, sin (toFloat v * pi / 10) )) (List.range 0 100)
+
+
+view : Svg.Svg a
+view =
+    plot plotConfig
+        [ yAxis
+            [ labels axisLabelConfig (fromDelta 0.5)
+            , grid gridConfig (fromDelta 0.5)
+            ]
+        , xAxis
+            [ ticks tickConfig (fromDelta 10)
+            , grid gridConfig (fromDelta 10)
+            , axisLine axisLineConfig
+            ]
+        , lineSerie lineConfig data
+        ]
     """

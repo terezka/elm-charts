@@ -1,19 +1,13 @@
 port module Docs exposing (..)
 
-import Dict exposing (..)
 import Html exposing (Html, div, text, h1, img, a, br, span, code, pre, p)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (style, src, href, class, classList, id, name)
 import Common exposing (..)
-import Plot as Plot exposing (Interaction(..))
-import PlotComposed
-import PlotScatter
-import PlotGrid
-import PlotTicks
 import PlotBars
-import PlotSticky
-import PlotHint
-import PlotSmooth
+import PlotInterpolation
+import PlotGrid
+import PlotAxis
 
 
 -- MODEL
@@ -21,21 +15,13 @@ import PlotSmooth
 
 type alias Model =
     { focused : Maybe Id
-    , plotStates : Dict Id Plot.State
     }
 
 
 initialModel : Model
 initialModel =
     { focused = Nothing
-    , plotStates = empty
     }
-
-
-getPlotState : Id -> Dict Id Plot.State -> Plot.State
-getPlotState id plotStates =
-    get id plotStates
-        |> Maybe.withDefault Plot.initialState
 
 
 
@@ -44,29 +30,13 @@ getPlotState id plotStates =
 
 type Msg
     = FocusExample Id
-    | PlotInteraction Id (Plot.Interaction Msg)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ plotStates, focused } as model) =
+update msg ({ focused } as model) =
     case msg of
         FocusExample id ->
             ( { model | focused = updateFocused id focused }, Cmd.none )
-
-        PlotInteraction id interaction ->
-            case interaction of
-                Internal internalMsg ->
-                    let
-                        plotState =
-                            getPlotState id plotStates
-
-                        newState =
-                            Plot.update internalMsg plotState
-                    in
-                        ( { model | plotStates = setPlotState id newState plotStates }, Cmd.none )
-
-                Custom customMsg ->
-                    update customMsg model
 
 
 updateFocused : Id -> Maybe Id -> Maybe Id
@@ -82,11 +52,6 @@ updateFocused newId model =
                 Just newId
 
 
-setPlotState : Id -> Plot.State -> Dict Id Plot.State -> Dict Id Plot.State
-setPlotState id newState states =
-    Dict.update id (always (Just newState)) states
-
-
 
 -- VIEW
 
@@ -96,7 +61,6 @@ view model =
     div
         [ class "view" ]
         [ viewTitle
-        , viewExampleLarge model
         , div [] (List.map (viewExample model) examples)
         , viewFooter
         ]
@@ -124,20 +88,13 @@ viewTitle =
         ]
 
 
-viewExampleLarge : Model -> Html Msg
-viewExampleLarge { plotStates } =
-    Html.map
-        (PlotInteraction PlotComposed.id)
-        (PlotComposed.view (getPlotState PlotComposed.id plotStates))
-
-
 viewExample : Model -> PlotExample Msg -> Html.Html Msg
-viewExample ({ plotStates } as model) ({ title, id, view, code } as example) =
+viewExample model ({ title, id, view, code } as example) =
     Html.div
         [ class "view-plot" ]
         [ viewHeading model example
         , viewCode model example
-        , viewExampleInner model view
+        , view
         ]
 
 
@@ -156,18 +113,6 @@ viewToggler id =
         , onClick (FocusExample id)
         ]
         [ text "View source snippet" ]
-
-
-viewExampleInner : Model -> ViewPlot Msg -> Html.Html Msg
-viewExampleInner { plotStates } view =
-    case view of
-        ViewInteractive id view ->
-            getPlotState id plotStates
-                |> view
-                |> Html.map (PlotInteraction id)
-
-        ViewStatic view ->
-            view
 
 
 viewCode : Model -> PlotExample msg -> Html Msg
@@ -236,13 +181,10 @@ port highlight : () -> Cmd msg
 
 examples : List (PlotExample msg)
 examples =
-    [ PlotSmooth.plotExample
-    , PlotBars.plotExample
-    , PlotHint.plotExample
-    , PlotSticky.plotExample
-    , PlotScatter.plotExample
-    , PlotTicks.plotExample
+    [ PlotBars.plotExample
+    , PlotInterpolation.plotExample
     , PlotGrid.plotExample
+    , PlotAxis.plotExample
     ]
 
 
