@@ -114,7 +114,7 @@ module Plot
 
 import Html exposing (Html)
 import Svg exposing (Svg, g, text_, tspan, path, text, line)
-import Svg.Attributes exposing (d, fill, transform, class, y2, x2, width, height)
+import Svg.Attributes exposing (d, fill, transform, class, y2, x2, width, height, clipPath)
 import Utils exposing (..)
 
 
@@ -182,6 +182,7 @@ xAxis =
             , axisIntercept = valueClosestToZero meta.scale.y
             , toSVGPoint = meta.toSVGPoint
             , scale = meta.scale
+            , id = meta.id
             }
     in
         Axis toAxisMeta
@@ -198,6 +199,7 @@ xAxisAt toAxisIntercept =
             , axisIntercept = toAxisIntercept meta.scale.y.reach.lower meta.scale.y.reach.upper
             , toSVGPoint = meta.toSVGPoint
             , scale = meta.scale
+            , id = meta.id
             }
     in
         Axis toAxisMeta
@@ -214,6 +216,7 @@ yAxis =
             , axisIntercept = valueClosestToZero meta.scale.x
             , toSVGPoint = \( x, y ) -> meta.toSVGPoint ( y, x )
             , scale = meta.scale
+            , id = meta.id
             }
     in
         Axis toAxisMeta
@@ -230,6 +233,7 @@ yAxisAt toAxisIntercept =
             , axisIntercept = toAxisIntercept meta.scale.x.reach.lower meta.scale.x.reach.upper
             , toSVGPoint = \( x, y ) -> meta.toSVGPoint ( y, x )
             , scale = meta.scale
+            , id = meta.id
             }
     in
         Axis toAxisMeta
@@ -255,11 +259,6 @@ fullLengthline attributes value =
 
 
 -- POSITION HELPERS
-
-
-valueClosestToZero : Scale -> Value
-valueClosestToZero scale =
-    clamp scale.reach.lower scale.reach.upper 0
 
 
 {-| -}
@@ -327,7 +326,7 @@ toLineConfig config =
 
 
 {-| -}
-lineSerie : LineConfig msg -> List Point -> Element a msg
+lineSerie : LineConfig msg -> List Point -> Element PlotMeta msg
 lineSerie config data =
     SerieElement (findReachFromPoints data) (LineSerie config data)
 
@@ -355,7 +354,7 @@ toAreaConfig config =
 
 
 {-| -}
-areaSerie : AreaConfig msg -> List Point -> Element a msg
+areaSerie : AreaConfig msg -> List Point -> Element PlotMeta msg
 areaSerie config data =
     SerieElement (findReachFromAreaPoints data) (AreaSerie config data)
 
@@ -414,7 +413,7 @@ toBarConfig config =
 
 
 {-| -}
-barsSerie : BarsConfig msg -> List Group -> Element a msg
+barsSerie : BarsConfig msg -> List Group -> Element PlotMeta msg
 barsSerie config data =
     SerieElement (findReachFromGroups config data) (BarsSerie config data)
 
@@ -486,7 +485,7 @@ toDotsConfig config =
 
 
 {-| -}
-dotsSerie : DotsConfig msg -> List Point -> Element a msg
+dotsSerie : DotsConfig msg -> List Point -> Element PlotMeta msg
 dotsSerie config data =
     SerieElement (findReachFromPoints data) (DotsSerie config data)
 
@@ -721,87 +720,6 @@ plot config elements =
 
 
 
--- PLOT META
-
-
-type alias Axised a =
-    { x : a
-    , y : a
-    }
-
-
-type alias Reach =
-    { lower : Float
-    , upper : Float
-    }
-
-
-type alias Scale =
-    { reach : Reach
-    , offset : Reach
-    , length : Float
-    }
-
-
-type alias Meta a =
-    { a
-        | toSVGPoint : Point -> Point
-        , scale : Axised Scale
-    }
-
-
-{-| -}
-type alias PlotMeta =
-    { id : String }
-
-
-{-| -}
-type alias AxisMeta =
-    { orientation : Orientation
-    , axisScale : Scale
-    , oppositeAxisScale : Scale
-    , axisIntercept : Value
-    }
-
-
-{-| -}
-type Orientation
-    = X
-    | Y
-
-
-toPlotMeta : PlotConfig msg -> List (Element PlotMeta msg) -> Meta PlotMeta
-toPlotMeta (PlotConfig { id, margin, proportions, toRange, toDomain }) elements =
-    let
-        reach =
-            findPlotReach elements
-
-        range =
-            toRange reach.x.lower reach.x.upper
-
-        domain =
-            toDomain reach.y.lower reach.y.upper
-
-        scale =
-            { x = toScale proportions.x range margin.left margin.right
-            , y = toScale proportions.y domain margin.top margin.bottom
-            }
-    in
-        { scale = scale
-        , toSVGPoint = toSVGPoint scale.x scale.y
-        , id = id
-        }
-
-
-toScale : Int -> Reach -> Int -> Int -> Scale
-toScale length reach offsetLower offsetUpper =
-    { length = toFloat length
-    , offset = Reach (toFloat offsetLower) (toFloat offsetUpper)
-    , reach = reach
-    }
-
-
-
 -- VIEW PLOT
 
 
@@ -891,7 +809,7 @@ viewPositioned point children meta =
 
 viewLine : LineConfig msg -> List Point -> Meta a -> Svg msg
 viewLine (LineConfig config) data meta =
-    g [ class "elm-plot__serie--line" ]
+    g [ class "elm-plot__serie--line", clipPath ("url(#" ++ toClipPathId meta ++ ")") ]
         [ viewPath (fill "transparent" :: config.attributes) (makeLinePath config.interpolation data meta) ]
 
 
@@ -938,7 +856,7 @@ viewArea (AreaConfig config) data meta reach =
                 ]
                 |> toPath meta
     in
-        g [ class "elm-plot__serie--area" ]
+        g [ class "elm-plot__serie--area", clipPath ("url(#" ++ toClipPathId meta ++ ")") ]
             [ viewPath config.attributes pathString ]
 
 
@@ -1038,7 +956,7 @@ type PathType
 
 viewPath : List (Svg.Attribute msg) -> String -> Svg msg
 viewPath attributes pathString =
-    path (d pathString :: attributes |> List.reverse) []
+    path (d pathString :: attributes) []
 
 
 makeLinePath : Interpolation -> List Point -> Meta a -> String
@@ -1137,7 +1055,7 @@ toSPathTypes result points =
 -- VIEW HELPERS
 
 
-toClipPathId : Meta PlotMeta -> String
+toClipPathId : Meta a -> String
 toClipPathId plot =
     plot.id ++ "__scale-clip-path"
 
@@ -1152,8 +1070,91 @@ addDisplacement ( x, y ) ( dx, dy ) =
     ( x + dx, y + dy )
 
 
+valueClosestToZero : Scale -> Value
+valueClosestToZero scale =
+    clamp scale.reach.lower scale.reach.upper 0
 
--- META
+
+
+-- META AND SCALES
+
+
+type alias Axised a =
+    { x : a
+    , y : a
+    }
+
+
+type alias Reach =
+    { lower : Float
+    , upper : Float
+    }
+
+
+type alias Scale =
+    { reach : Reach
+    , offset : Reach
+    , length : Float
+    }
+
+
+type alias Meta a =
+    { a
+        | toSVGPoint : Point -> Point
+        , scale : Axised Scale
+        , id : String
+    }
+
+
+{-| -}
+type alias PlotMeta =
+    {}
+
+
+{-| -}
+type alias AxisMeta =
+    { orientation : Orientation
+    , axisScale : Scale
+    , oppositeAxisScale : Scale
+    , axisIntercept : Value
+    }
+
+
+{-| -}
+type Orientation
+    = X
+    | Y
+
+
+toPlotMeta : PlotConfig msg -> List (Element PlotMeta msg) -> Meta PlotMeta
+toPlotMeta (PlotConfig { id, margin, proportions, toRange, toDomain }) elements =
+    let
+        reach =
+            findPlotReach elements
+
+        range =
+            toRange reach.x.lower reach.x.upper
+
+        domain =
+            toDomain reach.y.lower reach.y.upper
+
+        scale =
+            { x = toScale proportions.x range margin.left margin.right
+            , y = toScale proportions.y domain margin.top margin.bottom
+            }
+    in
+        { scale = scale
+        , toSVGPoint = toSVGPoint scale.x scale.y
+        , id = id
+        }
+
+
+toScale : Int -> Reach -> Int -> Int -> Scale
+toScale length reach offsetLower offsetUpper =
+    { length = toFloat length
+    , offset = Reach (toFloat offsetLower) (toFloat offsetUpper)
+    , reach = reach
+    }
 
 
 findPlotReach : List (Element a msg) -> Axised Reach
