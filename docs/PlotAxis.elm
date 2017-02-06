@@ -51,49 +51,22 @@ barsConfig =
     toBarsConfig
         { stackBy = X
         , maxWidth = Fixed 30
+        , label = LabelConfig barLabelAttrs (\info -> toString info.yValue)
         , barConfigs =
-            [ bar1Config
-            , bar2Config
-            , bar3Config
+            [ [ fill pinkStroke ]
+            , [ fill blueFill ]
+            , [ fill skinFill ]
             ]
         }
 
 
-bar1Config : BarConfig msg
-bar1Config =
-    toBarConfig
-        { attributes = [ fill pinkStroke ]
-        , labelConfig = barLabelConfig
-        }
-
-
-bar2Config : BarConfig msg
-bar2Config =
-    toBarConfig
-        { attributes = [ fill blueFill ]
-        , labelConfig = barLabelConfig
-        }
-
-
-bar3Config : BarConfig msg
-bar3Config =
-    toBarConfig
-        { attributes = [ fill skinFill ]
-        , labelConfig = barLabelConfig
-        }
-
-
-barLabelConfig : LabelConfig BarValueInfo a msg
-barLabelConfig =
-    toBarLabelConfig
-        { attributes =
-            [ stroke "#fff"
-            , fill "#fff"
-            , style "text-anchor: middle; font-size: 10px;"
-            , displace ( 0, 15 )
-            ]
-        , format = \info -> toString info.yValue
-        }
+barLabelAttrs : LabelConfig BarValueInfo a msg
+barLabelAttrs =
+    [ stroke "#fff"
+    , fill "#fff"
+    , style "text-anchor: middle; font-size: 10px;"
+    , displace ( 0, 15 )
+    ]
 
 
 xLabelStrings : Array.Array String
@@ -181,50 +154,18 @@ tickY2Config =
 view : Svg.Svg a
 view =
     plot plotConfig
-        [ barsSerie
-            barsConfig
-            (toGroups
-                { yValues = .values
-                , xValue = Nothing
-                }
-                [ { values = [ 40, 30, 20 ] }
-                , { values = [ 20, 30, 40 ] }
-                , { values = [ 40, 20, 10 ] }
-                , { values = [ 40, 50, 20 ] }
-                ]
-            )
-        , xAxis
-            [ axisLine axisLineConfig
-            , labels axisLabelConfig (\_ -> List.indexedMap (\i v -> { index = i, value = v }) [ 1, 2, 3, 4 ])
-            , ticks tickXConfig (fromDelta 1)
-            ]
-        , yAxisAt (\l h -> l)
-            [ axisLine axisLineConfig
-            , labels axisLabelY1Config (fromCount 5 >> List.filter (\v -> v.value /= 0))
-            , ticks tickY1Config (fromCount 5)
-            , positionBy
-                (fromAxis (\p l h -> ( h / 2, p )))
-                [ viewLabel
-                    [ transform "translate(-10, 0) rotate(-90)"
-                    , style "text-anchor: middle"
-                    , fill axisColorLight
-                    ]
-                    "Units sold"
-                ]
-            ]
-        , yAxisAt (\l h -> h)
-            [ axisLine axisLineConfig
-            , labels axisLabelY2Config (fromCount 6 >> List.filter (\v -> v.value /= 0))
-            , ticks tickY2Config (fromCount 6)
-            , positionBy
-                (fromAxis (\p l h -> ( h / 2, p )))
-                [ viewLabel
-                    [ transform "translate(10, 0) rotate(90)"
-                    , style "text-anchor: middle"
-                    , fill axisColorLight
-                    ]
-                    "Ca$h for big big company"
-                ]
+        [ bars
+            { stackBy = Y
+            , yValues = .values
+            , xValue = Nothing
+            , styles = [ [ fill "red" ], [ fill "blue" ], [ fill "green" ] ]
+            , labels = labelSimple [] toString
+            , maxWidth = Percentage 100
+            }
+            [ { values = [ 40, 30, 20 ] }
+            , { values = [ 20, 30, 40 ] }
+            , { values = [ 40, 20, 10 ] }
+            , { values = [ 40, 50, 20 ] }
             ]
         ]
 

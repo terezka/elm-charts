@@ -78,21 +78,35 @@ main =
             , xAxis
                 closestToZero
                 [ axisLine [ stroke "red" ]
-                , ticks [ stroke skinStroke, length 15 ] (fromDelta 0.5)
-                , ticks [ stroke blueStroke, fill blueStroke, length 10, strokeWidth "2px" ] (fromDelta 1)
-                , labels [ fill pinkStroke ] toString (fromDelta 1 >> remove 0)
+                , ticks
+                    (tickSimple [ stroke skinStroke, length 15 ])
+                    (fromDelta 0.5)
+                , ticks
+                    (tickSimple [ stroke blueStroke, fill blueStroke, length 10, strokeWidth "2px" ])
+                    (fromDelta 1)
+                , labels
+                    (labelSimple [ fill pinkStroke ] toString)
+                    (fromDelta 1 >> remove 0)
                 ]
             , yAxis
                 lowest
                 [ axisLine [ fill blueStroke, stroke skinStroke ]
-                , ticks [ stroke blueStroke, length 4, strokeWidth "2px" ] (fromDelta 1)
-                , labels [ fill pinkStroke ] toString (fromDelta 1 >> remove 0)
+                , ticks
+                    (tickSimple [ stroke blueStroke, length 4, strokeWidth "2px" ])
+                    (fromDelta 1)
+                , labels
+                    (labelSimple [ fill pinkStroke ] toString)
+                    (fromDelta 1 >> remove 0)
                 ]
             , yAxis
                 closestToZero
                 [ axisLine [ fill blueStroke, stroke skinStroke ]
-                , ticks [ stroke blueStroke, length 4, strokeWidth "2px" ] (fromDelta 1)
-                , labels [ fill pinkStroke ] toString (fromDelta 1 >> remove 0)
+                , ticks
+                    (tickSimple [ stroke blueStroke, length 4, strokeWidth "2px" ])
+                    (fromDelta 1)
+                , labels
+                    (labelSimple [ fill pinkStroke ] toString)
+                    (fromDelta 1 >> remove 0)
                 ]
             , verticalGrid [ stroke skinStroke ] (fromDelta 1)
             ]
