@@ -64,8 +64,8 @@ view =
         [ yAxis
             lowest
             [ axisLine [ fill axisColor ]
-            , ticks [ stroke axisColor, length 5 ] (fromDelta 1)
-            , labels [ fill axisColor, displace ( -10, 5 ), style "text-anchor: end;" ] toString (fromDelta 1)
+            , ticks (tickSimple [ stroke axisColor, length 5 ]) (fromDelta 1)
+            , labels (labelSimple [ fill axisColor, displace ( -10, 5 ), style "text-anchor: end;" ] toString) (fromDelta 1)
             ]
         , verticalGrid [ stroke axisColorLight ] (fromDelta 10)
         , horizontalGrid [ stroke axisColorLight ] (fromDelta 1)

@@ -2,8 +2,8 @@ module PlotAxis exposing (plotExample)
 
 import Svg
 import Svg.Attributes exposing (..)
+import Svg.Plot exposing (..)
 import Array
-import Plot exposing (..)
 import Common exposing (..)
 
 
@@ -46,126 +46,105 @@ plotConfig =
         }
 
 
-barsConfig : BarsConfig msg
-barsConfig =
-    toBarsConfig
-        { stackBy = X
-        , maxWidth = Fixed 30
-        , label = LabelConfig barLabelAttrs (\info -> toString info.yValue)
-        , barConfigs =
-            [ [ fill pinkStroke ]
-            , [ fill blueFill ]
-            , [ fill skinFill ]
-            ]
-        }
-
-
-barLabelAttrs : LabelConfig BarValueInfo a msg
-barLabelAttrs =
-    [ stroke "#fff"
-    , fill "#fff"
-    , style "text-anchor: middle; font-size: 10px;"
-    , displace ( 0, 15 )
-    ]
-
-
 xLabelStrings : Array.Array String
 xLabelStrings =
     Array.fromList [ "Autumn", "Winter", "Spring", "Summer" ]
 
 
-axisLabelConfig : LabelConfig (ValueInfo { index : Int }) AxisMeta msg
-axisLabelConfig =
-    toAxisLabelConfig
-        { attributes =
-            [ fill axisColor
-            , style "text-anchor: middle;"
-            , transform "translate(10, 44) rotate(45) "
-            ]
-        , format = \info -> Array.get info.index xLabelStrings |> Maybe.withDefault ""
-        }
-
-
-axisLabelY1Config : LabelConfig (ValueInfo a) AxisMeta msg
-axisLabelY1Config =
-    toAxisLabelConfig
-        { attributes =
-            [ fill axisColor
-            , style "text-anchor: start;"
-            , displace ( 10, 5 )
-            ]
-        , format = toString << .value
-        }
-
-
-axisLabelY2Config : LabelConfig (ValueInfo a) AxisMeta msg
-axisLabelY2Config =
-    toAxisLabelConfig
-        { attributes =
-            [ fill axisColor
-            , style "text-anchor: end;"
-            , displace ( -10, 5 )
-            ]
-        , format = toString << (*) 200 << .value
-        }
-
-
-axisLineConfig : AxisLineConfig msg
-axisLineConfig =
-    toAxisLineConfig
-        { attributes =
-            [ stroke axisColor
-            ]
-        }
-
-
-tickXConfig : TickConfig msg
-tickXConfig =
-    toTickConfig
-        { attributes =
-            [ length 10
-            , stroke axisColor
-            ]
-        }
-
-
-tickY1Config : TickConfig msg
-tickY1Config =
-    toTickConfig
-        { attributes =
-            [ length 4
-            , stroke axisColor
-            , transform "rotate(-90)"
-            ]
-        }
-
-
-tickY2Config : TickConfig msg
-tickY2Config =
-    toTickConfig
-        { attributes =
-            [ length 4
-            , stroke axisColor
-            , transform "rotate(90)"
-            ]
-        }
+xLabelConfig : LabelConfig msg
+xLabelConfig =
+    labelSimple
+        [ fill axisColor
+        , style "text-anchor: middle;"
+        , transform "translate(10, 44) rotate(45) "
+        ]
+        (\value -> Array.get (round <| value - 1) xLabelStrings |> Maybe.withDefault "")
 
 
 view : Svg.Svg a
 view =
     plot plotConfig
-        [ bars
-            { stackBy = Y
+        [ barsSerie
+            { stackBy = X
             , yValues = .values
             , xValue = Nothing
-            , styles = [ [ fill "red" ], [ fill "blue" ], [ fill "green" ] ]
-            , labels = labelSimple [] toString
-            , maxWidth = Percentage 100
+            , styles = [ [ fill pinkFill ], [ fill blueFill ], [ fill skinFill ] ]
+            , labels =
+                labelSimple
+                    [ stroke "#fff"
+                    , fill "#fff"
+                    , style "text-anchor: middle; font-size: 10px;"
+                    , displace ( 0, 15 )
+                    ]
+                    toString
+            , maxWidth = Fixed 30
             }
             [ { values = [ 40, 30, 20 ] }
             , { values = [ 20, 30, 40 ] }
             , { values = [ 40, 20, 10 ] }
             , { values = [ 40, 50, 20 ] }
+            ]
+        , xAxis
+            closestToZero
+            [ axisLine [ stroke axisColor ]
+            , ticks (tickSimple [ stroke axisColor, length 10 ]) (fromDelta 1)
+            , labels xLabelConfig (fromList [ 1, 2, 3, 4 ])
+            ]
+        , yAxis
+            lowest
+            [ axisLine [ stroke axisColor ]
+            , ticks
+                (tickSimple [ stroke axisColorLight, length 10, transform "rotate(-90)" ])
+                (fromDelta 5 >> List.filter (\v -> rem (round v) 10 /= 0))
+            , ticks
+                (tickSimple [ stroke axisColorLight, length 5, transform "rotate(-90)" ])
+                (fromDelta 5)
+            , labels
+                (labelSimple
+                    [ fill axisColor
+                    , style "text-anchor: start;"
+                    , displace ( 10, 5 )
+                    ]
+                    toString
+                )
+                (fromDelta 10 >> remove 0)
+            ]
+        , yAxis
+            highest
+            [ axisLine [ stroke axisColor ]
+            , ticks
+                (tickSimple [ stroke axisColorLight, length 10 ])
+                (fromDelta 5 >> List.filter (\v -> rem (round v) 10 /= 0))
+            , ticks
+                (tickSimple [ stroke axisColorLight, length 5 ])
+                (fromDelta 5)
+            , labels
+                (labelSimple
+                    [ fill axisColor
+                    , style "text-anchor: end;"
+                    , displace ( -10, 5 )
+                    ]
+                    ((*) 100 >> toString)
+                )
+                (fromDelta 10 >> remove 0)
+            ]
+        , positionBy
+            (fromRangeAndDomain (\xl xh yl yh -> ( xl, yh / 2 )))
+            [ viewLabel
+                [ transform "translate(-10, 0) rotate(-90)"
+                , style "text-anchor: middle"
+                , fill axisColorLight
+                ]
+                "Units sold"
+            ]
+        , positionBy
+            (fromRangeAndDomain (\xl xh yl yh -> ( xh, yh / 2 )))
+            [ viewLabel
+                [ transform "translate(10, 0) rotate(90)"
+                , style "text-anchor: middle"
+                , fill axisColorLight
+                ]
+                "Ca$h for big big company"
             ]
         ]
 
