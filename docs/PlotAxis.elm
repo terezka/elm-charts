@@ -40,7 +40,7 @@ plotConfig =
         , proportions =
             { x = 600, y = 400 }
         , toDomainLowest = identity
-        , toDomainHighest = identity
+        , toDomainHighest = \h -> h + 5
         , toRangeLowest = \l -> l - 0.5
         , toRangeHighest = \h -> h + 0.5
         }
@@ -146,12 +146,34 @@ axisLineConfig =
         }
 
 
-tickConfig : TickConfig msg
-tickConfig =
+tickXConfig : TickConfig msg
+tickXConfig =
     toTickConfig
         { attributes =
             [ length 10
             , stroke axisColor
+            ]
+        }
+
+
+tickY1Config : TickConfig msg
+tickY1Config =
+    toTickConfig
+        { attributes =
+            [ length 4
+            , stroke axisColor
+            , transform "rotate(-90)"
+            ]
+        }
+
+
+tickY2Config : TickConfig msg
+tickY2Config =
+    toTickConfig
+        { attributes =
+            [ length 4
+            , stroke axisColor
+            , transform "rotate(90)"
             ]
         }
 
@@ -174,12 +196,12 @@ view =
         , xAxis
             [ axisLine axisLineConfig
             , labels axisLabelConfig (\_ -> List.indexedMap (\i v -> { index = i, value = v }) [ 1, 2, 3, 4 ])
-            , ticks tickConfig (fromDelta 1)
+            , ticks tickXConfig (fromDelta 1)
             ]
         , yAxisAt (\l h -> l)
             [ axisLine axisLineConfig
             , labels axisLabelY1Config (fromCount 5 >> List.filter (\v -> v.value /= 0))
-            , ticks tickConfig (fromCount 5)
+            , ticks tickY1Config (fromCount 5)
             , positionBy
                 (fromAxis (\p l h -> ( h / 2, p )))
                 [ viewLabel
@@ -192,8 +214,8 @@ view =
             ]
         , yAxisAt (\l h -> h)
             [ axisLine axisLineConfig
-            , labels axisLabelY2Config (fromCount 5 >> List.filter (\v -> v.value /= 0))
-            , ticks tickConfig (fromCount 5)
+            , labels axisLabelY2Config (fromCount 6 >> List.filter (\v -> v.value /= 0))
+            , ticks tickY2Config (fromCount 6)
             , positionBy
                 (fromAxis (\p l h -> ( h / 2, p )))
                 [ viewLabel

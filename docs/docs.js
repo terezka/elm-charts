@@ -10908,7 +10908,7 @@ var _terezka$elm_plot$PlotGrid$data = A2(
 			ctor: '_Tuple2',
 			_0: _elm_lang$core$Basics$toFloat(v),
 			_1: _elm_lang$core$Basics$sin(
-				(_elm_lang$core$Basics$toFloat(v) * _elm_lang$core$Basics$pi) / 10)
+				(_elm_lang$core$Basics$toFloat(v) * _elm_lang$core$Basics$pi) / 20)
 		};
 	},
 	A2(_elm_lang$core$List$range, 0, 100));
@@ -11054,7 +11054,39 @@ var _terezka$elm_plot$PlotGrid$title = 'Grid';
 var _terezka$elm_plot$PlotGrid$plotExample = {title: _terezka$elm_plot$PlotGrid$title, code: _terezka$elm_plot$PlotGrid$code, view: _terezka$elm_plot$PlotGrid$view, id: _terezka$elm_plot$PlotGrid$title};
 
 var _terezka$elm_plot$PlotAxis$code = '\n\nplotConfig : PlotConfig msg\nplotConfig =\n    toPlotConfigCustom\n        { attributes = []\n        , id = id\n        , margin =\n            { top = 20\n            , left = 30\n            , right = 30\n            , bottom = 90\n            }\n        , proportions =\n            { x = 600, y = 400 }\n        , toDomainLowest = identity\n        , toDomainHighest = identity\n        , toRangeLowest = \\l -> l - 0.5\n        , toRangeHighest = \\h -> h + 0.5\n        }\n\n\nbarsConfig : BarsConfig msg\nbarsConfig =\n    toBarsConfig\n        { stackBy = X\n        , maxWidth = Fixed 30\n        , barConfigs =\n            [ bar1Config\n            , bar2Config\n            , bar3Config\n            ]\n        }\n\n\nbar1Config : BarConfig msg\nbar1Config =\n    toBarConfig\n        { attributes = [ fill pinkStroke ]\n        , labelConfig = barLabelConfig\n        }\n\n\nbar2Config : BarConfig msg\nbar2Config =\n    toBarConfig\n        { attributes = [ fill blueFill ]\n        , labelConfig = barLabelConfig\n        }\n\n\nbar3Config : BarConfig msg\nbar3Config =\n    toBarConfig\n        { attributes = [ fill skinFill ]\n        , labelConfig = barLabelConfig\n        }\n\n\nbarLabelConfig : LabelConfig BarValueInfo a msg\nbarLabelConfig =\n    toBarLabelConfig\n        { attributes =\n            [ stroke \"#fff\"\n            , fill \"#fff\"\n            , style \"text-anchor: middle; font-size: 10px;\"\n            , displace ( 0, 15 )\n            ]\n        , format = \\info -> toString info.yValue\n        }\n\n\nxLabelStrings : Array.Array String\nxLabelStrings =\n    Array.fromList [ \"Autumn\", \"Winter\", \"Spring\", \"Summer\" ]\n\n\naxisLabelConfig : LabelConfig (ValueInfo { index : Int }) AxisMeta msg\naxisLabelConfig =\n    toAxisLabelConfig\n        { attributes =\n            [ fill axisColor\n            , style \"text-anchor: middle;\"\n            , transform \"translate(10, 44) rotate(45) \"\n            ]\n        , format = \\info -> Array.get info.index xLabelStrings |> Maybe.withDefault \"\"\n        }\n\n\naxisLabelY1Config : LabelConfig (ValueInfo a) AxisMeta msg\naxisLabelY1Config =\n    toAxisLabelConfig\n        { attributes =\n            [ fill axisColor\n            , style \"text-anchor: start;\"\n            , displace ( 10, 5 )\n            ]\n        , format = toString << .value\n        }\n\n\naxisLabelY2Config : LabelConfig (ValueInfo a) AxisMeta msg\naxisLabelY2Config =\n    toAxisLabelConfig\n        { attributes =\n            [ fill axisColor\n            , style \"text-anchor: end;\"\n            , displace ( -10, 5 )\n            ]\n        , format = toString << (*) 200 << .value\n        }\n\n\naxisLineConfig : AxisLineConfig msg\naxisLineConfig =\n    toAxisLineConfig\n        { attributes =\n            [ stroke axisColor\n            ]\n        }\n\n\ntickConfig : TickConfig msg\ntickConfig =\n    toTickConfig\n        { attributes =\n            [ length 10\n            , stroke axisColor\n            ]\n        }\n\n\nview : Svg.Svg a\nview =\n    plot plotConfig\n        [ barsSerie\n            barsConfig\n            (toGroups\n                { yValues = .values\n                , xValue = Nothing\n                }\n                [ { values = [ 40, 30, 20 ] }\n                , { values = [ 20, 30, 40 ] }\n                , { values = [ 40, 20, 10 ] }\n                , { values = [ 40, 50, 20 ] }\n                ]\n            )\n        , xAxis\n            [ axisLine axisLineConfig\n            , labels axisLabelConfig (\\_ -> List.indexedMap (\\i v -> { index = i, value = v }) [ 1, 2, 3, 4 ])\n            , ticks tickConfig (fromDelta 1)\n            ]\n        , yAxisAt (\\l h -> l)\n            [ axisLine axisLineConfig\n            , labels axisLabelY1Config (fromCount 5 >> List.filter (\\v -> v.value /= 0))\n            , ticks tickConfig (fromCount 5)\n            , positionBy\n                (fromAxis (\\p l h -> ( h / 2, p )))\n                [ viewLabel\n                    [ transform \"translate(-10, 0) rotate(-90)\"\n                    , style \"text-anchor: middle\"\n                    , fill axisColorLight\n                    ]\n                    \"Units sold\"\n                ]\n            ]\n        , yAxisAt (\\l h -> h)\n            [ axisLine axisLineConfig\n            , labels axisLabelY2Config (fromCount 5 >> List.filter (\\v -> v.value /= 0))\n            , ticks tickConfig (fromCount 5)\n            , positionBy\n                (fromAxis (\\p l h -> ( h / 2, p )))\n                [ viewLabel\n                    [ transform \"translate(10, 0) rotate(90)\"\n                    , style \"text-anchor: middle\"\n                    , fill axisColorLight\n                    ]\n                    \"Ca$h for big big company\"\n                ]\n            ]\n        ]\n    ';
-var _terezka$elm_plot$PlotAxis$tickConfig = _terezka$elm_plot$Plot$toTickConfig(
+var _terezka$elm_plot$PlotAxis$tickY2Config = _terezka$elm_plot$Plot$toTickConfig(
+	{
+		attributes: {
+			ctor: '::',
+			_0: _terezka$elm_plot$Plot$length(4),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Common$axisColor),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$transform('rotate(90)'),
+					_1: {ctor: '[]'}
+				}
+			}
+		}
+	});
+var _terezka$elm_plot$PlotAxis$tickY1Config = _terezka$elm_plot$Plot$toTickConfig(
+	{
+		attributes: {
+			ctor: '::',
+			_0: _terezka$elm_plot$Plot$length(4),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Common$axisColor),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$transform('rotate(-90)'),
+					_1: {ctor: '[]'}
+				}
+			}
+		}
+	});
+var _terezka$elm_plot$PlotAxis$tickXConfig = _terezka$elm_plot$Plot$toTickConfig(
 	{
 		attributes: {
 			ctor: '::',
@@ -11243,7 +11275,9 @@ var _terezka$elm_plot$PlotAxis$plotConfig = _terezka$elm_plot$Plot$toPlotConfigC
 		margin: {top: 20, left: 30, right: 30, bottom: 90},
 		proportions: {x: 600, y: 400},
 		toDomainLowest: _elm_lang$core$Basics$identity,
-		toDomainHighest: _elm_lang$core$Basics$identity,
+		toDomainHighest: function (h) {
+			return h + 5;
+		},
 		toRangeLowest: function (l) {
 			return l - 0.5;
 		},
@@ -11380,7 +11414,7 @@ var _terezka$elm_plot$PlotAxis$view = A2(
 							ctor: '::',
 							_0: A2(
 								_terezka$elm_plot$Plot$ticks,
-								_terezka$elm_plot$PlotAxis$tickConfig,
+								_terezka$elm_plot$PlotAxis$tickXConfig,
 								_terezka$elm_plot$Plot$fromDelta(1)),
 							_1: {ctor: '[]'}
 						}
@@ -11414,7 +11448,7 @@ var _terezka$elm_plot$PlotAxis$view = A2(
 								ctor: '::',
 								_0: A2(
 									_terezka$elm_plot$Plot$ticks,
-									_terezka$elm_plot$PlotAxis$tickConfig,
+									_terezka$elm_plot$PlotAxis$tickY1Config,
 									_terezka$elm_plot$Plot$fromCount(5)),
 								_1: {
 									ctor: '::',
@@ -11472,14 +11506,14 @@ var _terezka$elm_plot$PlotAxis$view = A2(
 											function (v) {
 												return !_elm_lang$core$Native_Utils.eq(v.value, 0);
 											},
-											A2(_terezka$elm_plot$Plot$fromCount, 5, _p4));
+											A2(_terezka$elm_plot$Plot$fromCount, 6, _p4));
 									}),
 								_1: {
 									ctor: '::',
 									_0: A2(
 										_terezka$elm_plot$Plot$ticks,
-										_terezka$elm_plot$PlotAxis$tickConfig,
-										_terezka$elm_plot$Plot$fromCount(5)),
+										_terezka$elm_plot$PlotAxis$tickY2Config,
+										_terezka$elm_plot$Plot$fromCount(6)),
 									_1: {
 										ctor: '::',
 										_0: A2(

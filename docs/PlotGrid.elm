@@ -2,7 +2,7 @@ module PlotGrid exposing (plotExample)
 
 import Svg
 import Svg.Attributes exposing (..)
-import Plot exposing (..)
+import Svg.Plot exposing (..)
 import Common exposing (..)
 
 
@@ -53,59 +53,31 @@ lineConfig =
         }
 
 
-axisLabelConfig : LabelConfig (ValueInfo a) AxisMeta msg
-axisLabelConfig =
-    toAxisLabelConfig
-        { attributes =
-            [ fill axisColor
-            , style "text-anchor: end;"
-            , displace ( -10, 5 )
-            ]
-        , format = toString << .value
-        }
-
-
-axisLineConfig : AxisLineConfig msg
-axisLineConfig =
-    toAxisLineConfig { attributes = [ fill axisColor ] }
-
-
-gridConfig : GridConfig msg
-gridConfig =
-    toGridConfig
-        { attributes =
-            [ stroke axisColorLight
-            , fill axisColorLight
-            ]
-        }
-
-
-tickConfig : TickConfig msg
-tickConfig =
-    toTickConfig
-        { attributes =
-            [ stroke axisColorLight
-            , length 10
-            ]
-        }
-
-
 data : List ( Float, Float )
 data =
-    List.map (\v -> ( toFloat v, sin (toFloat v * pi / 10) )) (List.range 0 100)
+    List.map (\v -> ( toFloat v, sin (toFloat v * pi / 20) )) (List.range 0 100)
 
 
 view : Svg.Svg a
 view =
     plot plotConfig
         [ yAxis
-            [ labels axisLabelConfig (fromDelta 0.5)
-            , grid gridConfig (fromDelta 0.5)
+            lowest
+            [ axisLine [ fill axisColor ]
+            , ticks [ stroke axisColor, length 5 ] (fromDelta 1)
+            , labels [ fill axisColor, displace ( -10, 5 ), style "text-anchor: end;" ] toString (fromDelta 1)
             ]
-        , xAxis
-            [ ticks tickConfig (fromDelta 10)
-            , grid gridConfig (fromDelta 10)
-            , axisLine axisLineConfig
+        , verticalGrid [ stroke axisColorLight ] (fromDelta 10)
+        , horizontalGrid [ stroke axisColorLight ] (fromDelta 1)
+        , xAxis closestToZero [ axisLine [ stroke axisColor ] ]
+        , positionBy
+            (fromRangeAndDomain (\xl xh yl yh -> ( xh, yh )))
+            [ viewLabel
+                [ style "text-anchor: end; font-family: monospace;"
+                , displace ( -10, 15 )
+                , fill axisColor
+                ]
+                "f(x) = sin x"
             ]
         , lineSerie lineConfig data
         ]
