@@ -33,11 +33,11 @@ Something like this:
 			]
 ```
 
-You're welcome to take a look at the docs folder for many more [exampels](https://github.com/terezka/elm-plot/tree/master/docs)! 
+You're welcome to take a look at the docs folder for many more [examples](https://github.com/terezka/elm-plot/tree/master/docs)! 
 
 ### Missing something?
 
-Let me know! Open an issue (or PR) or write at #elm-plot in the elm-lang's [slack](http://elmlang.herokuapp.com). Please don't hesistate - I'm happy to answer any questions or get any kind of feedback! ✨
+Let me know! Open an issue (or PR) or write at #elm-plot in the elm-lang's [slack](http://elmlang.herokuapp.com). Please don't hesitate - I'm happy to answer any questions or get any kind of feedback! ✨
 
 ## Development
 
@@ -48,7 +48,7 @@ elm package install
 elm-reactor
 ```
 
-and open [docs](http://localhost:8000/docs/Docs.elm) (The docs contain a bunch of exampels convinient for developing).
+and open [docs](http://localhost:8000/docs/Docs.elm) (The docs contain a bunch of examples convenient for developing).
 
 ### Compile the Docs
 
