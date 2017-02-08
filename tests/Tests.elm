@@ -8,7 +8,9 @@ import Svg.Attributes exposing (..)
 import Internal.Draw exposing (..)
 import Internal.Axis exposing (..)
 import Plot.TestArea
+import Plot.TestLine
 import Internal.TestStuff
+import Internal.TestScale
 
 
 all : Test
@@ -23,7 +25,9 @@ all =
         , testToStyle
         , testTickDeltaTest
         , Plot.TestArea.all
+        , Plot.TestLine.all
         , Internal.TestStuff.all
+        , Internal.TestScale.all
         ]
 
 
