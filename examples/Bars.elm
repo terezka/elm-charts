@@ -8,12 +8,12 @@ import Plot.Axis as Axis
 import Plot.Bars as Bars
 
 
-data1 : List ( Float, Float )
+data1 : List ( Point )
 data1 =
     [ ( 0, 2 ), ( 1, 4 ), ( 2, 5 ), ( 3, 10 ) ]
 
 
-data2 : List ( Float, Float )
+data2 : List ( Point )
 data2 =
     [ ( 0, 0 ), ( 1, 5 ), ( 2, 7 ), ( 3, 15 ) ]
 
