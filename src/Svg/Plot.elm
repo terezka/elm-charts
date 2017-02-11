@@ -1,0 +1,1232 @@
+module Svg.Plot
+    exposing
+        ( Value
+        , Point
+        , Element
+        , PlotConfig
+        , toPlotConfig
+        , toPlotConfigCustom
+        , plot
+        , AreaConfig
+        , toAreaConfig
+        , areaSerie
+        , LineConfig
+        , toLineConfig
+        , lineSerie
+        , DotsConfig
+        , toDotsConfig
+        , dotsSerie
+        , MaxBarWidth(..)
+        , BarsConfig
+        , barsSerie
+        , xTicks
+        , yTicks
+        , xLabels
+        , yLabels
+        , viewLabel
+        , xAxisLine
+        , yAxisLine
+        , onXAxisAt
+        , onYAxisAt
+        , lowest
+        , highest
+        , horizontalGrid
+        , verticalGrid
+        , Orientation(..)
+        , Interpolation(..)
+        , length
+        , list
+        , fromDelta
+        , displace
+        , fromRange
+        , fromDomain
+        , positionBy
+        , closestToZero
+        , yAxis
+        , xAxis
+        , ticks
+        , labels
+        , axisLine
+        , remove
+        , fromRangeAndDomain
+        , tickSimple
+        , tickCustom
+        , labelSimple
+        , labelCustom
+        , LabelConfig
+        , TickConfig
+        , fromList
+        , ValueInfo
+        )
+
+{-| Plot primities!
+
+# Definitions
+@docs Value, Point, Element, PlotConfig, toPlotConfig, toPlotConfigCustom, plot, AreaConfig, toAreaConfig, areaSerie, LineConfig, toLineConfig, lineSerie, DotsConfig, toDotsConfig, dotsSerie, viewLabel, xAxisLine, yAxisLine, horizontalGrid, verticalGrid, Orientation, Interpolation, length, list, fromDelta, displace, fromRange, fromDomain, positionBy
+
+# bla
+@docs LabelConfig, TickConfig, fromList, ValueInfo
+@docs remove, fromRangeAndDomain, tickSimple, tickCustom, labelSimple, labelCustom, BarsConfig, barsSerie, MaxBarWidth
+# other
+@docs onXAxisAt, onYAxisAt, lowest, highest, closestToZero, yTicks, xTicks, xLabels, yLabels, xAxis, yAxis, ticks, labels, axisLine
+-}
+
+import Html exposing (Html)
+import Svg exposing (Svg, g, text_, tspan, path, text, line)
+import Svg.Attributes exposing (d, fill, transform, class, y2, x2, width, height, clipPath, stroke)
+import Svg.Utils exposing (..)
+
+
+-- PUBLIC TYPES
+
+
+{-| -}
+type alias Value =
+    Float
+
+
+{-| -}
+type alias Point =
+    ( Value, Value )
+
+
+{-| -}
+type alias Group =
+    { xValue : Value
+    , yValues : List Value
+    }
+
+
+{-| -}
+type Element msg
+    = SerieElement (Axised Reach) (Serie msg)
+    | Line (List (Svg.Attribute msg)) (Meta -> List Point)
+    | Position (Meta -> Point) (List (Svg msg))
+    | List (List (Svg.Attribute msg)) (Meta -> List (Element msg))
+    | SVGView (Svg msg)
+
+
+type Serie msg
+    = LineSerie (LineConfig msg) (List Point)
+    | DotsSerie (DotsConfig msg) (List Point)
+    | AreaSerie (AreaConfig msg) (List Point)
+    | BarsSerie (BarsConfig msg) (List Group)
+
+
+
+-- PRIMITIVES
+
+
+{-| -}
+positionBy : (Meta -> Point) -> List (Svg msg) -> Element msg
+positionBy =
+    Position
+
+
+{-| -}
+positionAt : Point -> List (Svg msg) -> Element msg
+positionAt point =
+    Position (always point)
+
+
+{-| -}
+list : List (Svg.Attribute msg) -> (b -> Element msg) -> (Meta -> List b) -> Element msg
+list attributes toElement toValues =
+    List attributes (toValues >> List.map toElement)
+
+
+
+-- POSITION/VALUE HELPERS
+
+
+{-| -}
+fromDelta : Float -> Scale -> List Value
+fromDelta delta scale =
+    toValuesFromDelta scale.reach.lower scale.reach.upper delta
+
+
+{-| -}
+fromList : List Value -> Scale -> List Value
+fromList values _ =
+    values
+
+
+{-| -}
+remove : Value -> List Value -> List Value
+remove bannedValue =
+    List.filter (\value -> value /= bannedValue)
+
+
+{-| Produce a value from the range of the plot.
+-}
+fromRange : (Value -> Value -> b) -> Meta -> b
+fromRange toPoints { scale } =
+    toPoints scale.x.reach.lower scale.x.reach.upper
+
+
+{-| Produce a value from the domain of the plot.
+-}
+fromDomain : (Value -> Value -> b) -> Meta -> b
+fromDomain toSomething { scale } =
+    toSomething scale.y.reach.lower scale.y.reach.upper
+
+
+{-| Produce a value from the range and domain of the plot.
+-}
+fromRangeAndDomain : (Value -> Value -> Value -> Value -> b) -> Meta -> b
+fromRangeAndDomain toSomething { scale } =
+    toSomething scale.x.reach.lower scale.x.reach.upper scale.y.reach.lower scale.y.reach.upper
+
+
+{-| -}
+onXAxisAt : (Value -> Value -> Value) -> Value -> Meta -> Point
+onXAxisAt toYValue value =
+    fromDomain (\l h -> ( value, toYValue l h ))
+
+
+{-| -}
+onYAxisAt : (Value -> Value -> Value) -> Value -> Meta -> Point
+onYAxisAt toXValue value =
+    fromRange (\l h -> ( toXValue l h, value ))
+
+
+{-| -}
+highest : Value -> Value -> Value
+highest lower upper =
+    upper
+
+
+{-| -}
+lowest : Value -> Value -> Value
+lowest lower upper =
+    lower
+
+
+{-| -}
+closestToZero : Value -> Value -> Value
+closestToZero lower upper =
+    clamp lower upper 0
+
+
+
+-- CONFIGS
+
+
+{-| -}
+type LineConfig msg
+    = LineConfig
+        { attributes : List (Svg.Attribute msg)
+        , interpolation : Interpolation
+        }
+
+
+{-| -}
+toLineConfig :
+    { attributes : List (Svg.Attribute msg)
+    , interpolation : Interpolation
+    }
+    -> LineConfig msg
+toLineConfig config =
+    LineConfig config
+
+
+{-| -}
+lineSerie : LineConfig msg -> List Point -> Element msg
+lineSerie config data =
+    SerieElement (findReachFromPoints data) (LineSerie config data)
+
+
+
+-- AREA CONFIG
+
+
+{-| -}
+type AreaConfig msg
+    = AreaConfig
+        { attributes : List (Svg.Attribute msg)
+        , interpolation : Interpolation
+        }
+
+
+{-| -}
+toAreaConfig :
+    { attributes : List (Svg.Attribute msg)
+    , interpolation : Interpolation
+    }
+    -> AreaConfig msg
+toAreaConfig config =
+    AreaConfig config
+
+
+{-| -}
+areaSerie : AreaConfig msg -> List Point -> Element msg
+areaSerie config data =
+    SerieElement (findReachFromAreaPoints data) (AreaSerie config data)
+
+
+
+-- DOTS CONFIG
+
+
+{-| -}
+type DotsConfig msg
+    = DotsConfig
+        { attributes : List (Svg.Attribute msg)
+        , radius : Float
+        }
+
+
+{-| -}
+toDotsConfig :
+    { attributes : List (Svg.Attribute msg)
+    , radius : Float
+    }
+    -> DotsConfig msg
+toDotsConfig config =
+    DotsConfig config
+
+
+{-| -}
+dotsSerie : DotsConfig msg -> List Point -> Element msg
+dotsSerie config data =
+    SerieElement (findReachFromPoints data) (DotsSerie config data)
+
+
+
+-- BARS CONFIG
+
+
+{-| -}
+type alias BarValueInfo =
+    { xValue : Value, index : Int, yValue : Value }
+
+
+{-| -}
+type MaxBarWidth
+    = Percentage Int
+    | Fixed Float
+
+
+{-| -}
+type BarsConfig msg
+    = BarsConfig
+        { stackBy : Orientation
+        , styles : List (List (Svg.Attribute msg))
+        , labelConfig : LabelConfig msg
+        , maxWidth : MaxBarWidth
+        }
+
+
+{-| -}
+barsSerie :
+    { stackBy : Orientation
+    , yValues : data -> List Value
+    , xValue : Maybe (data -> Value)
+    , styles : List (List (Svg.Attribute msg))
+    , labels : LabelConfig msg
+    , maxWidth : MaxBarWidth
+    }
+    -> List data
+    -> Element msg
+barsSerie { stackBy, yValues, xValue, styles, labels, maxWidth } data =
+    let
+        groups =
+            toGroups xValue yValues data
+
+        config =
+            BarsConfig
+                { stackBy = stackBy
+                , styles = styles
+                , labelConfig = labels
+                , maxWidth = maxWidth
+                }
+    in
+        SerieElement (findReachFromGroups config groups) (BarsSerie config groups)
+
+
+toGroups : Maybe (data -> Value) -> (data -> List Value) -> List data -> List Group
+toGroups toXValue toYValue allData =
+    List.indexedMap
+        (\index data ->
+            { xValue = getGroupXValue toXValue index data
+            , yValues = toYValue data
+            }
+        )
+        allData
+
+
+getGroupXValue : Maybe (data -> Value) -> Int -> data -> Value
+getGroupXValue toXValue index data =
+    case toXValue of
+        Just getXValue ->
+            getXValue data
+
+        Nothing ->
+            toFloat index + 1
+
+
+
+-- AXIS ELEMENTS
+
+
+type alias AxisElement msg =
+    (Value -> Value -> Value) -> Orientation -> Element msg
+
+
+ifXthenElse : Orientation -> a -> a -> a
+ifXthenElse orientation x y =
+    if orientation == X then
+        x
+    else
+        y
+
+
+{-| -}
+xAxis : (Value -> Value -> Value) -> List (AxisElement msg) -> Element msg
+xAxis toPosition elements =
+    list
+        [ class "elm-plot__axis elm-plot__axis--x" ]
+        (\element -> element toPosition X)
+        (\_ -> elements)
+
+
+{-| -}
+yAxis : (Value -> Value -> Value) -> List (AxisElement msg) -> Element msg
+yAxis toPosition elements =
+    list
+        [ class "elm-plot__axis elm-plot__axis--y" ]
+        (\element -> element toPosition Y)
+        (\_ -> elements)
+
+
+
+-- TICKS
+
+
+type TickConfig msg
+    = TickSimple (List (Svg.Attribute msg))
+    | TickCustom (Value -> Svg msg)
+
+
+tickSimple : List (Svg.Attribute msg) -> TickConfig msg
+tickSimple =
+    TickSimple
+
+
+tickCustom : (Value -> Svg msg) -> TickConfig msg
+tickCustom =
+    TickCustom
+
+
+{-| -}
+ticks : TickConfig msg -> (Scale -> List Value) -> AxisElement msg
+ticks tickConfig toValues toAxisPosition orientation =
+    (ifXthenElse orientation xTicks yTicks) tickConfig toAxisPosition toValues
+
+
+{-| -}
+xTicks : TickConfig msg -> (Value -> Value -> Value) -> (Scale -> List Value) -> Element msg
+xTicks tickConfig toYPosition toValues =
+    list [ class "elm-plot__ticks" ]
+        (tick (onXAxisAt toYPosition) defaultXTickAttibutes tickConfig)
+        (.scale >> .x >> toValues)
+
+
+defaultXTickAttibutes : List (Svg.Attribute msg)
+defaultXTickAttibutes =
+    [ stroke "grey", length 10 ]
+
+
+{-| -}
+yTicks : TickConfig msg -> (Value -> Value -> Value) -> (Scale -> List Value) -> Element msg
+yTicks tickConfig toXValue toValues =
+    list [ class "elm-plot__ticks" ]
+        (tick (onYAxisAt toXValue) defaultYTickAttibutes tickConfig)
+        (.scale >> .y >> toValues)
+
+
+defaultYTickAttibutes : List (Svg.Attribute msg)
+defaultYTickAttibutes =
+    transform "rotate(90)" :: defaultXTickAttibutes
+
+
+tick : (Value -> Meta -> Point) -> List (Svg.Attribute msg) -> TickConfig msg -> Value -> Element msg
+tick toPosition defaultAttributes config value =
+    case config of
+        TickSimple attributes ->
+            positionBy (toPosition value) [ line (defaultAttributes ++ attributes) [] ]
+
+        TickCustom view ->
+            positionBy (toPosition value) [ view value ]
+
+
+
+-- AXIS LINE
+
+
+{-| -}
+axisLine : List (Svg.Attribute msg) -> AxisElement msg
+axisLine attributes toAxisPosition orientation =
+    (ifXthenElse orientation xAxisLine yAxisLine) attributes toAxisPosition
+
+
+{-| -}
+xAxisLine : List (Svg.Attribute msg) -> (Value -> Value -> Value) -> Element msg
+xAxisLine attributes toPosition =
+    Line attributes (\meta -> [ ( meta.scale.x.reach.lower, fromDomain toPosition meta ), ( meta.scale.x.reach.upper, fromDomain toPosition meta ) ])
+
+
+{-| -}
+yAxisLine : List (Svg.Attribute msg) -> (Value -> Value -> Value) -> Element msg
+yAxisLine attributes toPosition =
+    Line attributes (\meta -> [ ( fromRange toPosition meta, meta.scale.y.reach.lower ), ( fromRange toPosition meta, meta.scale.y.reach.upper ) ])
+
+
+
+-- LABELS
+
+
+type LabelConfig msg
+    = LabelSimple (List (Svg.Attribute msg)) (Value -> String)
+    | LabelCustom (Value -> Svg msg)
+
+
+labelSimple : List (Svg.Attribute msg) -> (Value -> String) -> LabelConfig msg
+labelSimple =
+    LabelSimple
+
+
+labelCustom : (Value -> Svg msg) -> LabelConfig msg
+labelCustom =
+    LabelCustom
+
+
+{-| -}
+type alias ValueInfo a =
+    { a | value : Value }
+
+
+{-| -}
+labels : LabelConfig msg -> (Scale -> List Value) -> AxisElement msg
+labels labelConfig toValues toAxisPosition orientation =
+    (ifXthenElse orientation xLabels yLabels) labelConfig toValues toAxisPosition
+
+
+{-| -}
+xLabels : LabelConfig msg -> (Scale -> List Value) -> (Value -> Value -> Value) -> Element msg
+xLabels labelConfig toValues toYPosition =
+    list [ class "elm-plot__labels" ]
+        (\value -> positionBy (onXAxisAt toYPosition value) [ label labelConfig value ])
+        (.scale >> .x >> toValues)
+
+
+{-| -}
+yLabels : LabelConfig msg -> (Scale -> List Value) -> (Value -> Value -> Value) -> Element msg
+yLabels labelConfig toValues toXPosition =
+    list [ class "elm-plot__labels" ]
+        (\value -> positionBy (onYAxisAt toXPosition value) [ label labelConfig value ])
+        (.scale >> .y >> toValues)
+
+
+label : LabelConfig msg -> Value -> Svg msg
+label config value =
+    case config of
+        LabelSimple attributes format ->
+            viewLabel attributes (format value)
+
+        LabelCustom view ->
+            view value
+
+
+{-| -}
+viewLabel : List (Svg.Attribute msg) -> String -> Svg msg
+viewLabel attributes string =
+    text_ attributes [ tspan [] [ text string ] ]
+
+
+
+-- GRID
+
+
+{-| -}
+horizontalGrid : List (Svg.Attribute msg) -> (Scale -> List Value) -> Element msg
+horizontalGrid attributes toValues =
+    list [ class "elm-plot__grid elm-plot__grid--horizontal" ] (\value -> xAxisLine attributes (\_ _ -> value)) (.scale >> .y >> toValues)
+
+
+{-| -}
+verticalGrid : List (Svg.Attribute msg) -> (Scale -> List Value) -> Element msg
+verticalGrid attributes toValues =
+    list [ class "elm-plot__grid elm-plot__grid--vertical" ] (\value -> yAxisLine attributes (\_ _ -> value)) (.scale >> .x >> toValues)
+
+
+
+-- HELPER ATTRIBUTES
+
+
+{-| -}
+displace : ( Float, Float ) -> Svg.Attribute msg
+displace displacement =
+    transform (toTranslate displacement)
+
+
+{-| -}
+length : Float -> Svg.Attribute msg
+length length =
+    y2 (toString length)
+
+
+{-| -}
+type Interpolation
+    = Bezier
+    | NoInterpolation
+
+
+
+-- PLOT CUSTOMIZATIONS
+
+
+{-| -}
+type PlotConfig msg
+    = PlotConfig
+        { attributes : List (Svg.Attribute msg)
+        , id : String
+        , margin :
+            { top : Int
+            , right : Int
+            , bottom : Int
+            , left : Int
+            }
+        , proportions :
+            { x : Int
+            , y : Int
+            }
+        , toDomainLowest : Value -> Value
+        , toDomainHighest : Value -> Value
+        , toRangeLowest : Value -> Value
+        , toRangeHighest : Value -> Value
+        }
+
+
+{-| -}
+toPlotConfig :
+    { attributes : List (Svg.Attribute msg)
+    , id : String
+    , margin :
+        { top : Int
+        , right : Int
+        , bottom : Int
+        , left : Int
+        }
+    , proportions :
+        { x : Int
+        , y : Int
+        }
+    }
+    -> PlotConfig msg
+toPlotConfig { attributes, id, margin, proportions } =
+    PlotConfig
+        { attributes = []
+        , id = id
+        , margin = margin
+        , proportions = proportions
+        , toDomainLowest = identity
+        , toDomainHighest = identity
+        , toRangeLowest = identity
+        , toRangeHighest = identity
+        }
+
+
+{-| -}
+toPlotConfigCustom :
+    { attributes : List (Svg.Attribute msg)
+    , id : String
+    , margin :
+        { top : Int
+        , right : Int
+        , bottom : Int
+        , left : Int
+        }
+    , proportions :
+        { x : Int
+        , y : Int
+        }
+    , toDomainLowest : Value -> Value
+    , toDomainHighest : Value -> Value
+    , toRangeLowest : Value -> Value
+    , toRangeHighest : Value -> Value
+    }
+    -> PlotConfig msg
+toPlotConfigCustom config =
+    PlotConfig config
+
+
+{-| Render your plot!
+-}
+plot : PlotConfig msg -> List (Element msg) -> Svg msg
+plot config elements =
+    viewPlot config elements (toPlotMeta config elements)
+
+
+
+-- VIEW PLOT
+
+
+viewPlot : PlotConfig msg -> List (Element msg) -> Meta -> Html msg
+viewPlot (PlotConfig config) elements meta =
+    let
+        viewBoxValue =
+            "0 0 " ++ toString meta.scale.x.length ++ " " ++ toString meta.scale.y.length
+
+        attributes =
+            config.attributes
+                ++ [ Svg.Attributes.viewBox viewBoxValue, Svg.Attributes.id meta.id ]
+    in
+        Svg.svg attributes (scaleDefs meta :: (viewElements meta elements))
+
+
+scaleDefs : Meta -> Svg.Svg msg
+scaleDefs meta =
+    Svg.defs []
+        [ Svg.clipPath [ Svg.Attributes.id (toClipPathId meta) ]
+            [ Svg.rect
+                [ Svg.Attributes.x (toString meta.scale.x.offset.lower)
+                , Svg.Attributes.y (toString meta.scale.y.offset.lower)
+                , width (toString (getInnerLength meta.scale.x))
+                , height (toString (getInnerLength meta.scale.y))
+                ]
+                []
+            ]
+        ]
+
+
+
+-- VIEW ELEMENTS
+
+
+viewElements : Meta -> List (Element msg) -> List (Svg msg)
+viewElements meta elements =
+    List.map (viewElement meta) elements
+
+
+viewElement : Meta -> Element msg -> Svg msg
+viewElement meta element =
+    case element of
+        SerieElement reach serie ->
+            viewSerie reach serie meta
+
+        Line attributes toPoints ->
+            viewPath attributes (makeLinePath NoInterpolation (toPoints meta) meta)
+
+        Position toPosition children ->
+            viewPositioned (toPosition meta) children meta
+
+        List attributes toElements ->
+            g attributes (List.map (viewElement meta) (toElements meta))
+
+        SVGView view ->
+            view
+
+
+viewSerie : Axised Reach -> Serie msg -> Meta -> Svg msg
+viewSerie reach serie meta =
+    case serie of
+        LineSerie config data ->
+            viewLine config data meta
+
+        DotsSerie config data ->
+            viewDots config data meta
+
+        AreaSerie config data ->
+            viewArea config data meta reach
+
+        BarsSerie config data ->
+            viewBars config data meta
+
+
+viewPositioned : Point -> List (Svg msg) -> Meta -> Svg msg
+viewPositioned point children meta =
+    g [ transform (toTranslate (meta.toSVGPoint point)) ] children
+
+
+
+-- VIEW LINE
+
+
+viewLine : LineConfig msg -> List Point -> Meta -> Svg msg
+viewLine (LineConfig config) data meta =
+    g
+        [ class "elm-plot__serie--line"
+        , clipPath ("url(#" ++ toClipPathId meta ++ ")")
+        ]
+        [ viewPath (config.attributes ++ [ fill "transparent" ]) (makeLinePath config.interpolation data meta) ]
+
+
+
+-- VIEW DOTS
+
+
+viewDots : DotsConfig msg -> List Point -> Meta -> Svg msg
+viewDots (DotsConfig config) data meta =
+    g [ class "elm-plot__serie--dots" ]
+        (List.map (meta.toSVGPoint >> viewCircle config.radius) data)
+
+
+viewCircle : Float -> Point -> Svg.Svg a
+viewCircle radius ( x, y ) =
+    Svg.circle
+        [ Svg.Attributes.cx (toString x)
+        , Svg.Attributes.cy (toString y)
+        , Svg.Attributes.r (toString radius)
+        ]
+        []
+
+
+
+-- VIEW AREA
+
+
+viewArea : AreaConfig msg -> List Point -> Meta -> Axised Reach -> Svg msg
+viewArea (AreaConfig config) data meta reach =
+    let
+        mostZeroY =
+            valueClosestToZero meta.scale.y
+
+        firstPoint =
+            Maybe.withDefault ( 0, 0 ) (List.head data)
+
+        pathString =
+            List.concat
+                [ [ M ( reach.x.lower, mostZeroY ) ]
+                , [ L firstPoint ]
+                , (toLinePath config.interpolation data)
+                , [ L ( reach.x.upper, mostZeroY ) ]
+                , [ Z ]
+                ]
+                |> toPath meta
+    in
+        g
+            [ class "elm-plot__serie--area"
+            , clipPath ("url(#" ++ toClipPathId meta ++ ")")
+            ]
+            [ viewPath config.attributes pathString ]
+
+
+
+-- VIEW BARS
+
+
+viewBars : BarsConfig msg -> List Group -> Meta -> Svg msg
+viewBars (BarsConfig { stackBy, maxWidth, styles, labelConfig }) groups { toSVGPoint, scale } =
+    let
+        barsPerGroup =
+            toFloat (List.length styles)
+
+        defaultBarWidth =
+            if stackBy == X then
+                1 / barsPerGroup
+            else
+                1
+
+        barWidth =
+            case maxWidth of
+                Percentage perc ->
+                    defaultBarWidth * (toFloat perc) / 100
+
+                Fixed max ->
+                    if defaultBarWidth > (unScaleValue scale.x max) then
+                        unScaleValue scale.x max
+                    else
+                        defaultBarWidth
+
+        barHeight { yValue, index } =
+            if stackBy == X || index == 0 then
+                yValue - valueClosestToZero scale.y
+            else
+                yValue
+
+        toValueInfo group =
+            List.indexedMap (BarValueInfo group.xValue) group.yValues
+
+        toYStackedOffset group bar =
+            List.take bar.index group.yValues
+                |> List.filter (\y -> (y < 0) == (bar.yValue < 0))
+                |> List.sum
+
+        barPosition group ({ xValue, yValue, index } as bar) =
+            case stackBy of
+                X ->
+                    ( xValue + barWidth * (toFloat index - barsPerGroup / 2)
+                    , max (min 0 scale.y.reach.upper) yValue
+                    )
+
+                Y ->
+                    ( xValue - barWidth / 2
+                    , yValue + toYStackedOffset group bar - min 0 (barHeight bar)
+                    )
+
+        viewBar group attributes bar =
+            Svg.rect (attributes ++ viewBarAttributes group bar) []
+
+        viewBarAttributes group bar =
+            [ transform <| toTranslate <| toSVGPoint <| barPosition group bar
+            , height <| toString <| scaleValue scale.y <| abs (barHeight bar)
+            , width <| toString <| scaleValue scale.x barWidth
+            ]
+
+        wrapBarLabel group bar =
+            g [ transform (toTranslate (labelPosition group bar)) ]
+                [ label labelConfig bar.yValue ]
+
+        labelPosition group bar =
+            toSVGPoint (barPosition group bar |> addDisplacement ( barWidth / 2, 0 ))
+
+        viewGroup group =
+            Svg.g [ class "elm-plot__series--bars__group" ]
+                [ Svg.g [ class "elm-plot__series--bars__group__bars" ]
+                    (List.map2 (viewBar group) styles (toValueInfo group))
+                , Svg.g [ class "elm-plot__series--bars__group__labels" ]
+                    (List.map (wrapBarLabel group) (toValueInfo group))
+                ]
+    in
+        g [ class "elm-plot__series--bars" ] (List.map viewGroup groups)
+
+
+
+-- PATH STUFF
+
+
+type PathType
+    = L Point
+    | M Point
+    | S Point Point Point
+    | Z
+
+
+viewPath : List (Svg.Attribute msg) -> String -> Svg msg
+viewPath attributes pathString =
+    path (d pathString :: attributes) []
+
+
+makeLinePath : Interpolation -> List Point -> Meta -> String
+makeLinePath interpolation points meta =
+    case points of
+        p1 :: rest ->
+            M p1 :: (toLinePath interpolation (p1 :: rest)) |> toPath meta
+
+        _ ->
+            ""
+
+
+toPath : Meta -> List PathType -> String
+toPath meta pathParts =
+    List.foldl (\part result -> result ++ toPathTypeString meta part) "" pathParts
+
+
+toPathTypeString : Meta -> PathType -> String
+toPathTypeString meta pathType =
+    case pathType of
+        M point ->
+            toPathTypeStringSinglePoint meta "M" point
+
+        L point ->
+            toPathTypeStringSinglePoint meta "L" point
+
+        S p1 p2 p3 ->
+            toPathTypeStringS meta p1 p2 p3
+
+        Z ->
+            "Z"
+
+
+toPathTypeStringSinglePoint : Meta -> String -> Point -> String
+toPathTypeStringSinglePoint meta typeString point =
+    typeString ++ " " ++ pointToString meta point
+
+
+toPathTypeStringS : Meta -> Point -> Point -> Point -> String
+toPathTypeStringS meta p1 p2 p3 =
+    let
+        ( point1, point2 ) =
+            toBezierPoints p1 p2 p3
+    in
+        "S" ++ " " ++ pointToString meta point1 ++ "," ++ pointToString meta point2
+
+
+magnitude : Float
+magnitude =
+    0.5
+
+
+toBezierPoints : Point -> Point -> Point -> ( Point, Point )
+toBezierPoints ( x0, y0 ) ( x, y ) ( x1, y1 ) =
+    ( ( x - ((x1 - x0) / 2 * magnitude), y - ((y1 - y0) / 2 * magnitude) )
+    , ( x, y )
+    )
+
+
+pointToString : Meta -> Point -> String
+pointToString meta point =
+    let
+        ( x, y ) =
+            meta.toSVGPoint point
+    in
+        (toString x) ++ "," ++ (toString y)
+
+
+toLinePath : Interpolation -> List Point -> List PathType
+toLinePath smoothing =
+    case smoothing of
+        NoInterpolation ->
+            List.map L
+
+        Bezier ->
+            toSPathTypes [] >> List.reverse
+
+
+toSPathTypes : List PathType -> List Point -> List PathType
+toSPathTypes result points =
+    case points of
+        [ p1, p2 ] ->
+            S p1 p2 p2 :: result
+
+        [ p1, p2, p3 ] ->
+            toSPathTypes (S p1 p2 p3 :: result) [ p2, p3 ]
+
+        p1 :: p2 :: p3 :: rest ->
+            toSPathTypes (S p1 p2 p3 :: result) (p2 :: p3 :: rest)
+
+        _ ->
+            result
+
+
+
+-- VIEW HELPERS
+
+
+toClipPathId : Meta -> String
+toClipPathId plot =
+    plot.id ++ "__scale-clip-path"
+
+
+toTranslate : ( Float, Float ) -> String
+toTranslate ( x, y ) =
+    "translate(" ++ (toString x) ++ "," ++ (toString y) ++ ")"
+
+
+addDisplacement : Point -> Point -> Point
+addDisplacement ( x, y ) ( dx, dy ) =
+    ( x + dx, y + dy )
+
+
+valueClosestToZero : Scale -> Value
+valueClosestToZero scale =
+    clamp scale.reach.lower scale.reach.upper 0
+
+
+
+-- META AND SCALES
+
+
+type alias Axised a =
+    { x : a
+    , y : a
+    }
+
+
+type alias Reach =
+    { lower : Float
+    , upper : Float
+    }
+
+
+type alias Scale =
+    { reach : Reach
+    , offset : Reach
+    , length : Float
+    }
+
+
+type alias Meta =
+    { toSVGPoint : Point -> Point
+    , scale : Axised Scale
+    , id : String
+    }
+
+
+{-| -}
+type Orientation
+    = X
+    | Y
+
+
+toPlotMeta : PlotConfig msg -> List (Element msg) -> Meta
+toPlotMeta (PlotConfig { id, margin, proportions, toRangeLowest, toRangeHighest, toDomainLowest, toDomainHighest }) elements =
+    let
+        reach =
+            findPlotReach elements
+
+        range =
+            { lower = toRangeLowest reach.x.lower
+            , upper = toRangeHighest reach.x.upper
+            }
+
+        domain =
+            { lower = toDomainLowest reach.y.lower
+            , upper = toDomainHighest reach.y.upper
+            }
+
+        scale =
+            { x = toScale proportions.x range margin.left margin.right
+            , y = toScale proportions.y domain margin.top margin.bottom
+            }
+    in
+        { scale = scale
+        , toSVGPoint = toSVGPoint scale.x scale.y
+        , id = id
+        }
+
+
+toScale : Int -> Reach -> Int -> Int -> Scale
+toScale length reach offsetLower offsetUpper =
+    { length = toFloat length
+    , offset = Reach (toFloat offsetLower) (toFloat offsetUpper)
+    , reach = reach
+    }
+
+
+findPlotReach : List (Element msg) -> Axised Reach
+findPlotReach elements =
+    List.filterMap getReach elements
+        |> List.foldl strechReach Nothing
+        |> Maybe.withDefault (Axised (Reach 0 1) (Reach 0 1))
+
+
+getReach : Element msg -> Maybe (Axised Reach)
+getReach element =
+    case element of
+        SerieElement reach _ ->
+            Just reach
+
+        _ ->
+            Nothing
+
+
+toGroupPoints : Orientation -> List Group -> List Point
+toGroupPoints orientation groups =
+    List.foldl (foldGroupPoints orientation) [] groups
+
+
+foldGroupPoints : Orientation -> Group -> List Point -> List Point
+foldGroupPoints stackBy { xValue, yValues } points =
+    if stackBy == X then
+        points ++ [ ( xValue, getLowest yValues ), ( xValue, getHighest yValues ) ]
+    else
+        let
+            ( positive, negative ) =
+                List.partition (\y -> y >= 0) yValues
+        in
+            points ++ [ ( xValue, List.sum positive ), ( xValue, List.sum negative ) ]
+
+
+addBarPadding : Axised Reach -> Axised Reach
+addBarPadding { x, y } =
+    { x = { lower = x.lower - 0.5, upper = x.upper + 0.5 }
+    , y = { lower = min 0 y.lower, upper = y.upper }
+    }
+
+
+findReachFromPoints : List Point -> Axised Reach
+findReachFromPoints points =
+    List.unzip points |> (\( xValues, yValues ) -> Axised (findReachFromValues xValues) (findReachFromValues yValues))
+
+
+findReachFromAreaPoints : List Point -> Axised Reach
+findReachFromAreaPoints points =
+    findReachFromPoints points
+        |> addAreaPadding
+
+
+findReachFromGroups : BarsConfig msg -> List Group -> Axised Reach
+findReachFromGroups (BarsConfig config) groups =
+    toGroupPoints config.stackBy groups
+        |> findReachFromPoints
+        |> addBarPadding
+
+
+addAreaPadding : Axised Reach -> Axised Reach
+addAreaPadding { x, y } =
+    { x = x
+    , y = { lower = min 0 y.lower, upper = y.upper }
+    }
+
+
+findReachFromValues : List Value -> Reach
+findReachFromValues values =
+    { lower = getLowest values
+    , upper = getHighest values
+    }
+
+
+getLowest : List Float -> Float
+getLowest values =
+    Maybe.withDefault 0 (List.minimum values)
+
+
+getHighest : List Float -> Float
+getHighest values =
+    Maybe.withDefault 1 (List.maximum values)
+
+
+strechReach : Axised Reach -> Maybe (Axised Reach) -> Maybe (Axised Reach)
+strechReach elementReach plotReach =
+    case plotReach of
+        Just reach ->
+            Just <|
+                Axised
+                    (strechSingleReach elementReach.x reach.x)
+                    (strechSingleReach elementReach.y reach.y)
+
+        Nothing ->
+            Just elementReach
+
+
+strechSingleReach : Reach -> Reach -> Reach
+strechSingleReach elementReach plotReach =
+    { lower = min plotReach.lower elementReach.lower
+    , upper = max plotReach.upper elementReach.upper
+    }
+
+
+getRange : Scale -> Value
+getRange scale =
+    let
+        range =
+            scale.reach.upper - scale.reach.lower
+    in
+        if range > 0 then
+            range
+        else
+            1
+
+
+getInnerLength : Scale -> Value
+getInnerLength scale =
+    scale.length - scale.offset.lower - scale.offset.upper
+
+
+unScaleValue : Scale -> Value -> Value
+unScaleValue scale value =
+    value * (getRange scale) / (getInnerLength scale)
+
+
+scaleValue : Scale -> Value -> Value
+scaleValue scale value =
+    value * (getInnerLength scale) / (getRange scale)
+
+
+toSVGPoint : Scale -> Scale -> Point -> Point
+toSVGPoint xScale yScale ( x, y ) =
+    ( scaleValue xScale (x - xScale.reach.lower) + xScale.offset.lower
+    , scaleValue yScale (yScale.reach.upper - y) + yScale.offset.lower
+    )
