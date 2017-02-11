@@ -27,6 +27,7 @@ module Svg.Plot
         , fromDomain
         , fromRangeAndDomain
         , remove
+        , filterDelta
         , lowest
         , highest
         , closestToZero
@@ -77,7 +78,7 @@ module Svg.Plot
 @docs xAxis, xAxisAt, yAxis, yAxisAt
 
 ### Value and position helpers
-@docs onXAxisAt, onYAxisAt, lowest, highest, closestToZero, fromList, fromDelta, fromRangeAndDomain, remove
+@docs onXAxisAt, onYAxisAt, lowest, highest, closestToZero, fromList, fromDelta, fromRangeAndDomain, remove, filterDelta
 
 ### Axis line
 @docs axisLine
@@ -180,6 +181,14 @@ fromList values _ =
 remove : Value -> List Value -> List Value
 remove bannedValue =
     List.filter (\value -> value /= bannedValue)
+
+
+{-| -}
+filterDelta : Int -> Int -> List Value -> List Value
+filterDelta offset interval values =
+    List.indexedMap (,) values
+        |> List.filter (\( i, v ) -> rem (offset + i) interval /= 0)
+        |> List.map Tuple.second
 
 
 {-| Produce a value from the range of the plot.

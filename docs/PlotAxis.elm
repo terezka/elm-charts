@@ -61,13 +61,6 @@ xLabelConfig =
         (\value -> Array.get (round <| value - 1) xLabelStrings |> Maybe.withDefault "")
 
 
-removeEverySecond : List Value -> List Value
-removeEverySecond values =
-    List.indexedMap (,) values
-        |> List.filter (\( i, v ) -> rem i 2 /= 0)
-        |> List.map Tuple.second
-
-
 view : Svg.Svg a
 view =
     plot plotConfig
@@ -102,10 +95,10 @@ view =
             [ axisLine [ stroke axisColor ]
             , ticks
                 (tickSimple [ stroke axisColorLight, length 10, transform "rotate(-90)" ])
-                (fromDelta 5 >> removeEverySecond)
+                (fromDelta 5 >> filterDelta 0 2)
             , ticks
                 (tickSimple [ stroke axisColorLight, length 5, transform "rotate(-90)" ])
-                (fromDelta 5)
+                (fromDelta 5 >> filterDelta 1 2 >> remove 0)
             , labels
                 (labelSimple
                     [ fill axisColor
@@ -121,10 +114,10 @@ view =
             [ axisLine [ stroke axisColor ]
             , ticks
                 (tickSimple [ stroke axisColorLight, length 10 ])
-                (fromDelta 5 >> removeEverySecond)
+                (fromDelta 5 >> filterDelta 0 2)
             , ticks
                 (tickSimple [ stroke axisColorLight, length 5 ])
-                (fromDelta 5)
+                (fromDelta 5 >> filterDelta 1 2 >> remove 0)
             , labels
                 (labelSimple
                     [ fill axisColor
