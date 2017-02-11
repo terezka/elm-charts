@@ -51,7 +51,7 @@ xLabelStrings =
     Array.fromList [ "Autumn", "Winter", "Spring", "Summer" ]
 
 
-xLabelConfig : LabelConfig msg
+xLabelConfig : LabelView Value msg
 xLabelConfig =
     labelSimple
         [ fill axisColor
@@ -59,6 +59,13 @@ xLabelConfig =
         , transform "translate(10, 44) rotate(45) "
         ]
         (\value -> Array.get (round <| value - 1) xLabelStrings |> Maybe.withDefault "")
+
+
+removeEverySecond : List Value -> List Value
+removeEverySecond values =
+    List.indexedMap (,) values
+        |> List.filter (\( i, v ) -> rem i 2 /= 0)
+        |> List.map Tuple.second
 
 
 view : Svg.Svg a
@@ -69,14 +76,14 @@ view =
             , yValues = .values
             , xValue = Nothing
             , styles = [ [ fill pinkFill ], [ fill blueFill ], [ fill skinFill ] ]
-            , labels =
+            , labelView =
                 labelSimple
                     [ stroke "#fff"
                     , fill "#fff"
                     , style "text-anchor: middle; font-size: 10px;"
                     , displace ( 0, 15 )
                     ]
-                    toString
+                    (.yValue >> toString)
             , maxWidth = Fixed 30
             }
             [ { values = [ 40, 30, 20 ] }
@@ -95,7 +102,7 @@ view =
             [ axisLine [ stroke axisColor ]
             , ticks
                 (tickSimple [ stroke axisColorLight, length 10, transform "rotate(-90)" ])
-                (fromDelta 5 >> List.filter (\v -> rem (round v) 10 /= 0))
+                (fromDelta 5 >> removeEverySecond)
             , ticks
                 (tickSimple [ stroke axisColorLight, length 5, transform "rotate(-90)" ])
                 (fromDelta 5)
@@ -114,7 +121,7 @@ view =
             [ axisLine [ stroke axisColor ]
             , ticks
                 (tickSimple [ stroke axisColorLight, length 10 ])
-                (fromDelta 5 >> List.filter (\v -> rem (round v) 10 /= 0))
+                (fromDelta 5 >> removeEverySecond)
             , ticks
                 (tickSimple [ stroke axisColorLight, length 5 ])
                 (fromDelta 5)

@@ -3,72 +3,97 @@ module Svg.Plot
         ( Value
         , Point
         , Element
+        , Orientation(..)
         , PlotConfig
         , toPlotConfig
         , toPlotConfigCustom
         , plot
-        , AreaConfig
-        , toAreaConfig
-        , areaSerie
         , LineConfig
         , toLineConfig
         , lineSerie
+        , AreaConfig
+        , toAreaConfig
+        , areaSerie
+        , Interpolation(..)
         , DotsConfig
         , toDotsConfig
         , dotsSerie
-        , MaxBarWidth(..)
         , BarsConfig
         , barsSerie
-        , xTicks
-        , yTicks
-        , xLabels
-        , yLabels
-        , viewLabel
-        , xAxisLine
-        , yAxisLine
-        , onXAxisAt
-        , onYAxisAt
-        , lowest
-        , highest
-        , horizontalGrid
-        , verticalGrid
-        , Orientation(..)
-        , Interpolation(..)
-        , length
-        , list
+        , MaxBarWidth(..)
+        , fromList
         , fromDelta
-        , displace
         , fromRange
         , fromDomain
-        , positionBy
+        , fromRangeAndDomain
+        , remove
+        , lowest
+        , highest
         , closestToZero
+        , verticalGrid
+        , horizontalGrid
         , yAxis
         , xAxis
-        , ticks
-        , labels
         , axisLine
-        , remove
-        , fromRangeAndDomain
+        , TickConfig
         , tickSimple
         , tickCustom
+        , ticks
+        , length
+        , LabelView
         , labelSimple
-        , labelCustom
-        , LabelConfig
-        , TickConfig
-        , fromList
-        , ValueInfo
+        , labels
+        , labelsCustom
+        , viewLabel
+        , displace
+        , list
+        , positionAt
+        , positionBy
         )
 
-{-| Plot primities!
+{-| Plot in SVG!
 
 # Definitions
-@docs Value, Point, Element, PlotConfig, toPlotConfig, toPlotConfigCustom, plot, AreaConfig, toAreaConfig, areaSerie, LineConfig, toLineConfig, lineSerie, DotsConfig, toDotsConfig, dotsSerie, viewLabel, xAxisLine, yAxisLine, horizontalGrid, verticalGrid, Orientation, Interpolation, length, list, fromDelta, displace, fromRange, fromDomain, positionBy
+@docs Value, Point, Orientation, Element, Meta
 
-# bla
-@docs LabelConfig, TickConfig, fromList, ValueInfo
-@docs remove, fromRangeAndDomain, tickSimple, tickCustom, labelSimple, labelCustom, BarsConfig, barsSerie, MaxBarWidth
-# other
-@docs onXAxisAt, onYAxisAt, lowest, highest, closestToZero, yTicks, xTicks, xLabels, yLabels, xAxis, yAxis, ticks, labels, axisLine
+# Plot elements
+@docs PlotConfig, toPlotConfig, toPlotConfigCustom, plot
+
+## Series
+
+### Line
+@docs LineConfig, toLineConfig, lineSerie
+
+### Area
+@docs AreaConfig, toAreaConfig, areaSerie
+
+### Dots
+@docs DotsConfig, toDotsConfig, dotsSerie
+
+### Bars
+@docs BarsConfig, BarConfig, MaxBarWidth, toBarsConfig, toBarConfig, barsSerie, toGroups, BarValueInfo
+
+## Axis elements
+@docs xAxis, xAxisAt, yAxis, yAxisAt
+
+### Value and position helpers
+@docs onXAxisAt, onYAxisAt, lowest, highest, closestToZero, fromList, fromDelta, fromRangeAndDomain, remove
+
+### Axis line
+@docs axisLine
+
+### Grid lines
+@docs horizontalGrid, verticalGrid
+
+### Labels
+@docs LabelConfig, labelVerySimple, labelSimple, labelCustom, labelVeryCustom, labels, viewLabel
+
+### Ticks
+@docs TickConfig, tickSimple, tickCustom, ticks, tick
+
+## Primitives
+@docs list, positionBy, positionAt
+
 -}
 
 import Html exposing (Html)
@@ -140,7 +165,7 @@ list attributes toElement toValues =
 
 
 {-| -}
-fromDelta : Float -> Scale -> List Value
+fromDelta : Value -> Scale -> List Value
 fromDelta delta scale =
     toValuesFromDelta scale.reach.lower scale.reach.upper delta
 
@@ -312,7 +337,7 @@ type BarsConfig msg
     = BarsConfig
         { stackBy : Orientation
         , styles : List (List (Svg.Attribute msg))
-        , labelConfig : LabelConfig msg
+        , labelView : LabelView BarValueInfo msg
         , maxWidth : MaxBarWidth
         }
 
@@ -323,12 +348,12 @@ barsSerie :
     , yValues : data -> List Value
     , xValue : Maybe (data -> Value)
     , styles : List (List (Svg.Attribute msg))
-    , labels : LabelConfig msg
+    , labelView : LabelView BarValueInfo msg
     , maxWidth : MaxBarWidth
     }
     -> List data
     -> Element msg
-barsSerie { stackBy, yValues, xValue, styles, labels, maxWidth } data =
+barsSerie { stackBy, yValues, xValue, styles, labelView, maxWidth } data =
     let
         groups =
             toGroups xValue yValues data
@@ -337,7 +362,7 @@ barsSerie { stackBy, yValues, xValue, styles, labels, maxWidth } data =
             BarsConfig
                 { stackBy = stackBy
                 , styles = styles
-                , labelConfig = labels
+                , labelView = labelView
                 , maxWidth = maxWidth
                 }
     in
@@ -400,6 +425,83 @@ yAxis toPosition elements =
 
 
 
+-- AXIS LINE
+
+
+{-| -}
+axisLine : List (Svg.Attribute msg) -> AxisElement msg
+axisLine attributes toAxisPosition orientation =
+    (ifXthenElse orientation xAxisLine yAxisLine) attributes toAxisPosition
+
+
+{-| -}
+xAxisLine : List (Svg.Attribute msg) -> (Value -> Value -> Value) -> Element msg
+xAxisLine attributes toPosition =
+    Line attributes
+        (\meta ->
+            [ ( meta.scale.x.reach.lower, fromDomain toPosition meta )
+            , ( meta.scale.x.reach.upper, fromDomain toPosition meta )
+            ]
+        )
+
+
+{-| -}
+yAxisLine : List (Svg.Attribute msg) -> (Value -> Value -> Value) -> Element msg
+yAxisLine attributes toPosition =
+    Line attributes
+        (\meta ->
+            [ ( fromRange toPosition meta, meta.scale.y.reach.lower )
+            , ( fromRange toPosition meta, meta.scale.y.reach.upper )
+            ]
+        )
+
+
+
+-- LABELS
+
+
+type alias LabelView a msg =
+    a -> Svg msg
+
+
+labelSimple : List (Svg.Attribute msg) -> (a -> String) -> LabelView a msg
+labelSimple attributes format =
+    format >> viewLabel attributes
+
+
+{-| -}
+labels : LabelView Value msg -> (Scale -> List Value) -> AxisElement msg
+labels view toValueStuff toAxisPosition orientation =
+    (ifXthenElse orientation xLabels yLabels) view toValueStuff identity toAxisPosition
+
+
+{-| -}
+labelsCustom : LabelView a msg -> (Scale -> List a) -> (a -> Value) -> AxisElement msg
+labelsCustom view toValueStuff toValue toAxisPosition orientation =
+    (ifXthenElse orientation xLabels yLabels) view toValueStuff toValue toAxisPosition
+
+
+xLabels : LabelView a msg -> (Scale -> List a) -> (a -> Value) -> (Value -> Value -> Value) -> Element msg
+xLabels view toValueStuff toValue toYPosition =
+    list [ class "elm-plot__labels" ]
+        (\info -> positionBy (onXAxisAt toYPosition (toValue info)) [ view info ])
+        (.scale >> .x >> toValueStuff)
+
+
+yLabels : LabelView a msg -> (Scale -> List a) -> (a -> Value) -> (Value -> Value -> Value) -> Element msg
+yLabels view toValueStuff toValue toXPosition =
+    list [ class "elm-plot__labels" ]
+        (\info -> positionBy (onYAxisAt toXPosition (toValue info)) [ view info ])
+        (.scale >> .y >> toValueStuff)
+
+
+{-| -}
+viewLabel : List (Svg.Attribute msg) -> String -> Svg msg
+viewLabel attributes string =
+    text_ attributes [ tspan [] [ text string ] ]
+
+
+
 -- TICKS
 
 
@@ -458,90 +560,6 @@ tick toPosition defaultAttributes config value =
 
         TickCustom view ->
             positionBy (toPosition value) [ view value ]
-
-
-
--- AXIS LINE
-
-
-{-| -}
-axisLine : List (Svg.Attribute msg) -> AxisElement msg
-axisLine attributes toAxisPosition orientation =
-    (ifXthenElse orientation xAxisLine yAxisLine) attributes toAxisPosition
-
-
-{-| -}
-xAxisLine : List (Svg.Attribute msg) -> (Value -> Value -> Value) -> Element msg
-xAxisLine attributes toPosition =
-    Line attributes (\meta -> [ ( meta.scale.x.reach.lower, fromDomain toPosition meta ), ( meta.scale.x.reach.upper, fromDomain toPosition meta ) ])
-
-
-{-| -}
-yAxisLine : List (Svg.Attribute msg) -> (Value -> Value -> Value) -> Element msg
-yAxisLine attributes toPosition =
-    Line attributes (\meta -> [ ( fromRange toPosition meta, meta.scale.y.reach.lower ), ( fromRange toPosition meta, meta.scale.y.reach.upper ) ])
-
-
-
--- LABELS
-
-
-type LabelConfig msg
-    = LabelSimple (List (Svg.Attribute msg)) (Value -> String)
-    | LabelCustom (Value -> Svg msg)
-
-
-labelSimple : List (Svg.Attribute msg) -> (Value -> String) -> LabelConfig msg
-labelSimple =
-    LabelSimple
-
-
-labelCustom : (Value -> Svg msg) -> LabelConfig msg
-labelCustom =
-    LabelCustom
-
-
-{-| -}
-type alias ValueInfo a =
-    { a | value : Value }
-
-
-{-| -}
-labels : LabelConfig msg -> (Scale -> List Value) -> AxisElement msg
-labels labelConfig toValues toAxisPosition orientation =
-    (ifXthenElse orientation xLabels yLabels) labelConfig toValues toAxisPosition
-
-
-{-| -}
-xLabels : LabelConfig msg -> (Scale -> List Value) -> (Value -> Value -> Value) -> Element msg
-xLabels labelConfig toValues toYPosition =
-    list [ class "elm-plot__labels" ]
-        (\value -> positionBy (onXAxisAt toYPosition value) [ label labelConfig value ])
-        (.scale >> .x >> toValues)
-
-
-{-| -}
-yLabels : LabelConfig msg -> (Scale -> List Value) -> (Value -> Value -> Value) -> Element msg
-yLabels labelConfig toValues toXPosition =
-    list [ class "elm-plot__labels" ]
-        (\value -> positionBy (onYAxisAt toXPosition value) [ label labelConfig value ])
-        (.scale >> .y >> toValues)
-
-
-label : LabelConfig msg -> Value -> Svg msg
-label config value =
-    case config of
-        LabelSimple attributes format ->
-            viewLabel attributes (format value)
-
-        LabelCustom view ->
-            view value
-
-
-{-| -}
-viewLabel : List (Svg.Attribute msg) -> String -> Svg msg
-viewLabel attributes string =
-    text_ attributes [ tspan [] [ text string ] ]
 
 
 
@@ -817,7 +835,7 @@ viewArea (AreaConfig config) data meta reach =
 
 
 viewBars : BarsConfig msg -> List Group -> Meta -> Svg msg
-viewBars (BarsConfig { stackBy, maxWidth, styles, labelConfig }) groups { toSVGPoint, scale } =
+viewBars (BarsConfig { stackBy, maxWidth, styles, labelView }) groups { toSVGPoint, scale } =
     let
         barsPerGroup =
             toFloat (List.length styles)
@@ -875,8 +893,9 @@ viewBars (BarsConfig { stackBy, maxWidth, styles, labelConfig }) groups { toSVGP
             ]
 
         wrapBarLabel group bar =
-            g [ transform (toTranslate (labelPosition group bar)) ]
-                [ label labelConfig bar.yValue ]
+            g
+                [ transform (toTranslate (labelPosition group bar)) ]
+                [ labelView bar ]
 
         labelPosition group bar =
             toSVGPoint (barPosition group bar |> addDisplacement ( barWidth / 2, 0 ))

@@ -51,7 +51,7 @@ xLabelStrings =
     Array.fromList [ "A", "B", "C", "D" ]
 
 
-xLabelConfig : LabelConfig msg
+xLabelConfig : LabelView Value msg
 xLabelConfig =
     labelSimple
         [ fill axisColor
@@ -69,14 +69,14 @@ view =
             , yValues = .values
             , xValue = Nothing
             , styles = [ [ fill pinkFill ], [ fill blueFill ], [ fill skinFill ] ]
-            , labels =
+            , labelView =
                 labelSimple
                     [ stroke "#fff"
                     , fill "#fff"
                     , style "text-anchor: middle; font-size: 10px;"
                     , displace ( 0, 15 )
                     ]
-                    toString
+                    (.yValue >> toString)
             , maxWidth = Fixed 30
             }
             [ { values = [ 40, 30, 20 ] }
