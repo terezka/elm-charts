@@ -93,34 +93,52 @@ view =
                 , { values = [ 40, 50, 20 ] }
                 ]
             )
-        , xAxis
-            closestToZero
+        , axis
+            (toAxisConfig
+                { position = closestToZero
+                , clearIntersection = True
+                , anchor = AnchorInside
+                , orientation = X
+                }
+            )
             [ axisLine [ stroke axisColor ]
             , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1)
             , labels xLabelConfig (fromList [ 1, 2, 3, 4 ])
             ]
-        , yAxis
-            lowest
+        , axis
+            (toAxisConfig
+                { position = lowest
+                , clearIntersection = True
+                , anchor = AnchorInside
+                , orientation = Y
+                }
+            )
             [ axisLine [ stroke axisColor ]
             , ticks
                 (tick [ stroke axisColor, length 10, transform "rotate(-90)" ])
                 (fromDelta 5 >> filterDelta 0 2)
             , ticks
                 (tick [ stroke axisColorLight, length 5, transform "rotate(-90)" ])
-                (fromDelta 5 >> filterDelta 1 2 >> remove 0)
+                (fromDelta 5 >> filterDelta 1 2)
             , labels
                 (label [ fill axisColor, style "text-anchor: start;", displace ( 10, 5 ) ] toString)
-                (fromDelta 10 >> remove 0)
+                (fromDelta 10)
             ]
-        , yAxis
-            highest
+        , axis
+            (toAxisConfig
+                { position = highest
+                , clearIntersection = True
+                , anchor = AnchorInside
+                , orientation = Y
+                }
+            )
             [ axisLine [ stroke axisColor ]
             , ticks
                 (tick [ stroke axisColor, length 10 ])
                 (fromDelta 5 >> filterDelta 0 2)
             , ticks
                 (tick [ stroke axisColorLight, length 5 ])
-                (fromDelta 5 >> filterDelta 1 2 >> remove 0)
+                (fromDelta 5 >> filterDelta 1 2)
             , labels
                 (label
                     [ fill axisColor
@@ -129,7 +147,7 @@ view =
                     ]
                     ((*) 100 >> toString)
                 )
-                (fromDelta 10 >> remove 0)
+                (fromDelta 10)
             ]
         , positionBy
             (fromRangeAndDomain (\xl xh yl yh -> ( xl, yh / 2 )))

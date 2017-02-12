@@ -36,6 +36,10 @@ module Svg.Plot
         , closestToZero
         , verticalGrid
         , horizontalGrid
+        , AxisConfig
+        , Anchor(..)
+        , toAxisConfig
+        , axis
         , yAxis
         , xAxis
         , axisLine
@@ -132,6 +136,7 @@ type alias Group =
 {-| -}
 type Element msg
     = SerieElement (Axised Reach) (Serie msg)
+    | Axis AxisConfig (Element msg)
     | Line (List (Svg.Attribute msg)) (Meta -> List Point)
     | Position (Meta -> Point) (List (Svg msg))
     | List (List (Svg.Attribute msg)) (Meta -> List (Element msg))
@@ -191,7 +196,7 @@ fromList values _ =
 {-| Remove a value from a list. Useful your axes are crossing at a paricular values
  and don't want the intersection cluttered with labels.
 
-  labels (labelSimple [] toString) (fromDelta 10 >> remove 0)
+  labels (label [] toString) (fromDelta 10 >> remove 0)
 -}
 remove : Value -> List Value -> List Value
 remove bannedValue =
@@ -422,35 +427,70 @@ getGroupXValue toXValue index data =
 -- AXIS ELEMENTS
 
 
+type AxisConfig
+    = AxisConfig
+        { position : Value -> Value -> Value
+        , clearIntersection : Bool
+        , anchor : Anchor
+        , orientation : Orientation
+        }
+
+
+type Anchor
+    = AnchorInside
+    | AnchorOutside
+
+
 {-| -}
 type alias AxisElement msg =
-    (Value -> Value -> Value) -> Orientation -> Element msg
+    AxisConfig -> Element msg
 
 
-{-| -}
-xAxis : (Value -> Value -> Value) -> List (AxisElement msg) -> Element msg
-xAxis toPosition elements =
-    list
-        [ class "elm-plot__axis elm-plot__axis--x" ]
-        (\element -> element toPosition X)
-        (\_ -> elements)
+toAxisConfig :
+    { position : Value -> Value -> Value
+    , orientation : Orientation
+    , clearIntersection : Bool
+    , anchor : Anchor
+    }
+    -> AxisConfig
+toAxisConfig config =
+    AxisConfig config
 
 
-{-| -}
-yAxis : (Value -> Value -> Value) -> List (AxisElement msg) -> Element msg
-yAxis toPosition elements =
-    list
-        [ class "elm-plot__axis elm-plot__axis--y" ]
-        (\element -> element toPosition Y)
-        (\_ -> elements)
+fromScale : (Value -> Value -> b) -> Scale -> b
+fromScale toSomething scale =
+    toSomething scale.reach.lower scale.reach.upper
 
 
-ifXthenElse : Orientation -> a -> a -> a
-ifXthenElse orientation x y =
+ifXthenElse : AxisConfig -> a -> a -> a
+ifXthenElse (AxisConfig { orientation }) x y =
     if orientation == X then
         x
     else
         y
+
+
+{-| -}
+axis : AxisConfig -> List (AxisElement msg) -> Element msg
+axis config elements =
+    Axis config ((ifXthenElse config xAxis yAxis) config elements)
+
+
+xAxis : AxisConfig -> List (AxisElement msg) -> Element msg
+xAxis config elements =
+    list
+        [ class "elm-plot__axis elm-plot__axis--x" ]
+        (\element -> element config)
+        (\_ -> elements)
+
+
+{-| -}
+yAxis : AxisConfig -> List (AxisElement msg) -> Element msg
+yAxis config elements =
+    list
+        [ class "elm-plot__axis elm-plot__axis--y" ]
+        (\element -> element config)
+        (\_ -> elements)
 
 
 
@@ -459,28 +499,26 @@ ifXthenElse orientation x y =
 
 {-| -}
 axisLine : List (Svg.Attribute msg) -> AxisElement msg
-axisLine attributes toAxisPosition orientation =
-    (ifXthenElse orientation xAxisLine yAxisLine) attributes toAxisPosition
+axisLine attributes (AxisConfig config) =
+    (ifXthenElse (AxisConfig config) xAxisLine yAxisLine) attributes config.position
 
 
-{-| -}
 xAxisLine : List (Svg.Attribute msg) -> (Value -> Value -> Value) -> Element msg
-xAxisLine attributes toPosition =
+xAxisLine attributes position =
     Line attributes
         (\meta ->
-            [ ( meta.scale.x.reach.lower, fromDomain toPosition meta )
-            , ( meta.scale.x.reach.upper, fromDomain toPosition meta )
+            [ ( meta.scale.x.reach.lower, fromDomain position meta )
+            , ( meta.scale.x.reach.upper, fromDomain position meta )
             ]
         )
 
 
-{-| -}
 yAxisLine : List (Svg.Attribute msg) -> (Value -> Value -> Value) -> Element msg
-yAxisLine attributes toPosition =
+yAxisLine attributes position =
     Line attributes
         (\meta ->
-            [ ( fromRange toPosition meta, meta.scale.y.reach.lower )
-            , ( fromRange toPosition meta, meta.scale.y.reach.upper )
+            [ ( fromRange position meta, meta.scale.y.reach.lower )
+            , ( fromRange position meta, meta.scale.y.reach.upper )
             ]
         )
 
@@ -505,28 +543,36 @@ labelCustom =
 
 {-| -}
 labels : LabelConfig Value msg -> (Scale -> List Value) -> AxisElement msg
-labels view toValueStuff toAxisPosition orientation =
-    (ifXthenElse orientation xLabels yLabels) view toValueStuff identity toAxisPosition
+labels view toValueStuff config =
+    (ifXthenElse config xLabels yLabels) view toValueStuff identity config
 
 
 {-| -}
 labelsCustom : LabelConfig a msg -> (Scale -> List a) -> (a -> Value) -> AxisElement msg
-labelsCustom view toValueStuff toValue toAxisPosition orientation =
-    (ifXthenElse orientation xLabels yLabels) view toValueStuff toValue toAxisPosition
+labelsCustom view toValueStuff toValue config =
+    (ifXthenElse config xLabels yLabels) view toValueStuff toValue config
 
 
-xLabels : LabelConfig a msg -> (Scale -> List a) -> (a -> Value) -> (Value -> Value -> Value) -> Element msg
-xLabels (LabelConfig view) toValueStuff toValue toYPosition =
+xLabels : LabelConfig a msg -> (Scale -> List a) -> (a -> Value) -> AxisConfig -> Element msg
+xLabels (LabelConfig view) toValueStuff toValue (AxisConfig config) =
     list [ class "elm-plot__labels" ]
-        (\info -> positionBy (onXAxisAt toYPosition (toValue info)) [ view info ])
-        (.scale >> .x >> toValueStuff)
+        (\info -> positionBy (onXAxisAt config.position (toValue info)) [ view info ])
+        (\meta -> toValueStuff meta.scale.x |> clearIntersection meta.scale.x config.clearIntersection toValue)
 
 
-yLabels : LabelConfig a msg -> (Scale -> List a) -> (a -> Value) -> (Value -> Value -> Value) -> Element msg
-yLabels (LabelConfig view) toValueStuff toValue toXPosition =
+yLabels : LabelConfig a msg -> (Scale -> List a) -> (a -> Value) -> AxisConfig -> Element msg
+yLabels (LabelConfig view) toValueStuff toValue (AxisConfig config) =
     list [ class "elm-plot__labels" ]
-        (\info -> positionBy (onYAxisAt toXPosition (toValue info)) [ view info ])
-        (.scale >> .y >> toValueStuff)
+        (\info -> positionBy (onYAxisAt config.position (toValue info)) [ view info ])
+        (\meta -> toValueStuff meta.scale.y |> clearIntersection meta.scale.y config.clearIntersection toValue)
+
+
+clearIntersection : Scale -> Bool -> (a -> Value) -> List a -> List a
+clearIntersection scale shouldClearIntersection toValue infos =
+    if shouldClearIntersection then
+        List.filter (\info -> not (List.member (toValue info) scale.intersections)) infos
+    else
+        infos
 
 
 {-| -}
@@ -556,14 +602,14 @@ tickCustom =
 
 {-| -}
 ticks : TickConfig msg -> (Scale -> List Value) -> AxisElement msg
-ticks tickConfig toValues toAxisPosition orientation =
-    (ifXthenElse orientation xTicks yTicks) tickConfig toAxisPosition toValues
+ticks tickConfig toValues config =
+    (ifXthenElse config xTicks yTicks) tickConfig toValues config
 
 
-xTicks : TickConfig msg -> (Value -> Value -> Value) -> (Scale -> List Value) -> Element msg
-xTicks tickConfig toYPosition toValues =
+xTicks : TickConfig msg -> (Scale -> List Value) -> AxisConfig -> Element msg
+xTicks tickConfig toValues (AxisConfig { position }) =
     list [ class "elm-plot__ticks" ]
-        (tickView (onXAxisAt toYPosition) defaultXTickAttibutes tickConfig)
+        (tickView (onXAxisAt position) defaultXTickAttibutes tickConfig)
         (.scale >> .x >> toValues)
 
 
@@ -572,10 +618,10 @@ defaultXTickAttibutes =
     [ stroke "grey", length 10 ]
 
 
-yTicks : TickConfig msg -> (Value -> Value -> Value) -> (Scale -> List Value) -> Element msg
-yTicks tickConfig toXValue toValues =
+yTicks : TickConfig msg -> (Scale -> List Value) -> AxisConfig -> Element msg
+yTicks tickConfig toValues (AxisConfig { position }) =
     list [ class "elm-plot__ticks" ]
-        (tickView (onYAxisAt toXValue) defaultYTickAttibutes tickConfig)
+        (tickView (onYAxisAt position) defaultYTickAttibutes tickConfig)
         (.scale >> .y >> toValues)
 
 
@@ -764,6 +810,9 @@ viewElement meta element =
     case element of
         SerieElement reach serie ->
             viewSerie reach serie meta
+
+        Axis _ element ->
+            viewElement meta element
 
         Line attributes toPoints ->
             viewPath attributes (makeLinePath NoInterpolation (toPoints meta) meta)
@@ -1098,6 +1147,7 @@ type alias Scale =
     { reach : Reach
     , offset : Reach
     , length : Float
+    , intersections : List Value
     }
 
 
@@ -1130,9 +1180,12 @@ toPlotMeta (PlotConfig { id, margin, proportions, toRangeLowest, toRangeHighest,
             , upper = toDomainHighest reach.y.upper
             }
 
+        ( yIntersections, xIntersections ) =
+            findIntersections (Axised range domain) elements ( [], [] )
+
         scale =
-            { x = toScale proportions.x range margin.left margin.right
-            , y = toScale proportions.y domain margin.top margin.bottom
+            { x = toScale proportions.x range margin.left margin.right yIntersections
+            , y = toScale proportions.y domain margin.top margin.bottom xIntersections
             }
     in
         { scale = scale
@@ -1141,12 +1194,38 @@ toPlotMeta (PlotConfig { id, margin, proportions, toRangeLowest, toRangeHighest,
         }
 
 
-toScale : Int -> Reach -> Int -> Int -> Scale
-toScale length reach offsetLower offsetUpper =
+toScale : Int -> Reach -> Int -> Int -> List Value -> Scale
+toScale length reach offsetLower offsetUpper intersections =
     { length = toFloat length
     , offset = Reach (toFloat offsetLower) (toFloat offsetUpper)
     , reach = reach
+    , intersections = intersections
     }
+
+
+findIntersections : Axised Reach -> List (Element msg) -> ( List Value, List Value ) -> ( List Value, List Value )
+findIntersections scale elements ( yIntersections, xIntersections ) =
+    case elements of
+        [] ->
+            ( yIntersections, xIntersections )
+
+        element :: rest ->
+            case element of
+                Axis config _ ->
+                    findIntersections scale
+                        rest
+                        (ifXthenElse config
+                            ( (toAxisPosition config scale.y) :: yIntersections, xIntersections )
+                            ( yIntersections, (toAxisPosition config scale.x) :: xIntersections )
+                        )
+
+                _ ->
+                    findIntersections scale rest ( yIntersections, xIntersections )
+
+
+toAxisPosition : AxisConfig -> Reach -> Value
+toAxisPosition (AxisConfig config) reach =
+    config.position reach.lower reach.upper
 
 
 findPlotReach : List (Element msg) -> Axised Reach

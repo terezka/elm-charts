@@ -93,8 +93,8 @@ view =
                 , { values = [ 40, 50, 20 ] }
                 ]
             )
-        , xAxis
-            closestToZero
+        , axis
+            (toAxisConfig { position = closestToZero, clearIntersection = False, anchor = AnchorInside, orientation = X })
             [ axisLine [ stroke axisColor ]
             , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1)
             , labels xLabelConfig (fromList [ 1, 2, 3, 4 ])

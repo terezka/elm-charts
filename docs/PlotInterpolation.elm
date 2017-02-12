@@ -58,8 +58,8 @@ view : Svg.Svg a
 view =
     plot plotConfig
         [ areaSerie areaConfig data1
-        , xAxis
-            closestToZero
+        , axis
+            (toAxisConfig { position = closestToZero, clearIntersection = False, anchor = AnchorInside, orientation = X })
             [ axisLine
                 [ stroke axisColor
                 , fill axisColor
