@@ -9912,17 +9912,17 @@ var _terezka$elm_plot$Svg_Plot$DotsConfig = function (a) {
 var _terezka$elm_plot$Svg_Plot$toDotsConfig = function (config) {
 	return _terezka$elm_plot$Svg_Plot$DotsConfig(config);
 };
-var _terezka$elm_plot$Svg_Plot$Fixed = function (a) {
-	return {ctor: 'Fixed', _0: a};
-};
-var _terezka$elm_plot$Svg_Plot$Percentage = function (a) {
-	return {ctor: 'Percentage', _0: a};
-};
 var _terezka$elm_plot$Svg_Plot$BarsConfig = function (a) {
 	return {ctor: 'BarsConfig', _0: a};
 };
 var _terezka$elm_plot$Svg_Plot$toBarsConfig = function (config) {
 	return _terezka$elm_plot$Svg_Plot$BarsConfig(config);
+};
+var _terezka$elm_plot$Svg_Plot$Fixed = function (a) {
+	return {ctor: 'Fixed', _0: a};
+};
+var _terezka$elm_plot$Svg_Plot$Percentage = function (a) {
+	return {ctor: 'Percentage', _0: a};
 };
 var _terezka$elm_plot$Svg_Plot$TickCustom = function (a) {
 	return {ctor: 'TickCustom', _0: a};
@@ -9951,7 +9951,7 @@ var _terezka$elm_plot$Svg_Plot$toPlotConfig = function (_p68) {
 			toRangeHighest: _elm_lang$core$Basics$identity
 		});
 };
-var _terezka$elm_plot$Svg_Plot$toPlotConfigCustom = function (config) {
+var _terezka$elm_plot$Svg_Plot$toPlotConfigFancy = function (config) {
 	return _terezka$elm_plot$Svg_Plot$PlotConfig(config);
 };
 var _terezka$elm_plot$Svg_Plot$Z = {ctor: 'Z'};
@@ -10683,7 +10683,7 @@ var _terezka$elm_plot$PlotBars$xLabelConfig = A2(
 				_terezka$elm_plot$PlotBars$xLabelStrings));
 	});
 var _terezka$elm_plot$PlotBars$id = 'PlotBars';
-var _terezka$elm_plot$PlotBars$plotConfig = _terezka$elm_plot$Svg_Plot$toPlotConfigCustom(
+var _terezka$elm_plot$PlotBars$plotConfig = _terezka$elm_plot$Svg_Plot$toPlotConfigFancy(
 	{
 		attributes: {ctor: '[]'},
 		id: _terezka$elm_plot$PlotBars$id,
@@ -11009,7 +11009,7 @@ var _terezka$elm_plot$PlotGrid$lineConfig = _terezka$elm_plot$Svg_Plot$toLineCon
 		interpolation: _terezka$elm_plot$Svg_Plot$Bezier
 	});
 var _terezka$elm_plot$PlotGrid$id = 'Grid';
-var _terezka$elm_plot$PlotGrid$plotConfig = _terezka$elm_plot$Svg_Plot$toPlotConfigCustom(
+var _terezka$elm_plot$PlotGrid$plotConfig = _terezka$elm_plot$Svg_Plot$toPlotConfigFancy(
 	{
 		attributes: {ctor: '[]'},
 		id: _terezka$elm_plot$PlotGrid$id,
@@ -11259,7 +11259,7 @@ var _terezka$elm_plot$PlotAxis$xLabelConfig = A2(
 				_terezka$elm_plot$PlotAxis$xLabelStrings));
 	});
 var _terezka$elm_plot$PlotAxis$id = 'PlotAxis';
-var _terezka$elm_plot$PlotAxis$plotConfig = _terezka$elm_plot$Svg_Plot$toPlotConfigCustom(
+var _terezka$elm_plot$PlotAxis$plotConfig = _terezka$elm_plot$Svg_Plot$toPlotConfigFancy(
 	{
 		attributes: {ctor: '[]'},
 		id: _terezka$elm_plot$PlotAxis$id,

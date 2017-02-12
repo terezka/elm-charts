@@ -6,7 +6,7 @@ module Svg.Plot
         , Orientation(..)
         , PlotConfig
         , toPlotConfig
-        , toPlotConfigCustom
+        , toPlotConfigFancy
         , plot
         , LineConfig
         , toLineConfig
@@ -60,7 +60,7 @@ module Svg.Plot
 @docs Value, Point, Orientation, Element, Meta
 
 # Plot elements
-@docs PlotConfig, toPlotConfig, toPlotConfigCustom, plot
+@docs PlotConfig, toPlotConfig, toPlotConfigFancy, plot
 
 ## Series
 
@@ -74,7 +74,10 @@ module Svg.Plot
 @docs DotsConfig, toDotsConfig, dotsSerie
 
 ### Bars
-@docs BarsConfig, BarValueInfo, MaxBarWidth, toBarsConfig, barsSerie, toGroups, GroupTransformer
+@docs BarsConfig, BarValueInfo, MaxBarWidth, toBarsConfig, barsSerie,
+
+### Data transformation
+@docs Group, GroupTransformer, toGroups
 
 ## Axis elements
 @docs xAxis, xAxisAt, yAxis, yAxisAt
@@ -343,6 +346,16 @@ dotsSerie config data =
 
 
 {-| -}
+type BarsConfig msg
+    = BarsConfig
+        { stackBy : Orientation
+        , styles : List (List (Svg.Attribute msg))
+        , labelView : LabelView BarValueInfo msg
+        , maxWidth : MaxBarWidth
+        }
+
+
+{-| -}
 type alias BarValueInfo =
     { xValue : Value, index : Int, yValue : Value }
 
@@ -351,16 +364,6 @@ type alias BarValueInfo =
 type MaxBarWidth
     = Percentage Int
     | Fixed Float
-
-
-{-| -}
-type BarsConfig msg
-    = BarsConfig
-        { stackBy : Orientation
-        , styles : List (List (Svg.Attribute msg))
-        , labelView : LabelView BarValueInfo msg
-        , maxWidth : MaxBarWidth
-        }
 
 
 {-| -}
@@ -379,6 +382,10 @@ toBarsConfig config =
 barsSerie : BarsConfig msg -> List Group -> Element msg
 barsSerie config data =
     SerieElement (findReachFromGroups config data) (BarsSerie config data)
+
+
+
+-- DATA TRANSFORMS
 
 
 {-| -}
@@ -546,7 +553,6 @@ ticks tickConfig toValues toAxisPosition orientation =
     (ifXthenElse orientation xTicks yTicks) tickConfig toAxisPosition toValues
 
 
-{-| -}
 xTicks : TickConfig msg -> (Value -> Value -> Value) -> (Scale -> List Value) -> Element msg
 xTicks tickConfig toYPosition toValues =
     list [ class "elm-plot__ticks" ]
@@ -559,7 +565,6 @@ defaultXTickAttibutes =
     [ stroke "grey", length 10 ]
 
 
-{-| -}
 yTicks : TickConfig msg -> (Value -> Value -> Value) -> (Scale -> List Value) -> Element msg
 yTicks tickConfig toXValue toValues =
     list [ class "elm-plot__ticks" ]
@@ -676,7 +681,7 @@ toPlotConfig { attributes, id, margin, proportions } =
 
 
 {-| -}
-toPlotConfigCustom :
+toPlotConfigFancy :
     { attributes : List (Svg.Attribute msg)
     , id : String
     , margin :
@@ -695,7 +700,7 @@ toPlotConfigCustom :
     , toRangeHighest : Value -> Value
     }
     -> PlotConfig msg
-toPlotConfigCustom config =
+toPlotConfigFancy config =
     PlotConfig config
 
 

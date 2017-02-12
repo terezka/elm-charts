@@ -28,7 +28,7 @@ id =
 
 plotConfig : PlotConfig msg
 plotConfig =
-    toPlotConfigCustom
+    toPlotConfigFancy
         { attributes = []
         , id = id
         , margin =
