@@ -62,15 +62,14 @@ view : Svg.Svg a
 view =
     plot plotConfig
         [ axis
-            (toAxisConfig { position = atLowest, clearIntersection = False, orientation = Y })
+            (toAxisConfig Y atLowest)
             [ axisLine [ fill axisColor ]
             , ticks (tick [ stroke axisColor, length 5 ]) (fromDelta 1)
             , labels (label [ fill axisColor, displace ( -10, 5 ), style "text-anchor: end;" ] toString) (fromDelta 1)
             ]
         , verticalGrid [ stroke axisColorLight ] (fromDelta 10)
         , horizontalGrid [ stroke axisColorLight ] (fromDelta 1)
-        , axis
-            (toAxisConfig { position = atZero, clearIntersection = False, orientation = X })
+        , axis (toAxisConfig X atZero)
             [ axisLine [ stroke axisColor ] ]
         , positionBy
             (fromRangeAndDomain (\xl xh yl yh -> ( xh, yh )))

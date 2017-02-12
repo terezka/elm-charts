@@ -35,6 +35,7 @@ module Svg.Plot
         , fromDomain
         , fromRangeAndDomain
         , remove
+        , removeIntersections
         , filterDelta
         , atLowest
         , atHighest
@@ -101,7 +102,7 @@ module Svg.Plot
 
 ## Value helpers
 These are functions to help you create the values you would like to have ticks, labels or grid lines at.
-@docs ValueProducer, ValueAlter, fromList, fromDelta, remove, filterDelta
+@docs ValueProducer, ValueAlter, fromList, fromDelta, remove, removeIntersections, filterDelta
 
 ## General
 @docs fromRange, fromDomain, fromRangeAndDomain, positionAt, positionBy, displace
@@ -209,13 +210,13 @@ list attributes toElement toValues =
 {-| Functions of this type are there to help you create values using the plot bounds.
 -}
 type alias ValueProducer =
-    Scale -> List Value
+    Scale -> ( List Value, Scale )
 
 
 {-| Functions of this type are there to help alter the values created e.g. by a `ValueProducer`.
 -}
 type alias ValueAlter =
-    List Value -> List Value
+    ( List Value, Scale ) -> ( List Value, Scale )
 
 
 {-| Just returns the list of values you provided.
@@ -243,8 +244,8 @@ type alias ValueAlter =
 This produces labels at 500, 1000, 1500, 2000 and 2017.
 -}
 fromList : List Value -> ValueProducer
-fromList values _ =
-    values
+fromList values scale =
+    ( values, scale )
 
 
 {-| Takes a delta and produces a list of values with the delta as their interval.
@@ -273,7 +274,7 @@ This produces labels at 0, 2, 4, 6 and 8.
 -}
 fromDelta : Value -> ValueProducer
 fromDelta delta scale =
-    toValuesFromDelta scale.lowest scale.highest delta
+    ( toValuesFromDelta scale.lowest scale.highest delta, scale )
 
 
 {-| Remove a value from a list.
@@ -301,8 +302,14 @@ fromDelta delta scale =
 This produces labels at 0, 2, 6 and 8.
 -}
 remove : Value -> ValueAlter
-remove bannedValue =
-    List.filter (\value -> value /= bannedValue)
+remove bannedValue ( values, scale ) =
+    ( List.filter (\value -> value /= bannedValue) values, scale )
+
+
+{-| -}
+removeIntersections : ValueAlter
+removeIntersections ( values, scale ) =
+    ( List.filter (\value -> not (List.member value scale.intersections)) values, scale )
 
 
 {-| Remove values provided an offset and interval.
@@ -334,10 +341,11 @@ This produces ticks with a length of 10 at 0, 2, 4, 6 and 8 and ticks with a len
 5 at 1, 3, 5, 7 and 9.
 -}
 filterDelta : Int -> Int -> ValueAlter
-filterDelta offset interval values =
+filterDelta offset interval ( values, scale ) =
     List.indexedMap (,) values
         |> List.filter (\( i, v ) -> rem (offset + i) interval /= 0)
         |> List.map Tuple.second
+        |> \values -> ( values, scale )
 
 
 
@@ -628,9 +636,8 @@ getGroupXValue toXValue index data =
 {-| -}
 type AxisConfig
     = AxisConfig
-        { position : Value -> Value -> Value
-        , clearIntersection : Bool
-        , orientation : Orientation
+        { orientation : Orientation
+        , position : Value -> Value -> Value
         }
 
 
@@ -643,25 +650,16 @@ type alias AxisElement msg =
 
     myXAxis : Plot.AxisConfig msg
     myXAxis =
-      Plot.toAxisConfig
-        { orientation = X
-        , position = atZero
-        , clearIntersection = False
-        }
+      Plot.toAxisConfig X atZero
 
 The `orientation` option is whether the axis is vertical or horizontal.
 The `position` option is where on the opposite axis it should be places. So this one
 will be a y = 0. If setting the `clearIntersection` option to true, it will
 remove the ticks and labels which coincides witht the opposite axes drawn.
 -}
-toAxisConfig :
-    { position : Value -> Value -> Value
-    , orientation : Orientation
-    , clearIntersection : Bool
-    }
-    -> AxisConfig
-toAxisConfig config =
-    AxisConfig config
+toAxisConfig : Orientation -> (Value -> Value -> Value) -> AxisConfig
+toAxisConfig orientation position =
+    AxisConfig { orientation = orientation, position = position }
 
 
 {-| Provided an axis configuration and a list of axis elements, it will produce an axis in your plot! ✨
@@ -792,7 +790,7 @@ labels : LabelConfig Value msg -> ValueProducer -> AxisElement msg
 labels labelConfig toValues (AxisConfig config) { onAxisAt, toScale, defaultLabelAttributes } =
     list [ class "elm-plot__labels" ]
         (\value -> positionBy (onAxisAt value) [ toLabelView defaultLabelAttributes labelConfig value ])
-        (toScale >> (\scale -> clearIntersection scale config.clearIntersection (toValues scale)))
+        (\meta -> Tuple.first <| toValues (toScale meta))
 
 
 {-| Just like `labels` except you add another list of strings which will be passed to your label view. Useful for
@@ -803,11 +801,11 @@ labels labelConfig toValues (AxisConfig config) { onAxisAt, toScale, defaultLabe
         labelsFromStrings (label [] identity) (fromDelta 1) [ "Spring", "Summer", "Autumn", "Winter"]
 
 -}
-labelsFromStrings : LabelConfig String msg -> (Scale -> List Value) -> List String -> AxisElement msg
+labelsFromStrings : LabelConfig String msg -> ValueProducer -> List String -> AxisElement msg
 labelsFromStrings labelConfig toValues strings (AxisConfig config) { onAxisAt, toScale, defaultLabelAttributes } =
     list [ class "elm-plot__labels" ]
         (\( string, value ) -> positionBy (onAxisAt value) [ toLabelView defaultLabelAttributes labelConfig string ])
-        (toScale >> (\scale -> clearIntersection scale config.clearIntersection (toValues scale)) >> List.map2 (,) strings)
+        (\meta -> toValues (toScale meta) |> Tuple.first |> List.map2 (,) strings)
 
 
 toLabelView : List (Svg.Attribute msg) -> LabelConfig a msg -> a -> Svg msg
@@ -857,7 +855,7 @@ ticks : TickConfig msg -> ValueProducer -> AxisElement msg
 ticks tickConfig toValues (AxisConfig config) { onAxisAt, defaultTickAttributes, toScale } =
     list [ class "elm-plot__ticks" ]
         (\value -> positionBy (onAxisAt value) [ toTickView defaultTickAttributes tickConfig value ])
-        (toScale >> (\scale -> clearIntersection scale config.clearIntersection (toValues scale)))
+        (\meta -> Tuple.first <| toValues (toScale meta))
 
 
 toTickView : List (Svg.Attribute msg) -> TickConfig msg -> Value -> Svg msg
@@ -884,7 +882,7 @@ horizontalGrid : List (Svg.Attribute msg) -> ValueProducer -> Element msg
 horizontalGrid attributes toValues =
     list [ class "elm-plot__grid elm-plot__grid--horizontal" ]
         (\value -> Line (stroke "grey" :: attributes) (\meta -> [ onYAxisAt atLowest value meta, onYAxisAt atHighest value meta ]))
-        (\(Meta meta) -> toValues meta.yScale)
+        (\(Meta meta) -> Tuple.first <| toValues meta.yScale)
 
 
 {-| Draw vertical grid lines provided a list of attributes and a function to produce values. 🎼
@@ -897,7 +895,7 @@ verticalGrid : List (Svg.Attribute msg) -> ValueProducer -> Element msg
 verticalGrid attributes toValues =
     list [ class "elm-plot__grid elm-plot__grid--vertical" ]
         (\value -> Line (stroke "grey" :: attributes) (\meta -> [ onXAxisAt atLowest value meta, onXAxisAt atHighest value meta ]))
-        (\(Meta meta) -> toValues meta.xScale)
+        (\(Meta meta) -> Tuple.first <| toValues meta.xScale)
 
 
 

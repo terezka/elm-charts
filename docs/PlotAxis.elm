@@ -93,26 +93,13 @@ view =
                 ]
             )
         , axis
-            (toAxisConfig
-                { position = atZero
-                , clearIntersection = True
-                , orientation = X
-                }
-            )
+            (toAxisConfig X atZero)
             [ axisLine [ stroke axisColor ]
             , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1)
-            , labelsFromStrings
-                xLabelConfig
-                (fromDelta 1)
-                xLabelStrings
+            , labelsFromStrings xLabelConfig (fromDelta 1 >> removeIntersections) xLabelStrings
             ]
         , axis
-            (toAxisConfig
-                { position = atLowest
-                , clearIntersection = True
-                , orientation = Y
-                }
-            )
+            (toAxisConfig Y atLowest)
             [ axisLine [ stroke axisColor ]
             , ticks
                 (tick [ stroke axisColor, length 10, transform "rotate(-90)" ])
@@ -122,15 +109,10 @@ view =
                 (fromDelta 5 >> filterDelta 1 2)
             , labels
                 (label [ fill axisColor, style "text-anchor: start;", displace ( 10, 5 ) ] toString)
-                (fromDelta 10)
+                (fromDelta 10 >> removeIntersections)
             ]
         , axis
-            (toAxisConfig
-                { position = atHighest
-                , clearIntersection = True
-                , orientation = Y
-                }
-            )
+            (toAxisConfig Y atHighest)
             [ axisLine [ stroke axisColor ]
             , ticks
                 (tick [ stroke axisColor, length 10 ])
@@ -146,7 +128,7 @@ view =
                     ]
                     ((*) 100 >> toString)
                 )
-                (fromDelta 10)
+                (fromDelta 10 >> removeIntersections)
             ]
         , positionBy
             (fromRangeAndDomain (\xl xh yl yh -> ( xl, yh / 2 )))

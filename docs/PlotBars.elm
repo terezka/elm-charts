@@ -87,8 +87,7 @@ view =
                 , { values = [ 40, 50, 20 ] }
                 ]
             )
-        , axis
-            (toAxisConfig { position = atZero, clearIntersection = False, orientation = X })
+        , axis (toAxisConfig X atZero)
             [ axisLine [ stroke axisColor ]
             , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1)
             , labelsFromStrings xLabelConfig (fromDelta 1) [ "A", "B", "C", "D" ]
