@@ -94,7 +94,7 @@ view =
                 ]
             )
         , axis
-            (toAxisConfig { position = closestToZero, clearIntersection = False, anchor = AnchorInside, orientation = X })
+            (toAxisConfig { position = closestToZero, clearIntersection = False, orientation = X })
             [ axisLine [ stroke axisColor ]
             , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1)
             , labels xLabelConfig (fromList [ 1, 2, 3, 4 ])

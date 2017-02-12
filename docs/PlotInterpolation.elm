@@ -59,7 +59,7 @@ view =
     plot plotConfig
         [ areaSerie areaConfig data1
         , axis
-            (toAxisConfig { position = closestToZero, clearIntersection = False, anchor = AnchorInside, orientation = X })
+            (toAxisConfig { position = closestToZero, clearIntersection = False, orientation = X })
             [ axisLine
                 [ stroke axisColor
                 , fill axisColor

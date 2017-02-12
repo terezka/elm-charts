@@ -97,7 +97,6 @@ view =
             (toAxisConfig
                 { position = closestToZero
                 , clearIntersection = True
-                , anchor = AnchorInside
                 , orientation = X
                 }
             )
@@ -109,7 +108,6 @@ view =
             (toAxisConfig
                 { position = lowest
                 , clearIntersection = True
-                , anchor = AnchorInside
                 , orientation = Y
                 }
             )
@@ -128,7 +126,6 @@ view =
             (toAxisConfig
                 { position = highest
                 , clearIntersection = True
-                , anchor = AnchorInside
                 , orientation = Y
                 }
             )
