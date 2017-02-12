@@ -70,7 +70,7 @@ view =
         , verticalGrid [ stroke axisColorLight ] (fromDelta 10)
         , horizontalGrid [ stroke axisColorLight ] (fromDelta 1)
         , axis
-            (toAxisConfig { position = closestToZero, clearIntersection = False, orientation = X })
+            (toAxisConfig { position = atZero, clearIntersection = False, orientation = X })
             [ axisLine [ stroke axisColor ] ]
         , positionBy
             (fromRangeAndDomain (\xl xh yl yh -> ( xh, yh )))

@@ -88,7 +88,7 @@ view =
                 ]
             )
         , axis
-            (toAxisConfig { position = closestToZero, clearIntersection = False, orientation = X })
+            (toAxisConfig { position = atZero, clearIntersection = False, orientation = X })
             [ axisLine [ stroke axisColor ]
             , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1)
             , labelsCustom xLabelConfig (\_ -> List.indexedMap (,) [ "A", "B", "C", "D" ]) (Tuple.first >> toFloat)

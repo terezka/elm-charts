@@ -8,17 +8,7 @@
         "./docs"
     ],
     "exposed-modules": [
-        "Plot",
-        "Plot.Area",
-        "Plot.Axis",
-        "Plot.Bars",
-        "Plot.Grid",
-        "Plot.Hint",
-        "Plot.Label",
-        "Plot.Line",
-        "Plot.Scatter",
-        "Plot.Tick",
-        "Plot.Types"
+        "Svg.Plot"
     ],
     "dependencies": {
         "debois/elm-dom": "1.2.3 <= v < 2.0.0",

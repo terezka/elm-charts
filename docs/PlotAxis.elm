@@ -94,14 +94,17 @@ view =
             )
         , axis
             (toAxisConfig
-                { position = closestToZero
+                { position = atZero
                 , clearIntersection = True
                 , orientation = X
                 }
             )
             [ axisLine [ stroke axisColor ]
             , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1)
-            , labelsCustom xLabelConfig (\_ -> List.indexedMap (,) xLabelStrings) (Tuple.first >> toFloat)
+            , labelsCustom
+                xLabelConfig
+                (\_ -> List.indexedMap (,) xLabelStrings)
+                (Tuple.first >> toFloat)
             ]
         , axis
             (toAxisConfig

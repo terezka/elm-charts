@@ -9402,7 +9402,7 @@ var _terezka$elm_plot$Svg_Plot$toGroups = F2(
 				}),
 			allData);
 	});
-var _terezka$elm_plot$Svg_Plot$closestToZero = F2(
+var _terezka$elm_plot$Svg_Plot$atZero = F2(
 	function (lowest, highest) {
 		return A3(_elm_lang$core$Basics$clamp, lowest, highest, 0);
 	});
@@ -10851,7 +10851,7 @@ var _terezka$elm_plot$PlotBars$view = A2(
 			_0: A2(
 				_terezka$elm_plot$Svg_Plot$axis,
 				_terezka$elm_plot$Svg_Plot$toAxisConfig(
-					{position: _terezka$elm_plot$Svg_Plot$closestToZero, clearIntersection: false, orientation: _terezka$elm_plot$Svg_Plot$X}),
+					{position: _terezka$elm_plot$Svg_Plot$atZero, clearIntersection: false, orientation: _terezka$elm_plot$Svg_Plot$X}),
 				{
 					ctor: '::',
 					_0: _terezka$elm_plot$Svg_Plot$axisLine(
@@ -10989,7 +10989,7 @@ var _terezka$elm_plot$PlotInterpolation$view = A2(
 			_0: A2(
 				_terezka$elm_plot$Svg_Plot$axis,
 				_terezka$elm_plot$Svg_Plot$toAxisConfig(
-					{position: _terezka$elm_plot$Svg_Plot$closestToZero, clearIntersection: false, orientation: _terezka$elm_plot$Svg_Plot$X}),
+					{position: _terezka$elm_plot$Svg_Plot$atZero, clearIntersection: false, orientation: _terezka$elm_plot$Svg_Plot$X}),
 				{
 					ctor: '::',
 					_0: _terezka$elm_plot$Svg_Plot$axisLine(
@@ -11181,7 +11181,7 @@ var _terezka$elm_plot$PlotGrid$view = A2(
 					_0: A2(
 						_terezka$elm_plot$Svg_Plot$axis,
 						_terezka$elm_plot$Svg_Plot$toAxisConfig(
-							{position: _terezka$elm_plot$Svg_Plot$closestToZero, clearIntersection: false, orientation: _terezka$elm_plot$Svg_Plot$X}),
+							{position: _terezka$elm_plot$Svg_Plot$atZero, clearIntersection: false, orientation: _terezka$elm_plot$Svg_Plot$X}),
 						{
 							ctor: '::',
 							_0: _terezka$elm_plot$Svg_Plot$axisLine(
@@ -11413,7 +11413,7 @@ var _terezka$elm_plot$PlotAxis$view = A2(
 			_0: A2(
 				_terezka$elm_plot$Svg_Plot$axis,
 				_terezka$elm_plot$Svg_Plot$toAxisConfig(
-					{position: _terezka$elm_plot$Svg_Plot$closestToZero, clearIntersection: true, orientation: _terezka$elm_plot$Svg_Plot$X}),
+					{position: _terezka$elm_plot$Svg_Plot$atZero, clearIntersection: true, orientation: _terezka$elm_plot$Svg_Plot$X}),
 				{
 					ctor: '::',
 					_0: _terezka$elm_plot$Svg_Plot$axisLine(

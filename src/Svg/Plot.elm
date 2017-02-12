@@ -3,6 +3,7 @@ module Svg.Plot
         ( Value
         , Point
         , Element
+        , Meta
         , Orientation(..)
         , PlotConfig
         , toPlotConfig
@@ -19,8 +20,10 @@ module Svg.Plot
         , toDotsConfig
         , dotsSerie
         , BarsConfig
+        , BarValueInfo
         , toBarsConfig
         , barsSerie
+        , Group
         , GroupTransformer
         , toGroups
         , MaxBarWidth(..)
@@ -33,7 +36,7 @@ module Svg.Plot
         , filterDelta
         , atLowest
         , atHighest
-        , closestToZero
+        , atZero
         , verticalGrid
         , horizontalGrid
         , AxisConfig
@@ -67,22 +70,22 @@ module Svg.Plot
 ## Series
 
 ### Line
-@docs LineConfig, toLineConfig, lineSerie
+@docs LineConfig, Interpolation, toLineConfig, lineSerie
 
 ### Area
-@docs AreaConfig, toAreaConfig, areaSerie
+@docs AreaConfig, Interpolation, toAreaConfig, areaSerie
 
 ### Dots
 @docs DotsConfig, toDotsConfig, dotsSerie
 
 ### Bars
-@docs BarsConfig, BarValueInfo, MaxBarWidth, toBarsConfig, barsSerie,
+@docs BarsConfig, BarValueInfo, MaxBarWidth, toBarsConfig, barsSerie
 
 ### Data transformation
 @docs Group, GroupTransformer, toGroups
 
 ## Axis elements
-@docs AxisConfig, toAxisConfig, owest, highest, closestToZero, axis
+@docs AxisConfig, toAxisConfig, atLowest, atHighest, atZero, axis
 
 ### Value helpers
 @docs fromList, fromDelta, filterDelta, remove
@@ -97,10 +100,10 @@ module Svg.Plot
 @docs LabelConfig, label, labelCustom, labels, labelsCustom, viewLabel
 
 ### Ticks
-@docs TickConfig, tick, tickCustom, ticks
+@docs TickConfig, tick, tickCustom, ticks, length
 
 ## Primitives
-@docs fromRange, fromDomain, fromRangeAndDomain, positionBy, positionAt
+@docs fromRange, fromDomain, fromRangeAndDomain, positionBy, positionAt, displace
 
 -}
 
@@ -247,8 +250,8 @@ atLowest lowest _ =
 
 
 {-| -}
-closestToZero : Value -> Value -> Value
-closestToZero lowest highest =
+atZero : Value -> Value -> Value
+atZero lowest highest =
     clamp lowest highest 0
 
 
@@ -424,6 +427,7 @@ getGroupXValue toXValue index data =
 -- AXIS ELEMENTS
 
 
+{-| -}
 type AxisConfig
     = AxisConfig
         { position : Value -> Value -> Value
@@ -437,6 +441,7 @@ type alias AxisElement msg =
     AxisConfig -> AxisViewDetails msg -> Element msg
 
 
+{-| -}
 toAxisConfig :
     { position : Value -> Value -> Value
     , orientation : Orientation
@@ -531,6 +536,7 @@ axisLine attributes _ { onAxisAt, toScale } =
 -- LABELS
 
 
+{-| -}
 type LabelConfig a msg
     = LabelSimple (List (Svg.Attribute msg)) (a -> String)
     | LabelCustom (a -> Svg msg)
@@ -588,6 +594,7 @@ viewLabel attributes string =
 -- TICKS
 
 
+{-| -}
 type TickConfig msg
     = TickSimple (List (Svg.Attribute msg))
     | TickCustom (Value -> Svg msg)
@@ -1139,6 +1146,7 @@ type alias Scale =
     }
 
 
+{-| -}
 type alias Meta =
     { toSVGPoint : Point -> Point
     , xScale : Scale
