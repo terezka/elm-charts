@@ -417,7 +417,7 @@ getGroupXValue toXValue index data =
             getXValue data
 
         Nothing ->
-            toFloat index + 1
+            toFloat index
 
 
 

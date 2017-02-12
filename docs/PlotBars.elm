@@ -3,7 +3,6 @@ module PlotBars exposing (plotExample)
 import Svg
 import Svg.Attributes exposing (..)
 import Svg.Plot exposing (..)
-import Array
 import Common exposing (..)
 
 
@@ -46,19 +45,14 @@ plotConfig =
         }
 
 
-xLabelStrings : Array.Array String
-xLabelStrings =
-    Array.fromList [ "A", "B", "C", "D" ]
-
-
-xLabelConfig : LabelConfig Value msg
+xLabelConfig : LabelConfig ( Int, String ) msg
 xLabelConfig =
     label
         [ fill axisColor
         , style "text-anchor: middle;"
         , displace ( 0, 25 )
         ]
-        (\value -> Array.get (round <| value - 1) xLabelStrings |> Maybe.withDefault "")
+        Tuple.second
 
 
 barsConfig : BarsConfig msg
@@ -97,7 +91,7 @@ view =
             (toAxisConfig { position = closestToZero, clearIntersection = False, orientation = X })
             [ axisLine [ stroke axisColor ]
             , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1)
-            , labels xLabelConfig (fromList [ 1, 2, 3, 4 ])
+            , labelsCustom xLabelConfig (\_ -> List.indexedMap (,) [ "A", "B", "C", "D" ]) (Tuple.first >> toFloat)
             ]
         ]
 

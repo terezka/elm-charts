@@ -9385,7 +9385,7 @@ var _terezka$elm_plot$Svg_Plot$getGroupXValue = F3(
 		if (_p36.ctor === 'Just') {
 			return _p36._0(data);
 		} else {
-			return _elm_lang$core$Basics$toFloat(index) + 1;
+			return _elm_lang$core$Basics$toFloat(index);
 		}
 	});
 var _terezka$elm_plot$Svg_Plot$toGroups = F2(
@@ -10726,24 +10726,6 @@ var _terezka$elm_plot$PlotBars$barsConfig = _terezka$elm_plot$Svg_Plot$toBarsCon
 			}),
 		maxWidth: _terezka$elm_plot$Svg_Plot$Fixed(30)
 	});
-var _terezka$elm_plot$PlotBars$xLabelStrings = _elm_lang$core$Array$fromList(
-	{
-		ctor: '::',
-		_0: 'A',
-		_1: {
-			ctor: '::',
-			_0: 'B',
-			_1: {
-				ctor: '::',
-				_0: 'C',
-				_1: {
-					ctor: '::',
-					_0: 'D',
-					_1: {ctor: '[]'}
-				}
-			}
-		}
-	});
 var _terezka$elm_plot$PlotBars$xLabelConfig = A2(
 	_terezka$elm_plot$Svg_Plot$label,
 	{
@@ -10760,15 +10742,7 @@ var _terezka$elm_plot$PlotBars$xLabelConfig = A2(
 			}
 		}
 	},
-	function (value) {
-		return A2(
-			_elm_lang$core$Maybe$withDefault,
-			'',
-			A2(
-				_elm_lang$core$Array$get,
-				_elm_lang$core$Basics$round(value - 1),
-				_terezka$elm_plot$PlotBars$xLabelStrings));
-	});
+	_elm_lang$core$Tuple$second);
 var _terezka$elm_plot$PlotBars$id = 'PlotBars';
 var _terezka$elm_plot$PlotBars$plotConfig = _terezka$elm_plot$Svg_Plot$toPlotConfigFancy(
 	{
@@ -10903,27 +10877,38 @@ var _terezka$elm_plot$PlotBars$view = A2(
 							_terezka$elm_plot$Svg_Plot$fromDelta(1)),
 						_1: {
 							ctor: '::',
-							_0: A2(
-								_terezka$elm_plot$Svg_Plot$labels,
+							_0: A3(
+								_terezka$elm_plot$Svg_Plot$labelsCustom,
 								_terezka$elm_plot$PlotBars$xLabelConfig,
-								_terezka$elm_plot$Svg_Plot$fromList(
-									{
-										ctor: '::',
-										_0: 1,
-										_1: {
+								function (_p1) {
+									return A2(
+										_elm_lang$core$List$indexedMap,
+										F2(
+											function (v0, v1) {
+												return {ctor: '_Tuple2', _0: v0, _1: v1};
+											}),
+										{
 											ctor: '::',
-											_0: 2,
+											_0: 'A',
 											_1: {
 												ctor: '::',
-												_0: 3,
+												_0: 'B',
 												_1: {
 													ctor: '::',
-													_0: 4,
-													_1: {ctor: '[]'}
+													_0: 'C',
+													_1: {
+														ctor: '::',
+														_0: 'D',
+														_1: {ctor: '[]'}
+													}
 												}
 											}
-										}
-									})),
+										});
+								},
+								function (_p2) {
+									return _elm_lang$core$Basics$toFloat(
+										_elm_lang$core$Tuple$first(_p2));
+								}),
 							_1: {ctor: '[]'}
 						}
 					}
