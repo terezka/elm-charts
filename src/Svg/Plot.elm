@@ -27,6 +27,8 @@ module Svg.Plot
         , GroupTransformer
         , toGroups
         , MaxBarWidth(..)
+        , ValueProducer
+        , ValueAlter
         , fromList
         , fromDelta
         , fromRange
@@ -52,43 +54,38 @@ module Svg.Plot
         , label
         , labelCustom
         , labels
-        , labelsCustom
+        , labelsFromStrings
         , viewLabel
         , displace
         , positionAt
         , positionBy
         )
 
-{-| Plot in SVG!
+{-| This library helps you plot a variety of serie types including lines, areas, scatters and bars.
+ It also provides functions to draw axes and their ticks and labels.
 
 # Definitions
-@docs Value, Point, Orientation, Element, Meta
+@docs Value, Point, Orientation, Meta
 
 # Plot elements
-@docs PlotConfig, toPlotConfig, toPlotConfigFancy, plot
 
-## Series
+## Line
+@docs LineConfig, toLineConfig, Interpolation, lineSerie
 
-### Line
-@docs LineConfig, Interpolation, toLineConfig, lineSerie
+## Area
+@docs AreaConfig, toAreaConfig, Interpolation,  areaSerie
 
-### Area
-@docs AreaConfig, Interpolation, toAreaConfig, areaSerie
-
-### Dots
+## Dots
 @docs DotsConfig, toDotsConfig, dotsSerie
 
-### Bars
-@docs BarsConfig, BarValueInfo, MaxBarWidth, toBarsConfig, barsSerie
+## Bars
+@docs BarsConfig, toBarsConfig, BarValueInfo, MaxBarWidth, barsSerie
 
-### Data transformation
+## Data transformation
 @docs Group, GroupTransformer, toGroups
 
-## Axis elements
+## Axis
 @docs AxisConfig, toAxisConfig, atLowest, atHighest, atZero, axis
-
-### Value helpers
-@docs fromList, fromDelta, filterDelta, remove
 
 ### Axis line
 @docs axisLine
@@ -97,13 +94,23 @@ module Svg.Plot
 @docs horizontalGrid, verticalGrid
 
 ### Labels
-@docs LabelConfig, label, labelCustom, labels, labelsCustom, viewLabel
+@docs LabelConfig, label, labelCustom, labels, labelsFromStrings, viewLabel
 
 ### Ticks
 @docs TickConfig, tick, tickCustom, ticks, length
 
-## Primitives
-@docs fromRange, fromDomain, fromRangeAndDomain, positionBy, positionAt, displace
+## Value helpers
+These are functions to help you create the values you would like to have ticks, labels or grid lines at.
+@docs ValueProducer, ValueAlter, fromList, fromDelta, remove, filterDelta
+
+## General
+@docs fromRange, fromDomain, fromRangeAndDomain, positionAt, positionBy, displace
+
+
+# Plot
+@docs PlotConfig, Element, toPlotConfig, toPlotConfigFancy, plot
+
+
 
 -}
 
@@ -113,27 +120,30 @@ import Svg.Attributes exposing (d, fill, transform, class, y2, x2, width, height
 import Svg.Utils exposing (..)
 
 
--- PUBLIC TYPES
-
-
-{-| -}
+{-| Represents a x or y-value in a `Point`.
+-}
 type alias Value =
     Float
 
 
-{-| -}
+{-| Represents a point in the plot.
+-}
 type alias Point =
     ( Value, Value )
 
 
-{-| -}
-type alias Group =
-    { xValue : Value
-    , yValues : List Value
-    }
+{-| An element in the plot.
+
+    elements : List (Element msg)
+    elements =
+        [ lineSerie lineConfig [ ( 0, 1 ), ( 1, 2 ) ] ]
 
 
-{-| -}
+    myPlot : Svg msg
+    myPlot =
+        plot plotConfig elements
+
+-}
 type Element msg
     = SerieElement (Axised Reach) (Serie msg)
     | Axis AxisConfig (Element msg)
@@ -154,19 +164,37 @@ type Serie msg
 -- PRIMITIVES
 
 
-{-| Place a list of SVG elements provided the information about the bounds of the plot.
- Use functions `fromRange`, `fromDomain` or `fromRangeAndDomain` to access this information.
--}
-positionBy : (Meta -> Point) -> List (Svg msg) -> Element msg
-positionBy =
-    Position
-
-
 {-| Place a list of SVG elements at a specific coordinate.
+
+    import Svg.Plot as Plot
+
+    main =
+        Plot.plot plotConfig
+            [ Plot.positionAt ( 1, 2 ) [ Plot.viewLabel [] "✨" ] ]
 -}
 positionAt : Point -> List (Svg msg) -> Element msg
 positionAt point =
     Position (always point)
+
+
+{-| Take a list of SVG elements and place it somewhere in the plot.
+ Use `fromRange`, `fromDomain` or `fromRangeAndDomain` to help you find the right coordinates.
+ If you already know where your elements should be places, use `positionAt` instead.
+ Beware that the plot will not adapt automatically to make sure the coordinate you provide is inside it's bounds.
+
+    import Svg.Plot as Plot
+
+    main =
+        Plot.plot plotConfig
+            [ Plot.positionBy
+                (Plot.fromDomain (\lowestY highestY -> ( 0, highestY )))
+                [ Plot.viewLabel [] "✨" ]
+            ]
+
+-}
+positionBy : (Meta -> Point) -> List (Svg msg) -> Element msg
+positionBy =
+    Position
 
 
 list : List (Svg.Attribute msg) -> (b -> Element msg) -> (Meta -> List b) -> Element msg
@@ -175,81 +203,214 @@ list attributes toElement toValues =
 
 
 
--- POSITION/VALUE HELPERS
+-- VALUE HELPERS
 
 
-{-| Provided at delta it will create a list of values to be used for labels or ticks.
+{-| Functions of this type are there to help you create values using the plot bounds.
 -}
-fromDelta : Value -> Scale -> List Value
-fromDelta delta scale =
-    toValuesFromDelta scale.lowest scale.highest delta
+type alias ValueProducer =
+    Scale -> List Value
 
 
-{-| Use your own list of values for labels or ticks.
+{-| Functions of this type are there to help alter the values created e.g. by a `ValueProducer`.
 -}
-fromList : List Value -> Scale -> List Value
+type alias ValueAlter =
+    List Value -> List Value
+
+
+{-| Just returns the list of values you provided.
+
+    import Svg.Plot as Plot
+
+    lineData : List Point
+    lineData =
+        [ ( 0, 10 ), ( 200, 30 ), ( 1200, 180 ), ( 1900, 400 ), ( 2017, 1000 ) ]
+
+    myXAxis : Element msg
+    myXAxis =
+        Plot.axis xAxisConfig
+            [ Plot.labels
+                (Plot.label [] toString)
+                (Plot.fromList [ 500, 1000, 1500, 2000, 2017 ])
+            ]
+
+    main =
+        Plot.plot plotConfig
+            [ Plot.lineSerie lineConfig lineData
+            , myXAxis
+            ]
+
+This produces labels at 500, 1000, 1500, 2000 and 2017.
+-}
+fromList : List Value -> ValueProducer
 fromList values _ =
     values
 
 
+{-| Takes a delta and produces a list of values with the delta as their interval.
+
+    import Svg.Plot as Plot
+
+    lineData : List Point
+    lineData =
+        [ ( 0, 10 ), ( 3, 20 ), ( 6, 15 ), ( 9, 30 ) ]
+
+    myXAxis : Element msg
+    myXAxis =
+        Plot.axis xAxisConfig
+            [ Plot.labels
+                (Plot.label [] toString)
+                (Plot.fromDelta 2)
+            ]
+
+    main =
+        Plot.plot plotConfig
+            [ Plot.lineSerie lineConfig lineData
+            , myXAxis
+            ]
+
+This produces labels at 0, 2, 4, 6 and 8.
+-}
+fromDelta : Value -> ValueProducer
+fromDelta delta scale =
+    toValuesFromDelta scale.lowest scale.highest delta
+
+
 {-| Remove a value from a list.
 
-  labels (label [] toString) (fromDelta 10 >> remove 20)
+    import Svg.Plot as Plot
+
+    lineData : List Point
+    lineData =
+        [ ( 0, 10 ), ( 3, 20 ), ( 6, 15 ), ( 9, 30 ) ]
+
+    myXAxis : Element msg
+    myXAxis =
+        Plot.axis xAxisConfig
+            [ Plot.labels
+                (Plot.label [] toString)
+                (Plot.fromDelta 2 >> Plot.remove 4)
+            ]
+
+    main =
+        Plot.plot plotConfig
+            [ Plot.lineSerie lineConfig lineData
+            , myXAxis
+            ]
+
+This produces labels at 0, 2, 6 and 8.
 -}
-remove : Value -> List Value -> List Value
+remove : Value -> ValueAlter
 remove bannedValue =
     List.filter (\value -> value /= bannedValue)
 
 
-{-| Remove values by their index.
+{-| Remove values provided an offset and interval.
 
-    axis axisConfig
-      [ ticks (tick [ length 10 ]) (fromDelta 1 >> filterDelta 0 2)
-      , ticks (tick [ length 5 ]) (fromDelta 1 >> filterDelta 1 2)
-      ]
+    import Svg.Plot as Plot
 
+    lineData : List Point
+    lineData =
+        [ ( 0, 10 ), ( 3, 20 ), ( 6, 15 ), ( 9, 30 ) ]
+
+    myXAxis : Element msg
+    myXAxis =
+        Plot.axis xAxisConfig
+            [ Plot.ticks
+                (Plot.tick [ length 10 ])
+                (fromDelta 1 >> filterDelta 0 2)
+            , Plot.ticks
+                (Plot.tick [ length 5 ])
+                (fromDelta 1 >> filterDelta 1 2)
+            ]
+
+    main =
+        Plot.plot plotConfig
+            [ Plot.lineSerie lineConfig lineData
+            , myXAxis
+            ]
+
+This produces ticks with a length of 10 at 0, 2, 4, 6 and 8 and ticks with a length of
+5 at 1, 3, 5, 7 and 9.
 -}
-filterDelta : Int -> Int -> List Value -> List Value
+filterDelta : Int -> Int -> ValueAlter
 filterDelta offset interval values =
     List.indexedMap (,) values
         |> List.filter (\( i, v ) -> rem (offset + i) interval /= 0)
         |> List.map Tuple.second
 
 
-{-| Produce something (usually `List Value`) from the range of the plot.
+
+-- POSITION HELPERS
+
+
+{-| Produce *something*, usually a point though, from the range of the plot.
+
+    mySpecialElement : Plot.Element msg
+    mySpecialElement =
+        Plot.positionBy
+          (fromRange (\lowestX highestX -> ( lowestX, 4 )))
+          [ mySVGStuff ]
 -}
 fromRange : (Value -> Value -> b) -> Meta -> b
-fromRange toPoints { xScale } =
+fromRange toPoints (Meta { xScale }) =
     toPoints xScale.lowest xScale.highest
 
 
-{-| Produce something (usually `List Value`) from the domain of the plot.
+{-| Produce *something*, usually a point though, from the domain of the plot.
+
+    mySpecialElement : Plot.Element msg
+    mySpecialElement =
+        Plot.positionBy
+          (Plot.fromDomain (\lowestY highestY -> ( 3, highestY )))
+          [ mySVGStuff ]
 -}
 fromDomain : (Value -> Value -> b) -> Meta -> b
-fromDomain toSomething { yScale } =
+fromDomain toSomething (Meta { yScale }) =
     toSomething yScale.lowest yScale.highest
 
 
-{-| Produce something (usually `List Value`) from the range and domain of the plot.
+{-| Produce *something*, usually a point though, from the range and domain of the plot.
+
+    mySpecialElement : Plot.Element msg
+    mySpecialElement =
+        Plot.positionBy
+          (Plot.fromDomain (\lx hx ly hy -> ( lx, (hy - ly) / 2 )))
+          [ mySVGStuff ]
+
+ The code about will place `mySVGStuff` leftmost halfway from the top.
 -}
 fromRangeAndDomain : (Value -> Value -> Value -> Value -> b) -> Meta -> b
-fromRangeAndDomain toSomething { xScale, yScale } =
+fromRangeAndDomain toSomething (Meta { xScale, yScale }) =
     toSomething xScale.lowest xScale.highest yScale.lowest yScale.highest
 
 
-{-| -}
-atHighest : Value -> Value -> Value
-atHighest _ highest =
-    highest
+{-| A helper to place something e.g. your axis at the lowest possible position.
 
+    myXAxis : Plot.AxisConfig msg
+    myXAxis =
+      Plot.toAxisConfig
+        { orientation = X
+        , position = atLowest
+        , clearIntersection = False
+        }
 
-{-| -}
+The code above will create a configuration for a x-axis placed at the bottom of your plot.
+-}
 atLowest : Value -> Value -> Value
 atLowest lowest _ =
     lowest
 
 
-{-| -}
+{-| Like `atLowest` except it places something it the highest possible position.
+-}
+atHighest : Value -> Value -> Value
+atHighest _ highest =
+    highest
+
+
+{-| Like `atLowest` except it places something it _closest possible_ to zero.
+-}
 atZero : Value -> Value -> Value
 atZero lowest highest =
     clamp lowest highest 0
@@ -267,7 +428,8 @@ type DotsConfig msg
         }
 
 
-{-| -}
+{-| Create a scatter configuration.
+-}
 toDotsConfig :
     { attributes : List (Svg.Attribute msg)
     , radius : Float
@@ -277,7 +439,8 @@ toDotsConfig config =
     DotsConfig config
 
 
-{-| -}
+{-| Provided a scatter configuration and a list of points, it will produce a scatter plot! 🎉
+-}
 dotsSerie : DotsConfig msg -> List Point -> Element msg
 dotsSerie config data =
     SerieElement (findReachFromPoints data) (DotsSerie config data)
@@ -295,14 +458,8 @@ type LineConfig msg
         }
 
 
-{-| The interpolation options.
+{-| Create a line configuration.
 -}
-type Interpolation
-    = Bezier
-    | NoInterpolation
-
-
-{-| -}
 toLineConfig :
     { attributes : List (Svg.Attribute msg)
     , interpolation : Interpolation
@@ -312,7 +469,15 @@ toLineConfig config =
     LineConfig config
 
 
-{-| -}
+{-| These are the interpolation options.
+-}
+type Interpolation
+    = Bezier
+    | NoInterpolation
+
+
+{-| Provided a line configuration and a list of points, it will produce a line plot! 🙌
+-}
 lineSerie : LineConfig msg -> List Point -> Element msg
 lineSerie config data =
     SerieElement (findReachFromPoints data) (LineSerie config data)
@@ -330,7 +495,8 @@ type AreaConfig msg
         }
 
 
-{-| -}
+{-| Create an area configuration.
+-}
 toAreaConfig :
     { attributes : List (Svg.Attribute msg)
     , interpolation : Interpolation
@@ -340,7 +506,8 @@ toAreaConfig config =
     AreaConfig config
 
 
-{-| -}
+{-| Provided an area configuration and a list of points, it will produce an area plot! 🌟
+-}
 areaSerie : AreaConfig msg -> List Point -> Element msg
 areaSerie config data =
     SerieElement (findReachFromAreaPoints data) (AreaSerie config data)
@@ -360,18 +527,8 @@ type BarsConfig msg
         }
 
 
-{-| -}
-type alias BarValueInfo =
-    { xValue : Value, index : Int, yValue : Value }
-
-
-{-| -}
-type MaxBarWidth
-    = Percentage Int
-    | Fixed Float
-
-
-{-| -}
+{-| Create a bar configuration.
+-}
 toBarsConfig :
     { stackBy : Orientation
     , styles : List (List (Svg.Attribute msg))
@@ -383,7 +540,22 @@ toBarsConfig config =
     BarsConfig config
 
 
-{-| -}
+{-| This is the information that will be provided the label for each of your bars.
+-}
+type alias BarValueInfo =
+    { xValue : Value, index : Int, yValue : Value }
+
+
+{-| The bar with options. If you use `Percentage` the bars will be that percentage of one x-value length.
+  If you use `Fixed` it will be that number in pixels.
+-}
+type MaxBarWidth
+    = Percentage Int
+    | Fixed Float
+
+
+{-| Provided an area configuration and a list of points, it will produce an area plot! 💗
+-}
 barsSerie : BarsConfig msg -> List Group -> Element msg
 barsSerie config data =
     SerieElement (findReachFromGroups config data) (BarsSerie config data)
@@ -393,14 +565,40 @@ barsSerie config data =
 -- DATA TRANSFORMS
 
 
-{-| -}
+{-| Represents a group of y-values belonging to a single x-value. Only used for bar series.
+-}
+type alias Group =
+    { xValue : Value
+    , yValues : List Value
+    }
+
+
+{-| The functions necessary to transform your data into the format the plot requires.
+ If you provide the `xValue` with `Nothing`, the bars xValues will just be the index
+ of the bar in the list.
+-}
 type alias GroupTransformer data =
     { xValue : Maybe (data -> Value)
     , yValues : data -> List Value
     }
 
 
-{-| If you want to use a different data format that the bar serie allows, use this to transform it!
+{-| This function can be used to transform your own data format
+ into something the bar serie can understand.
+
+    myBarSeries : Element msg
+    myBarSeries =
+        barsSerie
+            barConfig <|
+            Plot.toGroups
+                { yValues = .revenueByYear
+                , xValue = Just .quarter
+                }
+                [ { quarter = 1, revenueByYear = [ 10000, 30000, 20000 ] }
+                , { quarter = 2, revenueByYear = [ 20000, 10000, 40000 ] }
+                , { quarter = 3, revenueByYear = [ 40000, 20000, 10000 ] }
+                , { quarter = 4, revenueByYear = [ 40000, 50000, 20000 ] }
+                ]
 -}
 toGroups : GroupTransformer data -> List data -> List Group
 toGroups { xValue, yValues } allData =
@@ -441,7 +639,21 @@ type alias AxisElement msg =
     AxisConfig -> AxisViewDetails msg -> Element msg
 
 
-{-| -}
+{-| Creates an axis configuration.
+
+    myXAxis : Plot.AxisConfig msg
+    myXAxis =
+      Plot.toAxisConfig
+        { orientation = X
+        , position = atZero
+        , clearIntersection = False
+        }
+
+The `orientation` option is whether the axis is vertical or horizontal.
+The `position` option is where on the opposite axis it should be places. So this one
+will be a y = 0. If setting the `clearIntersection` option to true, it will
+remove the ticks and labels which coincides witht the opposite axes drawn.
+-}
 toAxisConfig :
     { position : Value -> Value -> Value
     , orientation : Orientation
@@ -452,7 +664,8 @@ toAxisConfig config =
     AxisConfig config
 
 
-{-| -}
+{-| Provided an axis configuration and a list of axis elements, it will produce an axis in your plot! ✨
+-}
 axis : AxisConfig -> List (AxisElement msg) -> Element msg
 axis config elements =
     Axis config (toAxisView config (toAxisDetails config) elements)
@@ -463,6 +676,10 @@ toAxisView config details elements =
     list [ class details.class ]
         (\element -> element config details)
         (\_ -> elements)
+
+
+
+-- Axis view help
 
 
 type alias AxisViewDetails msg =
@@ -482,7 +699,7 @@ toAxisDetails (AxisConfig { position, orientation }) =
             , defaultTickAttributes = [ stroke "grey", length 10 ]
             , defaultLabelAttributes = [ Svg.Attributes.style "text-anchor: middle;" ]
             , onAxisAt = onXAxisAt position
-            , toScale = .xScale
+            , toScale = \(Meta meta) -> meta.xScale
             }
 
         Y ->
@@ -490,7 +707,7 @@ toAxisDetails (AxisConfig { position, orientation }) =
             , defaultTickAttributes = [ stroke "grey", length 10, transform "rotate(90)" ]
             , defaultLabelAttributes = [ Svg.Attributes.style "text-anchor: end;" ]
             , onAxisAt = onYAxisAt position
-            , toScale = .yScale
+            , toScale = \(Meta meta) -> meta.yScale
             }
 
 
@@ -508,19 +725,19 @@ onYAxisAt toXValue value =
     fromRange (\l h -> ( toXValue l h, value ))
 
 
-clearIntersection : Scale -> Bool -> (a -> Value) -> List a -> List a
-clearIntersection scale shouldClearIntersection toValue infos =
+clearIntersection : Scale -> Bool -> List Value -> List Value
+clearIntersection scale shouldClearIntersection values =
     if shouldClearIntersection then
-        List.filter (\info -> not (List.member (toValue info) scale.intersections)) infos
+        List.filter (\value -> not (List.member value scale.intersections)) values
     else
-        infos
+        values
 
 
 
 -- AXIS LINE
 
 
-{-| Draw the line indicating your axis.
+{-| Draw a line along your axis.
 -}
 axisLine : List (Svg.Attribute msg) -> AxisElement msg
 axisLine attributes _ { onAxisAt, toScale } =
@@ -542,14 +759,19 @@ type LabelConfig a msg
     | LabelCustom (a -> Svg msg)
 
 
-{-| The default label view. Provide a list of attibutes to alter the look.
+{-| The configuration for a simple label. Provide a list of attibutes to alter the look and a formatting
+ function producing a string from your value.
+
+    myLabelConfig : LabelConfig Value msg
+    myLabelConfig =
+        label [ stroke "cadetblue" ] (\value -> toString value ++ " ms")
 -}
 label : List (Svg.Attribute msg) -> (a -> String) -> LabelConfig a msg
 label =
     LabelSimple
 
 
-{-| Custom label view.
+{-| For your own custom label view.
 -}
 labelCustom : (a -> Svg msg) -> LabelConfig a msg
 labelCustom =
@@ -557,20 +779,35 @@ labelCustom =
 
 
 {-| Place and view labels provided a label configuration and a function to produce values.
--}
-labels : LabelConfig Value msg -> (Scale -> List Value) -> AxisElement msg
-labels labelConfig toValues =
-    labelsCustom labelConfig toValues identity
 
-
-{-| Just like `labels` except you can use whatever value format you want as long as you provide a way to extract a value to
- determine the placing from.
+    myXAxis : Element msg
+    myXAxis =
+        Plot.axis xAxisConfig
+            [ Plot.labels
+                (Plot.label [] toString)
+                (Plot.fromDelta 2)
+            ]
 -}
-labelsCustom : LabelConfig a msg -> (Scale -> List a) -> (a -> Value) -> AxisElement msg
-labelsCustom labelConfig toValues toValue (AxisConfig config) { onAxisAt, toScale, defaultLabelAttributes } =
+labels : LabelConfig Value msg -> ValueProducer -> AxisElement msg
+labels labelConfig toValues (AxisConfig config) { onAxisAt, toScale, defaultLabelAttributes } =
     list [ class "elm-plot__labels" ]
-        (\info -> positionBy (onAxisAt (toValue info)) [ toLabelView defaultLabelAttributes labelConfig info ])
-        (toScale >> (\scale -> clearIntersection scale config.clearIntersection toValue (toValues scale)))
+        (\value -> positionBy (onAxisAt value) [ toLabelView defaultLabelAttributes labelConfig value ])
+        (toScale >> (\scale -> clearIntersection scale config.clearIntersection (toValues scale)))
+
+
+{-| Just like `labels` except you add another list of strings which will be passed to your label view. Useful for
+ bar series if you have specific names for your groups.
+
+    myLabels : AxisElement msg
+    myLabels =
+        labelsFromStrings (label [] identity) (fromDelta 1) [ "Spring", "Summer", "Autumn", "Winter"]
+
+-}
+labelsFromStrings : LabelConfig String msg -> (Scale -> List Value) -> List String -> AxisElement msg
+labelsFromStrings labelConfig toValues strings (AxisConfig config) { onAxisAt, toScale, defaultLabelAttributes } =
+    list [ class "elm-plot__labels" ]
+        (\( string, value ) -> positionBy (onAxisAt value) [ toLabelView defaultLabelAttributes labelConfig string ])
+        (toScale >> (\scale -> clearIntersection scale config.clearIntersection (toValues scale)) >> List.map2 (,) strings)
 
 
 toLabelView : List (Svg.Attribute msg) -> LabelConfig a msg -> a -> Svg msg
@@ -583,7 +820,7 @@ toLabelView defaultAttributes config value =
             view value
 
 
-{-| The standard view for a label.
+{-| Just a simple view for a label in case you need it. You can use it with `positionAt` to create titles for axes.
 -}
 viewLabel : List (Svg.Attribute msg) -> String -> Svg msg
 viewLabel attributes string =
@@ -600,14 +837,14 @@ type TickConfig msg
     | TickCustom (Value -> Svg msg)
 
 
-{-| The default tick view. Provide a list of attibutes to alter the look.
+{-| The configuration for a simple tick. Provide a list of attibutes to alter the look.
 -}
 tick : List (Svg.Attribute msg) -> TickConfig msg
 tick =
     TickSimple
 
 
-{-| Custom tick view.
+{-| For your own custom tick view.
 -}
 tickCustom : (Value -> Svg msg) -> TickConfig msg
 tickCustom =
@@ -616,11 +853,11 @@ tickCustom =
 
 {-| Place and view ticks provided a tick configuration and a function to produce values.
 -}
-ticks : TickConfig msg -> (Scale -> List Value) -> AxisElement msg
+ticks : TickConfig msg -> ValueProducer -> AxisElement msg
 ticks tickConfig toValues (AxisConfig config) { onAxisAt, defaultTickAttributes, toScale } =
     list [ class "elm-plot__ticks" ]
         (\value -> positionBy (onAxisAt value) [ toTickView defaultTickAttributes tickConfig value ])
-        (toScale >> (\scale -> clearIntersection scale config.clearIntersection identity (toValues scale)))
+        (toScale >> (\scale -> clearIntersection scale config.clearIntersection (toValues scale)))
 
 
 toTickView : List (Svg.Attribute msg) -> TickConfig msg -> Value -> Svg msg
@@ -637,28 +874,37 @@ toTickView defaultAttributes config value =
 -- GRID
 
 
-{-| Draw hovizontal grid lines provided a list of attributes and a function to produce values.
+{-| Draw horizontal grid lines provided a list of attributes and a function to produce values. 💫
+
+    myGrid : Element msg
+    myGrid =
+        horizontalGrid [ stroke "grey" ] (fromDelta 10)
 -}
-horizontalGrid : List (Svg.Attribute msg) -> (Scale -> List Value) -> Element msg
+horizontalGrid : List (Svg.Attribute msg) -> ValueProducer -> Element msg
 horizontalGrid attributes toValues =
     list [ class "elm-plot__grid elm-plot__grid--horizontal" ]
         (\value -> Line (stroke "grey" :: attributes) (\meta -> [ onYAxisAt atLowest value meta, onYAxisAt atHighest value meta ]))
-        (.yScale >> toValues)
+        (\(Meta meta) -> toValues meta.yScale)
 
 
-{-| -}
-verticalGrid : List (Svg.Attribute msg) -> (Scale -> List Value) -> Element msg
+{-| Draw vertical grid lines provided a list of attributes and a function to produce values. 🎼
+
+    myGrid : Element msg
+    myGrid =
+        verticalGrid [ stroke "grey" ] (fromDelta 1)
+-}
+verticalGrid : List (Svg.Attribute msg) -> ValueProducer -> Element msg
 verticalGrid attributes toValues =
     list [ class "elm-plot__grid elm-plot__grid--vertical" ]
         (\value -> Line (stroke "grey" :: attributes) (\meta -> [ onXAxisAt atLowest value meta, onXAxisAt atHighest value meta ]))
-        (.xScale >> toValues)
+        (\(Meta meta) -> toValues meta.xScale)
 
 
 
 -- HELPER ATTRIBUTES
 
 
-{-| A shortcut to displace the element. This is literally just a `SVG.Attributes.transform`,
+{-| A shortcut to displace the element. This is literally just a `SVG.Attributes.transform "translate(x, y)"`,
  so if you add your own `transform` afterwards it will be overwritten and have no effect.
 -}
 displace : ( Float, Float ) -> Svg.Attribute msg
@@ -666,7 +912,7 @@ displace displacement =
     transform (toTranslate displacement)
 
 
-{-| A shortcut to set the length of a tick. This is just a `SVG.Attributes.y2` under the hood,
+{-| A shortcut to set the length of a tick. This is just a `SVG.Attributes.y2 "length"` under the hood,
  so if you add your own `y2` afterwards it will be overwritten and have no effect.
 -}
 length : Float -> Svg.Attribute msg
@@ -700,7 +946,12 @@ type PlotConfig msg
         }
 
 
-{-| -}
+{-| Alter the proportions of your plot. The proportions are set by using the SVG `viewBox`. This means
+ that the plot have the proportions you specify, but it will fill out the div you place your plot in.
+ The great thing about it is that it will be responsive! Regarding the margin, then it's for adding some space around
+ your actual plot. This is especially useful if your ticks are hidding outside the plot's borders. The provided `id` will overrule
+ any `Svg.Attributes.id` attribute you may add to the `attributes` property.
+-}
 toPlotConfig :
     { attributes : List (Svg.Attribute msg)
     , id : String
@@ -729,7 +980,29 @@ toPlotConfig { attributes, id, margin, proportions } =
         }
 
 
-{-| Provide the regular plot config and functions to alter the reach of the plot.
+{-| Provide the regular plot config _and_ functions to alter the reach of the plot. This is useful
+ if you'd like to not show all your data points or you want extra space somewhere. Using the standard
+ math functions like `min` and `max` can be helpful. If you just want the range to be what the plot
+ calculates provided it with `identity`.
+
+    plotConfig : PlotConfig msg
+    plotConfig =
+        toPlotConfigFancy
+            { attributes = [ Svg.Events.onMouseOver HoveringPlot ]
+            , id = "terezkas-plot"
+            , margin =
+                { top = 20
+                , left = 30
+                , right = 30
+                , bottom = 90
+                }
+            , proportions =
+                { x = 600, y = 400 }
+            , toDomainLowest = min 0
+            , toDomainHighest = \h -> h + 5
+            , toRangeLowest = \l -> l - 0.5
+            , toRangeHighest = \h -> h + 0.5
+            }
 -}
 toPlotConfigFancy :
     { attributes : List (Svg.Attribute msg)
@@ -754,7 +1027,7 @@ toPlotConfigFancy config =
     PlotConfig config
 
 
-{-| Render your plot!
+{-| Provided a plot configuration and a list of elements, it will produce an SVG plot! 💥
 -}
 plot : PlotConfig msg -> List (Element msg) -> Svg msg
 plot config elements =
@@ -766,7 +1039,7 @@ plot config elements =
 
 
 viewPlot : PlotConfig msg -> List (Element msg) -> Meta -> Html msg
-viewPlot (PlotConfig config) elements meta =
+viewPlot (PlotConfig config) elements (Meta meta) =
     let
         viewBoxValue =
             "0 0 " ++ toString meta.xScale.length ++ " " ++ toString meta.yScale.length
@@ -775,13 +1048,13 @@ viewPlot (PlotConfig config) elements meta =
             config.attributes
                 ++ [ Svg.Attributes.viewBox viewBoxValue, Svg.Attributes.id meta.id ]
     in
-        Svg.svg attributes (scaleDefs meta :: (viewElements meta elements))
+        Svg.svg attributes (scaleDefs (Meta meta) :: (viewElements (Meta meta) elements))
 
 
 scaleDefs : Meta -> Svg.Svg msg
-scaleDefs meta =
+scaleDefs (Meta meta) =
     Svg.defs []
-        [ Svg.clipPath [ Svg.Attributes.id (toClipPathId meta) ]
+        [ Svg.clipPath [ Svg.Attributes.id (toClipPathId (Meta meta)) ]
             [ Svg.rect
                 [ Svg.Attributes.x (toString meta.xScale.offset.lower)
                 , Svg.Attributes.y (toString meta.yScale.offset.lower)
@@ -841,7 +1114,7 @@ viewSerie reach serie meta =
 
 
 viewPositioned : Point -> List (Svg msg) -> Meta -> Svg msg
-viewPositioned point children meta =
+viewPositioned point children (Meta meta) =
     g [ transform (toTranslate (meta.toSVGPoint point)) ] children
 
 
@@ -863,7 +1136,7 @@ viewLine (LineConfig config) data meta =
 
 
 viewDots : DotsConfig msg -> List Point -> Meta -> Svg msg
-viewDots (DotsConfig config) data meta =
+viewDots (DotsConfig config) data (Meta meta) =
     g [ class "elm-plot__serie--dots" ]
         (List.map (meta.toSVGPoint >> viewCircle config.radius) data)
 
@@ -883,7 +1156,7 @@ viewCircle radius ( x, y ) =
 
 
 viewArea : AreaConfig msg -> List Point -> Meta -> Axised Reach -> Svg msg
-viewArea (AreaConfig config) data meta reach =
+viewArea (AreaConfig config) data (Meta meta) reach =
     let
         mostZeroY =
             valueClosestToZero meta.yScale
@@ -899,11 +1172,11 @@ viewArea (AreaConfig config) data meta reach =
                 , [ L ( reach.x.upper, mostZeroY ) ]
                 , [ Z ]
                 ]
-                |> toPath meta
+                |> toPath (Meta meta)
     in
         g
             [ class "elm-plot__serie--area"
-            , clipPath ("url(#" ++ toClipPathId meta ++ ")")
+            , clipPath ("url(#" ++ toClipPathId (Meta meta) ++ ")")
             ]
             [ viewPath config.attributes pathString ]
 
@@ -913,7 +1186,7 @@ viewArea (AreaConfig config) data meta reach =
 
 
 viewBars : BarsConfig msg -> List Group -> Meta -> Svg msg
-viewBars (BarsConfig { stackBy, maxWidth, styles, labelConfig }) groups { toSVGPoint, xScale, yScale } =
+viewBars (BarsConfig { stackBy, maxWidth, styles, labelConfig }) groups (Meta { toSVGPoint, xScale, yScale }) =
     let
         barsPerGroup =
             toFloat (List.length styles)
@@ -1063,7 +1336,7 @@ toBezierPoints ( x0, y0 ) ( x, y ) ( x1, y1 ) =
 
 
 pointToString : Meta -> Point -> String
-pointToString meta point =
+pointToString (Meta meta) point =
     let
         ( x, y ) =
             meta.toSVGPoint point
@@ -1102,8 +1375,8 @@ toSPathTypes result points =
 
 
 toClipPathId : Meta -> String
-toClipPathId plot =
-    plot.id ++ "__scale-clip-path"
+toClipPathId (Meta meta) =
+    meta.id ++ "__scale-clip-path"
 
 
 toTranslate : ( Float, Float ) -> String
@@ -1146,16 +1419,19 @@ type alias Scale =
     }
 
 
-{-| -}
-type alias Meta =
-    { toSVGPoint : Point -> Point
-    , xScale : Scale
-    , yScale : Scale
-    , id : String
-    }
+{-| Represents internal information about the plot needed all over.
+-}
+type Meta
+    = Meta
+        { toSVGPoint : Point -> Point
+        , xScale : Scale
+        , yScale : Scale
+        , id : String
+        }
 
 
-{-| -}
+{-| Represents an orientation.
+-}
 type Orientation
     = X
     | Y
@@ -1186,11 +1462,12 @@ toPlotMeta (PlotConfig { id, margin, proportions, toRangeLowest, toRangeHighest,
         yScale =
             toScale proportions.y domain margin.top margin.bottom yIntersections
     in
-        { xScale = xScale
-        , yScale = yScale
-        , toSVGPoint = toSVGPoint xScale yScale
-        , id = id
-        }
+        Meta
+            { xScale = xScale
+            , yScale = yScale
+            , toSVGPoint = toSVGPoint xScale yScale
+            , id = id
+            }
 
 
 toScale : Int -> Reach -> Int -> Int -> List Value -> Scale
@@ -1284,8 +1561,7 @@ findReachFromPoints points =
 
 findReachFromAreaPoints : List Point -> Axised Reach
 findReachFromAreaPoints points =
-    findReachFromPoints points
-        |> addAreaPadding
+    addAreaPadding (findReachFromPoints points)
 
 
 findReachFromGroups : BarsConfig msg -> List Group -> Axised Reach

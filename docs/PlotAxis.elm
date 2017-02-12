@@ -50,14 +50,14 @@ xLabelStrings =
     [ "Autumn", "Winter", "Spring", "Summer" ]
 
 
-xLabelConfig : LabelConfig ( Int, String ) msg
+xLabelConfig : LabelConfig String msg
 xLabelConfig =
     label
         [ fill axisColor
         , style "text-anchor: middle;"
         , transform "translate(10, 44) rotate(45) "
         ]
-        Tuple.second
+        identity
 
 
 barsConfig : BarsConfig msg
@@ -101,10 +101,10 @@ view =
             )
             [ axisLine [ stroke axisColor ]
             , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1)
-            , labelsCustom
+            , labelsFromStrings
                 xLabelConfig
-                (\_ -> List.indexedMap (,) xLabelStrings)
-                (Tuple.first >> toFloat)
+                (fromDelta 1)
+                xLabelStrings
             ]
         , axis
             (toAxisConfig

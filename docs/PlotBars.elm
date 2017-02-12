@@ -45,14 +45,14 @@ plotConfig =
         }
 
 
-xLabelConfig : LabelConfig ( Int, String ) msg
+xLabelConfig : LabelConfig String msg
 xLabelConfig =
     label
         [ fill axisColor
         , style "text-anchor: middle;"
         , displace ( 0, 25 )
         ]
-        Tuple.second
+        identity
 
 
 barsConfig : BarsConfig msg
@@ -91,7 +91,7 @@ view =
             (toAxisConfig { position = atZero, clearIntersection = False, orientation = X })
             [ axisLine [ stroke axisColor ]
             , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1)
-            , labelsCustom xLabelConfig (\_ -> List.indexedMap (,) [ "A", "B", "C", "D" ]) (Tuple.first >> toFloat)
+            , labelsFromStrings xLabelConfig (fromDelta 1) [ "A", "B", "C", "D" ]
             ]
         ]
 
