@@ -51,9 +51,9 @@ xLabelStrings =
     Array.fromList [ "Autumn", "Winter", "Spring", "Summer" ]
 
 
-xLabelConfig : LabelView Value msg
+xLabelConfig : LabelConfig Value msg
 xLabelConfig =
-    labelSimple
+    label
         [ fill axisColor
         , style "text-anchor: middle;"
         , transform "translate(10, 44) rotate(45) "
@@ -66,8 +66,8 @@ barsConfig =
     toBarsConfig
         { stackBy = X
         , styles = [ [ fill pinkFill ], [ fill blueFill ], [ fill skinFill ] ]
-        , labelView =
-            labelSimple
+        , labelConfig =
+            label
                 [ stroke "#fff"
                 , fill "#fff"
                 , style "text-anchor: middle; font-size: 10px;"
@@ -96,33 +96,33 @@ view =
         , xAxis
             closestToZero
             [ axisLine [ stroke axisColor ]
-            , ticks (tickSimple [ stroke axisColor, length 10 ]) (fromDelta 1)
+            , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1)
             , labels xLabelConfig (fromList [ 1, 2, 3, 4 ])
             ]
         , yAxis
             lowest
             [ axisLine [ stroke axisColor ]
             , ticks
-                (tickSimple [ stroke axisColorLight, length 10, transform "rotate(-90)" ])
+                (tick [ stroke axisColor, length 10, transform "rotate(-90)" ])
                 (fromDelta 5 >> filterDelta 0 2)
             , ticks
-                (tickSimple [ stroke axisColorLight, length 5, transform "rotate(-90)" ])
+                (tick [ stroke axisColorLight, length 5, transform "rotate(-90)" ])
                 (fromDelta 5 >> filterDelta 1 2 >> remove 0)
             , labels
-                (labelSimple [ fill axisColor, style "text-anchor: start;", displace ( 10, 5 ) ] toString)
+                (label [ fill axisColor, style "text-anchor: start;", displace ( 10, 5 ) ] toString)
                 (fromDelta 10 >> remove 0)
             ]
         , yAxis
             highest
             [ axisLine [ stroke axisColor ]
             , ticks
-                (tickSimple [ stroke axisColorLight, length 10 ])
+                (tick [ stroke axisColor, length 10 ])
                 (fromDelta 5 >> filterDelta 0 2)
             , ticks
-                (tickSimple [ stroke axisColorLight, length 5 ])
+                (tick [ stroke axisColorLight, length 5 ])
                 (fromDelta 5 >> filterDelta 1 2 >> remove 0)
             , labels
-                (labelSimple
+                (label
                     [ fill axisColor
                     , style "text-anchor: end;"
                     , displace ( -10, 5 )

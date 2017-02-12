@@ -51,9 +51,9 @@ xLabelStrings =
     Array.fromList [ "A", "B", "C", "D" ]
 
 
-xLabelConfig : LabelView Value msg
+xLabelConfig : LabelConfig Value msg
 xLabelConfig =
-    labelSimple
+    label
         [ fill axisColor
         , style "text-anchor: middle;"
         , displace ( 0, 25 )
@@ -66,8 +66,8 @@ barsConfig =
     toBarsConfig
         { stackBy = Y
         , styles = [ [ fill pinkFill ], [ fill blueFill ], [ fill skinFill ] ]
-        , labelView =
-            labelSimple
+        , labelConfig =
+            label
                 [ stroke "#fff"
                 , fill "#fff"
                 , style "text-anchor: middle; font-size: 10px;"
@@ -96,7 +96,7 @@ view =
         , xAxis
             closestToZero
             [ axisLine [ stroke axisColor ]
-            , ticks (tickSimple [ stroke axisColor, length 10 ]) (fromDelta 1)
+            , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1)
             , labels xLabelConfig (fromList [ 1, 2, 3, 4 ])
             ]
         ]

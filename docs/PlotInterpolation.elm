@@ -66,7 +66,7 @@ view =
                 , fill pinkFill
                 ]
             , labels
-                (labelSimple
+                (label
                     [ fill axisColor
                     , style "text-anchor: middle;"
                     , displace ( 0, 24 )
@@ -75,7 +75,7 @@ view =
                 )
                 (fromDelta 1)
             , ticks
-                (tickSimple
+                (tick
                     [ stroke axisColor
                     , length 10
                     ]
