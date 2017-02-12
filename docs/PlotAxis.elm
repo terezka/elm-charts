@@ -3,7 +3,6 @@ module PlotAxis exposing (plotExample)
 import Svg
 import Svg.Attributes exposing (..)
 import Svg.Plot exposing (..)
-import Array
 import Common exposing (..)
 
 
@@ -46,26 +45,26 @@ plotConfig =
         }
 
 
-xLabelStrings : Array.Array String
+xLabelStrings : List String
 xLabelStrings =
-    Array.fromList [ "Autumn", "Winter", "Spring", "Summer" ]
+    [ "Autumn", "Winter", "Spring", "Summer" ]
 
 
-xLabelConfig : LabelConfig Value msg
+xLabelConfig : LabelConfig ( Int, String ) msg
 xLabelConfig =
     label
         [ fill axisColor
         , style "text-anchor: middle;"
         , transform "translate(10, 44) rotate(45) "
         ]
-        (\value -> Array.get (round <| value - 1) xLabelStrings |> Maybe.withDefault "")
+        Tuple.second
 
 
 barsConfig : BarsConfig msg
 barsConfig =
     toBarsConfig
         { stackBy = X
-        , styles = [ [ fill pinkFill ], [ fill blueFill ], [ fill skinFill ] ]
+        , styles = [ [ fill pinkFill ], [ fill blueFill ] ]
         , labelConfig =
             label
                 [ stroke "#fff"
@@ -87,10 +86,10 @@ view =
                 { yValues = .values
                 , xValue = Nothing
                 }
-                [ { values = [ 40, 30, 20 ] }
-                , { values = [ 20, 30, 40 ] }
-                , { values = [ 40, 20, 10 ] }
-                , { values = [ 40, 50, 20 ] }
+                [ { values = [ 40, 30 ] }
+                , { values = [ 20, 30 ] }
+                , { values = [ 40, 20 ] }
+                , { values = [ 60, 50 ] }
                 ]
             )
         , axis
@@ -102,7 +101,7 @@ view =
             )
             [ axisLine [ stroke axisColor ]
             , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1)
-            , labels xLabelConfig (fromList [ 1, 2, 3, 4 ])
+            , labelsCustom xLabelConfig (\_ -> List.indexedMap (,) xLabelStrings) (Tuple.first >> toFloat)
             ]
         , axis
             (toAxisConfig

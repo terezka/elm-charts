@@ -49,6 +49,7 @@ module Svg.Plot
         , label
         , labelCustom
         , labels
+        , labelsCustom
         , viewLabel
         , displace
         , positionAt
@@ -81,10 +82,10 @@ module Svg.Plot
 @docs Group, GroupTransformer, toGroups
 
 ## Axis elements
-@docs xAxis, xAxisAt, yAxis, yAxisAt
+@docs AxisConfig, toAxisConfig, owest, highest, closestToZero, axis
 
-### Value and position helpers
-@docs onXAxisAt, onYAxisAt, lowest, highest, closestToZero, fromList, fromDelta, fromRangeAndDomain, remove, filterDelta
+### Value helpers
+@docs fromList, fromDelta, filterDelta, remove
 
 ### Axis line
 @docs axisLine
@@ -93,13 +94,13 @@ module Svg.Plot
 @docs horizontalGrid, verticalGrid
 
 ### Labels
-@docs LabelConfig, labelVerySimple, labelSimple, labelCustom, labelVeryCustom, labels, viewLabel
+@docs LabelConfig, label, labelCustom, labels, labelsCustom, viewLabel
 
 ### Ticks
-@docs TickConfig, tickSimple, tickCustom, ticks, tick
+@docs TickConfig, tick, tickCustom, ticks
 
 ## Primitives
-@docs positionBy, positionAt
+@docs fromRange, fromDomain, fromRangeAndDomain, positionBy, positionAt
 
 -}
 
@@ -158,8 +159,7 @@ positionBy =
     Position
 
 
-{-| Place a list of SVG elements at a specific coordinate. The coordinate is Cartesian and
- relative to the space created to fit your data.
+{-| Place a list of SVG elements at a specific coordinate.
 -}
 positionAt : Point -> List (Svg msg) -> Element msg
 positionAt point =
@@ -189,10 +189,9 @@ fromList values _ =
     values
 
 
-{-| Remove a value from a list. Useful your axes are crossing at a paricular values
- and don't want the intersection cluttered with labels.
+{-| Remove a value from a list.
 
-  labels (label [] toString) (fromDelta 10 >> remove 0)
+  labels (label [] toString) (fromDelta 10 >> remove 20)
 -}
 remove : Value -> List Value -> List Value
 remove bannedValue =
@@ -200,6 +199,12 @@ remove bannedValue =
 
 
 {-| Remove values by their index.
+
+    axis axisConfig
+      [ ticks (tick [ length 10 ]) (fromDelta 1 >> filterDelta 0 2)
+      , ticks (tick [ length 5 ]) (fromDelta 1 >> filterDelta 1 2)
+      ]
+
 -}
 filterDelta : Int -> Int -> List Value -> List Value
 filterDelta offset interval values =
@@ -208,37 +213,25 @@ filterDelta offset interval values =
         |> List.map Tuple.second
 
 
-{-| Produce a value from the range of the plot.
+{-| Produce something (usually `List Value`) from the range of the plot.
 -}
 fromRange : (Value -> Value -> b) -> Meta -> b
 fromRange toPoints { xScale } =
     toPoints xScale.lowest xScale.highest
 
 
-{-| Produce a value from the domain of the plot.
+{-| Produce something (usually `List Value`) from the domain of the plot.
 -}
 fromDomain : (Value -> Value -> b) -> Meta -> b
 fromDomain toSomething { yScale } =
     toSomething yScale.lowest yScale.highest
 
 
-{-| Produce a value from the range and domain of the plot.
+{-| Produce something (usually `List Value`) from the range and domain of the plot.
 -}
 fromRangeAndDomain : (Value -> Value -> Value -> Value -> b) -> Meta -> b
 fromRangeAndDomain toSomething { xScale, yScale } =
     toSomething xScale.lowest xScale.highest yScale.lowest yScale.highest
-
-
-{-| -}
-onXAxisAt : (Value -> Value -> Value) -> Value -> Meta -> Point
-onXAxisAt toYValue value =
-    fromDomain (\l h -> ( value, toYValue l h ))
-
-
-{-| -}
-onYAxisAt : (Value -> Value -> Value) -> Value -> Meta -> Point
-onYAxisAt toXValue value =
-    fromRange (\l h -> ( toXValue l h, value ))
 
 
 {-| -}
@@ -297,6 +290,13 @@ type LineConfig msg
         { attributes : List (Svg.Attribute msg)
         , interpolation : Interpolation
         }
+
+
+{-| The interpolation options.
+-}
+type Interpolation
+    = Bezier
+    | NoInterpolation
 
 
 {-| -}
@@ -397,7 +397,8 @@ type alias GroupTransformer data =
     }
 
 
-{-| -}
+{-| If you want to use a different data format that the bar serie allows, use this to transform it!
+-}
 toGroups : GroupTransformer data -> List data -> List Group
 toGroups { xValue, yValues } allData =
     List.indexedMap
@@ -446,6 +447,19 @@ toAxisConfig config =
     AxisConfig config
 
 
+{-| -}
+axis : AxisConfig -> List (AxisElement msg) -> Element msg
+axis config elements =
+    Axis config (toAxisView config (toAxisDetails config) elements)
+
+
+toAxisView : AxisConfig -> AxisViewDetails msg -> List (AxisElement msg) -> Element msg
+toAxisView config details elements =
+    list [ class details.class ]
+        (\element -> element config details)
+        (\_ -> elements)
+
+
 type alias AxisViewDetails msg =
     { class : String
     , defaultTickAttributes : List (Svg.Attribute msg)
@@ -475,24 +489,34 @@ toAxisDetails (AxisConfig { position, orientation }) =
             }
 
 
-{-| -}
-axis : AxisConfig -> List (AxisElement msg) -> Element msg
-axis config elements =
-    Axis config (toAxisView config (toAxisDetails config) elements)
+
+-- AXIS HELPERS
 
 
-toAxisView : AxisConfig -> AxisViewDetails msg -> List (AxisElement msg) -> Element msg
-toAxisView config details elements =
-    list [ class details.class ]
-        (\element -> element config details)
-        (\_ -> elements)
+onXAxisAt : (Value -> Value -> Value) -> Value -> Meta -> Point
+onXAxisAt toYValue value =
+    fromDomain (\l h -> ( value, toYValue l h ))
+
+
+onYAxisAt : (Value -> Value -> Value) -> Value -> Meta -> Point
+onYAxisAt toXValue value =
+    fromRange (\l h -> ( toXValue l h, value ))
+
+
+clearIntersection : Scale -> Bool -> (a -> Value) -> List a -> List a
+clearIntersection scale shouldClearIntersection toValue infos =
+    if shouldClearIntersection then
+        List.filter (\info -> not (List.member (toValue info) scale.intersections)) infos
+    else
+        infos
 
 
 
 -- AXIS LINE
 
 
-{-| -}
+{-| Draw the line indicating your axis.
+-}
 axisLine : List (Svg.Attribute msg) -> AxisElement msg
 axisLine attributes _ { onAxisAt, toScale } =
     Line attributes
@@ -512,22 +536,35 @@ type LabelConfig a msg
     | LabelCustom (a -> Svg msg)
 
 
+{-| The default label view. Provide a list of attibutes to alter the look.
+-}
 label : List (Svg.Attribute msg) -> (a -> String) -> LabelConfig a msg
 label =
     LabelSimple
 
 
+{-| Custom label view.
+-}
 labelCustom : (a -> Svg msg) -> LabelConfig a msg
 labelCustom =
     LabelCustom
 
 
-{-| -}
+{-| Place and view labels provided a label configuration and a function to produce values.
+-}
 labels : LabelConfig Value msg -> (Scale -> List Value) -> AxisElement msg
-labels labelConfig toValues (AxisConfig config) { onAxisAt, toScale, defaultLabelAttributes } =
+labels labelConfig toValues =
+    labelsCustom labelConfig toValues identity
+
+
+{-| Just like `labels` except you can use whatever value format you want as long as you provide a way to extract a value to
+ determine the placing from.
+-}
+labelsCustom : LabelConfig a msg -> (Scale -> List a) -> (a -> Value) -> AxisElement msg
+labelsCustom labelConfig toValues toValue (AxisConfig config) { onAxisAt, toScale, defaultLabelAttributes } =
     list [ class "elm-plot__labels" ]
-        (\value -> positionBy (onAxisAt value) [ toLabelView defaultLabelAttributes labelConfig value ])
-        (toScale >> (\scale -> clearIntersection scale config.clearIntersection (toValues scale)))
+        (\info -> positionBy (onAxisAt (toValue info)) [ toLabelView defaultLabelAttributes labelConfig info ])
+        (toScale >> (\scale -> clearIntersection scale config.clearIntersection toValue (toValues scale)))
 
 
 toLabelView : List (Svg.Attribute msg) -> LabelConfig a msg -> a -> Svg msg
@@ -540,7 +577,8 @@ toLabelView defaultAttributes config value =
             view value
 
 
-{-| -}
+{-| The standard view for a label.
+-}
 viewLabel : List (Svg.Attribute msg) -> String -> Svg msg
 viewLabel attributes string =
     text_ attributes [ tspan [] [ text string ] ]
@@ -555,22 +593,27 @@ type TickConfig msg
     | TickCustom (Value -> Svg msg)
 
 
+{-| The default tick view. Provide a list of attibutes to alter the look.
+-}
 tick : List (Svg.Attribute msg) -> TickConfig msg
 tick =
     TickSimple
 
 
+{-| Custom tick view.
+-}
 tickCustom : (Value -> Svg msg) -> TickConfig msg
 tickCustom =
     TickCustom
 
 
-{-| -}
+{-| Place and view ticks provided a tick configuration and a function to produce values.
+-}
 ticks : TickConfig msg -> (Scale -> List Value) -> AxisElement msg
 ticks tickConfig toValues (AxisConfig config) { onAxisAt, defaultTickAttributes, toScale } =
     list [ class "elm-plot__ticks" ]
         (\value -> positionBy (onAxisAt value) [ toTickView defaultTickAttributes tickConfig value ])
-        (toScale >> (\scale -> clearIntersection scale config.clearIntersection (toValues scale)))
+        (toScale >> (\scale -> clearIntersection scale config.clearIntersection identity (toValues scale)))
 
 
 toTickView : List (Svg.Attribute msg) -> TickConfig msg -> Value -> Svg msg
@@ -583,23 +626,16 @@ toTickView defaultAttributes config value =
             view value
 
 
-clearIntersection : Scale -> Bool -> List Value -> List Value
-clearIntersection scale shouldClearIntersection values =
-    if shouldClearIntersection then
-        List.filter (\value -> not (List.member value scale.intersections)) values
-    else
-        values
-
-
 
 -- GRID
 
 
-{-| -}
+{-| Draw hovizontal grid lines provided a list of attributes and a function to produce values.
+-}
 horizontalGrid : List (Svg.Attribute msg) -> (Scale -> List Value) -> Element msg
 horizontalGrid attributes toValues =
     list [ class "elm-plot__grid elm-plot__grid--horizontal" ]
-        (\value -> Line attributes (\meta -> [ onYAxisAt atLowest value meta, onYAxisAt atHighest value meta ]))
+        (\value -> Line (stroke "grey" :: attributes) (\meta -> [ onYAxisAt atLowest value meta, onYAxisAt atHighest value meta ]))
         (.yScale >> toValues)
 
 
@@ -607,7 +643,7 @@ horizontalGrid attributes toValues =
 verticalGrid : List (Svg.Attribute msg) -> (Scale -> List Value) -> Element msg
 verticalGrid attributes toValues =
     list [ class "elm-plot__grid elm-plot__grid--vertical" ]
-        (\value -> Line attributes (\meta -> [ onXAxisAt atLowest value meta, onXAxisAt atHighest value meta ]))
+        (\value -> Line (stroke "grey" :: attributes) (\meta -> [ onXAxisAt atLowest value meta, onXAxisAt atHighest value meta ]))
         (.xScale >> toValues)
 
 
@@ -615,22 +651,20 @@ verticalGrid attributes toValues =
 -- HELPER ATTRIBUTES
 
 
-{-| -}
+{-| A shortcut to displace the element. This is literally just a `SVG.Attributes.transform`,
+ so if you add your own `transform` afterwards it will be overwritten and have no effect.
+-}
 displace : ( Float, Float ) -> Svg.Attribute msg
 displace displacement =
     transform (toTranslate displacement)
 
 
-{-| -}
+{-| A shortcut to set the length of a tick. This is just a `SVG.Attributes.y2` under the hood,
+ so if you add your own `y2` afterwards it will be overwritten and have no effect.
+-}
 length : Float -> Svg.Attribute msg
 length length =
     y2 (toString length)
-
-
-{-| -}
-type Interpolation
-    = Bezier
-    | NoInterpolation
 
 
 
@@ -688,7 +722,8 @@ toPlotConfig { attributes, id, margin, proportions } =
         }
 
 
-{-| -}
+{-| Provide the regular plot config and functions to alter the reach of the plot.
+-}
 toPlotConfigFancy :
     { attributes : List (Svg.Attribute msg)
     , id : String
@@ -1138,10 +1173,10 @@ toPlotMeta (PlotConfig { id, margin, proportions, toRangeLowest, toRangeHighest,
             findIntersections (Axised range domain) elements ( [], [] )
 
         xScale =
-            toScale proportions.x range margin.left margin.right yIntersections
+            toScale proportions.x range margin.left margin.right xIntersections
 
         yScale =
-            toScale proportions.y domain margin.top margin.bottom xIntersections
+            toScale proportions.y domain margin.top margin.bottom yIntersections
     in
         { xScale = xScale
         , yScale = yScale
