@@ -106,7 +106,7 @@ view =
             ]
         , axis
             (toAxisConfig
-                { position = lowest
+                { position = atLowest
                 , clearIntersection = True
                 , orientation = Y
                 }
@@ -124,7 +124,7 @@ view =
             ]
         , axis
             (toAxisConfig
-                { position = highest
+                { position = atHighest
                 , clearIntersection = True
                 , orientation = Y
                 }

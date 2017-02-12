@@ -31,8 +31,8 @@ module Svg.Plot
         , fromRangeAndDomain
         , remove
         , filterDelta
-        , lowest
-        , highest
+        , atLowest
+        , atHighest
         , closestToZero
         , verticalGrid
         , horizontalGrid
@@ -179,7 +179,7 @@ list attributes toElement toValues =
 -}
 fromDelta : Value -> Scale -> List Value
 fromDelta delta scale =
-    toValuesFromDelta scale.reach.lower scale.reach.upper delta
+    toValuesFromDelta scale.lowest scale.highest delta
 
 
 {-| Use your own list of values for labels or ticks.
@@ -211,22 +211,22 @@ filterDelta offset interval values =
 {-| Produce a value from the range of the plot.
 -}
 fromRange : (Value -> Value -> b) -> Meta -> b
-fromRange toPoints { scale } =
-    toPoints scale.x.reach.lower scale.x.reach.upper
+fromRange toPoints { xScale } =
+    toPoints xScale.lowest xScale.highest
 
 
 {-| Produce a value from the domain of the plot.
 -}
 fromDomain : (Value -> Value -> b) -> Meta -> b
-fromDomain toSomething { scale } =
-    toSomething scale.y.reach.lower scale.y.reach.upper
+fromDomain toSomething { yScale } =
+    toSomething yScale.lowest yScale.highest
 
 
 {-| Produce a value from the range and domain of the plot.
 -}
 fromRangeAndDomain : (Value -> Value -> Value -> Value -> b) -> Meta -> b
-fromRangeAndDomain toSomething { scale } =
-    toSomething scale.x.reach.lower scale.x.reach.upper scale.y.reach.lower scale.y.reach.upper
+fromRangeAndDomain toSomething { xScale, yScale } =
+    toSomething xScale.lowest xScale.highest yScale.lowest yScale.highest
 
 
 {-| -}
@@ -242,21 +242,21 @@ onYAxisAt toXValue value =
 
 
 {-| -}
-highest : Value -> Value -> Value
-highest lower upper =
-    upper
+atHighest : Value -> Value -> Value
+atHighest _ highest =
+    highest
 
 
 {-| -}
-lowest : Value -> Value -> Value
-lowest lower upper =
-    lower
+atLowest : Value -> Value -> Value
+atLowest lowest _ =
+    lowest
 
 
 {-| -}
 closestToZero : Value -> Value -> Value
-closestToZero lower upper =
-    clamp lower upper 0
+closestToZero lowest highest =
+    clamp lowest highest 0
 
 
 
@@ -463,7 +463,7 @@ toAxisDetails (AxisConfig { position, orientation }) =
             , defaultTickAttributes = [ stroke "grey", length 10 ]
             , defaultLabelAttributes = [ Svg.Attributes.style "text-anchor: middle;" ]
             , onAxisAt = onXAxisAt position
-            , toScale = .scale >> .x
+            , toScale = .xScale
             }
 
         Y ->
@@ -471,24 +471,8 @@ toAxisDetails (AxisConfig { position, orientation }) =
             , defaultTickAttributes = [ stroke "grey", length 10, transform "rotate(90)" ]
             , defaultLabelAttributes = [ Svg.Attributes.style "text-anchor: end;" ]
             , onAxisAt = onYAxisAt position
-            , toScale = .scale >> .y
+            , toScale = .yScale
             }
-
-
-ifXthenElse : AxisConfig -> a -> a -> a
-ifXthenElse (AxisConfig { orientation }) x y =
-    if orientation == X then
-        x
-    else
-        y
-
-
-clearIntersection : Scale -> Bool -> List Value -> List Value
-clearIntersection scale shouldClearIntersection values =
-    if shouldClearIntersection then
-        List.filter (\value -> not (List.member value scale.intersections)) values
-    else
-        values
 
 
 {-| -}
@@ -513,8 +497,8 @@ axisLine : List (Svg.Attribute msg) -> AxisElement msg
 axisLine attributes _ { onAxisAt, toScale } =
     Line attributes
         (\meta ->
-            [ onAxisAt (toScale meta |> .reach |> .lower) meta
-            , onAxisAt (toScale meta |> .reach |> .upper) meta
+            [ onAxisAt (toScale meta |> .lowest) meta
+            , onAxisAt (toScale meta |> .highest) meta
             ]
         )
 
@@ -599,6 +583,14 @@ toTickView defaultAttributes config value =
             view value
 
 
+clearIntersection : Scale -> Bool -> List Value -> List Value
+clearIntersection scale shouldClearIntersection values =
+    if shouldClearIntersection then
+        List.filter (\value -> not (List.member value scale.intersections)) values
+    else
+        values
+
+
 
 -- GRID
 
@@ -607,16 +599,16 @@ toTickView defaultAttributes config value =
 horizontalGrid : List (Svg.Attribute msg) -> (Scale -> List Value) -> Element msg
 horizontalGrid attributes toValues =
     list [ class "elm-plot__grid elm-plot__grid--horizontal" ]
-        (\value -> Line attributes (\meta -> [ onYAxisAt lowest value meta, onYAxisAt highest value meta ]))
-        (.scale >> .y >> toValues)
+        (\value -> Line attributes (\meta -> [ onYAxisAt atLowest value meta, onYAxisAt atHighest value meta ]))
+        (.yScale >> toValues)
 
 
 {-| -}
 verticalGrid : List (Svg.Attribute msg) -> (Scale -> List Value) -> Element msg
 verticalGrid attributes toValues =
     list [ class "elm-plot__grid elm-plot__grid--vertical" ]
-        (\value -> Line attributes (\meta -> [ onXAxisAt lowest value meta, onXAxisAt highest value meta ]))
-        (.scale >> .x >> toValues)
+        (\value -> Line attributes (\meta -> [ onXAxisAt atLowest value meta, onXAxisAt atHighest value meta ]))
+        (.xScale >> toValues)
 
 
 
@@ -735,7 +727,7 @@ viewPlot : PlotConfig msg -> List (Element msg) -> Meta -> Html msg
 viewPlot (PlotConfig config) elements meta =
     let
         viewBoxValue =
-            "0 0 " ++ toString meta.scale.x.length ++ " " ++ toString meta.scale.y.length
+            "0 0 " ++ toString meta.xScale.length ++ " " ++ toString meta.yScale.length
 
         attributes =
             config.attributes
@@ -749,10 +741,10 @@ scaleDefs meta =
     Svg.defs []
         [ Svg.clipPath [ Svg.Attributes.id (toClipPathId meta) ]
             [ Svg.rect
-                [ Svg.Attributes.x (toString meta.scale.x.offset.lower)
-                , Svg.Attributes.y (toString meta.scale.y.offset.lower)
-                , width (toString (getInnerLength meta.scale.x))
-                , height (toString (getInnerLength meta.scale.y))
+                [ Svg.Attributes.x (toString meta.xScale.offset.lower)
+                , Svg.Attributes.y (toString meta.yScale.offset.lower)
+                , width (toString (getInnerLength meta.xScale))
+                , height (toString (getInnerLength meta.yScale))
                 ]
                 []
             ]
@@ -852,7 +844,7 @@ viewArea : AreaConfig msg -> List Point -> Meta -> Axised Reach -> Svg msg
 viewArea (AreaConfig config) data meta reach =
     let
         mostZeroY =
-            valueClosestToZero meta.scale.y
+            valueClosestToZero meta.yScale
 
         firstPoint =
             Maybe.withDefault ( 0, 0 ) (List.head data)
@@ -879,7 +871,7 @@ viewArea (AreaConfig config) data meta reach =
 
 
 viewBars : BarsConfig msg -> List Group -> Meta -> Svg msg
-viewBars (BarsConfig { stackBy, maxWidth, styles, labelConfig }) groups { toSVGPoint, scale } =
+viewBars (BarsConfig { stackBy, maxWidth, styles, labelConfig }) groups { toSVGPoint, xScale, yScale } =
     let
         barsPerGroup =
             toFloat (List.length styles)
@@ -896,14 +888,14 @@ viewBars (BarsConfig { stackBy, maxWidth, styles, labelConfig }) groups { toSVGP
                     defaultBarWidth * (toFloat perc) / 100
 
                 Fixed max ->
-                    if defaultBarWidth > (unScaleValue scale.x max) then
-                        unScaleValue scale.x max
+                    if defaultBarWidth > (unScaleValue xScale max) then
+                        unScaleValue xScale max
                     else
                         defaultBarWidth
 
         barHeight { yValue, index } =
             if stackBy == X || index == 0 then
-                yValue - valueClosestToZero scale.y
+                yValue - valueClosestToZero yScale
             else
                 yValue
 
@@ -919,7 +911,7 @@ viewBars (BarsConfig { stackBy, maxWidth, styles, labelConfig }) groups { toSVGP
             case stackBy of
                 X ->
                     ( xValue + barWidth * (toFloat index - barsPerGroup / 2)
-                    , max (min 0 scale.y.reach.upper) yValue
+                    , max (min 0 yScale.highest) yValue
                     )
 
                 Y ->
@@ -932,8 +924,8 @@ viewBars (BarsConfig { stackBy, maxWidth, styles, labelConfig }) groups { toSVGP
 
         viewBarAttributes group bar =
             [ transform <| toTranslate <| toSVGPoint <| barPosition group bar
-            , height <| toString <| scaleValue scale.y <| abs (barHeight bar)
-            , width <| toString <| scaleValue scale.x barWidth
+            , height <| toString <| scaleValue yScale <| abs (barHeight bar)
+            , width <| toString <| scaleValue xScale barWidth
             ]
 
         wrapBarLabel group bar =
@@ -1084,7 +1076,7 @@ addDisplacement ( x, y ) ( dx, dy ) =
 
 valueClosestToZero : Scale -> Value
 valueClosestToZero scale =
-    clamp scale.reach.lower scale.reach.upper 0
+    clamp scale.lowest scale.highest 0
 
 
 
@@ -1104,7 +1096,8 @@ type alias Reach =
 
 
 type alias Scale =
-    { reach : Reach
+    { lowest : Value
+    , highest : Value
     , offset : Reach
     , length : Float
     , intersections : List Value
@@ -1113,7 +1106,8 @@ type alias Scale =
 
 type alias Meta =
     { toSVGPoint : Point -> Point
-    , scale : Axised Scale
+    , xScale : Scale
+    , yScale : Scale
     , id : String
     }
 
@@ -1143,13 +1137,15 @@ toPlotMeta (PlotConfig { id, margin, proportions, toRangeLowest, toRangeHighest,
         ( yIntersections, xIntersections ) =
             findIntersections (Axised range domain) elements ( [], [] )
 
-        scale =
-            { x = toScale proportions.x range margin.left margin.right yIntersections
-            , y = toScale proportions.y domain margin.top margin.bottom xIntersections
-            }
+        xScale =
+            toScale proportions.x range margin.left margin.right yIntersections
+
+        yScale =
+            toScale proportions.y domain margin.top margin.bottom xIntersections
     in
-        { scale = scale
-        , toSVGPoint = toSVGPoint scale.x scale.y
+        { xScale = xScale
+        , yScale = yScale
+        , toSVGPoint = toSVGPoint xScale yScale
         , id = id
         }
 
@@ -1158,7 +1154,8 @@ toScale : Int -> Reach -> Int -> Int -> List Value -> Scale
 toScale length reach offsetLower offsetUpper intersections =
     { length = toFloat length
     , offset = Reach (toFloat offsetLower) (toFloat offsetUpper)
-    , reach = reach
+    , lowest = reach.lower
+    , highest = reach.upper
     , intersections = intersections
     }
 
@@ -1186,6 +1183,14 @@ findIntersections scale elements ( yIntersections, xIntersections ) =
 toAxisPosition : AxisConfig -> Reach -> Value
 toAxisPosition (AxisConfig config) reach =
     config.position reach.lower reach.upper
+
+
+ifXthenElse : AxisConfig -> a -> a -> a
+ifXthenElse (AxisConfig { orientation }) x y =
+    if orientation == X then
+        x
+    else
+        y
 
 
 findPlotReach : List (Element msg) -> Axised Reach
@@ -1295,7 +1300,7 @@ getRange : Scale -> Value
 getRange scale =
     let
         range =
-            scale.reach.upper - scale.reach.lower
+            scale.highest - scale.lowest
     in
         if range > 0 then
             range
@@ -1320,6 +1325,6 @@ scaleValue scale value =
 
 toSVGPoint : Scale -> Scale -> Point -> Point
 toSVGPoint xScale yScale ( x, y ) =
-    ( scaleValue xScale (x - xScale.reach.lower) + xScale.offset.lower
-    , scaleValue yScale (yScale.reach.upper - y) + yScale.offset.lower
+    ( scaleValue xScale (x - xScale.lowest) + xScale.offset.lower
+    , scaleValue yScale (yScale.highest - y) + yScale.offset.lower
     )
