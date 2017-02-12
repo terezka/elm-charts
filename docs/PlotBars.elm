@@ -61,29 +61,38 @@ xLabelConfig =
         (\value -> Array.get (round <| value - 1) xLabelStrings |> Maybe.withDefault "")
 
 
+barsConfig : BarsConfig msg
+barsConfig =
+    toBarsConfig
+        { stackBy = Y
+        , styles = [ [ fill pinkFill ], [ fill blueFill ], [ fill skinFill ] ]
+        , labelView =
+            labelSimple
+                [ stroke "#fff"
+                , fill "#fff"
+                , style "text-anchor: middle; font-size: 10px;"
+                , displace ( 0, 15 )
+                ]
+                (.yValue >> toString)
+        , maxWidth = Fixed 30
+        }
+
+
 view : Svg.Svg a
 view =
     plot plotConfig
         [ barsSerie
-            { stackBy = Y
-            , yValues = .values
-            , xValue = Nothing
-            , styles = [ [ fill pinkFill ], [ fill blueFill ], [ fill skinFill ] ]
-            , labelView =
-                labelSimple
-                    [ stroke "#fff"
-                    , fill "#fff"
-                    , style "text-anchor: middle; font-size: 10px;"
-                    , displace ( 0, 15 )
-                    ]
-                    (.yValue >> toString)
-            , maxWidth = Fixed 30
-            }
-            [ { values = [ 40, 30, 20 ] }
-            , { values = [ 20, 30, 40 ] }
-            , { values = [ 40, 20, 10 ] }
-            , { values = [ 40, 50, 20 ] }
-            ]
+            barsConfig
+            (toGroups
+                { yValues = .values
+                , xValue = Nothing
+                }
+                [ { values = [ 40, 30, 20 ] }
+                , { values = [ 20, 30, 40 ] }
+                , { values = [ 40, 20, 10 ] }
+                , { values = [ 40, 50, 20 ] }
+                ]
+            )
         , xAxis
             closestToZero
             [ axisLine [ stroke axisColor ]

@@ -19,7 +19,10 @@ module Svg.Plot
         , toDotsConfig
         , dotsSerie
         , BarsConfig
+        , toBarsConfig
         , barsSerie
+        , GroupTransformer
+        , toGroups
         , MaxBarWidth(..)
         , fromList
         , fromDelta
@@ -47,7 +50,6 @@ module Svg.Plot
         , labelsCustom
         , viewLabel
         , displace
-        , list
         , positionAt
         , positionBy
         )
@@ -72,7 +74,7 @@ module Svg.Plot
 @docs DotsConfig, toDotsConfig, dotsSerie
 
 ### Bars
-@docs BarsConfig, BarConfig, MaxBarWidth, toBarsConfig, toBarConfig, barsSerie, toGroups, BarValueInfo
+@docs BarsConfig, BarValueInfo, MaxBarWidth, toBarsConfig, barsSerie, toGroups, GroupTransformer
 
 ## Axis elements
 @docs xAxis, xAxisAt, yAxis, yAxisAt
@@ -93,7 +95,7 @@ module Svg.Plot
 @docs TickConfig, tickSimple, tickCustom, ticks, tick
 
 ## Primitives
-@docs list, positionBy, positionAt
+@docs positionBy, positionAt
 
 -}
 
@@ -143,19 +145,22 @@ type Serie msg
 -- PRIMITIVES
 
 
-{-| -}
+{-| Place a list of SVG elements provided the information about the bounds of the plot.
+ Use functions `fromRange`, `fromDomain` or `fromRangeAndDomain` to access this information.
+-}
 positionBy : (Meta -> Point) -> List (Svg msg) -> Element msg
 positionBy =
     Position
 
 
-{-| -}
+{-| Place a list of SVG elements at a specific coordinate. The coordinate is Cartesian and
+ relative to the space created to fit your data.
+-}
 positionAt : Point -> List (Svg msg) -> Element msg
 positionAt point =
     Position (always point)
 
 
-{-| -}
 list : List (Svg.Attribute msg) -> (b -> Element msg) -> (Meta -> List b) -> Element msg
 list attributes toElement toValues =
     List attributes (toValues >> List.map toElement)
@@ -165,25 +170,32 @@ list attributes toElement toValues =
 -- POSITION/VALUE HELPERS
 
 
-{-| -}
+{-| Provided at delta it will create a list of values to be used for labels or ticks.
+-}
 fromDelta : Value -> Scale -> List Value
 fromDelta delta scale =
     toValuesFromDelta scale.reach.lower scale.reach.upper delta
 
 
-{-| -}
+{-| Use your own list of values for labels or ticks.
+-}
 fromList : List Value -> Scale -> List Value
 fromList values _ =
     values
 
 
-{-| -}
+{-| Remove a value from a list. Useful your axes are crossing at a paricular values
+ and don't want the intersection cluttered with labels.
+
+  labels (labelSimple [] toString) (fromDelta 10 >> remove 0)
+-}
 remove : Value -> List Value -> List Value
 remove bannedValue =
     List.filter (\value -> value /= bannedValue)
 
 
-{-| -}
+{-| Remove values by their index.
+-}
 filterDelta : Int -> Int -> List Value -> List Value
 filterDelta offset interval values =
     List.indexedMap (,) values
@@ -352,38 +364,37 @@ type BarsConfig msg
 
 
 {-| -}
-barsSerie :
+toBarsConfig :
     { stackBy : Orientation
-    , yValues : data -> List Value
-    , xValue : Maybe (data -> Value)
     , styles : List (List (Svg.Attribute msg))
     , labelView : LabelView BarValueInfo msg
     , maxWidth : MaxBarWidth
     }
-    -> List data
-    -> Element msg
-barsSerie { stackBy, yValues, xValue, styles, labelView, maxWidth } data =
-    let
-        groups =
-            toGroups xValue yValues data
-
-        config =
-            BarsConfig
-                { stackBy = stackBy
-                , styles = styles
-                , labelView = labelView
-                , maxWidth = maxWidth
-                }
-    in
-        SerieElement (findReachFromGroups config groups) (BarsSerie config groups)
+    -> BarsConfig msg
+toBarsConfig config =
+    BarsConfig config
 
 
-toGroups : Maybe (data -> Value) -> (data -> List Value) -> List data -> List Group
-toGroups toXValue toYValue allData =
+{-| -}
+barsSerie : BarsConfig msg -> List Group -> Element msg
+barsSerie config data =
+    SerieElement (findReachFromGroups config data) (BarsSerie config data)
+
+
+{-| -}
+type alias GroupTransformer data =
+    { xValue : Maybe (data -> Value)
+    , yValues : data -> List Value
+    }
+
+
+{-| -}
+toGroups : GroupTransformer data -> List data -> List Group
+toGroups { xValue, yValues } allData =
     List.indexedMap
         (\index data ->
-            { xValue = getGroupXValue toXValue index data
-            , yValues = toYValue data
+            { xValue = getGroupXValue xValue index data
+            , yValues = yValues data
             }
         )
         allData

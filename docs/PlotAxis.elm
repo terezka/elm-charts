@@ -61,29 +61,38 @@ xLabelConfig =
         (\value -> Array.get (round <| value - 1) xLabelStrings |> Maybe.withDefault "")
 
 
+barsConfig : BarsConfig msg
+barsConfig =
+    toBarsConfig
+        { stackBy = X
+        , styles = [ [ fill pinkFill ], [ fill blueFill ], [ fill skinFill ] ]
+        , labelView =
+            labelSimple
+                [ stroke "#fff"
+                , fill "#fff"
+                , style "text-anchor: middle; font-size: 10px;"
+                , displace ( 0, 15 )
+                ]
+                (.yValue >> toString)
+        , maxWidth = Fixed 30
+        }
+
+
 view : Svg.Svg a
 view =
     plot plotConfig
         [ barsSerie
-            { stackBy = X
-            , yValues = .values
-            , xValue = Nothing
-            , styles = [ [ fill pinkFill ], [ fill blueFill ], [ fill skinFill ] ]
-            , labelView =
-                labelSimple
-                    [ stroke "#fff"
-                    , fill "#fff"
-                    , style "text-anchor: middle; font-size: 10px;"
-                    , displace ( 0, 15 )
-                    ]
-                    (.yValue >> toString)
-            , maxWidth = Fixed 30
-            }
-            [ { values = [ 40, 30, 20 ] }
-            , { values = [ 20, 30, 40 ] }
-            , { values = [ 40, 20, 10 ] }
-            , { values = [ 40, 50, 20 ] }
-            ]
+            barsConfig
+            (toGroups
+                { yValues = .values
+                , xValue = Nothing
+                }
+                [ { values = [ 40, 30, 20 ] }
+                , { values = [ 20, 30, 40 ] }
+                , { values = [ 40, 20, 10 ] }
+                , { values = [ 40, 50, 20 ] }
+                ]
+            )
         , xAxis
             closestToZero
             [ axisLine [ stroke axisColor ]
@@ -100,13 +109,7 @@ view =
                 (tickSimple [ stroke axisColorLight, length 5, transform "rotate(-90)" ])
                 (fromDelta 5 >> filterDelta 1 2 >> remove 0)
             , labels
-                (labelSimple
-                    [ fill axisColor
-                    , style "text-anchor: start;"
-                    , displace ( 10, 5 )
-                    ]
-                    toString
-                )
+                (labelSimple [ fill axisColor, style "text-anchor: start;", displace ( 10, 5 ) ] toString)
                 (fromDelta 10 >> remove 0)
             ]
         , yAxis
