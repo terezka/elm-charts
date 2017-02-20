@@ -23,14 +23,19 @@ defaultConfig =
 
 
 view : Meta -> Config a -> List Point -> Svg.Svg a
-view meta { style, radius } points =
+view meta { style, radius, customAttrs } points =
     let
         svgPoints =
             List.map meta.toSvgCoords points
+            
+        svgAttrs =
+          List.append
+            [ Svg.Attributes.style (toStyle style) ]
+            customAttrs
     in
         Svg.g
-            [ Svg.Attributes.style (toStyle style) ]
-            (List.map (toSvgCircle radius) svgPoints)
+          svgAttrs
+          (List.map (toSvgCircle radius) svgPoints)
 
 
 toSvgCircle : Int -> Point -> Svg.Svg a
