@@ -58,8 +58,8 @@ view : Svg.Svg a
 view =
     plot plotConfig
         [ areaSerie areaConfig data1
-        , axis (toAxisConfig X atZero)
-            [ axisLine
+        , xAxis atZero
+            [ line
                 [ stroke axisColor
                 , fill axisColor
                 , fill pinkFill
@@ -72,7 +72,7 @@ view =
                         , displace ( 0, 24 )
                         ]
                 )
-                (fromDelta 1)
+                (fromDelta 0 1)
             , ticks
                 (\_ ->
                     viewTick
@@ -80,7 +80,7 @@ view =
                         , length 10
                         ]
                 )
-                (fromDelta 1)
+                (fromDelta 0 1)
             ]
         ]
 
@@ -126,8 +126,8 @@ axisLabelConfig =
         }
 
 
-axisLineConfig : AxisLineConfig msg
-axisLineConfig =
+lineConfig : AxisLineConfig msg
+lineConfig =
     toAxisLineConfig
         { attributes =
             [ stroke axisColor
@@ -153,7 +153,7 @@ view =
     plot plotConfig
         [ areaSerie areaConfig data
         , xAxis
-            [ axisLine axisLineConfig
+            [ line lineConfig
             , labels axisLabelConfig (fromDelta 1)
             , ticks tickConfig (fromDelta 1)
             ]

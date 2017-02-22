@@ -50,8 +50,8 @@ xLabelStrings =
     [ "Autumn", "Winter", "Spring", "Summer" ]
 
 
-xLabelConfig : String -> Svg.Svg msg
-xLabelConfig =
+xLabel : String -> Svg.Svg msg
+xLabel =
     viewLabel
         [ fill axisColor
         , style "text-anchor: middle;"
@@ -92,34 +92,31 @@ view =
                 , { values = [ 60, 50 ] }
                 ]
             )
-        , axis
-            (toAxisConfig X atZero)
-            [ axisLine [ stroke axisColor ]
-            , ticks (\_ -> viewTick [ stroke axisColor, length 10 ]) (fromDelta 1)
-            , labelsFromStrings xLabelConfig (fromDelta 1 >> removeIntersections) xLabelStrings
+        , xAxis atZero
+            [ line [ stroke axisColor ]
+            , ticks (\_ -> viewTick [ stroke axisColor, length 10 ]) (fromDelta 1 1)
+            , labelsFromStrings xLabel (fromDelta 1 1) xLabelStrings
             ]
-        , axis
-            (toAxisConfig Y atLowest)
-            [ axisLine [ stroke axisColor ]
+        , yAxis atLowest
+            [ line [ stroke axisColor ]
             , ticks
                 (\_ -> viewTick [ stroke axisColor, length 10, transform "rotate(-90)" ])
-                (fromDelta 5 >> filterDelta 0 2)
+                (fromDelta 0 5)
             , ticks
                 (\_ -> viewTick [ stroke axisColorLight, length 5, transform "rotate(-90)" ])
-                (fromDelta 5 >> filterDelta 1 2)
+                (fromDelta 1 5)
             , labels
                 (toString >> viewLabel [ fill axisColor, style "text-anchor: start;", displace ( 10, 5 ) ])
-                (fromDelta 10 >> removeIntersections)
+                (fromDelta 0 10)
             ]
-        , axis
-            (toAxisConfig Y atHighest)
-            [ axisLine [ stroke axisColor ]
+        , yAxis atHighest
+            [ line [ stroke axisColor ]
             , ticks
                 (\_ -> viewTick [ stroke axisColor, length 10 ])
-                (fromDelta 5 >> filterDelta 0 2)
+                (fromDelta 0 5)
             , ticks
                 (\_ -> viewTick [ stroke axisColorLight, length 5 ])
-                (fromDelta 5 >> filterDelta 1 2)
+                (fromDelta 1 5)
             , labels
                 ((*) 100
                     >> toString
@@ -129,7 +126,7 @@ view =
                         , displace ( -10, 5 )
                         ]
                 )
-                (fromDelta 10 >> removeIntersections)
+                (fromDelta 0 10)
             ]
         , positionBy
             (fromRangeAndDomain (\xl xh yl yh -> ( xl, yh / 2 )))
@@ -267,8 +264,8 @@ axisLabelY2Config =
         }
 
 
-axisLineConfig : AxisLineConfig msg
-axisLineConfig =
+lineConfig : AxisLineConfig msg
+lineConfig =
     toAxisLineConfig
         { attributes =
             [ stroke axisColor
@@ -302,12 +299,12 @@ view =
                 ]
             )
         , xAxis
-            [ axisLine axisLineConfig
+            [ line lineConfig
             , labels axisLabelConfig (\\_ -> List.indexedMap (\\i v -> { index = i, value = v }) [ 1, 2, 3, 4 ])
-            , ticks tickConfig (fromDelta 1)
+            , ticks tickConfig (fromDelta 0 1)
             ]
         , yAxisAt (\\l h -> l)
-            [ axisLine axisLineConfig
+            [ line lineConfig
             , labels axisLabelY1Config (fromCount 5 >> List.filter (\\v -> v.value /= 0))
             , ticks tickConfig (fromCount 5)
             , positionBy
@@ -321,7 +318,7 @@ view =
                 ]
             ]
         , yAxisAt (\\l h -> h)
-            [ axisLine axisLineConfig
+            [ line lineConfig
             , labels axisLabelY2Config (fromCount 5 >> List.filter (\\v -> v.value /= 0))
             , ticks tickConfig (fromCount 5)
             , positionBy

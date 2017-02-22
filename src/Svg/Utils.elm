@@ -4,14 +4,14 @@ import Round
 import Regex
 
 
-toValuesFromDelta : Float -> Float -> Float -> List Float
-toValuesFromDelta lowest highest delta =
+toValuesFromDelta : Float -> Float -> Float -> Float -> List Float
+toValuesFromDelta offset lowest highest delta =
     let
         range =
             highest - lowest
 
         firstValue =
-            getFirstValue delta lowest
+            getFirstValue delta lowest + offset
 
         tickCount =
             getCount delta lowest range firstValue

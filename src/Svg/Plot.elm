@@ -35,17 +35,14 @@ module Svg.Plot
         , fromDomain
         , fromRangeAndDomain
         , remove
-        , removeIntersections
-        , filterDelta
         , atLowest
         , atHighest
         , atZero
         , verticalGrid
         , horizontalGrid
-        , AxisConfig
-        , toAxisConfig
-        , axis
-        , axisLine
+        , xAxis
+        , yAxis
+        , line
         , ticks
         , viewTick
         , length
@@ -81,10 +78,10 @@ module Svg.Plot
 @docs Group, GroupTransformer, toGroups
 
 ## Axis
-@docs AxisConfig, toAxisConfig, atLowest, atHighest, atZero, axis
+@docs atLowest, atHighest, atZero, xAxis, yAxis
 
 ### Axis line
-@docs axisLine
+@docs line
 
 ### Grid lines
 @docs horizontalGrid, verticalGrid
@@ -97,7 +94,7 @@ module Svg.Plot
 
 ## Value helpers
 These are functions to help you create the values you would like to have ticks, labels or grid lines at.
-@docs ValueProducer, ValueAlter, fromList, fromDelta, remove, removeIntersections, filterDelta
+@docs ValueProducer, ValueAlter, fromList, fromDelta, remove
 
 ## General
 @docs fromRange, fromDomain, fromRangeAndDomain, positionAt, positionBy, displace
@@ -142,7 +139,6 @@ type alias Point =
 -}
 type Element msg
     = SerieElement (Axised Reach) (Serie msg)
-    | Axis AxisConfig (Element msg)
     | Line (List (Svg.Attribute msg)) (Meta -> List Point)
     | Position (Meta -> Point) (List (Svg msg))
     | List (List (Svg.Attribute msg)) (Meta -> List (Element msg))
@@ -267,9 +263,9 @@ fromList values scale =
 
 This produces labels at 0, 2, 4, 6 and 8.
 -}
-fromDelta : Value -> ValueProducer
-fromDelta delta scale =
-    ( toValuesFromDelta scale.lowest scale.highest delta, scale )
+fromDelta : Value -> Value -> ValueProducer
+fromDelta offset delta scale =
+    ( toValuesFromDelta offset scale.lowest scale.highest delta, scale )
 
 
 {-| Remove a value from a list.
@@ -299,48 +295,6 @@ This produces labels at 0, 2, 6 and 8.
 remove : Value -> ValueAlter
 remove bannedValue ( values, scale ) =
     ( List.filter (\value -> value /= bannedValue) values, scale )
-
-
-{-| -}
-removeIntersections : ValueAlter
-removeIntersections ( values, scale ) =
-    ( List.filter (\value -> not (List.member value scale.intersections)) values, scale )
-
-
-{-| Remove values provided an offset and interval.
-
-    import Svg.Plot as Plot
-
-    lineData : List Point
-    lineData =
-        [ ( 0, 10 ), ( 3, 20 ), ( 6, 15 ), ( 9, 30 ) ]
-
-    myXAxis : Element msg
-    myXAxis =
-        Plot.axis xAxisConfig
-            [ Plot.ticks
-                (Plot.tick [ length 10 ])
-                (fromDelta 1 >> filterDelta 0 2)
-            , Plot.ticks
-                (Plot.tick [ length 5 ])
-                (fromDelta 1 >> filterDelta 1 2)
-            ]
-
-    main =
-        Plot.plot plotConfig
-            [ Plot.lineSerie lineConfig lineData
-            , myXAxis
-            ]
-
-This produces ticks with a length of 10 at 0, 2, 4, 6 and 8 and ticks with a length of
-5 at 1, 3, 5, 7 and 9.
--}
-filterDelta : Int -> Int -> ValueAlter
-filterDelta offset interval ( values, scale ) =
-    List.indexedMap (,) values
-        |> List.filter (\( i, v ) -> rem (offset + i) interval /= 0)
-        |> List.map Tuple.second
-        |> \values -> ( values, scale )
 
 
 
@@ -628,12 +582,11 @@ getGroupXValue toXValue index data =
 -- AXIS ELEMENTS
 
 
-{-| -}
-type AxisConfig
-    = AxisConfig
-        { orientation : Orientation
-        , position : Value -> Value -> Value
-        }
+type alias AxisViewDetails msg =
+    { line : List (Svg.Attribute msg) -> Element msg
+    , positionWrap : Value -> Svg msg -> Element msg
+    , toScale : Meta -> Scale
+    }
 
 
 {-| -}
@@ -641,57 +594,35 @@ type alias AxisElement msg =
     AxisViewDetails msg -> Element msg
 
 
-{-| Creates an axis configuration.
-
-    myXAxis : Plot.AxisConfig msg
-    myXAxis =
-      Plot.toAxisConfig X atZero
-
-The `orientation` option is whether the axis is vertical or horizontal.
-The `position` option is where on the opposite axis it should be places. So this one
-will be a y = 0.
--}
-toAxisConfig : Orientation -> (Value -> Value -> Value) -> AxisConfig
-toAxisConfig orientation position =
-    AxisConfig { orientation = orientation, position = position }
-
-
 {-| Provided an axis configuration and a list of axis elements, it will produce an axis in your plot! ✨
 -}
-axis : AxisConfig -> List (AxisElement msg) -> Element msg
-axis config elements =
-    Axis config (toAxisView config (toAxisDetails config) elements)
-
-
-toAxisView : AxisConfig -> AxisViewDetails msg -> List (AxisElement msg) -> Element msg
-toAxisView config details elements =
-    list [ class details.class ] (\_ -> List.map (\element -> element details) elements)
-
-
-type alias AxisViewDetails msg =
-    { class : String
-    , line : List (Svg.Attribute msg) -> Element msg
-    , positionWrap : Value -> Svg msg -> Element msg
-    , toScale : Meta -> Scale
-    }
-
-
-toAxisDetails : AxisConfig -> AxisViewDetails msg
-toAxisDetails (AxisConfig { position, orientation }) =
-    case orientation of
-        X ->
-            { class = "elm-plot__axis elm-plot__axis--x"
-            , line = xLine position
+xAxis : (Value -> Value -> Value) -> List (AxisElement msg) -> Element msg
+xAxis position elements =
+    let
+        details =
+            { line = xLine position
             , positionWrap = xPosition position
             , toScale = \(Meta meta) -> meta.xScale
             }
+    in
+        list
+            [ class "elm-plot__axis elm-plot__axis--x" ]
+            (\_ -> List.map (\element -> element details) elements)
 
-        Y ->
-            { class = "elm-plot__axis elm-plot__axis--y"
-            , line = yLine position
+
+{-| -}
+yAxis : (Value -> Value -> Value) -> List (AxisElement msg) -> Element msg
+yAxis position elements =
+    let
+        details =
+            { line = yLine position
             , positionWrap = yPosition position
             , toScale = \(Meta meta) -> meta.yScale
             }
+    in
+        list
+            [ class "elm-plot__axis elm-plot__axis--y" ]
+            (\_ -> List.map (\element -> element details) elements)
 
 
 xPosition : (Value -> Value -> Value) -> Value -> Svg msg -> Element msg
@@ -710,8 +641,8 @@ yPosition toXValue value view =
 
 {-| Draw a line along your axis.
 -}
-axisLine : List (Svg.Attribute msg) -> AxisElement msg
-axisLine attributes { line } =
+line : List (Svg.Attribute msg) -> AxisElement msg
+line attributes { line } =
     line attributes
 
 
@@ -777,7 +708,7 @@ ticks view toValues { positionWrap, toScale } =
 {-| -}
 viewTick : List (Svg.Attribute msg) -> Svg msg
 viewTick attributes =
-    line attributes []
+    Svg.line attributes []
 
 
 
@@ -988,9 +919,6 @@ viewElement meta element =
     case element of
         SerieElement reach serie ->
             viewSerie reach serie meta
-
-        Axis _ element ->
-            viewElement meta element
 
         Line attributes toPoints ->
             viewPath attributes (makeLinePath NoInterpolation (toPoints meta) meta)
@@ -1323,7 +1251,6 @@ type alias Scale =
     , highest : Value
     , offset : Reach
     , length : Float
-    , intersections : List Value
     }
 
 
@@ -1361,14 +1288,11 @@ toPlotMeta (PlotConfig { id, margin, proportions, toRangeLowest, toRangeHighest,
             , upper = toDomainHighest reach.y.upper
             }
 
-        ( yIntersections, xIntersections ) =
-            findIntersections (Axised range domain) elements ( [], [] )
-
         xScale =
-            toScale proportions.x range margin.left margin.right xIntersections
+            toScale proportions.x range margin.left margin.right
 
         yScale =
-            toScale proportions.y domain margin.top margin.bottom yIntersections
+            toScale proportions.y domain margin.top margin.bottom
     in
         Meta
             { xScale = xScale
@@ -1378,47 +1302,13 @@ toPlotMeta (PlotConfig { id, margin, proportions, toRangeLowest, toRangeHighest,
             }
 
 
-toScale : Int -> Reach -> Int -> Int -> List Value -> Scale
-toScale length reach offsetLower offsetUpper intersections =
+toScale : Int -> Reach -> Int -> Int -> Scale
+toScale length reach offsetLower offsetUpper =
     { length = toFloat length
     , offset = Reach (toFloat offsetLower) (toFloat offsetUpper)
     , lowest = reach.lower
     , highest = reach.upper
-    , intersections = intersections
     }
-
-
-findIntersections : Axised Reach -> List (Element msg) -> ( List Value, List Value ) -> ( List Value, List Value )
-findIntersections scale elements ( yIntersections, xIntersections ) =
-    case elements of
-        [] ->
-            ( yIntersections, xIntersections )
-
-        element :: rest ->
-            case element of
-                Axis config _ ->
-                    findIntersections scale
-                        rest
-                        (ifXthenElse config
-                            ( (toAxisPosition config scale.y) :: yIntersections, xIntersections )
-                            ( yIntersections, (toAxisPosition config scale.x) :: xIntersections )
-                        )
-
-                _ ->
-                    findIntersections scale rest ( yIntersections, xIntersections )
-
-
-toAxisPosition : AxisConfig -> Reach -> Value
-toAxisPosition (AxisConfig config) reach =
-    config.position reach.lower reach.upper
-
-
-ifXthenElse : AxisConfig -> a -> a -> a
-ifXthenElse (AxisConfig { orientation }) x y =
-    if orientation == X then
-        x
-    else
-        y
 
 
 findPlotReach : List (Element msg) -> Axised Reach
