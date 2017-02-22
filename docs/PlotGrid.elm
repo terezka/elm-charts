@@ -61,16 +61,14 @@ data =
 view : Svg.Svg a
 view =
     plot plotConfig
-        [ axis
-            (toAxisConfig Y atLowest)
+        [ axis (toAxisConfig Y atLowest)
             [ axisLine [ fill axisColor ]
-            , ticks (tick [ stroke axisColor, length 5 ]) (fromDelta 1)
-            , labels (label [ fill axisColor, displace ( -10, 5 ), style "text-anchor: end;" ] toString) (fromDelta 1)
+            , ticks (\_ -> viewTick [ stroke axisColor, length 5 ]) (fromDelta 1)
+            , labels (toString >> viewLabel [ fill axisColor, displace ( -10, 5 ), style "text-anchor: end;" ]) (fromDelta 1)
             ]
         , verticalGrid [ stroke axisColorLight ] (fromDelta 10)
         , horizontalGrid [ stroke axisColorLight ] (fromDelta 1)
-        , axis (toAxisConfig X atZero)
-            [ axisLine [ stroke axisColor ] ]
+        , axis (toAxisConfig X atZero) [ axisLine [ stroke axisColor ] ]
         , positionBy
             (fromRangeAndDomain (\xl xh yl yh -> ( xh, yh )))
             [ viewLabel

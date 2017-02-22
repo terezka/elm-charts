@@ -50,14 +50,13 @@ xLabelStrings =
     [ "Autumn", "Winter", "Spring", "Summer" ]
 
 
-xLabelConfig : LabelConfig String msg
+xLabelConfig : String -> Svg.Svg msg
 xLabelConfig =
-    label
+    viewLabel
         [ fill axisColor
         , style "text-anchor: middle;"
         , transform "translate(10, 44) rotate(45) "
         ]
-        identity
 
 
 barsConfig : BarsConfig msg
@@ -65,14 +64,15 @@ barsConfig =
     toBarsConfig
         { stackBy = X
         , styles = [ [ fill pinkFill ], [ fill blueFill ] ]
-        , labelConfig =
-            label
-                [ stroke "#fff"
-                , fill "#fff"
-                , style "text-anchor: middle; font-size: 10px;"
-                , displace ( 0, 15 )
-                ]
-                (.yValue >> toString)
+        , labelView =
+            .yValue
+                >> toString
+                >> viewLabel
+                    [ stroke "#fff"
+                    , fill "#fff"
+                    , style "text-anchor: middle; font-size: 10px;"
+                    , displace ( 0, 15 )
+                    ]
         , maxWidth = Fixed 30
         }
 
@@ -95,38 +95,39 @@ view =
         , axis
             (toAxisConfig X atZero)
             [ axisLine [ stroke axisColor ]
-            , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1)
+            , ticks (\_ -> viewTick [ stroke axisColor, length 10 ]) (fromDelta 1)
             , labelsFromStrings xLabelConfig (fromDelta 1 >> removeIntersections) xLabelStrings
             ]
         , axis
             (toAxisConfig Y atLowest)
             [ axisLine [ stroke axisColor ]
             , ticks
-                (tick [ stroke axisColor, length 10, transform "rotate(-90)" ])
+                (\_ -> viewTick [ stroke axisColor, length 10, transform "rotate(-90)" ])
                 (fromDelta 5 >> filterDelta 0 2)
             , ticks
-                (tick [ stroke axisColorLight, length 5, transform "rotate(-90)" ])
+                (\_ -> viewTick [ stroke axisColorLight, length 5, transform "rotate(-90)" ])
                 (fromDelta 5 >> filterDelta 1 2)
             , labels
-                (label [ fill axisColor, style "text-anchor: start;", displace ( 10, 5 ) ] toString)
+                (toString >> viewLabel [ fill axisColor, style "text-anchor: start;", displace ( 10, 5 ) ])
                 (fromDelta 10 >> removeIntersections)
             ]
         , axis
             (toAxisConfig Y atHighest)
             [ axisLine [ stroke axisColor ]
             , ticks
-                (tick [ stroke axisColor, length 10 ])
+                (\_ -> viewTick [ stroke axisColor, length 10 ])
                 (fromDelta 5 >> filterDelta 0 2)
             , ticks
-                (tick [ stroke axisColorLight, length 5 ])
+                (\_ -> viewTick [ stroke axisColorLight, length 5 ])
                 (fromDelta 5 >> filterDelta 1 2)
             , labels
-                (label
-                    [ fill axisColor
-                    , style "text-anchor: end;"
-                    , displace ( -10, 5 )
-                    ]
-                    ((*) 100 >> toString)
+                ((*) 100
+                    >> toString
+                    >> viewLabel
+                        [ fill axisColor
+                        , style "text-anchor: end;"
+                        , displace ( -10, 5 )
+                        ]
                 )
                 (fromDelta 10 >> removeIntersections)
             ]

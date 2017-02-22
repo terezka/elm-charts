@@ -65,19 +65,20 @@ view =
                 , fill pinkFill
                 ]
             , labels
-                (label
-                    [ fill axisColor
-                    , style "text-anchor: middle;"
-                    , displace ( 0, 24 )
-                    ]
-                    toString
+                (toString
+                    >> viewLabel
+                        [ fill axisColor
+                        , style "text-anchor: middle;"
+                        , displace ( 0, 24 )
+                        ]
                 )
                 (fromDelta 1)
             , ticks
-                (tick
-                    [ stroke axisColor
-                    , length 10
-                    ]
+                (\_ ->
+                    viewTick
+                        [ stroke axisColor
+                        , length 10
+                        ]
                 )
                 (fromDelta 1)
             ]

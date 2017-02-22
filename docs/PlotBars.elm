@@ -45,14 +45,13 @@ plotConfig =
         }
 
 
-xLabelConfig : LabelConfig String msg
+xLabelConfig : String -> Svg.Svg msg
 xLabelConfig =
-    label
+    viewLabel
         [ fill axisColor
         , style "text-anchor: middle;"
         , displace ( 0, 25 )
         ]
-        identity
 
 
 barsConfig : BarsConfig msg
@@ -60,14 +59,15 @@ barsConfig =
     toBarsConfig
         { stackBy = Y
         , styles = [ [ fill pinkFill ], [ fill blueFill ], [ fill skinFill ] ]
-        , labelConfig =
-            label
-                [ stroke "#fff"
-                , fill "#fff"
-                , style "text-anchor: middle; font-size: 10px;"
-                , displace ( 0, 15 )
-                ]
-                (.yValue >> toString)
+        , labelView =
+            .yValue
+                >> toString
+                >> viewLabel
+                    [ stroke "#fff"
+                    , fill "#fff"
+                    , style "text-anchor: middle; font-size: 10px;"
+                    , displace ( 0, 15 )
+                    ]
         , maxWidth = Fixed 30
         }
 
@@ -89,7 +89,7 @@ view =
             )
         , axis (toAxisConfig X atZero)
             [ axisLine [ stroke axisColor ]
-            , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1)
+            , ticks (\_ -> viewTick [ stroke axisColor, length 10 ]) (fromDelta 1)
             , labelsFromStrings xLabelConfig (fromDelta 1) [ "A", "B", "C", "D" ]
             ]
         ]

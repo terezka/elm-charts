@@ -46,14 +46,9 @@ module Svg.Plot
         , toAxisConfig
         , axis
         , axisLine
-        , TickConfig
-        , tick
-        , tickCustom
         , ticks
+        , viewTick
         , length
-        , LabelConfig
-        , label
-        , labelCustom
         , labels
         , labelsFromStrings
         , viewLabel
@@ -95,10 +90,10 @@ module Svg.Plot
 @docs horizontalGrid, verticalGrid
 
 ### Labels
-@docs LabelConfig, label, labelCustom, labels, labelsFromStrings, viewLabel
+@docs labels, labelsFromStrings, viewLabel
 
 ### Ticks
-@docs TickConfig, tick, tickCustom, ticks, length
+@docs ticks, viewTick, length
 
 ## Value helpers
 These are functions to help you create the values you would like to have ticks, labels or grid lines at.
@@ -198,9 +193,9 @@ positionBy =
     Position
 
 
-list : List (Svg.Attribute msg) -> (b -> Element msg) -> (Meta -> List b) -> Element msg
-list attributes toElement toValues =
-    List attributes (toValues >> List.map toElement)
+list : List (Svg.Attribute msg) -> (Meta -> List (Element msg)) -> Element msg
+list attributes toElements =
+    List attributes toElements
 
 
 
@@ -530,7 +525,7 @@ type BarsConfig msg
     = BarsConfig
         { stackBy : Orientation
         , styles : List (List (Svg.Attribute msg))
-        , labelConfig : LabelConfig BarValueInfo msg
+        , labelView : BarValueInfo -> Svg msg
         , maxWidth : MaxBarWidth
         }
 
@@ -540,7 +535,7 @@ type BarsConfig msg
 toBarsConfig :
     { stackBy : Orientation
     , styles : List (List (Svg.Attribute msg))
-    , labelConfig : LabelConfig BarValueInfo msg
+    , labelView : BarValueInfo -> Svg msg
     , maxWidth : MaxBarWidth
     }
     -> BarsConfig msg
@@ -643,7 +638,7 @@ type AxisConfig
 
 {-| -}
 type alias AxisElement msg =
-    AxisConfig -> AxisViewDetails msg -> Element msg
+    AxisViewDetails msg -> Element msg
 
 
 {-| Creates an axis configuration.
@@ -654,8 +649,7 @@ type alias AxisElement msg =
 
 The `orientation` option is whether the axis is vertical or horizontal.
 The `position` option is where on the opposite axis it should be places. So this one
-will be a y = 0. If setting the `clearIntersection` option to true, it will
-remove the ticks and labels which coincides witht the opposite axes drawn.
+will be a y = 0.
 -}
 toAxisConfig : Orientation -> (Value -> Value -> Value) -> AxisConfig
 toAxisConfig orientation position =
@@ -671,20 +665,13 @@ axis config elements =
 
 toAxisView : AxisConfig -> AxisViewDetails msg -> List (AxisElement msg) -> Element msg
 toAxisView config details elements =
-    list [ class details.class ]
-        (\element -> element config details)
-        (\_ -> elements)
-
-
-
--- Axis view help
+    list [ class details.class ] (\_ -> List.map (\element -> element details) elements)
 
 
 type alias AxisViewDetails msg =
     { class : String
-    , defaultTickAttributes : List (Svg.Attribute msg)
-    , defaultLabelAttributes : List (Svg.Attribute msg)
-    , onAxisAt : Value -> Meta -> Point
+    , line : List (Svg.Attribute msg) -> Element msg
+    , positionWrap : Value -> Svg msg -> Element msg
     , toScale : Meta -> Scale
     }
 
@@ -694,41 +681,27 @@ toAxisDetails (AxisConfig { position, orientation }) =
     case orientation of
         X ->
             { class = "elm-plot__axis elm-plot__axis--x"
-            , defaultTickAttributes = [ stroke "grey", length 10 ]
-            , defaultLabelAttributes = [ Svg.Attributes.style "text-anchor: middle;" ]
-            , onAxisAt = onXAxisAt position
+            , line = xLine position
+            , positionWrap = xPosition position
             , toScale = \(Meta meta) -> meta.xScale
             }
 
         Y ->
             { class = "elm-plot__axis elm-plot__axis--y"
-            , defaultTickAttributes = [ stroke "grey", length 10, transform "rotate(90)" ]
-            , defaultLabelAttributes = [ Svg.Attributes.style "text-anchor: end;" ]
-            , onAxisAt = onYAxisAt position
+            , line = yLine position
+            , positionWrap = yPosition position
             , toScale = \(Meta meta) -> meta.yScale
             }
 
 
-
--- AXIS HELPERS
-
-
-onXAxisAt : (Value -> Value -> Value) -> Value -> Meta -> Point
-onXAxisAt toYValue value =
-    fromDomain (\l h -> ( value, toYValue l h ))
+xPosition : (Value -> Value -> Value) -> Value -> Svg msg -> Element msg
+xPosition toYValue value view =
+    positionBy (fromDomain (\l h -> ( value, toYValue l h ))) [ view ]
 
 
-onYAxisAt : (Value -> Value -> Value) -> Value -> Meta -> Point
-onYAxisAt toXValue value =
-    fromRange (\l h -> ( toXValue l h, value ))
-
-
-clearIntersection : Scale -> Bool -> List Value -> List Value
-clearIntersection scale shouldClearIntersection values =
-    if shouldClearIntersection then
-        List.filter (\value -> not (List.member value scale.intersections)) values
-    else
-        values
+yPosition : (Value -> Value -> Value) -> Value -> Svg msg -> Element msg
+yPosition toXValue value view =
+    positionBy (fromRange (\l h -> ( toXValue l h, value ))) [ view ]
 
 
 
@@ -738,42 +711,22 @@ clearIntersection scale shouldClearIntersection values =
 {-| Draw a line along your axis.
 -}
 axisLine : List (Svg.Attribute msg) -> AxisElement msg
-axisLine attributes _ { onAxisAt, toScale } =
-    Line attributes
-        (\meta ->
-            [ onAxisAt (toScale meta |> .lowest) meta
-            , onAxisAt (toScale meta |> .highest) meta
-            ]
-        )
+axisLine attributes { line } =
+    line attributes
+
+
+xLine : (Value -> Value -> Value) -> List (Svg.Attribute msg) -> Element msg
+xLine toY attributes =
+    Line attributes (fromRangeAndDomain (\xl xh yl yh -> [ ( xl, toY yl yh ), ( xh, toY yl yh ) ]))
+
+
+yLine : (Value -> Value -> Value) -> List (Svg.Attribute msg) -> Element msg
+yLine toX attributes =
+    Line attributes (fromRangeAndDomain (\xl xh yl yh -> [ ( toX xl xh, yl ), ( toX xl xh, yh ) ]))
 
 
 
 -- LABELS
-
-
-{-| -}
-type LabelConfig a msg
-    = LabelSimple (List (Svg.Attribute msg)) (a -> String)
-    | LabelCustom (a -> Svg msg)
-
-
-{-| The configuration for a simple label. Provide a list of attibutes to alter the look and a formatting
- function producing a string from your value.
-
-    myLabelConfig : LabelConfig Value msg
-    myLabelConfig =
-        label [ stroke "cadetblue" ] (\value -> toString value ++ " ms")
--}
-label : List (Svg.Attribute msg) -> (a -> String) -> LabelConfig a msg
-label =
-    LabelSimple
-
-
-{-| For your own custom label view.
--}
-labelCustom : (a -> Svg msg) -> LabelConfig a msg
-labelCustom =
-    LabelCustom
 
 
 {-| Place and view labels provided a label configuration and a function to produce values.
@@ -781,16 +734,12 @@ labelCustom =
     myXAxis : Element msg
     myXAxis =
         Plot.axis xAxisConfig
-            [ Plot.labels
-                (Plot.label [] toString)
-                (Plot.fromDelta 2)
-            ]
+            [ Plot.labels (toString >> viewLabel) (Plot.fromDelta 2) ]
 -}
-labels : LabelConfig Value msg -> ValueProducer -> AxisElement msg
-labels labelConfig toValues (AxisConfig config) { onAxisAt, toScale, defaultLabelAttributes } =
+labels : (Value -> Svg msg) -> ValueProducer -> AxisElement msg
+labels view toValues { positionWrap, toScale } =
     list [ class "elm-plot__labels" ]
-        (\value -> positionBy (onAxisAt value) [ toLabelView defaultLabelAttributes labelConfig value ])
-        (\meta -> Tuple.first <| toValues (toScale meta))
+        (toScale >> toValues >> Tuple.first >> List.map (\value -> positionWrap value (view value)))
 
 
 {-| Just like `labels` except you add another list of strings which will be passed to your label view. Useful for
@@ -798,24 +747,13 @@ labels labelConfig toValues (AxisConfig config) { onAxisAt, toScale, defaultLabe
 
     myLabels : AxisElement msg
     myLabels =
-        labelsFromStrings (label [] identity) (fromDelta 1) [ "Spring", "Summer", "Autumn", "Winter"]
+        labelsFromStrings viewLabel (fromDelta 1) [ "Spring", "Summer", "Autumn", "Winter"]
 
 -}
-labelsFromStrings : LabelConfig String msg -> ValueProducer -> List String -> AxisElement msg
-labelsFromStrings labelConfig toValues strings (AxisConfig config) { onAxisAt, toScale, defaultLabelAttributes } =
+labelsFromStrings : (String -> Svg msg) -> ValueProducer -> List String -> AxisElement msg
+labelsFromStrings view toValues strings { positionWrap, toScale } =
     list [ class "elm-plot__labels" ]
-        (\( string, value ) -> positionBy (onAxisAt value) [ toLabelView defaultLabelAttributes labelConfig string ])
-        (\meta -> toValues (toScale meta) |> Tuple.first |> List.map2 (,) strings)
-
-
-toLabelView : List (Svg.Attribute msg) -> LabelConfig a msg -> a -> Svg msg
-toLabelView defaultAttributes config value =
-    case config of
-        LabelSimple attributes format ->
-            viewLabel (defaultAttributes ++ attributes) (format value)
-
-        LabelCustom view ->
-            view value
+        (toScale >> toValues >> Tuple.first >> List.map positionWrap >> List.map2 (\string wrap -> wrap (view string)) strings)
 
 
 {-| Just a simple view for a label in case you need it. You can use it with `positionAt` to create titles for axes.
@@ -829,43 +767,17 @@ viewLabel attributes string =
 -- TICKS
 
 
-{-| -}
-type TickConfig msg
-    = TickSimple (List (Svg.Attribute msg))
-    | TickCustom (Value -> Svg msg)
-
-
-{-| The configuration for a simple tick. Provide a list of attibutes to alter the look.
--}
-tick : List (Svg.Attribute msg) -> TickConfig msg
-tick =
-    TickSimple
-
-
-{-| For your own custom tick view.
--}
-tickCustom : (Value -> Svg msg) -> TickConfig msg
-tickCustom =
-    TickCustom
-
-
 {-| Place and view ticks provided a tick configuration and a function to produce values.
 -}
-ticks : TickConfig msg -> ValueProducer -> AxisElement msg
-ticks tickConfig toValues (AxisConfig config) { onAxisAt, defaultTickAttributes, toScale } =
-    list [ class "elm-plot__ticks" ]
-        (\value -> positionBy (onAxisAt value) [ toTickView defaultTickAttributes tickConfig value ])
-        (\meta -> Tuple.first <| toValues (toScale meta))
+ticks : (Value -> Svg msg) -> ValueProducer -> AxisElement msg
+ticks view toValues { positionWrap, toScale } =
+    list [ class "elm-plot__ticks" ] (toScale >> toValues >> Tuple.first >> List.map (\value -> positionWrap value (view value)))
 
 
-toTickView : List (Svg.Attribute msg) -> TickConfig msg -> Value -> Svg msg
-toTickView defaultAttributes config value =
-    case config of
-        TickSimple attributes ->
-            line (defaultAttributes ++ attributes) []
-
-        TickCustom view ->
-            view value
+{-| -}
+viewTick : List (Svg.Attribute msg) -> Svg msg
+viewTick attributes =
+    line attributes []
 
 
 
@@ -881,8 +793,7 @@ toTickView defaultAttributes config value =
 horizontalGrid : List (Svg.Attribute msg) -> ValueProducer -> Element msg
 horizontalGrid attributes toValues =
     list [ class "elm-plot__grid elm-plot__grid--horizontal" ]
-        (\value -> Line (stroke "grey" :: attributes) (\meta -> [ onYAxisAt atLowest value meta, onYAxisAt atHighest value meta ]))
-        (\(Meta meta) -> Tuple.first <| toValues meta.yScale)
+        (\(Meta meta) -> Tuple.first (toValues meta.yScale) |> List.map (\value -> xLine (\_ _ -> value) attributes))
 
 
 {-| Draw vertical grid lines provided a list of attributes and a function to produce values. 🎼
@@ -894,8 +805,7 @@ horizontalGrid attributes toValues =
 verticalGrid : List (Svg.Attribute msg) -> ValueProducer -> Element msg
 verticalGrid attributes toValues =
     list [ class "elm-plot__grid elm-plot__grid--vertical" ]
-        (\value -> Line (stroke "grey" :: attributes) (\meta -> [ onXAxisAt atLowest value meta, onXAxisAt atHighest value meta ]))
-        (\(Meta meta) -> Tuple.first <| toValues meta.xScale)
+        (\(Meta meta) -> Tuple.first (toValues meta.xScale) |> List.map (\value -> yLine (\_ _ -> value) attributes))
 
 
 
@@ -1184,7 +1094,7 @@ viewArea (AreaConfig config) data (Meta meta) reach =
 
 
 viewBars : BarsConfig msg -> List Group -> Meta -> Svg msg
-viewBars (BarsConfig { stackBy, maxWidth, styles, labelConfig }) groups (Meta { toSVGPoint, xScale, yScale }) =
+viewBars (BarsConfig { stackBy, maxWidth, styles, labelView }) groups (Meta { toSVGPoint, xScale, yScale }) =
     let
         barsPerGroup =
             toFloat (List.length styles)
@@ -1244,7 +1154,7 @@ viewBars (BarsConfig { stackBy, maxWidth, styles, labelConfig }) groups (Meta { 
         wrapBarLabel group bar =
             g
                 [ transform (toTranslate (labelPosition group bar)) ]
-                [ toLabelView [] labelConfig bar ]
+                [ labelView bar ]
 
         labelPosition group bar =
             toSVGPoint (barPosition group bar |> addDisplacement ( barWidth / 2, 0 ))
