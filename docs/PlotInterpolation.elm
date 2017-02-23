@@ -74,8 +74,7 @@ view =
                 )
                 (fromDelta 0 1)
             , ticks
-                (\_ ->
-                    viewTick
+                (viewTick
                         [ stroke axisColor
                         , length 10
                         ]

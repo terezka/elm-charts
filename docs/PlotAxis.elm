@@ -94,17 +94,17 @@ view =
             )
         , xAxis atZero
             [ line [ stroke axisColor ]
-            , ticks (\_ -> viewTick [ stroke axisColor, length 10 ]) (fromDelta 1 1)
+            , ticks (viewTick [ stroke axisColor, length 10 ]) (fromDelta 1 1)
             , labelsFromStrings xLabel (fromDelta 1 1) xLabelStrings
             ]
         , yAxis atLowest
             [ line [ stroke axisColor ]
             , ticks
-                (\_ -> viewTick [ stroke axisColor, length 10, transform "rotate(-90)" ])
-                (fromDelta 0 5)
+                (viewTick [ stroke axisColor, length 10, transform "rotate(-90)" ])
+                (fromDelta 0 10)
             , ticks
-                (\_ -> viewTick [ stroke axisColorLight, length 5, transform "rotate(-90)" ])
-                (fromDelta 1 5)
+                (viewTick [ stroke axisColorLight, length 5, transform "rotate(-90)" ])
+                (fromDelta 5 10)
             , labels
                 (toString >> viewLabel [ fill axisColor, style "text-anchor: start;", displace ( 10, 5 ) ])
                 (fromDelta 0 10)
@@ -112,10 +112,10 @@ view =
         , yAxis atHighest
             [ line [ stroke axisColor ]
             , ticks
-                (\_ -> viewTick [ stroke axisColor, length 10 ])
+                (viewTick [ stroke axisColor, length 10 ])
                 (fromDelta 0 5)
             , ticks
-                (\_ -> viewTick [ stroke axisColorLight, length 5 ])
+                (viewTick [ stroke axisColorLight, length 5 ])
                 (fromDelta 1 5)
             , labels
                 ((*) 100
@@ -128,7 +128,7 @@ view =
                 )
                 (fromDelta 0 10)
             ]
-        , positionBy
+        , placeAt
             (fromRangeAndDomain (\xl xh yl yh -> ( xl, yh / 2 )))
             [ viewLabel
                 [ transform "translate(-10, 0) rotate(-90)"
@@ -137,7 +137,7 @@ view =
                 ]
                 "Units sold"
             ]
-        , positionBy
+        , placeAt
             (fromRangeAndDomain (\xl xh yl yh -> ( xh, yh / 2 )))
             [ viewLabel
                 [ transform "translate(10, 0) rotate(90)"

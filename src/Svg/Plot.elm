@@ -50,8 +50,7 @@ module Svg.Plot
         , labelsFromStrings
         , viewLabel
         , displace
-        , positionAt
-        , positionBy
+        , placeAt
         )
 
 {-| This library helps you plot a variety of serie types including lines, areas, scatters and bars.
@@ -97,7 +96,7 @@ These are functions to help you create the values you would like to have ticks, 
 @docs ValueProducer, ValueAlter, fromList, fromDelta, remove
 
 ## General
-@docs fromRange, fromDomain, fromRangeAndDomain, positionAt, positionBy, displace
+@docs fromRange, fromDomain, fromRangeAndDomain, placeAt, displace
 
 
 # Plot
@@ -139,9 +138,8 @@ type alias Point =
 -}
 type Element msg
     = SerieElement (Axised Reach) (Serie msg)
-    | Line (List (Svg.Attribute msg)) (Meta -> List Point)
-    | Position (Meta -> Point) (List (Svg msg))
-    | List (List (Svg.Attribute msg)) (Meta -> List (Element msg))
+    | Views (List (Svg.Attribute msg)) (Meta -> List (Element msg))
+    | View (Meta -> Svg msg)
     | SVGView (Svg msg)
 
 
@@ -156,42 +154,25 @@ type Serie msg
 -- PRIMITIVES
 
 
-{-| Place a list of SVG elements at a specific coordinate.
-
-    import Svg.Plot as Plot
-
-    main =
-        Plot.plot plotConfig
-            [ Plot.positionAt ( 1, 2 ) [ Plot.viewLabel [] "✨" ] ]
--}
-positionAt : Point -> List (Svg msg) -> Element msg
-positionAt point =
-    Position (always point)
-
 
 {-| Take a list of SVG elements and place it somewhere in the plot.
  Use `fromRange`, `fromDomain` or `fromRangeAndDomain` to help you find the right coordinates.
- If you already know where your elements should be places, use `positionAt` instead.
  Beware that the plot will not adapt automatically to make sure the coordinate you provide is inside it's bounds.
 
     import Svg.Plot as Plot
 
     main =
         Plot.plot plotConfig
-            [ Plot.positionBy
+            [ Plot.customBy
                 (Plot.fromDomain (\lowestY highestY -> ( 0, highestY )))
                 [ Plot.viewLabel [] "✨" ]
             ]
 
 -}
-positionBy : (Meta -> Point) -> List (Svg msg) -> Element msg
-positionBy =
-    Position
+placeAt : (Meta -> Point) -> List (Svg msg) -> Element msg
+placeAt toPoint views =
+    View (\meta -> viewAtPosition (toPoint meta) views meta)
 
-
-list : List (Svg.Attribute msg) -> (Meta -> List (Element msg)) -> Element msg
-list attributes toElements =
-    List attributes toElements
 
 
 
@@ -582,58 +563,43 @@ getGroupXValue toXValue index data =
 -- AXIS ELEMENTS
 
 
-type alias AxisViewDetails msg =
-    { line : List (Svg.Attribute msg) -> Element msg
-    , positionWrap : Value -> Svg msg -> Element msg
-    , toScale : Meta -> Scale
-    }
-
 
 {-| -}
 type alias AxisElement msg =
-    AxisViewDetails msg -> Element msg
+    Scale -> (Value -> Point) -> Element msg
 
 
 {-| Provided an axis configuration and a list of axis elements, it will produce an axis in your plot! ✨
 -}
 xAxis : (Value -> Value -> Value) -> List (AxisElement msg) -> Element msg
-xAxis position elements =
+xAxis toYValue elements =
     let
-        details =
-            { line = xLine position
-            , positionWrap = xPosition position
-            , toScale = \(Meta meta) -> meta.xScale
-            }
+        toAxisPoint xScale x =
+          ( x, toYValue xScale.lowest xScale.highest )
+
+        viewAxisElement (Meta { xScale, yScale }) element =
+          element xScale (toAxisPoint yScale)
+
+        view meta =
+          List.map (viewAxisElement meta) elements
     in
-        list
-            [ class "elm-plot__axis elm-plot__axis--x" ]
-            (\_ -> List.map (\element -> element details) elements)
+        Views [ class "elm-plot__axis elm-plot__axis--x" ] view
 
 
 {-| -}
 yAxis : (Value -> Value -> Value) -> List (AxisElement msg) -> Element msg
-yAxis position elements =
+yAxis toXValue elements =
     let
-        details =
-            { line = yLine position
-            , positionWrap = yPosition position
-            , toScale = \(Meta meta) -> meta.yScale
-            }
+        toAxisPoint xScale y =
+          ( toXValue xScale.lowest xScale.highest, y )
+
+        viewAxisElement (Meta { xScale, yScale }) element =
+          element yScale (toAxisPoint xScale)
+
+        view meta =
+          List.map (viewAxisElement meta) elements
     in
-        list
-            [ class "elm-plot__axis elm-plot__axis--y" ]
-            (\_ -> List.map (\element -> element details) elements)
-
-
-xPosition : (Value -> Value -> Value) -> Value -> Svg msg -> Element msg
-xPosition toYValue value view =
-    positionBy (fromDomain (\l h -> ( value, toYValue l h ))) [ view ]
-
-
-yPosition : (Value -> Value -> Value) -> Value -> Svg msg -> Element msg
-yPosition toXValue value view =
-    positionBy (fromRange (\l h -> ( toXValue l h, value ))) [ view ]
-
+        Views [ class "elm-plot__axis elm-plot__axis--x" ] view
 
 
 -- AXIS LINE
@@ -642,18 +608,8 @@ yPosition toXValue value view =
 {-| Draw a line along your axis.
 -}
 line : List (Svg.Attribute msg) -> AxisElement msg
-line attributes { line } =
-    line attributes
-
-
-xLine : (Value -> Value -> Value) -> List (Svg.Attribute msg) -> Element msg
-xLine toY attributes =
-    Line attributes (fromRangeAndDomain (\xl xh yl yh -> [ ( xl, toY yl yh ), ( xh, toY yl yh ) ]))
-
-
-yLine : (Value -> Value -> Value) -> List (Svg.Attribute msg) -> Element msg
-yLine toX attributes =
-    Line attributes (fromRangeAndDomain (\xl xh yl yh -> [ ( toX xl xh, yl ), ( toX xl xh, yh ) ]))
+line attributes scale toPoint =
+    View (viewAxisLine attributes [ toPoint scale.lowest, toPoint scale.highest ])
 
 
 
@@ -668,9 +624,16 @@ yLine toX attributes =
             [ Plot.labels (toString >> viewLabel) (Plot.fromDelta 2) ]
 -}
 labels : (Value -> Svg msg) -> ValueProducer -> AxisElement msg
-labels view toValues { positionWrap, toScale } =
-    list [ class "elm-plot__labels" ]
-        (toScale >> toValues >> Tuple.first >> List.map (\value -> positionWrap value (view value)))
+labels svgView valueBuilder scale toPoint =
+    let
+      view value =
+        View (viewAtPosition (toPoint value) [ svgView value ])
+
+      views _ =
+        List.map view (Tuple.first (valueBuilder scale))
+    in
+      Views [ class "elm-plot__labels" ] views
+
 
 
 {-| Just like `labels` except you add another list of strings which will be passed to your label view. Useful for
@@ -682,12 +645,18 @@ labels view toValues { positionWrap, toScale } =
 
 -}
 labelsFromStrings : (String -> Svg msg) -> ValueProducer -> List String -> AxisElement msg
-labelsFromStrings view toValues strings { positionWrap, toScale } =
-    list [ class "elm-plot__labels" ]
-        (toScale >> toValues >> Tuple.first >> List.map positionWrap >> List.map2 (\string wrap -> wrap (view string)) strings)
+labelsFromStrings svgView valueBuilder strings scale toPoint  =
+    let
+      view value string =
+        View (viewAtPosition (toPoint value) [ svgView string ])
+
+      views _ =
+        List.map2 view (Tuple.first (valueBuilder scale)) strings
+    in
+      Views [ class "elm-plot__labels" ] views
 
 
-{-| Just a simple view for a label in case you need it. You can use it with `positionAt` to create titles for axes.
+{-| Just a simple view for a label in case you need it. You can use it with `custom` to create titles for axes.
 -}
 viewLabel : List (Svg.Attribute msg) -> String -> Svg msg
 viewLabel attributes string =
@@ -700,9 +669,16 @@ viewLabel attributes string =
 
 {-| Place and view ticks provided a tick configuration and a function to produce values.
 -}
-ticks : (Value -> Svg msg) -> ValueProducer -> AxisElement msg
-ticks view toValues { positionWrap, toScale } =
-    list [ class "elm-plot__ticks" ] (toScale >> toValues >> Tuple.first >> List.map (\value -> positionWrap value (view value)))
+ticks : Svg msg -> ValueProducer -> AxisElement msg
+ticks svgView valueBuilder scale toPoint =
+    let
+      view value =
+        View (viewAtPosition (toPoint value) [ svgView ])
+
+      views _ =
+        List.map view (Tuple.first (valueBuilder scale))
+    in
+      Views [ class "elm-plot__ticks" ] views
 
 
 {-| -}
@@ -722,9 +698,16 @@ viewTick attributes =
         horizontalGrid [ stroke "grey" ] (fromDelta 10)
 -}
 horizontalGrid : List (Svg.Attribute msg) -> ValueProducer -> Element msg
-horizontalGrid attributes toValues =
-    list [ class "elm-plot__grid elm-plot__grid--horizontal" ]
-        (\(Meta meta) -> Tuple.first (toValues meta.yScale) |> List.map (\value -> xLine (\_ _ -> value) attributes))
+horizontalGrid attributes valueBuilder =
+    let
+      view scale y =
+        View (viewAxisLine attributes [ ( scale.lowest, y ), ( scale.highest, y ) ])
+
+      views (Meta { xScale }) =
+        List.map (view xScale) (Tuple.first (valueBuilder xScale))
+    in
+      Views [ class "elm-plot__grid elm-plot__grid--horizontal" ] views
+
 
 
 {-| Draw vertical grid lines provided a list of attributes and a function to produce values. 🎼
@@ -734,9 +717,15 @@ horizontalGrid attributes toValues =
         verticalGrid [ stroke "grey" ] (fromDelta 1)
 -}
 verticalGrid : List (Svg.Attribute msg) -> ValueProducer -> Element msg
-verticalGrid attributes toValues =
-    list [ class "elm-plot__grid elm-plot__grid--vertical" ]
-        (\(Meta meta) -> Tuple.first (toValues meta.xScale) |> List.map (\value -> yLine (\_ _ -> value) attributes))
+verticalGrid attributes valueBuilder =
+    let
+      view scale x =
+        View (viewAxisLine attributes [ ( x, scale.lowest ), ( x, scale.highest ) ])
+
+      views (Meta { yScale }) =
+        List.map (view yScale) (Tuple.first (valueBuilder yScale))
+    in
+      Views [ class "elm-plot__grid elm-plot__grid--vertical" ] views
 
 
 
@@ -920,17 +909,14 @@ viewElement meta element =
         SerieElement reach serie ->
             viewSerie reach serie meta
 
-        Line attributes toPoints ->
-            viewPath attributes (makeLinePath NoInterpolation (toPoints meta) meta)
+        Views attributes toElements ->
+            g attributes (viewElements meta (toElements meta))
 
-        Position toPosition children ->
-            viewPositioned (toPosition meta) children meta
-
-        List attributes toElements ->
-            g attributes (List.map (viewElement meta) (toElements meta))
+        View view ->
+            view meta
 
         SVGView view ->
-            view
+          view
 
 
 viewSerie : Axised Reach -> Serie msg -> Meta -> Svg msg
@@ -949,9 +935,9 @@ viewSerie reach serie meta =
             viewBars config data meta
 
 
-viewPositioned : Point -> List (Svg msg) -> Meta -> Svg msg
-viewPositioned point children (Meta meta) =
-    g [ transform (toTranslate (meta.toSVGPoint point)) ] children
+viewAtPosition : Point -> List (Svg msg) -> Meta -> Svg msg
+viewAtPosition point children meta =
+    g [ transform (toTranslate (toSVGPoint meta point)) ] children
 
 
 
@@ -968,13 +954,18 @@ viewLine (LineConfig config) data meta =
 
 
 
+viewAxisLine : List (Svg.Attribute msg) -> List Point -> Meta -> Svg msg
+viewAxisLine attributes =
+    viewLine (toLineConfig { attributes = attributes, interpolation = NoInterpolation })
+
+
 -- VIEW DOTS
 
 
 viewDots : DotsConfig msg -> List Point -> Meta -> Svg msg
-viewDots (DotsConfig config) data (Meta meta) =
+viewDots (DotsConfig config) data meta =
     g [ class "elm-plot__serie--dots" ]
-        (List.map (meta.toSVGPoint >> viewCircle config.radius) data)
+        (List.map (toSVGPoint meta >> viewCircle config.radius) data)
 
 
 viewCircle : Float -> Point -> Svg.Svg a
@@ -1022,8 +1013,11 @@ viewArea (AreaConfig config) data (Meta meta) reach =
 
 
 viewBars : BarsConfig msg -> List Group -> Meta -> Svg msg
-viewBars (BarsConfig { stackBy, maxWidth, styles, labelView }) groups (Meta { toSVGPoint, xScale, yScale }) =
+viewBars (BarsConfig { stackBy, maxWidth, styles, labelView }) groups meta =
     let
+        (Meta { xScale, yScale }) =
+          meta
+
         barsPerGroup =
             toFloat (List.length styles)
 
@@ -1074,7 +1068,7 @@ viewBars (BarsConfig { stackBy, maxWidth, styles, labelView }) groups (Meta { to
             Svg.rect (attributes ++ viewBarAttributes group bar) []
 
         viewBarAttributes group bar =
-            [ transform <| toTranslate <| toSVGPoint <| barPosition group bar
+            [ transform <| toTranslate <| toSVGPoint meta <| barPosition group bar
             , height <| toString <| scaleValue yScale <| abs (barHeight bar)
             , width <| toString <| scaleValue xScale barWidth
             ]
@@ -1085,7 +1079,7 @@ viewBars (BarsConfig { stackBy, maxWidth, styles, labelView }) groups (Meta { to
                 [ labelView bar ]
 
         labelPosition group bar =
-            toSVGPoint (barPosition group bar |> addDisplacement ( barWidth / 2, 0 ))
+            toSVGPoint meta (barPosition group bar |> addDisplacement ( barWidth / 2, 0 ))
 
         viewGroup group =
             Svg.g [ class "elm-plot__series--bars__group" ]
@@ -1172,10 +1166,10 @@ toBezierPoints ( x0, y0 ) ( x, y ) ( x1, y1 ) =
 
 
 pointToString : Meta -> Point -> String
-pointToString (Meta meta) point =
+pointToString meta point =
     let
         ( x, y ) =
-            meta.toSVGPoint point
+            toSVGPoint meta point
     in
         (toString x) ++ "," ++ (toString y)
 
@@ -1258,8 +1252,7 @@ type alias Scale =
 -}
 type Meta
     = Meta
-        { toSVGPoint : Point -> Point
-        , xScale : Scale
+        { xScale : Scale
         , yScale : Scale
         , id : String
         }
@@ -1297,7 +1290,6 @@ toPlotMeta (PlotConfig { id, margin, proportions, toRangeLowest, toRangeHighest,
         Meta
             { xScale = xScale
             , yScale = yScale
-            , toSVGPoint = toSVGPoint xScale yScale
             , id = id
             }
 
@@ -1440,8 +1432,8 @@ scaleValue scale value =
     value * (getInnerLength scale) / (getRange scale)
 
 
-toSVGPoint : Scale -> Scale -> Point -> Point
-toSVGPoint xScale yScale ( x, y ) =
+toSVGPoint : Meta -> Point -> Point
+toSVGPoint (Meta { xScale, yScale }) ( x, y ) =
     ( scaleValue xScale (x - xScale.lowest) + xScale.offset.lower
     , scaleValue yScale (yScale.highest - y) + yScale.offset.lower
     )

@@ -89,7 +89,7 @@ view =
             )
         , xAxis atZero
             [ line [ stroke axisColor ]
-            , ticks (\_ -> viewTick [ stroke axisColor, length 10 ]) (fromDelta 0 1)
+            , ticks (viewTick [ stroke axisColor, length 10 ]) (fromDelta 0 1)
             , labelsFromStrings xLabelConfig (fromDelta 0 1) [ "A", "B", "C", "D" ]
             ]
         ]
