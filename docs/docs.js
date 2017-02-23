@@ -9145,24 +9145,70 @@ var _terezka$elm_plot$Svg_Plot$toBezierPoints = F3(
 			_1: {ctor: '_Tuple2', _0: _p29, _1: _p30}
 		};
 	});
+var _terezka$elm_plot$Svg_Plot$sign = function (x) {
+	return (_elm_lang$core$Native_Utils.cmp(x, 0) < 0) ? -1 : 1;
+};
+var _terezka$elm_plot$Svg_Plot$slope2 = F3(
+	function (_p32, _p31, t) {
+		var _p33 = _p32;
+		var _p34 = _p31;
+		var h = _p34._0 - _p33._0;
+		return (((3 * (_p34._1 - _p33._1)) / h) - t) / 2;
+	});
+var _terezka$elm_plot$Svg_Plot$slope3 = F3(
+	function (_p37, _p36, _p35) {
+		var _p38 = _p37;
+		var _p39 = _p36;
+		var _p42 = _p39._1;
+		var _p41 = _p39._0;
+		var _p40 = _p35;
+		var h1 = _p40._0 - _p41;
+		var s1 = (_p40._1 - _p42) / h1;
+		var h0 = _p41 - _p38._0;
+		var s0 = (_p42 - _p38._1) / h0;
+		var p = ((s0 * h1) + (s1 * h0)) / (h0 + h1);
+		return (_terezka$elm_plot$Svg_Plot$sign(s0) + _terezka$elm_plot$Svg_Plot$sign(s1)) * A2(
+			_elm_lang$core$Basics$min,
+			A2(
+				_elm_lang$core$Basics$min,
+				_elm_lang$core$Basics$abs(s0),
+				_elm_lang$core$Basics$abs(s1)),
+			0.5 * _elm_lang$core$Basics$abs(p));
+	});
 var _terezka$elm_plot$Svg_Plot$toPathTypeStringS = F4(
-	function (meta, p1, p2, p3) {
-		var _p31 = A3(_terezka$elm_plot$Svg_Plot$toBezierPoints, p1, p2, p3);
-		var point1 = _p31._0;
-		var point2 = _p31._1;
+	function (meta, _p45, _p44, _p43) {
+		var _p46 = _p45;
+		var _p51 = _p46._0;
+		var _p47 = _p44;
+		var _p48 = _p43;
+		var _p50 = _p48._1;
+		var _p49 = _p48._0;
+		var dx = (_p49 - _p51) / 3;
 		return A2(
 			_elm_lang$core$Basics_ops['++'],
-			'S',
+			'C ',
 			A2(
 				_elm_lang$core$Basics_ops['++'],
-				' ',
+				A2(
+					_terezka$elm_plot$Svg_Plot$pointToString,
+					meta,
+					{ctor: '_Tuple2', _0: _p51 + dx, _1: _p46._1 + (dx * 1)}),
 				A2(
 					_elm_lang$core$Basics_ops['++'],
-					A2(_terezka$elm_plot$Svg_Plot$pointToString, meta, point1),
+					',',
 					A2(
 						_elm_lang$core$Basics_ops['++'],
-						',',
-						A2(_terezka$elm_plot$Svg_Plot$pointToString, meta, point2)))));
+						A2(
+							_terezka$elm_plot$Svg_Plot$pointToString,
+							meta,
+							{ctor: '_Tuple2', _0: _p49 - dx, _1: _p50 - (dx * 1)}),
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							',',
+							A2(
+								_terezka$elm_plot$Svg_Plot$pointToString,
+								meta,
+								{ctor: '_Tuple2', _0: _p49, _1: _p50}))))));
 	});
 var _terezka$elm_plot$Svg_Plot$toPathTypeStringSinglePoint = F3(
 	function (meta, typeString, point) {
@@ -9176,14 +9222,14 @@ var _terezka$elm_plot$Svg_Plot$toPathTypeStringSinglePoint = F3(
 	});
 var _terezka$elm_plot$Svg_Plot$toPathTypeString = F2(
 	function (meta, pathType) {
-		var _p32 = pathType;
-		switch (_p32.ctor) {
+		var _p52 = pathType;
+		switch (_p52.ctor) {
 			case 'M':
-				return A3(_terezka$elm_plot$Svg_Plot$toPathTypeStringSinglePoint, meta, 'M', _p32._0);
+				return A3(_terezka$elm_plot$Svg_Plot$toPathTypeStringSinglePoint, meta, 'M', _p52._0);
 			case 'L':
-				return A3(_terezka$elm_plot$Svg_Plot$toPathTypeStringSinglePoint, meta, 'L', _p32._0);
+				return A3(_terezka$elm_plot$Svg_Plot$toPathTypeStringSinglePoint, meta, 'L', _p52._0);
 			case 'S':
-				return A4(_terezka$elm_plot$Svg_Plot$toPathTypeStringS, meta, _p32._0, _p32._1, _p32._2);
+				return A4(_terezka$elm_plot$Svg_Plot$toPathTypeStringS, meta, _p52._0, _p52._1, _p52._2);
 			default:
 				return 'Z';
 		}
@@ -9214,18 +9260,18 @@ var _terezka$elm_plot$Svg_Plot$viewPath = F2(
 			{ctor: '[]'});
 	});
 var _terezka$elm_plot$Svg_Plot$viewCircle = F2(
-	function (radius, _p33) {
-		var _p34 = _p33;
+	function (radius, _p53) {
+		var _p54 = _p53;
 		return A2(
 			_elm_lang$svg$Svg$circle,
 			{
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$cx(
-					_elm_lang$core$Basics$toString(_p34._0)),
+					_elm_lang$core$Basics$toString(_p54._0)),
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$svg$Svg_Attributes$cy(
-						_elm_lang$core$Basics$toString(_p34._1)),
+						_elm_lang$core$Basics$toString(_p54._1)),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$svg$Svg_Attributes$r(
@@ -9237,8 +9283,8 @@ var _terezka$elm_plot$Svg_Plot$viewCircle = F2(
 			{ctor: '[]'});
 	});
 var _terezka$elm_plot$Svg_Plot$viewDots = F3(
-	function (_p35, data, meta) {
-		var _p36 = _p35;
+	function (_p55, data, meta) {
+		var _p56 = _p55;
 		return A2(
 			_elm_lang$svg$Svg$g,
 			{
@@ -9248,11 +9294,11 @@ var _terezka$elm_plot$Svg_Plot$viewDots = F3(
 			},
 			A2(
 				_elm_lang$core$List$map,
-				function (_p37) {
+				function (_p57) {
 					return A2(
 						_terezka$elm_plot$Svg_Plot$viewCircle,
-						_p36._0.radius,
-						A2(_terezka$elm_plot$Svg_Plot$toSVGPoint, meta, _p37));
+						_p56._0.radius,
+						A2(_terezka$elm_plot$Svg_Plot$toSVGPoint, meta, _p57));
 				},
 				data));
 	});
@@ -9304,23 +9350,23 @@ var _terezka$elm_plot$Svg_Plot$label = F2(
 	});
 var _terezka$elm_plot$Svg_Plot$getGroupXValue = F3(
 	function (toXValue, index, data) {
-		var _p38 = toXValue;
-		if (_p38.ctor === 'Just') {
-			return _p38._0(data);
+		var _p58 = toXValue;
+		if (_p58.ctor === 'Just') {
+			return _p58._0(data);
 		} else {
 			return _elm_lang$core$Basics$toFloat(index);
 		}
 	});
 var _terezka$elm_plot$Svg_Plot$toGroups = F2(
-	function (_p39, allData) {
-		var _p40 = _p39;
+	function (_p59, allData) {
+		var _p60 = _p59;
 		return A2(
 			_elm_lang$core$List$indexedMap,
 			F2(
 				function (index, data) {
 					return {
-						xValue: A3(_terezka$elm_plot$Svg_Plot$getGroupXValue, _p40.xValue, index, data),
-						yValues: _p40.yValues(data)
+						xValue: A3(_terezka$elm_plot$Svg_Plot$getGroupXValue, _p60.xValue, index, data),
+						yValues: _p60.yValues(data)
 					};
 				}),
 			allData);
@@ -9330,35 +9376,35 @@ var _terezka$elm_plot$Svg_Plot$atZero = F2(
 		return A3(_elm_lang$core$Basics$clamp, lowest, highest, 0);
 	});
 var _terezka$elm_plot$Svg_Plot$atHighest = F2(
-	function (_p41, highest) {
+	function (_p61, highest) {
 		return highest;
 	});
 var _terezka$elm_plot$Svg_Plot$atLowest = F2(
-	function (lowest, _p42) {
+	function (lowest, _p62) {
 		return lowest;
 	});
 var _terezka$elm_plot$Svg_Plot$fromRangeAndDomain = F2(
-	function (toSomething, _p43) {
-		var _p44 = _p43;
-		var _p46 = _p44._0.yScale;
-		var _p45 = _p44._0.xScale;
-		return A4(toSomething, _p45.lowest, _p45.highest, _p46.lowest, _p46.highest);
+	function (toSomething, _p63) {
+		var _p64 = _p63;
+		var _p66 = _p64._0.yScale;
+		var _p65 = _p64._0.xScale;
+		return A4(toSomething, _p65.lowest, _p65.highest, _p66.lowest, _p66.highest);
 	});
 var _terezka$elm_plot$Svg_Plot$fromDomain = F2(
-	function (toSomething, _p47) {
-		var _p48 = _p47;
-		var _p49 = _p48._0.yScale;
-		return A2(toSomething, _p49.lowest, _p49.highest);
+	function (toSomething, _p67) {
+		var _p68 = _p67;
+		var _p69 = _p68._0.yScale;
+		return A2(toSomething, _p69.lowest, _p69.highest);
 	});
 var _terezka$elm_plot$Svg_Plot$fromRange = F2(
-	function (toPoints, _p50) {
-		var _p51 = _p50;
-		var _p52 = _p51._0.xScale;
-		return A2(toPoints, _p52.lowest, _p52.highest);
+	function (toPoints, _p70) {
+		var _p71 = _p70;
+		var _p72 = _p71._0.xScale;
+		return A2(toPoints, _p72.lowest, _p72.highest);
 	});
 var _terezka$elm_plot$Svg_Plot$remove = F2(
-	function (bannedValue, _p53) {
-		var _p54 = _p53;
+	function (bannedValue, _p73) {
+		var _p74 = _p73;
 		return {
 			ctor: '_Tuple2',
 			_0: A2(
@@ -9366,8 +9412,8 @@ var _terezka$elm_plot$Svg_Plot$remove = F2(
 				function (value) {
 					return !_elm_lang$core$Native_Utils.eq(value, bannedValue);
 				},
-				_p54._0),
-			_1: _p54._1
+				_p74._0),
+			_1: _p74._1
 		};
 	});
 var _terezka$elm_plot$Svg_Plot$fromDelta = F3(
@@ -9399,12 +9445,12 @@ var _terezka$elm_plot$Svg_Plot$Axised = F2(
 		return {x: a, y: b};
 	});
 var _terezka$elm_plot$Svg_Plot$findReachFromPoints = function (points) {
-	return function (_p55) {
-		var _p56 = _p55;
+	return function (_p75) {
+		var _p76 = _p75;
 		return A2(
 			_terezka$elm_plot$Svg_Plot$Axised,
-			_terezka$elm_plot$Svg_Plot$findReachFromValues(_p56._0),
-			_terezka$elm_plot$Svg_Plot$findReachFromValues(_p56._1));
+			_terezka$elm_plot$Svg_Plot$findReachFromValues(_p76._0),
+			_terezka$elm_plot$Svg_Plot$findReachFromValues(_p76._1));
 	}(
 		_elm_lang$core$List$unzip(points));
 };
@@ -9414,14 +9460,14 @@ var _terezka$elm_plot$Svg_Plot$findReachFromAreaPoints = function (points) {
 };
 var _terezka$elm_plot$Svg_Plot$strechReach = F2(
 	function (elementReach, plotReach) {
-		var _p57 = plotReach;
-		if (_p57.ctor === 'Just') {
-			var _p58 = _p57._0;
+		var _p77 = plotReach;
+		if (_p77.ctor === 'Just') {
+			var _p78 = _p77._0;
 			return _elm_lang$core$Maybe$Just(
 				A2(
 					_terezka$elm_plot$Svg_Plot$Axised,
-					A2(_terezka$elm_plot$Svg_Plot$strechSingleReach, elementReach.x, _p58.x),
-					A2(_terezka$elm_plot$Svg_Plot$strechSingleReach, elementReach.y, _p58.y)));
+					A2(_terezka$elm_plot$Svg_Plot$strechSingleReach, elementReach.x, _p78.x),
+					A2(_terezka$elm_plot$Svg_Plot$strechSingleReach, elementReach.y, _p78.y)));
 		} else {
 			return _elm_lang$core$Maybe$Just(elementReach);
 		}
@@ -9491,12 +9537,12 @@ var _terezka$elm_plot$Svg_Plot$xAxis = F2(
 				};
 			});
 		var viewAxisElement = F2(
-			function (_p59, element) {
-				var _p60 = _p59;
+			function (_p79, element) {
+				var _p80 = _p79;
 				return A2(
 					element,
-					_p60._0.xScale,
-					toAxisPoint(_p60._0.yScale));
+					_p80._0.xScale,
+					toAxisPoint(_p80._0.yScale));
 			});
 		var view = function (meta) {
 			return A2(
@@ -9524,12 +9570,12 @@ var _terezka$elm_plot$Svg_Plot$yAxis = F2(
 				};
 			});
 		var viewAxisElement = F2(
-			function (_p61, element) {
-				var _p62 = _p61;
+			function (_p81, element) {
+				var _p82 = _p81;
 				return A2(
 					element,
-					_p62._0.yScale,
-					toAxisPoint(_p62._0.xScale));
+					_p82._0.yScale,
+					toAxisPoint(_p82._0.xScale));
 			});
 		var view = function (meta) {
 			return A2(
@@ -9559,7 +9605,7 @@ var _terezka$elm_plot$Svg_Plot$labels = F4(
 						_1: {ctor: '[]'}
 					}));
 		};
-		var views = function (_p63) {
+		var views = function (_p83) {
 			return A2(
 				_elm_lang$core$List$map,
 				view,
@@ -9589,7 +9635,7 @@ var _terezka$elm_plot$Svg_Plot$labelsFromStrings = F5(
 							_1: {ctor: '[]'}
 						}));
 			});
-		var views = function (_p64) {
+		var views = function (_p84) {
 			return A3(
 				_elm_lang$core$List$map2,
 				view,
@@ -9619,7 +9665,7 @@ var _terezka$elm_plot$Svg_Plot$ticks = F4(
 						_1: {ctor: '[]'}
 					}));
 		};
-		var views = function (_p65) {
+		var views = function (_p85) {
 			return A2(
 				_elm_lang$core$List$map,
 				view,
@@ -9711,14 +9757,14 @@ var _terezka$elm_plot$Svg_Plot$Percentage = function (a) {
 var _terezka$elm_plot$Svg_Plot$PlotConfig = function (a) {
 	return {ctor: 'PlotConfig', _0: a};
 };
-var _terezka$elm_plot$Svg_Plot$toPlotConfig = function (_p66) {
-	var _p67 = _p66;
+var _terezka$elm_plot$Svg_Plot$toPlotConfig = function (_p86) {
+	var _p87 = _p86;
 	return _terezka$elm_plot$Svg_Plot$PlotConfig(
 		{
 			attributes: {ctor: '[]'},
-			id: _p67.id,
-			margin: _p67.margin,
-			proportions: _p67.proportions,
+			id: _p87.id,
+			margin: _p87.margin,
+			proportions: _p87.proportions,
 			toDomainLowest: _elm_lang$core$Basics$identity,
 			toDomainHighest: _elm_lang$core$Basics$identity,
 			toRangeLowest: _elm_lang$core$Basics$identity,
@@ -9737,51 +9783,51 @@ var _terezka$elm_plot$Svg_Plot$toSPathTypes = F2(
 	function (result, points) {
 		toSPathTypes:
 		while (true) {
-			var _p68 = points;
-			if ((_p68.ctor === '::') && (_p68._1.ctor === '::')) {
-				if (_p68._1._1.ctor === '[]') {
-					var _p69 = _p68._1._0;
+			var _p88 = points;
+			if ((_p88.ctor === '::') && (_p88._1.ctor === '::')) {
+				if (_p88._1._1.ctor === '[]') {
+					var _p89 = _p88._1._0;
 					return {
 						ctor: '::',
-						_0: A3(_terezka$elm_plot$Svg_Plot$S, _p68._0, _p69, _p69),
+						_0: A3(_terezka$elm_plot$Svg_Plot$S, _p88._0, _p89, _p89),
 						_1: result
 					};
 				} else {
-					if (_p68._1._1._1.ctor === '[]') {
-						var _p71 = _p68._1._1._0;
-						var _p70 = _p68._1._0;
-						var _v27 = {
+					if (_p88._1._1._1.ctor === '[]') {
+						var _p91 = _p88._1._1._0;
+						var _p90 = _p88._1._0;
+						var _v35 = {
 							ctor: '::',
-							_0: A3(_terezka$elm_plot$Svg_Plot$S, _p68._0, _p70, _p71),
+							_0: A3(_terezka$elm_plot$Svg_Plot$S, _p88._0, _p90, _p91),
 							_1: result
 						},
-							_v28 = {
+							_v36 = {
 							ctor: '::',
-							_0: _p70,
+							_0: _p90,
 							_1: {
 								ctor: '::',
-								_0: _p71,
+								_0: _p91,
 								_1: {ctor: '[]'}
 							}
 						};
-						result = _v27;
-						points = _v28;
+						result = _v35;
+						points = _v36;
 						continue toSPathTypes;
 					} else {
-						var _p73 = _p68._1._1._0;
-						var _p72 = _p68._1._0;
-						var _v29 = {
+						var _p93 = _p88._1._1._0;
+						var _p92 = _p88._1._0;
+						var _v37 = {
 							ctor: '::',
-							_0: A3(_terezka$elm_plot$Svg_Plot$S, _p68._0, _p72, _p73),
+							_0: A3(_terezka$elm_plot$Svg_Plot$S, _p88._0, _p92, _p93),
 							_1: result
 						},
-							_v30 = {
+							_v38 = {
 							ctor: '::',
-							_0: _p72,
-							_1: {ctor: '::', _0: _p73, _1: _p68._1._1._1}
+							_0: _p92,
+							_1: {ctor: '::', _0: _p93, _1: _p88._1._1._1}
 						};
-						result = _v29;
-						points = _v30;
+						result = _v37;
+						points = _v38;
 						continue toSPathTypes;
 					}
 				}
@@ -9797,43 +9843,43 @@ var _terezka$elm_plot$Svg_Plot$L = function (a) {
 	return {ctor: 'L', _0: a};
 };
 var _terezka$elm_plot$Svg_Plot$toLinePath = function (smoothing) {
-	var _p74 = smoothing;
-	if (_p74.ctor === 'NoInterpolation') {
+	var _p94 = smoothing;
+	if (_p94.ctor === 'NoInterpolation') {
 		return _elm_lang$core$List$map(_terezka$elm_plot$Svg_Plot$L);
 	} else {
-		return function (_p75) {
+		return function (_p95) {
 			return _elm_lang$core$List$reverse(
 				A2(
 					_terezka$elm_plot$Svg_Plot$toSPathTypes,
 					{ctor: '[]'},
-					_p75));
+					_p95));
 		};
 	}
 };
 var _terezka$elm_plot$Svg_Plot$makeLinePath = F3(
 	function (interpolation, points, meta) {
-		var _p76 = points;
-		if (_p76.ctor === '::') {
-			var _p77 = _p76._0;
+		var _p96 = points;
+		if (_p96.ctor === '::') {
+			var _p97 = _p96._0;
 			return A2(
 				_terezka$elm_plot$Svg_Plot$toPath,
 				meta,
 				{
 					ctor: '::',
-					_0: _terezka$elm_plot$Svg_Plot$M(_p77),
+					_0: _terezka$elm_plot$Svg_Plot$M(_p97),
 					_1: A2(
 						_terezka$elm_plot$Svg_Plot$toLinePath,
 						interpolation,
-						{ctor: '::', _0: _p77, _1: _p76._1})
+						{ctor: '::', _0: _p97, _1: _p96._1})
 				});
 		} else {
 			return '';
 		}
 	});
 var _terezka$elm_plot$Svg_Plot$viewLine = F3(
-	function (_p78, data, meta) {
-		var _p79 = _p78;
-		var _p80 = _p79._0;
+	function (_p98, data, meta) {
+		var _p99 = _p98;
+		var _p100 = _p99._0;
 		return A2(
 			_elm_lang$svg$Svg$g,
 			{
@@ -9858,13 +9904,13 @@ var _terezka$elm_plot$Svg_Plot$viewLine = F3(
 					_terezka$elm_plot$Svg_Plot$viewPath,
 					A2(
 						_elm_lang$core$Basics_ops['++'],
-						_p80.attributes,
+						_p100.attributes,
 						{
 							ctor: '::',
 							_0: _elm_lang$svg$Svg_Attributes$fill('transparent'),
 							_1: {ctor: '[]'}
 						}),
-					A3(_terezka$elm_plot$Svg_Plot$makeLinePath, _p80.interpolation, data, meta)),
+					A3(_terezka$elm_plot$Svg_Plot$makeLinePath, _p100.interpolation, data, meta)),
 				_1: {ctor: '[]'}
 			});
 	});
@@ -9901,13 +9947,13 @@ var _terezka$elm_plot$Svg_Plot$horizontalGrid = F2(
 						return {ctor: '_Tuple2', _0: x, _1: y};
 					});
 			});
-		var views = function (_p81) {
-			var _p82 = _p81;
+		var views = function (_p101) {
+			var _p102 = _p101;
 			return A2(
 				_elm_lang$core$List$map,
-				view(_p82._0.xScale),
+				view(_p102._0.xScale),
 				_elm_lang$core$Tuple$first(
-					valueBuilder(_p82._0.yScale)));
+					valueBuilder(_p102._0.yScale)));
 		};
 		return A2(
 			_terezka$elm_plot$Svg_Plot$Views,
@@ -9930,13 +9976,13 @@ var _terezka$elm_plot$Svg_Plot$verticalGrid = F2(
 						return {ctor: '_Tuple2', _0: x, _1: y};
 					});
 			});
-		var views = function (_p83) {
-			var _p84 = _p83;
+		var views = function (_p103) {
+			var _p104 = _p103;
 			return A2(
 				_elm_lang$core$List$map,
-				view(_p84._0.yScale),
+				view(_p104._0.yScale),
 				_elm_lang$core$Tuple$first(
-					valueBuilder(_p84._0.xScale)));
+					valueBuilder(_p104._0.xScale)));
 		};
 		return A2(
 			_terezka$elm_plot$Svg_Plot$Views,
@@ -9950,9 +9996,9 @@ var _terezka$elm_plot$Svg_Plot$verticalGrid = F2(
 var _terezka$elm_plot$Svg_Plot$Meta = function (a) {
 	return {ctor: 'Meta', _0: a};
 };
-var _terezka$elm_plot$Svg_Plot$scaleDefs = function (_p85) {
-	var _p86 = _p85;
-	var _p87 = _p86._0;
+var _terezka$elm_plot$Svg_Plot$scaleDefs = function (_p105) {
+	var _p106 = _p105;
+	var _p107 = _p106._0;
 	return A2(
 		_elm_lang$svg$Svg$defs,
 		{ctor: '[]'},
@@ -9964,7 +10010,7 @@ var _terezka$elm_plot$Svg_Plot$scaleDefs = function (_p85) {
 					ctor: '::',
 					_0: _elm_lang$svg$Svg_Attributes$id(
 						_terezka$elm_plot$Svg_Plot$toClipPathId(
-							_terezka$elm_plot$Svg_Plot$Meta(_p87))),
+							_terezka$elm_plot$Svg_Plot$Meta(_p107))),
 					_1: {ctor: '[]'}
 				},
 				{
@@ -9974,21 +10020,21 @@ var _terezka$elm_plot$Svg_Plot$scaleDefs = function (_p85) {
 						{
 							ctor: '::',
 							_0: _elm_lang$svg$Svg_Attributes$x(
-								_elm_lang$core$Basics$toString(_p87.xScale.offset.lower)),
+								_elm_lang$core$Basics$toString(_p107.xScale.offset.lower)),
 							_1: {
 								ctor: '::',
 								_0: _elm_lang$svg$Svg_Attributes$y(
-									_elm_lang$core$Basics$toString(_p87.yScale.offset.lower)),
+									_elm_lang$core$Basics$toString(_p107.yScale.offset.lower)),
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$svg$Svg_Attributes$width(
 										_elm_lang$core$Basics$toString(
-											_terezka$elm_plot$Svg_Plot$getInnerLength(_p87.xScale))),
+											_terezka$elm_plot$Svg_Plot$getInnerLength(_p107.xScale))),
 									_1: {
 										ctor: '::',
 										_0: _elm_lang$svg$Svg_Attributes$height(
 											_elm_lang$core$Basics$toString(
-												_terezka$elm_plot$Svg_Plot$getInnerLength(_p87.yScale))),
+												_terezka$elm_plot$Svg_Plot$getInnerLength(_p107.yScale))),
 										_1: {ctor: '[]'}
 									}
 								}
@@ -10001,19 +10047,19 @@ var _terezka$elm_plot$Svg_Plot$scaleDefs = function (_p85) {
 		});
 };
 var _terezka$elm_plot$Svg_Plot$viewArea = F4(
-	function (_p89, data, _p88, reach) {
-		var _p90 = _p89;
-		var _p93 = _p90._0;
-		var _p91 = _p88;
-		var _p92 = _p91._0;
+	function (_p109, data, _p108, reach) {
+		var _p110 = _p109;
+		var _p113 = _p110._0;
+		var _p111 = _p108;
+		var _p112 = _p111._0;
 		var firstPoint = A2(
 			_elm_lang$core$Maybe$withDefault,
 			{ctor: '_Tuple2', _0: 0, _1: 0},
 			_elm_lang$core$List$head(data));
-		var mostZeroY = _terezka$elm_plot$Svg_Plot$valueClosestToZero(_p92.yScale);
+		var mostZeroY = _terezka$elm_plot$Svg_Plot$valueClosestToZero(_p112.yScale);
 		var pathString = A2(
 			_terezka$elm_plot$Svg_Plot$toPath,
-			_terezka$elm_plot$Svg_Plot$Meta(_p92),
+			_terezka$elm_plot$Svg_Plot$Meta(_p112),
 			_elm_lang$core$List$concat(
 				{
 					ctor: '::',
@@ -10032,7 +10078,7 @@ var _terezka$elm_plot$Svg_Plot$viewArea = F4(
 						},
 						_1: {
 							ctor: '::',
-							_0: A2(_terezka$elm_plot$Svg_Plot$toLinePath, _p93.interpolation, data),
+							_0: A2(_terezka$elm_plot$Svg_Plot$toLinePath, _p113.interpolation, data),
 							_1: {
 								ctor: '::',
 								_0: {
@@ -10068,43 +10114,43 @@ var _terezka$elm_plot$Svg_Plot$viewArea = F4(
 							A2(
 								_elm_lang$core$Basics_ops['++'],
 								_terezka$elm_plot$Svg_Plot$toClipPathId(
-									_terezka$elm_plot$Svg_Plot$Meta(_p92)),
+									_terezka$elm_plot$Svg_Plot$Meta(_p112)),
 								')'))),
 					_1: {ctor: '[]'}
 				}
 			},
 			{
 				ctor: '::',
-				_0: A2(_terezka$elm_plot$Svg_Plot$viewPath, _p93.attributes, pathString),
+				_0: A2(_terezka$elm_plot$Svg_Plot$viewPath, _p113.attributes, pathString),
 				_1: {ctor: '[]'}
 			});
 	});
 var _terezka$elm_plot$Svg_Plot$toPlotMeta = F2(
-	function (_p94, elements) {
-		var _p95 = _p94;
-		var _p97 = _p95._0.proportions;
-		var _p96 = _p95._0.margin;
+	function (_p114, elements) {
+		var _p115 = _p114;
+		var _p117 = _p115._0.proportions;
+		var _p116 = _p115._0.margin;
 		var reach = _terezka$elm_plot$Svg_Plot$findPlotReach(elements);
 		var range = {
-			lower: _p95._0.toRangeLowest(reach.x.lower),
-			upper: _p95._0.toRangeHighest(reach.x.upper)
+			lower: _p115._0.toRangeLowest(reach.x.lower),
+			upper: _p115._0.toRangeHighest(reach.x.upper)
 		};
-		var xScale = A4(_terezka$elm_plot$Svg_Plot$toScale, _p97.x, range, _p96.left, _p96.right);
+		var xScale = A4(_terezka$elm_plot$Svg_Plot$toScale, _p117.x, range, _p116.left, _p116.right);
 		var domain = {
-			lower: _p95._0.toDomainLowest(reach.y.lower),
-			upper: _p95._0.toDomainHighest(reach.y.upper)
+			lower: _p115._0.toDomainLowest(reach.y.lower),
+			upper: _p115._0.toDomainHighest(reach.y.upper)
 		};
-		var yScale = A4(_terezka$elm_plot$Svg_Plot$toScale, _p97.y, domain, _p96.top, _p96.bottom);
+		var yScale = A4(_terezka$elm_plot$Svg_Plot$toScale, _p117.y, domain, _p116.top, _p116.bottom);
 		return _terezka$elm_plot$Svg_Plot$Meta(
-			{xScale: xScale, yScale: yScale, id: _p95._0.id});
+			{xScale: xScale, yScale: yScale, id: _p115._0.id});
 	});
 var _terezka$elm_plot$Svg_Plot$Y = {ctor: 'Y'};
 var _terezka$elm_plot$Svg_Plot$X = {ctor: 'X'};
 var _terezka$elm_plot$Svg_Plot$viewBars = F3(
-	function (_p98, groups, meta) {
-		var _p99 = _p98;
-		var _p113 = _p99._0.styles;
-		var _p112 = _p99._0.stackBy;
+	function (_p118, groups, meta) {
+		var _p119 = _p118;
+		var _p133 = _p119._0.styles;
+		var _p132 = _p119._0.stackBy;
 		var toYStackedOffset = F2(
 			function (group, bar) {
 				return _elm_lang$core$List$sum(
@@ -10124,51 +10170,51 @@ var _terezka$elm_plot$Svg_Plot$viewBars = F3(
 				group.yValues);
 		};
 		var barsPerGroup = _elm_lang$core$Basics$toFloat(
-			_elm_lang$core$List$length(_p113));
-		var defaultBarWidth = _elm_lang$core$Native_Utils.eq(_p112, _terezka$elm_plot$Svg_Plot$X) ? (1 / barsPerGroup) : 1;
-		var _p100 = meta;
-		var xScale = _p100._0.xScale;
-		var yScale = _p100._0.yScale;
+			_elm_lang$core$List$length(_p133));
+		var defaultBarWidth = _elm_lang$core$Native_Utils.eq(_p132, _terezka$elm_plot$Svg_Plot$X) ? (1 / barsPerGroup) : 1;
+		var _p120 = meta;
+		var xScale = _p120._0.xScale;
+		var yScale = _p120._0.yScale;
 		var barWidth = function () {
-			var _p101 = _p99._0.maxWidth;
-			if (_p101.ctor === 'Percentage') {
-				return (defaultBarWidth * _elm_lang$core$Basics$toFloat(_p101._0)) / 100;
+			var _p121 = _p119._0.maxWidth;
+			if (_p121.ctor === 'Percentage') {
+				return (defaultBarWidth * _elm_lang$core$Basics$toFloat(_p121._0)) / 100;
 			} else {
-				var _p102 = _p101._0;
+				var _p122 = _p121._0;
 				return (_elm_lang$core$Native_Utils.cmp(
 					defaultBarWidth,
-					A2(_terezka$elm_plot$Svg_Plot$unScaleValue, xScale, _p102)) > 0) ? A2(_terezka$elm_plot$Svg_Plot$unScaleValue, xScale, _p102) : defaultBarWidth;
+					A2(_terezka$elm_plot$Svg_Plot$unScaleValue, xScale, _p122)) > 0) ? A2(_terezka$elm_plot$Svg_Plot$unScaleValue, xScale, _p122) : defaultBarWidth;
 			}
 		}();
-		var barHeight = function (_p103) {
-			var _p104 = _p103;
-			var _p105 = _p104.yValue;
-			return (_elm_lang$core$Native_Utils.eq(_p112, _terezka$elm_plot$Svg_Plot$X) || _elm_lang$core$Native_Utils.eq(_p104.index, 0)) ? (_p105 - _terezka$elm_plot$Svg_Plot$valueClosestToZero(yScale)) : _p105;
+		var barHeight = function (_p123) {
+			var _p124 = _p123;
+			var _p125 = _p124.yValue;
+			return (_elm_lang$core$Native_Utils.eq(_p132, _terezka$elm_plot$Svg_Plot$X) || _elm_lang$core$Native_Utils.eq(_p124.index, 0)) ? (_p125 - _terezka$elm_plot$Svg_Plot$valueClosestToZero(yScale)) : _p125;
 		};
 		var barPosition = F2(
-			function (group, _p106) {
-				var _p107 = _p106;
-				var _p111 = _p107.yValue;
-				var _p110 = _p107.xValue;
-				var _p109 = _p107;
-				var _p108 = _p112;
-				if (_p108.ctor === 'X') {
+			function (group, _p126) {
+				var _p127 = _p126;
+				var _p131 = _p127.yValue;
+				var _p130 = _p127.xValue;
+				var _p129 = _p127;
+				var _p128 = _p132;
+				if (_p128.ctor === 'X') {
 					return {
 						ctor: '_Tuple2',
-						_0: _p110 + (barWidth * (_elm_lang$core$Basics$toFloat(_p107.index) - (barsPerGroup / 2))),
+						_0: _p130 + (barWidth * (_elm_lang$core$Basics$toFloat(_p127.index) - (barsPerGroup / 2))),
 						_1: A2(
 							_elm_lang$core$Basics$max,
 							A2(_elm_lang$core$Basics$min, 0, yScale.highest),
-							_p111)
+							_p131)
 					};
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: _p110 - (barWidth / 2),
-						_1: (_p111 + A2(toYStackedOffset, group, _p109)) - A2(
+						_0: _p130 - (barWidth / 2),
+						_1: (_p131 + A2(toYStackedOffset, group, _p129)) - A2(
 							_elm_lang$core$Basics$min,
 							0,
-							barHeight(_p109))
+							barHeight(_p129))
 					};
 				}
 			});
@@ -10195,7 +10241,7 @@ var _terezka$elm_plot$Svg_Plot$viewBars = F3(
 					},
 					{
 						ctor: '::',
-						_0: _p99._0.labelView(bar),
+						_0: _p119._0.labelView(bar),
 						_1: {ctor: '[]'}
 					});
 			});
@@ -10258,7 +10304,7 @@ var _terezka$elm_plot$Svg_Plot$viewBars = F3(
 						A3(
 							_elm_lang$core$List$map2,
 							viewBar(group),
-							_p113,
+							_p133,
 							toValueInfo(group))),
 					_1: {
 						ctor: '::',
@@ -10288,36 +10334,36 @@ var _terezka$elm_plot$Svg_Plot$viewBars = F3(
 	});
 var _terezka$elm_plot$Svg_Plot$viewSerie = F3(
 	function (reach, serie, meta) {
-		var _p114 = serie;
-		switch (_p114.ctor) {
+		var _p134 = serie;
+		switch (_p134.ctor) {
 			case 'LineSerie':
-				return A3(_terezka$elm_plot$Svg_Plot$viewLine, _p114._0, _p114._1, meta);
+				return A3(_terezka$elm_plot$Svg_Plot$viewLine, _p134._0, _p134._1, meta);
 			case 'DotsSerie':
-				return A3(_terezka$elm_plot$Svg_Plot$viewDots, _p114._0, _p114._1, meta);
+				return A3(_terezka$elm_plot$Svg_Plot$viewDots, _p134._0, _p134._1, meta);
 			case 'AreaSerie':
-				return A4(_terezka$elm_plot$Svg_Plot$viewArea, _p114._0, _p114._1, meta, reach);
+				return A4(_terezka$elm_plot$Svg_Plot$viewArea, _p134._0, _p134._1, meta, reach);
 			default:
-				return A3(_terezka$elm_plot$Svg_Plot$viewBars, _p114._0, _p114._1, meta);
+				return A3(_terezka$elm_plot$Svg_Plot$viewBars, _p134._0, _p134._1, meta);
 		}
 	});
 var _terezka$elm_plot$Svg_Plot$viewElement = F2(
 	function (meta, element) {
-		var _p115 = element;
-		switch (_p115.ctor) {
+		var _p135 = element;
+		switch (_p135.ctor) {
 			case 'SerieElement':
-				return A3(_terezka$elm_plot$Svg_Plot$viewSerie, _p115._0, _p115._1, meta);
+				return A3(_terezka$elm_plot$Svg_Plot$viewSerie, _p135._0, _p135._1, meta);
 			case 'Views':
 				return A2(
 					_elm_lang$svg$Svg$g,
-					_p115._0,
+					_p135._0,
 					A2(
 						_terezka$elm_plot$Svg_Plot$viewElements,
 						meta,
-						_p115._1(meta)));
+						_p135._1(meta)));
 			case 'View':
-				return _p115._0(meta);
+				return _p135._0(meta);
 			default:
-				return _p115._0;
+				return _p135._0;
 		}
 	});
 var _terezka$elm_plot$Svg_Plot$viewElements = F2(
@@ -10328,29 +10374,29 @@ var _terezka$elm_plot$Svg_Plot$viewElements = F2(
 			elements);
 	});
 var _terezka$elm_plot$Svg_Plot$viewPlot = F3(
-	function (_p117, elements, _p116) {
-		var _p118 = _p117;
-		var _p119 = _p116;
-		var _p120 = _p119._0;
+	function (_p137, elements, _p136) {
+		var _p138 = _p137;
+		var _p139 = _p136;
+		var _p140 = _p139._0;
 		var viewBoxValue = A2(
 			_elm_lang$core$Basics_ops['++'],
 			'0 0 ',
 			A2(
 				_elm_lang$core$Basics_ops['++'],
-				_elm_lang$core$Basics$toString(_p120.xScale.length),
+				_elm_lang$core$Basics$toString(_p140.xScale.length),
 				A2(
 					_elm_lang$core$Basics_ops['++'],
 					' ',
-					_elm_lang$core$Basics$toString(_p120.yScale.length))));
+					_elm_lang$core$Basics$toString(_p140.yScale.length))));
 		var attributes = A2(
 			_elm_lang$core$Basics_ops['++'],
-			_p118._0.attributes,
+			_p138._0.attributes,
 			{
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$viewBox(viewBoxValue),
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$id(_p120.id),
+					_0: _elm_lang$svg$Svg_Attributes$id(_p140.id),
 					_1: {ctor: '[]'}
 				}
 			});
@@ -10360,7 +10406,7 @@ var _terezka$elm_plot$Svg_Plot$viewPlot = F3(
 			{
 				ctor: '::',
 				_0: _terezka$elm_plot$Svg_Plot$scaleDefs(
-					_terezka$elm_plot$Svg_Plot$Meta(_p120)),
+					_terezka$elm_plot$Svg_Plot$Meta(_p140)),
 				_1: {
 					ctor: '::',
 					_0: A2(
@@ -10373,7 +10419,7 @@ var _terezka$elm_plot$Svg_Plot$viewPlot = F3(
 						}),
 					_1: A2(
 						_terezka$elm_plot$Svg_Plot$viewElements,
-						_terezka$elm_plot$Svg_Plot$Meta(_p120),
+						_terezka$elm_plot$Svg_Plot$Meta(_p140),
 						elements)
 				}
 			});
@@ -10387,10 +10433,10 @@ var _terezka$elm_plot$Svg_Plot$plot = F2(
 			A2(_terezka$elm_plot$Svg_Plot$toPlotMeta, config, elements));
 	});
 var _terezka$elm_plot$Svg_Plot$foldGroupPoints = F3(
-	function (stackBy, _p121, points) {
-		var _p122 = _p121;
-		var _p125 = _p122.yValues;
-		var _p124 = _p122.xValue;
+	function (stackBy, _p141, points) {
+		var _p142 = _p141;
+		var _p145 = _p142.yValues;
+		var _p144 = _p142.xValue;
 		if (_elm_lang$core$Native_Utils.eq(stackBy, _terezka$elm_plot$Svg_Plot$X)) {
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
@@ -10399,28 +10445,28 @@ var _terezka$elm_plot$Svg_Plot$foldGroupPoints = F3(
 					ctor: '::',
 					_0: {
 						ctor: '_Tuple2',
-						_0: _p124,
-						_1: _terezka$elm_plot$Svg_Plot$getLowest(_p125)
+						_0: _p144,
+						_1: _terezka$elm_plot$Svg_Plot$getLowest(_p145)
 					},
 					_1: {
 						ctor: '::',
 						_0: {
 							ctor: '_Tuple2',
-							_0: _p124,
-							_1: _terezka$elm_plot$Svg_Plot$getHighest(_p125)
+							_0: _p144,
+							_1: _terezka$elm_plot$Svg_Plot$getHighest(_p145)
 						},
 						_1: {ctor: '[]'}
 					}
 				});
 		} else {
-			var _p123 = A2(
+			var _p143 = A2(
 				_elm_lang$core$List$partition,
 				function (y) {
 					return _elm_lang$core$Native_Utils.cmp(y, 0) > -1;
 				},
-				_p125);
-			var positive = _p123._0;
-			var negative = _p123._1;
+				_p145);
+			var positive = _p143._0;
+			var negative = _p143._1;
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				points,
@@ -10428,14 +10474,14 @@ var _terezka$elm_plot$Svg_Plot$foldGroupPoints = F3(
 					ctor: '::',
 					_0: {
 						ctor: '_Tuple2',
-						_0: _p124,
+						_0: _p144,
 						_1: _elm_lang$core$List$sum(positive)
 					},
 					_1: {
 						ctor: '::',
 						_0: {
 							ctor: '_Tuple2',
-							_0: _p124,
+							_0: _p144,
 							_1: _elm_lang$core$List$sum(negative)
 						},
 						_1: {ctor: '[]'}
@@ -10452,11 +10498,11 @@ var _terezka$elm_plot$Svg_Plot$toGroupPoints = F2(
 			groups);
 	});
 var _terezka$elm_plot$Svg_Plot$findReachFromGroups = F2(
-	function (_p126, groups) {
-		var _p127 = _p126;
+	function (_p146, groups) {
+		var _p147 = _p146;
 		return _terezka$elm_plot$Svg_Plot$addBarPadding(
 			_terezka$elm_plot$Svg_Plot$findReachFromPoints(
-				A2(_terezka$elm_plot$Svg_Plot$toGroupPoints, _p127._0.stackBy, groups)));
+				A2(_terezka$elm_plot$Svg_Plot$toGroupPoints, _p147._0.stackBy, groups)));
 	});
 var _terezka$elm_plot$Svg_Plot$barsSerie = F2(
 	function (config, data) {

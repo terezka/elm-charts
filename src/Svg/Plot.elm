@@ -1167,12 +1167,77 @@ toPathTypeStringSinglePoint meta typeString point =
 
 
 toPathTypeStringS : Meta -> Point -> Point -> Point -> String
-toPathTypeStringS meta p1 p2 p3 =
+toPathTypeStringS meta ( x0, y0 ) ( x, y ) ( x1, y1 ) =
     let
-        ( point1, point2 ) =
-            toBezierPoints p1 p2 p3
+        t0 = slope3 ( x0, y0 ) ( x, y ) ( x1, y1 )
+        dx = (x1 - x0) / 3
+
+        point(this, slope2(this, t1 = slope3(this, x, y)), t1)
     in
-        "S" ++ " " ++ pointToString meta point1 ++ "," ++ pointToString meta point2
+        "C " ++ pointToString meta ( x0 + dx, y0 + dx * t0 ) ++ "," ++ pointToString meta ( x1 - dx, y1 - dx * 1) ++ "," ++ pointToString meta (x1, y1)
+
+
+toMonotoneXPath : List Point -> Float -> String -> String
+toMonotoneXPath points t1 path =
+  case points of
+    ( x0, y0 ) :: ( x, y ) :: ( x1, y1 ) :: rest ->
+      let
+          t0 = slope3 ( x0, y0 ) ( x, y ) ( x1, y1 )
+          newPath = path ++ beziesMonotoneXPath ( x0, y0 ) ( x, y ) ( x1, y1 ) t0 t1
+      in
+        toMonotoneXPath rest t0 newPath
+
+    _ ->
+      path
+
+
+beziesMonotoneXPath : Point -> Point -> Point -> String
+beziesMonotoneXPath ( x0, y0 ) ( x, y ) ( x1, y1 ) =
+    let
+        t0 = slope3 ( x0, y0 ) ( x, y ) ( x1, y1 )
+        dx = (x1 - x0) / 3
+    in
+        bezierCurveTo ( x0 + dx, y0 + dx * t0 ) ( x1 - dx, y1 - dx * 1 ) ( x1, y1 )
+
+
+bezierCurveTo : Meta -> Point -> Point -> Point -> String -> String
+bezierCurveTo meta p1 p2 p3 =
+    "C " ++ pointToString p1 ++ "," ++ pointToString p2 ++ "," ++ pointToString p3
+
+
+
+{-| Calculate the slopes of the tangents (Hermite-type interpolation) based on
+  the following paper: Steffen, M. 1990. A Simple Method for Monotonic
+  Interpolation in One Dimension
+-}
+slope3 : Point -> Point -> Point -> Float
+slope3 (x0, y0) (x1, y1) (x2, y2) =
+  let
+    h0 = x1 - x0
+    h1 = x2 - x1
+
+    s0 = (y1 - y0) / h0
+    s1 = (y2 - y1) / h1
+
+    p = (s0 * h1 + s1 * h0) / (h0 + h1)
+  in
+    (sign s0  + sign s1 ) * min (min (abs s0) (abs s1)) (0.5 * abs p)
+
+
+
+{-| Calculate a one-sided slope. -}
+slope2 : Point -> Point -> Float -> Float
+slope2 (x0, y0) (x1, y1) t =
+  let
+    h = x1 - x0
+  in
+    (3 * (y1 - y0) / h - t) / 2
+
+
+sign : Float -> Float
+sign x =
+  if x < 0 then -1 else 1
+
 
 
 magnitude : Float
