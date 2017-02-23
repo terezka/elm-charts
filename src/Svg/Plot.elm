@@ -44,11 +44,11 @@ module Svg.Plot
         , yAxis
         , line
         , ticks
-        , viewTick
+        , tick
         , length
         , labels
         , labelsFromStrings
-        , viewLabel
+        , label
         , displace
         , placeAt
         )
@@ -86,10 +86,10 @@ module Svg.Plot
 @docs horizontalGrid, verticalGrid
 
 ### Labels
-@docs labels, labelsFromStrings, viewLabel
+@docs labels, labelsFromStrings, label
 
 ### Ticks
-@docs ticks, viewTick, length
+@docs ticks, tick, length
 
 ## Value helpers
 These are functions to help you create the values you would like to have ticks, labels or grid lines at.
@@ -165,7 +165,7 @@ type Serie msg
         Plot.plot plotConfig
             [ Plot.customBy
                 (Plot.fromDomain (\lowestY highestY -> ( 0, highestY )))
-                [ Plot.viewLabel [] "✨" ]
+                [ Plot.label [] "✨" ]
             ]
 
 -}
@@ -599,17 +599,9 @@ yAxis toXValue elements =
         view meta =
           List.map (viewAxisElement meta) elements
     in
-        Views [ class "elm-plot__axis elm-plot__axis--x" ] view
+        Views [ class "elm-plot__axis elm-plot__axis--y" ] view
 
 
--- AXIS LINE
-
-
-{-| Draw a line along your axis.
--}
-line : List (Svg.Attribute msg) -> AxisElement msg
-line attributes scale toPoint =
-    View (viewAxisLine attributes [ toPoint scale.lowest, toPoint scale.highest ])
 
 
 
@@ -621,7 +613,7 @@ line attributes scale toPoint =
     myXAxis : Element msg
     myXAxis =
         Plot.axis xAxisConfig
-            [ Plot.labels (toString >> viewLabel) (Plot.fromDelta 2) ]
+            [ Plot.labels (toString >> label) (Plot.fromDelta 2) ]
 -}
 labels : (Value -> Svg msg) -> ValueProducer -> AxisElement msg
 labels svgView valueBuilder scale toPoint =
@@ -641,7 +633,7 @@ labels svgView valueBuilder scale toPoint =
 
     myLabels : AxisElement msg
     myLabels =
-        labelsFromStrings viewLabel (fromDelta 1) [ "Spring", "Summer", "Autumn", "Winter"]
+        labelsFromStrings label (fromDelta 0 1) [ "Spring", "Summer", "Autumn", "Winter"]
 
 -}
 labelsFromStrings : (String -> Svg msg) -> ValueProducer -> List String -> AxisElement msg
@@ -658,8 +650,8 @@ labelsFromStrings svgView valueBuilder strings scale toPoint  =
 
 {-| Just a simple view for a label in case you need it. You can use it with `custom` to create titles for axes.
 -}
-viewLabel : List (Svg.Attribute msg) -> String -> Svg msg
-viewLabel attributes string =
+label : List (Svg.Attribute msg) -> String -> Svg msg
+label attributes string =
     text_ attributes [ tspan [] [ text string ] ]
 
 
@@ -682,9 +674,19 @@ ticks svgView valueBuilder scale toPoint =
 
 
 {-| -}
-viewTick : List (Svg.Attribute msg) -> Svg msg
-viewTick attributes =
+tick : List (Svg.Attribute msg) -> Svg msg
+tick attributes =
     Svg.line attributes []
+
+
+-- AXIS LINE
+
+
+{-| Draw a line along your axis.
+-}
+line : List (Svg.Attribute msg) -> AxisElement msg
+line attributes scale toPoint =
+    View (viewAxisLine attributes [ toPoint scale.lowest, toPoint scale.highest ])
 
 
 
@@ -701,10 +703,10 @@ horizontalGrid : List (Svg.Attribute msg) -> ValueProducer -> Element msg
 horizontalGrid attributes valueBuilder =
     let
       view scale y =
-        View (viewAxisLine attributes [ ( scale.lowest, y ), ( scale.highest, y ) ])
+        line attributes scale (\x -> ( x, y ))
 
-      views (Meta { xScale }) =
-        List.map (view xScale) (Tuple.first (valueBuilder xScale))
+      views (Meta { xScale, yScale }) =
+        List.map (view xScale) (Tuple.first (valueBuilder yScale))
     in
       Views [ class "elm-plot__grid elm-plot__grid--horizontal" ] views
 
@@ -720,12 +722,14 @@ verticalGrid : List (Svg.Attribute msg) -> ValueProducer -> Element msg
 verticalGrid attributes valueBuilder =
     let
       view scale x =
-        View (viewAxisLine attributes [ ( x, scale.lowest ), ( x, scale.highest ) ])
+        line attributes scale (\y -> ( x, y ))
 
-      views (Meta { yScale }) =
-        List.map (view yScale) (Tuple.first (valueBuilder yScale))
+      views (Meta { yScale, xScale }) =
+        List.map (view yScale) (Tuple.first (valueBuilder xScale))
     in
       Views [ class "elm-plot__grid elm-plot__grid--vertical" ] views
+
+
 
 
 
@@ -876,7 +880,25 @@ viewPlot (PlotConfig config) elements (Meta meta) =
             config.attributes
                 ++ [ Svg.Attributes.viewBox viewBoxValue, Svg.Attributes.id meta.id ]
     in
-        Svg.svg attributes (scaleDefs (Meta meta) :: (viewElements (Meta meta) elements))
+        Svg.svg attributes (scaleDefs (Meta meta) :: Svg.style [] [ text defaultStyles ] :: (viewElements (Meta meta) elements))
+
+
+defaultStyles : String
+defaultStyles =
+  """
+    .elm-plot__axis--y .elm-plot__labels {
+      text-anchor: end;
+    }
+
+    .elm-plot__axis--x .elm-plot__labels {
+      text-anchor: middle;
+    }
+
+    .elm-plot__axis--y .elm-plot__ticks line {
+      transform: rotate(90deg);
+    }
+  """
+
 
 
 scaleDefs : Meta -> Svg.Svg msg

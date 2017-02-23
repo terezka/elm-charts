@@ -47,7 +47,7 @@ plotConfig =
 
 xLabelConfig : String -> Svg.Svg msg
 xLabelConfig =
-    viewLabel
+    label
         [ fill axisColor
         , style "text-anchor: middle;"
         , displace ( 0, 25 )
@@ -62,7 +62,7 @@ barsConfig =
         , labelView =
             .yValue
                 >> toString
-                >> viewLabel
+                >> label
                     [ stroke "#fff"
                     , fill "#fff"
                     , style "text-anchor: middle; font-size: 10px;"
@@ -89,7 +89,7 @@ view =
             )
         , xAxis atZero
             [ line [ stroke axisColor ]
-            , ticks (viewTick [ stroke axisColor, length 10 ]) (fromDelta 0 1)
+            , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 0 1)
             , labelsFromStrings xLabelConfig (fromDelta 0 1) [ "A", "B", "C", "D" ]
             ]
         ]
@@ -255,7 +255,7 @@ view =
             , ticks tickConfig (fromCount 5)
             , positionBy
                 (fromAxis (\\p l h -> ( h / 2, p )))
-                [ viewLabel
+                [ label
                     [ transform "translate(-10, 0) rotate(-90)"
                     , style "text-anchor: middle"
                     , fill axisColorLight
@@ -269,7 +269,7 @@ view =
             , ticks tickConfig (fromCount 5)
             , positionBy
                 (fromAxis (\\p l h -> ( h / 2, p )))
-                [ viewLabel
+                [ label
                     [ transform "translate(10, 0) rotate(90)"
                     , style "text-anchor: middle"
                     , fill axisColorLight

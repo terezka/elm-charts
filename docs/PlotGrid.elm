@@ -63,15 +63,15 @@ view =
     plot plotConfig
         [ yAxis atLowest
             [ line [ fill axisColor ]
-            , ticks (viewTick [ stroke axisColor, length 5 ]) (fromDelta 0 1)
-            , labels (toString >> viewLabel [ fill axisColor, displace ( -10, 5 ), style "text-anchor: end;" ]) (fromDelta 0 1)
+            , ticks (tick [ stroke axisColor, length 5 ]) (fromDelta 0 1)
+            , labels (toString >> label [ fill axisColor, displace ( -10, 5 ), style "text-anchor: end;" ]) (fromDelta 0 1)
             ]
         , verticalGrid [ stroke axisColorLight ] (fromDelta 0 10)
         , horizontalGrid [ stroke axisColorLight ] (fromDelta 0 1)
         , xAxis atZero [ line [ stroke axisColor ] ]
         , placeAt
             (fromRangeAndDomain (\xl xh yl yh -> ( xh, yh )))
-            [ viewLabel
+            [ label
                 [ style "text-anchor: end; font-family: monospace;"
                 , displace ( -10, 15 )
                 , fill axisColor

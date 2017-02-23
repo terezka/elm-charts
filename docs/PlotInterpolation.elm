@@ -66,7 +66,7 @@ view =
                 ]
             , labels
                 (toString
-                    >> viewLabel
+                    >> label
                         [ fill axisColor
                         , style "text-anchor: middle;"
                         , displace ( 0, 24 )
@@ -74,7 +74,7 @@ view =
                 )
                 (fromDelta 0 1)
             , ticks
-                (viewTick
+                (tick
                         [ stroke axisColor
                         , length 10
                         ]

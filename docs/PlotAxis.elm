@@ -52,7 +52,7 @@ xLabelStrings =
 
 xLabel : String -> Svg.Svg msg
 xLabel =
-    viewLabel
+    label
         [ fill axisColor
         , style "text-anchor: middle;"
         , transform "translate(10, 44) rotate(45) "
@@ -67,7 +67,7 @@ barsConfig =
         , labelView =
             .yValue
                 >> toString
-                >> viewLabel
+                >> label
                     [ stroke "#fff"
                     , fill "#fff"
                     , style "text-anchor: middle; font-size: 10px;"
@@ -94,33 +94,33 @@ view =
             )
         , xAxis atZero
             [ line [ stroke axisColor ]
-            , ticks (viewTick [ stroke axisColor, length 10 ]) (fromDelta 1 1)
+            , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1 1)
             , labelsFromStrings xLabel (fromDelta 1 1) xLabelStrings
             ]
         , yAxis atLowest
             [ line [ stroke axisColor ]
             , ticks
-                (viewTick [ stroke axisColor, length 10, transform "rotate(-90)" ])
+                (tick [ stroke axisColor, length 10, style "transform: rotate(-90deg)" ])
                 (fromDelta 0 10)
             , ticks
-                (viewTick [ stroke axisColorLight, length 5, transform "rotate(-90)" ])
+                (tick [ stroke axisColorLight, length 5, style "transform: rotate(-90deg)" ])
                 (fromDelta 5 10)
             , labels
-                (toString >> viewLabel [ fill axisColor, style "text-anchor: start;", displace ( 10, 5 ) ])
+                (toString >> label [ fill axisColor, style "text-anchor: start;", displace ( 10, 5 ) ])
                 (fromDelta 0 10)
             ]
         , yAxis atHighest
             [ line [ stroke axisColor ]
             , ticks
-                (viewTick [ stroke axisColor, length 10 ])
+                (tick [ stroke axisColor, length 10 ])
                 (fromDelta 0 5)
             , ticks
-                (viewTick [ stroke axisColorLight, length 5 ])
+                (tick [ stroke axisColorLight, length 5 ])
                 (fromDelta 1 5)
             , labels
                 ((*) 100
                     >> toString
-                    >> viewLabel
+                    >> label
                         [ fill axisColor
                         , style "text-anchor: end;"
                         , displace ( -10, 5 )
@@ -130,7 +130,7 @@ view =
             ]
         , placeAt
             (fromRangeAndDomain (\xl xh yl yh -> ( xl, yh / 2 )))
-            [ viewLabel
+            [ label
                 [ transform "translate(-10, 0) rotate(-90)"
                 , style "text-anchor: middle"
                 , fill axisColorLight
@@ -139,7 +139,7 @@ view =
             ]
         , placeAt
             (fromRangeAndDomain (\xl xh yl yh -> ( xh, yh / 2 )))
-            [ viewLabel
+            [ label
                 [ transform "translate(10, 0) rotate(90)"
                 , style "text-anchor: middle"
                 , fill axisColorLight
@@ -309,7 +309,7 @@ view =
             , ticks tickConfig (fromCount 5)
             , positionBy
                 (fromAxis (\\p l h -> ( h / 2, p )))
-                [ viewLabel
+                [ label
                     [ transform "translate(-10, 0) rotate(-90)"
                     , style "text-anchor: middle"
                     , fill axisColorLight
@@ -323,7 +323,7 @@ view =
             , ticks tickConfig (fromCount 5)
             , positionBy
                 (fromAxis (\\p l h -> ( h / 2, p )))
-                [ viewLabel
+                [ label
                     [ transform "translate(10, 0) rotate(90)"
                     , style "text-anchor: middle"
                     , fill axisColorLight
