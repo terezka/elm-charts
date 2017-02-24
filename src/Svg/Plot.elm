@@ -172,7 +172,7 @@ type Serie msg
 -}
 placeAt : (Meta -> Point) -> List (Svg msg) -> Element msg
 placeAt toPoint views =
-    View (\meta -> viewAtPosition (toPoint meta) views meta)
+    View (\meta -> viewAt (toPoint meta) views meta)
 
 
 
@@ -411,7 +411,7 @@ toLineConfig config =
 {-| These are the interpolation options.
 -}
 type Interpolation
-    = Bezier
+    = MonotoneX
     | NoInterpolation
 
 
@@ -620,7 +620,7 @@ labels : (Value -> Svg msg) -> ValueProducer -> AxisElement msg
 labels svgView valueBuilder scale toPoint =
     let
       view value =
-        View (viewAtPosition (toPoint value) [ svgView value ])
+        View (viewAt (toPoint value) [ svgView value ])
 
       views _ =
         List.map view (Tuple.first (valueBuilder scale))
@@ -641,7 +641,7 @@ labelsFromStrings : (String -> Svg msg) -> ValueProducer -> List String -> AxisE
 labelsFromStrings svgView valueBuilder strings scale toPoint  =
     let
       view value string =
-        View (viewAtPosition (toPoint value) [ svgView string ])
+        View (viewAt (toPoint value) [ svgView string ])
 
       views _ =
         List.map2 view (Tuple.first (valueBuilder scale)) strings
@@ -666,7 +666,7 @@ ticks : Svg msg -> ValueProducer -> AxisElement msg
 ticks svgView valueBuilder scale toPoint =
     let
       view value =
-        View (viewAtPosition (toPoint value) [ svgView ])
+        View (viewAt (toPoint value) [ svgView ])
 
       views _ =
         List.map view (Tuple.first (valueBuilder scale))
@@ -958,8 +958,8 @@ viewSerie reach serie meta =
             viewBars config data meta
 
 
-viewAtPosition : Point -> List (Svg msg) -> Meta -> Svg msg
-viewAtPosition point children meta =
+viewAt : Point -> List (Svg msg) -> Meta -> Svg msg
+viewAt point children meta =
     g [ transform (toTranslate (toSVGPoint meta point)) ] children
 
 
@@ -1161,7 +1161,7 @@ toLinePath interpolation =
         NoInterpolation ->
             Svg.Path.toLinePath
 
-        Bezier ->
+        MonotoneX ->
             Svg.Path.toMonotoneXPath
 
 

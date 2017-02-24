@@ -9584,7 +9584,7 @@ var _terezka$elm_plot$Svg_Plot$viewLine = F3(
 				_1: {ctor: '[]'}
 			});
 	});
-var _terezka$elm_plot$Svg_Plot$viewAtPosition = F3(
+var _terezka$elm_plot$Svg_Plot$viewAt = F3(
 	function (point, children, meta) {
 		return A2(
 			_elm_lang$svg$Svg$g,
@@ -9798,7 +9798,7 @@ var _terezka$elm_plot$Svg_Plot$placeAt = F2(
 		return _terezka$elm_plot$Svg_Plot$View(
 			function (meta) {
 				return A3(
-					_terezka$elm_plot$Svg_Plot$viewAtPosition,
+					_terezka$elm_plot$Svg_Plot$viewAt,
 					toPoint(meta),
 					views,
 					meta);
@@ -9879,7 +9879,7 @@ var _terezka$elm_plot$Svg_Plot$labels = F4(
 		var view = function (value) {
 			return _terezka$elm_plot$Svg_Plot$View(
 				A2(
-					_terezka$elm_plot$Svg_Plot$viewAtPosition,
+					_terezka$elm_plot$Svg_Plot$viewAt,
 					toPoint(value),
 					{
 						ctor: '::',
@@ -9909,7 +9909,7 @@ var _terezka$elm_plot$Svg_Plot$labelsFromStrings = F5(
 			function (value, string) {
 				return _terezka$elm_plot$Svg_Plot$View(
 					A2(
-						_terezka$elm_plot$Svg_Plot$viewAtPosition,
+						_terezka$elm_plot$Svg_Plot$viewAt,
 						toPoint(value),
 						{
 							ctor: '::',
@@ -9939,7 +9939,7 @@ var _terezka$elm_plot$Svg_Plot$ticks = F4(
 		var view = function (value) {
 			return _terezka$elm_plot$Svg_Plot$View(
 				A2(
-					_terezka$elm_plot$Svg_Plot$viewAtPosition,
+					_terezka$elm_plot$Svg_Plot$viewAt,
 					toPoint(value),
 					{
 						ctor: '::',
@@ -10096,7 +10096,7 @@ var _terezka$elm_plot$Svg_Plot$verticalGrid = F2(
 			},
 			views);
 	});
-var _terezka$elm_plot$Svg_Plot$Bezier = {ctor: 'Bezier'};
+var _terezka$elm_plot$Svg_Plot$MonotoneX = {ctor: 'MonotoneX'};
 var _terezka$elm_plot$Svg_Plot$AreaConfig = function (a) {
 	return {ctor: 'AreaConfig', _0: a};
 };
@@ -10901,7 +10901,7 @@ var _terezka$elm_plot$PlotInterpolation$areaConfig = _terezka$elm_plot$Svg_Plot$
 				_1: {ctor: '[]'}
 			}
 		},
-		interpolation: _terezka$elm_plot$Svg_Plot$Bezier
+		interpolation: _terezka$elm_plot$Svg_Plot$MonotoneX
 	});
 var _terezka$elm_plot$PlotInterpolation$id = 'Interpolation';
 var _terezka$elm_plot$PlotInterpolation$plotConfig = _terezka$elm_plot$Svg_Plot$toPlotConfig(
@@ -11006,7 +11006,7 @@ var _terezka$elm_plot$PlotGrid$lineConfig = _terezka$elm_plot$Svg_Plot$toLineCon
 				}
 			}
 		},
-		interpolation: _terezka$elm_plot$Svg_Plot$Bezier
+		interpolation: _terezka$elm_plot$Svg_Plot$MonotoneX
 	});
 var _terezka$elm_plot$PlotGrid$id = 'Grid';
 var _terezka$elm_plot$PlotGrid$plotConfig = _terezka$elm_plot$Svg_Plot$toPlotConfigFancy(

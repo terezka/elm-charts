@@ -45,7 +45,7 @@ areaConfig : AreaConfig msg
 areaConfig =
     toAreaConfig
         { attributes = [ stroke pinkStroke, fill pinkFill ]
-        , interpolation = Bezier
+        , interpolation = MonotoneX
         }
 
 

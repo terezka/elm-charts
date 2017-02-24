@@ -49,7 +49,7 @@ lineConfig : LineConfig msg
 lineConfig =
     toLineConfig
         { attributes = [ stroke pinkStroke, fill pinkFill, strokeWidth "3px" ]
-        , interpolation = Bezier
+        , interpolation = MonotoneX
         }
 
 
