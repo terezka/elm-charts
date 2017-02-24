@@ -8,41 +8,41 @@ import Common exposing (..)
 
 plotExample : PlotExample msg
 plotExample =
-    { title = title
-    , code = code
-    , view = view
-    , id = id
-    }
+  { title = title
+  , code = code
+  , view = view
+  , id = id
+  }
 
 
 title : String
 title =
-    "Multiple axis'"
+  "Multiple axis'"
 
 
 id : String
 id =
-    "PlotAxis"
+  "PlotAxis"
 
 
 plotConfig : PlotConfig msg
 plotConfig =
-    toPlotConfigFancy
-        { attributes = []
-        , id = id
-        , margin =
-            { top = 20
-            , left = 30
-            , right = 30
-            , bottom = 90
-            }
-        , proportions =
-            { x = 600, y = 400 }
-        , toDomainLowest = identity
-        , toDomainHighest = \h -> h + 5
-        , toRangeLowest = \l -> l - 0.5
-        , toRangeHighest = \h -> h + 0.5
+  toPlotConfigFancy
+    { attributes = []
+    , id = id
+    , margin =
+        { top = 20
+        , left = 30
+        , right = 30
+        , bottom = 90
         }
+    , proportions =
+        { x = 600, y = 400 }
+    , toDomainLowest = identity
+    , toDomainHighest = \h -> h + 5
+    , toRangeLowest = \l -> l - 0.5
+    , toRangeHighest = \h -> h + 0.5
+    }
 
 
 xLabelStrings : List String
@@ -52,29 +52,29 @@ xLabelStrings =
 
 xLabel : String -> Svg.Svg msg
 xLabel =
-    label
-        [ fill axisColor
-        , style "text-anchor: middle;"
-        , transform "translate(10, 44) rotate(45) "
-        ]
+  label
+    [ fill axisColor
+    , style "text-anchor: middle;"
+    , transform "translate(10, 44) rotate(45) "
+    ]
 
 
 y1Label : Value -> Svg.Svg msg
 y1Label =
-    toString >> label
-      [ fill axisColor
-      , style "text-anchor: start;"
-      , displace ( 10, 5 )
-      ]
+  toString >> label
+    [ fill axisColor
+    , style "text-anchor: start;"
+    , displace ( 10, 5 )
+    ]
 
 
 y2Label : Value -> Svg.Svg msg
 y2Label =
-    (*) 100 >> toString >> label
-      [ fill axisColor
-      , style "text-anchor: end;"
-      , displace ( -10, 5 )
-      ]
+  (*) 100 >> toString >> label
+    [ fill axisColor
+    , style "text-anchor: end;"
+    , displace ( -10, 5 )
+    ]
 
 
 y1Tick : Svg.Svg  msg
@@ -97,39 +97,52 @@ y2TickLight =
   tick [ stroke axisColorLight, length 10, style "transform: rotate(90deg)" ]
 
 
+barLabel : BarValueInfo -> Svg.Svg msg
+barLabel =
+  .yValue >> toString >> label
+    [ stroke "#fff"
+    , fill "#fff"
+    , style "text-anchor: middle; font-size: 10px;"
+    , displace ( 0, 15 )
+    ]
+
+
+titleLabel : String -> String -> String -> Svg.Svg msg
+titleLabel translate rotation =
+  label
+    [ transform ("translate(" ++ translate ++ ") rotate(" ++ rotation ++ ")")
+    , style "text-anchor: middle"
+    , fill axisColorLight
+    ]
+
+
 barsConfig : BarsConfig msg
 barsConfig =
-    toBarsConfig
-        { stackBy = X
-        , styles = [ [ fill pinkFill ], [ fill blueFill ] ]
-        , labelView =
-            .yValue
-                >> toString
-                >> label
-                    [ stroke "#fff"
-                    , fill "#fff"
-                    , style "text-anchor: middle; font-size: 10px;"
-                    , displace ( 0, 15 )
-                    ]
-        , maxWidth = Fixed 30
-        }
+  toBarsConfig
+    { stackBy = X
+    , styles = [ [ fill pinkFill ], [ fill blueFill ] ]
+    , labelView = barLabel
+    , maxWidth = Fixed 30
+    }
+
+
+barData : List Group
+barData =
+  toGroups
+    { yValues = .values
+    , xValue = Nothing
+    }
+    [ { values = [ 40, 30 ] }
+    , { values = [ 20, 30 ] }
+    , { values = [ 40, 20 ] }
+    , { values = [ 60, 50 ] }
+    ]
 
 
 view : Svg.Svg a
 view =
     plot plotConfig
-        [ barsSerie
-            barsConfig
-            (toGroups
-                { yValues = .values
-                , xValue = Nothing
-                }
-                [ { values = [ 40, 30 ] }
-                , { values = [ 20, 30 ] }
-                , { values = [ 40, 20 ] }
-                , { values = [ 60, 50 ] }
-                ]
-            )
+        [ barsSerie barsConfig barData
         , xAxis atZero
             [ line [ stroke axisColor ]
             , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 1 1)
@@ -149,22 +162,10 @@ view =
             ]
         , placeAt
             (fromRangeAndDomain (\xl xh yl yh -> ( xl, yh / 2 )))
-            [ label
-                [ transform "translate(-10, 0) rotate(-90)"
-                , style "text-anchor: middle"
-                , fill axisColorLight
-                ]
-                "Units sold"
-            ]
+            [ titleLabel "-10, 0" "-90" "Units sold" ]
         , placeAt
             (fromRangeAndDomain (\xl xh yl yh -> ( xh, yh / 2 )))
-            [ label
-                [ transform "translate(10, 0) rotate(90)"
-                , style "text-anchor: middle"
-                , fill axisColorLight
-                ]
-                "Ca$h for big big company"
-            ]
+            [ titleLabel "10, 0" "90" "Ca$h" ]
         ]
 
 

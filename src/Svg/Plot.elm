@@ -719,8 +719,8 @@ line attributes { scale, toPoint } =
 horizontalGrid : List (Svg.Attribute msg) -> ValueProducer -> Element msg
 horizontalGrid attributes valueBuilder =
     let
-      view scale y =
-        View (viewAxisLine attributes [ ( scale.lowest, y ), ( scale.highest, y ) ])
+      view xScale y =
+        View (viewAxisLine attributes [ ( xScale.lowest, y ), ( xScale.highest, y ) ])
 
       views (Meta { xScale, yScale }) =
         List.map (view xScale) (Tuple.first (valueBuilder yScale))
@@ -738,8 +738,8 @@ horizontalGrid attributes valueBuilder =
 verticalGrid : List (Svg.Attribute msg) -> ValueProducer -> Element msg
 verticalGrid attributes valueBuilder =
     let
-      view scale x =
-        View (viewAxisLine attributes [ ( x, scale.lowest ), ( x, scale.highest ) ])
+      view yScale x =
+        View (viewAxisLine attributes [ ( x, yScale.lowest ), ( x, yScale.highest ) ])
 
       views (Meta { yScale, xScale }) =
         List.map (view yScale) (Tuple.first (valueBuilder xScale))

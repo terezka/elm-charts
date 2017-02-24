@@ -10058,17 +10058,17 @@ var _terezka$elm_plot$Svg_Plot$line = F2(
 var _terezka$elm_plot$Svg_Plot$horizontalGrid = F2(
 	function (attributes, valueBuilder) {
 		var view = F2(
-			function (scale, y) {
+			function (xScale, y) {
 				return _terezka$elm_plot$Svg_Plot$View(
 					A2(
 						_terezka$elm_plot$Svg_Plot$viewAxisLine,
 						attributes,
 						{
 							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: scale.lowest, _1: y},
+							_0: {ctor: '_Tuple2', _0: xScale.lowest, _1: y},
 							_1: {
 								ctor: '::',
-								_0: {ctor: '_Tuple2', _0: scale.highest, _1: y},
+								_0: {ctor: '_Tuple2', _0: xScale.highest, _1: y},
 								_1: {ctor: '[]'}
 							}
 						}));
@@ -10093,17 +10093,17 @@ var _terezka$elm_plot$Svg_Plot$horizontalGrid = F2(
 var _terezka$elm_plot$Svg_Plot$verticalGrid = F2(
 	function (attributes, valueBuilder) {
 		var view = F2(
-			function (scale, x) {
+			function (yScale, x) {
 				return _terezka$elm_plot$Svg_Plot$View(
 					A2(
 						_terezka$elm_plot$Svg_Plot$viewAxisLine,
 						attributes,
 						{
 							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: x, _1: scale.lowest},
+							_0: {ctor: '_Tuple2', _0: x, _1: yScale.lowest},
 							_1: {
 								ctor: '::',
-								_0: {ctor: '_Tuple2', _0: x, _1: scale.highest},
+								_0: {ctor: '_Tuple2', _0: x, _1: yScale.highest},
 								_1: {ctor: '[]'}
 							}
 						}));
@@ -11184,6 +11184,124 @@ var _terezka$elm_plot$PlotGrid$title = 'Grid';
 var _terezka$elm_plot$PlotGrid$plotExample = {title: _terezka$elm_plot$PlotGrid$title, code: _terezka$elm_plot$PlotGrid$code, view: _terezka$elm_plot$PlotGrid$view, id: _terezka$elm_plot$PlotGrid$title};
 
 var _terezka$elm_plot$PlotAxis$code = '\n\nplotConfig : PlotConfig msg\nplotConfig =\n    toPlotConfigCustom\n        { attributes = []\n        , id = id\n        , margin =\n            { top = 20\n            , left = 30\n            , right = 30\n            , bottom = 90\n            }\n        , proportions =\n            { x = 600, y = 400 }\n        , toDomainLowest = identity\n        , toDomainHighest = identity\n        , toRangeLowest = \\l -> l - 0.5\n        , toRangeHighest = \\h -> h + 0.5\n        }\n\n\nbarsConfig : BarsConfig msg\nbarsConfig =\n    toBarsConfig\n        { stackBy = X\n        , maxWidth = Fixed 30\n        , barConfigs =\n            [ bar1Config\n            , bar2Config\n            , bar3Config\n            ]\n        }\n\n\nbar1Config : BarConfig msg\nbar1Config =\n    toBarConfig\n        { attributes = [ fill pinkStroke ]\n        , labelConfig = barLabelConfig\n        }\n\n\nbar2Config : BarConfig msg\nbar2Config =\n    toBarConfig\n        { attributes = [ fill blueFill ]\n        , labelConfig = barLabelConfig\n        }\n\n\nbar3Config : BarConfig msg\nbar3Config =\n    toBarConfig\n        { attributes = [ fill skinFill ]\n        , labelConfig = barLabelConfig\n        }\n\n\nbarLabelConfig : LabelConfig BarValueInfo a msg\nbarLabelConfig =\n    toBarLabelConfig\n        { attributes =\n            [ stroke \"#fff\"\n            , fill \"#fff\"\n            , style \"text-anchor: middle; font-size: 10px;\"\n            , displace ( 0, 15 )\n            ]\n        , format = \\info -> toString info.yValue\n        }\n\n\nxLabelStrings : Array.Array String\nxLabelStrings =\n    Array.fromList [ \"Autumn\", \"Winter\", \"Spring\", \"Summer\" ]\n\n\naxisLabelConfig : LabelConfig (ValueInfo { index : Int }) AxisMeta msg\naxisLabelConfig =\n    toAxisLabelConfig\n        { attributes =\n            [ fill axisColor\n            , style \"text-anchor: middle;\"\n            , transform \"translate(10, 44) rotate(45) \"\n            ]\n        , format = \\info -> Array.get info.index xLabelStrings |> Maybe.withDefault \"\"\n        }\n\n\naxisLabelY1Config : LabelConfig (ValueInfo a) AxisMeta msg\naxisLabelY1Config =\n    toAxisLabelConfig\n        { attributes =\n            [ fill axisColor\n            , style \"text-anchor: start;\"\n            , displace ( 10, 5 )\n            ]\n        , format = toString << .value\n        }\n\n\naxisLabelY2Config : LabelConfig (ValueInfo a) AxisMeta msg\naxisLabelY2Config =\n    toAxisLabelConfig\n        { attributes =\n            [ fill axisColor\n            , style \"text-anchor: end;\"\n            , displace ( -10, 5 )\n            ]\n        , format = toString << (*) 200 << .value\n        }\n\n\nlineConfig : AxisLineConfig msg\nlineConfig =\n    toAxisLineConfig\n        { attributes =\n            [ stroke axisColor\n            ]\n        }\n\n\ntickConfig : TickConfig msg\ntickConfig =\n    toTickConfig\n        { attributes =\n            [ length 10\n            , stroke axisColor\n            ]\n        }\n\n\nview : Svg.Svg a\nview =\n    plot plotConfig\n        [ barsSerie\n            barsConfig\n            (toGroups\n                { yValues = .values\n                , xValue = Nothing\n                }\n                [ { values = [ 40, 30, 20 ] }\n                , { values = [ 20, 30, 40 ] }\n                , { values = [ 40, 20, 10 ] }\n                , { values = [ 40, 50, 20 ] }\n                ]\n            )\n        , xAxis\n            [ line lineConfig\n            , labels axisLabelConfig (\\_ -> List.indexedMap (\\i v -> { index = i, value = v }) [ 1, 2, 3, 4 ])\n            , ticks tickConfig (fromDelta 0 1)\n            ]\n        , yAxisAt (\\l h -> l)\n            [ line lineConfig\n            , labels axisLabelY1Config (fromCount 5 >> List.filter (\\v -> v.value /= 0))\n            , ticks tickConfig (fromCount 5)\n            , positionBy\n                (fromAxis (\\p l h -> ( h / 2, p )))\n                [ label\n                    [ transform \"translate(-10, 0) rotate(-90)\"\n                    , style \"text-anchor: middle\"\n                    , fill axisColorLight\n                    ]\n                    \"Units sold\"\n                ]\n            ]\n        , yAxisAt (\\l h -> h)\n            [ line lineConfig\n            , labels axisLabelY2Config (fromCount 5 >> List.filter (\\v -> v.value /= 0))\n            , ticks tickConfig (fromCount 5)\n            , positionBy\n                (fromAxis (\\p l h -> ( h / 2, p )))\n                [ label\n                    [ transform \"translate(10, 0) rotate(90)\"\n                    , style \"text-anchor: middle\"\n                    , fill axisColorLight\n                    ]\n                    \"Ca$h for big big company\"\n                ]\n            ]\n        ]\n    ';
+var _terezka$elm_plot$PlotAxis$barData = A2(
+	_terezka$elm_plot$Svg_Plot$toGroups,
+	{
+		yValues: function (_) {
+			return _.values;
+		},
+		xValue: _elm_lang$core$Maybe$Nothing
+	},
+	{
+		ctor: '::',
+		_0: {
+			values: {
+				ctor: '::',
+				_0: 40,
+				_1: {
+					ctor: '::',
+					_0: 30,
+					_1: {ctor: '[]'}
+				}
+			}
+		},
+		_1: {
+			ctor: '::',
+			_0: {
+				values: {
+					ctor: '::',
+					_0: 20,
+					_1: {
+						ctor: '::',
+						_0: 30,
+						_1: {ctor: '[]'}
+					}
+				}
+			},
+			_1: {
+				ctor: '::',
+				_0: {
+					values: {
+						ctor: '::',
+						_0: 40,
+						_1: {
+							ctor: '::',
+							_0: 20,
+							_1: {ctor: '[]'}
+						}
+					}
+				},
+				_1: {
+					ctor: '::',
+					_0: {
+						values: {
+							ctor: '::',
+							_0: 60,
+							_1: {
+								ctor: '::',
+								_0: 50,
+								_1: {ctor: '[]'}
+							}
+						}
+					},
+					_1: {ctor: '[]'}
+				}
+			}
+		}
+	});
+var _terezka$elm_plot$PlotAxis$titleLabel = F2(
+	function (translate, rotation) {
+		return _terezka$elm_plot$Svg_Plot$label(
+			{
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$transform(
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'translate(',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							translate,
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								') rotate(',
+								A2(_elm_lang$core$Basics_ops['++'], rotation, ')'))))),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$style('text-anchor: middle'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$fill(_terezka$elm_plot$Common$axisColorLight),
+						_1: {ctor: '[]'}
+					}
+				}
+			});
+	});
+var _terezka$elm_plot$PlotAxis$barLabel = function (_p0) {
+	return A2(
+		_terezka$elm_plot$Svg_Plot$label,
+		{
+			ctor: '::',
+			_0: _elm_lang$svg$Svg_Attributes$stroke('#fff'),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$fill('#fff'),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$style('text-anchor: middle; font-size: 10px;'),
+					_1: {
+						ctor: '::',
+						_0: _terezka$elm_plot$Svg_Plot$displace(
+							{ctor: '_Tuple2', _0: 0, _1: 15}),
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		},
+		_elm_lang$core$Basics$toString(
+			function (_) {
+				return _.yValue;
+			}(_p0)));
+};
 var _terezka$elm_plot$PlotAxis$barsConfig = _terezka$elm_plot$Svg_Plot$toBarsConfig(
 	{
 		stackBy: _terezka$elm_plot$Svg_Plot$X,
@@ -11204,32 +11322,7 @@ var _terezka$elm_plot$PlotAxis$barsConfig = _terezka$elm_plot$Svg_Plot$toBarsCon
 				_1: {ctor: '[]'}
 			}
 		},
-		labelView: function (_p0) {
-			return A2(
-				_terezka$elm_plot$Svg_Plot$label,
-				{
-					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$stroke('#fff'),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$fill('#fff'),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$style('text-anchor: middle; font-size: 10px;'),
-							_1: {
-								ctor: '::',
-								_0: _terezka$elm_plot$Svg_Plot$displace(
-									{ctor: '_Tuple2', _0: 0, _1: 15}),
-								_1: {ctor: '[]'}
-							}
-						}
-					}
-				},
-				_elm_lang$core$Basics$toString(
-					function (_) {
-						return _.yValue;
-					}(_p0)));
-		},
+		labelView: _terezka$elm_plot$PlotAxis$barLabel,
 		maxWidth: _terezka$elm_plot$Svg_Plot$Fixed(30)
 	});
 var _terezka$elm_plot$PlotAxis$y2TickLight = _terezka$elm_plot$Svg_Plot$tick(
@@ -11387,74 +11480,7 @@ var _terezka$elm_plot$PlotAxis$view = A2(
 	_terezka$elm_plot$PlotAxis$plotConfig,
 	{
 		ctor: '::',
-		_0: A2(
-			_terezka$elm_plot$Svg_Plot$barsSerie,
-			_terezka$elm_plot$PlotAxis$barsConfig,
-			A2(
-				_terezka$elm_plot$Svg_Plot$toGroups,
-				{
-					yValues: function (_) {
-						return _.values;
-					},
-					xValue: _elm_lang$core$Maybe$Nothing
-				},
-				{
-					ctor: '::',
-					_0: {
-						values: {
-							ctor: '::',
-							_0: 40,
-							_1: {
-								ctor: '::',
-								_0: 30,
-								_1: {ctor: '[]'}
-							}
-						}
-					},
-					_1: {
-						ctor: '::',
-						_0: {
-							values: {
-								ctor: '::',
-								_0: 20,
-								_1: {
-									ctor: '::',
-									_0: 30,
-									_1: {ctor: '[]'}
-								}
-							}
-						},
-						_1: {
-							ctor: '::',
-							_0: {
-								values: {
-									ctor: '::',
-									_0: 40,
-									_1: {
-										ctor: '::',
-										_0: 20,
-										_1: {ctor: '[]'}
-									}
-								}
-							},
-							_1: {
-								ctor: '::',
-								_0: {
-									values: {
-										ctor: '::',
-										_0: 60,
-										_1: {
-											ctor: '::',
-											_0: 50,
-											_1: {ctor: '[]'}
-										}
-									}
-								},
-								_1: {ctor: '[]'}
-							}
-						}
-					}
-				})),
+		_0: A2(_terezka$elm_plot$Svg_Plot$barsSerie, _terezka$elm_plot$PlotAxis$barsConfig, _terezka$elm_plot$PlotAxis$barData),
 		_1: {
 			ctor: '::',
 			_0: A2(
@@ -11587,22 +11613,7 @@ var _terezka$elm_plot$PlotAxis$view = A2(
 									})),
 							{
 								ctor: '::',
-								_0: A2(
-									_terezka$elm_plot$Svg_Plot$label,
-									{
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$transform('translate(-10, 0) rotate(-90)'),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$style('text-anchor: middle'),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$svg$Svg_Attributes$fill(_terezka$elm_plot$Common$axisColorLight),
-												_1: {ctor: '[]'}
-											}
-										}
-									},
-									'Units sold'),
+								_0: A3(_terezka$elm_plot$PlotAxis$titleLabel, '-10, 0', '-90', 'Units sold'),
 								_1: {ctor: '[]'}
 							}),
 						_1: {
@@ -11616,22 +11627,7 @@ var _terezka$elm_plot$PlotAxis$view = A2(
 										})),
 								{
 									ctor: '::',
-									_0: A2(
-										_terezka$elm_plot$Svg_Plot$label,
-										{
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$transform('translate(10, 0) rotate(90)'),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$svg$Svg_Attributes$style('text-anchor: middle'),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$svg$Svg_Attributes$fill(_terezka$elm_plot$Common$axisColorLight),
-													_1: {ctor: '[]'}
-												}
-											}
-										},
-										'Ca$h for big big company'),
+									_0: A3(_terezka$elm_plot$PlotAxis$titleLabel, '10, 0', '90', 'Ca$h'),
 									_1: {ctor: '[]'}
 								}),
 							_1: {ctor: '[]'}
