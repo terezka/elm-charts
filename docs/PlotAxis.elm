@@ -89,12 +89,12 @@ y1TickLight =
 
 y2Tick : Svg.Svg  msg
 y2Tick =
-  tick [ stroke axisColor, length 5 ]
+  tick [ stroke axisColor, length 5, style "transform: rotate(90deg)" ]
 
 
 y2TickLight : Svg.Svg  msg
 y2TickLight =
-  tick [ stroke axisColorLight, length 10 ]
+  tick [ stroke axisColorLight, length 10, style "transform: rotate(90deg)" ]
 
 
 barsConfig : BarsConfig msg

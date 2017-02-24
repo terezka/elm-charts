@@ -63,7 +63,7 @@ view =
     plot plotConfig
         [ yAxis atLowest
             [ line [ fill axisColor ]
-            , ticks (tick [ stroke axisColor, length 5 ]) (fromDelta 0 1)
+            , ticks (tick [ stroke axisColor, length 5, style "transform: rotate(90deg)" ]) (fromDelta 0 1)
             , labels (toString >> label [ fill axisColor, displace ( -10, 5 ), style "text-anchor: end;" ]) (fromDelta 0 1)
             ]
         , verticalGrid [ stroke axisColorLight ] (fromDelta 0 10)

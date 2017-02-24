@@ -141,28 +141,6 @@ monotoneXCurve ( x0, y0 ) ( x1, y1 ) tangent0 tangent1 =
         cubicBeziers (x0 + dx) (y0 + dx * tangent0) (x1 - dx) (y1 - dx * tangent1) x1 y1
 
 
--- Helpers
-
-
-joinCommands : List String -> String
-joinCommands commands =
-  String.join " " commands
-
-
-pointToString : Point -> String
-pointToString ( x, y ) =
-  toString x ++ " " ++ toString y
-
-
-pointsToString : List Point -> String
-pointsToString points =
-  String.join "," (List.map pointToString points)
-
-
-boolToString : Bool -> String
-boolToString bool =
-  if bool then "0" else "1"
-
 
 {-| Calculate the slopes of the tangents (Hermite-type interpolation) based on
  the following paper: Steffen, M. 1990. A Simple Method for Monotonic
@@ -193,8 +171,30 @@ slope2 ( x0, y0 ) ( x1, y1 ) tangent0 =
       tangent0
 
 
-
-
 sign : Float -> Float
 sign x =
   if x < 0 then -1 else 1
+
+
+
+-- Helpers
+
+
+joinCommands : List String -> String
+joinCommands commands =
+  String.join " " commands
+
+
+pointToString : Point -> String
+pointToString ( x, y ) =
+  toString x ++ " " ++ toString y
+
+
+pointsToString : List Point -> String
+pointsToString points =
+  String.join "," (List.map pointToString points)
+
+
+boolToString : Bool -> String
+boolToString bool =
+  if bool then "0" else "1"

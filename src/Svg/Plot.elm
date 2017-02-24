@@ -567,7 +567,13 @@ getGroupXValue toXValue index data =
 
 {-| -}
 type alias AxisElement msg =
-    Scale -> (Value -> Point) -> Element msg
+    AxisMeta -> Element msg
+
+
+type alias AxisMeta =
+    { scale : Scale
+    , toPoint : Value -> Point
+    }
 
 
 {-| Provided an axis configuration and a list of axis elements, it will produce an axis in your plot! ✨
@@ -575,32 +581,42 @@ type alias AxisElement msg =
 xAxis : (Value -> Value -> Value) -> List (AxisElement msg) -> Element msg
 xAxis toYValue elements =
     let
-        toAxisPoint xScale x =
-          ( x, toYValue xScale.lowest xScale.highest )
+        toPoint yScale x =
+          ( x, toYValue yScale.lowest yScale.highest )
 
-        viewAxisElement (Meta { xScale, yScale }) element =
-          element xScale (toAxisPoint yScale)
+        axisMeta (Meta { xScale, yScale }) =
+          { scale = xScale
+          , toPoint = toPoint yScale
+          }
 
-        view meta =
-          List.map (viewAxisElement meta) elements
+        view meta element =
+          element (axisMeta meta)
+
+        views meta =
+          List.map (view meta) elements
     in
-        Views [ class "elm-plot__axis elm-plot__axis--x" ] view
+        Views [ class "elm-plot__axis elm-plot__axis--x" ] views
 
 
 {-| -}
 yAxis : (Value -> Value -> Value) -> List (AxisElement msg) -> Element msg
 yAxis toXValue elements =
     let
-        toAxisPoint xScale y =
+        toPoint xScale y =
           ( toXValue xScale.lowest xScale.highest, y )
 
-        viewAxisElement (Meta { xScale, yScale }) element =
-          element yScale (toAxisPoint xScale)
+        axisMeta (Meta { xScale, yScale }) =
+          { scale = yScale
+          , toPoint = toPoint xScale
+          }
 
-        view meta =
-          List.map (viewAxisElement meta) elements
+        view meta element =
+          element (axisMeta meta)
+
+        views meta =
+          List.map (view meta) elements
     in
-        Views [ class "elm-plot__axis elm-plot__axis--y" ] view
+        Views [ class "elm-plot__axis elm-plot__axis--y" ] views
 
 
 
@@ -617,7 +633,7 @@ yAxis toXValue elements =
             [ Plot.labels (toString >> label) (Plot.fromDelta 2) ]
 -}
 labels : (Value -> Svg msg) -> ValueProducer -> AxisElement msg
-labels svgView valueBuilder scale toPoint =
+labels svgView valueBuilder { scale, toPoint } =
     let
       view value =
         View (viewAt (toPoint value) [ svgView value ])
@@ -638,7 +654,7 @@ labels svgView valueBuilder scale toPoint =
 
 -}
 labelsFromStrings : (String -> Svg msg) -> ValueProducer -> List String -> AxisElement msg
-labelsFromStrings svgView valueBuilder strings scale toPoint  =
+labelsFromStrings svgView valueBuilder strings { scale, toPoint }  =
     let
       view value string =
         View (viewAt (toPoint value) [ svgView string ])
@@ -663,7 +679,7 @@ label attributes string =
 {-| Place and view ticks provided a tick configuration and a function to produce values.
 -}
 ticks : Svg msg -> ValueProducer -> AxisElement msg
-ticks svgView valueBuilder scale toPoint =
+ticks svgView valueBuilder { scale, toPoint } =
     let
       view value =
         View (viewAt (toPoint value) [ svgView ])
@@ -686,7 +702,7 @@ tick attributes =
 {-| Draw a line along your axis.
 -}
 line : List (Svg.Attribute msg) -> AxisElement msg
-line attributes scale toPoint =
+line attributes { scale, toPoint } =
     View (viewAxisLine attributes [ toPoint scale.lowest, toPoint scale.highest ])
 
 
@@ -704,7 +720,7 @@ horizontalGrid : List (Svg.Attribute msg) -> ValueProducer -> Element msg
 horizontalGrid attributes valueBuilder =
     let
       view scale y =
-        line attributes scale (\x -> ( x, y ))
+        View (viewAxisLine attributes [ ( scale.lowest, y ), ( scale.highest, y ) ])
 
       views (Meta { xScale, yScale }) =
         List.map (view xScale) (Tuple.first (valueBuilder yScale))
@@ -723,7 +739,7 @@ verticalGrid : List (Svg.Attribute msg) -> ValueProducer -> Element msg
 verticalGrid attributes valueBuilder =
     let
       view scale x =
-        line attributes scale (\y -> ( x, y ))
+        View (viewAxisLine attributes [ ( x, scale.lowest ), ( x, scale.highest ) ])
 
       views (Meta { yScale, xScale }) =
         List.map (view yScale) (Tuple.first (valueBuilder xScale))
@@ -881,24 +897,7 @@ viewPlot (PlotConfig config) elements (Meta meta) =
             config.attributes
                 ++ [ Svg.Attributes.viewBox viewBoxValue, Svg.Attributes.id meta.id ]
     in
-        Svg.svg attributes (scaleDefs (Meta meta) :: Svg.style [] [ text defaultStyles ] :: (viewElements (Meta meta) elements))
-
-
-defaultStyles : String
-defaultStyles =
-  """
-    .elm-plot__axis--y .elm-plot__labels {
-      text-anchor: end;
-    }
-
-    .elm-plot__axis--x .elm-plot__labels {
-      text-anchor: middle;
-    }
-
-    .elm-plot__axis--y .elm-plot__ticks line {
-      transform: rotate(90deg);
-    }
-  """
+        Svg.svg attributes (scaleDefs (Meta meta) :: (viewElements (Meta meta) elements))
 
 
 
