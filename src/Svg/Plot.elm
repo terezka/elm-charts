@@ -110,6 +110,7 @@ import Html exposing (Html)
 import Svg exposing (Svg, g, text_, tspan, path, text, line)
 import Svg.Attributes exposing (d, fill, transform, class, y2, x2, width, height, clipPath, stroke)
 import Svg.Utils exposing (..)
+import Svg.Path exposing (..)
 
 
 {-| Represents a x or y-value in a `Point`.
@@ -968,11 +969,26 @@ viewAtPosition point children meta =
 
 viewLine : LineConfig msg -> List Point -> Meta -> Svg msg
 viewLine (LineConfig config) data meta =
-    g
-        [ class "elm-plot__serie--line"
-        , clipPath ("url(#" ++ toClipPathId meta ++ ")")
-        ]
-        [ viewPath (config.attributes ++ [ fill "transparent" ]) (makeLinePath config.interpolation data meta) ]
+    let
+      pointsSVG =
+        List.map (toSVGPoint meta) data
+
+      firstPoint =
+        Maybe.withDefault (0, 0) (List.head pointsSVG)
+
+      path =
+        case pointsSVG of
+          p1 :: rest ->
+            Svg.Path.toPath [ uncurry Svg.Path.move p1, toLinePath config.interpolation rest ]
+
+          _ ->
+            ""
+    in
+      g
+          [ class "elm-plot__serie--line"
+          , clipPath ("url(#" ++ toClipPathId meta ++ ")")
+          ]
+          [ viewPath (config.attributes ++ [ fill "transparent" ]) path ]
 
 
 
@@ -1005,27 +1021,38 @@ viewCircle radius ( x, y ) =
 
 
 viewArea : AreaConfig msg -> List Point -> Meta -> Axised Reach -> Svg msg
-viewArea (AreaConfig config) data (Meta meta) reach =
+viewArea (AreaConfig config) data meta reach =
     let
-        mostZeroY =
-            valueClosestToZero meta.yScale
+        (Meta { yScale }) =
+            meta
+
+        pointsSVG =
+            List.map (toSVGPoint meta) data
 
         firstPoint =
-            Maybe.withDefault ( 0, 0 ) (List.head data)
+            Maybe.withDefault ( 0, 0 ) (List.head pointsSVG)
+
+        mostZeroY =
+            valueClosestToZero yScale
+
+        areaStart =
+            toSVGPoint meta (Debug.log "here" ( reach.x.lower, mostZeroY ))
+
+        areaEnd =
+            toSVGPoint meta ( reach.x.upper, mostZeroY )
 
         pathString =
-            List.concat
-                [ [ M ( reach.x.lower, mostZeroY ) ]
-                , [ L firstPoint ]
-                , (toLinePath config.interpolation data)
-                , [ L ( reach.x.upper, mostZeroY ) ]
-                , [ Z ]
+            Svg.Path.toPath
+                [ uncurry Svg.Path.move areaStart
+                , uncurry Svg.Path.line firstPoint
+                , toLinePath config.interpolation pointsSVG
+                , uncurry Svg.Path.line areaEnd
+                , Svg.Path.close
                 ]
-                |> toPath (Meta meta)
     in
         g
             [ class "elm-plot__serie--area"
-            , clipPath ("url(#" ++ toClipPathId (Meta meta) ++ ")")
+            , clipPath ("url(#" ++ toClipPathId meta ++ ")")
             ]
             [ viewPath config.attributes pathString ]
 
@@ -1118,173 +1145,21 @@ viewBars (BarsConfig { stackBy, maxWidth, styles, labelView }) groups meta =
 -- PATH STUFF
 
 
-type PathType
-    = L Point
-    | M Point
-    | S Point Point Point
-    | Z
-
 
 viewPath : List (Svg.Attribute msg) -> String -> Svg msg
 viewPath attributes pathString =
     path (d pathString :: attributes) []
 
 
-makeLinePath : Interpolation -> List Point -> Meta -> String
-makeLinePath interpolation points meta =
-    case points of
-        p1 :: rest ->
-            M p1 :: (toLinePath interpolation (p1 :: rest)) |> toPath meta
-
-        _ ->
-            ""
-
-
-toPath : Meta -> List PathType -> String
-toPath meta pathParts =
-    List.foldl (\part result -> result ++ toPathTypeString meta part) "" pathParts
-
-
-toPathTypeString : Meta -> PathType -> String
-toPathTypeString meta pathType =
-    case pathType of
-        M point ->
-            toPathTypeStringSinglePoint meta "M" point
-
-        L point ->
-            toPathTypeStringSinglePoint meta "L" point
-
-        S p1 p2 p3 ->
-            toPathTypeStringS meta p1 p2 p3
-
-        Z ->
-            "Z"
-
-
-toPathTypeStringSinglePoint : Meta -> String -> Point -> String
-toPathTypeStringSinglePoint meta typeString point =
-    typeString ++ " " ++ pointToString meta point
-
-
-toPathTypeStringS : Meta -> Point -> Point -> Point -> String
-toPathTypeStringS meta ( x0, y0 ) ( x, y ) ( x1, y1 ) =
-    let
-        t0 = slope3 ( x0, y0 ) ( x, y ) ( x1, y1 )
-        dx = (x1 - x0) / 3
-
-        point(this, slope2(this, t1 = slope3(this, x, y)), t1)
-    in
-        "C " ++ pointToString meta ( x0 + dx, y0 + dx * t0 ) ++ "," ++ pointToString meta ( x1 - dx, y1 - dx * 1) ++ "," ++ pointToString meta (x1, y1)
-
-
-toMonotoneXPath : List Point -> Float -> String -> String
-toMonotoneXPath points t1 path =
-  case points of
-    ( x0, y0 ) :: ( x, y ) :: ( x1, y1 ) :: rest ->
-      let
-          t0 = slope3 ( x0, y0 ) ( x, y ) ( x1, y1 )
-          newPath = path ++ beziesMonotoneXPath ( x0, y0 ) ( x, y ) ( x1, y1 ) t0 t1
-      in
-        toMonotoneXPath rest t0 newPath
-
-    _ ->
-      path
-
-
-beziesMonotoneXPath : Point -> Point -> Point -> String
-beziesMonotoneXPath ( x0, y0 ) ( x, y ) ( x1, y1 ) =
-    let
-        t0 = slope3 ( x0, y0 ) ( x, y ) ( x1, y1 )
-        dx = (x1 - x0) / 3
-    in
-        bezierCurveTo ( x0 + dx, y0 + dx * t0 ) ( x1 - dx, y1 - dx * 1 ) ( x1, y1 )
-
-
-bezierCurveTo : Meta -> Point -> Point -> Point -> String -> String
-bezierCurveTo meta p1 p2 p3 =
-    "C " ++ pointToString p1 ++ "," ++ pointToString p2 ++ "," ++ pointToString p3
-
-
-
-{-| Calculate the slopes of the tangents (Hermite-type interpolation) based on
-  the following paper: Steffen, M. 1990. A Simple Method for Monotonic
-  Interpolation in One Dimension
--}
-slope3 : Point -> Point -> Point -> Float
-slope3 (x0, y0) (x1, y1) (x2, y2) =
-  let
-    h0 = x1 - x0
-    h1 = x2 - x1
-
-    s0 = (y1 - y0) / h0
-    s1 = (y2 - y1) / h1
-
-    p = (s0 * h1 + s1 * h0) / (h0 + h1)
-  in
-    (sign s0  + sign s1 ) * min (min (abs s0) (abs s1)) (0.5 * abs p)
-
-
-
-{-| Calculate a one-sided slope. -}
-slope2 : Point -> Point -> Float -> Float
-slope2 (x0, y0) (x1, y1) t =
-  let
-    h = x1 - x0
-  in
-    (3 * (y1 - y0) / h - t) / 2
-
-
-sign : Float -> Float
-sign x =
-  if x < 0 then -1 else 1
-
-
-
-magnitude : Float
-magnitude =
-    0.5
-
-
-toBezierPoints : Point -> Point -> Point -> ( Point, Point )
-toBezierPoints ( x0, y0 ) ( x, y ) ( x1, y1 ) =
-    ( ( x - ((x1 - x0) / 2 * magnitude), y - ((y1 - y0) / 2 * magnitude) )
-    , ( x, y )
-    )
-
-
-pointToString : Meta -> Point -> String
-pointToString meta point =
-    let
-        ( x, y ) =
-            toSVGPoint meta point
-    in
-        (toString x) ++ "," ++ (toString y)
-
-
-toLinePath : Interpolation -> List Point -> List PathType
-toLinePath smoothing =
-    case smoothing of
+toLinePath : Interpolation -> List Point -> String
+toLinePath interpolation =
+    case interpolation of
         NoInterpolation ->
-            List.map L
+            Svg.Path.toLinePath
 
         Bezier ->
-            toSPathTypes [] >> List.reverse
+            Svg.Path.toMonotoneXPath
 
-
-toSPathTypes : List PathType -> List Point -> List PathType
-toSPathTypes result points =
-    case points of
-        [ p1, p2 ] ->
-            S p1 p2 p2 :: result
-
-        [ p1, p2, p3 ] ->
-            toSPathTypes (S p1 p2 p3 :: result) [ p2, p3 ]
-
-        p1 :: p2 :: p3 :: rest ->
-            toSPathTypes (S p1 p2 p3 :: result) (p2 :: p3 :: rest)
-
-        _ ->
-            result
 
 
 
