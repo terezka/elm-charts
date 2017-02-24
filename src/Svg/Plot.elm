@@ -979,7 +979,10 @@ viewLine (LineConfig config) data meta =
       path =
         case pointsSVG of
           p1 :: rest ->
-            Svg.Path.toPath [ uncurry Svg.Path.move p1, toLinePath config.interpolation rest ]
+            Svg.Path.toPath
+              [ uncurry Svg.Path.move p1
+              , toLinePath config.interpolation rest
+              ]
 
           _ ->
             ""
@@ -1001,18 +1004,19 @@ viewAxisLine attributes =
 
 
 viewDots : DotsConfig msg -> List Point -> Meta -> Svg msg
-viewDots (DotsConfig config) data meta =
+viewDots (DotsConfig { radius, attributes }) data meta =
     g [ class "elm-plot__serie--dots" ]
-        (List.map (toSVGPoint meta >> viewCircle config.radius) data)
+        (List.map (toSVGPoint meta >> viewCircle radius attributes) data)
 
 
-viewCircle : Float -> Point -> Svg.Svg a
-viewCircle radius ( x, y ) =
+viewCircle : Float -> List (Svg.Attribute msg) -> Point -> Svg.Svg msg
+viewCircle radius attributes ( x, y ) =
     Svg.circle
-        [ Svg.Attributes.cx (toString x)
-        , Svg.Attributes.cy (toString y)
-        , Svg.Attributes.r (toString radius)
-        ]
+        (attributes ++
+          [ Svg.Attributes.cx (toString x)
+          , Svg.Attributes.cy (toString y)
+          , Svg.Attributes.r (toString radius)
+          ])
         []
 
 
@@ -1036,7 +1040,7 @@ viewArea (AreaConfig config) data meta reach =
             valueClosestToZero yScale
 
         areaStart =
-            toSVGPoint meta (Debug.log "here" ( reach.x.lower, mostZeroY ))
+            toSVGPoint meta ( reach.x.lower, mostZeroY )
 
         areaEnd =
             toSVGPoint meta ( reach.x.upper, mostZeroY )

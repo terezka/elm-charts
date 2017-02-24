@@ -96,25 +96,45 @@ toLinePath points =
 
 toMonotoneXPath : List Point -> String
 toMonotoneXPath points =
-    monotoneXPath points 1 ""
+    case points of
+      p0 :: p1 :: p2 :: rest ->
+        monotoneXPathBegin p0 p1 p2 rest
+
+      _ ->
+        ""
+
+
+monotoneXPathBegin : Point -> Point -> Point -> List Point -> String
+monotoneXPathBegin p0 p1 p2 rest =
+    let
+      tangent1 = slope3 p0 p1 p2
+      tangent0 = slope2 p0 p1 tangent1
+    in
+      monotoneXCurve p0 p1 tangent0 tangent1 ++ monotoneXPath (p1 :: p2 :: rest) tangent1 ""
 
 
 monotoneXPath : List Point -> Float -> String -> String
-monotoneXPath points tangent1 path =
+monotoneXPath points tangent0 path =
   case points of
-    p1 :: p2 :: p3 :: rest ->
+    p0 :: p1 :: p2 :: rest ->
       let
-          tangent0 = slope3 p1 p2 p3
-          newPath = path ++ " " ++ monotoneXCurve p1 p2 p3 tangent0 tangent1
+          tangent1 = slope3 p0 p1 p2
+          newPath = path ++ " " ++ monotoneXCurve p0 p1 tangent0 tangent1
       in
-        monotoneXPath rest tangent0 newPath
+        monotoneXPath (p1 :: p2 :: rest) tangent0 newPath
+
+    [ p1, p2 ] ->
+      let
+          tangent1 = slope3 p1 p2 p2
+      in
+        path ++ " " ++ monotoneXCurve p1 p2 tangent0 tangent1
 
     _ ->
       path
 
 
-monotoneXCurve : Point -> Point -> Point -> Float -> Float -> String
-monotoneXCurve ( x0, y0 ) ( x, y ) ( x1, y1 ) tangent0 tangent1 =
+monotoneXCurve : Point -> Point -> Float -> Float -> String
+monotoneXCurve ( x0, y0 ) ( x1, y1 ) tangent0 tangent1 =
     let
         dx = (x1 - x0) / 3
     in
@@ -149,21 +169,30 @@ boolToString bool =
  Interpolation in One Dimension
 -}
 slope3 : Point -> Point -> Point -> Float
-slope3 (x0, y0) (x1, y1) (x2, y2) =
+slope3 ( x0, y0 ) ( x1, y1 ) ( x2, y2 ) =
   let
     h0 = x1 - x0
     h1 = x2 - x1
     s0 = (y1 - y0) / h0
     s1 = (y2 - y1) / h1
     p = (s0 * h1 + s1 * h0) / (h0 + h1)
+    slope = (sign s0 + sign s1) * (min (min (abs s0) (abs s1)) (0.5 * abs p))
   in
-    (sign s0 + sign s1) * (min (min (abs s0) (abs s1)) (0.5 * abs p))
+    if isNaN slope then 0 else slope
 
 
 {-| Calculate a one-sided slope. -}
 slope2 : Point -> Point -> Float -> Float
-slope2 (x0, y0) (x1, y1) tangent0 =
-  (3 * (y1 - y0) / ((x1 - x0) - tangent0)) / 2
+slope2 ( x0, y0 ) ( x1, y1 ) tangent0 =
+  let
+    h = x1 - x0
+  in
+    if h /= 0 then
+      (3 * (y1 - y0) / ((x1 - x0) - tangent0)) / 2
+    else
+      tangent0
+
+
 
 
 sign : Float -> Float

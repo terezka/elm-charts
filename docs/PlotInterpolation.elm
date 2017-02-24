@@ -49,37 +49,38 @@ areaConfig =
         }
 
 
-data1 : List ( Float, Float )
-data1 =
-    [ ( 0, 10 ), ( 0.5, 20 ), ( 1, -5 ), ( 1.5, 4 ), ( 2, -7 ), ( 2.5, 5 ), ( 3, 20 ), ( 3.5, 7 ), ( 4, 28 ) ]
+labelView : Value -> Svg.Svg msg
+labelView =
+    toString >> label
+        [ fill axisColor
+        , style "text-anchor: middle;"
+        , displace ( 0, 24 )
+        ]
+
+
+tickView : Svg.Svg msg
+tickView =
+  tick [ stroke axisColor, length 10 ]
+
+
+data : List ( Float, Float )
+data =
+    [ ( -2, 10 ), ( -1, 20 ), ( -0.5, -5 ),( 0, 10 ), ( 0.5, 20 ), ( 1, -5 ), ( 1.5, 4 ), ( 2, -7 ), ( 2.5, 5 ), ( 3, 20 ), ( 3.5, 7 ), ( 4, 28 ) ]
 
 
 view : Svg.Svg a
 view =
     plot plotConfig
-        [ areaSerie areaConfig data1
+        [ areaSerie areaConfig data
+        , dotsSerie (toDotsConfig { attributes = [ stroke pinkStroke, fill "#fff" ], radius = 3 }) data
         , xAxis atZero
             [ line
                 [ stroke axisColor
                 , fill axisColor
                 , fill pinkFill
                 ]
-            , labels
-                (toString
-                    >> label
-                        [ fill axisColor
-                        , style "text-anchor: middle;"
-                        , displace ( 0, 24 )
-                        ]
-                )
-                (fromDelta 0 1)
-            , ticks
-                (tick
-                        [ stroke axisColor
-                        , length 10
-                        ]
-                )
-                (fromDelta 0 1)
+            , labels labelView (fromDelta 0 1)
+            , ticks tickView (fromDelta 0 1)
             ]
         ]
 
