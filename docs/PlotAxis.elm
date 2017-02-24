@@ -59,6 +59,44 @@ xLabel =
         ]
 
 
+y1Label : Value -> Svg.Svg msg
+y1Label =
+    toString >> label
+      [ fill axisColor
+      , style "text-anchor: start;"
+      , displace ( 10, 5 )
+      ]
+
+
+y2Label : Value -> Svg.Svg msg
+y2Label =
+    (*) 100 >> toString >> label
+      [ fill axisColor
+      , style "text-anchor: end;"
+      , displace ( -10, 5 )
+      ]
+
+
+y1Tick : Svg.Svg  msg
+y1Tick =
+  tick [ stroke axisColor, length 5, style "transform: rotate(-90deg)" ]
+
+
+y1TickLight : Svg.Svg  msg
+y1TickLight =
+  tick [ stroke axisColorLight, length 10, style "transform: rotate(-90deg)" ]
+
+
+y2Tick : Svg.Svg  msg
+y2Tick =
+  tick [ stroke axisColor, length 5 ]
+
+
+y2TickLight : Svg.Svg  msg
+y2TickLight =
+  tick [ stroke axisColorLight, length 10 ]
+
+
 barsConfig : BarsConfig msg
 barsConfig =
     toBarsConfig
@@ -99,34 +137,15 @@ view =
             ]
         , yAxis atLowest
             [ line [ stroke axisColor ]
-            , ticks
-                (tick [ stroke axisColor, length 10, style "transform: rotate(-90deg)" ])
-                (fromDelta 0 10)
-            , ticks
-                (tick [ stroke axisColorLight, length 5, style "transform: rotate(-90deg)" ])
-                (fromDelta 5 10)
-            , labels
-                (toString >> label [ fill axisColor, style "text-anchor: start;", displace ( 10, 5 ) ])
-                (fromDelta 0 10)
+            , ticks y1Tick (fromDelta 0 10)
+            , ticks y1TickLight (fromDelta 5 10)
+            , labels y1Label (fromDelta 0 10 >> remove 0)
             ]
         , yAxis atHighest
             [ line [ stroke axisColor ]
-            , ticks
-                (tick [ stroke axisColor, length 10 ])
-                (fromDelta 0 5)
-            , ticks
-                (tick [ stroke axisColorLight, length 5 ])
-                (fromDelta 1 5)
-            , labels
-                ((*) 100
-                    >> toString
-                    >> label
-                        [ fill axisColor
-                        , style "text-anchor: end;"
-                        , displace ( -10, 5 )
-                        ]
-                )
-                (fromDelta 0 10)
+            , ticks y2Tick (fromDelta 0 10)
+            , ticks y2TickLight (fromDelta 5 10)
+            , labels y2Label (fromDelta 0 10 >> remove 0)
             ]
         , placeAt
             (fromRangeAndDomain (\xl xh yl yh -> ( xl, yh / 2 )))

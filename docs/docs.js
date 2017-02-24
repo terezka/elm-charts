@@ -11210,6 +11210,99 @@ var _terezka$elm_plot$PlotAxis$barsConfig = _terezka$elm_plot$Svg_Plot$toBarsCon
 		},
 		maxWidth: _terezka$elm_plot$Svg_Plot$Fixed(30)
 	});
+var _terezka$elm_plot$PlotAxis$y2TickLight = _terezka$elm_plot$Svg_Plot$tick(
+	{
+		ctor: '::',
+		_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Common$axisColorLight),
+		_1: {
+			ctor: '::',
+			_0: _terezka$elm_plot$Svg_Plot$length(10),
+			_1: {ctor: '[]'}
+		}
+	});
+var _terezka$elm_plot$PlotAxis$y2Tick = _terezka$elm_plot$Svg_Plot$tick(
+	{
+		ctor: '::',
+		_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Common$axisColor),
+		_1: {
+			ctor: '::',
+			_0: _terezka$elm_plot$Svg_Plot$length(5),
+			_1: {ctor: '[]'}
+		}
+	});
+var _terezka$elm_plot$PlotAxis$y1TickLight = _terezka$elm_plot$Svg_Plot$tick(
+	{
+		ctor: '::',
+		_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Common$axisColorLight),
+		_1: {
+			ctor: '::',
+			_0: _terezka$elm_plot$Svg_Plot$length(10),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$style('transform: rotate(-90deg)'),
+				_1: {ctor: '[]'}
+			}
+		}
+	});
+var _terezka$elm_plot$PlotAxis$y1Tick = _terezka$elm_plot$Svg_Plot$tick(
+	{
+		ctor: '::',
+		_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Common$axisColor),
+		_1: {
+			ctor: '::',
+			_0: _terezka$elm_plot$Svg_Plot$length(5),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$style('transform: rotate(-90deg)'),
+				_1: {ctor: '[]'}
+			}
+		}
+	});
+var _terezka$elm_plot$PlotAxis$y2Label = function (_p1) {
+	return A2(
+		_terezka$elm_plot$Svg_Plot$label,
+		{
+			ctor: '::',
+			_0: _elm_lang$svg$Svg_Attributes$fill(_terezka$elm_plot$Common$axisColor),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$style('text-anchor: end;'),
+				_1: {
+					ctor: '::',
+					_0: _terezka$elm_plot$Svg_Plot$displace(
+						{ctor: '_Tuple2', _0: -10, _1: 5}),
+					_1: {ctor: '[]'}
+				}
+			}
+		},
+		_elm_lang$core$Basics$toString(
+			A2(
+				F2(
+					function (x, y) {
+						return x * y;
+					}),
+				100,
+				_p1)));
+};
+var _terezka$elm_plot$PlotAxis$y1Label = function (_p2) {
+	return A2(
+		_terezka$elm_plot$Svg_Plot$label,
+		{
+			ctor: '::',
+			_0: _elm_lang$svg$Svg_Attributes$fill(_terezka$elm_plot$Common$axisColor),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$style('text-anchor: start;'),
+				_1: {
+					ctor: '::',
+					_0: _terezka$elm_plot$Svg_Plot$displace(
+						{ctor: '_Tuple2', _0: 10, _1: 5}),
+					_1: {ctor: '[]'}
+				}
+			}
+		},
+		_elm_lang$core$Basics$toString(_p2));
+};
 var _terezka$elm_plot$PlotAxis$xLabel = _terezka$elm_plot$Svg_Plot$label(
 	{
 		ctor: '::',
@@ -11388,64 +11481,25 @@ var _terezka$elm_plot$PlotAxis$view = A2(
 							ctor: '::',
 							_0: A2(
 								_terezka$elm_plot$Svg_Plot$ticks,
-								_terezka$elm_plot$Svg_Plot$tick(
-									{
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Common$axisColor),
-										_1: {
-											ctor: '::',
-											_0: _terezka$elm_plot$Svg_Plot$length(10),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$svg$Svg_Attributes$style('transform: rotate(-90deg)'),
-												_1: {ctor: '[]'}
-											}
-										}
-									}),
+								_terezka$elm_plot$PlotAxis$y1Tick,
 								A2(_terezka$elm_plot$Svg_Plot$fromDelta, 0, 10)),
 							_1: {
 								ctor: '::',
 								_0: A2(
 									_terezka$elm_plot$Svg_Plot$ticks,
-									_terezka$elm_plot$Svg_Plot$tick(
-										{
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Common$axisColorLight),
-											_1: {
-												ctor: '::',
-												_0: _terezka$elm_plot$Svg_Plot$length(5),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$svg$Svg_Attributes$style('transform: rotate(-90deg)'),
-													_1: {ctor: '[]'}
-												}
-											}
-										}),
+									_terezka$elm_plot$PlotAxis$y1TickLight,
 									A2(_terezka$elm_plot$Svg_Plot$fromDelta, 5, 10)),
 								_1: {
 									ctor: '::',
 									_0: A2(
 										_terezka$elm_plot$Svg_Plot$labels,
-										function (_p1) {
+										_terezka$elm_plot$PlotAxis$y1Label,
+										function (_p3) {
 											return A2(
-												_terezka$elm_plot$Svg_Plot$label,
-												{
-													ctor: '::',
-													_0: _elm_lang$svg$Svg_Attributes$fill(_terezka$elm_plot$Common$axisColor),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$svg$Svg_Attributes$style('text-anchor: start;'),
-														_1: {
-															ctor: '::',
-															_0: _terezka$elm_plot$Svg_Plot$displace(
-																{ctor: '_Tuple2', _0: 10, _1: 5}),
-															_1: {ctor: '[]'}
-														}
-													}
-												},
-												_elm_lang$core$Basics$toString(_p1));
-										},
-										A2(_terezka$elm_plot$Svg_Plot$fromDelta, 0, 10)),
+												_terezka$elm_plot$Svg_Plot$remove,
+												0,
+												A3(_terezka$elm_plot$Svg_Plot$fromDelta, 0, 10, _p3));
+										}),
 									_1: {ctor: '[]'}
 								}
 							}
@@ -11468,63 +11522,25 @@ var _terezka$elm_plot$PlotAxis$view = A2(
 								ctor: '::',
 								_0: A2(
 									_terezka$elm_plot$Svg_Plot$ticks,
-									_terezka$elm_plot$Svg_Plot$tick(
-										{
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Common$axisColor),
-											_1: {
-												ctor: '::',
-												_0: _terezka$elm_plot$Svg_Plot$length(10),
-												_1: {ctor: '[]'}
-											}
-										}),
-									A2(_terezka$elm_plot$Svg_Plot$fromDelta, 0, 5)),
+									_terezka$elm_plot$PlotAxis$y2Tick,
+									A2(_terezka$elm_plot$Svg_Plot$fromDelta, 0, 10)),
 								_1: {
 									ctor: '::',
 									_0: A2(
 										_terezka$elm_plot$Svg_Plot$ticks,
-										_terezka$elm_plot$Svg_Plot$tick(
-											{
-												ctor: '::',
-												_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Common$axisColorLight),
-												_1: {
-													ctor: '::',
-													_0: _terezka$elm_plot$Svg_Plot$length(5),
-													_1: {ctor: '[]'}
-												}
-											}),
-										A2(_terezka$elm_plot$Svg_Plot$fromDelta, 1, 5)),
+										_terezka$elm_plot$PlotAxis$y2TickLight,
+										A2(_terezka$elm_plot$Svg_Plot$fromDelta, 5, 10)),
 									_1: {
 										ctor: '::',
 										_0: A2(
 											_terezka$elm_plot$Svg_Plot$labels,
-											function (_p2) {
+											_terezka$elm_plot$PlotAxis$y2Label,
+											function (_p4) {
 												return A2(
-													_terezka$elm_plot$Svg_Plot$label,
-													{
-														ctor: '::',
-														_0: _elm_lang$svg$Svg_Attributes$fill(_terezka$elm_plot$Common$axisColor),
-														_1: {
-															ctor: '::',
-															_0: _elm_lang$svg$Svg_Attributes$style('text-anchor: end;'),
-															_1: {
-																ctor: '::',
-																_0: _terezka$elm_plot$Svg_Plot$displace(
-																	{ctor: '_Tuple2', _0: -10, _1: 5}),
-																_1: {ctor: '[]'}
-															}
-														}
-													},
-													_elm_lang$core$Basics$toString(
-														A2(
-															F2(
-																function (x, y) {
-																	return x * y;
-																}),
-															100,
-															_p2)));
-											},
-											A2(_terezka$elm_plot$Svg_Plot$fromDelta, 0, 10)),
+													_terezka$elm_plot$Svg_Plot$remove,
+													0,
+													A3(_terezka$elm_plot$Svg_Plot$fromDelta, 0, 10, _p4));
+											}),
 										_1: {ctor: '[]'}
 									}
 								}
