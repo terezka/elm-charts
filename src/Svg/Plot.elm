@@ -1,32 +1,51 @@
-module Svg.Plot exposing (view, dots, line, area, custom, Dot, Series, square, circle, diamond, triangle, fancyCustom, left, right, bottom)
+module Svg.Plot exposing (view, dots, line, area, custom, DataPoint, Series, square, circle, diamond, triangle)
 
+{-|
+# Plot
+
+@docs view, dots, line, area, custom, DataPoint, Series, square, circle, diamond, triangle
+-}
+
+import Html exposing (Html)
+import Svg exposing (Svg, Attribute, svg, text_, tspan, text, g, path, rect)
+import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2)
+import Svg.Draw as Draw exposing (PlotSummary, AxisSummary, Point, draw, linear, linearArea, monotoneX, monotoneXArea)
+import Round
+import Regex
 
 
 -- DATA POINTS
 
 
+{-| -}
 circle : Float -> Float -> DataPoint msg
 circle =
-  DataPoint (viewCircle 5 pinkFill)
+  DataPoint (Just <| viewCircle 5 pinkFill) Nothing Nothing
 
 
+{-| -}
 square : Float -> Float -> DataPoint msg
 square =
-  DataPoint (viewSquare 5 5 pinkFill)
+  DataPoint (Just <| viewSquare 5 5 pinkFill) Nothing Nothing
 
 
+{-| -}
 diamond : Float -> Float -> DataPoint msg
 diamond =
-  DataPoint (viewDiamond 5 pinkFill)
+  DataPoint (Just <| viewSquare 5 5 pinkFill) Nothing Nothing
 
 
+{-| -}
 triangle : Float -> Float -> DataPoint msg
 triangle =
-  DataPoint (viewTriangle 5 pinkFill)
+  DataPoint (Just <| viewSquare 5 5 pinkFill) Nothing Nothing
 
 
+{-| -}
 type alias DataPoint msg =
-  { dot : Maybe (Svg.Svg msg)
+  { view : Maybe (Svg msg)
+  , xMark : Maybe Mark
+  , yMark : Maybe Mark
   , x : Float
   , y : Float
   }
@@ -36,6 +55,7 @@ type alias DataPoint msg =
 -- SERIES
 
 
+{-| -}
 type alias Series data msg =
   { axis : Axis
   , interpolation : Interpolation
@@ -56,11 +76,12 @@ type alias Series data msg =
 -}
 type Interpolation
   = None
-  | Linear (Maybe String) (List (Svg.Attribute Never))
-  | Curvy (Maybe String) (List (Svg.Attribute Never))
-  | Monotone (Maybe String) (List (Svg.Attribute Never))
+  | Linear (Maybe String) (List (Attribute Never))
+  | Curvy (Maybe String) (List (Attribute Never))
+  | Monotone (Maybe String) (List (Attribute Never))
 
 
+{-| -}
 dots : (data -> List (DataPoint msg)) -> Series data msg
 dots toDataPoints =
   { axis = normalAxis
@@ -69,18 +90,20 @@ dots toDataPoints =
   }
 
 
+{-| -}
 line : (data -> List (DataPoint msg)) -> Series data msg
 line toDataPoints =
   { axis = normalAxis
-  , interpolation = Linear False
+  , interpolation = Linear Nothing [ stroke pinkStroke ]
   , toDataPoints = toDataPoints
   }
 
 
+{-| -}
 area : (data -> List (DataPoint msg)) -> Series data msg
 area toDataPoints =
   { axis = normalAxis
-  , interpolation = Linear True
+  , interpolation = Linear (Just pinkFill) [ stroke pinkStroke ]
   , toDataPoints = toDataPoints
   }
 
@@ -89,28 +112,12 @@ area toDataPoints =
 -- CUSTOM SERIES
 
 
-custom : Axis -> Interpolation -> Bool -> (data -> List (DataPoint msg)) -> Series data msg
-custom axis interpolation isArea toDataPoints =
+{-| -}
+custom : Axis -> Interpolation -> (data -> List (DataPoint msg)) -> Series data msg
+custom axis interpolation toDataPoints =
   { axis = axis
   , interpolation = interpolation
   , toDataPoints = toDataPoints
-  , isArea = isArea
-  }
-
-
-
--- FANCY CUSTOM SERIES
-
-
-fancyCustom : Axis -> Interpolation -> (data -> List (FancyDataPoint msg)) -> Series data msg
-
-
-type alias FancyDataPoint msg =
-  { x : Float
-  , y : Float
-  , view : Maybe (Svg.Svg msg)
-  , xMark : Maybe Mark
-  , yMark : Maybe Mark
   }
 
 
@@ -120,12 +127,12 @@ type alias FancyDataPoint msg =
 
 type Axis
   = SometimesYouDoNotHaveAnAxis
-  | Axis AxisCustomizations
+  | Axis (AxisSummary -> AxisCustomizations)
 
 
 type alias AxisCustomizations =
-  { attributes : List (Svg.Attribute Never)
-  , axisPosition : Position
+  { attributes : List (Attribute Never)
+  , position : Position
   , start : Float
   , end : Float
   , marks : List Mark
@@ -140,20 +147,20 @@ type Position
 
 type Mark
   = Tick TickCustomizations
-  | Custom { position : Float, view : Svg.Svg Never }
+  | Custom { position : Float, view : Svg Never }
 
 
 type alias TickCustomizations =
   { position : Float
   , length : Float
-  , attributes : List (Svg.Attribute Never)
-  , gridlineAttributes : Maybe (List (Svg.Attribute Never))
+  , attributes : List (Attribute Never)
+  , gridlineAttributes : Maybe (List (Attribute Never))
   }
 
 
-axis : (Summary -> AxisCustomizations) -> Axis
-axis =
-  Axis
+axis : (AxisSummary -> AxisCustomizations) -> Axis
+axis axis =
+  Axis axis
 
 
 sometimesYouDoNotHaveAnAxis : Axis
@@ -168,11 +175,13 @@ normalAxis =
     , position = At 0
     , start = summary.min
     , end = summary.max
-    , marks = List.map (tick [] 5 Nothing) (default summary) ++ List.map (label [] toString) (default summary)
+    , marks =
+        List.map (tick [ stroke grey ] 5 Nothing) (defaultTickPositions summary)
+        ++ List.map (label [] toString) (defaultTickPositions summary)
     }
 
 
-tick : List (Svg.Attribute msg) -> Float -> Maybe (List (Svg.Attribute Never)) -> Float -> Mark
+tick : List (Attribute Never) -> Float -> Maybe (List (Attribute Never)) -> Float -> Mark
 tick attributes length gridlineAttributes position =
   Tick
     { position = position
@@ -182,11 +191,11 @@ tick attributes length gridlineAttributes position =
     }
 
 
-label : List (Svg.Attribute msg) -> (Float -> String) -> Float -> Mark
+label : List (Attribute msg) -> (Float -> String) -> Float -> Mark
 label attributes format position =
   Custom
     { position = position
-    , view = viewLabel (format position)
+    , view = viewLabel [] (format position)
     }
 
 
@@ -194,144 +203,196 @@ label attributes format position =
 -- VIEW
 
 
-type alias PlotCustomizations msg = -- blah blah blah
+type alias PlotCustomizations msg =
+  { attributes : List (Attribute msg)
+  , horizontalAxis : Axis
+  , id : String
+  , margin :
+    { top : Int
+    , right : Int
+    , bottom : Int
+    , left : Int
+    }
+  , width : Int
+  , height : Int
+  , toDomainLowest : Float -> Float
+  , toDomainHighest : Float -> Float
+  , toRangeLowest : Float -> Float
+  , toRangeHighest : Float -> Float
+  }
 
 
+defaultPlotCustomizations : PlotCustomizations msg
+defaultPlotCustomizations =
+  { attributes = []
+  , id = "elm-plot"
+  , horizontalAxis = normalAxis
+  , margin =
+      { top = 20
+      , right = 20
+      , bottom = 20
+      , left = 20
+      }
+  , width = 1000
+  , height = 720
+  , toDomainLowest = identity
+  , toDomainHighest = identity
+  , toRangeLowest = identity
+  , toRangeHighest = identity
+  }
+
+
+{-| -}
 view : List (Series data msg) -> data -> Html msg
 view =
-  fancyView defaultPlotCustomizations
+  viewCustom defaultPlotCustomizations
 
 
-fancyView : PlotCustomizations msg -> List (Series data msg) -> data -> Html msg
-fancyView customizations series data =
+{-| -}
+viewCustom : PlotCustomizations msg -> List (Series data msg) -> data -> Html msg
+viewCustom customizations series data =
   let
     dataPoints =
       List.map (\{ toDataPoints } -> toDataPoints data) series
 
     plotSummary =
-      toPlotSummary dataPoints
+      toPlotSummary customizations (List.concat dataPoints)
 
-    series =
+    seriesViews =
       List.map2 (viewSeries plotSummary) series dataPoints
+
+    viewes =
+      seriesViews ++ [ Svg.map never <| viewHorizontalAxis plotSummary customizations.horizontalAxis ]
   in
-    Svg.svg [] (series ++ [ viewHorizontalAxis customizations.horizontalAxis plotSummary ])
+    svg
+      [ Attributes.width (toString customizations.width)
+      , Attributes.height (toString customizations.height)
+      ]
+      viewes
 
 
 
 -- INSIDE
 
 
-type PlotSummary =
-  { x : Summary
-  , y : Summary
-  , id : String
-  }
-
-
-type alias Summary =
-  { min : Float
-  , max : Float
-  , all : List Float
-  , length : Float
-  , offsetLower : Float
-  , offsetUpper : Float
-  }
-
-
-toPlotSummary : PlotCustomizations -> List (DataPoint msg) -> PlotSummary
+toPlotSummary : PlotCustomizations msg -> List (DataPoint msg) -> PlotSummary
 toPlotSummary customizations dataPoints =
   let
-    foldSummary summary v =
+    foldAxis summary v =
       { min = min summary.min v
       , max = max summary.max v
-      , all = v :: summary.all
       }
 
-    toSummary result { x, y } =
+    foldPlot { x, y } result =
       case result of
         Nothing ->
-          { x = { min = x, max = x, all = [ x ] }
-          , y = { min = y, max = y, all = [ y ] }
-          }
+          Just
+            { x = { min = x, max = x }
+            , y = { min = y, max = y }
+            }
 
         Just summary ->
-          { x = foldSummary summary.x x
-          , y = foldSummary summary.y y
-          }
+          Just
+            { x = foldAxis summary.x x
+            , y = foldAxis summary.y y
+            }
 
     defaultPlotSummary =
-      { x = { min = 0, max = 1 }
-      , y = { min = 0, max = 1 }
+      { x = { min = 0.0, max = 1.0 }
+      , y = { min = 0.0, max = 1.0 }
       }
 
     plotSummary =
-      List.foldl getReach Nothing dataPoints
-        |> Maybe.withDefault defaultPlotSummary
+      Maybe.withDefault defaultPlotSummary (List.foldl foldPlot Nothing dataPoints)
   in
     { x =
       { min = plotSummary.x.min
       , max = plotSummary.x.max
-      , all = plotSummary.x.all
-      , length = customizations.width
-      , marginLower = customizations.margin.left
-      , marginUpper = customizations.margin.right
+      , length = toFloat customizations.width
+      , marginLower = toFloat customizations.margin.left
+      , marginUpper = toFloat customizations.margin.right
       }
     , y =
       { min = plotSummary.y.min
       , max = plotSummary.y.max
-      , all = plotSummary.y.all
-      , length = customizations.height
-      , marginLower = customizations.margin.bottom
-      , marginUpper = customizations.margin.top
+      , length = toFloat customizations.height
+      , marginLower = toFloat customizations.margin.bottom
+      , marginUpper = toFloat customizations.margin.top
       }
-    , id = customizations.id
     }
 
 
 
--- MORE VIEWS
+-- SERIES VIEWS
 
 
 viewSeries : PlotSummary -> Series data msg -> List (DataPoint msg) -> Svg msg
-viewSeries summary { axis, interpolation } dataPoints =
+viewSeries plotSummary { axis, interpolation } dataPoints =
   g []
-    [ viewVerticalAxis summary axis
-    , viewPath summary interpolation dataPoints
-    , viewDataPoints summary dataPoints
+    [ Svg.map never <| viewVerticalAxis plotSummary axis
+    , Svg.map never <| viewPath plotSummary interpolation dataPoints
+    , viewDataPoints plotSummary dataPoints
     ]
 
 
-viewPath : PlotSummary -> Interpolation -> List (DataPoint msg) -> Svg msg
-viewPath summary interpolation dataPoints =
+viewPath : PlotSummary -> Interpolation -> List (DataPoint msg) -> Svg Never
+viewPath plotSummary interpolation dataPoints =
   case interpolation of
     None ->
       path [] []
 
     Linear fill attributes ->
-      linearPath summary fill attributes dataPoints
+      viewPathInterpolation plotSummary linear linearArea fill attributes dataPoints
 
     Curvy fill attributes ->
-      curvyPath summary fill attributes dataPoints
+      -- TODO: Should be curvy
+      viewPathInterpolation plotSummary monotoneX monotoneXArea fill attributes dataPoints
 
     Monotone fill attributes ->
-      monotonePath summary fill attributes dataPoints
+      viewPathInterpolation plotSummary monotoneX monotoneXArea fill attributes dataPoints
+
+
+viewPathInterpolation :
+  PlotSummary
+  -> (PlotSummary -> List Draw.Point -> List Draw.Command)
+  -> (PlotSummary -> List Draw.Point -> List Draw.Command)
+  -> Maybe String
+  -> List (Attribute Never)
+  -> List (DataPoint msg)
+  -> Svg Never
+viewPathInterpolation plotSummary toLine toArea area attributes dataPoints =
+  case area of
+    Nothing ->
+      draw attributes (toLine plotSummary (toDrawPoints dataPoints))
+
+    Just color ->
+      draw (fill color :: attributes) (toArea plotSummary (toDrawPoints dataPoints))
+
+
+
+-- DOT VIEWS
 
 
 viewDataPoints : PlotSummary -> List (DataPoint msg) -> Svg msg
-viewDataPoints summary dataPoints =
-  g [] (List.map (viewDataPoint summary) dataPoints)
+viewDataPoints plotSummary dataPoints =
+  g [] (List.map (viewDataPoint plotSummary) dataPoints)
 
 
 viewDataPoint : PlotSummary -> DataPoint msg -> Svg msg
-viewDataPoint summary { x, y, view } =
-  g [ position summary x y ] [ view ]
+viewDataPoint plotSummary { x, y, view } =
+  case view of
+    Nothing ->
+      text ""
+
+    Just svgView ->
+      Draw.position plotSummary { x = x, y = y } [ svgView ]
 
 
 viewSquare : Float -> Float -> String -> Svg msg
 viewSquare width height color =
   rect
-    [ Svg.Attributes.width (toString width)
-    , Svg.Attributes.height (toString height)
+    [ Attributes.width (toString width)
+    , Attributes.height (toString height)
     , stroke "transparent"
     , fill color
     ]
@@ -340,7 +401,7 @@ viewSquare width height color =
 
 viewCircle : Float -> String -> Svg msg
 viewCircle radius color =
-  circle
+  Svg.circle
     [ r (toString radius)
     , stroke "transparent"
     , fill color
@@ -348,108 +409,204 @@ viewCircle radius color =
     []
 
 
-viewHorizontalAxis : PlotSummary -> Axis -> Svg msg
-viewHorizontalAxis summary { attributes, axisPosition, start, end, marks } =
-  let
-    y =
-      toSVGY summary (resolvePosition axisPosition summary.y)
+viewLabel : List (Svg.Attribute msg) -> String -> Svg msg
+viewLabel attributes string =
+    text_ attributes [ tspan [] [ text string ] ]
 
-    axisLine =
-      line attributes (toSVGX summary start) y (toSVGX summary end) y
 
-    tickLine attributes length position =
+-- AXIS VIEWS
+
+
+resolvePosition : AxisSummary -> Position -> Float
+resolvePosition { min, max } position =
+  case position of
+    Min ->
+      min
+
+    Max ->
+      max
+
+    At v ->
+      v
+
+
+viewHorizontalAxis : PlotSummary -> Axis -> Svg Never
+viewHorizontalAxis summary axis =
+  case axis of
+    SometimesYouDoNotHaveAnAxis ->
+      text ""
+
+    Axis toCustomizations ->
       let
-        x =
-          toSVGX summary position
+        { attributes, position, start, end, marks } =
+          toCustomizations summary.x
+
+        toPoint x =
+          { x = x, y = resolvePosition summary.y position }
+
+        axisLine =
+          draw attributes (linear summary [ toPoint start, toPoint end ])
+
+        tickLine attributes length x =
+          Draw.position summary (toPoint x) [ viewTick attributes 0 length ]
+
+        gridLine attributes x =
+          viewGridLine summary attributes [ { x = x, y = summary.y.min }, { x = x, y = summary.y.max } ]
+
+        viewMark mark =
+          case mark of
+            Tick { attributes, position, length, gridlineAttributes } ->
+              [ tickLine attributes length position, gridLine gridlineAttributes position ]
+
+            Custom { position, view } ->
+              [ Draw.position summary (toPoint position) [ view ] ]
       in
-        line attributes x y (x + length) y
-
-    gridLine attributes position =
-      case attributes of
-        Nothing ->
-          text ""
-
-        Just actualAttrs ->
-          line actualAttrs
-            (toSVGX summary position)
-            (toSVGY summary summary.y.min)
-            (toSVGX summary position)
-            (toSVGY summary summary.y.max)
-
-    viewMark mark =
-      case mark of
-        Tick { attributes, position, length, gridlineAttributes } ->
-          g [] [ tickLine attributes length position, gridLine gridlineAttributes position ]
-
-        Custom { position, view } ->
-          g [ translateAttribute x (toSVGX summary y) ] [ view ]
-  in
-    g [ class "elm-plot__vertical-axis" ] (axisLine :: List.map viewMark marks)
+        g [ class "elm-plot__horizontal-axis" ] (axisLine :: List.concatMap viewMark marks)
 
 
-viewVerticalAxis : PlotSummary -> Axis -> Svg msg
-viewVerticalAxis summary { attributes, axisPosition, start, end, marks } =
-  let
-    x =
-      toSVGX summary (resolvePosition axisPosition summary.x)
+viewVerticalAxis : PlotSummary -> Axis -> Svg Never
+viewVerticalAxis summary axis =
+  case axis of
+    SometimesYouDoNotHaveAnAxis ->
+      text ""
 
-    axisLine =
-      line attributes x (toSVGY summary start) x (toSVGY summary end)
-
-    tickLine attributes length position =
+    Axis toCustomizations ->
       let
-        y =
-          toSVGY summary position
+        { attributes, position, start, end, marks } =
+          toCustomizations summary.x
+
+        toPoint y =
+          { x = resolvePosition summary.x position, y = y }
+
+        axisLine =
+          draw attributes (linear summary [ toPoint start, toPoint end ])
+
+        tickLine attributes length y =
+          Draw.position summary (toPoint y) [ viewTick attributes -length 0 ]
+
+        gridLine attributes y =
+          viewGridLine summary attributes [ { x = summary.x.min, y = y }, { x = summary.x.max, y = y } ]
+
+        viewMark mark =
+          case mark of
+            Tick { attributes, position, length, gridlineAttributes } ->
+              [ tickLine attributes length position, gridLine gridlineAttributes position ]
+
+            Custom { position, view } ->
+              [ Draw.position summary (toPoint position) [ view ] ]
       in
-        line attributes x y x (y + length)
+        g [ class "elm-plot__vertical-axis" ] (axisLine :: List.concatMap viewMark marks)
 
-    gridLine attributes y =
-      case attributes of
-        Nothing ->
-          text ""
 
-        Just actualAttrs ->
-          line actualAttrs
-            (toSVGX summary summary.x.min)
-            (toSVGY summary y)
-            (toSVGX summary summary.x.max)
-            (toSVGY summary y)
 
-    viewMark mark =
-      case mark of
-        Tick { attributes, position, length, gridlineAttributes } ->
-          g [] [ tickLine attributes length position, gridLine gridlineAttributes position ]
+viewTick : List (Attribute msg) -> Float -> Float -> Svg msg
+viewTick attributes width height =
+  Svg.line (x2 (toString width) :: y2 (toString height) :: attributes) []
 
-        Custom { position, view } ->
-          g [ translateAttribute x (toSVGY summary y) ] [ view ]
+
+viewGridLine : PlotSummary -> Maybe (List (Attribute msg)) -> List Draw.Point -> Svg msg
+viewGridLine plotSummary gridAttributes points =
+  case gridAttributes of
+    Nothing ->
+      text ""
+
+    Just attributes ->
+      draw attributes <| linear plotSummary points
+
+
+
+-- DRAW HELP
+
+
+toDrawPoints : List (DataPoint msg) -> List Draw.Point
+toDrawPoints =
+  List.map toDrawPoint
+
+
+toDrawPoint : DataPoint msg -> Draw.Point
+toDrawPoint { x, y } =
+  Point x y
+
+
+-- TICK HELP
+
+
+defaultTickPositions : AxisSummary -> List Float
+defaultTickPositions summary =
+  if summary.length > 600 then
+    interval 0 (niceInterval summary.min summary.max 10) summary
+  else
+    interval 0 (niceInterval summary.min summary.max 5) summary
+
+
+interval : Float -> Float -> AxisSummary -> List Float
+interval offset delta { min, max } =
+  let
+      range = abs (min - max)
+      value = firstValue delta min + offset
+      indexes = List.range 0 <| count delta min range value
   in
-    g [ class "elm-plot__vertical-axis" ] (axisLine :: List.map viewMark marks)
+      List.map (tickPosition delta value) indexes
 
 
-
--- HELP
-
-
-positionAttribute : PlotSummary -> Float -> Float -> Attribute Never
-positionAttribute summary x y =
-  translateAttribute (toSVGX summary x) (toSVGY summary y)
-
-
-translateAttribute : Float -> Float -> Attribute Never
-translateAttribute x y =
-  transform <| "translate(" ++ toString x ++ ",  " ++ toString y ++ ")"
+tickPosition : Float -> Float -> Int -> Float
+tickPosition delta firstValue index =
+    firstValue
+        + (toFloat index)
+        * delta
+        |> Round.round (deltaPrecision delta)
+        |> String.toFloat
+        |> Result.withDefault 0
 
 
-line : List (Attribute msg) -> Float -> Float -> Float -> Float -> Svg msg
-line attributes x1 y1 x2 y2 =
-  line <|
-    attributes ++
-    [ Attributes.x1 (toString x1)
-    , Attributes.y1 (toString y1)
-    , Attributes.x2 (toString x2)
-    , Attributes.y2 (toString y2)
-    ]
+deltaPrecision : Float -> Int
+deltaPrecision delta =
+    delta
+        |> toString
+        |> Regex.find (Regex.AtMost 1) (Regex.regex "\\.[0-9]*")
+        |> List.map .match
+        |> List.head
+        |> Maybe.withDefault ""
+        |> String.length
+        |> (-) 1
+        |> min 0
+        |> abs
 
+
+firstValue : Float -> Float -> Float
+firstValue delta lowest =
+    ceilToNearest delta lowest
+
+
+ceilToNearest : Float -> Float -> Float
+ceilToNearest precision value =
+    toFloat (ceiling (value / precision)) * precision
+
+
+count : Float -> Float -> Float -> Float -> Int
+count delta lowest range firstValue =
+    floor ((range - (abs lowest - abs firstValue)) / delta)
+
+
+niceInterval : Float -> Float -> Int -> Float
+niceInterval min max total =
+    let
+      range = abs (max - min)
+      -- calculate an initial guess at step size
+      delta0 = range / (toFloat total)
+      -- get the magnitude of the step size
+      mag = floor (logBase 10 delta0)
+      magPow = toFloat (10 ^ mag)
+      -- calculate most significant digit of the new step size
+      magMsd = round (delta0 / magPow)
+      -- promote the MSD to either 1, 2, or 5
+      magMsdFinal =
+        if magMsd > 5 then 10
+        else if magMsd > 2 then 5
+        else if magMsd > 1 then 1
+        else magMsd
+    in
+      toFloat magMsdFinal * magPow
 
 
 
@@ -464,3 +621,8 @@ pinkFill =
 pinkStroke : String
 pinkStroke =
     "#ff9edf"
+
+
+grey : String
+grey =
+  "#a3a3a3"
