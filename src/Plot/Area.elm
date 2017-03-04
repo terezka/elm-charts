@@ -21,7 +21,7 @@ module Plot.Area exposing (..)
 @docs Attribute
 
 # Styling
-@docs stroke, strokeWidth, opacity, fill, smoothingBezier
+@docs animated, animationInterval, stroke, strokeWidth, opacity, fill, smoothingBezier
 
 # Other
 @docs customAttrs
@@ -44,6 +44,20 @@ type alias Attribute a =
 stroke : String -> Attribute a
 stroke stroke config =
     { config | style = ( "stroke", stroke ) :: config.style }
+
+
+{-| Set animated.
+-}
+animated : Bool -> Attribute a
+animated isAnimated config =
+    { config | animated = isAnimated }
+
+
+{-| Set animation interval in milliseconds.
+-}
+animationInterval : Int -> Attribute a
+animationInterval intervalInMilliseconds config =
+    { config | animationInterval = intervalInMilliseconds }
 
 
 {-| Set the stroke width (in pixels).

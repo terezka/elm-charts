@@ -5,6 +5,8 @@ module Plot.Bars
         , DataTransformers
         , Data
         , LabelInfo
+        , animated
+        , animationInterval
         , stackByY
         , maxBarWidth
         , maxBarWidthPer
@@ -44,7 +46,7 @@ module Plot.Bars
 @docs Attribute
 
 # Attributes
-@docs maxBarWidth, maxBarWidthPer, stackByY
+@docs animated, animationInterval, maxBarWidth, maxBarWidthPer, stackByY
 
 ## Labels
 @docs LabelInfo, label
@@ -139,6 +141,20 @@ label attributes config =
 stackByY : Attribute msg
 stackByY config =
     { config | stackBy = Y }
+
+
+{-| Set animated.
+-}
+animated : Bool -> Attribute msg
+animated isAnimated config =
+    { config | animated = isAnimated }
+
+
+{-| Set animation interval in milliseconds.
+-}
+animationInterval : Int -> Attribute msg
+animationInterval intervalInMilliseconds config =
+    { config | animationInterval = intervalInMilliseconds }
 
 
 
