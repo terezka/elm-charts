@@ -70,7 +70,7 @@ view =
         , horizontalGrid [ stroke axisColorLight ] (fromDelta 0 1)
         , xAxis atZero [ line [ stroke axisColor ] ]
         , placeAt
-            (fromRangeAndDomain (\xl xh yl yh -> ( xh, yh )))
+            (\_ -> ( 40, 0 ))
             [ label
                 [ style "text-anchor: end; font-family: monospace;"
                 , displace ( -10, 15 )

@@ -9032,25 +9032,29 @@ var _terezka$elm_plot$Svg_Path$sign = function (x) {
 	return (_elm_lang$core$Native_Utils.cmp(x, 0) < 0) ? -1 : 1;
 };
 var _terezka$elm_plot$Svg_Path$slope2 = F3(
-	function (_p3, _p2, tangent0) {
+	function (_p3, _p2, t) {
 		var _p4 = _p3;
-		var _p7 = _p4._0;
 		var _p5 = _p2;
-		var _p6 = _p5._0;
-		var h = _p6 - _p7;
-		return (!_elm_lang$core$Native_Utils.eq(h, 0)) ? (((3 * (_p5._1 - _p4._1)) / ((_p6 - _p7) - tangent0)) / 2) : tangent0;
+		var h = _p5._0 - _p4._0;
+		return (!_elm_lang$core$Native_Utils.eq(h, 0)) ? ((((3 * (_p5._1 - _p4._1)) / h) - t) / 2) : t;
+	});
+var _terezka$elm_plot$Svg_Path$toH = F2(
+	function (h0, h1) {
+		return _elm_lang$core$Native_Utils.eq(h0, 0) ? ((_elm_lang$core$Native_Utils.cmp(h1, 0) < 0) ? 0 : h1) : h0;
 	});
 var _terezka$elm_plot$Svg_Path$slope3 = F3(
-	function (_p10, _p9, _p8) {
-		var _p11 = _p10;
-		var _p12 = _p9;
-		var _p15 = _p12._1;
-		var _p14 = _p12._0;
-		var _p13 = _p8;
-		var h1 = _p13._0 - _p14;
-		var s1 = (_p13._1 - _p15) / h1;
-		var h0 = _p14 - _p11._0;
-		var s0 = (_p15 - _p11._1) / h0;
+	function (_p8, _p7, _p6) {
+		var _p9 = _p8;
+		var _p10 = _p7;
+		var _p13 = _p10._1;
+		var _p12 = _p10._0;
+		var _p11 = _p6;
+		var h1 = _p11._0 - _p12;
+		var h0 = _p12 - _p9._0;
+		var s0h = A2(_terezka$elm_plot$Svg_Path$toH, h0, h1);
+		var s0 = (_p13 - _p9._1) / s0h;
+		var s1h = A2(_terezka$elm_plot$Svg_Path$toH, h1, h0);
+		var s1 = (_p11._1 - _p13) / s1h;
 		var p = ((s0 * h1) + (s1 * h0)) / (h0 + h1);
 		var slope = (_terezka$elm_plot$Svg_Path$sign(s0) + _terezka$elm_plot$Svg_Path$sign(s1)) * A2(
 			_elm_lang$core$Basics$min,
@@ -9155,37 +9159,37 @@ var _terezka$elm_plot$Svg_Path$cubicBeziers = F6(
 				}));
 	});
 var _terezka$elm_plot$Svg_Path$monotoneXCurve = F4(
-	function (_p17, _p16, tangent0, tangent1) {
-		var _p18 = _p17;
-		var _p22 = _p18._0;
-		var _p19 = _p16;
-		var _p21 = _p19._1;
-		var _p20 = _p19._0;
-		var dx = (_p20 - _p22) / 3;
-		return A6(_terezka$elm_plot$Svg_Path$cubicBeziers, _p22 + dx, _p18._1 + (dx * tangent0), _p20 - dx, _p21 - (dx * tangent1), _p20, _p21);
+	function (_p15, _p14, tangent0, tangent1) {
+		var _p16 = _p15;
+		var _p20 = _p16._0;
+		var _p17 = _p14;
+		var _p19 = _p17._1;
+		var _p18 = _p17._0;
+		var dx = (_p18 - _p20) / 3;
+		return A6(_terezka$elm_plot$Svg_Path$cubicBeziers, _p20 + dx, _p16._1 + (dx * tangent0), _p18 - dx, _p19 - (dx * tangent1), _p18, _p19);
 	});
 var _terezka$elm_plot$Svg_Path$monotoneXPath = F3(
 	function (points, tangent0, path) {
 		monotoneXPath:
 		while (true) {
-			var _p23 = points;
-			if ((_p23.ctor === '::') && (_p23._1.ctor === '::')) {
-				if (_p23._1._1.ctor === '::') {
-					var _p26 = _p23._1._1._0;
-					var _p25 = _p23._1._0;
-					var _p24 = _p23._0;
-					var tangent1 = A3(_terezka$elm_plot$Svg_Path$slope3, _p24, _p25, _p26);
+			var _p21 = points;
+			if ((_p21.ctor === '::') && (_p21._1.ctor === '::')) {
+				if (_p21._1._1.ctor === '::') {
+					var _p24 = _p21._1._1._0;
+					var _p23 = _p21._1._0;
+					var _p22 = _p21._0;
+					var tangent1 = A3(_terezka$elm_plot$Svg_Path$slope3, _p22, _p23, _p24);
 					var newPath = A2(
 						_elm_lang$core$Basics_ops['++'],
 						path,
 						A2(
 							_elm_lang$core$Basics_ops['++'],
 							' ',
-							A4(_terezka$elm_plot$Svg_Path$monotoneXCurve, _p24, _p25, tangent0, tangent1)));
+							A4(_terezka$elm_plot$Svg_Path$monotoneXCurve, _p22, _p23, tangent0, tangent1)));
 					var _v9 = {
 						ctor: '::',
-						_0: _p25,
-						_1: {ctor: '::', _0: _p26, _1: _p23._1._1._1}
+						_0: _p23,
+						_1: {ctor: '::', _0: _p24, _1: _p21._1._1._1}
 					},
 						_v10 = tangent0,
 						_v11 = newPath;
@@ -9194,16 +9198,16 @@ var _terezka$elm_plot$Svg_Path$monotoneXPath = F3(
 					path = _v11;
 					continue monotoneXPath;
 				} else {
-					var _p28 = _p23._1._0;
-					var _p27 = _p23._0;
-					var tangent1 = A3(_terezka$elm_plot$Svg_Path$slope3, _p27, _p28, _p28);
+					var _p26 = _p21._1._0;
+					var _p25 = _p21._0;
+					var tangent1 = A3(_terezka$elm_plot$Svg_Path$slope3, _p25, _p26, _p26);
 					return A2(
 						_elm_lang$core$Basics_ops['++'],
 						path,
 						A2(
 							_elm_lang$core$Basics_ops['++'],
 							' ',
-							A4(_terezka$elm_plot$Svg_Path$monotoneXCurve, _p27, _p28, tangent0, tangent1)));
+							A4(_terezka$elm_plot$Svg_Path$monotoneXCurve, _p25, _p26, tangent0, tangent1)));
 				}
 			} else {
 				return path;
@@ -9228,9 +9232,9 @@ var _terezka$elm_plot$Svg_Path$monotoneXPathBegin = F4(
 				''));
 	});
 var _terezka$elm_plot$Svg_Path$toMonotoneXPath = function (points) {
-	var _p29 = points;
-	if (((_p29.ctor === '::') && (_p29._1.ctor === '::')) && (_p29._1._1.ctor === '::')) {
-		return A4(_terezka$elm_plot$Svg_Path$monotoneXPathBegin, _p29._0, _p29._1._0, _p29._1._1._0, _p29._1._1._1);
+	var _p27 = points;
+	if (((_p27.ctor === '::') && (_p27._1.ctor === '::')) && (_p27._1._1.ctor === '::')) {
+		return A4(_terezka$elm_plot$Svg_Path$monotoneXPathBegin, _p27._0, _p27._1._0, _p27._1._1._0, _p27._1._1._1);
 	} else {
 		return '';
 	}
@@ -9259,9 +9263,9 @@ var _terezka$elm_plot$Svg_Path$toLinePath = function (points) {
 	return _terezka$elm_plot$Svg_Path$toPath(
 		A2(
 			_elm_lang$core$List$map,
-			function (_p30) {
-				var _p31 = _p30;
-				return A2(_terezka$elm_plot$Svg_Path$line, _p31._0, _p31._1);
+			function (_p28) {
+				var _p29 = _p28;
+				return A2(_terezka$elm_plot$Svg_Path$line, _p29._0, _p29._1);
 			},
 			points));
 };
@@ -11144,11 +11148,9 @@ var _terezka$elm_plot$PlotGrid$view = A2(
 						ctor: '::',
 						_0: A2(
 							_terezka$elm_plot$Svg_Plot$placeAt,
-							_terezka$elm_plot$Svg_Plot$fromRangeAndDomain(
-								F4(
-									function (xl, xh, yl, yh) {
-										return {ctor: '_Tuple2', _0: xh, _1: yh};
-									})),
+							function (_p1) {
+								return {ctor: '_Tuple2', _0: 40, _1: 0};
+							},
 							{
 								ctor: '::',
 								_0: A2(

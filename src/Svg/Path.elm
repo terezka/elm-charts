@@ -1,145 +1,306 @@
 module Svg.Path exposing (..)
 
+import Svg exposing (Svg, Attribute)
+import Svg.Attributes exposing (d, transform)
 
 
 type alias Point =
-  ( Float, Float )
+  { x : Float
+  , y : Float
+  }
 
 
 
--- STANDARD SVG COMMANDS
+-- TRANSLATION
 
 
-move : Float -> Float -> String
-move x y =
-  "M" ++ pointToString ( x, y )
+type alias Axis =
+  { min : Float
+  , max : Float
+  , length : Float
+  , marginLower : Float
+  , marginUpper : Float
+  }
 
 
-line : Float -> Float -> String
-line x y =
-  "L" ++ pointToString ( x, y )
+type alias Plot =
+  { x : Axis
+  , y : Axis
+  }
 
 
-horizontalLine : Float -> String
-horizontalLine x =
-  "H" ++ toString x
+range : Axis -> Float
+range axis =
+  if axis.max - axis.min /= 0 then axis.max - axis.min else 1
 
 
-verticalLine : Float -> String
-verticalLine y =
-  "V" ++ toString y
+length : Axis -> Float
+length axis =
+  axis.length - axis.marginLower - axis.marginUpper
 
 
-cubicBeziers : Float -> Float -> Float -> Float -> Float -> Float -> String
-cubicBeziers cx1 cy1 cx2 cy2 x y =
-  "C" ++ pointsToString [ ( cx1, cy1 ), ( cx2, cy2 ), ( x, y ) ]
+scaleValue : Axis -> Float -> Float
+scaleValue axis value =
+  value * (length axis) / (range axis)
 
 
-cubicBeziersShort : Float -> Float -> Float -> Float -> String
-cubicBeziersShort cx1 cy1 x y  =
-  "S" ++ pointsToString [ ( cx1, cy1 ), ( x, y ) ]
+toSVGX : Plot -> Float -> Float
+toSVGX { x } value =
+  scaleValue x (value - x.min) + x.marginLower
 
 
-quadraticBeziers : Float -> Float -> Float -> Float -> String
-quadraticBeziers cx1 cy1 x y =
-  "Q" ++ pointsToString [ ( cx1, cy1 ), ( x, y ) ]
-
-
-quadraticBeziersShort : Float -> Float -> String
-quadraticBeziersShort x y =
-  "T" ++ pointToString ( x, y )
-
-
-arc : Float -> Float -> Bool -> Bool -> Bool -> Float -> Float -> String
-arc rx ry xAxisRotation largeArcFlag sweepFlag x y =
-  "A" ++
-    joinCommands
-      [ pointToString ( rx, ry )
-      , toString xAxisRotation
-      , boolToString largeArcFlag
-      , boolToString sweepFlag
-      , pointToString ( x, y )
-      ]
-
-
-close : String
-close =
-  "Z"
-
-
-relative : String -> String
-relative =
-  String.toLower
+toSVGY : Plot -> Float -> Float
+toSVGY { y } value =
+  scaleValue y (y.max - value) + y.marginLower
 
 
 
--- PATHS
+-- NEW SVG API <3
 
 
-toPath : List String -> String
-toPath =
-  joinCommands
+draw : List (Attribute msg) -> List Command -> Svg msg
+draw attributes commands =
+  Svg.path (d (joinCommands (List.map stringifyCommand commands)) :: attributes) []
+
+
+view : Plot -> Point -> Svg msg -> Svg msg
+view plot { x, y } view =
+  Svg.g [ position plot x y ] [ view ]
+
+
+position : Plot -> Float -> Float -> Attribute msg
+position plot x y =
+  transform <| "translate(" ++ toString (toSVGX plot x) ++ ",  " ++ toString (toSVGY plot y) ++ ")"
 
 
 
--- Line
+-- LINEAR
 
 
-toLinePath : List Point -> String
-toLinePath points =
-  toPath (List.map (\( x, y ) -> line x y) points)
+linear : Plot -> List Point -> List Command
+linear plot points =
+  List.map (translateCommand plot) <| lineBegin plot points ++ List.map lineCommand points
+
+
+linearArea : Plot -> List Point -> List Command
+linearArea plot points =
+  List.map (translateCommand plot) <| areaBegin plot points ++ List.map lineCommand points
+
+
+lineCommand : Point -> Command
+lineCommand { x, y } =
+  Line x y
 
 
 
--- MonotoneX
+-- MONOTONE X / "NORMAL"
 
 
-toMonotoneXPath : List Point -> String
-toMonotoneXPath points =
+monotoneX : Plot -> List Point -> List Command
+monotoneX plot points =
+  List.map (translateCommand plot) <| lineBegin plot points ++ monotoneXBegin points
+
+
+monotoneXArea : Plot -> List Point -> List Command
+monotoneXArea plot points =
+  List.map (translateCommand plot) <| areaBegin plot points ++ monotoneXBegin points
+
+
+monotoneXBegin : List Point -> List Command
+monotoneXBegin points =
     case points of
-      p0 :: p1 :: p2 :: rest ->
-        monotoneXPathBegin p0 p1 p2 rest
+        p0 :: p1 :: p2 :: rest ->
+            let
+                tangent1 = slope3 p0 p1 p2
+                tangent0 = slope2 p0 p1 tangent1
+            in
+                monotoneXCurve p0 p1 tangent0 tangent1 ++ monotoneXNext (p1 :: p2 :: rest) tangent1 []
 
-      _ ->
-        ""
+        _ ->
+            []
 
 
-monotoneXPathBegin : Point -> Point -> Point -> List Point -> String
-monotoneXPathBegin p0 p1 p2 rest =
+monotoneXNext : List Point -> Float -> List Command -> List Command
+monotoneXNext points tangent0 commands =
+    case points of
+        p0 :: p1 :: p2 :: rest ->
+            let
+                tangent1 =
+                    slope3 p0 p1 p2
+
+                nextCommands =
+                    commands ++ monotoneXCurve p0 p1 tangent0 tangent1
+            in
+                monotoneXNext (p1 :: p2 :: rest) tangent0 nextCommands
+
+        [ p1, p2 ] ->
+            let
+                tangent1 =
+                    slope3 p1 p2 p2
+            in
+                commands ++ monotoneXCurve p1 p2 tangent0 tangent1
+
+        _ ->
+            commands
+
+
+monotoneXCurve : Point -> Point -> Float -> Float -> List Command
+monotoneXCurve point0 point1 tangent0 tangent1 =
     let
-      tangent1 = slope3 p0 p1 p2
-      tangent0 = slope2 p0 p1 tangent1
+        dx =
+            (point1.x - point0.x) / 3
     in
-      monotoneXCurve p0 p1 tangent0 tangent1 ++ monotoneXPath (p1 :: p2 :: rest) tangent1 ""
+        [ CubicBeziers (point0.x + dx) (point0.y + dx * tangent0) (point1.x - dx) (point1.y - dx * tangent1) point1.x point1.y ]
 
 
-monotoneXPath : List Point -> Float -> String -> String
-monotoneXPath points tangent0 path =
+
+-- PATH HELPERS
+
+
+lineBegin : Plot -> List Point -> List Command
+lineBegin plot points =
   case points of
-    p0 :: p1 :: p2 :: rest ->
-      let
-          tangent1 = slope3 p0 p1 p2
-          newPath = path ++ " " ++ monotoneXCurve p0 p1 tangent0 tangent1
-      in
-        monotoneXPath (p1 :: p2 :: rest) tangent0 newPath
-
-    [ p1, p2 ] ->
-      let
-          tangent1 = slope3 p1 p2 p2
-      in
-        path ++ " " ++ monotoneXCurve p1 p2 tangent0 tangent1
+    { x, y } :: rest ->
+      [ Move x y ]
 
     _ ->
-      path
+      []
 
 
-monotoneXCurve : Point -> Point -> Float -> Float -> String
-monotoneXCurve ( x0, y0 ) ( x1, y1 ) tangent0 tangent1 =
-    let
-        dx = (x1 - x0) / 3
-    in
-        cubicBeziers (x0 + dx) (y0 + dx * tangent0) (x1 - dx) (y1 - dx * tangent1) x1 y1
+areaBegin : Plot -> List Point -> List Command
+areaBegin plot points =
+  case points of
+    { x, y } :: rest ->
+      [ Move x (yClosestToZero plot), Line x y ]
 
+    _ ->
+      []
+
+
+yClosestToZero : Plot -> Float
+yClosestToZero { y } =
+  clamp y.min y.max 0
+
+
+-- PATH COMMANDS
+
+
+type Command
+  = Move Float Float
+  | Line Float Float
+  | HorizontalLine Float
+  | VerticalLine Float
+  | CubicBeziers Float Float Float Float Float Float
+  | CubicBeziersShort Float Float Float Float
+  | QuadraticBeziers Float Float Float Float
+  | QuadraticBeziersShort Float Float
+  | Arc Float Float Bool Bool Bool Float Float
+  | Close
+
+
+stringifyCommand : Command -> String
+stringifyCommand command =
+  case command of
+    Move x y ->
+      "M" ++ pointToString (Point x y)
+
+    Line x y ->
+      "L" ++ pointToString (Point x y)
+
+    HorizontalLine x ->
+      "H" ++ toString x
+
+    VerticalLine y ->
+      "V" ++ toString y
+
+    CubicBeziers cx1 cy1 cx2 cy2 x y ->
+        "C" ++ pointsToString [ (Point cx1 cy1), (Point cx2 cy2), (Point x y) ]
+
+    CubicBeziersShort cx1 cy1 x y ->
+        "Q" ++ pointsToString [ (Point cx1 cy1), (Point x y) ]
+
+    QuadraticBeziers cx1 cy1 x y ->
+        "Q" ++ pointsToString [ (Point cx1 cy1), (Point x y) ]
+
+    QuadraticBeziersShort x y ->
+        "T" ++ pointToString (Point x y)
+
+    Arc rx ry xAxisRotation largeArcFlag sweepFlag x y ->
+      "A" ++ joinCommands
+              [ pointToString (Point rx ry)
+              , toString xAxisRotation
+              , boolToString largeArcFlag
+              , boolToString sweepFlag
+              , pointToString (Point x y)
+              ]
+
+    Close ->
+        "Z"
+
+
+translateCommand : Plot -> Command -> Command
+translateCommand plot command =
+    case command of
+      Move x y ->
+        Move (toSVGX plot x) (toSVGY plot y)
+
+      Line x y ->
+        Line (toSVGX plot x) (toSVGY plot y)
+
+      HorizontalLine x ->
+        HorizontalLine (toSVGX plot x)
+
+      VerticalLine y ->
+        VerticalLine (toSVGY plot y)
+
+      CubicBeziers cx1 cy1 cx2 cy2 x y ->
+          CubicBeziers (toSVGX plot cx1) (toSVGY plot cy1) (toSVGX plot cx2) (toSVGY plot cy2) (toSVGX plot x) (toSVGY plot y)
+
+      CubicBeziersShort cx1 cy1 x y ->
+          CubicBeziersShort (toSVGX plot cx1) (toSVGY plot cy1) (toSVGX plot x) (toSVGY plot y)
+
+      QuadraticBeziers cx1 cy1 x y ->
+          QuadraticBeziers (toSVGX plot cx1) (toSVGY plot cy1) (toSVGX plot x) (toSVGY plot y)
+
+      QuadraticBeziersShort x y ->
+          QuadraticBeziersShort (toSVGX plot x) (toSVGY plot y)
+
+      Arc rx ry xAxisRotation largeArcFlag sweepFlag x y ->
+        Arc (toSVGX plot rx) (toSVGY plot ry) xAxisRotation largeArcFlag sweepFlag (toSVGX plot x) (toSVGY plot y)
+
+      Close ->
+          Close
+
+
+
+-- HELPERS
+
+
+joinCommands : List String -> String
+joinCommands commands =
+    String.join " " commands
+
+
+pointToString : Point -> String
+pointToString { x, y } =
+    toString x ++ " " ++ toString y
+
+
+pointsToString : List Point -> String
+pointsToString points =
+    String.join "," (List.map pointToString points)
+
+
+boolToString : Bool -> String
+boolToString bool =
+    if bool then
+        "0"
+    else
+        "1"
+
+
+
+-- MATH
 
 
 {-| Calculate the slopes of the tangents (Hermite-type interpolation) based on
@@ -147,54 +308,66 @@ monotoneXCurve ( x0, y0 ) ( x1, y1 ) tangent0 tangent1 =
  Interpolation in One Dimension
 -}
 slope3 : Point -> Point -> Point -> Float
-slope3 ( x0, y0 ) ( x1, y1 ) ( x2, y2 ) =
-  let
-    h0 = x1 - x0
-    h1 = x2 - x1
-    s0 = (y1 - y0) / h0
-    s1 = (y2 - y1) / h1
-    p = (s0 * h1 + s1 * h0) / (h0 + h1)
-    slope = (sign s0 + sign s1) * (min (min (abs s0) (abs s1)) (0.5 * abs p))
-  in
-    if isNaN slope then 0 else slope
+slope3 point0 point1 point2 =
+    let
+        h0 =
+            point1.x - point0.x
+
+        h1 =
+            point2.x - point1.x
+
+        s0h =
+            toH h0 h1
+
+        s1h =
+            toH h1 h0
+
+        s0 =
+            (point1.y - point0.y) / s0h
+
+        s1 =
+            (point2.y - point1.y) / s1h
+
+        p =
+            (s0 * h1 + s1 * h0) / (h0 + h1)
+
+        slope =
+            (sign s0 + sign s1) * (min (min (abs s0) (abs s1)) (0.5 * abs p))
+    in
+        if isNaN slope then
+            0
+        else
+            slope
 
 
-{-| Calculate a one-sided slope. -}
-slope2 : Point -> Point -> Float -> Float
-slope2 ( x0, y0 ) ( x1, y1 ) tangent0 =
-  let
-    h = x1 - x0
-  in
-    if h /= 0 then
-      (3 * (y1 - y0) / ((x1 - x0) - tangent0)) / 2
+toH : Float -> Float -> Float
+toH h0 h1 =
+    if h0 == 0 then
+        if h1 < 0 then
+            0
+        else
+            h1
     else
-      tangent0
+        h0
+
+
+{-| Calculate a one-sided slope.
+-}
+slope2 : Point -> Point -> Float -> Float
+slope2 point0 point1 t =
+    let
+        h =
+            point1.x - point0.x
+    in
+        if h /= 0 then
+            (3 * (point1.y - point0.y) / h - t) / 2
+        else
+            t
 
 
 sign : Float -> Float
 sign x =
-  if x < 0 then -1 else 1
-
-
-
--- Helpers
-
-
-joinCommands : List String -> String
-joinCommands commands =
-  String.join " " commands
-
-
-pointToString : Point -> String
-pointToString ( x, y ) =
-  toString x ++ " " ++ toString y
-
-
-pointsToString : List Point -> String
-pointsToString points =
-  String.join "," (List.map pointToString points)
-
-
-boolToString : Bool -> String
-boolToString bool =
-  if bool then "0" else "1"
+    if x < 0 then
+        -1
+    else
+        1
