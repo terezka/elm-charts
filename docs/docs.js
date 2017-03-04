@@ -1564,8 +1564,7 @@ function toString(v)
 	var type = typeof v;
 	if (type === 'function')
 	{
-		var name = v.func ? v.func.name : v.name;
-		return '<function' + (name === '' ? '' : ':') + name + '>';
+		return '<function>';
 	}
 
 	if (type === 'boolean')
@@ -2072,6 +2071,13 @@ var _elm_lang$core$List$sortWith = _elm_lang$core$Native_List.sortWith;
 var _elm_lang$core$List$sortBy = _elm_lang$core$Native_List.sortBy;
 var _elm_lang$core$List$sort = function (xs) {
 	return A2(_elm_lang$core$List$sortBy, _elm_lang$core$Basics$identity, xs);
+};
+var _elm_lang$core$List$singleton = function (value) {
+	return {
+		ctor: '::',
+		_0: value,
+		_1: {ctor: '[]'}
+	};
 };
 var _elm_lang$core$List$drop = F2(
 	function (n, list) {
@@ -2891,7 +2897,7 @@ function endsWith(sub, str)
 function indexes(sub, str)
 {
 	var subLen = sub.length;
-	
+
 	if (subLen < 1)
 	{
 		return _elm_lang$core$Native_List.Nil;
@@ -2904,74 +2910,78 @@ function indexes(sub, str)
 	{
 		is.push(i);
 		i = i + subLen;
-	}	
-	
+	}
+
 	return _elm_lang$core$Native_List.fromArray(is);
 }
+
 
 function toInt(s)
 {
 	var len = s.length;
+
+	// if empty
 	if (len === 0)
 	{
-		return _elm_lang$core$Result$Err("could not convert string '" + s + "' to an Int" );
+		return intErr(s);
 	}
-	var start = 0;
-	if (s[0] === '-')
+
+	// if hex
+	var c = s[0];
+	if (c === '0' && s[1] === 'x')
 	{
-		if (len === 1)
+		for (var i = 2; i < len; ++i)
 		{
-			return _elm_lang$core$Result$Err("could not convert string '" + s + "' to an Int" );
+			var c = s[i];
+			if (('0' <= c && c <= '9') || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f'))
+			{
+				continue;
+			}
+			return intErr(s);
 		}
-		start = 1;
+		return _elm_lang$core$Result$Ok(parseInt(s, 16));
 	}
-	for (var i = start; i < len; ++i)
+
+	// is decimal
+	if (c > '9' || (c < '0' && c !== '-' && c !== '+'))
+	{
+		return intErr(s);
+	}
+	for (var i = 1; i < len; ++i)
 	{
 		var c = s[i];
 		if (c < '0' || '9' < c)
 		{
-			return _elm_lang$core$Result$Err("could not convert string '" + s + "' to an Int" );
+			return intErr(s);
 		}
 	}
+
 	return _elm_lang$core$Result$Ok(parseInt(s, 10));
 }
 
+function intErr(s)
+{
+	return _elm_lang$core$Result$Err("could not convert string '" + s + "' to an Int");
+}
+
+
 function toFloat(s)
 {
-	var len = s.length;
-	if (len === 0)
+	// check if it is a hex, octal, or binary number
+	if (s.length === 0 || /[\sxbo]/.test(s))
 	{
-		return _elm_lang$core$Result$Err("could not convert string '" + s + "' to a Float" );
+		return floatErr(s);
 	}
-	var start = 0;
-	if (s[0] === '-')
-	{
-		if (len === 1)
-		{
-			return _elm_lang$core$Result$Err("could not convert string '" + s + "' to a Float" );
-		}
-		start = 1;
-	}
-	var dotCount = 0;
-	for (var i = start; i < len; ++i)
-	{
-		var c = s[i];
-		if ('0' <= c && c <= '9')
-		{
-			continue;
-		}
-		if (c === '.')
-		{
-			dotCount += 1;
-			if (dotCount <= 1)
-			{
-				continue;
-			}
-		}
-		return _elm_lang$core$Result$Err("could not convert string '" + s + "' to a Float" );
-	}
-	return _elm_lang$core$Result$Ok(parseFloat(s));
+	var n = +s;
+	// faster isNaN check
+	return n === n ? _elm_lang$core$Result$Ok(n) : floatErr(s);
 }
+
+function floatErr(s)
+{
+	return _elm_lang$core$Result$Err("could not convert string '" + s + "' to a Float");
+}
+
 
 function toList(str)
 {
@@ -4407,11 +4417,6 @@ function badToString(problem)
 				problem = problem.rest;
 				break;
 
-			case 'index':
-				context += '[' + problem.index + ']';
-				problem = problem.rest;
-				break;
-
 			case 'oneOf':
 				var problems = problem.problems;
 				for (var i = 0; i < problems.length; i++)
@@ -5393,15 +5398,8 @@ function setupIncomingPort(name, callback)
 		sentBeforeInit.push(value);
 	}
 
-	function postInitSend(incomingValue)
+	function postInitSend(value)
 	{
-		var result = A2(_elm_lang$core$Json_Decode$decodeValue, converter, incomingValue);
-		if (result.ctor === 'Err')
-		{
-			throw new Error('Trying to send an unexpected type of value through port `' + name + '`:\n' + result._0);
-		}
-
-		var value = result._0;
 		var temp = subs;
 		while (temp.ctor !== '[]')
 		{
@@ -5412,7 +5410,13 @@ function setupIncomingPort(name, callback)
 
 	function send(incomingValue)
 	{
-		currentSend(incomingValue);
+		var result = A2(_elm_lang$core$Json_Decode$decodeValue, converter, incomingValue);
+		if (result.ctor === 'Err')
+		{
+			throw new Error('Trying to send an unexpected type of value through port `' + name + '`:\n' + result._0);
+		}
+
+		currentSend(result._0);
 	}
 
 	return { send: send };
@@ -6281,9 +6285,9 @@ function on(name, options, decoder)
 
 function equalEvents(a, b)
 {
-	if (!a.options === b.options)
+	if (a.options !== b.options)
 	{
-		if (a.stopPropagation !== b.stopPropagation || a.preventDefault !== b.preventDefault)
+		if (a.options.stopPropagation !== b.options.stopPropagation || a.options.preventDefault !== b.options.preventDefault)
 		{
 			return false;
 		}
@@ -7559,7 +7563,7 @@ function normalRenderer(parentNode, view)
 var rAF =
 	typeof requestAnimationFrame !== 'undefined'
 		? requestAnimationFrame
-		: function(callback) { callback(); };
+		: function(callback) { setTimeout(callback, 1000 / 60); };
 
 function makeStepper(domNode, view, initialVirtualNode, eventNode)
 {
@@ -9843,6 +9847,9 @@ var _terezka$elm_plot$Internal_Line$stdAttributes = F3(
 var _terezka$elm_plot$Internal_Line$view = F3(
 	function (meta, _p0, points) {
 		var _p1 = _p0;
+		var animationId = A2(_elm_lang$core$Basics_ops['++'], 'line-left-to-right-', meta.id);
+		var totalWidth = (meta.scale.x.length + meta.scale.x.offset.lower) + meta.scale.x.offset.upper;
+		var totalHeight = (meta.scale.y.length + meta.scale.y.offset.lower) + meta.scale.y.offset.upper;
 		var instructions = function () {
 			var _p2 = points;
 			if (_p2.ctor === '::') {
@@ -9866,10 +9873,101 @@ var _terezka$elm_plot$Internal_Line$view = F3(
 			_elm_lang$core$Basics_ops['++'],
 			A3(_terezka$elm_plot$Internal_Line$stdAttributes, meta, instructions, _p1.style),
 			_p1.customAttrs);
-		return A2(
-			_elm_lang$svg$Svg$path,
-			attrs,
-			{ctor: '[]'});
+		var _p4 = _p1.animated;
+		if (_p4 === true) {
+			return A2(
+				_elm_lang$svg$Svg$g,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$svg$Svg$defs,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$svg$Svg$clipPath,
+								{
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$id(animationId),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$svg$Svg$rect,
+										{
+											ctor: '::',
+											_0: _elm_lang$svg$Svg_Attributes$width('0'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$svg$Svg_Attributes$height(
+													_elm_lang$core$Basics$toString(totalHeight)),
+												_1: {ctor: '[]'}
+											}
+										},
+										{
+											ctor: '::',
+											_0: A2(
+												_elm_lang$svg$Svg$animate,
+												{
+													ctor: '::',
+													_0: _elm_lang$svg$Svg_Attributes$attributeName('width'),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$svg$Svg_Attributes$values(
+															A2(
+																_elm_lang$core$Basics_ops['++'],
+																'0;',
+																_elm_lang$core$Basics$toString(totalWidth))),
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$svg$Svg_Attributes$dur(
+																A2(
+																	_elm_lang$core$Basics_ops['++'],
+																	_elm_lang$core$Basics$toString(_p1.animationInterval),
+																	'ms')),
+															_1: {
+																ctor: '::',
+																_0: _elm_lang$svg$Svg_Attributes$fill('freeze'),
+																_1: {ctor: '[]'}
+															}
+														}
+													}
+												},
+												{ctor: '[]'}),
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$svg$Svg$path,
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								attrs,
+								{
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$clipPath(
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											'url(#',
+											A2(_elm_lang$core$Basics_ops['++'], animationId, ')'))),
+									_1: {ctor: '[]'}
+								}),
+							{ctor: '[]'}),
+						_1: {ctor: '[]'}
+					}
+				});
+		} else {
+			return A2(
+				_elm_lang$svg$Svg$path,
+				attrs,
+				{ctor: '[]'});
+		}
 	});
 var _terezka$elm_plot$Internal_Line$defaultConfig = {
 	style: {
@@ -9881,12 +9979,14 @@ var _terezka$elm_plot$Internal_Line$defaultConfig = {
 			_1: {ctor: '[]'}
 		}
 	},
+	animated: false,
+	animationInterval: 2000,
 	smoothing: _terezka$elm_plot$Internal_Types$None,
 	customAttrs: {ctor: '[]'}
 };
-var _terezka$elm_plot$Internal_Line$Config = F3(
-	function (a, b, c) {
-		return {style: a, smoothing: b, customAttrs: c};
+var _terezka$elm_plot$Internal_Line$Config = F5(
+	function (a, b, c, d, e) {
+		return {style: a, animated: b, animationInterval: c, smoothing: d, customAttrs: e};
 	});
 
 var _terezka$elm_plot$Internal_Axis$zipWithDistance = F4(
@@ -10333,6 +10433,18 @@ var _terezka$elm_plot$Plot_Line$strokeWidth = F2(
 					_1: config.style
 				}
 			});
+	});
+var _terezka$elm_plot$Plot_Line$animationInterval = F2(
+	function (intervalInMilliseconds, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{animationInterval: intervalInMilliseconds});
+	});
+var _terezka$elm_plot$Plot_Line$animated = F2(
+	function (isAnimated, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{animated: isAnimated});
 	});
 var _terezka$elm_plot$Plot_Line$stroke = F2(
 	function (stroke, config) {
@@ -10838,6 +10950,9 @@ var _terezka$elm_plot$Internal_Area$stdAttributes = F3(
 var _terezka$elm_plot$Internal_Area$view = F3(
 	function (meta, _p0, points) {
 		var _p1 = _p0;
+		var animationId = A2(_elm_lang$core$Basics_ops['++'], 'area-left-to-right-', meta.id);
+		var totalWidth = (meta.scale.x.length + meta.scale.x.offset.lower) + meta.scale.x.offset.upper;
+		var totalHeight = (meta.scale.y.length + meta.scale.y.offset.lower) + meta.scale.y.offset.upper;
 		var lowestY = A3(_elm_lang$core$Basics$clamp, meta.scale.y.lowest, meta.scale.y.highest, 0);
 		var _p2 = _terezka$elm_plot$Internal_Stuff$getEdgesX(points);
 		var lowestX = _p2._0;
@@ -10873,19 +10988,112 @@ var _terezka$elm_plot$Internal_Area$view = F3(
 			_elm_lang$core$Basics_ops['++'],
 			A3(_terezka$elm_plot$Internal_Area$stdAttributes, meta, instructions, _p1.style),
 			_p1.customAttrs);
-		return A2(
-			_elm_lang$svg$Svg$path,
-			attrs,
-			{ctor: '[]'});
+		var _p3 = _p1.animated;
+		if (_p3 === true) {
+			return A2(
+				_elm_lang$svg$Svg$g,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$svg$Svg$defs,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$svg$Svg$clipPath,
+								{
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$id(animationId),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$svg$Svg$rect,
+										{
+											ctor: '::',
+											_0: _elm_lang$svg$Svg_Attributes$width('0'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$svg$Svg_Attributes$height(
+													_elm_lang$core$Basics$toString(totalHeight)),
+												_1: {ctor: '[]'}
+											}
+										},
+										{
+											ctor: '::',
+											_0: A2(
+												_elm_lang$svg$Svg$animate,
+												{
+													ctor: '::',
+													_0: _elm_lang$svg$Svg_Attributes$attributeName('width'),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$svg$Svg_Attributes$values(
+															A2(
+																_elm_lang$core$Basics_ops['++'],
+																'0;',
+																_elm_lang$core$Basics$toString(totalWidth))),
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$svg$Svg_Attributes$dur(
+																A2(
+																	_elm_lang$core$Basics_ops['++'],
+																	_elm_lang$core$Basics$toString(_p1.animationInterval),
+																	'ms')),
+															_1: {
+																ctor: '::',
+																_0: _elm_lang$svg$Svg_Attributes$fill('freeze'),
+																_1: {ctor: '[]'}
+															}
+														}
+													}
+												},
+												{ctor: '[]'}),
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$svg$Svg$path,
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								attrs,
+								{
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$clipPath(
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											'url(#',
+											A2(_elm_lang$core$Basics_ops['++'], animationId, ')'))),
+									_1: {ctor: '[]'}
+								}),
+							{ctor: '[]'}),
+						_1: {ctor: '[]'}
+					}
+				});
+		} else {
+			return A2(
+				_elm_lang$svg$Svg$path,
+				attrs,
+				{ctor: '[]'});
+		}
 	});
 var _terezka$elm_plot$Internal_Area$defaultConfig = {
 	style: {ctor: '[]'},
+	animated: false,
+	animationInterval: 2000,
 	smoothing: _terezka$elm_plot$Internal_Types$None,
 	customAttrs: {ctor: '[]'}
 };
-var _terezka$elm_plot$Internal_Area$Config = F3(
-	function (a, b, c) {
-		return {style: a, smoothing: b, customAttrs: c};
+var _terezka$elm_plot$Internal_Area$Config = F5(
+	function (a, b, c, d, e) {
+		return {style: a, animated: b, animationInterval: c, smoothing: d, customAttrs: e};
 	});
 
 var _terezka$elm_plot$Plot_Area$customAttrs = F2(
@@ -10942,6 +11150,18 @@ var _terezka$elm_plot$Plot_Area$strokeWidth = F2(
 					_1: config.style
 				}
 			});
+	});
+var _terezka$elm_plot$Plot_Area$animationInterval = F2(
+	function (intervalInMilliseconds, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{animationInterval: intervalInMilliseconds});
+	});
+var _terezka$elm_plot$Plot_Area$animated = F2(
+	function (isAnimated, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{animated: isAnimated});
 	});
 var _terezka$elm_plot$Plot_Area$stroke = F2(
 	function (stroke, config) {
@@ -11211,6 +11431,9 @@ var _terezka$elm_plot$Internal_Bars$viewBar = F6(
 	});
 var _terezka$elm_plot$Internal_Bars$viewGroup = F5(
 	function (meta, config, styleConfigs, width, group) {
+		var animationId = A2(_elm_lang$core$Basics_ops['++'], 'bar-bottom-to-top', meta.id);
+		var totalWidth = (meta.scale.x.length + meta.scale.x.offset.lower) + meta.scale.x.offset.upper;
+		var totalHeight = (meta.scale.y.length + meta.scale.y.offset.lower) + meta.scale.y.offset.upper;
 		var toCoords = A5(_terezka$elm_plot$Internal_Bars$toStackedCoords, meta, config, styleConfigs, width, group);
 		var labelInfos = A2(
 			_elm_lang$core$List$indexedMap,
@@ -11219,7 +11442,144 @@ var _terezka$elm_plot$Internal_Bars$viewGroup = F5(
 					return {index: i, xValue: group.xValue, yValue: y};
 				}),
 			group.yValues);
-		return A2(
+		return config.animated ? A2(
+			_elm_lang$svg$Svg$g,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$svg$Svg$defs,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$svg$Svg$clipPath,
+							{
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Attributes$id(animationId),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$svg$Svg$rect,
+									{
+										ctor: '::',
+										_0: _elm_lang$svg$Svg_Attributes$height(
+											_elm_lang$core$Basics$toString(totalHeight)),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$svg$Svg_Attributes$width(
+												_elm_lang$core$Basics$toString(totalWidth)),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$svg$Svg_Attributes$y(
+													_elm_lang$core$Basics$toString(totalHeight)),
+												_1: {ctor: '[]'}
+											}
+										}
+									},
+									{
+										ctor: '::',
+										_0: A2(
+											_elm_lang$svg$Svg$animate,
+											{
+												ctor: '::',
+												_0: _elm_lang$svg$Svg_Attributes$attributeName('y'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$svg$Svg_Attributes$values(
+														A2(
+															_elm_lang$core$Basics_ops['++'],
+															_elm_lang$core$Basics$toString(totalHeight),
+															';0')),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$svg$Svg_Attributes$dur(
+															A2(
+																_elm_lang$core$Basics_ops['++'],
+																_elm_lang$core$Basics$toString(config.animationInterval),
+																'ms')),
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$svg$Svg_Attributes$fill('freeze'),
+															_1: {ctor: '[]'}
+														}
+													}
+												}
+											},
+											{ctor: '[]'}),
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$svg$Svg$g,
+						{
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$clipPath(
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									'url(#',
+									A2(_elm_lang$core$Basics_ops['++'], animationId, ')'))),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$svg$Svg$g,
+								{ctor: '[]'},
+								A3(
+									_elm_lang$core$List$map2,
+									F2(
+										function (styleConfig, info) {
+											return A6(
+												_terezka$elm_plot$Internal_Bars$viewBar,
+												meta,
+												width,
+												toCoords(info),
+												config,
+												styleConfig,
+												info);
+										}),
+									styleConfigs,
+									labelInfos)),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$svg$Svg$g,
+									{
+										ctor: '::',
+										_0: _elm_lang$svg$Svg_Attributes$clipPath(
+											A2(
+												_elm_lang$core$Basics_ops['++'],
+												'url(#',
+												A2(
+													_elm_lang$core$Basics_ops['++'],
+													_terezka$elm_plot$Internal_Draw$toClipPathId(meta),
+													')'))),
+										_1: {ctor: '[]'}
+									},
+									A3(
+										_terezka$elm_plot$Internal_Label$view,
+										config.labelConfig,
+										function (info) {
+											return A2(
+												_terezka$elm_plot$Internal_Bars$placeLabel,
+												width,
+												toCoords(info));
+										},
+										labelInfos)),
+								_1: {ctor: '[]'}
+							}
+						}),
+					_1: {ctor: '[]'}
+				}
+			}) : A2(
 			_elm_lang$svg$Svg$g,
 			{ctor: '[]'},
 			{
@@ -11297,6 +11657,8 @@ var _terezka$elm_plot$Internal_Bars$defaultStyleConfig = {
 };
 var _terezka$elm_plot$Internal_Bars$defaultConfig = {
 	stackBy: _terezka$elm_plot$Internal_Types$X,
+	animated: false,
+	animationInterval: 2000,
 	labelConfig: _terezka$elm_plot$Internal_Label$defaultConfig,
 	maxWidth: _terezka$elm_plot$Internal_Types$Percentage(100)
 };
@@ -11304,9 +11666,9 @@ var _terezka$elm_plot$Internal_Bars$Group = F2(
 	function (a, b) {
 		return {xValue: a, yValues: b};
 	});
-var _terezka$elm_plot$Internal_Bars$Config = F3(
-	function (a, b, c) {
-		return {stackBy: a, labelConfig: b, maxWidth: c};
+var _terezka$elm_plot$Internal_Bars$Config = F5(
+	function (a, b, c, d, e) {
+		return {stackBy: a, animated: b, animationInterval: c, labelConfig: d, maxWidth: e};
 	});
 var _terezka$elm_plot$Internal_Bars$StyleConfig = F2(
 	function (a, b) {
@@ -11373,6 +11735,18 @@ var _terezka$elm_plot$Plot_Bars$fill = F2(
 					_1: config.style
 				}
 			});
+	});
+var _terezka$elm_plot$Plot_Bars$animationInterval = F2(
+	function (intervalInMilliseconds, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{animationInterval: intervalInMilliseconds});
+	});
+var _terezka$elm_plot$Plot_Bars$animated = F2(
+	function (isAnimated, config) {
+		return _elm_lang$core$Native_Utils.update(
+			config,
+			{animated: isAnimated});
 	});
 var _terezka$elm_plot$Plot_Bars$stackByY = function (config) {
 	return _elm_lang$core$Native_Utils.update(
@@ -12999,7 +13373,15 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 									_1: {
 										ctor: '::',
 										_0: _terezka$elm_plot$Plot_Area$smoothingBezier,
-										_1: {ctor: '[]'}
+										_1: {
+											ctor: '::',
+											_0: _terezka$elm_plot$Plot_Area$animated(true),
+											_1: {
+												ctor: '::',
+												_0: _terezka$elm_plot$Plot_Area$animationInterval(30000),
+												_1: {ctor: '[]'}
+											}
+										}
 									}
 								}
 							}
@@ -13029,7 +13411,15 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 									_1: {
 										ctor: '::',
 										_0: _terezka$elm_plot$Plot_Area$smoothingBezier,
-										_1: {ctor: '[]'}
+										_1: {
+											ctor: '::',
+											_0: _terezka$elm_plot$Plot_Area$animated(true),
+											_1: {
+												ctor: '::',
+												_0: _terezka$elm_plot$Plot_Area$animationInterval(10000),
+												_1: {ctor: '[]'}
+											}
+										}
 									}
 								}
 							},
@@ -13047,7 +13437,15 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 										_1: {
 											ctor: '::',
 											_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
-											_1: {ctor: '[]'}
+											_1: {
+												ctor: '::',
+												_0: _terezka$elm_plot$Plot_Line$animated(true),
+												_1: {
+													ctor: '::',
+													_0: _terezka$elm_plot$Plot_Line$animationInterval(20000),
+													_1: {ctor: '[]'}
+												}
+											}
 										}
 									}
 								},
@@ -13261,7 +13659,7 @@ var _terezka$elm_plot$PlotComposed$view = function (state) {
 };
 var _terezka$elm_plot$PlotComposed$id = 'ComposedPlot';
 
-var _terezka$elm_plot$PlotScatter$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 40 )\n            , domainLowest (min 0)\n            ]\n            [ scatter\n                [ Scatter.stroke pinkStroke\n                , Scatter.fill pinkFill\n                , Scatter.radius 8\n                ]\n                data\n            , xAxis\n                [ Axis.line\n                    [ Line.stroke axisColor ]\n                , Axis.tickDelta 2\n                ]\n            ]\n    ';
+var _terezka$elm_plot$PlotScatter$code = '\n    view : Svg.Svg a\n    view =\n        plot\n            [ size plotSize\n            , margin ( 10, 20, 40, 40 )\n            , domainLowest (min 0)\n            ]\n            [ scatterf\n                [ Scatter.stroke pinkStroke\n                , Scatter.fill pinkFill\n                , Scatter.radius 8\n                ]\n                data\n            , xAxis\n                [ Axis.line\n                    [ Line.stroke axisColor ]\n                , Axis.tickDelta 2\n                ]\n            ]\n    ';
 var _terezka$elm_plot$PlotScatter$data = {
 	ctor: '::',
 	_0: {ctor: '_Tuple2', _0: 0, _1: 10},
@@ -13306,13 +13704,18 @@ var _terezka$elm_plot$PlotScatter$view = A2(
 			_terezka$elm_plot$Plot$scatter,
 			{
 				ctor: '::',
-				_0: _terezka$elm_plot$Plot_Scatter$stroke(_terezka$elm_plot$Common$pinkStroke),
+				_0: _terezka$elm_plot$Plot_Scatter$stroke(_terezka$elm_plot$Common$blueFill),
 				_1: {
 					ctor: '::',
-					_0: _terezka$elm_plot$Plot_Scatter$fill(_terezka$elm_plot$Common$pinkFill),
+					_0: _terezka$elm_plot$Plot_Scatter$radius(8),
 					_1: {
 						ctor: '::',
-						_0: _terezka$elm_plot$Plot_Scatter$radius(8),
+						_0: _terezka$elm_plot$Plot_Scatter$customAttrs(
+							{
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Attributes$fill(_terezka$elm_plot$Common$blueFill),
+								_1: {ctor: '[]'}
+							}),
 						_1: {ctor: '[]'}
 					}
 				}
@@ -13443,7 +13846,11 @@ var _terezka$elm_plot$PlotGrid$view = A2(
 							_1: {
 								ctor: '::',
 								_0: _terezka$elm_plot$Plot_Line$strokeWidth(3),
-								_1: {ctor: '[]'}
+								_1: {
+									ctor: '::',
+									_0: _terezka$elm_plot$Plot_Line$animated(true),
+									_1: {ctor: '[]'}
+								}
 							}
 						},
 						_terezka$elm_plot$PlotGrid$data),
@@ -13562,7 +13969,11 @@ var _terezka$elm_plot$PlotTicks$view = A2(
 				_1: {
 					ctor: '::',
 					_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: _terezka$elm_plot$Plot_Line$animated(true),
+						_1: {ctor: '[]'}
+					}
 				}
 			},
 			_terezka$elm_plot$PlotTicks$data),
@@ -13644,46 +14055,50 @@ var _terezka$elm_plot$PlotBars$view = A2(
 			_terezka$elm_plot$Plot$bars,
 			{
 				ctor: '::',
-				_0: _terezka$elm_plot$Plot_Bars$maxBarWidth(30),
+				_0: _terezka$elm_plot$Plot_Bars$animated(true),
 				_1: {
 					ctor: '::',
-					_0: _terezka$elm_plot$Plot_Bars$stackByY,
+					_0: _terezka$elm_plot$Plot_Bars$maxBarWidth(30),
 					_1: {
 						ctor: '::',
-						_0: _terezka$elm_plot$Plot_Bars$label(
-							{
-								ctor: '::',
-								_0: _terezka$elm_plot$Plot_Label$formatFromList(
-									{
-										ctor: '::',
-										_0: 'A',
-										_1: {
-											ctor: '::',
-											_0: 'B',
-											_1: {
-												ctor: '::',
-												_0: 'C',
-												_1: {ctor: '[]'}
-											}
-										}
-									}),
-								_1: {
+						_0: _terezka$elm_plot$Plot_Bars$stackByY,
+						_1: {
+							ctor: '::',
+							_0: _terezka$elm_plot$Plot_Bars$label(
+								{
 									ctor: '::',
-									_0: _terezka$elm_plot$Plot_Label$view(
+									_0: _terezka$elm_plot$Plot_Label$formatFromList(
 										{
 											ctor: '::',
-											_0: _terezka$elm_plot$Plot_Label$displace(
-												{ctor: '_Tuple2', _0: 0, _1: 13}),
+											_0: 'A',
 											_1: {
 												ctor: '::',
-												_0: _terezka$elm_plot$Plot_Label$fontSize(10),
-												_1: {ctor: '[]'}
+												_0: 'B',
+												_1: {
+													ctor: '::',
+													_0: 'C',
+													_1: {ctor: '[]'}
+												}
 											}
 										}),
-									_1: {ctor: '[]'}
-								}
-							}),
-						_1: {ctor: '[]'}
+									_1: {
+										ctor: '::',
+										_0: _terezka$elm_plot$Plot_Label$view(
+											{
+												ctor: '::',
+												_0: _terezka$elm_plot$Plot_Label$displace(
+													{ctor: '_Tuple2', _0: 0, _1: 13}),
+												_1: {
+													ctor: '::',
+													_0: _terezka$elm_plot$Plot_Label$fontSize(10),
+													_1: {ctor: '[]'}
+												}
+											}),
+										_1: {ctor: '[]'}
+									}
+								}),
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			},
@@ -13942,7 +14357,11 @@ var _terezka$elm_plot$PlotSticky$view = A2(
 				_1: {
 					ctor: '::',
 					_0: _terezka$elm_plot$Plot_Line$strokeWidth(2),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: _terezka$elm_plot$Plot_Line$animated(true),
+						_1: {ctor: '[]'}
+					}
 				}
 			},
 			_terezka$elm_plot$PlotSticky$data),
@@ -14127,7 +14546,11 @@ var _terezka$elm_plot$PlotHint$view = function (state) {
 				{
 					ctor: '::',
 					_0: _terezka$elm_plot$Plot_Bars$maxBarWidthPer(85),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: _terezka$elm_plot$Plot_Bars$animated(true),
+						_1: {ctor: '[]'}
+					}
 				},
 				{
 					ctor: '::',
@@ -14395,7 +14818,15 @@ var _terezka$elm_plot$PlotSmooth$view = A2(
 						_1: {
 							ctor: '::',
 							_0: _terezka$elm_plot$Plot_Area$smoothingBezier,
-							_1: {ctor: '[]'}
+							_1: {
+								ctor: '::',
+								_0: _terezka$elm_plot$Plot_Area$animated(true),
+								_1: {
+									ctor: '::',
+									_0: _terezka$elm_plot$Plot_Area$animationInterval(40000),
+									_1: {ctor: '[]'}
+								}
+							}
 						}
 					}
 				}
@@ -14430,35 +14861,7 @@ var _terezka$elm_plot$PlotSmooth$plotExample = {
 	id: _terezka$elm_plot$PlotSmooth$id
 };
 
-var _terezka$elm_plot$Docs$examples = {
-	ctor: '::',
-	_0: _terezka$elm_plot$PlotSmooth$plotExample,
-	_1: {
-		ctor: '::',
-		_0: _terezka$elm_plot$PlotBars$plotExample,
-		_1: {
-			ctor: '::',
-			_0: _terezka$elm_plot$PlotHint$plotExample,
-			_1: {
-				ctor: '::',
-				_0: _terezka$elm_plot$PlotSticky$plotExample,
-				_1: {
-					ctor: '::',
-					_0: _terezka$elm_plot$PlotScatter$plotExample,
-					_1: {
-						ctor: '::',
-						_0: _terezka$elm_plot$PlotTicks$plotExample,
-						_1: {
-							ctor: '::',
-							_0: _terezka$elm_plot$PlotGrid$plotExample,
-							_1: {ctor: '[]'}
-						}
-					}
-				}
-			}
-		}
-	}
-};
+var _terezka$elm_plot$Docs$examples = {ctor: '[]'};
 var _terezka$elm_plot$Docs$getVisibility = F2(
 	function (_p0, id) {
 		var _p1 = _p0;
@@ -14496,7 +14899,7 @@ var _terezka$elm_plot$Docs$viewFooter = A2(
 				_elm_lang$html$Html$a,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$href('https://twitter.com/terexka'),
+					_0: _elm_lang$html$Html_Attributes$href('https://twitter.com/terezk_a'),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$html$Html_Attributes$style(
@@ -14510,7 +14913,7 @@ var _terezka$elm_plot$Docs$viewFooter = A2(
 				},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('@terexka'),
+					_0: _elm_lang$html$Html$text('@terezk_a'),
 					_1: {ctor: '[]'}
 				}),
 			_1: {ctor: '[]'}
@@ -14607,7 +15010,7 @@ var _terezka$elm_plot$Docs$viewTitle = A2(
 				},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('Elm Plot'),
+					_0: _elm_lang$html$Html$text('Elm Plot (animated)'),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
@@ -14676,51 +15079,65 @@ var _terezka$elm_plot$Docs$update = F2(
 			var _p12 = _p7.plotStates;
 			var _p11 = _p7;
 			var _p8 = msg;
-			if (_p8.ctor === 'FocusExample') {
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						_p11,
-						{
-							focused: A2(_terezka$elm_plot$Docs$updateFocused, _p8._0, _p7.focused)
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			} else {
-				var _p10 = _p8._0;
-				var _p9 = _p8._1;
-				if (_p9.ctor === 'Internal') {
-					var plotState = A2(_terezka$elm_plot$Docs$getPlotState, _p10, _p12);
-					var newState = A2(_terezka$elm_plot$Plot$update, _p9._0, plotState);
+			switch (_p8.ctor) {
+				case 'FocusExample':
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							_p11,
 							{
-								plotStates: A3(_terezka$elm_plot$Docs$setPlotState, _p10, newState, _p12)
+								focused: A2(_terezka$elm_plot$Docs$updateFocused, _p8._0, _p7.focused)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
-				} else {
-					var _v6 = _p9._0,
-						_v7 = _p11;
-					msg = _v6;
-					_p6 = _v7;
-					continue update;
-				}
+				case 'Animate':
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							_p11,
+							{
+								animated: _elm_lang$core$Maybe$Just(_p8._0)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				default:
+					var _p10 = _p8._0;
+					var _p9 = _p8._1;
+					if (_p9.ctor === 'Internal') {
+						var plotState = A2(_terezka$elm_plot$Docs$getPlotState, _p10, _p12);
+						var newState = A2(_terezka$elm_plot$Plot$update, _p9._0, plotState);
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								_p11,
+								{
+									plotStates: A3(_terezka$elm_plot$Docs$setPlotState, _p10, newState, _p12)
+								}),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					} else {
+						var _v6 = _p9._0,
+							_v7 = _p11;
+						msg = _v6;
+						_p6 = _v7;
+						continue update;
+					}
 			}
 		}
 	});
-var _terezka$elm_plot$Docs$initialModel = {focused: _elm_lang$core$Maybe$Nothing, plotStates: _elm_lang$core$Dict$empty};
+var _terezka$elm_plot$Docs$initialModel = {focused: _elm_lang$core$Maybe$Nothing, animated: _elm_lang$core$Maybe$Nothing, plotStates: _elm_lang$core$Dict$empty};
 var _terezka$elm_plot$Docs$highlight = _elm_lang$core$Native_Platform.outgoingPort(
 	'highlight',
 	function (v) {
 		return null;
 	});
-var _terezka$elm_plot$Docs$Model = F2(
-	function (a, b) {
-		return {focused: a, plotStates: b};
+var _terezka$elm_plot$Docs$Model = F3(
+	function (a, b, c) {
+		return {focused: a, animated: b, plotStates: c};
 	});
+var _terezka$elm_plot$Docs$Animate = function (a) {
+	return {ctor: 'Animate', _0: a};
+};
 var _terezka$elm_plot$Docs$PlotInteraction = F2(
 	function (a, b) {
 		return {ctor: 'PlotInteraction', _0: a, _1: b};
@@ -14818,7 +15235,12 @@ var _terezka$elm_plot$Docs$viewExample = F2(
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html_Attributes$class('view-plot'),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Events$onClick(
+						_terezka$elm_plot$Docs$Animate(_p25.id)),
+					_1: {ctor: '[]'}
+				}
 			},
 			{
 				ctor: '::',

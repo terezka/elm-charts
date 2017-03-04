@@ -72,18 +72,24 @@ view state =
             , Area.fill skinFill
             , Area.opacity 0.5
             , Area.smoothingBezier
+            , Area.animated True
+            , Area.animationInterval 30000
             ]
             (List.map (\( x, y ) -> ( x, toFloat <| round (y * 2.1) )) data1)
         , area
             [ Area.stroke blueStroke
             , Area.fill blueFill
             , Area.smoothingBezier
+            , Area.animated True
+            , Area.animationInterval 10000
             ]
             data1
         , line
             [ Line.stroke pinkStroke
             , Line.smoothingBezier
             , Line.strokeWidth 2
+            , Line.animated True
+            , Line.animationInterval 20000
             ]
             (List.map (\( x, y ) -> ( x, toFloat <| round y * 3 )) data1)
         , scatter

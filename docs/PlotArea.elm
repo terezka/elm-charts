@@ -47,6 +47,8 @@ view =
             [ Area.stroke skinStroke
             , Area.smoothingBezier
             , Area.fill skinFill
+            , Area.animated True
+            , Area.animationInterval 40000
             ]
             data1
         , area

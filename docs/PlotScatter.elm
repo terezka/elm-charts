@@ -1,6 +1,7 @@
 module PlotScatter exposing (plotExample)
 
 import Svg
+import Svg.Attributes
 import Plot exposing (..)
 import Plot.Scatter as Scatter
 import Plot.Axis as Axis
@@ -40,9 +41,11 @@ view =
         , domainLowest (min 0)
         ]
         [ scatter
-            [ Scatter.stroke pinkStroke
-            , Scatter.fill pinkFill
+            [ Scatter.stroke blueFill
             , Scatter.radius 8
+            , Scatter.customAttrs
+                [ Svg.Attributes.fill blueFill
+                ]
             ]
             data
         , xAxis

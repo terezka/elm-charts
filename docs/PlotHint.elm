@@ -45,7 +45,9 @@ view state =
         , margin ( 10, 20, 40, 40 )
         ]
         [ bars
-            [ Bars.maxBarWidthPer 85 ]
+            [ Bars.maxBarWidthPer 85
+            , Bars.animated True
+            ]
             [ [ Bars.fill Common.blueFill ]
             , [ Bars.fill Common.skinFill ]
             , [ Bars.fill Common.pinkFill ]

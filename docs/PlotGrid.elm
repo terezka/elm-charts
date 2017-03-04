@@ -55,6 +55,7 @@ view =
         , line
             [ Line.stroke pinkStroke
             , Line.strokeWidth 3
+            , Line.animated True
             ]
             data
         ]

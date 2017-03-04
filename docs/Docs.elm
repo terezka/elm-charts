@@ -21,6 +21,7 @@ import PlotSmooth
 
 type alias Model =
     { focused : Maybe Id
+    , animated : Maybe Id
     , plotStates : Dict Id Plot.State
     }
 
@@ -28,6 +29,7 @@ type alias Model =
 initialModel : Model
 initialModel =
     { focused = Nothing
+    , animated = Nothing
     , plotStates = empty
     }
 
@@ -45,6 +47,7 @@ getPlotState id plotStates =
 type Msg
     = FocusExample Id
     | PlotInteraction Id (Plot.Interaction Msg)
+    | Animate Id
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -52,6 +55,9 @@ update msg ({ plotStates, focused } as model) =
     case msg of
         FocusExample id ->
             ( { model | focused = updateFocused id focused }, Cmd.none )
+
+        Animate id ->
+            ( { model | animated = Just id }, Cmd.none )
 
         PlotInteraction id interaction ->
             case interaction of
@@ -113,7 +119,7 @@ viewTitle =
             []
         , h1
             [ class "view__title" ]
-            [ text "Elm Plot" ]
+            [ text "Elm Plot (animated)" ]
         , div
             [ class "view__github-link" ]
             [ text "Find it on "
@@ -134,7 +140,7 @@ viewExampleLarge { plotStates } =
 viewExample : Model -> PlotExample Msg -> Html.Html Msg
 viewExample ({ plotStates } as model) ({ title, id, view, code } as example) =
     Html.div
-        [ class "view-plot" ]
+        [ class "view-plot", Animate id |> onClick ]
         [ viewHeading model example
         , viewCode model example
         , viewExampleInner model view
@@ -236,13 +242,13 @@ port highlight : () -> Cmd msg
 
 examples : List (PlotExample msg)
 examples =
-    [ PlotSmooth.plotExample
-    , PlotBars.plotExample
-    , PlotHint.plotExample
-    , PlotSticky.plotExample
-    , PlotScatter.plotExample
-    , PlotTicks.plotExample
-    , PlotGrid.plotExample
+    [-- PlotSmooth.plotExample
+     -- , PlotBars.plotExample
+     -- , PlotHint.plotExample
+     -- , PlotSticky.plotExample
+     -- , PlotScatter.plotExample
+     -- , PlotTicks.plotExample
+     -- , PlotGrid.plotExample
     ]
 
 

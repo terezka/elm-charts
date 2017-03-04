@@ -45,6 +45,8 @@ view =
             , Area.fill pinkFill
             , Area.strokeWidth 1
             , Area.smoothingBezier
+            , Area.animated True
+            , Area.animationInterval 40000
             ]
             data1
         , xAxis
