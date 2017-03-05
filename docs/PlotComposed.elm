@@ -9,6 +9,7 @@ import Plot.Axis as Axis
 import Plot.Tick as Tick
 import Plot.Hint as Hint
 import Plot.Label as Label
+import Plot.Scatter as Scatter
 import Common exposing (..)
 
 
@@ -68,32 +69,34 @@ view state =
         , verticalGrid
             [ Grid.lines [ Line.stroke "#f2f2f2" ] ]
         , area
-            [ Area.stroke skinStroke
+            [ Area.animated True
+            , Area.animationInterval 50000
+            , Area.stroke skinStroke
             , Area.fill skinFill
             , Area.opacity 0.5
             , Area.smoothingBezier
-            , Area.animated True
-            , Area.animationInterval 30000
             ]
             (List.map (\( x, y ) -> ( x, toFloat <| round (y * 2.1) )) data1)
         , area
-            [ Area.stroke blueStroke
+            [ Area.animated True
+            , Area.animationInterval 10000
+            , Area.stroke blueStroke
             , Area.fill blueFill
             , Area.smoothingBezier
-            , Area.animated True
-            , Area.animationInterval 10000
             ]
             data1
         , line
-            [ Line.stroke pinkStroke
+            [ Line.animated True
+            , Line.animationInterval 20000
+            , Line.stroke pinkStroke
             , Line.smoothingBezier
             , Line.strokeWidth 2
-            , Line.animated True
-            , Line.animationInterval 20000
             ]
             (List.map (\( x, y ) -> ( x, toFloat <| round y * 3 )) data1)
         , scatter
-            []
+            [ Scatter.animated True
+            , Scatter.animationInterval 2000
+            ]
             dataScat
         , yAxis
             [ Axis.anchorInside
@@ -191,23 +194,33 @@ code =
             , verticalGrid
                 [ Grid.lines [ Line.stroke "#f2f2f2" ] ]
             , area
-                [ Area.stroke skinStroke
+                [ Area.animated True
+                , Area.animationInterval 50000
+                , Area.stroke skinStroke
                 , Area.fill skinFill
                 , Area.opacity 0.5
+                , Area.smoothingBezier
                 ]
-                data1
+                (List.map (\\( x, y ) -> ( x, toFloat <| round (y * 2.1) )) data1)
             , area
-                [ Area.stroke blueStroke
+                [ Area.animated True
+                , Area.animationInterval 10000
+                , Area.stroke blueStroke
                 , Area.fill blueFill
+                , Area.smoothingBezier
                 ]
                 data1
             , line
-                [ Line.stroke pinkStroke
+                [ Line.animated True
+                , Line.animationInterval 20000
+                , Line.stroke pinkStroke
                 , Line.strokeWidth 2
                 ]
                 data2
             , scatter
-                []
+                [ Scatter.animated True
+                , Scatter.animationInterval 2000
+                ]
                 data3
             , yAxis
                 [ Axis.anchorInside

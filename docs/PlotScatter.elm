@@ -41,11 +41,11 @@ view =
         , domainLowest (min 0)
         ]
         [ scatter
-            [ Scatter.stroke blueFill
+            [ Scatter.animated True
+            , Scatter.animationInterval 1000
+            , Scatter.stroke pinkStroke
+            , Scatter.fill pinkFill
             , Scatter.radius 8
-            , Scatter.customAttrs
-                [ Svg.Attributes.fill blueFill
-                ]
             ]
             data
         , xAxis
@@ -67,7 +67,9 @@ code =
             , domainLowest (min 0)
             ]
             [ scatter
-                [ Scatter.stroke pinkStroke
+                [ Scatter.animated True
+                , Scatter.animationInterval 1000
+                , Scatter.stroke pinkStroke
                 , Scatter.fill pinkFill
                 , Scatter.radius 8
                 ]

@@ -41,12 +41,12 @@ view =
         , domainLowest (\y -> y - 1)
         ]
         [ area
-            [ Area.stroke pinkStroke
+            [ Area.animated True
+            , Area.animationInterval 40000
+            , Area.stroke pinkStroke
             , Area.fill pinkFill
             , Area.strokeWidth 1
             , Area.smoothingBezier
-            , Area.animated True
-            , Area.animationInterval 40000
             ]
             data1
         , xAxis
@@ -68,7 +68,9 @@ code =
             , domainLowest (\\y -> y - 1)
             ]
             [ area
-                [ Area.stroke pinkStroke
+                [ Area.animated True
+                , Area.animationInterval 40000
+                , Area.stroke pinkStroke
                 , Area.fill pinkFill
                 , Area.strokeWidth 1
                 , Area.smoothingBezier
