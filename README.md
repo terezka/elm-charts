@@ -1,6 +1,3 @@
-# Animation Fork
-See it here: http://skvale.github.io :koala:
-
 # Elm Plot
 
 Plot stuff in SVG with Elm!
