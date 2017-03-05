@@ -10,6 +10,8 @@ module Plot.Line exposing (..)
             , strokeWidth 2
             , opacity 0.5
             , smoothing Cosmetic
+            , animated True
+            , animationInterval 2000
             , customAttrs
                 [ Svg.Events.onClick <| Custom MyClickMsg ]
             ]
@@ -21,6 +23,9 @@ module Plot.Line exposing (..)
 
 # Styling
 @docs stroke, strokeWidth, opacity, smoothingBezier
+
+# Animation
+@docs animated, animationInterval
 
 # Other
 @docs customAttrs
@@ -43,6 +48,20 @@ type alias Attribute a =
 stroke : String -> Attribute a
 stroke stroke config =
     { config | style = ( "stroke", stroke ) :: config.style }
+
+
+{-| Set animated.
+-}
+animated : Bool -> Attribute a
+animated isAnimated config =
+    { config | animated = isAnimated }
+
+
+{-| Set animation interval in milliseconds.
+-}
+animationInterval : Int -> Attribute msg
+animationInterval intervalInMilliseconds config =
+    { config | animationInterval = intervalInMilliseconds }
 
 
 {-| Set the stroke width (in pixels).

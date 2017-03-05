@@ -41,7 +41,8 @@ view =
         , padding ( 0, 20 )
         ]
         [ bars
-            [ Bars.maxBarWidth 30
+            [ Bars.animated True
+            , Bars.maxBarWidth 30
             , Bars.stackByY
             , Bars.label
                 [ Label.formatFromList [ "A", "B", "C" ]
@@ -83,7 +84,8 @@ code =
             , padding ( 0, 20 )
             ]
             [ bars
-                [ Bars.maxBarWidth 30
+                [ Bars.animated True
+                , Bars.maxBarWidth 30
                 , Bars.stackByY
                 , Bars.label
                     [ Label.formatFromList [ "A", "B", "C" ]

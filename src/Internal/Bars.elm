@@ -18,6 +18,7 @@ import Internal.Types exposing (Orientation(..), MaxWidth(..), Meta, Edges, Orie
 import Internal.Draw exposing (..)
 import Internal.Stuff exposing (..)
 import Internal.Label as Label
+import Internal.Animation as Animation
 
 
 type alias Group =
@@ -28,6 +29,8 @@ type alias Group =
 
 type alias Config msg =
     { stackBy : Orientation
+    , animated : Bool
+    , animationInterval : Int
     , labelConfig : Label.Config LabelInfo msg
     , maxWidth : MaxWidth
     }
@@ -49,6 +52,8 @@ type alias LabelInfo =
 defaultConfig : Config msg
 defaultConfig =
     { stackBy = X
+    , animated = False
+    , animationInterval = 2000
     , labelConfig = Label.defaultConfig
     , maxWidth = Percentage 100
     }
@@ -84,23 +89,58 @@ viewGroup meta config styleConfigs width group =
 
         toCoords =
             toStackedCoords meta config styleConfigs width group
+
+        totalHeight =
+            meta.scale.y.length + meta.scale.y.offset.lower + meta.scale.y.offset.upper
+
+        totalWidth =
+            meta.scale.x.length + meta.scale.x.offset.lower + meta.scale.x.offset.upper
+
+        animationId =
+            "bar-bottom-to-top" ++ meta.id
     in
-        Svg.g []
-            [ Svg.g []
-                (List.map2
-                    (\styleConfig info ->
-                        viewBar meta width (toCoords info) config styleConfig info
+        if config.animated then
+            Svg.g []
+                [ Animation.bottomToTop
+                    { id = animationId
+                    , height = totalHeight
+                    , width = totalWidth
+                    , interval = config.animationInterval
+                    }
+                , Svg.g [ Svg.Attributes.clipPath ("url(#" ++ animationId ++ ")") ]
+                    [ Svg.g []
+                        (List.map2
+                            (\styleConfig info ->
+                                viewBar meta width (toCoords info) config styleConfig info
+                            )
+                            styleConfigs
+                            labelInfos
+                        )
+                    , Svg.g [ Svg.Attributes.clipPath ("url(#" ++ toClipPathId meta ++ ")") ]
+                        (Label.view
+                            config.labelConfig
+                            (\info -> placeLabel width (toCoords info))
+                            labelInfos
+                        )
+                    ]
+                ]
+        else
+            Svg.g []
+                [ Svg.g []
+                    (List.map2
+                        (\styleConfig info ->
+                            viewBar meta width (toCoords info) config styleConfig info
+                        )
+                        styleConfigs
+                        labelInfos
                     )
-                    styleConfigs
-                    labelInfos
-                )
-            , Svg.g [ Svg.Attributes.clipPath ("url(#" ++ toClipPathId meta ++ ")") ]
-                (Label.view
-                    config.labelConfig
-                    (\info -> placeLabel width (toCoords info))
-                    labelInfos
-                )
-            ]
+                , Svg.g [ Svg.Attributes.clipPath ("url(#" ++ toClipPathId meta ++ ")") ]
+                    (Label.view
+                        config.labelConfig
+                        (\info -> placeLabel width (toCoords info))
+                        labelInfos
+                    )
+                ]
 
 
 toLength : Meta -> Config msg -> LabelInfo -> Value

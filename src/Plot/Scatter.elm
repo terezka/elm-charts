@@ -11,6 +11,8 @@ module Plot.Scatter exposing (..)
             , fill "purple"
             , opacity 0.5
             , radius 10
+            , animated True
+            , animationInterval 2000
             , customAttrs
                 [ Svg.Events.onClick <| Custom MyClickMsg
                 , Svg.Events.onMouseOver <| Custom Glow
@@ -24,6 +26,9 @@ module Plot.Scatter exposing (..)
 # Styling
 @docs stroke, strokeWidth, fill, opacity, radius
 
+# animation
+@docs animated, animationInterval
+
 # Other
 @docs customAttrs
 
@@ -31,7 +36,6 @@ module Plot.Scatter exposing (..)
 
 import Svg
 import Internal.Scatter as Internal
-import Plot.Types exposing (Style)
 
 
 {-| -}
@@ -44,6 +48,20 @@ type alias Attribute a =
 stroke : String -> Attribute a
 stroke stroke config =
     { config | style = ( "stroke", stroke ) :: config.style }
+
+
+{-| Set animated.
+-}
+animated : Bool -> Attribute a
+animated isAnimated config =
+    { config | animated = isAnimated }
+
+
+{-| Set animation interval in milliseconds.
+-}
+animationInterval : Int -> Attribute msg
+animationInterval intervalInMilliseconds config =
+    { config | animationInterval = intervalInMilliseconds }
 
 
 {-| Set the stroke width (in pixels).

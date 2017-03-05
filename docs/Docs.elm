@@ -113,7 +113,7 @@ viewTitle =
             []
         , h1
             [ class "view__title" ]
-            [ text "Elm Plot" ]
+            [ text "Elm Plot (animated)" ]
         , div
             [ class "view__github-link" ]
             [ text "Find it on "

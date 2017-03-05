@@ -10,6 +10,8 @@ module Plot.Area exposing (..)
             , strokeWidth 2
             , fill "red"
             , opacity 0.5
+            , animated True
+            , animationInterval 2000
             , customAttrs
                 [ Svg.Events.onClick <| Custom MyClickMsg
                 , Svg.Events.onMouseOver <| Custom Glow
@@ -22,6 +24,9 @@ module Plot.Area exposing (..)
 
 # Styling
 @docs stroke, strokeWidth, opacity, fill, smoothingBezier
+
+# Animation
+@docs animated, animationInterval
 
 # Other
 @docs customAttrs
@@ -44,6 +49,20 @@ type alias Attribute a =
 stroke : String -> Attribute a
 stroke stroke config =
     { config | style = ( "stroke", stroke ) :: config.style }
+
+
+{-| Set animated.
+-}
+animated : Bool -> Attribute a
+animated isAnimated config =
+    { config | animated = isAnimated }
+
+
+{-| Set animation interval in milliseconds.
+-}
+animationInterval : Int -> Attribute a
+animationInterval intervalInMilliseconds config =
+    { config | animationInterval = intervalInMilliseconds }
 
 
 {-| Set the stroke width (in pixels).

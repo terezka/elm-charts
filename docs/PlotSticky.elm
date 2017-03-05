@@ -64,6 +64,7 @@ view =
         [ line
             [ Line.stroke pinkStroke
             , Line.strokeWidth 2
+            , Line.animated True
             ]
             data
         , xAxis
