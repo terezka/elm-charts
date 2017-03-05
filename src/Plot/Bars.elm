@@ -25,6 +25,8 @@ module Plot.Bars
         bars
             [ Bars.maxBarWidthPer 85
             , Bars.stackByY
+            , Bars.animated True
+            , Bars.animationInterval 2000
             , Bars.label
                 [ Label.formatFromList [ "A", "B", "C" ] ]
             ]
@@ -46,7 +48,10 @@ module Plot.Bars
 @docs Attribute
 
 # Attributes
-@docs animated, animationInterval, maxBarWidth, maxBarWidthPer, stackByY
+@docs maxBarWidth, maxBarWidthPer, stackByY
+
+# Animation
+@docs animated, animationInterval
 
 ## Labels
 @docs LabelInfo, label

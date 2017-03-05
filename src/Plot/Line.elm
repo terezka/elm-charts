@@ -10,6 +10,8 @@ module Plot.Line exposing (..)
             , strokeWidth 2
             , opacity 0.5
             , smoothing Cosmetic
+            , animated True
+            , animationInterval 2000
             , customAttrs
                 [ Svg.Events.onClick <| Custom MyClickMsg ]
             ]
@@ -20,7 +22,10 @@ module Plot.Line exposing (..)
 @docs Attribute
 
 # Styling
-@docs animated, animationInterval, stroke, strokeWidth, opacity, smoothingBezier
+@docs stroke, strokeWidth, opacity, smoothingBezier
+
+# Animation
+@docs animated, animationInterval
 
 # Other
 @docs customAttrs

@@ -10,6 +10,8 @@ module Plot.Area exposing (..)
             , strokeWidth 2
             , fill "red"
             , opacity 0.5
+            , animated True
+            , animationInterval 2000
             , customAttrs
                 [ Svg.Events.onClick <| Custom MyClickMsg
                 , Svg.Events.onMouseOver <| Custom Glow
@@ -21,7 +23,10 @@ module Plot.Area exposing (..)
 @docs Attribute
 
 # Styling
-@docs animated, animationInterval, stroke, strokeWidth, opacity, fill, smoothingBezier
+@docs stroke, strokeWidth, opacity, fill, smoothingBezier
+
+# Animation
+@docs animated, animationInterval
 
 # Other
 @docs customAttrs
