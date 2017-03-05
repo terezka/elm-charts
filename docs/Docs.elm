@@ -21,7 +21,6 @@ import PlotSmooth
 
 type alias Model =
     { focused : Maybe Id
-    , animated : Maybe Id
     , plotStates : Dict Id Plot.State
     }
 
@@ -29,7 +28,6 @@ type alias Model =
 initialModel : Model
 initialModel =
     { focused = Nothing
-    , animated = Nothing
     , plotStates = empty
     }
 
@@ -47,7 +45,6 @@ getPlotState id plotStates =
 type Msg
     = FocusExample Id
     | PlotInteraction Id (Plot.Interaction Msg)
-    | Animate Id
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -55,9 +52,6 @@ update msg ({ plotStates, focused } as model) =
     case msg of
         FocusExample id ->
             ( { model | focused = updateFocused id focused }, Cmd.none )
-
-        Animate id ->
-            ( { model | animated = Just id }, Cmd.none )
 
         PlotInteraction id interaction ->
             case interaction of
@@ -140,7 +134,7 @@ viewExampleLarge { plotStates } =
 viewExample : Model -> PlotExample Msg -> Html.Html Msg
 viewExample ({ plotStates } as model) ({ title, id, view, code } as example) =
     Html.div
-        [ class "view-plot", Animate id |> onClick ]
+        [ class "view-plot" ]
         [ viewHeading model example
         , viewCode model example
         , viewExampleInner model view
