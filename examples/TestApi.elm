@@ -38,7 +38,10 @@ pinkStroke =
 main : Html msg
 main =
   view
-      [ line (List.map (\{ x, y } -> circle x y)) ]
+      [ area (List.map (\{ x, y } -> circle x y))
+      , horizontalJunk normalAxis
+      , verticalJunk normalAxis
+      ]
       [ { x = 0, y = 2 }
       , { x = 2, y = 4 }
       , { x = 3, y = -1 }
