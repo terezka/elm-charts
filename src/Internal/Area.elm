@@ -6,6 +6,7 @@ import Internal.Types exposing (..)
 import Plot.Types exposing (..)
 import Internal.Stuff exposing (getEdgesX)
 import Internal.Draw exposing (PathType(..), toPath, toLinePath, toStyle, toClipPathId)
+import Internal.Animation as Animation
 
 
 type alias Config a =
@@ -56,30 +57,18 @@ view meta { animated, animationInterval, style, smoothing, customAttrs } points 
         animationId =
             "area-left-to-right-" ++ meta.id
     in
-        case animated of
-            True ->
-                Svg.g []
-                    [ Svg.defs []
-                        [ Svg.clipPath [ Svg.Attributes.id animationId ]
-                            [ Svg.rect
-                                [ Svg.Attributes.width "0"
-                                , Svg.Attributes.height (toString totalHeight)
-                                ]
-                                [ Svg.animate
-                                    [ Svg.Attributes.attributeName "width"
-                                    , Svg.Attributes.values ("0;" ++ (toString totalWidth))
-                                    , Svg.Attributes.dur ((toString animationInterval) ++ "ms")
-                                    , Svg.Attributes.fill "freeze"
-                                    ]
-                                    []
-                                ]
-                            ]
-                        ]
-                    , Svg.path (attrs ++ [ Svg.Attributes.clipPath ("url(#" ++ animationId ++ ")") ]) []
-                    ]
-
-            False ->
-                Svg.path attrs []
+        if animated then
+            Svg.g []
+                [ Animation.leftToRight
+                    { id = animationId
+                    , height = totalHeight
+                    , width = totalWidth
+                    , interval = animationInterval
+                    }
+                , Svg.path (attrs ++ [ Svg.Attributes.clipPath ("url(#" ++ animationId ++ ")") ]) []
+                ]
+        else
+            Svg.path attrs []
 
 
 stdAttributes : Meta -> String -> Style -> List (Svg.Attribute a)

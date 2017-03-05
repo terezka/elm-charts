@@ -18,6 +18,7 @@ import Internal.Types exposing (Orientation(..), MaxWidth(..), Meta, Edges, Orie
 import Internal.Draw exposing (..)
 import Internal.Stuff exposing (..)
 import Internal.Label as Label
+import Internal.Animation as Animation
 
 
 type alias Group =
@@ -100,23 +101,12 @@ viewGroup meta config styleConfigs width group =
     in
         if config.animated then
             Svg.g []
-                [ Svg.defs []
-                    [ Svg.clipPath [ Svg.Attributes.id animationId ]
-                        [ Svg.rect
-                            [ Svg.Attributes.height (toString totalHeight)
-                            , Svg.Attributes.width (toString totalWidth)
-                            , Svg.Attributes.y (toString totalHeight)
-                            ]
-                            [ Svg.animate
-                                [ Svg.Attributes.attributeName "y"
-                                , Svg.Attributes.values ((toString (totalHeight)) ++ ";0")
-                                , Svg.Attributes.dur ((toString config.animationInterval) ++ "ms")
-                                , Svg.Attributes.fill "freeze"
-                                ]
-                                []
-                            ]
-                        ]
-                    ]
+                [ Animation.bottomToTop
+                    { id = animationId
+                    , height = totalHeight
+                    , width = totalWidth
+                    , interval = config.animationInterval
+                    }
                 , Svg.g [ Svg.Attributes.clipPath ("url(#" ++ animationId ++ ")") ]
                     [ Svg.g []
                         (List.map2
