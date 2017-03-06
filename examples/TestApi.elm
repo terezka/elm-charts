@@ -1,7 +1,6 @@
 module TestApi exposing (..)
 
 import Html exposing (Html, div)
-import Svg.Attributes exposing (stroke)
 import Svg.Series exposing (..)
 
 
@@ -47,8 +46,8 @@ myDot { x, y } =
 main : Html msg
 main =
   view
-      [ area (List.map myDot)
-      , area (List.map (\{ x, y } -> square (x + 2) (y * 1.2)))
+      [ area (List.map (\{ x, y } -> square (x + 2) (y * 1.2)))
+      , custom axisAtMinimum (Linear (Just pinkFill) []) (List.map myDot)
       ]
       [ { x = -3.1, y = 2.2 }
       , { x = 2.2, y = 4.2 }

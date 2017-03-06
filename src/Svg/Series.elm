@@ -1,13 +1,13 @@
 module Svg.Series exposing (
   view, dots, line, area, custom,
   DataPoint, Series, square, circle, diamond, viewCircle,
-  triangle, Interpolation(..), rangeFrameGlitter
+  triangle, Interpolation(..), rangeFrameGlitter, axisAtMinimum
   )
 
 {-|
 # Plot
 
-@docs view, dots, line, area, custom, DataPoint, Series, square, circle, diamond, triangle, Interpolation, rangeFrameGlitter, viewCircle
+@docs view, dots, line, area, custom, DataPoint, Series, square, circle, diamond, triangle, Interpolation, rangeFrameGlitter, viewCircle, axisAtMinimum
 -}
 
 import Html exposing (Html)
@@ -162,6 +162,21 @@ custom axis interpolation toDataPoints =
 
 
 
+-- AXIS
+
+
+{-| -}
+axisAtMinimum : Axis
+axisAtMinimum =
+  axis <| \summary ->
+    { position = Min
+    , axisLine = Just (LineCustomizations [ stroke darkGrey ] summary.dataMin summary.dataMax)
+    , ticks = List.map (simpleTick [ stroke darkGrey ] 5) (decentPositions summary |> remove 0)
+    , labels = List.map (simpleLabel [] toString) (decentPositions summary |> remove 0)
+    , whatever = []
+    }
+
+
 -- VIEW
 
 
@@ -182,10 +197,10 @@ defaultPlotCustomizations =
       }
   , width = 1000
   , height = 720
-  , toDomainLowest = identity
-  , toDomainHighest = identity
-  , toRangeLowest = identity
-  , toRangeHighest = identity
+  , toDomainLowest = min -6
+  , toDomainHighest = max 6
+  , toRangeLowest = \x -> x - 1
+  , toRangeHighest = \x -> x + 1
   }
 
 
@@ -261,13 +276,11 @@ viewInterpolation :
 viewInterpolation plotSummary toLine toArea area attributes dataPoints =
   case area of
     Nothing ->
-      draw
-        (fill transparent :: stroke pinkStroke :: attributes)
+      draw (fill transparent :: stroke pinkStroke :: attributes)
         (toLine plotSummary (points dataPoints))
 
     Just color ->
-      draw
-        (fill color :: fill pinkFill :: stroke pinkStroke :: attributes)
+      draw (fill color :: fill pinkFill :: stroke pinkStroke :: attributes)
         (toArea plotSummary (points dataPoints))
 
 
@@ -320,18 +333,8 @@ viewCircle radius color =
 
 viewGlitter : PlotSummary -> DataPoint msg -> List (Svg Never)
 viewGlitter summary { glitter, x, y } =
-  [ case glitter.xLine of
-      Nothing ->
-        text ""
-
-      Just this ->
-        viewAxisLine summary (\y -> { x = x, y = y }) (Just <| this summary.y)
-  , case glitter.yLine of
-      Nothing ->
-        text ""
-
-      Just this ->
-        viewAxisLine summary (\x -> { x = x, y = y }) (Just <| this summary.x)
+  [ viewAxisLine summary (\y -> { x = x, y = y }) (Maybe.map (\toLine -> toLine summary.y) glitter.xLine)
+  , viewAxisLine summary (\x -> { x = x, y = y }) (Maybe.map (\toLine -> toLine summary.x) glitter.yLine)
   ]
 
 

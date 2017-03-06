@@ -17,6 +17,8 @@ type alias Point =
 type alias AxisSummary =
   { min : Float
   , max : Float
+  , dataMin : Float
+  , dataMax : Float
   , marginLower : Float
   , marginUpper : Float
   , length : Float

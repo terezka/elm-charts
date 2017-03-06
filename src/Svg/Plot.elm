@@ -1,16 +1,16 @@
 module Svg.Plot exposing (
-  Axis(..), AxisCustomizations, Position, LineCustomizations,
+  Axis(..), AxisCustomizations, Position(..), LineCustomizations,
   TickCustomizations, LabelCustomizations, WhateverCustomizations,
   Grid(..), GridCustomizations,
-  normalAxis, sometimesYouDoNotHaveAnAxis, simpleLine, simpleTick, simpleLabel, viewHorizontalAxis, viewVerticalAxis,
-  viewHorizontalGrid, viewVerticalGrid, decentGrid, viewAxisLine, emptyGrid, PlotCustomizations, Plot, view, toPlotSummary
+  normalAxis, sometimesYouDoNotHaveAnAxis, simpleLine, simpleTick, simpleLabel, viewHorizontalAxis, viewVerticalAxis, remove,
+  viewHorizontalGrid, viewVerticalGrid, decentGrid, viewAxisLine, emptyGrid, PlotCustomizations, Plot, view, toPlotSummary, axis, decentPositions
   )
 
 {-|
 
-@docs Axis, AxisCustomizations, Position, LineCustomizations,TickCustomizations, LabelCustomizations, WhateverCustomizations
+@docs Axis, AxisCustomizations, Position, LineCustomizations,TickCustomizations, LabelCustomizations, WhateverCustomizations, axis, decentPositions
 
-@docs normalAxis, simpleLine, simpleTick, simpleLabel, viewHorizontalAxis, viewVerticalAxis, viewHorizontalGrid, viewVerticalGrid
+@docs normalAxis, simpleLine, simpleTick, simpleLabel, viewHorizontalAxis, viewVerticalAxis, viewHorizontalGrid, viewVerticalGrid, remove
 
 @docs Grid, GridCustomizations, emptyGrid, viewAxisLine, sometimesYouDoNotHaveAnAxis, decentGrid, PlotCustomizations, Plot, view, toPlotSummary
 -}
@@ -64,14 +64,15 @@ view summary { customizations, moreHorizontalTicks, verticalAxes, content, glitt
   svg
     [ Attributes.width (toString customizations.width)
     , Attributes.height (toString customizations.height)
-    ]
-    [ Svg.map never (viewHorizontalGrid summary customizations.grid.horizontal)
-    , Svg.map never (viewVerticalGrid summary customizations.grid.vertical)
-    , content
-    , Svg.map never (viewHorizontalAxis summary customizations.horizontalAxis moreHorizontalTicks)
-    , Svg.map never (g [ class "elm-plot__vertical-axes" ] (List.map (viewVerticalAxis summary) verticalAxes))
-    , Svg.map never (g [ class "elm-plot__glitter" ] glitter)
-    ]
+    ] <|
+      List.filterMap identity
+        [ viewHorizontalGrid summary customizations.grid.horizontal
+        , viewVerticalGrid summary customizations.grid.vertical
+        , Just content
+        , viewHorizontalAxis summary customizations.horizontalAxis moreHorizontalTicks
+        , Just <| g [ class "elm-plot__vertical-axes" ] (List.map (viewVerticalAxis summary) verticalAxes |> List.filterMap identity)
+        , Just <| Svg.map never <| g [ class "elm-plot__glitter" ] glitter
+        ]
 
 
 -- INSIDE
@@ -109,15 +110,19 @@ toPlotSummary customizations points =
       Maybe.withDefault defaultPlotSummary (List.foldl foldPlot Nothing points)
   in
     { x =
-      { min = plotSummary.x.min
-      , max = plotSummary.x.max
+      { min = customizations.toRangeLowest (plotSummary.x.min)
+      , max = customizations.toRangeHighest (plotSummary.x.max)
+      , dataMin = plotSummary.x.min
+      , dataMax = plotSummary.x.max
       , length = toFloat customizations.width
       , marginLower = toFloat customizations.margin.left
       , marginUpper = toFloat customizations.margin.right
       }
     , y =
-      { min = plotSummary.y.min
-      , max = plotSummary.y.max
+      { min = customizations.toDomainLowest (plotSummary.y.min)
+      , max = customizations.toDomainHighest (plotSummary.y.max)
+      , dataMin = plotSummary.y.min
+      , dataMax = plotSummary.y.max
       , length = toFloat customizations.height
       , marginLower = toFloat customizations.margin.bottom
       , marginUpper = toFloat customizations.margin.top
@@ -244,14 +249,14 @@ viewLabel attributes string =
 
 
 {-| -}
-viewHorizontalAxis : PlotSummary -> Axis -> List TickCustomizations -> Svg Never
+viewHorizontalAxis : PlotSummary -> Axis -> List TickCustomizations -> Maybe (Svg msg)
 viewHorizontalAxis summary axis moreTicks =
   case axis of
     Axis toCustomizations ->
-      viewActualHorizontalAxis summary (toCustomizations summary.x) moreTicks
+      Just (Svg.map never (viewActualHorizontalAxis summary (toCustomizations summary.x) moreTicks))
 
     SometimesYouDoNotHaveAnAxis ->
-      text "<!– Sometimes you just really don't have a horizontal axis –>"
+      Nothing
 
 
 viewActualHorizontalAxis : PlotSummary -> AxisCustomizations -> List TickCustomizations -> Svg Never
@@ -283,14 +288,14 @@ viewActualHorizontalAxis summary { position, axisLine, ticks, labels, whatever }
 
 
 {-| -}
-viewVerticalAxis : PlotSummary -> ( Axis, List TickCustomizations ) -> Svg Never
+viewVerticalAxis : PlotSummary -> ( Axis, List TickCustomizations ) -> Maybe (Svg msg)
 viewVerticalAxis summary ( axis, moreTicks ) =
   case axis of
     Axis toCustomizations ->
-      viewActualVerticalAxis summary (toCustomizations summary.y) moreTicks
+      Just (Svg.map never (viewActualVerticalAxis summary (toCustomizations summary.y) moreTicks))
 
     SometimesYouDoNotHaveAnAxis ->
-      text "<!– Sometimes you just don't have a vertical axis –>"
+      Nothing
 
 
 viewActualVerticalAxis : PlotSummary -> AxisCustomizations -> List TickCustomizations -> Svg Never
@@ -379,14 +384,14 @@ emptyGrid =
 
 
 {-| -}
-viewHorizontalGrid : PlotSummary -> Grid -> Svg Never
+viewHorizontalGrid : PlotSummary -> Grid -> Maybe (Svg msg)
 viewHorizontalGrid summary grid =
   case grid of
     Grid toCustomizations ->
-      viewActualHorizontalGrid summary (toCustomizations summary.x)
+      Just (Svg.map never (viewActualHorizontalGrid summary (toCustomizations summary.x)))
 
     YeahGridsAreTotallyLame ->
-      text "<!- You don't have a horizontal grid! Tufte would be proud!"
+      Nothing
 
 
 viewActualHorizontalGrid : PlotSummary -> GridCustomizations -> Svg Never
@@ -403,14 +408,14 @@ viewActualHorizontalGrid summary { attributes, positions } =
 
 
 {-| -}
-viewVerticalGrid : PlotSummary -> Grid -> Svg Never
+viewVerticalGrid : PlotSummary -> Grid -> Maybe (Svg msg)
 viewVerticalGrid summary grid =
   case grid of
     Grid toCustomizations ->
-      viewActualVerticalGrid summary (toCustomizations summary.y)
+      Just (Svg.map never (viewActualVerticalGrid summary (toCustomizations summary.y)))
 
     YeahGridsAreTotallyLame ->
-      text "<!- You don't have a vertical grid! Tufte would be proud!"
+      Nothing
 
 
 viewActualVerticalGrid : PlotSummary -> GridCustomizations -> Svg Never
@@ -440,16 +445,16 @@ resolvePosition { min, max } position =
 
 
 
-
-
 -- TICK HELP
 
 
+{-| -}
 remove : Float -> List Float -> List Float
 remove banned values =
   List.filter (\v -> v /= banned) values
 
 
+{-| -}
 decentPositions : AxisSummary -> List Float
 decentPositions summary =
   if summary.length > 600 then
