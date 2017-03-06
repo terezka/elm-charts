@@ -8,7 +8,7 @@ module Svg.Plot exposing (view, dots, line, area, custom, grid, DataPoint, Serie
 
 import Html exposing (Html)
 import Svg exposing (Svg, Attribute, svg, text_, tspan, text, g, path, rect)
-import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2)
+import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style)
 import Svg.Draw as Draw exposing (PlotSummary, AxisSummary, Point, draw, linear, linearArea, monotoneX, monotoneXArea)
 import Round
 import Regex
@@ -206,11 +206,11 @@ normalAxis =
     \summary ->
       { position = At 0
       , axisLine =
-          { attributes = [ stroke grey ]
+          { attributes = [ stroke darkGrey ]
           , start = summary.min
           , end = summary.max
           }
-      , ticks = List.map (simpleTick [ stroke grey ] 5) (decentPositions summary)
+      , ticks = List.map (simpleTick [ stroke darkGrey ] 5) (decentPositions summary)
       , labels = List.map (simpleLabel [] toString) (decentPositions summary)
       , whatever = []
       }
@@ -239,7 +239,7 @@ simpleLabel attributes format position =
 
 
 type Grid
-  = Grid (AxisSummary -> List Float -> GridCustomizations)
+  = Grid (AxisSummary -> GridCustomizations)
   | YeahGridsAreTotallyNotWorthIt
 
 
@@ -250,7 +250,7 @@ type alias GridCustomizations =
 
 
 {-| -}
-grid : (AxisSummary -> List Float -> GridCustomizations) -> Grid
+grid : (AxisSummary -> GridCustomizations) -> Grid
 grid =
   Grid
 
@@ -258,18 +258,9 @@ grid =
 decentGrid : Grid
 decentGrid =
   grid <|
-    \summary tickPositions ->
+    \summary ->
       { attributes = [ stroke grey ]
       , positions = decentPositions summary
-      }
-
-
-gridThatMirrorsTicks : List (Attribute Never) -> Grid
-gridThatMirrorsTicks attributes =
-  grid <|
-    \summary tickPositions ->
-      { attributes = attributes
-      , positions = tickPositions
       }
 
 
@@ -312,9 +303,9 @@ defaultPlotCustomizations =
       }
   , margin =
       { top = 20
-      , right = 20
+      , right = 40
       , bottom = 20
-      , left = 20
+      , left = 40
       }
   , width = 1000
   , height = 720
@@ -471,7 +462,7 @@ viewDataPoint plotSummary { x, y, view } =
       text ""
 
     Just svgView ->
-      Draw.position plotSummary { x = x, y = y } [ svgView ]
+      g [ Draw.position plotSummary { x = x, y = y } 0 0 ] [ svgView ]
 
 
 viewSquare : Float -> Float -> String -> Svg msg
@@ -504,7 +495,7 @@ viewLabel attributes string =
 -- GRID VIEW
 
 
-ifActualGrid : ((AxisSummary -> List Float -> GridCustomizations) -> Svg Never) -> Grid -> Svg Never
+ifActualGrid : ((AxisSummary -> GridCustomizations) -> Svg Never) -> Grid -> Svg Never
 ifActualGrid viewGrid grid =
   case grid of
     Grid toCustomizations ->
@@ -514,11 +505,11 @@ ifActualGrid viewGrid grid =
       text "" -- no
 
 
-viewHorizontalGrid : PlotSummary -> (AxisSummary -> List Float -> GridCustomizations) -> Svg Never
+viewHorizontalGrid : PlotSummary -> (AxisSummary -> GridCustomizations) -> Svg Never
 viewHorizontalGrid summary toCustomizations =
   let
     { attributes, positions } =
-      toCustomizations summary.x []
+      toCustomizations summary.x
 
     viewGridLine x =
       draw attributes (linear summary [ { x = x, y = summary.y.min }, { x = x, y = summary.y.max } ])
@@ -526,11 +517,11 @@ viewHorizontalGrid summary toCustomizations =
     g [ class "elm-plot__horizontal-grid" ] (List.map viewGridLine positions)
 
 
-viewVerticalGrid : PlotSummary -> (AxisSummary -> List Float -> GridCustomizations) -> Svg Never
+viewVerticalGrid : PlotSummary -> (AxisSummary -> GridCustomizations) -> Svg Never
 viewVerticalGrid summary toCustomizations =
   let
     { attributes, positions } =
-      toCustomizations summary.y []
+      toCustomizations summary.y
 
     viewGridLine y =
       draw attributes (linear summary [ { x = summary.x.min, y = y }, { x = summary.x.max, y = y } ])
@@ -564,13 +555,17 @@ viewHorizontalAxis summary toCustomizations =
         { x = x, y = resolvePosition summary.y position }
 
       viewTickLine { attributes, length, position } =
-        Draw.position summary (toPoint position) [ viewTickInner attributes 0 length ]
+        g [ Draw.position summary (toPoint position) 0 0 ] [ viewTickInner attributes 0 length ]
 
       viewLabel { format, position, view } =
-        Draw.position summary (toPoint position) [ view (format position) ]
+        g
+          [ Draw.position summary (toPoint position) 0 20
+          , style "text-anchor: middle;"
+          ]
+          [ view (format position) ]
 
       viewWhatever { position, view } =
-        Draw.position summary (toPoint position) [ view ]
+        g [ Draw.position summary (toPoint position) 0 0 ] [ view ]
     in
       g [ class "elm-plot__horizontal-axis" ] <|
         viewLine summary toPoint axisLine
@@ -589,13 +584,17 @@ viewVerticalAxis summary toCustomizations =
         { x = resolvePosition summary.x position, y = y }
 
       viewTickLine { attributes, length, position } =
-        Draw.position summary (toPoint position) [ viewTickInner attributes -length 0 ]
+        g [ Draw.position summary (toPoint position) 0 0 ]
+          [ viewTickInner attributes -length 0 ]
 
       viewLabel { format, position, view } =
-        Draw.position summary (toPoint position) [ view (format position) ]
+        g [ Draw.position summary (toPoint position) -10 5
+          , style "text-anchor: end;"
+          ]
+          [ view (format position) ]
 
       viewWhatever { position, view } =
-        Draw.position summary (toPoint position) [ view ]
+        g [ Draw.position summary (toPoint position) 0 0 ] [ view ]
     in
       g [ class "elm-plot__vertical-axis" ] <|
         viewLine summary toPoint axisLine
@@ -736,7 +735,7 @@ niceInterval min max total =
 
 pinkFill : String
 pinkFill =
-    "#fdb9e7"
+    "rgba(253, 185, 231, 0.5)"
 
 
 pinkStroke : String
@@ -751,4 +750,9 @@ transparent =
 
 grey : String
 grey =
+  "#e3e3e3"
+
+
+darkGrey : String
+darkGrey =
   "#a3a3a3"
