@@ -2,7 +2,7 @@ module TestApi exposing (..)
 
 import Html exposing (Html, div)
 import Svg.Attributes exposing (stroke)
-import Svg.Plot exposing (..)
+import Svg.Series exposing (..)
 
 
 blueFill : String
@@ -35,13 +35,24 @@ pinkStroke =
     "#ff9edf"
 
 
+myDot : { x : Float, y : Float } -> DataPoint msg
+myDot { x, y } =
+  { view = Just (viewCircle 5 pinkStroke)
+  , glitter = rangeFrameGlitter x y
+  , x = x
+  , y = y
+  }
+
 
 main : Html msg
 main =
   view
-      [ area (List.map (\{ x, y } -> circle x y))
+      [ area (List.map myDot)
+      , area (List.map (\{ x, y } -> square (x + 2) (y * 1.2)))
       ]
-      [ { x = 0, y = 2 }
-      , { x = 2, y = 4 }
-      , { x = 3, y = -1 }
+      [ { x = -3.1, y = 2.2 }
+      , { x = 2.2, y = 4.2 }
+      , { x = 3.5, y = -1.6 }
+      , { x = 5.4, y = -0.8 }
+      , { x = 6.8, y = 2.3 }
       ]
