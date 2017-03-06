@@ -1,6 +1,7 @@
 module TestApi exposing (..)
 
 import Html exposing (Html, div)
+import Svg.Attributes exposing (stroke)
 import Svg.Plot exposing (..)
 
 
@@ -39,8 +40,6 @@ main : Html msg
 main =
   view
       [ area (List.map (\{ x, y } -> circle x y))
-      , horizontalJunk normalAxis
-      , verticalJunk normalAxis
       ]
       [ { x = 0, y = 2 }
       , { x = 2, y = 4 }
