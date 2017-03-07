@@ -645,9 +645,26 @@ handleHint summary toMsg =
 unScalePoint : PlotSummary -> Float -> Float -> DOM.Rectangle -> Maybe Point
 unScalePoint summary mouseX mouseY { left, top } =
     Just
-      { x = unScaleValue summary.x (mouseX - left)
-      , y = unScaleValue summary.y (mouseY - top)
+      { x = toNearestX summary <| unScaleValue summary.x (mouseX - left)
+      , y = unScaleValue summary.y (summary.y.length - mouseY - top)
       }
+
+
+diff : Float -> Float -> Float
+diff a b =
+  abs (a - b)
+
+
+toNearestX : PlotSummary -> Float -> Float
+toNearestX summary actualX =
+  let
+    default =
+      Maybe.withDefault 0 (List.head summary.x.all)
+
+    updateIfCloser closest x =
+      if diff x actualX > diff closest actualX then closest else x
+  in
+    List.foldl updateIfCloser default summary.x.all
 
 
 plotPosition : Json.Decoder DOM.Rectangle
@@ -701,7 +718,7 @@ toPlotSummary customizations points =
       , length = toFloat customizations.width
       , marginLower = toFloat customizations.margin.left
       , marginUpper = toFloat customizations.margin.right
-      , all = plotSummary.x.all
+      , all = List.sort plotSummary.x.all
       }
     , y =
       { min = customizations.toDomainLowest (plotSummary.y.min)
