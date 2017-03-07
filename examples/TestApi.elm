@@ -1,7 +1,7 @@
 module TestApi exposing (..)
 
 import Html exposing (Html, div)
-import Svg.Series exposing (..)
+import Svg.Plot exposing (..)
 
 
 blueFill : String
@@ -47,7 +47,7 @@ main : Html msg
 main =
   view
       [ area (List.map (\{ x, y } -> square (x + 2) (y * 1.2)))
-      , custom axisAtMinimum (Linear (Just pinkFill) []) (List.map myDot)
+      , custom axisAtMin (Linear (Just pinkFill) []) (List.map myDot)
       ]
       [ { x = -3.1, y = 2.2 }
       , { x = 2.2, y = 4.2 }
