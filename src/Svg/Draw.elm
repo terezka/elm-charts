@@ -1,4 +1,17 @@
-module Svg.Draw exposing (Point, PlotSummary, AxisSummary, Command, draw, place, linear, linearArea, monotoneX, monotoneXArea)
+module Svg.Draw
+  exposing
+    ( Point
+    , PlotSummary
+    , AxisSummary
+    , Command
+    , draw
+    , place
+    , scaleValue
+    , linear
+    , linearArea
+    , monotoneX
+    , monotoneXArea
+    )
 
 import Svg exposing (Svg, Attribute, path, g)
 import Svg.Attributes exposing (d, transform)
@@ -22,6 +35,7 @@ type alias AxisSummary =
   , marginLower : Float
   , marginUpper : Float
   , length : Float
+  , all : List Float
   }
 
 

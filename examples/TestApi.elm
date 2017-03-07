@@ -46,8 +46,8 @@ myDot { x, y } =
 main : Html msg
 main =
   view
-      [ area (List.map (\{ x, y } -> square (x + 2) (y * 1.2)))
-      , custom axisAtMin (Linear (Just pinkFill) []) (List.map myDot)
+      [ area (List.map (\{ x, y } -> diamond (x + 2) (y * 1.2)))
+      , custom emptyAxis (Linear (Just pinkFill) []) (List.map myDot)
       ]
       [ { x = -3.1, y = 2.2 }
       , { x = 2.2, y = 4.2 }

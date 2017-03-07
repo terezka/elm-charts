@@ -10,17 +10,23 @@ module Svg.Plot
         , square
         , circle
         , diamond
-        , viewCircle
         , triangle
         , Interpolation(..)
         , rangeFrameGlitter
+        , emptyAxis
         , axisAtMin
+        , viewCircle
+        , viewSquare
+        , viewDiamond
         )
 
 {-|
 # Plot
 
-@docs view, dots, line, area, custom, DataPoint, Series, square, circle, diamond, triangle, Interpolation, rangeFrameGlitter, viewCircle, axisAtMin
+@docs view, dots, line, area, custom, DataPoint, Series, square, circle, diamond, triangle, Interpolation, rangeFrameGlitter, axisAtMin, emptyAxis
+
+## Small helper views
+@docs viewCircle, viewSquare, viewDiamond
 -}
 
 import Html exposing (Html)
@@ -35,71 +41,65 @@ import Regex
 -- DATA POINTS
 
 
-{-| -}
+{-| The classic circle never goes out of style.
+-}
 circle : Float -> Float -> DataPoint msg
 circle =
   dot (viewCircle 5 pinkStroke)
 
 
-{-| -}
+{-| A square.
+-}
 square : Float -> Float -> DataPoint msg
 square =
-  dot (viewSquare 10 10 pinkStroke)
+  dot (viewSquare 10 pinkStroke)
 
 
-{-| -}
+{-| If you want to impress a girl with your classy plots.
+-}
 diamond : Float -> Float -> DataPoint msg
 diamond =
-  dot (viewSquare 10 10 pinkStroke)
+  dot (viewDiamond 10 10 pinkStroke)
 
 
-{-| -}
+{-| A nice triangle for fancy academic looking plots.
+-}
 triangle : Float -> Float -> DataPoint msg
 triangle =
-  dot (viewSquare 10 10 pinkStroke)
+  dot (viewSquare 10 pinkStroke)
 
 
-{-| -}
+{-| The data point customizations. You can:
+  - Add the x and y of your data point!
+  - Change the view of the dot, if your tired of squares and circles.
+  - Add glitter! ✨ Glitter is extra cool stuff for your dot. It can add
+    ticks at that exact point, add lines for emphasis or a small label or
+    whatever. See the `Glitter` type.
+-}
 type alias DataPoint msg =
   { view : Maybe (Svg msg)
-  , glitter : Glitter msg
+  , glitter : Glitter
   , x : Float
   , y : Float
   }
 
 
-type alias Glitter msg =
+{-| All this glitter! You can:
+  - Add lines (nice if you're hovering the dot!).
+  - Add ticks which will show up the your axis.
+  - Add labels or whatever else you can come up with.
+-}
+type alias Glitter =
   { xLine : Maybe (AxisSummary -> LineCustomizations)
   , yLine : Maybe (AxisSummary -> LineCustomizations)
   , xTick : Maybe TickCustomizations
   , yTick : Maybe TickCustomizations
-  , hover : Maybe msg
+  , whatever : List WhateverCustomizations
   }
 
 
-{-| -}
-noGlitter : Glitter msg
-noGlitter =
-  { xLine = Nothing
-  , yLine = Nothing
-  , xTick = Nothing
-  , yTick = Nothing
-  , hover = Nothing
-  }
-
-
-{-| -}
-rangeFrameGlitter : Float -> Float -> Glitter msg
-rangeFrameGlitter x y =
-  { xLine = Just (simpleLine [ stroke darkGrey, Attributes.strokeDasharray "5, 5" ])
-  , yLine = Just (simpleLine [ stroke darkGrey, Attributes.strokeDasharray "5, 5" ])
-  , xTick = Just (simpleTick [ stroke darkGrey ] 10 x)
-  , yTick = Just (simpleTick [ stroke darkGrey ] 10 y)
-  , hover = Nothing
-  }
-
-
-{-| -}
+{-| Makes a dot given a view and a x and an y.
+-}
 dot : Svg msg -> Float -> Float -> DataPoint msg
 dot view x y =
   { view = Just view
@@ -109,16 +109,128 @@ dot view x y =
   }
 
 
+{-| Makes a dot given a view and a x and an y.
+-}
+dotWithGlitter : Svg msg -> Float -> Float -> DataPoint msg
+dotWithGlitter view x y =
+  { view = Just view
+  , glitter = hoverGlitter x y
+  , x = x
+  , y = y
+  }
+
+
+{-| No glitter! No fun!
+-}
+noGlitter : Glitter
+noGlitter =
+  { xLine = Nothing
+  , yLine = Nothing
+  , xTick = Nothing
+  , yTick = Nothing
+  , whatever = []
+  }
+
+
+{-| This is glitter for a special plot in Tuftes book, called the rangeframe plot.
+  It basically just adds ticks to your axis where your data points are! You might want
+  to use `emptyAxis` to remove all the other useless axis stuff, now that your have all
+  these nice ticks.
+-}
+rangeFrameGlitter : Float -> Float -> Glitter
+rangeFrameGlitter x y =
+  { xLine = Nothing
+  , yLine = Nothing
+  , xTick = Just (simpleTick x)
+  , yTick = Just (simpleTick y)
+  , whatever = []
+  }
+
+
+{-| Neat glitter for when you hover the dot. There is an example of this which I need to
+  reference here. Let me know if I forgot.
+-}
+hoverGlitter : Float -> Float -> Glitter
+hoverGlitter x y =
+  { xLine = Just (fullLine [ stroke darkGrey, Attributes.strokeDasharray "5, 5" ])
+  , yLine = Just (fullLine [ stroke darkGrey, Attributes.strokeDasharray "5, 5" ])
+  , xTick = Nothing
+  , yTick = Nothing
+  , whatever = []
+  }
+
+
+{-| Make your own dot!
+-}
+customDot : Maybe (Svg msg) -> Glitter -> Float -> Float -> DataPoint msg
+customDot =
+  DataPoint
+
+
 
 -- SERIES
 
 
-{-| -}
+{-| The line customizations. You can:
+    - Add your own vertical axis.
+    - Add the interpolation you'd like.
+    - Add your own data.
+-}
 type alias Series data msg =
   { axis : Axis
   , interpolation : Interpolation
   , toDataPoints : data -> List (DataPoint msg)
   }
+
+
+{-| A pink scatter series.
+-}
+dots : (data -> List (DataPoint msg)) -> Series data msg
+dots toDataPoints =
+  { axis = normalAxis
+  , interpolation = None
+  , toDataPoints = toDataPoints
+  }
+
+
+{-| A pink line series.
+-}
+line : (data -> List (DataPoint msg)) -> Series data msg
+line toDataPoints =
+  { axis = normalAxis
+  , interpolation = Linear Nothing [ stroke pinkStroke ]
+  , toDataPoints = toDataPoints
+  }
+
+
+{-| A pink area series.
+-}
+area : (data -> List (DataPoint msg)) -> Series data msg
+area toDataPoints =
+  { axis = normalAxis
+  , interpolation = Linear (Just pinkFill) [ stroke pinkStroke ]
+  , toDataPoints = toDataPoints
+  }
+
+
+{-| Make your own series! The standard line series looks like this on the inside:
+
+  line : (data -> List (DataPoint msg)) -> Series data msg
+  line toDataPoints =
+    { axis = normalAxis
+    , interpolation = Linear Nothing [ stroke pinkStroke ]
+    , toDataPoints = toDataPoints
+    }
+
+  Maybe pink isn't really your color and your want to make it green. No problem! You
+  just add some different attributes to the interpolation.
+
+  If you want a different interpolation or want an area, look at the 'Interpolation' type
+  for more info.
+-}
+custom : Axis -> Interpolation -> (data -> List (DataPoint msg)) -> Series data msg
+custom =
+  Series
 
 
 {-| [Interpolation](https://en.wikipedia.org/wiki/Interpolation) is basically the line that goes
@@ -139,47 +251,23 @@ type Interpolation
   | Monotone (Maybe String) (List (Attribute Never))
 
 
-{-| -}
-dots : (data -> List (DataPoint msg)) -> Series data msg
-dots toDataPoints =
-  { axis = normalAxis
-  , interpolation = None
-  , toDataPoints = toDataPoints
-  }
+{-| The plot customizations. You can:
 
+  - Add attributes to your whole plot (Useful when you want to do events).
+  - Add an id (the id in here will overrule an id attribute you add in `.attributes`).
+  - Change the margin (useful when you can't see your ticks!).
+  - Change the width or height of your plot. I recommend anything with the golden ratio!
+  - Add a message which will be sent when your hover over a point on your plot!
+  - Add a more exciting axis. Maybe try `axisAtMin` or make your own?
+  - Add a grid, but do consider whether that will actually improve the readability of your plot.
+  - Change the bounds of your plot. For example, if you want your plot to start
+    atleast at 0 on the y-axis, then add `toDomainLowest = min 0`.
 
-{-| -}
-line : (data -> List (DataPoint msg)) -> Series data msg
-line toDataPoints =
-  { axis = normalAxis
-  , interpolation = Linear Nothing [ stroke pinkStroke ]
-  , toDataPoints = toDataPoints
-  }
-
-
-{-| -}
-area : (data -> List (DataPoint msg)) -> Series data msg
-area toDataPoints =
-  { axis = normalAxis
-  , interpolation = Linear (Just pinkFill) [ stroke pinkStroke ]
-  , toDataPoints = toDataPoints
-  }
-
-
-{-| -}
-custom : Axis -> Interpolation -> (data -> List (DataPoint msg)) -> Series data msg
-custom =
-  Series
-
-
-{-| -}
+  _Note:_ The id is particularily important when you have
+  several plots in your dom.
+-}
 type alias PlotCustomizations msg =
   { attributes : List (Attribute msg)
-  , horizontalAxis : Axis
-  , grid :
-    { horizontal : Grid
-    , vertical : Grid
-    }
   , id : String
   , width : Int
   , height : Int
@@ -189,48 +277,46 @@ type alias PlotCustomizations msg =
     , bottom : Int
     , left : Int
     }
-  , bounds : Bounds
-  }
-
-
-type alias Bounds =
-  { toDomainLowest : Float -> Float
+  , onHover : Maybe (Float -> Float -> msg)
+  , horizontalAxis : Axis
+  , grid :
+    { horizontal : Grid
+    , vertical : Grid
+    }
+  , toDomainLowest : Float -> Float
   , toDomainHighest : Float -> Float
   , toRangeLowest : Float -> Float
   , toRangeHighest : Float -> Float
   }
 
 
-{-| -}
-defaultBounds : Bounds
-defaultBounds =
-  { toDomainLowest = identity
-  , toDomainHighest = identity
-  , toRangeLowest = identity
-  , toRangeHighest = identity
-  }
 
-
-{-| -}
+{-| The default plot customizations.
+-}
 defaultPlotCustomizations : PlotCustomizations msg
 defaultPlotCustomizations =
   { attributes = []
   , id = "elm-plot"
-  , horizontalAxis = normalAxis
-  , grid =
-      { horizontal = emptyGrid
-      , vertical = emptyGrid
-      }
+  , width = 1000
+  , height = 720
   , margin =
       { top = 20
       , right = 40
       , bottom = 20
       , left = 40
       }
-  , width = 1000
-  , height = 720
-  , bounds = defaultBounds
+  , onHover = Nothing
+  , horizontalAxis = normalAxis
+  , grid =
+      { horizontal = emptyGrid
+      , vertical = emptyGrid
+      }
+  , toDomainLowest = identity
+  , toDomainHighest = identity
+  , toRangeLowest = identity
+  , toRangeHighest = identity
   }
+
 
 
 -- GRID
@@ -242,19 +328,19 @@ type Grid
   | YeahGridsAreTotallyLame
 
 
-{-| -}
+{-| The grid customizations. Attributes are put on all gridlines
+  and the positions decide where the grid lines will be placed.
+-}
 type alias GridCustomizations =
   { attributes : List (Attribute Never)
   , positions : List Float
   }
 
 
-grid : (AxisSummary -> GridCustomizations) -> Grid
-grid =
-  Grid
-
-
-{-| -}
+{-| A grid with decent spacing. Uses the `decentPositions` function to calculate
+  the positions of the grid lines. This also means that if you use `decentPositions`
+  to calculate your tick positions, then they will match.
+-}
 decentGrid : Grid
 decentGrid =
   grid <| \summary ->
@@ -263,10 +349,17 @@ decentGrid =
     }
 
 
-{-| -}
+{-| No grid (default). Tufte would be proud of you.
+-}
 emptyGrid : Grid
 emptyGrid =
   YeahGridsAreTotallyLame
+
+
+{-| Make your own grid! -}
+grid : (AxisSummary -> GridCustomizations) -> Grid
+grid =
+  Grid
 
 
 
@@ -279,7 +372,13 @@ type Axis
   | SometimesYouDoNotHaveAnAxis
 
 
-{-| -}
+{-| The axis customizations. You can:
+  - Change the position of you axis. This is what the `axisAtMin` does!
+  - Change the look and feel of the axis line.
+  - Add a variation of ticks.
+  - Add a variation of labels.
+  - Add a title or whatever.
+-}
 type alias AxisCustomizations =
   { position : Position
   , axisLine : Maybe LineCustomizations
@@ -328,120 +427,150 @@ type alias WhateverCustomizations =
   }
 
 
-{-| -}
+{-| When you don't have an axis. -}
 sometimesYouDoNotHaveAnAxis : Axis
 sometimesYouDoNotHaveAnAxis =
   SometimesYouDoNotHaveAnAxis
 
 
-{-| -}
+{-| When you want to make your own axis. This is where the fun starts! The
+  `normalAxis` looks like this on the inside:
+
+    normalAxis : Axis
+    normalAxis =
+      axis <| \summary ->
+        { position = ClosestToZero
+        , axisLine = Just (fullLine summary)
+        , ticks = List.map simpleTick (decentPositions summary)
+        , labels = List.map simpleLabel (decentPositions summary)
+        , whatever = []
+        }
+
+  But the special snowflake you are, you might want something different.
+-}
 axis : (AxisSummary -> AxisCustomizations) -> Axis
 axis =
   Axis
 
 
-{-| -}
+{-| A super regular axis.
+-}
 normalAxis : Axis
 normalAxis =
-  Axis <| \summary ->
+  axis <| \summary ->
     { position = ClosestToZero
-    , axisLine = Just (simpleLine [ stroke darkGrey ] summary)
-    , ticks = List.map (simpleTick [ stroke darkGrey ] 5) (decentPositions summary)
-    , labels = List.map (simpleLabel [] toString) (decentPositions summary)
+    , axisLine = Just (simpleLine summary)
+    , ticks = List.map simpleTick (decentPositions summary |> remove 0)
+    , labels = List.map simpleLabel (decentPositions summary |> remove 0)
     , whatever = []
     }
 
 
-{-| -}
+{-| An axis closest to zero, but doesn't look like much unless you use the `rangeFrame` glitter.
+-}
+emptyAxis : Axis
+emptyAxis =
+  Axis <| \summary ->
+    { position = ClosestToZero
+    , axisLine = Nothing
+    , ticks = []
+    , labels = []
+    , whatever = []
+    }
+
+
+{-| An axis which is placed at the minimum of your axis! Meaning if you use it as
+  a vertical axis, then it will end up to the far left, and if you use it as
+  a horizontal axis, then it will end up in the bottom.
+-}
 axisAtMin : Axis
 axisAtMin =
   axis <| \summary ->
     { position = Min
-    , axisLine = Just (simpleLine [ stroke darkGrey ] summary)
-    , ticks = List.map (simpleTick [ stroke darkGrey ] 5) (decentPositions summary)
-    , labels = List.map (simpleLabel [] toString) (decentPositions summary)
+    , axisLine = Just (simpleLine summary)
+    , ticks = List.map simpleTick (decentPositions summary)
+    , labels = List.map simpleLabel (decentPositions summary)
     , whatever = []
     }
 
 
-{-| -}
+{-| Like `axisAtMin`, but opposite.
+-}
 axisAtMax : Axis
 axisAtMax =
   axis <| \summary ->
     { position = Min
-    , axisLine = Just (simpleLine [ stroke darkGrey ] summary)
-    , ticks = List.map (simpleTick [ stroke darkGrey ] 5) (decentPositions summary)
-    , labels = List.map (simpleLabel [] toString) (decentPositions summary)
+    , axisLine = Just (simpleLine summary)
+    , ticks = List.map simpleTick (decentPositions summary)
+    , labels = List.map simpleLabel (decentPositions summary)
     , whatever = []
     }
 
 
-{-| -}
-axisRangeFrame : Axis
-axisRangeFrame =
-  axis <| \summary ->
-    { position = ClosestToZero
-    , axisLine = Just (LineCustomizations [ stroke darkGrey ] summary.dataMin summary.dataMax)
-    , ticks = List.map (simpleTick [ stroke darkGrey ] 5) (decentPositions summary)
-    , labels = List.map (simpleLabel [] toString) (decentPositions summary)
-    , whatever = []
-    }
+{-| A simple line which goes from one side to the other.
+-}
+simpleLine : AxisSummary -> LineCustomizations
+simpleLine summary =
+  fullLine [ stroke darkGrey ] summary
 
 
-{-| -}
-simpleLine : List (Attribute Never) -> AxisSummary -> LineCustomizations
-simpleLine attributes summary =
+{-| A simple but powerful tick.
+-}
+simpleTick : Float -> TickCustomizations
+simpleTick position =
+  { position = position
+  , length = 5
+  , attributes = [ stroke darkGrey ]
+  }
+
+
+{-| A simple label. You might want to try an make your own!
+-}
+simpleLabel : Float -> LabelCustomizations
+simpleLabel position =
+  { position = position
+  , format = toString
+  , view = viewLabel []
+  }
+
+
+{-| A line which goes from one end of the plot to the other.
+-}
+fullLine : List (Attribute Never) -> AxisSummary -> LineCustomizations
+fullLine attributes summary =
   { attributes = attributes
   , start = summary.min
   , end = summary.max
   }
 
 
-{-| -}
-simpleTick : List (Attribute Never) -> Float -> Float -> TickCustomizations
-simpleTick attributes length position =
-  { position = position
-  , length = length
-  , attributes = attributes
-  }
-
-
-{-| -}
-simpleLabel : List (Attribute Never) -> (Float -> String) -> Float -> LabelCustomizations
-simpleLabel attributes format position =
-  { position = position
-  , format = format
-  , view = viewLabel attributes
-  }
-
-
-viewLabel : List (Svg.Attribute msg) -> String -> Svg msg
-viewLabel attributes string =
-    text_ attributes [ tspan [] [ text string ] ]
-
-
 
 -- VIEW
 
 
-{-| -}
+{-| View you plot!
+-}
 view : List (Series data msg) -> data -> Html msg
 view =
   viewCustom defaultPlotCustomizations
 
 
-{-| -}
+{-| View your plot with special needs!
+-}
 viewCustom : PlotCustomizations msg -> List (Series data msg) -> data -> Html msg
 viewCustom customizations series data =
   let
     dataPoints =
       List.map (\{ toDataPoints } -> toDataPoints data) series
 
+    allDataPoints =
+      List.concat dataPoints
+
     summary =
-      toPlotSummary customizations (List.concat dataPoints)
+      toPlotSummary customizations allDataPoints
 
     viewHorizontalAxes =
-      List.concat dataPoints
+      allDataPoints
         |> List.filterMap (.glitter >> .xTick)
         |> viewHorizontalAxis summary customizations.horizontalAxis
 
@@ -459,7 +588,7 @@ viewCustom customizations series data =
         |> Just
 
     viewGlitter =
-      List.concat dataPoints
+      allDataPoints
         |> List.concatMap (viewGlitterLines summary)
         |> g [ class "elm-plot__glitter" ]
         |> Svg.map never
@@ -489,7 +618,6 @@ viewCustom customizations series data =
 -- INSIDE
 
 
-{-| -}
 toPlotSummary : PlotCustomizations msg ->  List { a | x : Float, y : Float } -> PlotSummary
 toPlotSummary customizations points =
   let
@@ -522,22 +650,24 @@ toPlotSummary customizations points =
       Maybe.withDefault defaultPlotSummary (List.foldl foldPlot Nothing points)
   in
     { x =
-      { min = customizations.bounds.toRangeLowest (plotSummary.x.min)
-      , max = customizations.bounds.toRangeHighest (plotSummary.x.max)
+      { min = customizations.toRangeLowest (plotSummary.x.min)
+      , max = customizations.toRangeHighest (plotSummary.x.max)
       , dataMin = plotSummary.x.min
       , dataMax = plotSummary.x.max
       , length = toFloat customizations.width
       , marginLower = toFloat customizations.margin.left
       , marginUpper = toFloat customizations.margin.right
+      , all = plotSummary.x.all
       }
     , y =
-      { min = customizations.bounds.toDomainLowest (plotSummary.y.min)
-      , max = customizations.bounds.toDomainHighest (plotSummary.y.max)
+      { min = customizations.toDomainLowest (plotSummary.y.min)
+      , max = customizations.toDomainHighest (plotSummary.y.max)
       , dataMin = plotSummary.y.min
       , dataMax = plotSummary.y.max
       , length = toFloat customizations.height
       , marginLower = toFloat customizations.margin.bottom
       , marginUpper = toFloat customizations.margin.top
+      , all = plotSummary.y.all
       }
     }
 
@@ -546,7 +676,6 @@ toPlotSummary customizations points =
 -- VIEW HORIZONTAL GRID
 
 
-{-| -}
 viewHorizontalGrid : PlotSummary -> Grid -> Maybe (Svg msg)
 viewHorizontalGrid summary grid =
   case grid of
@@ -570,7 +699,6 @@ viewActualHorizontalGrid summary { attributes, positions } =
 -- VIEW VERTICAL GRID
 
 
-{-| -}
 viewVerticalGrid : PlotSummary -> Grid -> Maybe (Svg msg)
 viewVerticalGrid summary grid =
   case grid of
@@ -644,33 +772,24 @@ viewInterpolation plotSummary toLine toArea area attributes dataPoints =
 
 viewDataPoints : PlotSummary -> List (DataPoint msg) -> Svg msg
 viewDataPoints plotSummary dataPoints =
-  g [] (List.map (viewDataPoint plotSummary) dataPoints)
+  dataPoints
+    |> List.map (viewDataPoint plotSummary)
+    |> List.filterMap identity
+    |> g []
 
 
-viewDataPoint : PlotSummary -> DataPoint msg -> Svg msg
+viewDataPoint : PlotSummary -> DataPoint msg -> Maybe (Svg msg)
 viewDataPoint plotSummary { x, y, view } =
   case view of
     Nothing ->
-      text ""
+      Nothing
 
     Just svgView ->
-      g [ place plotSummary { x = x, y = y } 0 0 ] [ svgView ]
+      Just <| g [ place plotSummary { x = x, y = y } 0 0 ] [ svgView ]
 
 
-viewSquare : Float -> Float -> String -> Svg msg
-viewSquare width height color =
-  rect
-    [ Attributes.width (toString width)
-    , Attributes.height (toString height)
-    , Attributes.x (toString (-width / 2))
-    , Attributes.y (toString (-height / 2))
-    , stroke "transparent"
-    , fill color
-    ]
-    []
-
-
-{-| -}
+{-| Pass radius and color to make a circle!
+-}
 viewCircle : Float -> String -> Svg msg
 viewCircle radius color =
   Svg.circle
@@ -681,11 +800,40 @@ viewCircle radius color =
     []
 
 
+{-| Pass width and color to make a square!
+-}
+viewSquare : Float -> String -> Svg msg
+viewSquare width color =
+  rect
+    [ Attributes.width (toString width)
+    , Attributes.height (toString width)
+    , Attributes.x (toString (-width / 2))
+    , Attributes.y (toString (-width / 2))
+    , stroke "transparent"
+    , fill color
+    ]
+    []
+
+
+{-| Pass width, height and color to make a diamond!
+-}
+viewDiamond : Float -> Float -> String -> Svg msg
+viewDiamond width height color =
+  rect
+    [ Attributes.width (toString width)
+    , Attributes.height (toString height)
+    , Attributes.transform "rotate(90)"
+    , Attributes.x (toString (-width / 2))
+    , Attributes.y (toString (-height / 2))
+    , stroke "transparent"
+    , fill color
+    ]
+    []
+
 
 -- VIEW HORIZONTAL AXIS
 
 
-{-| -}
 viewHorizontalAxis : PlotSummary -> Axis -> List TickCustomizations -> Maybe (Svg msg)
 viewHorizontalAxis summary axis moreTicks =
   case axis of
@@ -724,7 +872,6 @@ viewActualHorizontalAxis summary { position, axisLine, ticks, labels, whatever }
 -- VIEW VERTICAL AXIS
 
 
-{-| -}
 viewVerticalAxis : PlotSummary -> Axis -> List TickCustomizations -> Maybe (Svg msg)
 viewVerticalAxis summary axis moreTicks =
   case axis of
@@ -764,7 +911,6 @@ viewActualVerticalAxis summary { position, axisLine, ticks, labels, whatever } g
 -- AXIS HELP
 
 
-{-| -}
 viewAxisLine : PlotSummary -> (Float -> Point) -> Maybe LineCustomizations -> Svg Never
 viewAxisLine summary at axisLine =
   case axisLine of
@@ -778,6 +924,11 @@ viewAxisLine summary at axisLine =
 viewTickInner : List (Attribute msg) -> Float -> Float -> Svg msg
 viewTickInner attributes width height =
   Svg.line (x2 (toString width) :: y2 (toString height) :: attributes) []
+
+
+viewLabel : List (Svg.Attribute msg) -> String -> Svg msg
+viewLabel attributes string =
+  text_ attributes [ tspan [] [ text string ] ]
 
 
 
@@ -815,13 +966,8 @@ resolvePosition { min, max } position =
 -- TICK HELP
 
 
-{-| -}
-remove : Float -> List Float -> List Float
-remove banned values =
-  List.filter (\v -> v /= banned) values
-
-
-{-| -}
+{-| For decently spaces positions. Useful in tick/label and grid configurations.
+-}
 decentPositions : AxisSummary -> List Float
 decentPositions summary =
   if summary.length > 600 then
@@ -830,6 +976,11 @@ decentPositions summary =
     interval 0 (niceInterval summary.min summary.max 5) summary
 
 
+{-| For ticks with a particular interval. The first value passed if the offset,
+  and the second value is actual interval. The offset in useful when you want
+   two sets of ticks with different views. For example if you want a long ticks
+   at every 2 * x and a small ticks at every 2 * x + 1.
+-}
 interval : Float -> Float -> AxisSummary -> List Float
 interval offset delta { min, max } =
   let
@@ -838,6 +989,27 @@ interval offset delta { min, max } =
       indexes = List.range 0 <| count delta min range value
   in
       List.map (tickPosition delta value) indexes
+
+
+{-| If you regret a particular position. Typically used for removing the label
+  at the origin. Use like this:
+
+    normalAxis : Axis
+    normalAxis =
+      axis <| \summary ->
+        { position = ClosestToZero
+        , axisLine = Just (simpleLine summary)
+        , ticks = List.map simpleTick (decentPositions summary |> remove 0)
+        , labels = List.map simpleLabel (decentPositions summary |> remove 0)
+        , whatever = []
+        }
+
+  See how in the normal axis we make a bunch of ticks, but then remove then one we don't
+  want. You can do the same!
+-}
+remove : Float -> List Float -> List Float
+remove banned values =
+  List.filter (\v -> v /= banned) values
 
 
 tickPosition : Float -> Float -> Int -> Float
@@ -898,6 +1070,7 @@ niceInterval min max total =
         else magMsd
     in
       toFloat magMsdFinal * magPow
+
 
 
 -- DRAW HELP
