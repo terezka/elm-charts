@@ -7,6 +7,7 @@ module Svg.Draw
     , draw
     , place
     , scaleValue
+    , unScaleValue
     , linear
     , linearArea
     , monotoneX
@@ -58,6 +59,11 @@ length axis =
 scaleValue : AxisSummary -> Float -> Float
 scaleValue axis value =
   value * (length axis) / (range axis)
+
+
+unScaleValue : AxisSummary -> Float -> Float
+unScaleValue axis v =
+    ((v - axis.marginLower) * (range axis) / (length axis)) + axis.min
 
 
 toSVGX : PlotSummary -> Float -> Float

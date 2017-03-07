@@ -1,30 +1,19 @@
 module Interactive exposing (..)
 
-import Svg
-import Svg.Events
-import Svg.Attributes
 import Html exposing (h1, p, text, div, node)
-import Html.Attributes
-import Plot exposing (..)
-import Plot.Line as Line
-import Plot.Axis as Axis
-import Plot.Label as Label
+import Svg.Plot as Plot exposing (..)
 
 
 -- MODEL
 
 
 type alias Model =
-    { yourState : Int
-    , plotState : Plot.State
-    }
+    { hovering : Maybe { x : Float, y : Float } }
 
 
 initialModel : Model
 initialModel =
-    { yourState = 0
-    , plotState = Plot.initialState
-    }
+    { hovering = Nothing }
 
 
 
@@ -32,23 +21,14 @@ initialModel =
 
 
 type Msg
-    = YourClick
-    | PlotInteraction (Plot.Interaction Msg)
+    = Hover (Maybe { x : Float, y : Float })
 
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        YourClick ->
-            { model | yourState = model.yourState + 1 }
-
-        PlotInteraction interaction ->
-            case interaction of
-                Internal internalMsg ->
-                    { model | plotState = Plot.update internalMsg model.plotState }
-
-                Custom yourMsg ->
-                    update yourMsg model
+        Hover point ->
+            { model | hovering = point }
 
 
 
@@ -67,52 +47,20 @@ data2 =
 
 view : Model -> Html.Html Msg
 view model =
-    Html.div
-        [ Html.Attributes.style [ ( "margin", "0 auto" ), ( "width", "600px" ), ( "text-align", "center" ) ] ]
-        [ h1 [] [ text "Example with interactive plot!" ]
-        , Html.map PlotInteraction (viewPlot model.plotState)
-        , p [] [ text <| "You clicked a label " ++ toString model.yourState ++ " times! 🌟" ]
-        , p [] [ text "P.S. No stylesheet is included here, so that's why the tooltip doesn't look very tooltipy." ]
+    Plot.viewCustom { defaultPlotCustomizations | onHover = Just Hover }
+        [ area (List.map (\{ x, y } -> diamond (x + 2) (y * 1.2)))
+        , case model.hovering of
+            Just point ->
+              dots (always [ square point.x point.y ])
+
+            Nothing ->
+              dots (always [])
         ]
-
-
-viewPlot : Plot.State -> Svg.Svg (Interaction Msg)
-viewPlot state =
-    div
-        []
-        [ node "style" [] [ text ".elm-plot__hint { pointer-events: none; }" ]
-        , plotInteractive
-            [ size ( 600, 300 )
-            , margin ( 100, 100, 40, 100 )
-            , id "PlotHint"
-            , style [ ( "position", "relative" ) ]
-            ]
-            [ line
-                [ Line.stroke "blue"
-                , Line.strokeWidth 2
-                ]
-                data1
-            , line
-                [ Line.stroke "red"
-                , Line.strokeWidth 2
-                ]
-                data2
-            , xAxis
-                [ Axis.line
-                    [ Line.stroke "grey" ]
-                , Axis.tickDelta 1
-                , Axis.label
-                    [ Label.format (always "Click me!")
-                    , Label.view
-                        [ Label.customAttrs
-                            [ Svg.Events.onClick (Custom YourClick)
-                            , Svg.Attributes.style "cursor: pointer;"
-                            ]
-                        ]
-                    ]
-                ]
-            , hint [] (getHoveredValue state)
-            ]
+        [ { x = -3.1, y = 2.2 }
+        , { x = 2.2, y = 4.2 }
+        , { x = 3.5, y = -1.6 }
+        , { x = 5.4, y = -0.8 }
+        , { x = 6.8, y = 2.3 }
         ]
 
 

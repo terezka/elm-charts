@@ -1,6 +1,8 @@
 module Svg.Plot
     exposing
         ( view
+        , viewCustom
+        , defaultPlotCustomizations
         , dots
         , line
         , area
@@ -23,19 +25,22 @@ module Svg.Plot
 {-|
 # Plot
 
-@docs view, dots, line, area, custom, DataPoint, Series, square, circle, diamond, triangle, Interpolation, rangeFrameGlitter, axisAtMin, emptyAxis
+@docs view, viewCustom, defaultPlotCustomizations, dots, line, area, custom, DataPoint, Series, square, circle, diamond, triangle, Interpolation, rangeFrameGlitter, axisAtMin, emptyAxis
 
 ## Small helper views
 @docs viewCircle, viewSquare, viewDiamond
 -}
 
-import Html exposing (Html)
+import Html exposing (Html, div)
+import Html.Events
 import Svg exposing (Svg, Attribute, svg, text_, tspan, text, g, path, rect)
 import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style)
 import Svg.Draw as Draw exposing (..)
 import Svg.Colors exposing (..)
+import Json.Decode as Json
 import Round
 import Regex
+import DOM
 
 
 -- DATA POINTS
@@ -277,7 +282,7 @@ type alias PlotCustomizations msg =
     , bottom : Int
     , left : Int
     }
-  , onHover : Maybe (Float -> Float -> msg)
+  , onHover : Maybe (Maybe Point -> msg)
   , horizontalAxis : Axis
   , grid :
     { horizontal : Grid
@@ -594,6 +599,16 @@ viewCustom customizations series data =
         |> Svg.map never
         |> Just
 
+    hoverEventAttributes =
+      case customizations.onHover of
+          Just toMsg ->
+            [ Html.Events.on "mousemove" (handleHint summary toMsg)
+            , Html.Events.onMouseLeave (toMsg Nothing)
+            ]
+
+          Nothing ->
+            []
+
     attributes =
       customizations.attributes ++
         [ Attributes.width (toString customizations.width)
@@ -611,7 +626,36 @@ viewCustom customizations series data =
         , viewGlitter
         ]
   in
-    svg attributes children
+    div hoverEventAttributes [ svg attributes children ]
+
+
+
+-- HINT HANDLER
+
+
+handleHint : PlotSummary -> (Maybe Point -> msg) -> Json.Decoder msg
+handleHint summary toMsg =
+    Json.map3
+        (\x y r -> toMsg (unScalePoint summary x y r))
+        (Json.field "clientX" Json.float)
+        (Json.field "clientY" Json.float)
+        (DOM.target plotPosition)
+
+
+unScalePoint : PlotSummary -> Float -> Float -> DOM.Rectangle -> Maybe Point
+unScalePoint summary mouseX mouseY { left, top } =
+    Just
+      { x = unScaleValue summary.x (mouseX - left)
+      , y = unScaleValue summary.y (mouseY - top)
+      }
+
+
+plotPosition : Json.Decoder DOM.Rectangle
+plotPosition =
+    Json.oneOf
+        [ DOM.boundingClientRect
+        , Json.lazy (\_ -> DOM.parentElement plotPosition)
+        ]
 
 
 
