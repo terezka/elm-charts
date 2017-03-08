@@ -591,7 +591,7 @@ viewCustom customizations series data =
 
     viewSeries =
       List.map2 (viewASeries summary) series dataPoints
-        |> g [ class "elm-plot__series" ]
+        |> g [ class "elm-plot__all-series" ]
         |> Just
 
     viewGlitter =
@@ -606,16 +606,16 @@ viewCustom customizations series data =
           Just toMsg ->
             [ Html.Events.on "mousemove" (handleHint summary toMsg)
             , Html.Events.onMouseLeave (toMsg Nothing)
+            , Attributes.id customizations.id
             ]
 
           Nothing ->
-            []
+            [ Attributes.id customizations.id ]
 
     attributes =
       customizations.attributes ++
         [ Attributes.width (toString customizations.width)
         , Attributes.height (toString customizations.height)
-        , Attributes.id customizations.id
         ]
 
     children =
@@ -644,6 +644,14 @@ handleHint summary toMsg =
         (DOM.target plotPosition)
 
 
+plotPosition : Json.Decoder DOM.Rectangle
+plotPosition =
+    Json.oneOf
+        [ DOM.boundingClientRect
+        , Json.lazy (\_ -> DOM.parentElement plotPosition)
+        ]
+
+
 unScalePoint : PlotSummary -> Float -> Float -> DOM.Rectangle -> Maybe Point
 unScalePoint summary mouseX mouseY { left, top } =
     Just
@@ -652,29 +660,24 @@ unScalePoint summary mouseX mouseY { left, top } =
       }
 
 
-diff : Float -> Float -> Float
-diff a b =
-  abs (a - b)
-
-
 toNearestX : PlotSummary -> Float -> Float
-toNearestX summary actualX =
+toNearestX summary exactX =
   let
     default =
       Maybe.withDefault 0 (List.head summary.x.all)
 
     updateIfCloser closest x =
-      if diff x actualX > diff closest actualX then closest else x
+      if diff x exactX > diff closest exactX then
+        closest
+      else
+        x
   in
     List.foldl updateIfCloser default summary.x.all
 
 
-plotPosition : Json.Decoder DOM.Rectangle
-plotPosition =
-    Json.oneOf
-        [ DOM.boundingClientRect
-        , Json.lazy (\_ -> DOM.parentElement plotPosition)
-        ]
+diff : Float -> Float -> Float
+diff a b =
+  abs (a - b)
 
 
 
@@ -787,7 +790,7 @@ viewActualVerticalGrid summary { attributes, positions } =
 
 viewASeries : PlotSummary -> Series data msg -> List (DataPoint msg) -> Svg msg
 viewASeries plotSummary { axis, interpolation } dataPoints =
-  g []
+  g [ class "elm-plot__series" ]
     [ Svg.map never (viewPath plotSummary interpolation dataPoints)
     , viewDataPoints plotSummary dataPoints
     ]
@@ -821,11 +824,11 @@ viewInterpolation :
 viewInterpolation plotSummary toLine toArea area attributes dataPoints =
   case area of
     Nothing ->
-      draw (fill transparent :: stroke pinkStroke :: attributes)
+      draw (fill transparent :: stroke pinkStroke :: class "elm-plot__series__interpolation" :: attributes)
         (toLine plotSummary (points dataPoints))
 
     Just color ->
-      draw (fill color :: fill pinkFill :: stroke pinkStroke :: attributes)
+      draw (fill color :: fill pinkFill :: stroke pinkStroke :: class "elm-plot__series__interpolation" :: attributes)
         (toArea plotSummary (points dataPoints))
 
 
@@ -838,7 +841,7 @@ viewDataPoints plotSummary dataPoints =
   dataPoints
     |> List.map (viewDataPoint plotSummary)
     |> List.filterMap identity
-    |> g []
+    |> g [ class "elm-plot__series__points" ]
 
 
 viewDataPoint : PlotSummary -> DataPoint msg -> Maybe (Svg msg)
@@ -892,6 +895,7 @@ viewDiamond width height color =
     , fill color
     ]
     []
+
 
 
 -- VIEW HORIZONTAL AXIS
@@ -981,7 +985,7 @@ viewAxisLine summary at axisLine =
       draw attributes (linear summary [ at start, at end ])
 
     Nothing ->
-      text "<!- Your imaginary axis line ->"
+      text ""
 
 
 viewTickInner : List (Attribute msg) -> Float -> Float -> Svg msg
