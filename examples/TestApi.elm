@@ -45,7 +45,7 @@ myDot { x, y } =
 
 data : List ( Float, Float )
 data =
-    List.map (\v -> ( toFloat v, sin (toFloat v * pi / 20) )) (List.range 0 100)
+    List.map (\v -> ( toFloat v / 8, sin (toFloat v / 8) )) (List.range 0 100)
 
 
 main : Html msg

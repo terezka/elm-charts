@@ -48,6 +48,7 @@ import Regex
 import DOM
 
 
+
 -- DATA POINTS
 
 
@@ -898,7 +899,7 @@ viewDiamond width height color =
   rect
     [ Attributes.width (toString width)
     , Attributes.height (toString height)
-    , Attributes.transform "rotate(90)"
+    , Attributes.transform "rotate(45)"
     , Attributes.x (toString (-width / 2))
     , Attributes.y (toString (-height / 2))
     , stroke "transparent"
