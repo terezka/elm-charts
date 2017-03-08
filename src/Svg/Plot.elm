@@ -8,6 +8,8 @@ module Svg.Plot
         , area
         , custom
         , DataPoint
+        , dotWithGlitter
+        , dot
         , Series
         , square
         , circle
@@ -25,7 +27,7 @@ module Svg.Plot
 {-|
 # Plot
 
-@docs view, viewCustom, defaultPlotCustomizations, dots, line, area, custom, DataPoint, Series, square, circle, diamond, triangle, Interpolation, rangeFrameGlitter, axisAtMin, emptyAxis
+@docs view, viewCustom, defaultPlotCustomizations, dots, line, area, custom, DataPoint, dotWithGlitter, dot, Series, square, circle, diamond, triangle, Interpolation, rangeFrameGlitter, axisAtMin, emptyAxis
 
 ## Small helper views
 @docs viewCircle, viewSquare, viewDiamond
@@ -179,7 +181,7 @@ customDot =
 {-| The line customizations. You can:
     - Add your own vertical axis.
     - Add the interpolation you'd like.
-    - Add your own data.
+    - Add your own data transformer.
 -}
 type alias Series data msg =
   { axis : Axis
@@ -188,7 +190,7 @@ type alias Series data msg =
   }
 
 
-{-| A pink scatter series.
+{-| A scatter series.
 -}
 dots : (data -> List (DataPoint msg)) -> Series data msg
 dots toDataPoints =
@@ -198,7 +200,7 @@ dots toDataPoints =
   }
 
 
-{-| A pink line series.
+{-| A line series.
 -}
 line : (data -> List (DataPoint msg)) -> Series data msg
 line toDataPoints =
@@ -208,7 +210,7 @@ line toDataPoints =
   }
 
 
-{-| A pink area series.
+{-| An area series.
 -}
 area : (data -> List (DataPoint msg)) -> Series data msg
 area toDataPoints =
@@ -244,7 +246,7 @@ custom =
     - Linear: A stright line.
     - Curvy: A nice looking curvy line.
     - Monotone: A nice looking curvy line which doesn't extend outside the y values of the two
-    points involved (What? Here's an [illustration](https://en.wikipedia.org/wiki/Monotone_cubic_interpolation#/media/File:MonotCubInt.png)).
+      points involved (Huh? Here's an [illustration](https://en.wikipedia.org/wiki/Monotone_cubic_interpolation#/media/File:MonotCubInt.png)).
 
   All but `None` take a color which determined whether it draws the area below or not +
   list of attributes which you can use for styling of your interpolation.
@@ -646,7 +648,7 @@ unScalePoint : PlotSummary -> Float -> Float -> DOM.Rectangle -> Maybe Point
 unScalePoint summary mouseX mouseY { left, top } =
     Just
       { x = toNearestX summary <| unScaleValue summary.x (mouseX - left)
-      , y = unScaleValue summary.y (summary.y.length - mouseY - top)
+      , y = clamp summary.y.min summary.y.max <| unScaleValue summary.y (summary.y.length - mouseY - top)
       }
 
 
