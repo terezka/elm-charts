@@ -15,9 +15,11 @@ module Svg.Plot
         , circle
         , diamond
         , triangle
+        , emptyDot
         , Interpolation(..)
         , rangeFrameGlitter
         , emptyAxis
+        , normalAxis
         , axisAtMin
         , viewCircle
         , viewSquare
@@ -27,7 +29,8 @@ module Svg.Plot
 {-|
 # Plot
 
-@docs view, viewCustom, defaultPlotCustomizations, dots, line, area, custom, DataPoint, dotWithGlitter, dot, Series, square, circle, diamond, triangle, Interpolation, rangeFrameGlitter, axisAtMin, emptyAxis
+@docs view, viewCustom, defaultPlotCustomizations, dots, line, area, custom, DataPoint, normalAxis, emptyDot
+@docs dotWithGlitter, dot, Series, square, circle, diamond, triangle, Interpolation, rangeFrameGlitter, axisAtMin, emptyAxis
 
 ## Small helper views
 @docs viewCircle, viewSquare, viewDiamond
@@ -74,6 +77,13 @@ diamond =
 triangle : Float -> Float -> DataPoint msg
 triangle =
   dot (viewSquare 10 pinkStroke)
+
+
+{-| If you don't want a dot at all.
+-}
+emptyDot : Float -> Float -> DataPoint msg
+emptyDot =
+  dot (text "")
 
 
 {-| The data point customizations. You can:

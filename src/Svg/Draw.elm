@@ -77,7 +77,7 @@ toSVGY { y } value =
 
 
 
--- NEW SVG API <3
+-- DRAW API
 
 
 draw : List (Attribute msg) -> List Command -> Svg msg
@@ -145,7 +145,7 @@ monotoneXNext points tangent0 commands =
         tangent1 = slope3 p0 p1 p2
         nextCommands = commands ++ monotoneXCurve p0 p1 tangent0 tangent1
       in
-        monotoneXNext (p1 :: p2 :: rest) tangent0 nextCommands
+        monotoneXNext (p1 :: p2 :: rest) tangent1 nextCommands
 
     [ p1, p2 ] ->
       let
@@ -366,7 +366,7 @@ toH : Float -> Float -> Float
 toH h0 h1 =
     if h0 == 0 then
         if h1 < 0 then
-            0
+            0 * -1
         else
             h1
     else

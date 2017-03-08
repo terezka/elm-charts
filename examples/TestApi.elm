@@ -43,15 +43,14 @@ myDot { x, y } =
   }
 
 
+data : List ( Float, Float )
+data =
+    List.map (\v -> ( toFloat v, sin (toFloat v * pi / 20) )) (List.range 0 100)
+
+
 main : Html msg
 main =
   view
-      [ area (List.map (\{ x, y } -> diamond (x + 2) (y * 1.2)))
-      , custom emptyAxis (Linear (Just pinkFill) []) (List.map myDot)
+      [ custom normalAxis (Monotone Nothing []) (List.map (\( x, y ) -> emptyDot x y))
       ]
-      [ { x = -3.1, y = 2.2 }
-      , { x = 2.2, y = 4.2 }
-      , { x = 3.5, y = -1.6 }
-      , { x = 5.4, y = -0.8 }
-      , { x = 6.8, y = 2.3 }
-      ]
+      data
