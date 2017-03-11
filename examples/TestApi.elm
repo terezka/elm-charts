@@ -48,9 +48,18 @@ data =
     List.map (\v -> ( toFloat v / 8, sin (toFloat v / 8) )) (List.range 0 100)
 
 
+interpolation : Interpolation
+interpolation =
+  Monotone (Just pinkFill) []
+
+
+toDot : ( Float, Float ) -> DataPoint msg
+toDot ( x, y ) =
+  emptyDot x y
+
+
 main : Html msg
 main =
-  view
-      [ custom normalAxis (Monotone Nothing []) (List.map (\( x, y ) -> emptyDot x y))
-      ]
-      data
+  viewCustom
+    { defaultPlotCustomizations | grid = { horizontal = decentGrid, vertical = emptyGrid } }
+    [ custom normalAxis interpolation (List.map toDot) ] data

@@ -2,6 +2,7 @@ module Svg.Plot
     exposing
         ( view
         , viewCustom
+        , PlotCustomizations
         , defaultPlotCustomizations
         , dots
         , line
@@ -24,12 +25,17 @@ module Svg.Plot
         , viewCircle
         , viewSquare
         , viewDiamond
+        , decentGrid
+        , emptyGrid
         )
 
 {-|
 # Plot
 
-@docs view, viewCustom, defaultPlotCustomizations, dots, line, area, custom, DataPoint, normalAxis, emptyDot
+@docs view, viewCustom, PlotCustomizations, defaultPlotCustomizations
+@docs dots, line, area, custom
+@docs DataPoint, normalAxis, emptyDot, decentGrid, emptyGrid
+
 @docs dotWithGlitter, dot, Series, square, circle, diamond, triangle, Interpolation, rangeFrameGlitter, axisAtMin, emptyAxis
 
 ## Small helper views
@@ -269,6 +275,17 @@ type Interpolation
   | Monotone (Maybe String) (List (Attribute Never))
 
 
+
+-- BARS
+
+
+
+
+
+-- PLOT
+
+
+
 {-| The plot customizations. You can:
 
   - Add attributes to your whole plot (Useful when you want to do events).
@@ -342,16 +359,14 @@ defaultPlotCustomizations =
 
 {-| -}
 type Grid
-  = Grid (AxisSummary -> GridCustomizations)
+  = Grid (AxisSummary -> List GridLineCustomizations)
   | YeahGridsAreTotallyLame
 
 
-{-| The grid customizations. Attributes are put on all gridlines
-  and the positions decide where the grid lines will be placed.
--}
-type alias GridCustomizations =
+{-| -}
+type alias GridLineCustomizations =
   { attributes : List (Attribute Never)
-  , positions : List Float
+  , position : Float
   }
 
 
@@ -362,9 +377,7 @@ type alias GridCustomizations =
 decentGrid : Grid
 decentGrid =
   grid <| \summary ->
-    { attributes = [ stroke grey ]
-    , positions = decentPositions summary
-    }
+    List.map (GridLineCustomizations [ stroke grey ]) (decentPositions summary)
 
 
 {-| No grid (default). Tufte would be proud of you.
@@ -375,7 +388,7 @@ emptyGrid =
 
 
 {-| Make your own grid! -}
-grid : (AxisSummary -> GridCustomizations) -> Grid
+grid : (AxisSummary -> List GridLineCustomizations) -> Grid
 grid =
   Grid
 
@@ -612,7 +625,7 @@ viewCustom customizations series data =
         |> Svg.map never
         |> Just
 
-    hoverEventAttributes =
+    containerAttributes =
       case customizations.onHover of
           Just toMsg ->
             [ Html.Events.on "mousemove" (handleHint summary toMsg)
@@ -639,7 +652,7 @@ viewCustom customizations series data =
         , viewGlitter
         ]
   in
-    div hoverEventAttributes [ svg attributes children ]
+    div containerAttributes [ svg attributes children ]
 
 
 
@@ -753,46 +766,46 @@ toPlotSummary customizations points =
 -- VIEW HORIZONTAL GRID
 
 
-viewHorizontalGrid : PlotSummary -> Grid -> Maybe (Svg msg)
-viewHorizontalGrid summary grid =
+viewVerticalGrid : PlotSummary -> Grid -> Maybe (Svg msg)
+viewVerticalGrid summary grid =
   case grid of
     Grid toCustomizations ->
-      Just (Svg.map never (viewActualHorizontalGrid summary (toCustomizations summary.x)))
+      Just (Svg.map never (viewActualVerticalGrid summary (toCustomizations summary.x)))
 
     YeahGridsAreTotallyLame ->
       Nothing
 
 
-viewActualHorizontalGrid : PlotSummary -> GridCustomizations -> Svg Never
-viewActualHorizontalGrid summary { attributes, positions } =
+viewActualVerticalGrid : PlotSummary -> List GridLineCustomizations -> Svg Never
+viewActualVerticalGrid summary gridLines =
   let
-    viewGridLine x =
-      draw attributes (linear summary [ { x = x, y = summary.y.min }, { x = x, y = summary.y.max } ])
+    viewGridLine { attributes, position } =
+      draw attributes (linear summary [ { x = position, y = summary.y.min }, { x = position, y = summary.y.max } ])
   in
-    g [ class "elm-plot__horizontal-grid" ] (List.map viewGridLine positions)
+    g [ class "elm-plot__horizontal-grid" ] (List.map viewGridLine gridLines)
 
 
 
 -- VIEW VERTICAL GRID
 
 
-viewVerticalGrid : PlotSummary -> Grid -> Maybe (Svg msg)
-viewVerticalGrid summary grid =
+viewHorizontalGrid : PlotSummary -> Grid -> Maybe (Svg msg)
+viewHorizontalGrid summary grid =
   case grid of
     Grid toCustomizations ->
-      Just (Svg.map never (viewActualVerticalGrid summary (toCustomizations summary.y)))
+      Just (Svg.map never (viewActualHorizontalGrid summary (toCustomizations summary.y)))
 
     YeahGridsAreTotallyLame ->
       Nothing
 
 
-viewActualVerticalGrid : PlotSummary -> GridCustomizations -> Svg Never
-viewActualVerticalGrid summary { attributes, positions } =
+viewActualHorizontalGrid : PlotSummary -> List GridLineCustomizations -> Svg Never
+viewActualHorizontalGrid summary gridLines =
   let
-    viewGridLine y =
-      draw attributes (linear summary [ { x = summary.x.min, y = y }, { x = summary.x.max, y = y } ])
+    viewGridLine { attributes, position } =
+      draw attributes (linear summary [ { x = summary.x.min, y = position }, { x = summary.x.max, y = position } ])
   in
-    g [ class "elm-plot__vertical-grid" ] (List.map viewGridLine positions)
+    g [ class "elm-plot__vertical-grid" ] (List.map viewGridLine gridLines)
 
 
 
