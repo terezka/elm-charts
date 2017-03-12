@@ -11,6 +11,16 @@ pinkStroke =
     "#ff9edf"
 
 
+blueFill : String
+blueFill =
+    "#e4eeff"
+
+
+blueStroke : String
+blueStroke =
+    "#cfd8ea"
+
+
 transparent : String
 transparent =
   "transparent"

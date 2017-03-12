@@ -48,18 +48,21 @@ data =
     List.map (\v -> ( toFloat v / 8, sin (toFloat v / 8) )) (List.range 0 100)
 
 
-interpolation : Interpolation
-interpolation =
-  Monotone (Just pinkFill) []
+barData : List ( List Float )
+barData =
+  [ [ 1, 4, 6 ]
+  , [ 1, 5, 6 ]
+  , [ 2, 10, 6 ]
+  , [ 4, -2, 6 ]
+  , [ 5, 14, 6 ]
+  ]
 
 
-toDot : ( Float, Float ) -> DataPoint msg
-toDot ( x, y ) =
-  emptyDot x y
+barData2 : List Float
+barData2 =
+  [ 2, 4, 6, 7, 8, 9, 4, 5 ]
 
 
 main : Html msg
 main =
-  viewCustom
-    { defaultPlotCustomizations | grid = { horizontal = decentGrid, vertical = emptyGrid } }
-    [ custom normalAxis interpolation (List.map toDot) ] data
+  viewBars (grouped (List.map2 group [ "g1", "g3", "g3" ])) barData

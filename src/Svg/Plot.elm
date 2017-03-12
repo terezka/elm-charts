@@ -1,9 +1,17 @@
 module Svg.Plot
     exposing
-        ( view
-        , viewCustom
+        ( viewSeries
+        , viewSeriesCustom
+        , viewBars
+        , viewBarsCustom
+        , grouped
+        , group
+        , histogram
+        , histogramBar
         , PlotCustomizations
-        , defaultPlotCustomizations
+        , defaultSeriesPlotCustomizations
+        , Bars
+        , MaxBarWidth(..)
         , dots
         , line
         , area
@@ -32,11 +40,11 @@ module Svg.Plot
 {-|
 # Plot
 
-@docs view, viewCustom, PlotCustomizations, defaultPlotCustomizations
-@docs dots, line, area, custom
+@docs viewSeries, viewSeriesCustom, PlotCustomizations, defaultSeriesPlotCustomizations, viewBars, viewBarsCustom
+@docs dots, line, area, custom, Bars, MaxBarWidth, grouped, group, histogramBar
 @docs DataPoint, normalAxis, emptyDot, decentGrid, emptyGrid
 
-@docs dotWithGlitter, dot, Series, square, circle, diamond, triangle, Interpolation, rangeFrameGlitter, axisAtMin, emptyAxis
+@docs dotWithGlitter, dot, Series, square, circle, diamond, triangle, Interpolation, rangeFrameGlitter, axisAtMin, emptyAxis, histogram
 
 ## Small helper views
 @docs viewCircle, viewSquare, viewDiamond
@@ -45,7 +53,7 @@ module Svg.Plot
 import Html exposing (Html, div)
 import Html.Events
 import Svg exposing (Svg, Attribute, svg, text_, tspan, text, g, path, rect)
-import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style)
+import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth)
 import Svg.Draw as Draw exposing (..)
 import Svg.Colors exposing (..)
 import Json.Decode as Json
@@ -133,6 +141,7 @@ dot view x y =
   }
 
 
+
 {-| Makes a dot given a view and a x and an y.
 -}
 dotWithGlitter : Svg msg -> Float -> Float -> DataPoint msg
@@ -182,6 +191,7 @@ hoverGlitter x y =
   , yTick = Nothing
   , whatever = []
   }
+
 
 
 {-| Make your own dot!
@@ -279,11 +289,87 @@ type Interpolation
 -- BARS
 
 
+{-| -}
+type alias Bars data msg =
+  { axis : Axis
+  , toGroups : data -> List BarGroup
+  , bars : List (List (Attribute msg))
+  , maxWidth : MaxBarWidth
+  }
+
+
+{-| -}
+type alias BarGroup =
+  { label : Float -> LabelCustomizations
+  , heights : List Float
+  }
+
+
+{-| -}
+type MaxBarWidth
+  = Percentage Int
+  | Fixed Float
+
+
+{-| -}
+grouped : (data -> List BarGroup) -> Bars data msg
+grouped toGroups =
+  { axis = normalAxis
+  , toGroups = toGroups
+  , bars = [ [ fill pinkFill ], [ fill blueFill ] ]
+  , maxWidth = Percentage 75
+  }
+
+
+{-| -}
+group : String -> List Float -> BarGroup
+group label heights =
+  { label = normalBarLabel label
+  , heights = heights
+  }
+
+
+{-| -}
+histogram : (data -> List BarGroup) -> Bars data msg
+histogram toGroups =
+  { axis = normalAxis
+  , toGroups = toGroups
+  , bars = [ [ fill pinkFill, stroke pinkStroke ] ]
+  , maxWidth = Percentage 100
+  }
+
+
+{-| -}
+histogramBar : Float -> BarGroup
+histogramBar height =
+  { label = simpleLabel
+  , heights = [ height ]
+  }
+
+
+{-| -}
+normalBarAxis : Axis
+normalBarAxis =
+  axis <| \summary ->
+    { position = ClosestToZero
+    , axisLine = Just (simpleLine summary)
+    , ticks = List.map simpleTick (interval 0 1 summary)
+    , labels = []
+    , whatever = []
+    }
+
+
+{-| -}
+normalBarLabel : String -> Float -> LabelCustomizations
+normalBarLabel label position =
+  { position = position
+  , format = always label
+  , view = viewLabel []
+  }
 
 
 
 -- PLOT
-
 
 
 {-| The plot customizations. You can:
@@ -325,11 +411,10 @@ type alias PlotCustomizations msg =
   }
 
 
-
-{-| The default plot customizations.
+{-| The default series plot customizations.
 -}
-defaultPlotCustomizations : PlotCustomizations msg
-defaultPlotCustomizations =
+defaultSeriesPlotCustomizations : PlotCustomizations msg
+defaultSeriesPlotCustomizations =
   { attributes = []
   , id = "elm-plot"
   , width = 1000
@@ -351,6 +436,13 @@ defaultPlotCustomizations =
   , toRangeLowest = identity
   , toRangeHighest = identity
   }
+
+
+{-| The default bars plot customizations.
+-}
+defaultBarPlotCustomizations : PlotCustomizations msg
+defaultBarPlotCustomizations =
+  { defaultSeriesPlotCustomizations | horizontalAxis = normalBarAxis }
 
 
 
@@ -501,7 +593,7 @@ normalAxis =
 -}
 emptyAxis : Axis
 emptyAxis =
-  Axis <| \summary ->
+  axis <| \summary ->
     { position = ClosestToZero
     , axisLine = Nothing
     , ticks = []
@@ -575,21 +667,28 @@ fullLine attributes summary =
   }
 
 
+barLine : List (Attribute Never) -> Float -> AxisSummary -> LineCustomizations
+barLine attributes height summary =
+  { attributes = attributes
+  , start = clamp summary.min summary.max 0
+  , end = height
+  }
+
 
 -- VIEW
 
 
 {-| View you plot!
 -}
-view : List (Series data msg) -> data -> Html msg
-view =
-  viewCustom defaultPlotCustomizations
+viewSeries : List (Series data msg) -> data -> Html msg
+viewSeries =
+  viewSeriesCustom defaultSeriesPlotCustomizations
 
 
 {-| View your plot with special needs!
 -}
-viewCustom : PlotCustomizations msg -> List (Series data msg) -> data -> Html msg
-viewCustom customizations series data =
+viewSeriesCustom : PlotCustomizations msg -> List (Series data msg) -> data -> Html msg
+viewSeriesCustom customizations series data =
   let
     dataPoints =
       List.map (\{ toDataPoints } -> toDataPoints data) series
@@ -598,12 +697,12 @@ viewCustom customizations series data =
       List.concat dataPoints
 
     summary =
-      toPlotSummary customizations allDataPoints
+      toPlotSummary customizations identity allDataPoints
 
     viewHorizontalAxes =
       allDataPoints
         |> List.filterMap (.glitter >> .xTick)
-        |> viewHorizontalAxis summary customizations.horizontalAxis
+        |> viewHorizontalAxis summary customizations.horizontalAxis []
 
     viewVerticalAxes =
       dataPoints
@@ -613,7 +712,7 @@ viewCustom customizations series data =
         |> g [ class "elm-plot__vertical-axes" ]
         |> Just
 
-    viewSeries =
+    viewActualSeries =
       List.map2 (viewASeries summary) series dataPoints
         |> g [ class "elm-plot__all-series" ]
         |> Just
@@ -646,13 +745,80 @@ viewCustom customizations series data =
       List.filterMap identity
         [ viewHorizontalGrid summary customizations.grid.horizontal
         , viewVerticalGrid summary customizations.grid.vertical
-        , viewSeries
+        , viewActualSeries
         , viewHorizontalAxes
         , viewVerticalAxes
         , viewGlitter
         ]
   in
     div containerAttributes [ svg attributes children ]
+
+
+{-| -}
+viewBars : Bars data msg -> data -> Html msg
+viewBars =
+  viewBarsCustom defaultBarPlotCustomizations
+
+
+{-| -}
+viewBarsCustom : PlotCustomizations msg -> Bars data msg -> data -> Html msg
+viewBarsCustom customizations bars data =
+      let
+        groups =
+          bars.toGroups data
+
+        toDataPoint index height =
+          { x = toFloat index + 1
+          , y = height
+          }
+
+        toDataPoints index group =
+          List.map (toDataPoint index) group.heights
+
+        dataPoints =
+          List.indexedMap toDataPoints groups |> List.concat
+
+        summary =
+          toPlotSummary customizations addNiceReachForBars dataPoints
+
+        containerAttributes =
+          case customizations.onHover of
+              Just toMsg ->
+                [ Html.Events.on "mousemove" (handleHint summary toMsg)
+                , Html.Events.onMouseLeave (toMsg Nothing)
+                , Attributes.id customizations.id
+                ]
+
+              Nothing ->
+                [ Attributes.id customizations.id ]
+
+        attributes =
+          customizations.attributes ++
+            [ Attributes.width (toString customizations.width)
+            , Attributes.height (toString customizations.height)
+            ]
+
+        xLabels =
+          List.indexedMap (\index group -> group.label (toFloat index + 1)) groups
+
+        children =
+          List.filterMap identity
+            [ viewHorizontalGrid summary customizations.grid.horizontal
+            , viewVerticalGrid summary customizations.grid.vertical
+            , viewActualBars summary bars groups
+            , viewHorizontalAxis summary customizations.horizontalAxis xLabels []
+            , viewVerticalAxis summary bars.axis []
+            ]
+      in
+        div containerAttributes [ svg attributes children ]
+
+
+addNiceReachForBars : TempPlotSummary -> TempPlotSummary
+addNiceReachForBars ({ x, y } as summary) =
+  { summary
+  | x = { x | min = x.min - 0.5, max = x.max + 0.5 }
+  , y = { y | min = 0, max = y.max }
+  }
 
 
 
@@ -708,8 +874,21 @@ diff a b =
 -- INSIDE
 
 
-toPlotSummary : PlotCustomizations msg ->  List { a | x : Float, y : Float } -> PlotSummary
-toPlotSummary customizations points =
+type alias TempPlotSummary =
+  { x : { min : Float, max : Float, all : List Float }
+  , y : { min : Float, max : Float, all : List Float }
+  }
+
+
+defaultPlotSummary : TempPlotSummary
+defaultPlotSummary =
+  { x = { min = 0.0, max = 1.0, all = [] }
+  , y = { min = 0.0, max = 1.0, all = [] }
+  }
+
+
+toPlotSummary : PlotCustomizations msg -> (TempPlotSummary -> TempPlotSummary) ->  List { a | x : Float, y : Float } -> PlotSummary
+toPlotSummary customizations toNiceReach points =
   let
     foldAxis summary v =
       { min = min summary.min v
@@ -731,13 +910,11 @@ toPlotSummary customizations points =
             , y = foldAxis summary.y y
             }
 
-    defaultPlotSummary =
-      { x = { min = 0.0, max = 1.0, all = [] }
-      , y = { min = 0.0, max = 1.0, all = [] }
-      }
-
     plotSummary =
-      Maybe.withDefault defaultPlotSummary (List.foldl foldPlot Nothing points)
+      points
+        |> List.foldl foldPlot Nothing
+        |> Maybe.withDefault defaultPlotSummary
+        |> toNiceReach
   in
     { x =
       { min = customizations.toRangeLowest (plotSummary.x.min)
@@ -922,21 +1099,66 @@ viewDiamond width height color =
 
 
 
+-- VIEW BARS
+
+
+viewActualBars : PlotSummary -> Bars data msg -> List BarGroup -> Maybe (Svg msg)
+viewActualBars summary { bars, maxWidth } groups =
+    let
+        barsPerGroup =
+            toFloat (List.length bars)
+
+        defaultWidth =
+            1 / barsPerGroup
+
+        width =
+          case maxWidth of
+            Percentage perc ->
+              defaultWidth * (toFloat perc) / 100
+
+            Fixed max ->
+              if defaultWidth > unScaleValue summary.x max then
+                unScaleValue summary.x max
+              else
+                defaultWidth
+
+        offset x i =
+          x + width * (toFloat i - barsPerGroup / 2)
+
+        viewBar x attributes (i, height) =
+          rect (attributes ++
+            [ place summary { x = offset x i, y = height } 0 0
+            , Attributes.width (toString (scaleValue summary.x width))
+            , Attributes.height (toString (scaleValue summary.y height))
+            ])
+            []
+
+        indexedHeights group =
+          List.indexedMap (,) group.heights
+
+        viewGroup index group =
+          g [ class "elm-plot__bars__group" ]
+            (List.map2 (viewBar (toFloat (index + 1))) bars (indexedHeights group))
+    in
+        Just <| g [ class "elm-plot__bars" ] (List.indexedMap viewGroup groups)
+
+
+
 -- VIEW HORIZONTAL AXIS
 
 
-viewHorizontalAxis : PlotSummary -> Axis -> List TickCustomizations -> Maybe (Svg msg)
-viewHorizontalAxis summary axis moreTicks =
+viewHorizontalAxis : PlotSummary -> Axis -> List LabelCustomizations -> List TickCustomizations -> Maybe (Svg msg)
+viewHorizontalAxis summary axis moreLabels moreTicks =
   case axis of
     Axis toCustomizations ->
-      Just (Svg.map never (viewActualHorizontalAxis summary (toCustomizations summary.x) moreTicks))
+      Just (Svg.map never (viewActualHorizontalAxis summary (toCustomizations summary.x) moreLabels moreTicks))
 
     SometimesYouDoNotHaveAnAxis ->
       Nothing
 
 
-viewActualHorizontalAxis : PlotSummary -> AxisCustomizations -> List TickCustomizations -> Svg Never
-viewActualHorizontalAxis summary { position, axisLine, ticks, labels, whatever } glitterTicks =
+viewActualHorizontalAxis : PlotSummary -> AxisCustomizations -> List LabelCustomizations -> List TickCustomizations -> Svg Never
+viewActualHorizontalAxis summary { position, axisLine, ticks, labels, whatever } glitterLabels glitterTicks =
     let
       at x =
         { x = x, y = resolvePosition summary.y position }
@@ -954,7 +1176,7 @@ viewActualHorizontalAxis summary { position, axisLine, ticks, labels, whatever }
       g [ class "elm-plot__horizontal-axis" ]
         [ viewAxisLine summary at axisLine
         , g [ class "elm-plot__ticks" ] (List.map viewTickLine (ticks ++ glitterTicks))
-        , g [ class "elm-plot__labels" ] (List.map viewLabel labels)
+        , g [ class "elm-plot__labels" ] (List.map viewLabel (labels ++ glitterLabels))
         , g [ class "elm-plot__whatever" ] (List.map viewWhatever whatever)
         ]
 
