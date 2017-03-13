@@ -8,6 +8,7 @@ module Svg.Draw
     , place
     , scaleValue
     , unScaleValue
+    , range
     , linear
     , linearArea
     , monotoneX

@@ -10,6 +10,7 @@ module Svg.Plot
         , histogramBar
         , PlotCustomizations
         , defaultSeriesPlotCustomizations
+        , normalHoverContainer
         , Bars
         , MaxBarWidth(..)
         , dots
@@ -42,7 +43,7 @@ module Svg.Plot
 
 @docs viewSeries, viewSeriesCustom, PlotCustomizations, defaultSeriesPlotCustomizations, viewBars, viewBarsCustom
 @docs dots, line, area, custom, Bars, MaxBarWidth, grouped, group, histogramBar
-@docs DataPoint, normalAxis, emptyDot, decentGrid, emptyGrid
+@docs DataPoint, normalAxis, emptyDot, decentGrid, emptyGrid, normalHoverContainer
 
 @docs dotWithGlitter, dot, Series, square, circle, diamond, triangle, Interpolation, rangeFrameGlitter, axisAtMin, emptyAxis, histogram
 
@@ -50,8 +51,9 @@ module Svg.Plot
 @docs viewCircle, viewSquare, viewDiamond
 -}
 
-import Html exposing (Html, div)
+import Html exposing (Html, div, span)
 import Html.Events
+import Html.Attributes
 import Svg exposing (Svg, Attribute, svg, text_, tspan, text, g, path, rect)
 import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth)
 import Svg.Draw as Draw exposing (..)
@@ -126,6 +128,7 @@ type alias Glitter =
   , yLine : Maybe (AxisSummary -> LineCustomizations)
   , xTick : Maybe TickCustomizations
   , yTick : Maybe TickCustomizations
+  , viewHint : Maybe (Html Never)
   , whatever : List WhateverCustomizations
   }
 
@@ -135,7 +138,7 @@ type alias Glitter =
 dot : Svg msg -> Float -> Float -> DataPoint msg
 dot view x y =
   { view = Just view
-  , glitter = noGlitter
+  , glitter = noGlitter y
   , x = x
   , y = y
   }
@@ -155,12 +158,13 @@ dotWithGlitter view x y =
 
 {-| No glitter! No fun!
 -}
-noGlitter : Glitter
-noGlitter =
+noGlitter : Float -> Glitter
+noGlitter y =
   { xLine = Nothing
   , yLine = Nothing
   , xTick = Nothing
   , yTick = Nothing
+  , viewHint = Nothing
   , whatever = []
   }
 
@@ -176,6 +180,7 @@ rangeFrameGlitter x y =
   , yLine = Nothing
   , xTick = Just (simpleTick x)
   , yTick = Just (simpleTick y)
+  , viewHint = Nothing
   , whatever = []
   }
 
@@ -189,8 +194,14 @@ hoverGlitter x y =
   , yLine = Just (fullLine [ stroke darkGrey, Attributes.strokeDasharray "5, 5" ])
   , xTick = Nothing
   , yTick = Nothing
+  , viewHint = Just (normalHint y)
   , whatever = []
   }
+
+
+normalHint : Float -> Html msg
+normalHint y =
+  span [] [ Html.text (toString y) ]
 
 
 
@@ -399,6 +410,7 @@ type alias PlotCustomizations msg =
     , left : Int
     }
   , onHover : Maybe (Maybe Point -> msg)
+  , viewHintContainer : Maybe (PlotSummary -> List (Html Never) -> Html Never)
   , horizontalAxis : Axis
   , grid :
     { horizontal : Grid
@@ -426,6 +438,7 @@ defaultSeriesPlotCustomizations =
       , left = 40
       }
   , onHover = Nothing
+  , viewHintContainer = Nothing
   , horizontalAxis = normalAxis
   , grid =
       { horizontal = emptyGrid
@@ -443,6 +456,32 @@ defaultSeriesPlotCustomizations =
 defaultBarPlotCustomizations : PlotCustomizations msg
 defaultBarPlotCustomizations =
   { defaultSeriesPlotCustomizations | horizontalAxis = normalBarAxis }
+
+
+{-| -}
+normalHoverContainer : Point -> PlotSummary -> List (Html Never) -> Html Never
+normalHoverContainer { x } summary hints =
+  let
+    marginOffset =
+      summary.x.marginLower * 100 / summary.x.length
+
+    xOffset =
+      (x - summary.x.min) * 100 / (range summary.x)
+
+    direction =
+      if (x - summary.x.min) > (range summary.x) / 2 then
+        "translateX(-100%)"
+      else
+        ""
+
+    style =
+      [ ( "position", "absolute" )
+      , ( "top", "30%" )
+      , ( "left", toString (marginOffset + xOffset) ++ "%" )
+      , ( "transform", direction )
+      ]
+  in
+    div [ Html.Attributes.style style ] hints
 
 
 
@@ -730,6 +769,11 @@ viewSeriesCustom customizations series data =
             [ Html.Events.on "mousemove" (handleHint summary toMsg)
             , Html.Events.onMouseLeave (toMsg Nothing)
             , Attributes.id customizations.id
+            , Html.Attributes.style
+              [ ( "position", "relative" )
+              , ( "width", toString customizations.width ++ "px" )
+              , ( "height", toString customizations.height ++ "px" )
+              ]
             ]
 
           Nothing ->
@@ -741,6 +785,14 @@ viewSeriesCustom customizations series data =
         , Attributes.height (toString customizations.height)
         ]
 
+    viewHint =
+      case customizations.viewHintContainer of
+        Nothing ->
+          div [] []
+
+        Just view ->
+          Html.map never <| view summary (List.filterMap (.glitter >> .viewHint) allDataPoints)
+
     children =
       List.filterMap identity
         [ viewHorizontalGrid summary customizations.grid.horizontal
@@ -749,9 +801,10 @@ viewSeriesCustom customizations series data =
         , viewHorizontalAxes
         , viewVerticalAxes
         , viewGlitter
+
         ]
   in
-    div containerAttributes [ svg attributes children ]
+    div containerAttributes [ svg attributes children, viewHint ]
 
 
 {-| -}
@@ -868,6 +921,7 @@ toNearestX summary exactX =
 diff : Float -> Float -> Float
 diff a b =
   abs (a - b)
+
 
 
 

@@ -50,14 +50,21 @@ myDot hovering point =
 
 view : Model -> Html.Html Msg
 view model =
-    Plot.viewCustom { defaultPlotCustomizations | onHover = Just Hover }
-        [ area (List.map (myDot model.hovering)) ]
-        [ { x = -3.1, y = 2.2 }
-        , { x = 2.2, y = 4.2 }
-        , { x = 3.5, y = -1.6 }
-        , { x = 5.4, y = -0.8 }
-        , { x = 6.8, y = 2.3 }
-        ]
+    let
+      settings =
+        { defaultSeriesPlotCustomizations
+        | onHover = Just Hover
+        , viewHintContainer = Maybe.map normalHoverContainer model.hovering
+        }
+    in
+      Plot.viewSeriesCustom settings
+          [ area (List.map (myDot model.hovering)) ]
+          [ { x = -5, y = 2.2 }
+          , { x = 2.2, y = 4.2 }
+          , { x = 2.5, y = -1.6 }
+          , { x = 3.4, y = -0.8 }
+          , { x = 5, y = 2.3 }
+          ]
 
 
 main : Program Never Model Msg
