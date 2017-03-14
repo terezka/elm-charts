@@ -7,6 +7,7 @@ module Svg.Plot
         , hintDot
         , grouped
         , group
+        , hintGroup
         , histogram
         , histogramBar
         , PlotCustomizations
@@ -42,7 +43,7 @@ module Svg.Plot
 # Plot
 
 @docs viewSeries, viewSeriesCustom, PlotCustomizations, defaultSeriesPlotCustomizations, viewBars, viewBarsCustom
-@docs dots, line, area, custom, Bars, MaxBarWidth, grouped, group, histogramBar
+@docs dots, line, area, custom, Bars, MaxBarWidth, grouped, group, histogramBar, hintGroup
 @docs DataPoint, normalAxis, emptyDot, decentGrid, emptyGrid, normalHoverContainer
 
 @docs dot, Series, square, circle, diamond, triangle, Interpolation, axisAtMin, emptyAxis, histogram
@@ -142,18 +143,28 @@ dot view x y =
 
 {-| Makes a dot given a view and a x and an y.
 -}
-hintDot : Svg msg -> Float -> Float -> DataPoint msg
-hintDot view x y =
+hintDot : Svg msg -> Maybe Point -> Float -> Float -> DataPoint msg
+hintDot view hovering x y =
   { view = Just view
-  , xLine = Just (fullLine [ stroke darkGrey ])
+  , xLine = onHovering (fullLine [ stroke darkGrey ]) x hovering
   , yLine = Nothing
   , xTick = Nothing
   , yTick = Nothing
-  , viewHint = Just (normalHint y)
+  , viewHint = onHovering (normalHint y) x hovering
   , whatever = []
   , x = x
   , y = y
   }
+
+
+onHovering : a -> Float -> Maybe Point -> Maybe a
+onHovering stuff x =
+  Maybe.andThen (\p ->
+    if p.x == x then
+      Just stuff
+    else
+      Nothing
+    )
 
 
 {-| Makes a dot given a view and a x and an y.
@@ -322,6 +333,7 @@ type alias BarGroup =
 {-| -}
 type alias Bar =
   { label : Maybe (Svg Never)
+  , viewHint : Maybe (Svg Never)
   , height : Float
   }
 
@@ -346,7 +358,15 @@ grouped toGroups =
 group : String -> List Float -> BarGroup
 group label heights =
   { label = normalBarLabel label
-  , bars = List.map (\h -> Bar (Just (viewLabel [] (toString h))) h) heights
+  , bars = List.map (Bar Nothing Nothing) heights
+  }
+
+
+{-| -}
+hintGroup : String -> List Float -> BarGroup
+hintGroup label heights =
+  { label = normalBarLabel label
+  , bars = List.map (Bar (Just (text "hey")) Nothing) heights
   }
 
 
@@ -364,7 +384,7 @@ histogram toGroups =
 histogramBar : Float -> BarGroup
 histogramBar height =
   { label = simpleLabel
-  , bars = [ Bar Nothing height ]
+  , bars = [ Bar Nothing Nothing height ]
   }
 
 
@@ -857,9 +877,10 @@ viewBarsCustom customizations bars data =
         groups =
           bars.toGroups data
 
-        toDataPoint index { height } =
+        toDataPoint index { height, viewHint } =
           { x = toFloat index + 1
           , y = height
+          , viewHint = viewHint
           }
 
         toDataPoints index group =
@@ -873,6 +894,15 @@ viewBarsCustom customizations bars data =
 
         xLabels =
           List.indexedMap (\index group -> group.label (toFloat index + 1)) groups
+
+        viewHint =
+          case customizations.viewHintContainer of
+            Nothing ->
+              div [] []
+
+            Just view ->
+              Html.map never <| view summary (List.filterMap .viewHint dataPoints)
+
 
         children =
           List.filterMap identity

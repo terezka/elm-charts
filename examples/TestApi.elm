@@ -61,4 +61,4 @@ barData2 =
 
 main : Html msg
 main =
-  viewBars (grouped (List.map2 group [ "g1", "g3", "g3" ])) barData
+  viewBars (grouped (List.map2 hintGroup [ "g1", "g3", "g3" ])) barData

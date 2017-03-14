@@ -33,15 +33,8 @@ update msg model =
 
 myDot : Maybe { x : Float, y : Float } -> { x : Float, y : Float } -> DataPoint msg
 myDot hovering point =
-  case hovering of
-    Just hovered ->
-      if hovered.x == point.x then
-        hintDot (viewCircle 5 "#ff9edf") point.x point.y
-      else
-        dot (viewCircle 5 "#ff9edf")  point.x point.y
+    hintDot (viewCircle 5 "#ff9edf") hovering point.x point.y
 
-    Nothing ->
-      dot (viewCircle 5 "#ff9edf") point.x point.y
 
 
 
