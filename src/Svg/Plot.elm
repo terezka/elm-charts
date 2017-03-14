@@ -55,7 +55,7 @@ import Html exposing (Html, div, span)
 import Html.Events
 import Html.Attributes
 import Svg exposing (Svg, Attribute, svg, text_, tspan, text, g, path, rect)
-import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth)
+import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath)
 import Svg.Draw as Draw exposing (..)
 import Svg.Colors exposing (..)
 import Json.Decode as Json
@@ -725,7 +725,7 @@ barLine attributes height summary =
   }
 
 
--- VIEW
+-- VIEW SERIES
 
 
 {-| View you plot!
@@ -746,8 +746,11 @@ viewSeriesCustom customizations series data =
     allDataPoints =
       List.concat dataPoints
 
+    addNiceReach summary =
+      List.foldl addNiceReachForSeries summary series
+
     summary =
-      toPlotSummary customizations identity allDataPoints
+      toPlotSummary customizations addNiceReach allDataPoints
 
     viewHorizontalAxes =
       allDataPoints
@@ -763,7 +766,7 @@ viewSeriesCustom customizations series data =
         |> Just
 
     viewActualSeries =
-      List.map2 (viewASeries summary) series dataPoints
+      List.map2 (viewASeries customizations summary) series dataPoints
         |> g [ class "elm-plot__all-series" ]
         |> Just
 
@@ -806,7 +809,8 @@ viewSeriesCustom customizations series data =
 
     children =
       List.filterMap identity
-        [ viewHorizontalGrid summary customizations.grid.horizontal
+        [ Just (defineClipPath customizations summary)
+        , viewHorizontalGrid summary customizations.grid.horizontal
         , viewVerticalGrid summary customizations.grid.vertical
         , viewActualSeries
         , viewHorizontalAxes
@@ -816,6 +820,39 @@ viewSeriesCustom customizations series data =
         ]
   in
     div containerAttributes [ svg attributes children, viewHint ]
+
+
+addNiceReachForSeries : Series data msg -> TempPlotSummary -> TempPlotSummary
+addNiceReachForSeries series =
+  case series.interpolation of
+    None ->
+      identity
+
+    Linear fill _ ->
+      addNiceReachForArea fill
+
+    Curvy fill _ ->
+      addNiceReachForArea fill
+
+    Monotone fill _ ->
+      addNiceReachForArea fill
+
+
+addNiceReachForArea : Maybe String -> TempPlotSummary -> TempPlotSummary
+addNiceReachForArea area ({ y, x } as summary) =
+  case area of
+    Nothing ->
+      summary
+
+    Just _ ->
+      { summary
+      | x = x
+      , y = { y | min = 0, max = y.max }
+      }
+
+
+
+-- VIEW BARS
 
 
 {-| -}
@@ -867,7 +904,8 @@ viewBarsCustom customizations bars data =
 
         children =
           List.filterMap identity
-            [ viewHorizontalGrid summary customizations.grid.horizontal
+            [ Just (defineClipPath customizations summary)
+            , viewHorizontalGrid summary customizations.grid.horizontal
             , viewVerticalGrid summary customizations.grid.vertical
             , viewActualBars summary bars groups
             , viewHorizontalAxis summary customizations.horizontalAxis xLabels []
@@ -883,6 +921,29 @@ addNiceReachForBars ({ x, y } as summary) =
   | x = { x | min = x.min - 0.5, max = x.max + 0.5 }
   , y = { y | min = 0, max = y.max }
   }
+
+
+-- CLIP PATH
+
+
+defineClipPath : PlotCustomizations msg -> PlotSummary -> Svg.Svg msg
+defineClipPath customizations summary =
+  Svg.defs []
+    [ Svg.clipPath [ Attributes.id (toClipPathId customizations) ]
+      [ Svg.rect
+        [ Attributes.x (toString summary.x.marginLower)
+        , Attributes.y (toString summary.y.marginLower)
+        , Attributes.width (toString (length summary.x))
+        , Attributes.height (toString (length summary.y))
+        ]
+        []
+      ]
+    ]
+
+
+toClipPathId : PlotCustomizations msg -> String
+toClipPathId { id } =
+  "elm-plot__clip-path__" ++ id
 
 
 
@@ -1054,48 +1115,60 @@ viewActualHorizontalGrid summary gridLines =
 -- SERIES VIEWS
 
 
-viewASeries : PlotSummary -> Series data msg -> List (DataPoint msg) -> Svg msg
-viewASeries plotSummary { axis, interpolation } dataPoints =
+viewASeries : PlotCustomizations msg -> PlotSummary -> Series data msg -> List (DataPoint msg) -> Svg msg
+viewASeries customizations plotSummary { axis, interpolation } dataPoints =
   g [ class "elm-plot__series" ]
-    [ Svg.map never (viewPath plotSummary interpolation dataPoints)
+    [ Svg.map never (viewPath customizations plotSummary interpolation dataPoints)
     , viewDataPoints plotSummary dataPoints
     ]
 
 
-viewPath : PlotSummary -> Interpolation -> List (DataPoint msg) -> Svg Never
-viewPath plotSummary interpolation dataPoints =
+viewPath : PlotCustomizations msg -> PlotSummary -> Interpolation -> List (DataPoint msg) -> Svg Never
+viewPath customizations plotSummary interpolation dataPoints =
   case interpolation of
     None ->
       path [] []
 
     Linear fill attributes ->
-      viewInterpolation plotSummary linear linearArea fill attributes dataPoints
+      viewInterpolation customizations plotSummary linear linearArea fill attributes dataPoints
 
     Curvy fill attributes ->
       -- TODO: Should be curvy
-      viewInterpolation plotSummary monotoneX monotoneXArea fill attributes dataPoints
+      viewInterpolation customizations plotSummary monotoneX monotoneXArea fill attributes dataPoints
 
     Monotone fill attributes ->
-      viewInterpolation plotSummary monotoneX monotoneXArea fill attributes dataPoints
+      viewInterpolation customizations plotSummary monotoneX monotoneXArea fill attributes dataPoints
 
 
 viewInterpolation :
-  PlotSummary
+  PlotCustomizations msg
+  -> PlotSummary
   -> (PlotSummary -> List Point -> List Command)
   -> (PlotSummary -> List Point -> List Command)
   -> Maybe String
   -> List (Attribute Never)
   -> List (DataPoint msg)
   -> Svg Never
-viewInterpolation plotSummary toLine toArea area attributes dataPoints =
+viewInterpolation customizations summary toLine toArea area attributes dataPoints =
   case area of
     Nothing ->
-      draw (fill transparent :: stroke pinkStroke :: class "elm-plot__series__interpolation" :: attributes)
-        (toLine plotSummary (points dataPoints))
+      draw
+        (fill transparent
+        :: stroke pinkStroke
+        :: class "elm-plot__series__interpolation"
+        :: clipPath ("url(#" ++ toClipPathId customizations ++ ")")
+        :: attributes)
+        (toLine summary (points dataPoints))
 
     Just color ->
-      draw (fill color :: fill pinkFill :: stroke pinkStroke :: class "elm-plot__series__interpolation" :: attributes)
-        (toArea plotSummary (points dataPoints))
+      draw
+        (fill color
+        :: fill pinkFill
+        :: stroke pinkStroke
+        :: class "elm-plot__series__interpolation"
+        :: clipPath ("url(#" ++ toClipPathId customizations ++ ")")
+        :: attributes)
+        (toArea summary (points dataPoints))
 
 
 
