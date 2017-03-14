@@ -37,7 +37,6 @@ myDot hovering point =
 
 
 
-
 -- VIEW
 
 
@@ -51,13 +50,13 @@ view model =
         }
     in
       Plot.viewSeriesCustom settings
-          [ area (List.map (myDot model.hovering)) ]
-          [ { x = -5, y = 2.2 }
-          , { x = 2.2, y = 4.2 }
-          , { x = 2.5, y = -1.6 }
-          , { x = 3.4, y = -0.8 }
-          , { x = 5, y = 2.3 }
-          ]
+        [ area (List.map (myDot model.hovering)) ]
+        [ { x = -5, y = 2.2 }
+        , { x = 2.2, y = 4.2 }
+        , { x = 2.5, y = -1.6 }
+        , { x = 3.4, y = -0.8 }
+        , { x = 5, y = 2.3 }
+        ]
 
 
 main : Program Never Model Msg

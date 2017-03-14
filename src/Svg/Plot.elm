@@ -32,6 +32,7 @@ module Svg.Plot
         , emptyAxis
         , normalAxis
         , axisAtMin
+        , axisAtMax
         , viewCircle
         , viewSquare
         , viewDiamond
@@ -49,7 +50,7 @@ module Svg.Plot
 @docs dot, Series, square, circle, diamond, triangle, Interpolation, axisAtMin, emptyAxis, histogram
 
 ## Small helper views
-@docs viewCircle, viewSquare, viewDiamond, hintDot, rangeFrameDot
+@docs viewCircle, viewSquare, viewDiamond, hintDot, rangeFrameDot, axisAtMax
 -}
 
 import Html exposing (Html, div, span)
@@ -118,7 +119,6 @@ type alias DataPoint msg =
   , xTick : Maybe TickCustomizations
   , yTick : Maybe TickCustomizations
   , viewHint : Maybe (Html Never)
-  , whatever : List WhateverCustomizations
   , x : Float
   , y : Float
   }
@@ -134,7 +134,6 @@ dot view x y =
   , xTick = Nothing
   , yTick = Nothing
   , viewHint = Nothing
-  , whatever = []
   , x = x
   , y = y
   }
@@ -151,7 +150,6 @@ hintDot view hovering x y =
   , xTick = Nothing
   , yTick = Nothing
   , viewHint = onHovering (normalHint y) x hovering
-  , whatever = []
   , x = x
   , y = y
   }
@@ -177,7 +175,6 @@ emphasizedDot view x y =
   , xTick = Nothing
   , yTick = Nothing
   , viewHint = Nothing
-  , whatever = []
   , x = x
   , y = y
   }
@@ -197,7 +194,6 @@ rangeFrameDot view x y =
   , xTick = Just (simpleTick x)
   , yTick = Just (simpleTick y)
   , viewHint = Nothing
-  , whatever = []
   , x = x
   , y = y
   }
@@ -218,7 +214,6 @@ customDot :
   , xTick : Maybe TickCustomizations
   , yTick : Maybe TickCustomizations
   , viewHint : Maybe (Html Never)
-  , whatever : List WhateverCustomizations
   , x : Float
   , y : Float
   } -> DataPoint msg
@@ -463,9 +458,9 @@ defaultSeriesPlotCustomizations =
   , height = 720
   , margin =
       { top = 20
-      , right = 100
+      , right = 40
       , bottom = 20
-      , left = 100
+      , left = 40
       }
   , onHover = Nothing
   , viewHintContainer = Nothing
@@ -500,9 +495,9 @@ normalHoverContainer { x, y } summary hints =
 
     margin =
       if isLeft then
-        "-5px"
+        -15
       else
-        "5px"
+        15
 
     direction =
       if isLeft then
@@ -516,7 +511,7 @@ normalHoverContainer { x, y } summary hints =
       , ( "left", toString xOffset ++ "px" )
       , ( "transform", direction )
       , ( "padding", "5px" )
-      , ( "margin", margin )
+      , ( "margin", toString margin ++ "px" )
       , ( "background", grey )
       , ( "border-radius", "2px" )
       , ( "pointer-events", "none" )
@@ -748,7 +743,7 @@ fullLine attributes summary =
 barLine : List (Attribute Never) -> Float -> AxisSummary -> LineCustomizations
 barLine attributes height summary =
   { attributes = attributes
-  , start = clamp summary.min summary.max 0
+  , start = closestToZero summary.min summary.max
   , end = height
   }
 
@@ -1226,6 +1221,7 @@ viewDataPoint plotSummary { x, y, view } =
 
     Just svgView ->
       Just <| g [ place plotSummary { x = x, y = y } 0 0 ] [ svgView ]
+
 
 
 {-| Pass radius and color to make a circle!
