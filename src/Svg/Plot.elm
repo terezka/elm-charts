@@ -847,7 +847,7 @@ addNiceReachForArea area ({ y, x } as summary) =
     Just _ ->
       { summary
       | x = x
-      , y = { y | min = 0, max = y.max }
+      , y = { y | min = min y.min 0, max = y.max }
       }
 
 
@@ -919,7 +919,7 @@ addNiceReachForBars : TempPlotSummary -> TempPlotSummary
 addNiceReachForBars ({ x, y } as summary) =
   { summary
   | x = { x | min = x.min - 0.5, max = x.max + 0.5 }
-  , y = { y | min = 0, max = y.max }
+  , y = { y | min = min y.min 0, max = y.max }
   }
 
 
