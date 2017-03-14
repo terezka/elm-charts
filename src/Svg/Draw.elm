@@ -9,6 +9,9 @@ module Svg.Draw
     , scaleValue
     , unScaleValue
     , range
+    , toSVGX
+    , toSVGY
+    , length
     , linear
     , linearArea
     , monotoneX

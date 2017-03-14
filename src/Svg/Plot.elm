@@ -201,7 +201,7 @@ hoverGlitter x y =
 
 normalHint : Float -> Html msg
 normalHint y =
-  span [] [ Html.text (toString y) ]
+  span [] [ Html.text ("y: " ++ toString y) ]
 
 
 
@@ -433,9 +433,9 @@ defaultSeriesPlotCustomizations =
   , height = 720
   , margin =
       { top = 20
-      , right = 40
+      , right = 100
       , bottom = 20
-      , left = 40
+      , left = 100
       }
   , onHover = Nothing
   , viewHintContainer = Nothing
@@ -460,25 +460,36 @@ defaultBarPlotCustomizations =
 
 {-| -}
 normalHoverContainer : Point -> PlotSummary -> List (Html Never) -> Html Never
-normalHoverContainer { x } summary hints =
+normalHoverContainer { x, y } summary hints =
   let
-    marginOffset =
-      summary.x.marginLower * 100 / summary.x.length
-
     xOffset =
-      (x - summary.x.min) * 100 / (range summary.x)
+      toSVGX summary x
+
+    isLeft =
+      (x - summary.x.min) > (range summary.x) / 2
+
+    margin =
+      if isLeft then
+        "-5px"
+      else
+        "5px"
 
     direction =
-      if (x - summary.x.min) > (range summary.x) / 2 then
+      if isLeft then
         "translateX(-100%)"
       else
         ""
 
     style =
       [ ( "position", "absolute" )
-      , ( "top", "30%" )
-      , ( "left", toString (marginOffset + xOffset) ++ "%" )
+      , ( "top", "25%" )
+      , ( "left", toString xOffset ++ "px" )
       , ( "transform", direction )
+      , ( "padding", "5px" )
+      , ( "margin", margin )
+      , ( "background", grey )
+      , ( "border-radius", "2px" )
+      , ( "pointer-events", "none" )
       ]
   in
     div [ Html.Attributes.style style ] hints
@@ -1351,11 +1362,11 @@ decentPositions summary =
 interval : Float -> Float -> AxisSummary -> List Float
 interval offset delta { min, max } =
   let
-      range = abs (min - max)
-      value = firstValue delta min + offset
-      indexes = List.range 0 <| count delta min range value
+    range = abs (min - max)
+    value = firstValue delta min + offset
+    indexes = List.range 0 <| count delta min range value
   in
-      List.map (tickPosition delta value) indexes
+    List.map (tickPosition delta value) indexes
 
 
 {-| If you regret a particular position. Typically used for removing the label
@@ -1381,62 +1392,62 @@ remove banned values =
 
 tickPosition : Float -> Float -> Int -> Float
 tickPosition delta firstValue index =
-    firstValue
-        + (toFloat index)
-        * delta
-        |> Round.round (deltaPrecision delta)
-        |> String.toFloat
-        |> Result.withDefault 0
+  firstValue
+    + (toFloat index)
+    * delta
+    |> Round.round (deltaPrecision delta)
+    |> String.toFloat
+    |> Result.withDefault 0
 
 
 deltaPrecision : Float -> Int
 deltaPrecision delta =
-    delta
-        |> toString
-        |> Regex.find (Regex.AtMost 1) (Regex.regex "\\.[0-9]*")
-        |> List.map .match
-        |> List.head
-        |> Maybe.withDefault ""
-        |> String.length
-        |> (-) 1
-        |> min 0
-        |> abs
+  delta
+    |> toString
+    |> Regex.find (Regex.AtMost 1) (Regex.regex "\\.[0-9]*")
+    |> List.map .match
+    |> List.head
+    |> Maybe.withDefault ""
+    |> String.length
+    |> (-) 1
+    |> min 0
+    |> abs
 
 
 firstValue : Float -> Float -> Float
 firstValue delta lowest =
-    ceilToNearest delta lowest
+  ceilToNearest delta lowest
 
 
 ceilToNearest : Float -> Float -> Float
 ceilToNearest precision value =
-    toFloat (ceiling (value / precision)) * precision
+  toFloat (ceiling (value / precision)) * precision
 
 
 count : Float -> Float -> Float -> Float -> Int
 count delta lowest range firstValue =
-    floor ((range - (abs lowest - abs firstValue)) / delta)
+  floor ((range - (abs lowest - abs firstValue)) / delta)
 
 
 niceInterval : Float -> Float -> Int -> Float
 niceInterval min max total =
-    let
-      range = abs (max - min)
-      -- calculate an initial guess at step size
-      delta0 = range / (toFloat total)
-      -- get the magnitude of the step size
-      mag = floor (logBase 10 delta0)
-      magPow = toFloat (10 ^ mag)
-      -- calculate most significant digit of the new step size
-      magMsd = round (delta0 / magPow)
-      -- promote the MSD to either 1, 2, or 5
-      magMsdFinal =
-        if magMsd > 5 then 10
-        else if magMsd > 2 then 5
-        else if magMsd > 1 then 1
-        else magMsd
-    in
-      toFloat magMsdFinal * magPow
+  let
+    range = abs (max - min)
+    -- calculate an initial guess at step size
+    delta0 = range / (toFloat total)
+    -- get the magnitude of the step size
+    mag = floor (logBase 10 delta0)
+    magPow = toFloat (10 ^ mag)
+    -- calculate most significant digit of the new step size
+    magMsd = round (delta0 / magPow)
+    -- promote the MSD to either 1, 2, or 5
+    magMsdFinal =
+      if magMsd > 5 then 10
+      else if magMsd > 2 then 5
+      else if magMsd > 1 then 1
+      else magMsd
+  in
+    toFloat magMsdFinal * magPow
 
 
 
