@@ -364,7 +364,7 @@ histogramBar height =
 normalBarAxis : Axis
 normalBarAxis =
   axis <| \summary ->
-    { position = ClosestToZero
+    { position = closestToZero
     , axisLine = Just (simpleLine summary)
     , ticks = List.map simpleTick (interval 0 1 summary)
     , labels = []
@@ -555,7 +555,7 @@ type Axis
   - Add a title or whatever.
 -}
 type alias AxisCustomizations =
-  { position : Position
+  { position : Float -> Float -> Float
   , axisLine : Maybe LineCustomizations
   , ticks : List TickCustomizations
   , labels : List LabelCustomizations
@@ -564,11 +564,9 @@ type alias AxisCustomizations =
 
 
 {-| -}
-type Position
-  = Min
-  | Max
-  | ClosestToZero
-  | At Float
+closestToZero : Float -> Float -> Float
+closestToZero min max =
+  clamp min max 0
 
 
 {-| -}
@@ -633,7 +631,7 @@ axis =
 normalAxis : Axis
 normalAxis =
   axis <| \summary ->
-    { position = ClosestToZero
+    { position = closestToZero
     , axisLine = Just (simpleLine summary)
     , ticks = List.map simpleTick (decentPositions summary |> remove 0)
     , labels = List.map simpleLabel (decentPositions summary |> remove 0)
@@ -646,7 +644,7 @@ normalAxis =
 emptyAxis : Axis
 emptyAxis =
   axis <| \summary ->
-    { position = ClosestToZero
+    { position = closestToZero
     , axisLine = Nothing
     , ticks = []
     , labels = []
@@ -661,7 +659,7 @@ emptyAxis =
 axisAtMin : Axis
 axisAtMin =
   axis <| \summary ->
-    { position = Min
+    { position = min
     , axisLine = Just (simpleLine summary)
     , ticks = List.map simpleTick (decentPositions summary)
     , labels = List.map simpleLabel (decentPositions summary)
@@ -674,7 +672,7 @@ axisAtMin =
 axisAtMax : Axis
 axisAtMax =
   axis <| \summary ->
-    { position = Min
+    { position = max
     , axisLine = Just (simpleLine summary)
     , ticks = List.map simpleTick (decentPositions summary)
     , labels = List.map simpleLabel (decentPositions summary)
@@ -779,28 +777,6 @@ viewSeriesCustom customizations series data =
         |> Svg.map never
         |> Just
 
-    containerAttributes =
-      case customizations.onHover of
-          Just toMsg ->
-            [ Html.Events.on "mousemove" (handleHint summary toMsg)
-            , Html.Events.onMouseLeave (toMsg Nothing)
-            , Attributes.id customizations.id
-            , Html.Attributes.style
-              [ ( "position", "relative" )
-              , ( "width", toString customizations.width ++ "px" )
-              , ( "height", toString customizations.height ++ "px" )
-              ]
-            ]
-
-          Nothing ->
-            [ Attributes.id customizations.id ]
-
-    attributes =
-      customizations.attributes ++
-        [ Attributes.width (toString customizations.width)
-        , Attributes.height (toString customizations.height)
-        ]
-
     viewHint =
       case customizations.viewHintContainer of
         Nothing ->
@@ -821,7 +797,9 @@ viewSeriesCustom customizations series data =
 
         ]
   in
-    div containerAttributes [ svg attributes children, viewHint ]
+    div
+      (containerAttributes customizations summary)
+      [ svg (innerAttributes customizations) children, viewHint ]
 
 
 addNiceReachForSeries : Series data msg -> TempPlotSummary -> TempPlotSummary
@@ -884,23 +862,6 @@ viewBarsCustom customizations bars data =
         summary =
           toPlotSummary customizations addNiceReachForBars dataPoints
 
-        containerAttributes =
-          case customizations.onHover of
-              Just toMsg ->
-                [ Html.Events.on "mousemove" (handleHint summary toMsg)
-                , Html.Events.onMouseLeave (toMsg Nothing)
-                , Attributes.id customizations.id
-                ]
-
-              Nothing ->
-                [ Attributes.id customizations.id ]
-
-        attributes =
-          customizations.attributes ++
-            [ Attributes.width (toString customizations.width)
-            , Attributes.height (toString customizations.height)
-            ]
-
         xLabels =
           List.indexedMap (\index group -> group.label (toFloat index + 1)) groups
 
@@ -914,7 +875,9 @@ viewBarsCustom customizations bars data =
             , viewVerticalAxis summary bars.axis []
             ]
       in
-        div containerAttributes [ svg attributes children ]
+        div
+          (containerAttributes customizations summary)
+          [ svg (innerAttributes customizations) children ]
 
 
 addNiceReachForBars : TempPlotSummary -> TempPlotSummary
@@ -946,6 +909,38 @@ defineClipPath customizations summary =
 toClipPathId : PlotCustomizations msg -> String
 toClipPathId { id } =
   "elm-plot__clip-path__" ++ id
+
+
+containerAttributes : PlotCustomizations msg -> PlotSummary -> List (Attribute msg)
+containerAttributes customizations summary =
+  case customizations.onHover of
+      Just toMsg ->
+        [ Html.Events.on "mousemove" (handleHint summary toMsg)
+        , Html.Events.onMouseLeave (toMsg Nothing)
+        , Attributes.id customizations.id
+        , Html.Attributes.style
+          [ ( "position", "relative" )
+          , ( "width", toString customizations.width ++ "px" )
+          , ( "height", toString customizations.height ++ "px" )
+          ]
+        ]
+
+      Nothing ->
+        [ Attributes.id customizations.id
+        , Html.Attributes.style
+          [ ( "position", "relative" )
+          , ( "width", toString customizations.width ++ "px" )
+          , ( "height", toString customizations.height ++ "px" )
+          ]
+        ]
+
+
+innerAttributes : PlotCustomizations msg -> List (Attribute msg)
+innerAttributes customizations =
+  customizations.attributes ++
+    [ Attributes.width (toString customizations.width)
+    , Attributes.height (toString customizations.height)
+    ]
 
 
 
@@ -1301,7 +1296,7 @@ viewActualHorizontalAxis : PlotSummary -> AxisCustomizations -> List LabelCustom
 viewActualHorizontalAxis summary { position, axisLine, ticks, labels, whatever } glitterLabels glitterTicks =
     let
       at x =
-        { x = x, y = resolvePosition summary.y position }
+        { x = x, y = position summary.y.min summary.y.max }
 
       viewTickLine { attributes, length, position } =
         g [ place summary (at position) 0 0 ] [ viewTickInner attributes 0 length ]
@@ -1339,7 +1334,7 @@ viewActualVerticalAxis : PlotSummary -> AxisCustomizations -> List TickCustomiza
 viewActualVerticalAxis summary { position, axisLine, ticks, labels, whatever } glitterTicks =
     let
       at y =
-        { x = resolvePosition summary.x position, y = y }
+        { x = position summary.x.min summary.x.max, y = y }
 
       viewTickLine { attributes, length, position } =
         g [ place summary (at position) 0 0 ]
@@ -1393,26 +1388,6 @@ viewGlitterLines summary { xLine, yLine, x, y } =
   [ viewAxisLine summary (\y -> { x = x, y = y }) (Maybe.map (\toLine -> toLine summary.y) xLine)
   , viewAxisLine summary (\x -> { x = x, y = y }) (Maybe.map (\toLine -> toLine summary.x) yLine)
   ]
-
-
-
--- HELPERS
-
-
-resolvePosition : AxisSummary -> Position -> Float
-resolvePosition { min, max } position =
-  case position of
-    Min ->
-      min
-
-    Max ->
-      max
-
-    ClosestToZero ->
-      clamp min max 0
-
-    At v ->
-      v
 
 
 
