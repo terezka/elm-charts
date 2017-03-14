@@ -12,6 +12,7 @@ module Svg.Plot
         , PlotCustomizations
         , defaultSeriesPlotCustomizations
         , normalHoverContainer
+        , rangeFrameDot
         , Bars
         , MaxBarWidth(..)
         , dots
@@ -47,7 +48,7 @@ module Svg.Plot
 @docs dot, Series, square, circle, diamond, triangle, Interpolation, axisAtMin, emptyAxis, histogram
 
 ## Small helper views
-@docs viewCircle, viewSquare, viewDiamond, hintDot
+@docs viewCircle, viewSquare, viewDiamond, hintDot, rangeFrameDot
 -}
 
 import Html exposing (Html, div, span)
@@ -306,7 +307,7 @@ type Interpolation
 type alias Bars data msg =
   { axis : Axis
   , toGroups : data -> List BarGroup
-  , bars : List (List (Attribute msg))
+  , styles : List (List (Attribute msg))
   , maxWidth : MaxBarWidth
   }
 
@@ -314,7 +315,14 @@ type alias Bars data msg =
 {-| -}
 type alias BarGroup =
   { label : Float -> LabelCustomizations
-  , heights : List Float
+  , bars : List Bar
+  }
+
+
+{-| -}
+type alias Bar =
+  { label : Maybe (Svg Never)
+  , height : Float
   }
 
 
@@ -329,7 +337,7 @@ grouped : (data -> List BarGroup) -> Bars data msg
 grouped toGroups =
   { axis = normalAxis
   , toGroups = toGroups
-  , bars = [ [ fill pinkFill ], [ fill blueFill ] ]
+  , styles = [ [ fill pinkFill ], [ fill blueFill ] ]
   , maxWidth = Percentage 75
   }
 
@@ -338,7 +346,7 @@ grouped toGroups =
 group : String -> List Float -> BarGroup
 group label heights =
   { label = normalBarLabel label
-  , heights = heights
+  , bars = List.map (\h -> Bar (Just (viewLabel [] (toString h))) h) heights
   }
 
 
@@ -347,7 +355,7 @@ histogram : (data -> List BarGroup) -> Bars data msg
 histogram toGroups =
   { axis = normalAxis
   , toGroups = toGroups
-  , bars = [ [ fill pinkFill, stroke pinkStroke ] ]
+  , styles = [ [ fill pinkFill, stroke pinkStroke ] ]
   , maxWidth = Percentage 100
   }
 
@@ -356,7 +364,7 @@ histogram toGroups =
 histogramBar : Float -> BarGroup
 histogramBar height =
   { label = simpleLabel
-  , heights = [ height ]
+  , bars = [ Bar Nothing height ]
   }
 
 
@@ -725,6 +733,7 @@ barLine attributes height summary =
   }
 
 
+
 -- VIEW SERIES
 
 
@@ -848,16 +857,16 @@ viewBarsCustom customizations bars data =
         groups =
           bars.toGroups data
 
-        toDataPoint index height =
+        toDataPoint index { height } =
           { x = toFloat index + 1
           , y = height
           }
 
         toDataPoints index group =
-          List.map (toDataPoint index) group.heights
+          List.map (toDataPoint index) group.bars
 
         dataPoints =
-          List.indexedMap toDataPoints groups |> List.concat
+          List.concat (List.indexedMap toDataPoints groups)
 
         summary =
           toPlotSummary customizations addNiceReachForBars dataPoints
@@ -875,8 +884,7 @@ viewBarsCustom customizations bars data =
             , viewVerticalAxis summary bars.axis []
             ]
       in
-        div
-          (containerAttributes customizations summary)
+        div (containerAttributes customizations summary)
           [ svg (innerAttributes customizations) children ]
 
 
@@ -1238,10 +1246,10 @@ viewDiamond width height color =
 
 
 viewActualBars : PlotSummary -> Bars data msg -> List BarGroup -> Maybe (Svg msg)
-viewActualBars summary { bars, maxWidth } groups =
+viewActualBars summary { styles, maxWidth } groups =
     let
         barsPerGroup =
-            toFloat (List.length bars)
+            toFloat (List.length styles)
 
         defaultWidth =
             1 / barsPerGroup
@@ -1260,20 +1268,28 @@ viewActualBars summary { bars, maxWidth } groups =
         offset x i =
           x + width * (toFloat i - barsPerGroup / 2)
 
-        viewBar x attributes (i, height) =
-          rect (attributes ++
-            [ place summary { x = offset x i, y = height } 0 0
-            , Attributes.width (toString (scaleValue summary.x width))
-            , Attributes.height (toString (scaleValue summary.y height))
-            ])
-            []
+        viewLabel label =
+          g [ Attributes.transform ("translate(" ++ toString (scaleValue summary.x (width / 2)) ++ ", -5)")
+            , Attributes.style "text-anchor: middle;"
+            ]
+            [ label ]
+
+        viewBar x attributes (i, { height, label }) =
+          g [ place summary { x = offset x i, y = height } 0 0 ]
+            [ Svg.map never (Maybe.map viewLabel label |> Maybe.withDefault (text ""))
+            , rect (attributes ++
+              [ Attributes.width (toString (scaleValue summary.x width))
+              , Attributes.height (toString (scaleValue summary.y height))
+              ])
+              []
+            ]
 
         indexedHeights group =
-          List.indexedMap (,) group.heights
+          List.indexedMap (,) group.bars
 
         viewGroup index group =
           g [ class "elm-plot__bars__group" ]
-            (List.map2 (viewBar (toFloat (index + 1))) bars (indexedHeights group))
+            (List.map2 (viewBar (toFloat (index + 1))) styles (indexedHeights group))
     in
         Just <| g [ class "elm-plot__bars" ] (List.indexedMap viewGroup groups)
 

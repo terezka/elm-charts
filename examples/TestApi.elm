@@ -36,11 +36,7 @@ pinkStroke =
 
 myDot : { x : Float, y : Float } -> DataPoint msg
 myDot { x, y } =
-  { view = Just (viewCircle 5 pinkStroke)
-  , glitter = rangeFrameGlitter x y
-  , x = x
-  , y = y
-  }
+  rangeFrameDot (viewCircle 5 pinkStroke) x y
 
 
 data : List ( Float, Float )
