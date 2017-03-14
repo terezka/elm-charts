@@ -2,7 +2,8 @@ module Svg.Plot
     exposing
         ( PlotCustomizations
         , defaultSeriesPlotCustomizations
-        , defaultBarPlotCustomizations
+        , defaultBarsPlotCustomizations
+        , normalHoverContainer
         -- SERIES
         , viewSeries
         , viewSeriesCustom
@@ -21,22 +22,24 @@ module Svg.Plot
         , hintDot
         , emptyDot
         , rangeFrameDot
+        , customDot
         -- BARS
         , viewBars
         , viewBarsCustom
         , Bars
+        , BarGroup
         , MaxBarWidth(..)
         , grouped
         , group
         , hintGroup
         , histogram
         , histogramBar
-        , normalHoverContainer
         -- AXIS
         , emptyAxis
         , normalAxis
         , axisAtMin
         , axisAtMax
+        , axis
         -- GRID
         , decentGrid
         , emptyGrid
@@ -49,14 +52,36 @@ module Svg.Plot
 {-|
 # Plot
 
-@docs viewSeries, viewSeriesCustom, PlotCustomizations, defaultSeriesPlotCustomizations, viewBars, viewBarsCustom
-@docs dots, line, area, custom, Bars, MaxBarWidth, grouped, group, histogramBar, hintGroup
-@docs DataPoint, normalAxis, emptyDot, decentGrid, emptyGrid, normalHoverContainer
+## Series
+@docs square, circle, diamond, triangle, dots, line, area, viewSeries
 
-@docs dot, Series, square, circle, diamond, triangle, Interpolation, axisAtMin, emptyAxis, histogram
+### Custom series
+@docs Series, Interpolation, DataPoint, custom, dot, hintDot, emptyDot, rangeFrameDot, customDot
 
-## Small helper views
-@docs viewCircle, viewSquare, viewDiamond, hintDot, rangeFrameDot, axisAtMax, defaultBarPlotCustomizations
+### Small helper views
+@docs viewCircle, viewSquare, viewDiamond
+
+## Bars
+@docs grouped, group, hintGroup, histogram, histogramBar, viewBars
+
+### Custom bars
+@docs Bars, BarGroup, MaxBarWidth
+
+## Custom view
+@docs PlotCustomizations, normalHoverContainer
+
+### Series
+@docs defaultSeriesPlotCustomizations, viewSeriesCustom
+
+### Bars
+@docs defaultBarsPlotCustomizations, viewBarsCustom
+
+### Axis customizations
+@docs emptyAxis, normalAxis, axisAtMin, axisAtMax, axis
+
+### Grid customizations
+@docs decentGrid, emptyGrid
+
 -}
 
 import Html exposing (Html, div, span)
@@ -492,8 +517,8 @@ defaultSeriesPlotCustomizations =
 
 {-| The default bars plot customizations.
 -}
-defaultBarPlotCustomizations : PlotCustomizations msg
-defaultBarPlotCustomizations =
+defaultBarsPlotCustomizations : PlotCustomizations msg
+defaultBarsPlotCustomizations =
   { defaultSeriesPlotCustomizations
   | horizontalAxis = normalBarAxis
   , margin =
@@ -883,7 +908,7 @@ addNiceReachForArea area ({ y, x } as summary) =
 {-| -}
 viewBars : Bars data msg -> data -> Html msg
 viewBars =
-  viewBarsCustom defaultBarPlotCustomizations
+  viewBarsCustom defaultBarsPlotCustomizations
 
 
 {-| -}
