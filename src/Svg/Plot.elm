@@ -57,6 +57,7 @@ module Svg.Plot
         , viewCircle
         , viewSquare
         , viewDiamond
+        , viewTriangle
         )
 
 {-|
@@ -69,7 +70,7 @@ module Svg.Plot
 @docs Series, Interpolation, DataPoint, custom, dot, hintDot, emptyDot, rangeFrameDot, customDot
 
 ### Small helper views
-@docs viewCircle, viewSquare, viewDiamond
+@docs viewCircle, viewSquare, viewDiamond, viewTriangle
 
 ## Bars
 @docs grouped, group, hintGroup, histogram, histogramBar, viewBars
@@ -97,7 +98,7 @@ module Svg.Plot
 import Html exposing (Html, div, span)
 import Html.Events
 import Html.Attributes
-import Svg exposing (Svg, Attribute, svg, text_, tspan, text, g, path, rect)
+import Svg exposing (Svg, Attribute, svg, text_, tspan, text, g, path, rect, polygon)
 import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath)
 import Svg.Draw as Draw exposing (..)
 import Svg.Colors exposing (..)
@@ -125,7 +126,7 @@ square =
   dot (viewSquare 10 pinkStroke)
 
 
-{-| If you want to impress a girl with your classy plots.
+{-| If you want to impress with your classy plots.
 -}
 diamond : Float -> Float -> DataPoint msg
 diamond =
@@ -136,7 +137,7 @@ diamond =
 -}
 triangle : Float -> Float -> DataPoint msg
 triangle =
-  dot (viewSquare 10 pinkStroke)
+  dot (viewTriangle pinkStroke)
 
 
 {-| If you don't want a dot at all.
@@ -1343,6 +1344,18 @@ viewDiamond width height color =
     , Attributes.x (toString (-width / 2))
     , Attributes.y (toString (-height / 2))
     , stroke "transparent"
+    , fill color
+    ]
+    []
+
+
+{-| Pass a color to make a triangle!
+-}
+viewTriangle : String -> Svg msg
+viewTriangle color =
+  polygon
+    [ Attributes.points "0,-5 5,5 -5,5"
+    , Attributes.transform "translate(0, -2.5)"
     , fill color
     ]
     []

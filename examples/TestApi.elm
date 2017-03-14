@@ -54,6 +54,11 @@ barData =
   ]
 
 
+data2 : List ( Float, Float )
+data2 =
+    [ ( 0, 40 ), ( 1, 45 ), ( 2, 35 ), ( 3, 50 ), ( 4, 30 ), ( 5, 55 ), ( 6, 20 ), ( 7, 60 ), ( 8, 15 ), ( 9, 65 ), ( 10, 10 ) ]
+
+
 barData2 : List Float
 barData2 =
   [ 2, 4, 6, 7, 8, 9, 4, 5 ]
@@ -61,4 +66,4 @@ barData2 =
 
 main : Html msg
 main =
-  viewBars (grouped (List.map2 hintGroup [ "g1", "g3", "g3" ])) barData
+  viewSeries [ area (List.map (\( x, y) -> triangle x y)) ] data2
