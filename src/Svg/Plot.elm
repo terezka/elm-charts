@@ -4,6 +4,7 @@ module Svg.Plot
         , defaultSeriesPlotCustomizations
         , defaultBarsPlotCustomizations
         , normalHoverContainer
+        , flyingHoverContainer
         -- SERIES
         , viewSeries
         , viewSeriesCustom
@@ -35,12 +36,21 @@ module Svg.Plot
         , histogram
         , histogramBar
         -- AXIS
+        , Axis
+        , TickCustomizations
+        , LabelCustomizations
+        , sometimesYouDoNotHaveAnAxis
         , emptyAxis
         , normalAxis
+        , normalBarAxis
         , axisAtMin
         , axisAtMax
         , axis
+        , decentPositions
+        , interval
+        , remove
         -- GRID
+        , Grid
         , decentGrid
         , emptyGrid
         -- HELP
@@ -68,7 +78,7 @@ module Svg.Plot
 @docs Bars, BarGroup, MaxBarWidth
 
 ## Custom view
-@docs PlotCustomizations, normalHoverContainer
+@docs PlotCustomizations, normalHoverContainer, flyingHoverContainer
 
 ### Series
 @docs defaultSeriesPlotCustomizations, viewSeriesCustom
@@ -77,10 +87,10 @@ module Svg.Plot
 @docs defaultBarsPlotCustomizations, viewBarsCustom
 
 ### Axis customizations
-@docs emptyAxis, normalAxis, axisAtMin, axisAtMax, axis
+@docs Axis, TickCustomizations, LabelCustomizations, decentPositions, interval, remove, sometimesYouDoNotHaveAnAxis, emptyAxis, normalAxis, normalBarAxis, axisAtMin, axisAtMax, axis
 
 ### Grid customizations
-@docs decentGrid, emptyGrid
+@docs Grid, decentGrid, emptyGrid
 
 -}
 
@@ -233,7 +243,9 @@ rangeFrameDot view x y =
 
 normalHint : Float -> Html msg
 normalHint y =
-  span [] [ Html.text ("y: " ++ toString y) ]
+  span
+    [ Html.Attributes.style [ ( "padding", "5px" ) ] ]
+    [ Html.text ("y: " ++ toString y) ]
 
 
 
@@ -397,7 +409,7 @@ hintGroup : Maybe Point -> String -> List Float -> BarGroup
 hintGroup hovering label heights =
   { label = normalBarLabel label
   , xLine = onHovering (fullLine [ stroke darkGrey ]) hovering
-  , viewHint = \g -> onHovering (normalHint g) hovering g
+  , viewHint = \g -> onHovering (div [] <| List.map normalHint heights) hovering g
   , bars = List.map (Bar Nothing) heights
   }
 
@@ -474,7 +486,7 @@ type alias PlotCustomizations msg =
     , left : Int
     }
   , onHover : Maybe (Maybe Point -> msg)
-  , viewHintContainer : Maybe (PlotSummary -> List (Html Never) -> Html Never)
+  , viewHintContainer : PlotSummary -> List (Html Never) -> Html Never
   , horizontalAxis : Axis
   , grid :
     { horizontal : Grid
@@ -502,7 +514,7 @@ defaultSeriesPlotCustomizations =
       , left = 40
       }
   , onHover = Nothing
-  , viewHintContainer = Nothing
+  , viewHintContainer = normalHoverContainer
   , horizontalAxis = normalAxis
   , grid =
       { horizontal = emptyGrid
@@ -531,40 +543,50 @@ defaultBarsPlotCustomizations =
 
 
 {-| -}
-normalHoverContainer : Point -> PlotSummary -> List (Html Never) -> Html Never
-normalHoverContainer { x, y } summary hints =
-  let
-    xOffset =
-      toSVGX summary x
+normalHoverContainer : PlotSummary -> List (Html Never) -> Html Never
+normalHoverContainer summary =
+  div [ Html.Attributes.style [ ( "margin-left", toString summary.x.marginLower ++ "px" ) ] ]
 
-    isLeft =
-      (x - summary.x.min) > (range summary.x) / 2
+{-| -}
+flyingHoverContainer : Maybe Point -> PlotSummary -> List (Html Never) -> Html Never
+flyingHoverContainer hovering summary hints =
+  case hovering of
+    Nothing ->
+      div [] []
 
-    margin =
-      if isLeft then
-        -15
-      else
-        15
+    Just { x, y } ->
+      let
+        xOffset =
+          toSVGX summary x
 
-    direction =
-      if isLeft then
-        "translateX(-100%)"
-      else
-        ""
+        isLeft =
+          (x - summary.x.min) > (range summary.x) / 2
 
-    style =
-      [ ( "position", "absolute" )
-      , ( "top", "25%" )
-      , ( "left", toString xOffset ++ "px" )
-      , ( "transform", direction )
-      , ( "padding", "5px" )
-      , ( "margin", toString margin ++ "px" )
-      , ( "background", grey )
-      , ( "border-radius", "2px" )
-      , ( "pointer-events", "none" )
-      ]
-  in
-    div [ Html.Attributes.style style ] hints
+        margin =
+          if isLeft then
+            -15
+          else
+            15
+
+        direction =
+          if isLeft then
+            "translateX(-100%)"
+          else
+            ""
+
+        style =
+          [ ( "position", "absolute" )
+          , ( "top", "25%" )
+          , ( "left", toString xOffset ++ "px" )
+          , ( "transform", direction )
+          , ( "padding", "5px" )
+          , ( "margin", toString margin ++ "px" )
+          , ( "background", grey )
+          , ( "border-radius", "2px" )
+          , ( "pointer-events", "none" )
+          ]
+      in
+        div [ Html.Attributes.style style ] hints
 
 
 
@@ -849,12 +871,12 @@ viewSeriesCustom customizations series data =
         |> Just
 
     viewHint =
-      case customizations.viewHintContainer of
-        Nothing ->
+      case List.filterMap .viewHint allDataPoints of
+        [] ->
           div [] []
 
-        Just view ->
-          Html.map never <| view summary (List.filterMap .viewHint allDataPoints)
+        views ->
+          Html.map never <| customizations.viewHintContainer summary views
 
     children =
       List.filterMap identity
@@ -944,17 +966,18 @@ viewBarsCustom customizations bars data =
             |> Svg.map never
             |> Just
 
+        hints =
+          groups
+          |> List.indexedMap (\index group -> group.viewHint (toFloat index + 1))
+          |> List.filterMap identity
+
         viewHint =
-          case customizations.viewHintContainer of
-            Nothing ->
+          case hints of
+            [] ->
               div [] []
 
-            Just view ->
-              groups
-              |> List.indexedMap (\index group -> group.viewHint (toFloat index + 1))
-              |> List.filterMap identity
-              |> view summary
-              |> Html.map never
+            hints ->
+              Html.map never <| customizations.viewHintContainer summary hints
 
         children =
           List.filterMap identity

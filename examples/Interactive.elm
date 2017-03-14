@@ -41,11 +41,11 @@ myDot hovering point =
 
 barData : List ( List Float )
 barData =
-  [ [ 1, 4, 6 ]
-  , [ 1, 5, 6 ]
-  , [ 2, 10, 6 ]
-  , [ 4, -2, 6 ]
-  , [ 5, 14, 6 ]
+  [ [ 1, 4 ]
+  , [ 1, 5 ]
+  , [ 2, 10 ]
+  , [ 4, -2 ]
+  , [ 5, 14 ]
   ]
 
 
@@ -53,9 +53,8 @@ view : Model -> Html.Html Msg
 view model =
     let
       settings =
-        { defaultBarPlotCustomizations
+        { defaultBarsPlotCustomizations
         | onHover = Just Hover
-        , viewHintContainer = Maybe.map normalHoverContainer model.hovering
         }
     in
       Plot.viewBarsCustom settings
