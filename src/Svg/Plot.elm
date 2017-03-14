@@ -4,6 +4,7 @@ module Svg.Plot
         , viewSeriesCustom
         , viewBars
         , viewBarsCustom
+        , hintDot
         , grouped
         , group
         , histogram
@@ -18,7 +19,6 @@ module Svg.Plot
         , area
         , custom
         , DataPoint
-        , dotWithGlitter
         , dot
         , Series
         , square
@@ -27,7 +27,6 @@ module Svg.Plot
         , triangle
         , emptyDot
         , Interpolation(..)
-        , rangeFrameGlitter
         , emptyAxis
         , normalAxis
         , axisAtMin
@@ -45,10 +44,10 @@ module Svg.Plot
 @docs dots, line, area, custom, Bars, MaxBarWidth, grouped, group, histogramBar
 @docs DataPoint, normalAxis, emptyDot, decentGrid, emptyGrid, normalHoverContainer
 
-@docs dotWithGlitter, dot, Series, square, circle, diamond, triangle, Interpolation, rangeFrameGlitter, axisAtMin, emptyAxis, histogram
+@docs dot, Series, square, circle, diamond, triangle, Interpolation, axisAtMin, emptyAxis, histogram
 
 ## Small helper views
-@docs viewCircle, viewSquare, viewDiamond
+@docs viewCircle, viewSquare, viewDiamond, hintDot
 -}
 
 import Html exposing (Html, div, span)
@@ -112,24 +111,14 @@ emptyDot =
 -}
 type alias DataPoint msg =
   { view : Maybe (Svg msg)
-  , glitter : Glitter
-  , x : Float
-  , y : Float
-  }
-
-
-{-| All this glitter! You can:
-  - Add lines (nice if you're hovering the dot!).
-  - Add ticks which will show up the your axis.
-  - Add labels or whatever else you can come up with.
--}
-type alias Glitter =
-  { xLine : Maybe (AxisSummary -> LineCustomizations)
+  , xLine : Maybe (AxisSummary -> LineCustomizations)
   , yLine : Maybe (AxisSummary -> LineCustomizations)
   , xTick : Maybe TickCustomizations
   , yTick : Maybe TickCustomizations
   , viewHint : Maybe (Html Never)
   , whatever : List WhateverCustomizations
+  , x : Float
+  , y : Float
   }
 
 
@@ -138,7 +127,12 @@ type alias Glitter =
 dot : Svg msg -> Float -> Float -> DataPoint msg
 dot view x y =
   { view = Just view
-  , glitter = noGlitter y
+  , xLine = Nothing
+  , yLine = Nothing
+  , xTick = Nothing
+  , yTick = Nothing
+  , viewHint = Nothing
+  , whatever = []
   , x = x
   , y = y
   }
@@ -147,26 +141,35 @@ dot view x y =
 
 {-| Makes a dot given a view and a x and an y.
 -}
-dotWithGlitter : Svg msg -> Float -> Float -> DataPoint msg
-dotWithGlitter view x y =
+hintDot : Svg msg -> Float -> Float -> DataPoint msg
+hintDot view x y =
   { view = Just view
-  , glitter = hoverGlitter x y
+  , xLine = Just (fullLine [ stroke darkGrey ])
+  , yLine = Nothing
+  , xTick = Nothing
+  , yTick = Nothing
+  , viewHint = Just (normalHint y)
+  , whatever = []
   , x = x
   , y = y
   }
 
 
-{-| No glitter! No fun!
+{-| Makes a dot given a view and a x and an y.
 -}
-noGlitter : Float -> Glitter
-noGlitter y =
-  { xLine = Nothing
-  , yLine = Nothing
+emphasizedDot : Svg msg -> Float -> Float -> DataPoint msg
+emphasizedDot view x y =
+  { view = Just view
+  , xLine = Just (fullLine [ stroke darkGrey, Attributes.strokeDasharray "5, 5" ])
+  , yLine = Just (fullLine [ stroke darkGrey, Attributes.strokeDasharray "5, 5" ])
   , xTick = Nothing
   , yTick = Nothing
   , viewHint = Nothing
   , whatever = []
+  , x = x
+  , y = y
   }
+
 
 
 {-| This is glitter for a special plot in Tuftes book, called the rangeframe plot.
@@ -174,28 +177,17 @@ noGlitter y =
   to use `emptyAxis` to remove all the other useless axis stuff, now that your have all
   these nice ticks.
 -}
-rangeFrameGlitter : Float -> Float -> Glitter
-rangeFrameGlitter x y =
-  { xLine = Nothing
+rangeFrameDot : Svg msg -> Float -> Float -> DataPoint msg
+rangeFrameDot view x y =
+  { view = Just view
+  , xLine = Nothing
   , yLine = Nothing
   , xTick = Just (simpleTick x)
   , yTick = Just (simpleTick y)
   , viewHint = Nothing
   , whatever = []
-  }
-
-
-{-| Neat glitter for when you hover the dot. There is an example of this which I need to
-  reference here. Let me know if I forgot.
--}
-hoverGlitter : Float -> Float -> Glitter
-hoverGlitter x y =
-  { xLine = Just (fullLine [ stroke darkGrey, Attributes.strokeDasharray "5, 5" ])
-  , yLine = Just (fullLine [ stroke darkGrey, Attributes.strokeDasharray "5, 5" ])
-  , xTick = Nothing
-  , yTick = Nothing
-  , viewHint = Just (normalHint y)
-  , whatever = []
+  , x = x
+  , y = y
   }
 
 
@@ -207,9 +199,19 @@ normalHint y =
 
 {-| Make your own dot!
 -}
-customDot : Maybe (Svg msg) -> Glitter -> Float -> Float -> DataPoint msg
-customDot =
-  DataPoint
+customDot :
+  { view : Maybe (Svg msg)
+  , xLine : Maybe (AxisSummary -> LineCustomizations)
+  , yLine : Maybe (AxisSummary -> LineCustomizations)
+  , xTick : Maybe TickCustomizations
+  , yTick : Maybe TickCustomizations
+  , viewHint : Maybe (Html Never)
+  , whatever : List WhateverCustomizations
+  , x : Float
+  , y : Float
+  } -> DataPoint msg
+customDot stuff =
+  stuff
 
 
 
@@ -754,12 +756,12 @@ viewSeriesCustom customizations series data =
 
     viewHorizontalAxes =
       allDataPoints
-        |> List.filterMap (.glitter >> .xTick)
+        |> List.filterMap .xTick
         |> viewHorizontalAxis summary customizations.horizontalAxis []
 
     viewVerticalAxes =
       dataPoints
-        |> List.map (List.filterMap (.glitter >> .yTick))
+        |> List.map (List.filterMap .yTick)
         |> List.map2 (.axis >> viewVerticalAxis summary) series
         |> List.filterMap identity
         |> g [ class "elm-plot__vertical-axes" ]
@@ -805,7 +807,7 @@ viewSeriesCustom customizations series data =
           div [] []
 
         Just view ->
-          Html.map never <| view summary (List.filterMap (.glitter >> .viewHint) allDataPoints)
+          Html.map never <| view summary (List.filterMap .viewHint allDataPoints)
 
     children =
       List.filterMap identity
@@ -1387,9 +1389,9 @@ viewLabel attributes string =
 
 
 viewGlitterLines : PlotSummary -> DataPoint msg -> List (Svg Never)
-viewGlitterLines summary { glitter, x, y } =
-  [ viewAxisLine summary (\y -> { x = x, y = y }) (Maybe.map (\toLine -> toLine summary.y) glitter.xLine)
-  , viewAxisLine summary (\x -> { x = x, y = y }) (Maybe.map (\toLine -> toLine summary.x) glitter.yLine)
+viewGlitterLines summary { xLine, yLine, x, y } =
+  [ viewAxisLine summary (\y -> { x = x, y = y }) (Maybe.map (\toLine -> toLine summary.y) xLine)
+  , viewAxisLine summary (\x -> { x = x, y = y }) (Maybe.map (\toLine -> toLine summary.x) yLine)
   ]
 
 

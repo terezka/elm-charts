@@ -36,7 +36,7 @@ myDot hovering point =
   case hovering of
     Just hovered ->
       if hovered.x == point.x then
-        dotWithGlitter (viewCircle 5 "#ff9edf") point.x point.y
+        hintDot (viewCircle 5 "#ff9edf") point.x point.y
       else
         dot (viewCircle 5 "#ff9edf")  point.x point.y
 
