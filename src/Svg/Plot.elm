@@ -346,7 +346,6 @@ custom =
 type Interpolation
   = None
   | Linear (Maybe String) (List (Attribute Never))
-  | Curvy (Maybe String) (List (Attribute Never))
   | Monotone (Maybe String) (List (Attribute Never))
 
 
@@ -904,9 +903,6 @@ addNiceReachForSeries series =
     Linear fill _ ->
       addNiceReachForArea fill
 
-    Curvy fill _ ->
-      addNiceReachForArea fill
-
     Monotone fill _ ->
       addNiceReachForArea fill
 
@@ -1243,10 +1239,6 @@ viewPath customizations plotSummary interpolation dataPoints =
 
     Linear fill attributes ->
       viewInterpolation customizations plotSummary linear linearArea fill attributes dataPoints
-
-    Curvy fill attributes ->
-      -- TODO: Should be curvy
-      viewInterpolation customizations plotSummary monotoneX monotoneXArea fill attributes dataPoints
 
     Monotone fill attributes ->
       viewInterpolation customizations plotSummary monotoneX monotoneXArea fill attributes dataPoints
