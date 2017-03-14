@@ -1,43 +1,49 @@
 module Svg.Plot
     exposing
-        ( viewSeries
-        , viewSeriesCustom
-        , viewBars
-        , viewBarsCustom
-        , hintDot
-        , grouped
-        , group
-        , hintGroup
-        , histogram
-        , histogramBar
-        , PlotCustomizations
+        ( PlotCustomizations
         , defaultSeriesPlotCustomizations
-        , normalHoverContainer
-        , rangeFrameDot
-        , Bars
-        , MaxBarWidth(..)
+        , defaultBarPlotCustomizations
+        -- SERIES
+        , viewSeries
+        , viewSeriesCustom
+        , Series
+        , Interpolation(..)
         , dots
         , line
         , area
         , custom
         , DataPoint
-        , dot
-        , Series
         , square
         , circle
         , diamond
         , triangle
+        , dot
+        , hintDot
         , emptyDot
-        , Interpolation(..)
+        , rangeFrameDot
+        -- BARS
+        , viewBars
+        , viewBarsCustom
+        , Bars
+        , MaxBarWidth(..)
+        , grouped
+        , group
+        , hintGroup
+        , histogram
+        , histogramBar
+        , normalHoverContainer
+        -- AXIS
         , emptyAxis
         , normalAxis
         , axisAtMin
         , axisAtMax
+        -- GRID
+        , decentGrid
+        , emptyGrid
+        -- HELP
         , viewCircle
         , viewSquare
         , viewDiamond
-        , decentGrid
-        , emptyGrid
         )
 
 {-|
@@ -50,7 +56,7 @@ module Svg.Plot
 @docs dot, Series, square, circle, diamond, triangle, Interpolation, axisAtMin, emptyAxis, histogram
 
 ## Small helper views
-@docs viewCircle, viewSquare, viewDiamond, hintDot, rangeFrameDot, axisAtMax
+@docs viewCircle, viewSquare, viewDiamond, hintDot, rangeFrameDot, axisAtMax, defaultBarPlotCustomizations
 -}
 
 import Html exposing (Html, div, span)
@@ -110,7 +116,7 @@ emptyDot =
   - Change the view of the dot, if your tired of squares and circles.
   - Add glitter! ✨ Glitter is extra cool stuff for your dot. It can add
     ticks at that exact point, add lines for emphasis or a small label or
-    whatever. See the `Glitter` type.
+    whatever.
 -}
 type alias DataPoint msg =
   { view : Maybe (Svg msg)
@@ -145,24 +151,25 @@ dot view x y =
 hintDot : Svg msg -> Maybe Point -> Float -> Float -> DataPoint msg
 hintDot view hovering x y =
   { view = Just view
-  , xLine = onHovering (fullLine [ stroke darkGrey ]) x hovering
+  , xLine = onHovering (fullLine [ stroke darkGrey ]) hovering x
   , yLine = Nothing
   , xTick = Nothing
   , yTick = Nothing
-  , viewHint = onHovering (normalHint y) x hovering
+  , viewHint = onHovering (normalHint y) hovering x
   , x = x
   , y = y
   }
 
 
-onHovering : a -> Float -> Maybe Point -> Maybe a
-onHovering stuff x =
+onHovering : a -> Maybe Point -> Float -> Maybe a
+onHovering stuff hovering x =
   Maybe.andThen (\p ->
     if p.x == x then
       Just stuff
     else
       Nothing
     )
+    hovering
 
 
 {-| Makes a dot given a view and a x and an y.
@@ -321,6 +328,8 @@ type alias Bars data msg =
 {-| -}
 type alias BarGroup =
   { label : Float -> LabelCustomizations
+  , viewHint : Float -> Maybe (Svg Never)
+  , xLine : Float -> Maybe (AxisSummary -> LineCustomizations)
   , bars : List Bar
   }
 
@@ -328,7 +337,6 @@ type alias BarGroup =
 {-| -}
 type alias Bar =
   { label : Maybe (Svg Never)
-  , viewHint : Maybe (Svg Never)
   , height : Float
   }
 
@@ -353,15 +361,19 @@ grouped toGroups =
 group : String -> List Float -> BarGroup
 group label heights =
   { label = normalBarLabel label
-  , bars = List.map (Bar Nothing Nothing) heights
+  , xLine = always Nothing
+  , viewHint = always Nothing
+  , bars = List.map (Bar Nothing) heights
   }
 
 
 {-| -}
-hintGroup : String -> List Float -> BarGroup
-hintGroup label heights =
+hintGroup : Maybe Point -> String -> List Float -> BarGroup
+hintGroup hovering label heights =
   { label = normalBarLabel label
-  , bars = List.map (Bar (Just (text "hey")) Nothing) heights
+  , xLine = onHovering (fullLine [ stroke darkGrey ]) hovering
+  , viewHint = \g -> onHovering (normalHint g) hovering g
+  , bars = List.map (Bar Nothing) heights
   }
 
 
@@ -379,7 +391,9 @@ histogram toGroups =
 histogramBar : Float -> BarGroup
 histogramBar height =
   { label = simpleLabel
-  , bars = [ Bar Nothing Nothing height ]
+  , xLine = always Nothing
+  , viewHint = always Nothing
+  , bars = [ Bar Nothing height ]
   }
 
 
@@ -480,7 +494,15 @@ defaultSeriesPlotCustomizations =
 -}
 defaultBarPlotCustomizations : PlotCustomizations msg
 defaultBarPlotCustomizations =
-  { defaultSeriesPlotCustomizations | horizontalAxis = normalBarAxis }
+  { defaultSeriesPlotCustomizations
+  | horizontalAxis = normalBarAxis
+  , margin =
+      { top = 30
+      , right = 40
+      , bottom = 30
+      , left = 40
+      }
+  }
 
 
 {-| -}
@@ -818,7 +840,6 @@ viewSeriesCustom customizations series data =
         , viewHorizontalAxes
         , viewVerticalAxes
         , viewGlitter
-
         ]
   in
     div
@@ -872,14 +893,15 @@ viewBarsCustom customizations bars data =
         groups =
           bars.toGroups data
 
-        toDataPoint index { height, viewHint } =
+        toDataPoint index group { height } =
           { x = toFloat index + 1
           , y = height
-          , viewHint = viewHint
+          , xLine = group.xLine (toFloat index + 1)
+          , yLine = Nothing
           }
 
         toDataPoints index group =
-          List.map (toDataPoint index) group.bars
+          List.map (toDataPoint index group) group.bars
 
         dataPoints =
           List.concat (List.indexedMap toDataPoints groups)
@@ -890,14 +912,24 @@ viewBarsCustom customizations bars data =
         xLabels =
           List.indexedMap (\index group -> group.label (toFloat index + 1)) groups
 
+        viewGlitter =
+          dataPoints
+            |> List.concatMap (viewGlitterLines summary)
+            |> g [ class "elm-plot__glitter" ]
+            |> Svg.map never
+            |> Just
+
         viewHint =
           case customizations.viewHintContainer of
             Nothing ->
               div [] []
 
             Just view ->
-              Html.map never <| view summary (List.filterMap .viewHint dataPoints)
-
+              groups
+              |> List.indexedMap (\index group -> group.viewHint (toFloat index + 1))
+              |> List.filterMap identity
+              |> view summary
+              |> Html.map never
 
         children =
           List.filterMap identity
@@ -907,10 +939,11 @@ viewBarsCustom customizations bars data =
             , viewActualBars summary bars groups
             , viewHorizontalAxis summary customizations.horizontalAxis xLabels []
             , viewVerticalAxis summary bars.axis []
+            , viewGlitter
             ]
       in
         div (containerAttributes customizations summary)
-          [ svg (innerAttributes customizations) children ]
+          [ svg (innerAttributes customizations) children, viewHint ]
 
 
 addNiceReachForBars : TempPlotSummary -> TempPlotSummary
@@ -1425,7 +1458,15 @@ viewLabel attributes string =
 -- VIEW GLITTER
 
 
-viewGlitterLines : PlotSummary -> DataPoint msg -> List (Svg Never)
+viewGlitterLines :
+  PlotSummary ->
+  { a
+  | xLine : Maybe (AxisSummary -> LineCustomizations)
+  , yLine : Maybe (AxisSummary -> LineCustomizations)
+  , x : Float
+  , y : Float
+  }
+  -> List (Svg Never)
 viewGlitterLines summary { xLine, yLine, x, y } =
   [ viewAxisLine summary (\y -> { x = x, y = y }) (Maybe.map (\toLine -> toLine summary.y) xLine)
   , viewAxisLine summary (\x -> { x = x, y = y }) (Maybe.map (\toLine -> toLine summary.x) yLine)

@@ -39,24 +39,28 @@ myDot hovering point =
 
 -- VIEW
 
+barData : List ( List Float )
+barData =
+  [ [ 1, 4, 6 ]
+  , [ 1, 5, 6 ]
+  , [ 2, 10, 6 ]
+  , [ 4, -2, 6 ]
+  , [ 5, 14, 6 ]
+  ]
+
 
 view : Model -> Html.Html Msg
 view model =
     let
       settings =
-        { defaultSeriesPlotCustomizations
+        { defaultBarPlotCustomizations
         | onHover = Just Hover
         , viewHintContainer = Maybe.map normalHoverContainer model.hovering
         }
     in
-      Plot.viewSeriesCustom settings
-        [ area (List.map (myDot model.hovering)) ]
-        [ { x = -5, y = 2.2 }
-        , { x = 2.2, y = 4.2 }
-        , { x = 2.5, y = -1.6 }
-        , { x = 3.4, y = -0.8 }
-        , { x = 5, y = 2.3 }
-        ]
+      Plot.viewBarsCustom settings
+        (grouped (List.map2 (hintGroup model.hovering) [ "g1", "g3", "g3" ]))
+        barData
 
 
 main : Program Never Model Msg
