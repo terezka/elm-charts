@@ -2,14 +2,13 @@
 
 Plot stuff in SVG with Elm!
 
-[![Build Status](https://travis-ci.org/terezka/elm-plot.svg?branch=master)](https://travis-ci.org/terezka/elm-plot)
-
 ## Overview
 
-Currently, this library can draw scatter, line, bar and area-series, grids, hints, and as many axis' as you could wish for with easily configurable ticks and labels. I'm still working on catching up with common features of the plotting libraries already around and the API might change, so please bear with me!
-
-![alt tag](https://raw.githubusercontent.com/terezka/elm-plot/master/example.png)
-
+So, in the spirit of Elm and its goal of not only being a tool to express yourself elegantly,
+but also help you do so, this library tried to guide you towards nice plots. Of course, it's not only my
+own preferences, but also a guy called [Edward Tufte](https://en.wikipedia.org/wiki/Edward_Tufte) who wrote
+the book [The Visual Display of Quantitative Information](https://www.edwardtufte.com/tufte/books_vdqi) and had a
+lot of great ideas of how to make plots more readable.
 
 ### What does the api look like?
 
@@ -17,24 +16,17 @@ Something like this:
 
 ```elm
     main =
-		plot
-			[ size plotSize
-			, margin ( 10, 20, 40, 20 )
-			]
-			[ line
-			    [ Line.stroke pinkStroke
-			    , Line.strokeWidth 2
-			    ]
-			    data
-			, xAxis
-			    [ Axis.line [ Line.stroke axisColor ]
-			    , Axis.tick [ Tick.viewDynamic toTickStyle ]
-			    , Axis.label [ Label.viewDynamic toLabelStyle ]
-			    ]
-			]
+      viewSeries
+        [ area (List.map (\{ x, y } -> circle x y)) ]
+        [ { x = 0, y = 1 }
+        , { x = 2, y = 2 }
+        , { x = 3, y = 3 }
+        , { x = 4, y = 5 }
+        , { x = 5, y = 8 }
+        ]
 ```
 
-You're welcome to take a look at the docs folder for many more [exampels](https://github.com/terezka/elm-plot/tree/master/docs)! 
+You're welcome to take a look at the docs folder for many more [exampels](https://github.com/terezka/elm-plot/tree/master/docs)!
 
 ### Missing something?
 

@@ -146,7 +146,8 @@ type alias PlotSummary =
   Draw.PlotSummary
 
 
-{-| A summary of information about an axis. -}
+{-| A summary of information about an axis.
+-}
 type alias AxisSummary =
   Draw.AxisSummary
 
@@ -780,14 +781,16 @@ type alias LabelCustomizations =
   }
 
 
-{-| Just add whatever you want. A title might be an idea though. -}
+{-| Just add whatever you want. A title might be an idea though.
+-}
 type alias WhateverCustomizations =
   { position : Float
   , view : Svg Never
   }
 
 
-{-| When you don't have an axis, which is only sometimes. -}
+{-| When you don't have an axis, which is only sometimes.
+-}
 sometimesYouDoNotHaveAnAxis : Axis
 sometimesYouDoNotHaveAnAxis =
   SometimesYouDoNotHaveAnAxis
