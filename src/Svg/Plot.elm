@@ -13,15 +13,16 @@ module Svg.Plot
         , dots
         , line
         , area
-        , custom
+        , customSeries
         , DataPoint
         , square
         , circle
         , diamond
         , triangle
+        , clear
         , dot
         , hintDot
-        , emptyDot
+        , emphasizedDot
         , rangeFrameDot
         , customDot
         -- BARS
@@ -30,11 +31,13 @@ module Svg.Plot
         , Bars
         , BarGroup
         , MaxBarWidth(..)
-        , grouped
+        , groups
         , group
         , hintGroup
         , histogram
         , histogramBar
+        , customGroups
+        , customGroup
         -- AXIS
         , Axis
         , TickCustomizations
@@ -42,13 +45,17 @@ module Svg.Plot
         , sometimesYouDoNotHaveAnAxis
         , emptyAxis
         , normalAxis
-        , normalBarAxis
+        , normalBarsAxis
         , axisAtMin
         , axisAtMax
-        , axis
+        , customAxis
         , decentPositions
         , interval
         , remove
+        , simpleLine
+        , simpleTick
+        , simpleLabel
+        , fullLine
         -- GRID
         , Grid
         , decentGrid
@@ -61,37 +68,54 @@ module Svg.Plot
         )
 
 {-|
-# Plot
 
-## Series
-@docs square, circle, diamond, triangle, dots, line, area, viewSeries
+# Series
+@docs viewSeries
 
-### Custom series
-@docs Series, Interpolation, DataPoint, custom, dot, hintDot, emptyDot, rangeFrameDot, customDot
+## Simple series
+@docs dots, line, area
 
-### Small helper views
+## Simple data points
+Data points are the coordinates which makes up your series. They come with views or without.
+Pass your x and y coordinate respectively to create a data point for your series.
+@docs clear, square, circle, diamond, triangle
+
+## Custom series
+@docs Series, Interpolation, customSeries, DataPoint, dot, hintDot, rangeFrameDot, emphasizedDot, customDot
+
+## Small helper views
+Just thought you might want a hand with all the views you need for you data points.
 @docs viewCircle, viewSquare, viewDiamond, viewTriangle
 
-## Bars
-@docs grouped, group, hintGroup, histogram, histogramBar, viewBars
+# Bars
+@docs viewBars
 
-### Custom bars
-@docs Bars, BarGroup, MaxBarWidth
+# Simple bars
+@docs groups, group, histogram, histogramBar
 
-## Custom view
-@docs PlotCustomizations, normalHoverContainer, flyingHoverContainer
+## Custom bars
+@docs Bars, BarGroup, MaxBarWidth, hintGroup, customGroups, customGroup
 
-### Series
-@docs defaultSeriesPlotCustomizations, viewSeriesCustom
+# Custom view
+@docs PlotCustomizations, defaultSeriesPlotCustomizations, viewSeriesCustom, defaultBarsPlotCustomizations, viewBarsCustom
 
-### Bars
-@docs defaultBarsPlotCustomizations, viewBarsCustom
+## Hover customizations
+@docs normalHoverContainer, flyingHoverContainer
 
-### Axis customizations
-@docs Axis, TickCustomizations, LabelCustomizations, decentPositions, interval, remove, sometimesYouDoNotHaveAnAxis, emptyAxis, normalAxis, normalBarAxis, axisAtMin, axisAtMax, axis
-
-### Grid customizations
+## Grid customizations
 @docs Grid, decentGrid, emptyGrid
+
+# Axis customizations
+@docs Axis, TickCustomizations, LabelCustomizations
+
+# Various axis
+@docs normalAxis, normalBarsAxis, sometimesYouDoNotHaveAnAxis, emptyAxis, axisAtMin, axisAtMax, customAxis
+
+## Position helpers
+@docs decentPositions, interval, remove
+
+## Small configuration helpers
+@docs simpleLine, simpleTick, simpleLabel, fullLine
 
 -}
 
@@ -112,47 +136,51 @@ import DOM
 -- DATA POINTS
 
 
-{-| The classic circle never goes out of style.
--}
+{-| -}
 circle : Float -> Float -> DataPoint msg
 circle =
   dot (viewCircle 5 pinkStroke)
 
 
-{-| A square.
--}
+{-| -}
 square : Float -> Float -> DataPoint msg
 square =
   dot (viewSquare 10 pinkStroke)
 
 
-{-| If you want to impress with your classy plots.
--}
+{-| -}
 diamond : Float -> Float -> DataPoint msg
 diamond =
   dot (viewDiamond 10 10 pinkStroke)
 
 
-{-| A nice triangle for fancy academic looking plots.
--}
+{-| -}
 triangle : Float -> Float -> DataPoint msg
 triangle =
   dot (viewTriangle pinkStroke)
 
 
-{-| If you don't want a dot at all.
--}
-emptyDot : Float -> Float -> DataPoint msg
-emptyDot =
+{-| A data point without a view. -}
+clear : Float -> Float -> DataPoint msg
+clear =
   dot (text "")
 
 
-{-| The data point customizations. You can:
-  - Add the x and y of your data point!
-  - Change the view of the dot, if your tired of squares and circles.
-  - Add glitter! ✨ Glitter is extra cool stuff for your dot. It can add
-    ticks at that exact point, add lines for emphasis or a small label or
-    whatever.
+{-| The data point. Here you can do tons of crazy stuff, although most
+  importantly, you can specify the coordinates of you plot with
+  the `x` and `y` properties. Besides that you can with:
+
+  - `view`: Add a SVG view at your data point.
+  - `xLine`: Provided a summary of the vertical axis, you can create
+    a horizontal line. Useful when hovering your point.
+  - `yLine`: Same as `xLine`, but vertically.
+  - `xTick`: So this is for the progressive plotter. [Tufte](https://en.wikipedia.org/wiki/Edward_Tufte)
+    recommends placing a tick where [the actual data point is](https://plot.ly/~riddhiman/254/miles-per-gallon-of-fuel-vs-car-weight-lb1000.png).
+    Adding a tick view to this, will cast a tick to the horizontal axis and allow you to make a plot as in the link.
+  - `yTick`: Like `xTick`, but vertically.
+  - `viewHint`: The view added here will show up in the hint container (Whose view can be
+    customized in the `PlotCustomizations`).
+
 -}
 type alias DataPoint msg =
   { view : Maybe (Svg msg)
@@ -166,7 +194,7 @@ type alias DataPoint msg =
   }
 
 
-{-| Makes a dot given a view and a x and an y.
+{-| Makes a data point provided a view, a x and a y.
 -}
 dot : Svg msg -> Float -> Float -> DataPoint msg
 dot view x y =
@@ -182,7 +210,8 @@ dot view x y =
 
 
 
-{-| Makes a dot given a view and a x and an y.
+{-| Like `dot`, except it also takes a maybe coordinates to know if
+  should add a hint view/vertical line or not.
 -}
 hintDot : Svg msg -> Maybe Point -> Float -> Float -> DataPoint msg
 hintDot view hovering x y =
@@ -208,7 +237,8 @@ onHovering stuff hovering x =
     hovering
 
 
-{-| Makes a dot given a view and a x and an y.
+{-| Really a silly surprise dot you can use if you want to be flashy. Try it if
+  you're feeling lucky.
 -}
 emphasizedDot : Svg msg -> Float -> Float -> DataPoint msg
 emphasizedDot view x y =
@@ -224,9 +254,9 @@ emphasizedDot view x y =
 
 
 
-{-| This is glitter for a special plot in Tuftes book, called the rangeframe plot.
-  It basically just adds ticks to your axis where your data points are! You might want
-  to use `emptyAxis` to remove all the other useless axis stuff, now that your have all
+{-| This dot implements a special plot in [Tuftes](https://en.wikipedia.org/wiki/Edward_Tufte) [book](https://www.amazon.com/Visual-Display-Quantitative-Information/dp/1930824130).
+  It basically just adds ticks to your axis where [your data points are](https://plot.ly/~riddhiman/254/miles-per-gallon-of-fuel-vs-car-weight-lb1000.png)!
+  You might want to use `emptyAxis` to remove all the other useless chart junk, now that your have all
   these nice ticks.
 -}
 rangeFrameDot : Svg msg -> Float -> Float -> DataPoint msg
@@ -250,30 +280,31 @@ normalHint y =
 
 
 
-{-| Make your own dot!
+{-| Just do whatever you want.
 -}
 customDot :
-  { view : Maybe (Svg msg)
-  , xLine : Maybe (AxisSummary -> LineCustomizations)
-  , yLine : Maybe (AxisSummary -> LineCustomizations)
-  , xTick : Maybe TickCustomizations
-  , yTick : Maybe TickCustomizations
-  , viewHint : Maybe (Html Never)
-  , x : Float
-  , y : Float
-  } -> DataPoint msg
-customDot stuff =
-  stuff
+  Maybe (Svg msg)
+  -> Maybe (AxisSummary -> LineCustomizations)
+  -> Maybe (AxisSummary -> LineCustomizations)
+  -> Maybe TickCustomizations
+  -> Maybe TickCustomizations
+  -> Maybe (Html Never)
+  -> Float
+  -> Float
+  -> DataPoint msg
+customDot =
+  DataPoint
 
 
 
 -- SERIES
 
 
-{-| The line customizations. You can:
-    - Add your own vertical axis.
-    - Add the interpolation you'd like.
-    - Add your own data transformer.
+{-| The series configuration allows you to specify your
+  own interpolation and how your data is transformed into series data points,
+  but also a vertical axis relating to the series' scale. This way it's made sure
+  you never have more than one y-axis per data set, because that would be just
+  crazy.
 -}
 type alias Series data msg =
   { axis : Axis
@@ -282,8 +313,7 @@ type alias Series data msg =
   }
 
 
-{-| A scatter series.
--}
+{-| -}
 dots : (data -> List (DataPoint msg)) -> Series data msg
 dots toDataPoints =
   { axis = normalAxis
@@ -292,8 +322,7 @@ dots toDataPoints =
   }
 
 
-{-| A line series.
--}
+{-| -}
 line : (data -> List (DataPoint msg)) -> Series data msg
 line toDataPoints =
   { axis = normalAxis
@@ -302,8 +331,7 @@ line toDataPoints =
   }
 
 
-{-| An area series.
--}
+{-| -}
 area : (data -> List (DataPoint msg)) -> Series data msg
 area toDataPoints =
   { axis = normalAxis
@@ -314,34 +342,32 @@ area toDataPoints =
 
 {-| Make your own series! The standard line series looks like this on the inside:
 
-  line : (data -> List (DataPoint msg)) -> Series data msg
-  line toDataPoints =
-    { axis = normalAxis
-    , interpolation = Linear Nothing [ stroke pinkStroke ]
-    , toDataPoints = toDataPoints
-    }
+    line : (data -> List (DataPoint msg)) -> Series data msg
+    line toDataPoints =
+      { axis = normalAxis
+      , interpolation = Linear Nothing [ stroke pinkStroke ]
+      , toDataPoints = toDataPoints
+      }
 
   Maybe pink isn't really your color and your want to make it green. No problem! You
-  just add some different attributes to the interpolation.
-
-  If you want a different interpolation or want an area, look at the 'Interpolation' type
-  for more info.
+  just add some different attributes to the interpolation. If you want a different
+  interpolation or an area under that interpolation, look at the
+  [Interpolation](#Interpolation) type for more info.
 -}
-custom : Axis -> Interpolation -> (data -> List (DataPoint msg)) -> Series data msg
-custom =
+customSeries : Axis -> Interpolation -> (data -> List (DataPoint msg)) -> Series data msg
+customSeries =
   Series
 
 
 {-| [Interpolation](https://en.wikipedia.org/wiki/Interpolation) is basically the line that goes
-  between your data points.
-    - None: No line (this is a scatter plot).
-    - Linear: A stright line.
-    - Curvy: A nice looking curvy line.
-    - Monotone: A nice looking curvy line which doesn't extend outside the y values of the two
-      points involved (Huh? Here's an [illustration](https://en.wikipedia.org/wiki/Monotone_cubic_interpolation#/media/File:MonotCubInt.png)).
+  between your data points. Your current options are:
+  - None: No interpolation (a scatter plot).
+  - Linear: A straight line.
+  - Monotone: A nice looking curvy line which doesn't extend outside the y values of the two
+    points involved (Huh? Here's an [illustration](https://en.wikipedia.org/wiki/Monotone_cubic_interpolation#/media/File:MonotCubInt.png)).
 
-  All but `None` take a color which determined whether it draws the area below or not +
-  list of attributes which you can use for styling of your interpolation.
+All but `None` **takes a color which determined whether it draws the area below the interpolation** and
+list of attributes which you can use for styling your interpolation.
 -}
 type Interpolation
   = None
@@ -353,7 +379,10 @@ type Interpolation
 -- BARS
 
 
-{-| -}
+{-| The bar configurations allows you to specify the styles of
+  your bars, the max width of your bars, how your data is transformed into
+  bar groups, as well the vertical axis related to your bar series.
+-}
 type alias Bars data msg =
   { axis : Axis
   , toGroups : data -> List BarGroup
@@ -362,11 +391,23 @@ type alias Bars data msg =
   }
 
 
-{-| -}
+{-| A bar group is, well, a group of bars attached to a single data point on
+  the horizontal axis.
+
+  - The `bars` property specify the height and label of each bar in your
+  group.
+  - The `label` is what will show up on the horizontal axis
+  at that data point. This is a function as you don't get to pick your own x.
+  This is because bar charts per design is supposed to be scattered at a consistent
+  interval.
+  - The `viewHint` property is the view which will show up in your hint when
+  hovering the group.
+  - The `verticalLine` property is an option to add a vertical line. Nice when you have a hint.
+-}
 type alias BarGroup =
   { label : Float -> LabelCustomizations
   , viewHint : Float -> Maybe (Svg Never)
-  , xLine : Float -> Maybe (AxisSummary -> LineCustomizations)
+  , verticalLine : Float -> Maybe (AxisSummary -> LineCustomizations)
   , bars : List Bar
   }
 
@@ -378,15 +419,18 @@ type alias Bar =
   }
 
 
-{-| -}
+{-| The width options of your bars. If `Percentage` is used, it will be _maximum_ that
+  percentage of one unit on the horizontal axis wide. Similarily, using `Fixed` will
+  set your bar to be maximum the provided float in pixels.
+-}
 type MaxBarWidth
   = Percentage Int
   | Fixed Float
 
 
-{-| -}
-grouped : (data -> List BarGroup) -> Bars data msg
-grouped toGroups =
+{-| For regular bar charts. -}
+groups : (data -> List BarGroup) -> Bars data msg
+groups toGroups =
   { axis = normalAxis
   , toGroups = toGroups
   , styles = [ [ fill pinkFill ], [ fill blueFill ] ]
@@ -394,27 +438,29 @@ grouped toGroups =
   }
 
 
-{-| -}
+{-| For regular groups. -}
 group : String -> List Float -> BarGroup
 group label heights =
   { label = normalBarLabel label
-  , xLine = always Nothing
+  , verticalLine = always Nothing
   , viewHint = always Nothing
   , bars = List.map (Bar Nothing) heights
   }
 
 
-{-| -}
+{-| For groups with hint glitter. -}
 hintGroup : Maybe Point -> String -> List Float -> BarGroup
 hintGroup hovering label heights =
   { label = normalBarLabel label
-  , xLine = onHovering (fullLine [ stroke darkGrey ]) hovering
+  , verticalLine = onHovering (fullLine [ stroke darkGrey ]) hovering
   , viewHint = \g -> onHovering (div [] <| List.map normalHint heights) hovering g
   , bars = List.map (Bar Nothing) heights
   }
 
 
-{-| -}
+{-| For histograms! Meaning that there is only one bar in each group and it's always
+  one horizontal unit wide.
+-}
 histogram : (data -> List BarGroup) -> Bars data msg
 histogram toGroups =
   { axis = normalAxis
@@ -428,16 +474,40 @@ histogram toGroups =
 histogramBar : Float -> BarGroup
 histogramBar height =
   { label = simpleLabel
-  , xLine = always Nothing
+  , verticalLine = always Nothing
   , viewHint = always Nothing
   , bars = [ Bar Nothing height ]
   }
 
 
-{-| -}
-normalBarAxis : Axis
-normalBarAxis =
-  axis <| \summary ->
+{-| For special bar charts. -}
+customGroups :
+  Axis
+  -> (data -> List BarGroup)
+  -> List (List (Attribute msg))
+  -> MaxBarWidth
+  -> Bars data msg
+customGroups =
+  Bars
+
+
+{-| For your special groups. -}
+customGroup :
+  (Float -> LabelCustomizations)
+  -> (Float -> Maybe (Svg Never))
+  -> (Float -> Maybe (AxisSummary -> LineCustomizations))
+  -> List Bar
+  -> BarGroup
+customGroup =
+  BarGroup
+
+
+{-| So because there is extra funky labels added to your bar groups,
+  your axis should not to clutter up with other random numbers. So use this one.
+-}
+normalBarsAxis : Axis
+normalBarsAxis =
+  customAxis <| \summary ->
     { position = closestToZero
     , axisLine = Just (simpleLine summary)
     , ticks = List.map simpleTick (interval 0 1 summary)
@@ -459,19 +529,20 @@ normalBarLabel label position =
 -- PLOT
 
 
-{-| The plot customizations. You can:
+{-| The plot customizations. Here you may:
 
-  - Add attributes to your whole plot (Useful when you want to do events).
+  - Add attributes to your whole plot (Useful when you want to do events for your plot).
   - Add an id (the id in here will overrule an id attribute you add in `.attributes`).
+  - Change the width or height of your plot. I recommend the golden ratio!
   - Change the margin (useful when you can't see your ticks!).
-  - Change the width or height of your plot. I recommend anything with the golden ratio!
   - Add a message which will be sent when your hover over a point on your plot!
-  - Add a more exciting axis. Maybe try `axisAtMin` or make your own?
+  - Add your own container for your hints or use the predefined ones.
+  - Add a more exciting horizontal axis. Maybe try `axisAtMin` or make your own?
   - Add a grid, but do consider whether that will actually improve the readability of your plot.
   - Change the bounds of your plot. For example, if you want your plot to start
-    atleast at 0 on the y-axis, then add `toDomainLowest = min 0`.
+    atleast at -5 on the y-axis, then add `toDomainLowest = min -5`.
 
-  _Note:_ The id is particularily important when you have
+  _Note:_ The `id` is particularily important when you have
   several plots in your dom.
 -}
 type alias PlotCustomizations msg =
@@ -532,7 +603,7 @@ defaultSeriesPlotCustomizations =
 defaultBarsPlotCustomizations : PlotCustomizations msg
 defaultBarsPlotCustomizations =
   { defaultSeriesPlotCustomizations
-  | horizontalAxis = normalBarAxis
+  | horizontalAxis = normalBarsAxis
   , margin =
       { top = 30
       , right = 40
@@ -542,12 +613,16 @@ defaultBarsPlotCustomizations =
   }
 
 
-{-| -}
+{-| A view located at the bottom left corner of you plot, holding the hint views you
+  (maybe) added in your data points or groups.
+-}
 normalHoverContainer : PlotSummary -> List (Html Never) -> Html Never
 normalHoverContainer summary =
   div [ Html.Attributes.style [ ( "margin-left", toString summary.x.marginLower ++ "px" ) ] ]
 
-{-| -}
+
+{-| A view holding your hint views which flies around on your plot following the hovered x.
+-}
 flyingHoverContainer : Maybe Point -> PlotSummary -> List (Html Never) -> Html Never
 flyingHoverContainer hovering summary hints =
   case hovering of
@@ -616,7 +691,7 @@ decentGrid =
     List.map (GridLineCustomizations [ stroke grey ]) (decentPositions summary)
 
 
-{-| No grid (default). Tufte would be proud of you.
+{-| No grid. Tufte would be proud of you. 💛
 -}
 emptyGrid : Grid
 emptyGrid =
@@ -639,12 +714,14 @@ type Axis
   | SometimesYouDoNotHaveAnAxis
 
 
-{-| The axis customizations. You can:
+{-| The axis customizations. You may:
+
   - Change the position of you axis. This is what the `axisAtMin` does!
   - Change the look and feel of the axis line.
   - Add a variation of ticks.
   - Add a variation of labels.
   - Add a title or whatever.
+
 -}
 type alias AxisCustomizations =
   { position : Float -> Float -> Float
@@ -685,14 +762,14 @@ type alias LabelCustomizations =
   }
 
 
-{-| -}
+{-| Just add whatever you want. A title might be an idea though. -}
 type alias WhateverCustomizations =
   { position : Float
   , view : Svg Never
   }
 
 
-{-| When you don't have an axis. -}
+{-| When you don't have an axis, which is only sometimes. -}
 sometimesYouDoNotHaveAnAxis : Axis
 sometimesYouDoNotHaveAnAxis =
   SometimesYouDoNotHaveAnAxis
@@ -703,18 +780,18 @@ sometimesYouDoNotHaveAnAxis =
 
     normalAxis : Axis
     normalAxis =
-      axis <| \summary ->
-        { position = ClosestToZero
-        , axisLine = Just (fullLine summary)
-        , ticks = List.map simpleTick (decentPositions summary)
-        , labels = List.map simpleLabel (decentPositions summary)
+      customAxis <| \summary ->
+        { position = closestToZero
+        , axisLine = Just (simpleLine summary)
+        , ticks = List.map simpleTick (decentPositions summary |> remove 0)
+        , labels = List.map simpleLabel (decentPositions summary |> remove 0)
         , whatever = []
         }
 
   But the special snowflake you are, you might want something different.
 -}
-axis : (AxisSummary -> AxisCustomizations) -> Axis
-axis =
+customAxis : (AxisSummary -> AxisCustomizations) -> Axis
+customAxis =
   Axis
 
 
@@ -722,7 +799,7 @@ axis =
 -}
 normalAxis : Axis
 normalAxis =
-  axis <| \summary ->
+  customAxis <| \summary ->
     { position = closestToZero
     , axisLine = Just (simpleLine summary)
     , ticks = List.map simpleTick (decentPositions summary |> remove 0)
@@ -731,11 +808,11 @@ normalAxis =
     }
 
 
-{-| An axis closest to zero, but doesn't look like much unless you use the `rangeFrame` glitter.
+{-| An axis closest to zero, but doesn't look like much unless you use the `rangeFrameDot`.
 -}
 emptyAxis : Axis
 emptyAxis =
-  axis <| \summary ->
+  customAxis <| \summary ->
     { position = closestToZero
     , axisLine = Nothing
     , ticks = []
@@ -750,7 +827,7 @@ emptyAxis =
 -}
 axisAtMin : Axis
 axisAtMin =
-  axis <| \summary ->
+  customAxis <| \summary ->
     { position = min
     , axisLine = Just (simpleLine summary)
     , ticks = List.map simpleTick (decentPositions summary)
@@ -763,7 +840,7 @@ axisAtMin =
 -}
 axisAtMax : Axis
 axisAtMax =
-  axis <| \summary ->
+  customAxis <| \summary ->
     { position = max
     , axisLine = Just (simpleLine summary)
     , ticks = List.map simpleTick (decentPositions summary)
@@ -772,7 +849,7 @@ axisAtMax =
     }
 
 
-{-| A simple line which goes from one side to the other.
+{-| A nice grey line which goes from one side of you plot to the other.
 -}
 simpleLine : AxisSummary -> LineCustomizations
 simpleLine summary =
@@ -809,26 +886,32 @@ fullLine attributes summary =
   }
 
 
-barLine : List (Attribute Never) -> Float -> AxisSummary -> LineCustomizations
-barLine attributes height summary =
-  { attributes = attributes
-  , start = closestToZero summary.min summary.max
-  , end = height
-  }
-
-
 
 -- VIEW SERIES
 
 
-{-| View you plot!
+{-| A series is a list of data points possibly joined by some sort of
+  interpolation. The example below renders an area, with the coordinates
+  of the last argument given to `viewSeries`, where the coordinates are
+  emphasized with a circle.
+
+    view : Svg msg
+    view =
+      viewSeries
+        [ area (List.map (\{ x, y } -> circle x y)) ]
+        [ { x = 0, y = 1 }
+        , { x = 2, y = 2 }
+        , { x = 3, y = 3 }
+        , { x = 4, y = 5 }
+        , { x = 5, y = 8 }
+        ]
 -}
 viewSeries : List (Series data msg) -> data -> Html msg
 viewSeries =
   viewSeriesCustom defaultSeriesPlotCustomizations
 
 
-{-| View your plot with special needs!
+{-| Plot your series with special needs!
 -}
 viewSeriesCustom : PlotCustomizations msg -> List (Series data msg) -> data -> Html msg
 viewSeriesCustom customizations series data =
@@ -930,7 +1013,8 @@ viewBars =
   viewBarsCustom defaultBarsPlotCustomizations
 
 
-{-| -}
+{-| Plot your bar series with special needs!
+-}
 viewBarsCustom : PlotCustomizations msg -> Bars data msg -> data -> Html msg
 viewBarsCustom customizations bars data =
       let
@@ -940,7 +1024,7 @@ viewBarsCustom customizations bars data =
         toDataPoint index group { height } =
           { x = toFloat index + 1
           , y = height
-          , xLine = group.xLine (toFloat index + 1)
+          , xLine = group.verticalLine (toFloat index + 1)
           , yLine = Nothing
           }
 
@@ -1325,7 +1409,8 @@ viewSquare width color =
     []
 
 
-{-| Pass width, height and color to make a diamond!
+{-| Pass width, height and color to make a diamond and impress with your
+  classy plot!
 -}
 viewDiamond : Float -> Float -> String -> Svg msg
 viewDiamond width height color =
@@ -1341,7 +1426,7 @@ viewDiamond width height color =
     []
 
 
-{-| Pass a color to make a triangle!
+{-| Pass a color to make a triangle! Great for academic looking plots.
 -}
 viewTriangle : String -> Svg msg
 viewTriangle color =
