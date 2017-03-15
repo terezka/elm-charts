@@ -2,6 +2,8 @@
 
 Plot stuff in SVG with Elm!
 
+[![Build Status](https://travis-ci.org/terezka/elm-plot.svg?branch=master)](https://travis-ci.org/terezka/elm-plot)
+
 ## Overview
 
 So, in the spirit of Elm and its goal of not only being a tool to express yourself elegantly,
