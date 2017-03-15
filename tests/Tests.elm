@@ -11,20 +11,22 @@ import Plot.TestArea
 import Internal.TestStuff
 
 
+{- [ testCoordToInstruction
+, testToInstruction
+, testStartPath
+, testToPositionAttr
+, testToTranslate
+, testToRotate
+, testToStyle
+, testTickDeltaTest
+, Plot.TestArea.all
+, Internal.TestStuff.all
+]
+-}
 all : Test
 all =
-    describe "Test Elm-Plot"
-        [ testCoordToInstruction
-        , testToInstruction
-        , testStartPath
-        , testToPositionAttr
-        , testToTranslate
-        , testToRotate
-        , testToStyle
-        , testTickDeltaTest
-        , Plot.TestArea.all
-        , Internal.TestStuff.all
-        ]
+    describe "Test Elm-Plot" []
+
 
 
 testCoordToInstruction : Test
