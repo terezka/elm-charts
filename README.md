@@ -30,7 +30,7 @@ You're welcome to take a look at the docs folder for more [exampels](https://git
 
 ### Missing something?
 
-Let me know! Open an issue (or PR) or write at #elm-plot in the elm-lang's [slack](http://elmlang.herokuapp.com). Please don't hesitate, I'm happy to answer any questions or receive feedback! ✨
+Let me know! Open an issue (or PR) or write at #elm-plot in the elm-lang's [slack](http://elmlang.herokuapp.com). Please don't hesitate, I'm happy to answer any questions or receive feedback! 💛
 
 ## Development
 
