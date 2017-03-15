@@ -1,6 +1,7 @@
 module Svg.Plot
     exposing
         ( PlotCustomizations
+        , Point
         , defaultSeriesPlotCustomizations
         , defaultBarsPlotCustomizations
         , normalHoverContainer
@@ -40,6 +41,7 @@ module Svg.Plot
         , customGroup
         -- AXIS
         , Axis
+        , AxisSummary
         , TickCustomizations
         , LabelCustomizations
         , sometimesYouDoNotHaveAnAxis
@@ -58,6 +60,7 @@ module Svg.Plot
         , fullLine
         -- GRID
         , Grid
+        , GridLineCustomizations
         , decentGrid
         , emptyGrid
         -- HELP
@@ -100,13 +103,13 @@ Just thought you might want a hand with all the views you need for you data poin
 @docs PlotCustomizations, defaultSeriesPlotCustomizations, viewSeriesCustom, defaultBarsPlotCustomizations, viewBarsCustom
 
 ## Hover customizations
-@docs normalHoverContainer, flyingHoverContainer
+@docs Point, normalHoverContainer, flyingHoverContainer
 
 ## Grid customizations
-@docs Grid, decentGrid, emptyGrid
+@docs Grid, GridLineCustomizations, decentGrid, emptyGrid
 
 # Axis customizations
-@docs Axis, TickCustomizations, LabelCustomizations
+@docs Axis, AxisSummary, TickCustomizations, LabelCustomizations
 
 # Various axis
 @docs normalAxis, normalBarsAxis, sometimesYouDoNotHaveAnAxis, emptyAxis, axisAtMin, axisAtMax, customAxis
@@ -131,6 +134,21 @@ import Round
 import Regex
 import DOM
 
+
+{-| Just an x and an y property.
+-}
+type alias Point =
+  Draw.Point
+
+
+{-| -}
+type alias PlotSummary =
+  Draw.PlotSummary
+
+
+{-| A summary of information about an axis. -}
+type alias AxisSummary =
+  Draw.AxisSummary
 
 
 -- DATA POINTS
