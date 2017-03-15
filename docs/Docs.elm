@@ -3,33 +3,32 @@ port module Docs exposing (..)
 import Html exposing (Html, div, text, h1, img, a, br, span, code, pre, p)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (style, src, href, class, classList, id, name)
+import Msg exposing (..)
 import Common exposing (..)
-import PlotBars
-import PlotInterpolation
+import Svg.Plot exposing (Point)
 import PlotGrid
+import PlotInterpolation
 import PlotAxis
+import PlotBars
 
 
 -- MODEL
 
 
 type alias Model =
-    { focused : Maybe Id
+    { focused : Maybe String
+    , hovering : Maybe Point
     }
 
 
 initialModel : Model
 initialModel =
     { focused = Nothing
+    , hovering = Nothing
     }
 
 
-
 -- UPDATE
-
-
-type Msg
-    = FocusExample Id
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -38,8 +37,11 @@ update msg ({ focused } as model) =
         FocusExample id ->
             ( { model | focused = updateFocused id focused }, Cmd.none )
 
+        Hover point ->
+          { model | hovering = point } ! []
 
-updateFocused : Id -> Maybe Id -> Maybe Id
+
+updateFocused : String -> Maybe String -> Maybe String
 updateFocused newId model =
     case model of
         Nothing ->
@@ -61,7 +63,7 @@ view model =
     div
         [ class "view" ]
         [ viewTitle
-        , div [] (List.map (viewExample model) examples)
+        , div [] (List.map (viewExample model) (examples model))
         , viewFooter
         ]
 
@@ -160,7 +162,7 @@ toUrl end =
     "https://github.com/terezka/elm-plot/blob/master/docs/" ++ end ++ ".elm"
 
 
-getVisibility : Model -> Id -> List ( String, String )
+getVisibility : Model -> String -> List ( String, String )
 getVisibility { focused } id =
     if focused == Just id then
         [ ( "display", "block" ) ]
@@ -179,9 +181,9 @@ port highlight : () -> Cmd msg
 -- Main
 
 
-examples : List (PlotExample msg)
-examples =
-    [ PlotBars.plotExample
+examples : Model -> List (PlotExample Msg)
+examples model =
+    [ PlotBars.plotExample model.hovering
     , PlotInterpolation.plotExample
     , PlotGrid.plotExample
     , PlotAxis.plotExample

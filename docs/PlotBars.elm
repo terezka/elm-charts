@@ -1,98 +1,42 @@
 module PlotBars exposing (plotExample)
 
-import Svg
-import Svg.Attributes exposing (..)
+import Html
+import Msg exposing (..)
 import Svg.Plot exposing (..)
 import Common exposing (..)
 
 
-plotExample : PlotExample msg
-plotExample =
-    { title = title
+plotExample : Maybe Point -> PlotExample Msg
+plotExample point =
+    { title = "title"
     , code = code
-    , view = view
-    , id = id
+    , view = view point
+    , id = "id"
     }
 
 
-title : String
-title =
-    "Bars"
+barData : List ( List Float )
+barData =
+  [ [ 1, 4 ]
+  , [ 1, 5 ]
+  , [ 2, 10 ]
+  , [ 4, 2 ]
+  , [ 5, 14 ]
+  ]
 
 
-id : String
-id =
-    "PlotBars"
-
-
-plotConfig : PlotConfig msg
-plotConfig =
-    toPlotConfigFancy
-        { attributes = []
-        , id = id
-        , margin =
-            { top = 20
-            , left = 30
-            , right = 30
-            , bottom = 90
-            }
-        , proportions =
-            { x = 600, y = 400 }
-        , toDomainLowest = identity
-        , toDomainHighest = \h -> h + 5
-        , toRangeLowest = identity
-        , toRangeHighest = identity
+view : Maybe Point -> Html.Html Msg
+view hovering =
+    let
+      settings =
+        { defaultBarsPlotCustomizations
+        | onHover = Just Hover
+        , viewHintContainer = flyingHoverContainer hovering
         }
-
-
-xLabelConfig : String -> Svg.Svg msg
-xLabelConfig =
-    label
-        [ fill axisColor
-        , style "text-anchor: middle;"
-        , displace ( 0, 25 )
-        ]
-
-
-barsConfig : BarsConfig msg
-barsConfig =
-    toBarsConfig
-        { stackBy = Y
-        , styles = [ [ fill pinkFill ], [ fill blueFill ], [ fill skinFill ] ]
-        , labelView =
-            .yValue
-                >> toString
-                >> label
-                    [ stroke "#fff"
-                    , fill "#fff"
-                    , style "text-anchor: middle; font-size: 10px;"
-                    , displace ( 0, 15 )
-                    ]
-        , maxWidth = Fixed 30
-        }
-
-
-view : Svg.Svg a
-view =
-    plot plotConfig
-        [ barsSerie
-            barsConfig
-            (toGroups
-                { yValues = .values
-                , xValue = Nothing
-                }
-                [ { values = [ 40, 30, 20 ] }
-                , { values = [ 20, 30, 40 ] }
-                , { values = [ 40, 20, 10 ] }
-                , { values = [ 40, 50, 20 ] }
-                ]
-            )
-        , xAxis atZero
-            [ line [ stroke axisColor ]
-            , ticks (tick [ stroke axisColor, length 10 ]) (fromDelta 0 1)
-            , labelsFromStrings xLabelConfig (fromDelta 0 1) [ "A", "B", "C", "D" ]
-            ]
-        ]
+    in
+      viewBarsCustom settings
+        (groups (List.map2 (hintGroup hovering) [ "Q1", "Q2", "Q3", "Q4" ]))
+        barData
 
 
 code : String

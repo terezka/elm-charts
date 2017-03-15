@@ -6,6 +6,7 @@ module Svg.Plot
         , defaultBarsPlotCustomizations
         , normalHoverContainer
         , flyingHoverContainer
+        , viewJunk
         -- SERIES
         , viewSeries
         , viewSeriesCustom
@@ -51,12 +52,14 @@ module Svg.Plot
         , axisAtMin
         , axisAtMax
         , customAxis
+        , closestToZero
         , decentPositions
         , interval
         , remove
         , simpleLine
         , simpleTick
         , simpleLabel
+        , viewLabel
         , fullLine
         -- GRID
         , Grid
@@ -68,6 +71,7 @@ module Svg.Plot
         , viewSquare
         , viewDiamond
         , viewTriangle
+        , displace
         )
 
 {-|
@@ -108,6 +112,9 @@ Just thought you might want a hand with all the views you need for you data poin
 ## Grid customizations
 @docs Grid, GridLineCustomizations, decentGrid, emptyGrid
 
+## Junk
+@docs viewJunk
+
 # Axis customizations
 @docs Axis, AxisSummary, TickCustomizations, LabelCustomizations
 
@@ -115,10 +122,10 @@ Just thought you might want a hand with all the views you need for you data poin
 @docs normalAxis, normalBarsAxis, sometimesYouDoNotHaveAnAxis, emptyAxis, axisAtMin, axisAtMax, customAxis
 
 ## Position helpers
-@docs decentPositions, interval, remove
+@docs decentPositions, interval, remove, closestToZero
 
 ## Small configuration helpers
-@docs simpleLine, simpleTick, simpleLabel, fullLine
+@docs simpleLine, simpleTick, simpleLabel, fullLine, viewLabel, displace
 
 -}
 
@@ -126,7 +133,7 @@ import Html exposing (Html, div, span)
 import Html.Events
 import Html.Attributes
 import Svg exposing (Svg, Attribute, svg, text_, tspan, text, g, path, rect, polygon)
-import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath)
+import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath, transform)
 import Svg.Draw as Draw exposing (..)
 import Svg.Colors exposing (..)
 import Json.Decode as Json
@@ -531,7 +538,7 @@ normalBarsAxis =
     , axisLine = Just (simpleLine summary)
     , ticks = List.map simpleTick (interval 0 1 summary)
     , labels = []
-    , whatever = []
+    , flipAnchor = False
     }
 
 
@@ -582,6 +589,7 @@ type alias PlotCustomizations msg =
     { horizontal : Grid
     , vertical : Grid
     }
+  , junk : Float -> Float -> Float -> Float -> List { x : Float, y : Float, view : Svg msg }
   , toDomainLowest : Float -> Float
   , toDomainHighest : Float -> Float
   , toRangeLowest : Float -> Float
@@ -595,8 +603,8 @@ defaultSeriesPlotCustomizations : PlotCustomizations msg
 defaultSeriesPlotCustomizations =
   { attributes = []
   , id = "elm-plot"
-  , width = 1000
-  , height = 720
+  , width = 908
+  , height = 490
   , margin =
       { top = 20
       , right = 40
@@ -610,10 +618,25 @@ defaultSeriesPlotCustomizations =
       { horizontal = emptyGrid
       , vertical = emptyGrid
       }
+  , junk = noJunk
   , toDomainLowest = identity
   , toDomainHighest = identity
   , toRangeLowest = identity
   , toRangeHighest = identity
+  }
+
+
+noJunk : Float -> Float -> Float -> Float -> List (JunkCustomizations msg)
+noJunk _ _ _ _ =
+  []
+
+
+{-| -}
+viewJunk : Svg msg -> Float -> Float -> JunkCustomizations msg
+viewJunk title x y =
+  { x = x
+  , y = y
+  , view = title
   }
 
 
@@ -646,9 +669,9 @@ flyingHoverContainer : Maybe Point -> PlotSummary -> List (Html Never) -> Html N
 flyingHoverContainer hovering summary hints =
   case hovering of
     Nothing ->
-      div [] []
+      text ""
 
-    Just { x, y } ->
+    Just { x } ->
       let
         xOffset =
           toSVGX summary x
@@ -747,7 +770,7 @@ type alias AxisCustomizations =
   , axisLine : Maybe LineCustomizations
   , ticks : List TickCustomizations
   , labels : List LabelCustomizations
-  , whatever : List WhateverCustomizations
+  , flipAnchor : Bool
   }
 
 
@@ -783,9 +806,10 @@ type alias LabelCustomizations =
 
 {-| Just add whatever you want. A title might be an idea though.
 -}
-type alias WhateverCustomizations =
-  { position : Float
-  , view : Svg Never
+type alias JunkCustomizations msg =
+  { x : Float
+  , y : Float
+  , view : Svg msg
   }
 
 
@@ -825,7 +849,7 @@ normalAxis =
     , axisLine = Just (simpleLine summary)
     , ticks = List.map simpleTick (decentPositions summary |> remove 0)
     , labels = List.map simpleLabel (decentPositions summary |> remove 0)
-    , whatever = []
+    , flipAnchor = False
     }
 
 
@@ -838,7 +862,7 @@ emptyAxis =
     , axisLine = Nothing
     , ticks = []
     , labels = []
-    , whatever = []
+    , flipAnchor = False
     }
 
 
@@ -853,7 +877,7 @@ axisAtMin =
     , axisLine = Just (simpleLine summary)
     , ticks = List.map simpleTick (decentPositions summary)
     , labels = List.map simpleLabel (decentPositions summary)
-    , whatever = []
+    , flipAnchor = False
     }
 
 
@@ -866,7 +890,7 @@ axisAtMax =
     , axisLine = Just (simpleLine summary)
     , ticks = List.map simpleTick (decentPositions summary)
     , labels = List.map simpleLabel (decentPositions summary)
-    , whatever = []
+    , flipAnchor = True
     }
 
 
@@ -906,6 +930,11 @@ fullLine attributes summary =
   , end = summary.max
   }
 
+
+{-| -}
+displace : Float -> Float -> Attribute msg
+displace x y =
+  transform <| "translate(" ++ toString x ++ ", " ++ toString y ++ ")"
 
 
 -- VIEW SERIES
@@ -982,6 +1011,12 @@ viewSeriesCustom customizations series data =
         views ->
           Html.map never <| customizations.viewHintContainer summary views
 
+    viewJunks =
+      customizations.junk summary.x.min summary.y.min summary.x.max summary.y.max
+        |> List.map (viewActualJunk summary)
+        |> g [ class "elm-plot__junk" ]
+        |> Just
+
     children =
       List.filterMap identity
         [ Just (defineClipPath customizations summary)
@@ -991,6 +1026,7 @@ viewSeriesCustom customizations series data =
         , viewHorizontalAxes
         , viewVerticalAxes
         , viewGlitter
+        , viewJunks
         ]
   in
     div
@@ -1038,62 +1074,62 @@ viewBars =
 -}
 viewBarsCustom : PlotCustomizations msg -> Bars data msg -> data -> Html msg
 viewBarsCustom customizations bars data =
-      let
-        groups =
-          bars.toGroups data
+  let
+    groups =
+      bars.toGroups data
 
-        toDataPoint index group { height } =
-          { x = toFloat index + 1
-          , y = height
-          , xLine = group.verticalLine (toFloat index + 1)
-          , yLine = Nothing
-          }
+    toDataPoint index group { height } =
+      { x = toFloat index + 1
+      , y = height
+      , xLine = group.verticalLine (toFloat index + 1)
+      , yLine = Nothing
+      }
 
-        toDataPoints index group =
-          List.map (toDataPoint index group) group.bars
+    toDataPoints index group =
+      List.map (toDataPoint index group) group.bars
 
-        dataPoints =
-          List.concat (List.indexedMap toDataPoints groups)
+    dataPoints =
+      List.concat (List.indexedMap toDataPoints groups)
 
-        summary =
-          toPlotSummary customizations addNiceReachForBars dataPoints
+    summary =
+      toPlotSummary customizations addNiceReachForBars dataPoints
 
-        xLabels =
-          List.indexedMap (\index group -> group.label (toFloat index + 1)) groups
+    xLabels =
+      List.indexedMap (\index group -> group.label (toFloat index + 1)) groups
 
-        viewGlitter =
-          dataPoints
-            |> List.concatMap (viewGlitterLines summary)
-            |> g [ class "elm-plot__glitter" ]
-            |> Svg.map never
-            |> Just
+    viewGlitter =
+      dataPoints
+        |> List.concatMap (viewGlitterLines summary)
+        |> g [ class "elm-plot__glitter" ]
+        |> Svg.map never
+        |> Just
 
-        hints =
-          groups
-          |> List.indexedMap (\index group -> group.viewHint (toFloat index + 1))
-          |> List.filterMap identity
+    hints =
+      groups
+      |> List.indexedMap (\index group -> group.viewHint (toFloat index + 1))
+      |> List.filterMap identity
 
-        viewHint =
-          case hints of
-            [] ->
-              div [] []
+    viewHint =
+      case hints of
+        [] ->
+          div [] []
 
-            hints ->
-              Html.map never <| customizations.viewHintContainer summary hints
+        hints ->
+          Html.map never <| customizations.viewHintContainer summary hints
 
-        children =
-          List.filterMap identity
-            [ Just (defineClipPath customizations summary)
-            , viewHorizontalGrid summary customizations.grid.horizontal
-            , viewVerticalGrid summary customizations.grid.vertical
-            , viewActualBars summary bars groups
-            , viewHorizontalAxis summary customizations.horizontalAxis xLabels []
-            , viewVerticalAxis summary bars.axis []
-            , viewGlitter
-            ]
-      in
-        div (containerAttributes customizations summary)
-          [ svg (innerAttributes customizations) children, viewHint ]
+    children =
+      List.filterMap identity
+        [ Just (defineClipPath customizations summary)
+        , viewHorizontalGrid summary customizations.grid.horizontal
+        , viewVerticalGrid summary customizations.grid.vertical
+        , viewActualBars summary bars groups
+        , viewHorizontalAxis summary customizations.horizontalAxis xLabels []
+        , viewVerticalAxis summary bars.axis []
+        , viewGlitter
+        ]
+  in
+    div (containerAttributes customizations summary)
+      [ svg (innerAttributes customizations) children, viewHint ]
 
 
 addNiceReachForBars : TempPlotSummary -> TempPlotSummary
@@ -1158,6 +1194,10 @@ innerAttributes customizations =
     , Attributes.height (toString customizations.height)
     ]
 
+
+viewActualJunk : PlotSummary -> JunkCustomizations msg -> Svg msg
+viewActualJunk summary { x, y, view } =
+  g [ place summary { x = x, y = y } 0 0 ] [ view ]
 
 
 -- HINT HANDLER
@@ -1493,11 +1533,11 @@ viewActualBars summary { styles, maxWidth } groups =
             [ label ]
 
         viewBar x attributes (i, { height, label }) =
-          g [ place summary { x = offset x i, y = height } 0 0 ]
+          g [ place summary { x = offset x i, y = max (closestToZero summary.y.min summary.y.max) height } 0 0 ]
             [ Svg.map never (Maybe.map viewLabel label |> Maybe.withDefault (text ""))
             , rect (attributes ++
               [ Attributes.width (toString (scaleValue summary.x width))
-              , Attributes.height (toString (scaleValue summary.y height))
+              , Attributes.height (toString (scaleValue summary.y (abs height)))
               ])
               []
             ]
@@ -1527,26 +1567,28 @@ viewHorizontalAxis summary axis moreLabels moreTicks =
 
 
 viewActualHorizontalAxis : PlotSummary -> AxisCustomizations -> List LabelCustomizations -> List TickCustomizations -> Svg Never
-viewActualHorizontalAxis summary { position, axisLine, ticks, labels, whatever } glitterLabels glitterTicks =
+viewActualHorizontalAxis summary { position, axisLine, ticks, labels, flipAnchor } glitterLabels glitterTicks =
     let
       at x =
         { x = x, y = position summary.y.min summary.y.max }
 
+      lengthOfTick length =
+        if flipAnchor then -length else length
+
+      positionOfLabel =
+        if flipAnchor then -10 else 20
+
       viewTickLine { attributes, length, position } =
-        g [ place summary (at position) 0 0 ] [ viewTickInner attributes 0 length ]
+        g [ place summary (at position) 0 0 ] [ viewTickInner attributes 0 (lengthOfTick length) ]
 
       viewLabel { format, position, view } =
-        g [ place summary (at position) 0 20, style "text-anchor: middle;" ]
+        g [ place summary (at position) 0 positionOfLabel, style "text-anchor: middle;" ]
           [ view (format position) ]
-
-      viewWhatever { position, view } =
-        g [ place summary (at position) 0 0 ] [ view ]
     in
       g [ class "elm-plot__horizontal-axis" ]
         [ viewAxisLine summary at axisLine
         , g [ class "elm-plot__ticks" ] (List.map viewTickLine (ticks ++ glitterTicks))
         , g [ class "elm-plot__labels" ] (List.map viewLabel (labels ++ glitterLabels))
-        , g [ class "elm-plot__whatever" ] (List.map viewWhatever whatever)
         ]
 
 
@@ -1565,27 +1607,32 @@ viewVerticalAxis summary axis moreTicks =
 
 
 viewActualVerticalAxis : PlotSummary -> AxisCustomizations -> List TickCustomizations -> Svg Never
-viewActualVerticalAxis summary { position, axisLine, ticks, labels, whatever } glitterTicks =
+viewActualVerticalAxis summary { position, axisLine, ticks, labels, flipAnchor } glitterTicks =
     let
       at y =
         { x = position summary.x.min summary.x.max, y = y }
 
+      lengthOfTick length =
+        if flipAnchor then length else -length
+
+      positionOfLabel =
+        if flipAnchor then 10 else -10
+
+      anchorOfLabel =
+        if flipAnchor then "text-anchor: start;" else "text-anchor: end;"
+
       viewTickLine { attributes, length, position } =
         g [ place summary (at position) 0 0 ]
-          [ viewTickInner attributes -length 0 ]
+          [ viewTickInner attributes (lengthOfTick length) 0 ]
 
       viewLabel { format, position, view } =
-        g [ place summary (at position) -10 5, style "text-anchor: end;" ]
+        g [ place summary (at position) positionOfLabel 5, style anchorOfLabel ]
           [ view (format position) ]
-
-      viewWhatever { position, view } =
-        g [ place summary (at position) 0 0 ] [ view ]
     in
       g [ class "elm-plot__vertical-axis" ]
         [ viewAxisLine summary at axisLine
         , g [ class "elm-plot__ticks" ] (List.map viewTickLine (ticks ++ glitterTicks))
         , g [ class "elm-plot__labels" ] (List.map viewLabel labels)
-        , g [ class "elm-plot__whatever" ] (List.map viewWhatever whatever)
         ]
 
 
@@ -1608,6 +1655,7 @@ viewTickInner attributes width height =
   Svg.line (x2 (toString width) :: y2 (toString height) :: attributes) []
 
 
+{-| -}
 viewLabel : List (Svg.Attribute msg) -> String -> Svg msg
 viewLabel attributes string =
   text_ attributes [ tspan [] [ text string ] ]
@@ -1679,7 +1727,7 @@ interval offset delta { min, max } =
 -}
 remove : Float -> List Float -> List Float
 remove banned values =
-  List.filter (\v -> v /= banned) values
+  List.filter (\v -> v /= banned) values |> Debug.log "here"
 
 
 tickPosition : Float -> Float -> Int -> Float

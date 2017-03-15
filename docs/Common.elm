@@ -1,7 +1,6 @@
 module Common
     exposing
         ( PlotExample
-        , Id
         , plotSize
         , axisColor
         , axisColorLight
@@ -16,13 +15,9 @@ module Common
 import Svg exposing (Svg)
 
 
-type alias Id =
-    String
-
-
 type alias PlotExample msg =
     { title : String
-    , id : Id
+    , id : String
     , view : Svg msg
     , code : String
     }
