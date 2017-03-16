@@ -20,15 +20,6 @@ data =
   List.map (\v -> ( toFloat v, sin (degrees <| toFloat v) )) (List.range 0 360)
 
 
-title : Svg msg
-title =
-  viewLabel
-    [ fill axisColor
-    , style "text-anchor: end;"
-    ]
-    "f(x) = sin x"
-
-
 customLine : Series (List ( Float, Float )) msg
 customLine =
   { axis = verticalAxis
@@ -59,33 +50,31 @@ horizontalAxis =
     }
 
 
-view : Svg.Svg a
-view =
-  let
-    settings =
-      { defaultSeriesPlotCustomizations
-      | horizontalAxis = horizontalAxis
-      , junk = \summary -> [ viewJunk title summary.x.dataMax summary.y.max  ]
-      , toDomainLowest = \y -> y - 0.25
-      , toRangeLowest = \y -> y - 25
-      }
-  in
-    viewSeriesCustom settings [ customLine ] data
-
-
-code : String
-code =
-    """
 title : Svg msg
 title =
   viewLabel
     [ fill axisColor
     , style "text-anchor: end;"
-    , displace -10 35
     ]
-    "f(x) = sin ( x * π / 20 )"
+    "f(x) = sin x"
 
 
+view : Svg.Svg a
+view =
+  viewSeriesCustom
+    { defaultSeriesPlotCustomizations
+    | horizontalAxis = horizontalAxis
+    , junk = \summary -> [ viewJunk title summary.x.dataMax summary.y.max  ]
+    , toDomainLowest = \y -> y - 0.25
+    , toRangeLowest = \y -> y - 25
+    }
+    [ customLine ]
+    data
+
+
+code : String
+code =
+    """
 customLine : Series (List ( Float, Float )) msg
 customLine =
   { axis = verticalAxis
@@ -114,18 +103,25 @@ horizontalAxis =
     }
 
 
+title : Svg msg
+title =
+  viewLabel
+    [ fill axisColor
+    , style "text-anchor: end;"
+    , displace -10 35
+    ]
+    "f(x) = sin ( x * π / 20 )"
+
+
 view : Svg.Svg a
 view =
-  let
-    settings =
-      { defaultSeriesPlotCustomizations
-      | horizontalAxis = horizontalAxis
-      , grid = { horizontal = decentGrid, vertical = emptyGrid }
-      , margin = { top = 20, bottom = 20, left = 160, right = 160 }
-      , junk = \\xMin yMin xMax yMax -> [ viewJunk title xMax yMax ]
-      , toDomainHighest = \\y -> y + 0.25
-      , toDomainLowest = \\y -> y - 0.25
-      }
-  in
-    viewSeriesCustom settings [ customLine ] data
+  viewSeriesCustom
+    { defaultSeriesPlotCustomizations
+    | horizontalAxis = horizontalAxis
+    , junk = \\summary -> [ viewJunk title summary.x.dataMax summary.y.max  ]
+    , toDomainLowest = \\y -> y - 0.25
+    , toRangeLowest = \\y -> y - 25
+    }
+    [ customLine ]
+    data
 """

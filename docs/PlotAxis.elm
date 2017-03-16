@@ -23,7 +23,7 @@ data =
 customArea : Series (List ( Float, Float )) msg
 customArea =
   { axis = rightAxis
-  , interpolation = Monotone (Just pinkFill) [ stroke pinkStroke ]
+  , interpolation = Monotone Nothing [ stroke pinkStroke ]
   , toDataPoints = List.map (\( x, y ) -> triangle x y)
   }
 
@@ -63,19 +63,11 @@ horizontalAxis : Axis
 horizontalAxis =
   customAxis <| \summary ->
     { position = closestToZero
-    , axisLine = Just (dataLine summary)
+    , axisLine = Just (fullLine [ stroke "grey" ] summary)
     , ticks = List.map simpleTick (decentPositions summary)
-    , labels = List.map simpleLabel (decentPositions summary)
+    , labels = List.map simpleLabel (decentPositions summary |> remove -2)
     , flipAnchor = False
     }
-
-
-dataLine : AxisSummary -> LineCustomizations
-dataLine summary =
-  { attributes = [ stroke "grey" ]
-  , start = summary.dataMin
-  , end = summary.dataMax
-  }
 
 
 view : Svg.Svg a
@@ -83,10 +75,6 @@ view =
   viewSeriesCustom
     { defaultSeriesPlotCustomizations
     | horizontalAxis = horizontalAxis
-    , toDomainLowest = \y -> y - 0.25
-    , toDomainHighest = \y -> y + 0.25
-    , toRangeLowest = \y -> y - 0.25
-    , toRangeHighest = \y -> y + 0.25
     }
     [ customLine, customArea ]
     data
@@ -99,7 +87,7 @@ code =
 customArea : Series (List ( Float, Float )) msg
 customArea =
   { axis = rightAxis
-  , interpolation = Monotone (Just pinkFill) [ stroke pinkStroke ]
+  , interpolation = Monotone Nothing [ stroke pinkStroke ]
   , toDataPoints = List.map (\\( x, y ) -> triangle x y)
   }
 
@@ -139,19 +127,11 @@ horizontalAxis : Axis
 horizontalAxis =
   customAxis <| \\summary ->
     { position = closestToZero
-    , axisLine = Just (dataLine summary)
+    , axisLine = Just (fullLine [ stroke "grey" ] summary)
     , ticks = List.map simpleTick (decentPositions summary)
-    , labels = List.map simpleLabel (decentPositions summary)
+    , labels = List.map simpleLabel (decentPositions summary |> remove -2)
     , flipAnchor = False
     }
-
-
-dataLine : AxisSummary -> LineCustomizations
-dataLine summary =
-  { attributes = [ stroke "grey" ]
-  , start = summary.dataMin
-  , end = summary.dataMax
-  }
 
 
 view : Svg.Svg a
@@ -159,10 +139,6 @@ view =
   viewSeriesCustom
     { defaultSeriesPlotCustomizations
     | horizontalAxis = horizontalAxis
-    , toDomainLowest = \\y -> y - 0.25
-    , toDomainHighest = \\y -> y + 0.25
-    , toRangeLowest = \\y -> y - 0.25
-    , toRangeHighest = \\y -> y + 0.25
     }
     [ customLine, customArea ]
     data

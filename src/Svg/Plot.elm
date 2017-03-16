@@ -608,8 +608,8 @@ defaultSeriesPlotCustomizations : PlotCustomizations msg
 defaultSeriesPlotCustomizations =
   { attributes = []
   , id = "elm-plot"
-  , width = 687
-  , height = 480
+  , width = 647
+  , height = 440
   , margin =
       { top = 20
       , right = 40
@@ -646,12 +646,7 @@ defaultBarsPlotCustomizations : PlotCustomizations msg
 defaultBarsPlotCustomizations =
   { defaultSeriesPlotCustomizations
   | horizontalAxis = normalBarsAxis
-  , margin =
-      { top = 30
-      , right = 40
-      , bottom = 30
-      , left = 40
-      }
+  , margin = { top = 20, right = 40, bottom = 40, left = 40 }
   }
 
 

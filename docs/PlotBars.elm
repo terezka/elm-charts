@@ -8,10 +8,10 @@ import Common exposing (..)
 
 plotExample : Maybe Point -> PlotExample Msg
 plotExample point =
-    { title = "title"
+    { title = "PlotBars"
     , code = code
     , view = view point
-    , id = "id"
+    , id = "PlotBars"
     }
 
 
@@ -24,33 +24,37 @@ barData =
   ]
 
 
+bars : Maybe Point -> Bars (List ( List Float )) msg
+bars hovering =
+  groups (List.map2 (hintGroup hovering) [ "Q1", "Q2", "Q3", "Q4" ])
+
+
 view : Maybe Point -> Html.Html Msg
 view hovering =
-    let
-      settings =
-        { defaultBarsPlotCustomizations
-        | onHover = Just Hover
-        , viewHintContainer = flyingHintContainer normalHintContainerInner hovering
-        }
-    in
-      viewBarsCustom settings
-        (groups (List.map2 (hintGroup hovering) [ "Q1", "Q2", "Q3", "Q4" ]))
-        barData
+    viewBarsCustom
+      { defaultBarsPlotCustomizations
+      | onHover = Just Hover
+      , viewHintContainer = flyingHintContainer normalHintContainerInner hovering
+      }
+      (bars hovering)
+      barData
 
 
 code : String
 code =
     """
+bars : Maybe Point -> Bars (List ( List Float )) msg
+bars hovering =
+  groups (List.map2 (hintGroup hovering) [ "Q1", "Q2", "Q3", "Q4" ])
+
+
 view : Maybe Point -> Html.Html Msg
 view hovering =
-    let
-      settings =
-        { defaultBarsPlotCustomizations
-        | onHover = Just Hover
-        , viewHintContainer = flyingHoverContainer hovering
-        }
-    in
-      viewBarsCustom settings
-        (groups (List.map2 (hintGroup hovering) [ "Q1", "Q2", "Q3", "Q4" ]))
-        barData
+    viewBarsCustom
+      { defaultBarsPlotCustomizations
+      | onHover = Just Hover
+      , viewHintContainer = flyingHintContainer normalHintContainerInner hovering
+      }
+      (bars hovering)
+      barData
 """

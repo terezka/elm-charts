@@ -1,6 +1,6 @@
 port module Docs exposing (..)
 
-import Html exposing (Html, div, text, h1, img, a, br, span, code, pre, p)
+import Html exposing (Html, div, text, h1, img, a, br, span, code, pre, p, header)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (style, src, href, class, classList, id, name)
 import Msg exposing (..)
@@ -28,6 +28,7 @@ initialModel =
     }
 
 
+
 -- UPDATE
 
 
@@ -38,7 +39,7 @@ update msg ({ focused } as model) =
             ( { model | focused = updateFocused id focused }, Cmd.none )
 
         Hover point ->
-          { model | hovering = point } ! []
+            { model | hovering = point } ! []
 
 
 updateFocused : String -> Maybe String -> Maybe String
@@ -62,6 +63,7 @@ view : Model -> Html Msg
 view model =
     div [ class "view" ]
         [ div [ class "view--left" ]
+          [ header [ class "view__header" ]
             [ h1 [ class "view__title" ] [ text "elm-plot" ]
             , div [ class "view__github-link" ]
                 [ a [ href "https://github.com/terezka/elm-plot" ] [ text "github" ]
@@ -69,15 +71,20 @@ view model =
                 , a [ href "https://twitter.com/terezk_a" ] [ text "twitter" ]
                 ]
             ]
+          ]
         , div [ class "view--right" ] (List.map (viewExample model) (examples model))
         ]
 
 
 viewExample : Model -> PlotExample Msg -> Html.Html Msg
 viewExample model ({ title, id, view, code } as example) =
-    div [ class "view-plot" ]
-        [ div [ class "view-plot--left" ] [ view ]
-        , div [ class "view-plot--right" ] [ viewCode model example ]
+    div [ class ("view-plot " ++ visibilityClass model id) ]
+        [ div
+            [ class "view-plot--left" ]
+            [ view, viewHeading model example ]
+        , div
+            [ class "view-plot--right" ]
+            [ viewCode model example ]
         ]
 
 
@@ -118,7 +125,6 @@ viewLink id =
 
 
 
-
 -- View helpers
 
 
@@ -127,12 +133,12 @@ toUrl end =
     "https://github.com/terezka/elm-plot/blob/master/docs/" ++ end ++ ".elm"
 
 
-getVisibility : Model -> String -> List ( String, String )
-getVisibility { focused } id =
+visibilityClass : Model -> String -> String
+visibilityClass { focused } id =
     if focused == Just id then
-        [ ( "display", "block" ) ]
+        "view-plot__open"
     else
-        [ ( "display", "none" ) ]
+        "view-plot__closed"
 
 
 

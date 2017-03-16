@@ -1,6 +1,10 @@
 
 body {
-	margin: 0;
+	margin: 0 40px;
+}
+
+* {
+	box-sizing: border-box;
 }
 
 a {
@@ -13,38 +17,38 @@ a {
 	font-family: sans-serif;
 	color: #7F7F7F;
 	font-weight: 200;
-	margin: 200px auto;
+	margin: 200px auto 0px;
 	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
+	justify-content: space-around;
 	width: 100%;
 }
 
 .view--left {
-	min-width: 300px;
-	padding: 0 40px;
 	flex-grow: 1;
+	width: 100%;
 }
 
 .view--right {
-	flex-grow: 2;
+	width: 100%;
 }
 
-.view__logo {
-	width: 100px;
-	height: 100px;
+.view__header {
+	text-align: right;
+	min-width: 200px;
+	padding-right: 40px;
+}
+
+.view__header h1 {
+	margin-top: 0;
 }
 
 .view__title {
 	font-weight: 200;
 }
 
-.view__github-link {
-	margin: 40px auto 10px;
-}
-
 .view-heading {
-	margin: 10px auto 10px;
+	margin-left: 40px;
+	display: none;
 }
 
 .view-heading__code-open {
@@ -54,14 +58,6 @@ a {
 	cursor: pointer;
 }
 
-.view-code {
-	position: relative;
-}
-
-.view-code__inner {
-	text-align: left;
-	max-height: 400px;
-}
 
 .view-code__link {
 	color: #9ea0a2;
@@ -76,24 +72,53 @@ a {
 .view-plot {
 	vertical-align: top;
 	margin: 0 auto;
-	margin-bottom: 180px;
+	margin-bottom: 240px;
 	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
+	justify-content: flex-end;
 }
 
-.view-plot--left {
+.view-plot--left, .view-plot--right {
 	padding-right: 40px;
+	width: 50%;
 }
 
-.view-plot--right {
-	padding-left: 40px;
+.view-code {
+	position: relative;
+}
+
+.view-code__inner {
+	text-align: left;
+	height: 435px;
 }
 
 .elm-plot {
 	margin: 0 auto;
 }
 
+@media (max-width: 1325px) {
+	.view-plot, .view-heading {
+		display: block;
+	}
+
+	.view-plot__closed .view-code {
+		display: none;
+	}
+
+	.view-plot--left, .view-plot--right {
+		width: 100%;
+	}
+
+	.view-plot--right {
+		padding-left: 40px;
+	}
+
+	.view-code__inner {
+		height: auto;
+		max-height: 480px;
+	}
+}
+
 .elm-plot__labels {
 	fill: #565656;
+	font-size: 12px;
 }

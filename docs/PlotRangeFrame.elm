@@ -76,7 +76,7 @@ view =
     | horizontalAxis = rangeFrameAxis
     , margin = { top = 20, bottom = 20, left = 50, right = 40 }
     , toRangeLowest = \y -> y - 0.02
-    , toRangeLowest = \y -> y - 0.02
+    , toDomainLowest = \y -> y - 1
     }
     [ scatter ]
     data
@@ -117,7 +117,7 @@ view =
     | horizontalAxis = rangeFrameAxis
     , margin = { top = 20, bottom = 20, left = 50, right = 40 }
     , toRangeLowest = \\y -> y - 0.02
-    , toRangeLowest = \\y -> y - 0.02
+    , toRangeLowest = \\y -> y - 1
     }
     [ scatter ]
     data
