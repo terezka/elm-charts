@@ -58,7 +58,6 @@ horizontalAxis =
     }
 
 
-
 view : Svg.Svg a
 view =
   viewSeriesCustom
@@ -113,7 +112,6 @@ horizontalAxis =
     , labels = List.map simpleLabel (decentPositions summary)
     , flipAnchor = False
     }
-
 
 
 view : Svg.Svg a
