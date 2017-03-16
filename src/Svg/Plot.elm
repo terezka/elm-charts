@@ -47,6 +47,7 @@ module Svg.Plot
         , AxisSummary
         , TickCustomizations
         , LabelCustomizations
+        , LineCustomizations
         , sometimesYouDoNotHaveAnAxis
         , emptyAxis
         , normalAxis
@@ -118,7 +119,7 @@ Just thought you might want a hand with all the views you need for you data poin
 @docs viewJunk
 
 # Axis customizations
-@docs Axis, AxisSummary, TickCustomizations, LabelCustomizations
+@docs Axis, AxisSummary, TickCustomizations, LabelCustomizations, LineCustomizations
 
 # Various axis
 @docs normalAxis, normalBarsAxis, sometimesYouDoNotHaveAnAxis, emptyAxis, axisAtMin, axisAtMax, customAxis

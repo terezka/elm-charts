@@ -60,43 +60,24 @@ updateFocused newId model =
 
 view : Model -> Html Msg
 view model =
-    div
-        [ class "view" ]
-        [ viewTitle
-        , div [] (List.map (viewExample model) (examples model))
-        ]
-
-
-viewTitle : Html msg
-viewTitle =
-    div
-        []
-        [ img
-            [ src "logo.png"
-            , class "view__logo"
+    div [ class "view" ]
+        [ div [ class "view--left" ]
+            [ h1 [ class "view__title" ] [ text "elm-plot" ]
+            , div [ class "view__github-link" ]
+                [ a [ href "https://github.com/terezka/elm-plot" ] [ text "github" ]
+                , text " / "
+                , a [ href "https://twitter.com/terezk_a" ] [ text "twitter" ]
+                ]
             ]
-            []
-        , h1
-            [ class "view__title" ]
-            [ text "Elm Plot" ]
-        , div
-            [ class "view__github-link" ]
-            [ a [ href "https://github.com/terezka/elm-plot" ]
-                [ text "Github" ]
-            , text " / "
-            , a [ href "https://twitter.com/terezk_a" ]
-                [ text "twitter" ]
-            ]
+        , div [ class "view--right" ] (List.map (viewExample model) (examples model))
         ]
 
 
 viewExample : Model -> PlotExample Msg -> Html.Html Msg
 viewExample model ({ title, id, view, code } as example) =
-    Html.div
-        [ class "view-plot" ]
-        [ view
-        , viewHeading model example
-        , viewCode model example
+    div [ class "view-plot" ]
+        [ div [ class "view-plot--left" ] [ view ]
+        , div [ class "view-plot--right" ] [ viewCode model example ]
         ]
 
 
@@ -118,10 +99,7 @@ viewToggler id =
 
 viewCode : Model -> PlotExample msg -> Html Msg
 viewCode model { id, code } =
-    div
-        [ style (getVisibility model id)
-        , class "view-code"
-        ]
+    div [ class "view-code" ]
         [ Html.code
             [ class "elm view-code__inner" ]
             [ pre [] [ text code ]

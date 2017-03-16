@@ -32,8 +32,13 @@ customLine : Series (List ( Float, Float )) msg
 customLine =
   { axis = axisAtMin
   , interpolation = Monotone Nothing [ stroke blueStroke ]
-  , toDataPoints = List.map (\( x, y ) -> dot (viewCircle 5 blueStroke) x (y * 1.2))
+  , toDataPoints = List.map blueCircle
   }
+
+
+blueCircle : ( Float, Float ) -> DataPoint msg
+blueCircle ( x, y ) =
+  dot (viewCircle 5 blueStroke) x (y * 1.2)
 
 
 rightAxis : Axis
@@ -42,20 +47,35 @@ rightAxis =
     { position = Basics.max
     , axisLine = Nothing
     , ticks = List.map simpleTick (decentPositions summary)
-    , labels = List.map (\v -> { position = v, view = viewLabel [] (toString (v * 27)) }) (decentPositions summary)
+    , labels = List.map label (decentPositions summary)
     , flipAnchor = True
     }
+
+
+label : Float -> LabelCustomizations
+label v =
+  { position = v
+  , view = viewLabel [] (toString (v * 27))
+  }
 
 
 horizontalAxis : Axis
 horizontalAxis =
   customAxis <| \summary ->
     { position = closestToZero
-    , axisLine = Just { attributes = [ stroke "grey" ], start = summary.dataMin, end = summary.dataMax }
+    , axisLine = Just (dataLine summary)
     , ticks = List.map simpleTick (decentPositions summary)
     , labels = List.map simpleLabel (decentPositions summary)
     , flipAnchor = False
     }
+
+
+dataLine : AxisSummary -> LineCustomizations
+dataLine summary =
+  { attributes = [ stroke "grey" ]
+  , start = summary.dataMin
+  , end = summary.dataMax
+  }
 
 
 view : Svg.Svg a
@@ -88,8 +108,13 @@ customLine : Series (List ( Float, Float )) msg
 customLine =
   { axis = axisAtMin
   , interpolation = Monotone Nothing [ stroke blueStroke ]
-  , toDataPoints = List.map (\\( x, y ) -> dot (viewCircle 5 blueStroke) x (y * 1.2))
+  , toDataPoints = List.map blueCircle
   }
+
+
+blueCircle : ( Float, Float ) -> DataPoint msg
+blueCircle ( x, y ) =
+  dot (viewCircle 5 blueStroke) x (y * 1.2)
 
 
 rightAxis : Axis
@@ -98,20 +123,35 @@ rightAxis =
     { position = Basics.max
     , axisLine = Nothing
     , ticks = List.map simpleTick (decentPositions summary)
-    , labels = List.map (\\v -> { position = v, view = viewLabel [] (toString (v * 27)) }) (decentPositions summary)
+    , labels = List.map label (decentPositions summary)
     , flipAnchor = True
     }
+
+
+label : Float -> LabelCustomizations
+label v =
+  { position = v
+  , view = viewLabel [] (toString (v * 27))
+  }
 
 
 horizontalAxis : Axis
 horizontalAxis =
   customAxis <| \\summary ->
     { position = closestToZero
-    , axisLine = Just { attributes = [ stroke "grey" ], start = summary.dataMin, end = summary.dataMax }
+    , axisLine = Just (dataLine summary)
     , ticks = List.map simpleTick (decentPositions summary)
     , labels = List.map simpleLabel (decentPositions summary)
     , flipAnchor = False
     }
+
+
+dataLine : AxisSummary -> LineCustomizations
+dataLine summary =
+  { attributes = [ stroke "grey" ]
+  , start = summary.dataMin
+  , end = summary.dataMax
+  }
 
 
 view : Svg.Svg a

@@ -49,8 +49,13 @@ scatter : Series (List ( Float, Float )) msg
 scatter =
   { axis = rangeFrameAxis
   , interpolation = None
-  , toDataPoints = List.map (\( x, y ) -> rangeFrameDot (viewCircle 5 pinkStroke) x y)
+  , toDataPoints = List.map dot
   }
+
+
+dot : ( Float, Float ) -> DataPoint msg
+dot ( x, y ) =
+  rangeFrameDot (viewCircle 5 pinkStroke) x y
 
 
 rangeFrameAxis : Axis
@@ -85,8 +90,13 @@ scatter : Series (List ( Float, Float )) msg
 scatter =
   { axis = rangeFrameAxis
   , interpolation = None
-  , toDataPoints = List.map (\\( x, y ) -> rangeFrameDot (viewCircle 5 pinkFill) x y)
+  , toDataPoints = List.map dot
   }
+
+
+dot : ( Float, Float ) -> DataPoint msg
+dot ( x, y ) =
+  rangeFrameDot (viewCircle 5 pinkStroke) x y
 
 
 rangeFrameAxis : Axis

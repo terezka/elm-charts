@@ -5,15 +5,29 @@ body {
 
 a {
 	color: #84868a;
+	text-decoration: none;
+	cursor: pointer;
 }
 
 .view {
-	width: 687px;
-	margin: 150px auto;
 	font-family: sans-serif;
 	color: #7F7F7F;
 	font-weight: 200;
-	text-align: center;
+	margin: 200px auto;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.view--left {
+	min-width: 300px;
+	padding: 0 40px;
+	flex-grow: 1;
+}
+
+.view--right {
+	flex-grow: 2;
 }
 
 .view__logo {
@@ -33,10 +47,6 @@ a {
 	margin: 10px auto 10px;
 }
 
-.view-heading a {
-	text-decoration: none;
-}
-
 .view-heading__code-open {
 	margin-top: 30px;
 	color: #9ea0a2;
@@ -49,9 +59,7 @@ a {
 }
 
 .view-code__inner {
-	padding: 40px;
 	text-align: left;
-	margin: 30px auto;
 	max-height: 400px;
 }
 
@@ -68,19 +76,23 @@ a {
 .view-plot {
 	vertical-align: top;
 	margin: 0 auto;
-	margin-top: 180px;
+	margin-bottom: 180px;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.view-plot--left {
+	padding-right: 40px;
+}
+
+.view-plot--right {
+	padding-left: 40px;
 }
 
 .elm-plot {
 	margin: 0 auto;
 }
-
-.view__footer {
-	margin: 100px auto 30px;
-	font-size: 14px;
-}
-
-/* Standard styles */
 
 .elm-plot__labels {
 	fill: #565656;
