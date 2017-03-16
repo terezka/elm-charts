@@ -6,7 +6,7 @@ import Html.Attributes exposing (style, src, href, class, classList, id, name)
 import Msg exposing (..)
 import Common exposing (..)
 import Svg.Plot exposing (Point)
-import PlotGrid
+import PlotSine
 import PlotRangeFrame
 import PlotAxis
 import PlotBars
@@ -81,18 +81,12 @@ viewTitle =
             [ text "Elm Plot" ]
         , div
             [ class "view__github-link" ]
-            [ text "Find it on "
-            , a
-                [ href "https://github.com/terezka/elm-plot" ]
+            [ a [ href "https://github.com/terezka/elm-plot" ]
                 [ text "Github" ]
+            , text " / "
+            , a [ href "https://twitter.com/terezk_a" ]
+                [ text "twitter" ]
             ]
-        , div []
-          [ a
-              [ href "https://twitter.com/terezk_a"
-              , style [ ( "color", "#84868a" ) ]
-              ]
-              [ text "@terezk_a" ]
-          ]
         ]
 
 
@@ -176,10 +170,10 @@ port highlight : () -> Cmd msg
 
 examples : Model -> List (PlotExample Msg)
 examples model =
-    [ PlotBars.plotExample model.hovering
-    , PlotRangeFrame.plotExample
-    , PlotGrid.plotExample
+    [ PlotRangeFrame.plotExample
+    , PlotSine.plotExample
     , PlotAxis.plotExample
+    , PlotBars.plotExample model.hovering
     ]
 
 

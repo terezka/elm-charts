@@ -13,8 +13,6 @@ module Common
         )
 
 import Svg exposing (Svg)
-import Svg.Plot exposing (..)
-
 
 
 type alias PlotExample msg =
@@ -40,6 +38,16 @@ axisColorLight =
     "#e4e4e4"
 
 
+pinkFill : String
+pinkFill =
+    "rgba(253, 185, 231, 0.5)"
+
+
+pinkStroke : String
+pinkStroke =
+    "#ff9edf"
+
+
 blueFill : String
 blueFill =
     "#e4eeff"
@@ -58,13 +66,3 @@ skinFill =
 skinStroke : String
 skinStroke =
     "#f7e0d2"
-
-
-pinkFill : String
-pinkFill =
-    "#fdb9e7"
-
-
-pinkStroke : String
-pinkStroke =
-    "#ff9edf"

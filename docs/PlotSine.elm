@@ -1,4 +1,4 @@
-module PlotGrid exposing (plotExample)
+module PlotSine exposing (plotExample)
 
 import Svg exposing (Svg)
 import Svg.Attributes exposing (..)
@@ -8,10 +8,10 @@ import Common exposing (..)
 
 plotExample : PlotExample msg
 plotExample =
-  { title = "Grid"
+  { title = "Sin"
   , code = code
   , view = view
-  , id = "Grid"
+  , id = "PlotSine"
   }
 
 

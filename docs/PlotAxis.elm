@@ -1,6 +1,7 @@
 module PlotAxis exposing (plotExample)
 
 import Svg exposing (Svg)
+import Svg.Attributes exposing (stroke)
 import Svg.Plot exposing (..)
 import Common exposing (..)
 
@@ -21,8 +22,8 @@ data =
 
 customArea : Series (List ( Float, Float )) msg
 customArea =
-  { axis = axisAtMax
-  , interpolation = None
+  { axis = rightAxis
+  , interpolation = Monotone (Just pinkFill) [ stroke pinkStroke ]
   , toDataPoints = List.map (\( x, y ) -> triangle x y)
   }
 
@@ -30,20 +31,29 @@ customArea =
 customLine : Series (List ( Float, Float )) msg
 customLine =
   { axis = axisAtMin
-  , interpolation = None
+  , interpolation = Monotone Nothing [ stroke blueStroke ]
   , toDataPoints = List.map (\( x, y ) -> dot (viewCircle 5 blueStroke) x (y * 1.2))
   }
 
 
-{-| A super regular axis.
--}
+rightAxis : Axis
+rightAxis =
+  customAxis <| \summary ->
+    { position = Basics.max
+    , axisLine = Nothing
+    , ticks = List.map simpleTick (decentPositions summary)
+    , labels = List.map (\v -> { position = v, view = viewLabel [] (toString (v * 27)) }) (decentPositions summary)
+    , flipAnchor = True
+    }
+
+
 horizontalAxis : Axis
 horizontalAxis =
   customAxis <| \summary ->
     { position = closestToZero
-    , axisLine = Just (simpleLine summary)
+    , axisLine = Just { attributes = [ stroke "grey" ], start = summary.dataMin, end = summary.dataMax }
     , ticks = List.map simpleTick (decentPositions summary)
-    , labels = List.map simpleLabel (decentPositions summary |> remove -2 |> remove 4)
+    , labels = List.map simpleLabel (decentPositions summary)
     , flipAnchor = False
     }
 
@@ -52,7 +62,13 @@ horizontalAxis =
 view : Svg.Svg a
 view =
   viewSeriesCustom
-    { defaultSeriesPlotCustomizations | horizontalAxis = horizontalAxis }
+    { defaultSeriesPlotCustomizations
+    | horizontalAxis = horizontalAxis
+    , toDomainLowest = \y -> y - 0.25
+    , toDomainHighest = \y -> y + 0.25
+    , toRangeLowest = \y -> y - 0.25
+    , toRangeHighest = \y -> y + 0.25
+    }
     [ customLine, customArea ]
     data
 
@@ -63,22 +79,53 @@ code =
     """
 customArea : Series (List ( Float, Float )) msg
 customArea =
-  { axis = normalAxis
+  { axis = rightAxis
   , interpolation = Monotone (Just pinkFill) [ stroke pinkStroke ]
-  , toDataPoints = List.map (\\( x, y ) -> diamond x y)
+  , toDataPoints = List.map (\\( x, y ) -> triangle x y)
   }
 
 
 customLine : Series (List ( Float, Float )) msg
 customLine =
-  { axis = normalAxis
+  { axis = axisAtMin
   , interpolation = Monotone Nothing [ stroke blueStroke ]
-  , toDataPoints = List.map (\\( x, y ) -> dot (viewSquare 10 blueStroke) x (y * 1.2))
+  , toDataPoints = List.map (\\( x, y ) -> dot (viewCircle 5 blueStroke) x (y * 1.2))
   }
+
+
+rightAxis : Axis
+rightAxis =
+  customAxis <| \\summary ->
+    { position = Basics.max
+    , axisLine = Nothing
+    , ticks = List.map simpleTick (decentPositions summary)
+    , labels = List.map (\\v -> { position = v, view = viewLabel [] (toString (v * 27)) }) (decentPositions summary)
+    , flipAnchor = True
+    }
+
+
+horizontalAxis : Axis
+horizontalAxis =
+  customAxis <| \\summary ->
+    { position = closestToZero
+    , axisLine = Just { attributes = [ stroke "grey" ], start = summary.dataMin, end = summary.dataMax }
+    , ticks = List.map simpleTick (decentPositions summary)
+    , labels = List.map simpleLabel (decentPositions summary)
+    , flipAnchor = False
+    }
+
 
 
 view : Svg.Svg a
 view =
-  viewSeries [ customArea, customLine ] data
-
+  viewSeriesCustom
+    { defaultSeriesPlotCustomizations
+    | horizontalAxis = horizontalAxis
+    , toDomainLowest = \\y -> y - 0.25
+    , toDomainHighest = \\y -> y + 0.25
+    , toRangeLowest = \\y -> y - 0.25
+    , toRangeHighest = \\y -> y + 0.25
+    }
+    [ customLine, customArea ]
+    data
 """

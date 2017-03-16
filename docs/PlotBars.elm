@@ -30,7 +30,7 @@ view hovering =
       settings =
         { defaultBarsPlotCustomizations
         | onHover = Just Hover
-        , viewHintContainer = flyingHoverContainer hovering
+        , viewHintContainer = flyingHintContainer normalHintContainerInner hovering
         }
     in
       viewBarsCustom settings

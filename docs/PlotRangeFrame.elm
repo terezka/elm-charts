@@ -16,9 +16,32 @@ plotExample =
 
 data : List ( Float, Float )
 data =
-    [ ( -2, 10 ), ( -1, 20 ), ( -0.5, -5 ),( 0, 10 ), ( 0.5, 20 ), ( 1, -5 )
-    , ( 3, 4 ), ( 5, -7 ), ( 4.5, 5 ), ( 3.3, 20 ), ( 3.4, 7 ), ( 1, 28 )
-    , ( 1.5, 4 ), ( 2, -7 ), ( 2.5, 5 ), ( 3, 20 ), ( 3.5, 7 ), ( 4, 28 )
+    [ ( 1.31, 240 )
+    , ( 1.310, 238.2 )
+    , ( 1.324, 237.4 )
+    , ( 1.330, 239.7 )
+    , ( 1.347, 238.9 )
+    , ( 1.350, 236.5 )
+    , ( 1.369, 236.6 )
+    , ( 1.370, 238 )
+    , ( 1.378, 237 )
+    , ( 1.364, 237.6 )
+    , ( 1.366, 236.4 )
+    , ( 1.330, 238.3 )
+    , ( 1.324, 237.4 )
+    , ( 1.330, 238.7 )
+    , ( 1.347, 236.9 )
+    , ( 1.350, 237.5 )
+    , ( 1.369, 237.6 )
+    , ( 1.370, 238.4 )
+    , ( 1.378, 237.3 )
+    , ( 1.406, 233.7 )
+    , ( 1.364, 236.6 )
+    , ( 1.366, 238.4 )
+    , ( 1.330, 235.3 )
+    , ( 1.395, 233.7 )
+    , ( 1.405, 234.7 )
+    , ( 1.41, 232.7 )
     ]
 
 
@@ -26,7 +49,7 @@ scatter : Series (List ( Float, Float )) msg
 scatter =
   { axis = rangeFrameAxis
   , interpolation = None
-  , toDataPoints = List.map (\( x, y ) -> rangeFrameDot (viewCircle 5 pinkFill) x y)
+  , toDataPoints = List.map (\( x, y ) -> rangeFrameDot (viewCircle 5 pinkStroke) x y)
   }
 
 
@@ -44,7 +67,12 @@ rangeFrameAxis =
 view : Svg.Svg a
 view =
   viewSeriesCustom
-    { defaultSeriesPlotCustomizations | horizontalAxis = rangeFrameAxis }
+    { defaultSeriesPlotCustomizations
+    | horizontalAxis = rangeFrameAxis
+    , margin = { top = 20, bottom = 20, left = 50, right = 40 }
+    , toRangeLowest = \y -> y - 0.02
+    , toRangeLowest = \y -> y - 0.02
+    }
     [ scatter ]
     data
 
@@ -75,7 +103,12 @@ rangeFrameAxis =
 view : Svg.Svg a
 view =
   viewSeriesCustom
-    { defaultSeriesPlotCustomizations | horizontalAxis = rangeFrameAxis }
+    { defaultSeriesPlotCustomizations
+    | horizontalAxis = rangeFrameAxis
+    , margin = { top = 20, bottom = 20, left = 50, right = 40 }
+    , toRangeLowest = \\y -> y - 0.02
+    , toRangeLowest = \\y -> y - 0.02
+    }
     [ scatter ]
     data
 """

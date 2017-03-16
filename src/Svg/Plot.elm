@@ -5,8 +5,9 @@ module Svg.Plot
         , Point
         , defaultSeriesPlotCustomizations
         , defaultBarsPlotCustomizations
-        , normalHoverContainer
-        , flyingHoverContainer
+        , normalHintContainer
+        , flyingHintContainer
+        , normalHintContainerInner
         , viewJunk
         -- SERIES
         , viewSeries
@@ -108,7 +109,7 @@ Just thought you might want a hand with all the views you need for you data poin
 @docs PlotCustomizations, PlotSummary, defaultSeriesPlotCustomizations, viewSeriesCustom, defaultBarsPlotCustomizations, viewBarsCustom
 
 ## Hover customizations
-@docs Point, normalHoverContainer, flyingHoverContainer
+@docs Point, normalHintContainer, flyingHintContainer, normalHintContainerInner
 
 ## Grid customizations
 @docs Grid, GridLineCustomizations, decentGrid, emptyGrid
@@ -550,8 +551,7 @@ normalBarsAxis =
 normalBarLabel : String -> Float -> LabelCustomizations
 normalBarLabel label position =
   { position = position
-  , format = always label
-  , view = viewLabel []
+  , view = viewLabel [] label
   }
 
 
@@ -616,7 +616,7 @@ defaultSeriesPlotCustomizations =
       , left = 40
       }
   , onHover = Nothing
-  , viewHintContainer = normalHoverContainer
+  , viewHintContainer = normalHintContainer
   , horizontalAxis = normalAxis
   , grid =
       { horizontal = emptyGrid
@@ -657,52 +657,69 @@ defaultBarsPlotCustomizations =
 {-| A view located at the bottom left corner of you plot, holding the hint views you
   (maybe) added in your data points or groups.
 -}
-normalHoverContainer : PlotSummary -> List (Html Never) -> Html Never
-normalHoverContainer summary =
+normalHintContainer : PlotSummary -> List (Html Never) -> Html Never
+normalHintContainer summary =
   div [ Html.Attributes.style [ ( "margin-left", toString summary.x.marginLower ++ "px" ) ] ]
 
 
 {-| A view holding your hint views which flies around on your plot following the hovered x.
 -}
-flyingHoverContainer : Maybe Point -> PlotSummary -> List (Html Never) -> Html Never
-flyingHoverContainer hovering summary hints =
+flyingHintContainer : (Bool -> List (Html Never) -> Html Never) -> Maybe Point -> PlotSummary -> List (Html Never) -> Html Never
+flyingHintContainer inner hovering summary hints =
   case hovering of
     Nothing ->
       text ""
 
-    Just { x } ->
-      let
-        xOffset =
-          toSVGX summary x
+    Just point ->
+      viewFlyingHintContainer inner point summary hints
 
-        isLeft =
-          (x - summary.x.min) > (range summary.x) / 2
 
-        margin =
-          if isLeft then
-            -20
-          else
-            20
+viewFlyingHintContainer : (Bool -> List (Html Never) -> Html Never) -> Point -> PlotSummary -> List (Html Never) -> Html Never
+viewFlyingHintContainer inner { x } summary hints =
+    let
+      xOffset =
+        toSVGX summary x
 
-        direction =
-          if isLeft then
-            "translateX(-100%)"
-          else
-            "translateX(0)"
+      isLeft =
+        (x - summary.x.min) > (range summary.x) / 2
 
-        style =
-          [ ( "position", "absolute" )
-          , ( "top", "25%" )
-          , ( "left", toString xOffset ++ "px" )
-          , ( "transform", direction )
-          , ( "padding", "5px 10px" )
-          , ( "margin", "0 " ++ toString margin ++ "px" )
-          , ( "background", grey )
-          , ( "border-radius", "2px" )
-          , ( "pointer-events", "none" )
-          ]
-      in
-        div [ Html.Attributes.style style ] hints
+      direction =
+        if isLeft then
+          "translateX(-100%)"
+        else
+          "translateX(0)"
+
+      style =
+        [ ( "position", "absolute" )
+        , ( "top", "25%" )
+        , ( "left", toString xOffset ++ "px" )
+        , ( "transform", direction )
+        , ( "pointer-events", "none" )
+        ]
+    in
+      div [ Html.Attributes.style style ] [ inner isLeft hints ]
+
+
+{-| The normal hint view.
+-}
+normalHintContainerInner : Bool -> List (Html Never) -> Html Never
+normalHintContainerInner isLeft hints =
+  let
+    margin =
+      if isLeft then
+        10
+      else
+        10
+  in
+    div
+      [ Html.Attributes.style
+        [ ( "margin", "0 " ++ toString margin ++ "px" )
+        , ( "padding", "5px 10px" )
+        , ( "background", grey )
+        , ( "border-radius", "2px" )
+        , ( "color", "black" )
+        ]
+      ] hints
 
 
 
@@ -797,8 +814,7 @@ type alias TickCustomizations =
 
 {-| -}
 type alias LabelCustomizations =
-  { view : String -> Svg Never
-  , format : Float -> String
+  { view : Svg Never
   , position : Float
   }
 
@@ -915,8 +931,7 @@ simpleTick position =
 simpleLabel : Float -> LabelCustomizations
 simpleLabel position =
   { position = position
-  , format = toString
-  , view = viewLabel []
+  , view = viewLabel [] (toString position)
   }
 
 
@@ -1005,7 +1020,7 @@ viewSeriesCustom customizations series data =
     viewHint =
       case List.filterMap .viewHint allDataPoints of
         [] ->
-          div [] []
+          text ""
 
         views ->
           Html.map never <| customizations.viewHintContainer summary views
@@ -1111,7 +1126,7 @@ viewBarsCustom customizations bars data =
     viewHint =
       case hints of
         [] ->
-          div [] []
+          text ""
 
         hints ->
           Html.map never <| customizations.viewHintContainer summary hints
@@ -1582,9 +1597,9 @@ viewActualHorizontalAxis summary { position, axisLine, ticks, labels, flipAnchor
       viewTickLine { attributes, length, position } =
         g [ place summary (at position) 0 0 ] [ viewTickInner attributes 0 (lengthOfTick length) ]
 
-      viewLabel { format, position, view } =
+      viewLabel { position, view } =
         g [ place summary (at position) 0 positionOfLabel, style "text-anchor: middle;" ]
-          [ view (format position) ]
+          [ view ]
     in
       g [ class "elm-plot__horizontal-axis" ]
         [ viewAxisLine summary at axisLine
@@ -1626,9 +1641,9 @@ viewActualVerticalAxis summary { position, axisLine, ticks, labels, flipAnchor }
         g [ place summary (at position) 0 0 ]
           [ viewTickInner attributes (lengthOfTick length) 0 ]
 
-      viewLabel { format, position, view } =
+      viewLabel { position, view } =
         g [ place summary (at position) positionOfLabel 5, style anchorOfLabel ]
-          [ view (format position) ]
+          [ view ]
     in
       g [ class "elm-plot__vertical-axis" ]
         [ viewAxisLine summary at axisLine

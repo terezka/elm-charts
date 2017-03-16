@@ -9,7 +9,7 @@ a {
 
 .view {
 	width: 687px;
-	margin: 0 auto;
+	margin: 150px auto;
 	font-family: sans-serif;
 	color: #7F7F7F;
 	font-weight: 200;
@@ -26,7 +26,7 @@ a {
 }
 
 .view__github-link {
-	margin: 40px auto 100px;
+	margin: 40px auto 10px;
 }
 
 .view-heading {
@@ -38,6 +38,7 @@ a {
 }
 
 .view-heading__code-open {
+	margin-top: 30px;
 	color: #9ea0a2;
 	font-size: 12px;
 	cursor: pointer;
@@ -81,47 +82,6 @@ a {
 
 /* Standard styles */
 
-.elm-plot {
-	position: relative;
-}
-
-.elm-plot__inner {
-	stroke: #c3c3c3;
-	fill: #c3c3c3;
-}
-
-.elm-plot__grid__line {
-	stroke: #c3c3c3;
-}
-
-.elm-plot__hint {
-	position: absolute;
-	pointer-events: none;
-}
-
-.elm-plot__hint__line {
-	width: 1px;
-	background-color: #000;
-	pointer-events: none;
-}
-
-.elm-plot__hint__default-view {
-	position: absolute;
-	top: 20%;
-	padding: 10px;
-	background-color: #eee;
-	width: 150px;
-	text-align: left;
-	border-radius: 3px;
-	box-shadow: 5px 5px 20px -5px rgba(0,0,0,0.25);
-}
-
-
-.elm-plot__hint__default-view--left {
-	left: 10px;
-}
-
-.elm-plot__hint__default-view--right {
-	transform: translateX(-100%);
-	left: -10px;
+.elm-plot__labels {
+	fill: #565656;
 }
