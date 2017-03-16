@@ -7,7 +7,7 @@ import Msg exposing (..)
 import Common exposing (..)
 import Svg.Plot exposing (Point)
 import PlotGrid
-import PlotInterpolation
+import PlotRangeFrame
 import PlotAxis
 import PlotBars
 
@@ -64,7 +64,6 @@ view model =
         [ class "view" ]
         [ viewTitle
         , div [] (List.map (viewExample model) (examples model))
-        , viewFooter
         ]
 
 
@@ -87,6 +86,13 @@ viewTitle =
                 [ href "https://github.com/terezka/elm-plot" ]
                 [ text "Github" ]
             ]
+        , div []
+          [ a
+              [ href "https://twitter.com/terezk_a"
+              , style [ ( "color", "#84868a" ) ]
+              ]
+              [ text "@terezk_a" ]
+          ]
         ]
 
 
@@ -94,17 +100,16 @@ viewExample : Model -> PlotExample Msg -> Html.Html Msg
 viewExample model ({ title, id, view, code } as example) =
     Html.div
         [ class "view-plot" ]
-        [ viewHeading model example
+        [ view
+        , viewHeading model example
         , viewCode model example
-        , view
         ]
 
 
 viewHeading : Model -> PlotExample msg -> Html Msg
 viewHeading model { title, id } =
     div [ class "view-heading" ]
-        [ a [ name id, href ("#" ++ id) ] [ text title ]
-        , viewToggler id
+        [ viewToggler id
         ]
 
 
@@ -140,18 +145,6 @@ viewLink id =
         [ text "See full source" ]
 
 
-viewFooter : Html msg
-viewFooter =
-    div
-        [ class "view__footer" ]
-        [ text "Made by "
-        , a
-            [ href "https://twitter.com/terexka"
-            , style [ ( "color", "#84868a" ) ]
-            ]
-            [ text "@terexka" ]
-        ]
-
 
 
 -- View helpers
@@ -184,7 +177,7 @@ port highlight : () -> Cmd msg
 examples : Model -> List (PlotExample Msg)
 examples model =
     [ PlotBars.plotExample model.hovering
-    , PlotInterpolation.plotExample
+    , PlotRangeFrame.plotExample
     , PlotGrid.plotExample
     , PlotAxis.plotExample
     ]

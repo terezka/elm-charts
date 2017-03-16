@@ -13,6 +13,8 @@ module Common
         )
 
 import Svg exposing (Svg)
+import Svg.Plot exposing (..)
+
 
 
 type alias PlotExample msg =

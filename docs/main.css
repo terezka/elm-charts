@@ -8,8 +8,8 @@ a {
 }
 
 .view {
-	width: 800px;
-	margin: 80px auto;
+	width: 687px;
+	margin: 0 auto;
 	font-family: sans-serif;
 	color: #7F7F7F;
 	font-weight: 200;
@@ -30,11 +30,10 @@ a {
 }
 
 .view-heading {
-	margin: 100px auto 10px;
+	margin: 10px auto 10px;
 }
 
 .view-heading a {
-	padding-top: 40px;
 	text-decoration: none;
 }
 
@@ -49,6 +48,7 @@ a {
 }
 
 .view-code__inner {
+	padding: 40px;
 	text-align: left;
 	margin: 30px auto;
 	max-height: 400px;
@@ -65,9 +65,9 @@ a {
 }
 
 .view-plot {
-	width: 600px;
 	vertical-align: top;
 	margin: 0 auto;
+	margin-top: 180px;
 }
 
 .elm-plot {

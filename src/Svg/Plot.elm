@@ -1,6 +1,7 @@
 module Svg.Plot
     exposing
         ( PlotCustomizations
+        , PlotSummary
         , Point
         , defaultSeriesPlotCustomizations
         , defaultBarsPlotCustomizations
@@ -104,7 +105,7 @@ Just thought you might want a hand with all the views you need for you data poin
 @docs Bars, BarGroup, MaxBarWidth, hintGroup, customGroups, customGroup
 
 # Custom view
-@docs PlotCustomizations, defaultSeriesPlotCustomizations, viewSeriesCustom, defaultBarsPlotCustomizations, viewBarsCustom
+@docs PlotCustomizations, PlotSummary, defaultSeriesPlotCustomizations, viewSeriesCustom, defaultBarsPlotCustomizations, viewBarsCustom
 
 ## Hover customizations
 @docs Point, normalHoverContainer, flyingHoverContainer
@@ -454,7 +455,8 @@ type MaxBarWidth
   | Fixed Float
 
 
-{-| For regular bar charts. -}
+{-| For regular bar charts.
+-}
 groups : (data -> List BarGroup) -> Bars data msg
 groups toGroups =
   { axis = normalAxis
@@ -464,7 +466,8 @@ groups toGroups =
   }
 
 
-{-| For regular groups. -}
+{-| For regular groups.
+-}
 group : String -> List Float -> BarGroup
 group label heights =
   { label = normalBarLabel label
@@ -474,7 +477,8 @@ group label heights =
   }
 
 
-{-| For groups with hint glitter. -}
+{-| For groups with hint glitter.
+-}
 hintGroup : Maybe Point -> String -> List Float -> BarGroup
 hintGroup hovering label heights =
   { label = normalBarLabel label
@@ -589,7 +593,7 @@ type alias PlotCustomizations msg =
     { horizontal : Grid
     , vertical : Grid
     }
-  , junk : Float -> Float -> Float -> Float -> List { x : Float, y : Float, view : Svg msg }
+  , junk : PlotSummary -> List { x : Float, y : Float, view : Svg msg }
   , toDomainLowest : Float -> Float
   , toDomainHighest : Float -> Float
   , toRangeLowest : Float -> Float
@@ -603,8 +607,8 @@ defaultSeriesPlotCustomizations : PlotCustomizations msg
 defaultSeriesPlotCustomizations =
   { attributes = []
   , id = "elm-plot"
-  , width = 908
-  , height = 490
+  , width = 687
+  , height = 480
   , margin =
       { top = 20
       , right = 40
@@ -618,17 +622,12 @@ defaultSeriesPlotCustomizations =
       { horizontal = emptyGrid
       , vertical = emptyGrid
       }
-  , junk = noJunk
+  , junk = always []
   , toDomainLowest = identity
   , toDomainHighest = identity
   , toRangeLowest = identity
   , toRangeHighest = identity
   }
-
-
-noJunk : Float -> Float -> Float -> Float -> List (JunkCustomizations msg)
-noJunk _ _ _ _ =
-  []
 
 
 {-| -}
@@ -681,13 +680,13 @@ flyingHoverContainer hovering summary hints =
 
         margin =
           if isLeft then
-            -15
+            -20
           else
-            15
+            20
 
         direction =
           if isLeft then
-            "translateX(-100%)"
+            "translate(-100%, 0)"
           else
             ""
 
@@ -696,7 +695,7 @@ flyingHoverContainer hovering summary hints =
           , ( "top", "25%" )
           , ( "left", toString xOffset ++ "px" )
           , ( "transform", direction )
-          , ( "padding", "5px" )
+          , ( "padding", "5px 10px" )
           , ( "margin", toString margin ++ "px" )
           , ( "background", grey )
           , ( "border-radius", "2px" )
@@ -1012,7 +1011,7 @@ viewSeriesCustom customizations series data =
           Html.map never <| customizations.viewHintContainer summary views
 
     viewJunks =
-      customizations.junk summary.x.min summary.y.min summary.x.max summary.y.max
+      customizations.junk summary
         |> List.map (viewActualJunk summary)
         |> g [ class "elm-plot__junk" ]
         |> Just
@@ -1172,6 +1171,7 @@ containerAttributes customizations summary =
         , Attributes.id customizations.id
         , Html.Attributes.style
           [ ( "position", "relative" )
+          , ( "margin", "0 auto" )
           , ( "width", toString customizations.width ++ "px" )
           , ( "height", toString customizations.height ++ "px" )
           ]
@@ -1181,6 +1181,7 @@ containerAttributes customizations summary =
         [ Attributes.id customizations.id
         , Html.Attributes.style
           [ ( "position", "relative" )
+          , ( "margin", "0 auto" )
           , ( "width", toString customizations.width ++ "px" )
           , ( "height", toString customizations.height ++ "px" )
           ]
@@ -1727,7 +1728,7 @@ interval offset delta { min, max } =
 -}
 remove : Float -> List Float -> List Float
 remove banned values =
-  List.filter (\v -> v /= banned) values |> Debug.log "here"
+  List.filter (\v -> v /= banned) values
 
 
 tickPosition : Float -> Float -> Int -> Float

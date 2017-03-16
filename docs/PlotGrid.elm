@@ -17,7 +17,7 @@ plotExample =
 
 data : List ( Float, Float )
 data =
-  List.map (\v -> ( toFloat v, sin (toFloat v * pi / 20) )) (List.range 0 100)
+  List.map (\v -> ( toFloat v, sin (degrees <| toFloat v) )) (List.range 0 360)
 
 
 title : Svg msg
@@ -25,9 +25,8 @@ title =
   viewLabel
     [ fill axisColor
     , style "text-anchor: end;"
-    , displace -10 35
     ]
-    "f(x) = sin ( x * π / 20 )"
+    "f(x) = sin x"
 
 
 customLine : Series (List ( Float, Float )) msg
@@ -41,8 +40,8 @@ customLine =
 verticalAxis : Axis
 verticalAxis =
   customAxis <| \summary ->
-    { position = closestToZero
-    , axisLine = Just (simpleLine summary)
+    { position = Basics.min
+    , axisLine = Just { attributes = [ stroke "grey" ], start = summary.dataMin, end = summary.dataMax }
     , ticks = List.map simpleTick (interval 0 0.5 summary)
     , labels = List.map simpleLabel (interval 0 0.5 summary)
     , flipAnchor = False
@@ -52,10 +51,10 @@ verticalAxis =
 horizontalAxis : Axis
 horizontalAxis =
   customAxis <| \summary ->
-    { position = closestToZero
-    , axisLine = Just (simpleLine summary)
-    , ticks = List.map simpleTick (interval 0 10 summary)
-    , labels = []
+    { position = Basics.min
+    , axisLine = Just { attributes = [ stroke "grey" ], start = summary.dataMin, end = summary.dataMax }
+    , ticks = List.map simpleTick [ 0, 90, 180, 270, 360 ]
+    , labels = List.map simpleLabel [ 0, 90, 180, 270, 360 ]
     , flipAnchor = False
     }
 
@@ -66,11 +65,9 @@ view =
     settings =
       { defaultSeriesPlotCustomizations
       | horizontalAxis = horizontalAxis
-      , grid = { horizontal = decentGrid, vertical = emptyGrid }
-      , margin = { top = 20, bottom = 20, left = 40, right = 160 }
-      , junk = \xMin yMin xMax yMax -> [ viewJunk title xMax yMax ]
-      , toDomainHighest = \y -> y + 0.25
+      , junk = \summary -> [ viewJunk title summary.x.dataMax summary.y.max  ]
       , toDomainLowest = \y -> y - 0.25
+      , toRangeLowest = \y -> y - 25
       }
   in
     viewSeriesCustom settings [ customLine ] data
