@@ -11250,7 +11250,7 @@ var _terezka$elm_plot$Svg_Plot$flyingHoverContainer = F3(
 				_p82 - summary.x.min,
 				_terezka$elm_plot$Svg_Draw$range(summary.x) / 2) > 0;
 			var margin = isLeft ? -20 : 20;
-			var direction = isLeft ? 'translate(-100%, 0)' : '';
+			var direction = isLeft ? 'translateX(-100%)' : 'translateX(0)';
 			var xOffset = A2(_terezka$elm_plot$Svg_Draw$toSVGX, summary, _p82);
 			var style = {
 				ctor: '::',
@@ -11281,8 +11281,11 @@ var _terezka$elm_plot$Svg_Plot$flyingHoverContainer = F3(
 										_0: 'margin',
 										_1: A2(
 											_elm_lang$core$Basics_ops['++'],
-											_elm_lang$core$Basics$toString(margin),
-											'px')
+											'0 ',
+											A2(
+												_elm_lang$core$Basics_ops['++'],
+												_elm_lang$core$Basics$toString(margin),
+												'px'))
 									},
 									_1: {
 										ctor: '::',
@@ -12171,38 +12174,24 @@ var _terezka$elm_plot$PlotAxis$horizontalAxis = _terezka$elm_plot$Svg_Plot$custo
 	});
 var _terezka$elm_plot$PlotAxis$customLine = {
 	axis: _terezka$elm_plot$Svg_Plot$axisAtMin,
-	interpolation: A2(
-		_terezka$elm_plot$Svg_Plot$Monotone,
-		_elm_lang$core$Maybe$Nothing,
-		{
-			ctor: '::',
-			_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Common$blueStroke),
-			_1: {ctor: '[]'}
-		}),
+	interpolation: _terezka$elm_plot$Svg_Plot$None,
 	toDataPoints: _elm_lang$core$List$map(
 		function (_p0) {
 			var _p1 = _p0;
 			return A3(
 				_terezka$elm_plot$Svg_Plot$dot,
-				A2(_terezka$elm_plot$Svg_Plot$viewSquare, 10, _terezka$elm_plot$Common$blueStroke),
+				A2(_terezka$elm_plot$Svg_Plot$viewCircle, 5, _terezka$elm_plot$Common$blueStroke),
 				_p1._0,
 				_p1._1 * 1.2);
 		})
 };
 var _terezka$elm_plot$PlotAxis$customArea = {
 	axis: _terezka$elm_plot$Svg_Plot$axisAtMax,
-	interpolation: A2(
-		_terezka$elm_plot$Svg_Plot$Monotone,
-		_elm_lang$core$Maybe$Just(_terezka$elm_plot$Common$pinkFill),
-		{
-			ctor: '::',
-			_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Common$pinkStroke),
-			_1: {ctor: '[]'}
-		}),
+	interpolation: _terezka$elm_plot$Svg_Plot$None,
 	toDataPoints: _elm_lang$core$List$map(
 		function (_p2) {
 			var _p3 = _p2;
-			return A2(_terezka$elm_plot$Svg_Plot$diamond, _p3._0, _p3._1);
+			return A2(_terezka$elm_plot$Svg_Plot$triangle, _p3._0, _p3._1);
 		})
 };
 var _terezka$elm_plot$PlotAxis$data = {
@@ -12261,10 +12250,10 @@ var _terezka$elm_plot$PlotAxis$view = A3(
 		{horizontalAxis: _terezka$elm_plot$PlotAxis$horizontalAxis}),
 	{
 		ctor: '::',
-		_0: _terezka$elm_plot$PlotAxis$customArea,
+		_0: _terezka$elm_plot$PlotAxis$customLine,
 		_1: {
 			ctor: '::',
-			_0: _terezka$elm_plot$PlotAxis$customLine,
+			_0: _terezka$elm_plot$PlotAxis$customArea,
 			_1: {ctor: '[]'}
 		}
 	},

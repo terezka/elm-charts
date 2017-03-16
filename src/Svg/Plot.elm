@@ -686,9 +686,9 @@ flyingHoverContainer hovering summary hints =
 
         direction =
           if isLeft then
-            "translate(-100%, 0)"
+            "translateX(-100%)"
           else
-            ""
+            "translateX(0)"
 
         style =
           [ ( "position", "absolute" )
@@ -696,7 +696,7 @@ flyingHoverContainer hovering summary hints =
           , ( "left", toString xOffset ++ "px" )
           , ( "transform", direction )
           , ( "padding", "5px 10px" )
-          , ( "margin", toString margin ++ "px" )
+          , ( "margin", "0 " ++ toString margin ++ "px" )
           , ( "background", grey )
           , ( "border-radius", "2px" )
           , ( "pointer-events", "none" )

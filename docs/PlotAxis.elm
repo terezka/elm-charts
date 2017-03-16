@@ -1,7 +1,6 @@
 module PlotAxis exposing (plotExample)
 
 import Svg exposing (Svg)
-import Svg.Attributes exposing (..)
 import Svg.Plot exposing (..)
 import Common exposing (..)
 
@@ -23,16 +22,16 @@ data =
 customArea : Series (List ( Float, Float )) msg
 customArea =
   { axis = axisAtMax
-  , interpolation = Monotone (Just pinkFill) [ stroke pinkStroke ]
-  , toDataPoints = List.map (\( x, y ) -> diamond x y)
+  , interpolation = None
+  , toDataPoints = List.map (\( x, y ) -> triangle x y)
   }
 
 
 customLine : Series (List ( Float, Float )) msg
 customLine =
   { axis = axisAtMin
-  , interpolation = Monotone Nothing [ stroke blueStroke ]
-  , toDataPoints = List.map (\( x, y ) -> dot (viewSquare 10 blueStroke) x (y * 1.2))
+  , interpolation = None
+  , toDataPoints = List.map (\( x, y ) -> dot (viewCircle 5 blueStroke) x (y * 1.2))
   }
 
 
@@ -54,7 +53,7 @@ view : Svg.Svg a
 view =
   viewSeriesCustom
     { defaultSeriesPlotCustomizations | horizontalAxis = horizontalAxis }
-    [ customArea, customLine ]
+    [ customLine, customArea ]
     data
 
 
