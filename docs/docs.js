@@ -10619,25 +10619,21 @@ var _terezka$elm_plot$Plot$viewInterpolation = F7(
 					_0: _elm_lang$svg$Svg_Attributes$fill(_p50._0),
 					_1: {
 						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$fill(_terezka$elm_plot$Internal_Colors$pinkFill),
+						_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Internal_Colors$pinkStroke),
 						_1: {
 							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Internal_Colors$pinkStroke),
+							_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__series__interpolation'),
 							_1: {
 								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__series__interpolation'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$clipPath(
+								_0: _elm_lang$svg$Svg_Attributes$clipPath(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'url(#',
 										A2(
 											_elm_lang$core$Basics_ops['++'],
-											'url(#',
-											A2(
-												_elm_lang$core$Basics_ops['++'],
-												_terezka$elm_plot$Plot$toClipPathId(customizations),
-												')'))),
-									_1: attributes
-								}
+											_terezka$elm_plot$Plot$toClipPathId(customizations),
+											')'))),
+								_1: attributes
 							}
 						}
 					}
