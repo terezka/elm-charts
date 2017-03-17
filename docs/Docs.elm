@@ -12,22 +12,23 @@ import PlotAxis
 import PlotBars
 
 
+
 -- MODEL
 
 
 type alias Model =
-    { focused : Maybe String
-    , hovering1 : Maybe Point
-    , hovering2 : Maybe Point
-    }
+  { focused : Maybe String
+  , rangeFrameHover : Maybe Point
+  , barsHover : Maybe Point
+  }
 
 
-initialModel : Model
-initialModel =
-    { focused = Nothing
-    , hovering1 = Nothing
-    , hovering2 = Nothing
-    }
+init : Model
+init =
+  { focused = Nothing
+  , rangeFrameHover = Nothing
+  , barsHover = Nothing
+  }
 
 
 
@@ -36,28 +37,23 @@ initialModel =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ focused } as model) =
-    case msg of
-        FocusExample id ->
-            ( { model | focused = updateFocused id focused }, Cmd.none )
+  case msg of
+    FocusExample id ->
+      { model | focused = updateFocused id focused } ! []
 
-        Hover1 point ->
-            { model | hovering1 = point } ! []
+    HoverRangeFrame point ->
+      { model | rangeFrameHover = point } ! []
 
-        Hover2 point ->
-            { model | hovering2 = point } ! []
+    HoverBars point ->
+      { model | barsHover = point } ! []
 
 
 updateFocused : String -> Maybe String -> Maybe String
 updateFocused newId model =
-    case model of
-        Nothing ->
-            Just newId
-
-        Just oldId ->
-            if oldId == newId then
-                Nothing
-            else
-                Just newId
+  if Just newId == model then
+    Nothing
+  else
+    Just newId
 
 
 
@@ -66,73 +62,75 @@ updateFocused newId model =
 
 view : Model -> Html Msg
 view model =
-    div [ class "view" ]
-        [ div [ class "view--left" ]
-          [ header [ class "view__header" ]
-            [ h1 [ class "view__title" ] [ text "elm-plot" ]
-            , div [ class "view__github-link" ]
-                [ a [ href "https://github.com/terezka/elm-plot" ] [ text "github" ]
-                , text " / "
-                , a [ href "https://twitter.com/terezk_a" ] [ text "twitter" ]
-                ]
-            ]
-          ]
-        , div [ class "view--right" ] (List.map (viewExample model) (examples model))
+  div [ class "view" ]
+    [ div [ class "view--left" ] [ viewHeader ]
+    , div [ class "view--right" ] (List.map (viewExample model) (examples model))
+    ]
+
+
+viewHeader : Html msg
+viewHeader =
+  header [ class "view-header" ]
+    [ h1 [ class "view-header__title" ] [ text "elm-plot" ]
+    , p []
+        [ a [ href "https://github.com/terezka/elm-plot" ] [ text "github" ]
+        , text " / "
+        , a [ href "https://twitter.com/terezk_a" ] [ text "twitter" ]
         ]
+    ]
+
+
+
+-- VIEW EXAMPLE
 
 
 viewExample : Model -> PlotExample Msg -> Html.Html Msg
 viewExample model ({ title, id, view, code } as example) =
     div [ class ("view-plot " ++ visibilityClass model id) ]
-        [ div
-            [ class "view-plot--left" ]
-            [ view ]
-        , div
-            [ class "view-plot--right" ]
+        [ div [ class "view-plot--left" ] [ view ]
+        , div [ class "view-plot--right" ]
             [ viewCode model example
-            , viewHeading model example
+            , viewFooter model example
             ]
         ]
 
 
-viewHeading : Model -> PlotExample msg -> Html Msg
-viewHeading model { title, id } =
-    div [ class "view-heading" ]
-        [ viewToggler id
+viewFooter : Model -> PlotExample msg -> Html Msg
+viewFooter model { title, id } =
+    div [ class "view-footer" ]
+        [ viewToggler model id
         ]
 
 
-viewToggler : String -> Html.Html Msg
-viewToggler id =
-    p [ class "view-heading__code-open" ]
-      [ span
-          [ onClick (FocusExample id)
-          ]
-          [ text "view source" ]
+viewToggler : Model -> String -> Html.Html Msg
+viewToggler model id =
+    p [ class "view-toggler" ]
+      [ span [ onClick (FocusExample id) ] [ viewToggleText model id ]
       , text " / "
       , viewLink id
       ]
 
 
+viewToggleText : Model -> String -> Html msg
+viewToggleText { focused } id =
+    if focused == Just id then
+      text "hide source"
+    else
+      text "view source"
+
 
 viewCode : Model -> PlotExample msg -> Html Msg
 viewCode model { id, code } =
     div [ class "view-code" ]
-        [ Html.code
-            [ class "elm view-code__inner" ]
-            [ pre [] [ text code ]
-            ]
+        [ Html.code [ class "elm view-code__inner" ] [ pre [] [ text code ] ]
         , viewLink id
         ]
 
 
 viewLink : String -> Html.Html Msg
 viewLink id =
-    a
-        [ class "view-code__link"
-        , href (toUrl id)
-        ]
-        [ text "full source" ]
+    a [ class "view-link", href (toUrl id) ]
+      [ text "full source" ]
 
 
 
@@ -153,6 +151,8 @@ visibilityClass { focused } id =
 
 
 
+
+
 -- Ports
 
 
@@ -165,17 +165,17 @@ port highlight : () -> Cmd msg
 
 examples : Model -> List (PlotExample Msg)
 examples model =
-    [ PlotRangeFrame.plotExample model.hovering1
+    [ PlotRangeFrame.plotExample model.rangeFrameHover
     , PlotSine.plotExample
     , PlotAxis.plotExample
-    , PlotBars.plotExample model.hovering2
+    , PlotBars.plotExample model.barsHover
     ]
 
 
 main : Program Never Model Msg
 main =
     Html.program
-        { init = ( initialModel, highlight () )
+        { init = ( init, highlight () )
         , update = update
         , subscriptions = (always Sub.none)
         , view = view

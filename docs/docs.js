@@ -11900,11 +11900,11 @@ var _terezka$elm_plot$Svg_Plot$axisAtMax = _terezka$elm_plot$Svg_Plot$customAxis
 		};
 	});
 
-var _terezka$elm_plot$Msg$Hover2 = function (a) {
-	return {ctor: 'Hover2', _0: a};
+var _terezka$elm_plot$Msg$HoverBars = function (a) {
+	return {ctor: 'HoverBars', _0: a};
 };
-var _terezka$elm_plot$Msg$Hover1 = function (a) {
-	return {ctor: 'Hover1', _0: a};
+var _terezka$elm_plot$Msg$HoverRangeFrame = function (a) {
+	return {ctor: 'HoverRangeFrame', _0: a};
 };
 var _terezka$elm_plot$Msg$FocusExample = function (a) {
 	return {ctor: 'FocusExample', _0: a};
@@ -12064,7 +12064,7 @@ var _terezka$elm_plot$PlotSine$view = A3(
 	_terezka$elm_plot$PlotSine$data);
 var _terezka$elm_plot$PlotSine$plotExample = {title: 'Sin', code: _terezka$elm_plot$PlotSine$code, view: _terezka$elm_plot$PlotSine$view, id: 'PlotSine'};
 
-var _terezka$elm_plot$PlotRangeFrame$code = '\nscatter : Maybe Point -> Series (List ( Float, Float )) Msg\nscatter hovering =\n  { axis = rangeFrameAxis hovering .y\n  , interpolation = None\n  , toDataPoints = List.map (rangeFrameHintDot hovering)\n  }\n\n\ndottedLine : AxisSummary -> LineCustomizations\ndottedLine =\n  fullLine [ stroke \"#a3a3a3\", strokeDasharray \"2, 10\" ]\n\n\nviewCircle : Float -> Float -> Svg Msg\nviewCircle x y =\n  Svg.circle\n    [ r \"5\"\n    , stroke \"transparent\"\n    , strokeWidth \"3px\"\n    , fill pinkStroke\n    , onMouseOver (Hover (Just { x = x, y = y }))\n    , onMouseOut (Hover Nothing)\n    ]\n    []\n\n\nhoverLine : Float -> Float -> Point -> Maybe (AxisSummary -> LineCustomizations)\nhoverLine x y hovered =\n  if hovered.x == x && hovered.y == y then\n    Just dottedLine\n  else\n    Nothing\n\n\nrangeFrameHintDot : Maybe Point -> ( Float, Float ) -> DataPoint Msg\nrangeFrameHintDot hovered ( x, y ) =\n  { view = Just (viewCircle x y)\n  , xLine = Maybe.andThen (hoverLine x y) hovered\n  , yLine = Maybe.andThen (hoverLine x y) hovered\n  , xTick = Just (simpleTick x)\n  , yTick = Just (simpleTick y)\n  , viewHint = Nothing\n  , x = x\n  , y = y\n  }\n\n\nrangeFrameAxis : Maybe Point -> (Point -> Float) -> Axis\nrangeFrameAxis hovered toValue =\n  customAxis <| \\summary ->\n    { position = closestToZero\n    , axisLine = Nothing\n    , ticks = List.map simpleTick [ summary.dataMin, summary.dataMax ]\n    , labels = List.map simpleLabel [ summary.dataMin, summary.dataMax ]\n        ++ hoverLabel hovered toValue\n    , flipAnchor = False\n    }\n\n\nhoverLabel : Maybe Point -> (Point -> Float) -> List LabelCustomizations\nhoverLabel hovered toValue =\n  Maybe.map (toValue >> simpleLabel >> List.singleton) hovered\n    |> Maybe.withDefault []\n\n\nview : Maybe Point -> Svg.Svg Msg\nview hovering =\n  viewSeriesCustom\n    { defaultSeriesPlotCustomizations\n    | horizontalAxis = rangeFrameAxis hovering .x\n    , margin = { top = 20, bottom = 20, left = 50, right = 40 }\n    , toRangeLowest = \\y -> y - 0.02\n    , toDomainLowest = \\y -> y - 1\n    }\n    [ scatter hovering ]\n    data\n';
+var _terezka$elm_plot$PlotRangeFrame$code = '\nscatter : Maybe Point -> Series (List ( Float, Float )) Msg\nscatter hovering =\n  { axis = rangeFrameAxis hovering .y\n  , interpolation = None\n  , toDataPoints = List.map (rangeFrameHintDot hovering)\n  }\n\n\nviewCircle : Float -> Float -> Svg Msg\nviewCircle x y =\n  Svg.circle\n    [ r \"5\"\n    , stroke \"transparent\"\n    , strokeWidth \"3px\"\n    , fill pinkStroke\n    , onMouseOver (Hover (Just { x = x, y = y }))\n    , onMouseOut (Hover Nothing)\n    ]\n    []\n\n\nflashyLine : Float -> Float -> Point -> Maybe (AxisSummary -> LineCustomizations)\nflashyLine x y hovered =\n  if hovered.x == x && hovered.y == y then\n    Just (fullLine [ stroke \"#a3a3a3\", strokeDasharray \"2, 10\" ])\n  else\n    Nothing\n\n\nrangeFrameHintDot : Maybe Point -> ( Float, Float ) -> DataPoint Msg\nrangeFrameHintDot hovered ( x, y ) =\n  { view = Just (viewCircle x y)\n  , xLine = Maybe.andThen (hoverLine x y) hovered\n  , yLine = Maybe.andThen (hoverLine x y) hovered\n  , xTick = Just (simpleTick x)\n  , yTick = Just (simpleTick y)\n  , viewHint = Nothing\n  , x = x\n  , y = y\n  }\n\n\nrangeFrameAxis : Maybe Point -> (Point -> Float) -> Axis\nrangeFrameAxis hovered toValue =\n  customAxis <| \\summary ->\n    { position = closestToZero\n    , axisLine = Nothing\n    , ticks = List.map simpleTick [ summary.dataMin, summary.dataMax ]\n    , labels = List.map simpleLabel [ summary.dataMin, summary.dataMax ]\n        ++ hoverLabel hovered toValue\n    , flipAnchor = False\n    }\n\n\nhoverLabel : Maybe Point -> (Point -> Float) -> List LabelCustomizations\nhoverLabel hovered toValue =\n  hovered\n    |> Maybe.map (toValue >> simpleLabel >> List.singleton)\n    |> Maybe.withDefault []\n\n\nview : Maybe Point -> Svg.Svg Msg\nview hovering =\n  viewSeriesCustom\n    { defaultSeriesPlotCustomizations\n    | horizontalAxis = rangeFrameAxis hovering .x\n    , margin = { top = 20, bottom = 20, left = 50, right = 40 }\n    , toRangeLowest = \\y -> y - 0.02\n    , toDomainLowest = \\y -> y - 1\n    }\n    [ scatter hovering ]\n    data\n';
 var _terezka$elm_plot$PlotRangeFrame$hoverLabel = F2(
 	function (hovered, toValue) {
 		return A2(
@@ -12117,6 +12117,20 @@ var _terezka$elm_plot$PlotRangeFrame$rangeFrameAxis = F2(
 				};
 			});
 	});
+var _terezka$elm_plot$PlotRangeFrame$flashyLine = F3(
+	function (x, y, hovered) {
+		return (_elm_lang$core$Native_Utils.eq(hovered.x, x) && _elm_lang$core$Native_Utils.eq(hovered.y, y)) ? _elm_lang$core$Maybe$Just(
+			_terezka$elm_plot$Svg_Plot$fullLine(
+				{
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$stroke('#a3a3a3'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$strokeDasharray('2, 10'),
+						_1: {ctor: '[]'}
+					}
+				})) : _elm_lang$core$Maybe$Nothing;
+	});
 var _terezka$elm_plot$PlotRangeFrame$viewCircle = F2(
 	function (x, y) {
 		return A2(
@@ -12136,13 +12150,13 @@ var _terezka$elm_plot$PlotRangeFrame$viewCircle = F2(
 							_1: {
 								ctor: '::',
 								_0: _elm_lang$svg$Svg_Events$onMouseOver(
-									_terezka$elm_plot$Msg$Hover1(
+									_terezka$elm_plot$Msg$HoverRangeFrame(
 										_elm_lang$core$Maybe$Just(
 											{x: x, y: y}))),
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$svg$Svg_Events$onMouseOut(
-										_terezka$elm_plot$Msg$Hover1(_elm_lang$core$Maybe$Nothing)),
+										_terezka$elm_plot$Msg$HoverRangeFrame(_elm_lang$core$Maybe$Nothing)),
 									_1: {ctor: '[]'}
 								}
 							}
@@ -12151,20 +12165,6 @@ var _terezka$elm_plot$PlotRangeFrame$viewCircle = F2(
 				}
 			},
 			{ctor: '[]'});
-	});
-var _terezka$elm_plot$PlotRangeFrame$dottedLine = _terezka$elm_plot$Svg_Plot$fullLine(
-	{
-		ctor: '::',
-		_0: _elm_lang$svg$Svg_Attributes$stroke('#a3a3a3'),
-		_1: {
-			ctor: '::',
-			_0: _elm_lang$svg$Svg_Attributes$strokeDasharray('2, 10'),
-			_1: {ctor: '[]'}
-		}
-	});
-var _terezka$elm_plot$PlotRangeFrame$hoverLine = F3(
-	function (x, y, hovered) {
-		return (_elm_lang$core$Native_Utils.eq(hovered.x, x) && _elm_lang$core$Native_Utils.eq(hovered.y, y)) ? _elm_lang$core$Maybe$Just(_terezka$elm_plot$PlotRangeFrame$dottedLine) : _elm_lang$core$Maybe$Nothing;
 	});
 var _terezka$elm_plot$PlotRangeFrame$rangeFrameHintDot = F2(
 	function (hovered, _p1) {
@@ -12176,11 +12176,11 @@ var _terezka$elm_plot$PlotRangeFrame$rangeFrameHintDot = F2(
 				A2(_terezka$elm_plot$PlotRangeFrame$viewCircle, _p3, _p4)),
 			xLine: A2(
 				_elm_lang$core$Maybe$andThen,
-				A2(_terezka$elm_plot$PlotRangeFrame$hoverLine, _p3, _p4),
+				A2(_terezka$elm_plot$PlotRangeFrame$flashyLine, _p3, _p4),
 				hovered),
 			yLine: A2(
 				_elm_lang$core$Maybe$andThen,
-				A2(_terezka$elm_plot$PlotRangeFrame$hoverLine, _p3, _p4),
+				A2(_terezka$elm_plot$PlotRangeFrame$flashyLine, _p3, _p4),
 				hovered),
 			xTick: _elm_lang$core$Maybe$Just(
 				_terezka$elm_plot$Svg_Plot$simpleTick(_p3)),
@@ -12579,7 +12579,7 @@ var _terezka$elm_plot$PlotBars$view = function (hovering) {
 		_elm_lang$core$Native_Utils.update(
 			_terezka$elm_plot$Svg_Plot$defaultBarsPlotCustomizations,
 			{
-				onHover: _elm_lang$core$Maybe$Just(_terezka$elm_plot$Msg$Hover2),
+				onHover: _elm_lang$core$Maybe$Just(_terezka$elm_plot$Msg$HoverBars),
 				viewHintContainer: A2(_terezka$elm_plot$Svg_Plot$flyingHintContainer, _terezka$elm_plot$Svg_Plot$normalHintContainerInner, hovering)
 			}),
 		_terezka$elm_plot$PlotBars$bars(hovering),
@@ -12597,7 +12597,7 @@ var _terezka$elm_plot$PlotBars$plotExample = function (point) {
 var _terezka$elm_plot$Docs$examples = function (model) {
 	return {
 		ctor: '::',
-		_0: _terezka$elm_plot$PlotRangeFrame$plotExample(model.hovering1),
+		_0: _terezka$elm_plot$PlotRangeFrame$plotExample(model.rangeFrameHover),
 		_1: {
 			ctor: '::',
 			_0: _terezka$elm_plot$PlotSine$plotExample,
@@ -12606,7 +12606,7 @@ var _terezka$elm_plot$Docs$examples = function (model) {
 				_0: _terezka$elm_plot$PlotAxis$plotExample,
 				_1: {
 					ctor: '::',
-					_0: _terezka$elm_plot$PlotBars$plotExample(model.hovering2),
+					_0: _terezka$elm_plot$PlotBars$plotExample(model.barsHover),
 					_1: {ctor: '[]'}
 				}
 			}
@@ -12631,7 +12631,7 @@ var _terezka$elm_plot$Docs$viewLink = function (id) {
 		_elm_lang$html$Html$a,
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('view-code__link'),
+			_0: _elm_lang$html$Html_Attributes$class('view-link'),
 			_1: {
 				ctor: '::',
 				_0: _elm_lang$html$Html_Attributes$href(
@@ -12683,60 +12683,68 @@ var _terezka$elm_plot$Docs$viewCode = F2(
 				}
 			});
 	});
-var _terezka$elm_plot$Docs$viewToggler = function (id) {
-	return A2(
-		_elm_lang$html$Html$p,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('view-heading__code-open'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$span,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Events$onClick(
-						_terezka$elm_plot$Msg$FocusExample(id)),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('view source'),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: _elm_lang$html$Html$text(' / '),
-				_1: {
-					ctor: '::',
-					_0: _terezka$elm_plot$Docs$viewLink(id),
-					_1: {ctor: '[]'}
-				}
-			}
-		});
-};
-var _terezka$elm_plot$Docs$viewHeading = F2(
-	function (model, _p4) {
+var _terezka$elm_plot$Docs$viewToggleText = F2(
+	function (_p4, id) {
 		var _p5 = _p4;
+		return _elm_lang$core$Native_Utils.eq(
+			_p5.focused,
+			_elm_lang$core$Maybe$Just(id)) ? _elm_lang$html$Html$text('hide source') : _elm_lang$html$Html$text('view source');
+	});
+var _terezka$elm_plot$Docs$viewToggler = F2(
+	function (model, id) {
 		return A2(
-			_elm_lang$html$Html$div,
+			_elm_lang$html$Html$p,
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('view-heading'),
+				_0: _elm_lang$html$Html_Attributes$class('view-toggler'),
 				_1: {ctor: '[]'}
 			},
 			{
 				ctor: '::',
-				_0: _terezka$elm_plot$Docs$viewToggler(_p5.id),
+				_0: A2(
+					_elm_lang$html$Html$span,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(
+							_terezka$elm_plot$Msg$FocusExample(id)),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(_terezka$elm_plot$Docs$viewToggleText, model, id),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(' / '),
+					_1: {
+						ctor: '::',
+						_0: _terezka$elm_plot$Docs$viewLink(id),
+						_1: {ctor: '[]'}
+					}
+				}
+			});
+	});
+var _terezka$elm_plot$Docs$viewFooter = F2(
+	function (model, _p6) {
+		var _p7 = _p6;
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('view-footer'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(_terezka$elm_plot$Docs$viewToggler, model, _p7.id),
 				_1: {ctor: '[]'}
 			});
 	});
 var _terezka$elm_plot$Docs$viewExample = F2(
-	function (model, _p6) {
-		var _p7 = _p6;
-		var _p8 = _p7;
+	function (model, _p8) {
+		var _p9 = _p8;
+		var _p10 = _p9;
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -12745,7 +12753,7 @@ var _terezka$elm_plot$Docs$viewExample = F2(
 					A2(
 						_elm_lang$core$Basics_ops['++'],
 						'view-plot ',
-						A2(_terezka$elm_plot$Docs$visibilityClass, model, _p7.id))),
+						A2(_terezka$elm_plot$Docs$visibilityClass, model, _p9.id))),
 				_1: {ctor: '[]'}
 			},
 			{
@@ -12759,7 +12767,7 @@ var _terezka$elm_plot$Docs$viewExample = F2(
 					},
 					{
 						ctor: '::',
-						_0: _p7.view,
+						_0: _p9.view,
 						_1: {ctor: '[]'}
 					}),
 				_1: {
@@ -12773,16 +12781,80 @@ var _terezka$elm_plot$Docs$viewExample = F2(
 						},
 						{
 							ctor: '::',
-							_0: A2(_terezka$elm_plot$Docs$viewCode, model, _p8),
+							_0: A2(_terezka$elm_plot$Docs$viewCode, model, _p10),
 							_1: {
 								ctor: '::',
-								_0: A2(_terezka$elm_plot$Docs$viewHeading, model, _p8),
+								_0: A2(_terezka$elm_plot$Docs$viewFooter, model, _p10),
 								_1: {ctor: '[]'}
 							}
 						}),
 					_1: {ctor: '[]'}
 				}
 			});
+	});
+var _terezka$elm_plot$Docs$viewHeader = A2(
+	_elm_lang$html$Html$header,
+	{
+		ctor: '::',
+		_0: _elm_lang$html$Html_Attributes$class('view-header'),
+		_1: {ctor: '[]'}
+	},
+	{
+		ctor: '::',
+		_0: A2(
+			_elm_lang$html$Html$h1,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('view-header__title'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('elm-plot'),
+				_1: {ctor: '[]'}
+			}),
+		_1: {
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$p,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$a,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$href('https://github.com/terezka/elm-plot'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('github'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(' / '),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$a,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$href('https://twitter.com/terezk_a'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('twitter'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}
+					}
+				}),
+			_1: {ctor: '[]'}
+		}
 	});
 var _terezka$elm_plot$Docs$view = function (model) {
 	return A2(
@@ -12803,74 +12875,7 @@ var _terezka$elm_plot$Docs$view = function (model) {
 				},
 				{
 					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$header,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('view__header'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$h1,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('view__title'),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text('elm-plot'),
-									_1: {ctor: '[]'}
-								}),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$div,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('view__github-link'),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$a,
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$href('https://github.com/terezka/elm-plot'),
-												_1: {ctor: '[]'}
-											},
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html$text('github'),
-												_1: {ctor: '[]'}
-											}),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$html$Html$text(' / '),
-											_1: {
-												ctor: '::',
-												_0: A2(
-													_elm_lang$html$Html$a,
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$href('https://twitter.com/terezk_a'),
-														_1: {ctor: '[]'}
-													},
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html$text('twitter'),
-														_1: {ctor: '[]'}
-													}),
-												_1: {ctor: '[]'}
-											}
-										}
-									}),
-								_1: {ctor: '[]'}
-							}
-						}),
+					_0: _terezka$elm_plot$Docs$viewHeader,
 					_1: {ctor: '[]'}
 				}),
 			_1: {
@@ -12892,46 +12897,42 @@ var _terezka$elm_plot$Docs$view = function (model) {
 };
 var _terezka$elm_plot$Docs$updateFocused = F2(
 	function (newId, model) {
-		var _p9 = model;
-		if (_p9.ctor === 'Nothing') {
-			return _elm_lang$core$Maybe$Just(newId);
-		} else {
-			return _elm_lang$core$Native_Utils.eq(_p9._0, newId) ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(newId);
-		}
+		return _elm_lang$core$Native_Utils.eq(
+			_elm_lang$core$Maybe$Just(newId),
+			model) ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(newId);
 	});
 var _terezka$elm_plot$Docs$update = F2(
-	function (msg, _p10) {
-		var _p11 = _p10;
-		var _p13 = _p11;
-		var _p12 = msg;
-		switch (_p12.ctor) {
+	function (msg, _p11) {
+		var _p12 = _p11;
+		var _p14 = _p12;
+		var _p13 = msg;
+		switch (_p13.ctor) {
 			case 'FocusExample':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						_p13,
-						{
-							focused: A2(_terezka$elm_plot$Docs$updateFocused, _p12._0, _p11.focused)
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'Hover1':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
-						_p13,
-						{hovering1: _p12._0}),
+						_p14,
+						{
+							focused: A2(_terezka$elm_plot$Docs$updateFocused, _p13._0, _p12.focused)
+						}),
+					{ctor: '[]'});
+			case 'HoverRangeFrame':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						_p14,
+						{rangeFrameHover: _p13._0}),
 					{ctor: '[]'});
 			default:
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
-						_p13,
-						{hovering2: _p12._0}),
+						_p14,
+						{barsHover: _p13._0}),
 					{ctor: '[]'});
 		}
 	});
-var _terezka$elm_plot$Docs$initialModel = {focused: _elm_lang$core$Maybe$Nothing, hovering1: _elm_lang$core$Maybe$Nothing, hovering2: _elm_lang$core$Maybe$Nothing};
+var _terezka$elm_plot$Docs$init = {focused: _elm_lang$core$Maybe$Nothing, rangeFrameHover: _elm_lang$core$Maybe$Nothing, barsHover: _elm_lang$core$Maybe$Nothing};
 var _terezka$elm_plot$Docs$highlight = _elm_lang$core$Native_Platform.outgoingPort(
 	'highlight',
 	function (v) {
@@ -12941,7 +12942,7 @@ var _terezka$elm_plot$Docs$main = _elm_lang$html$Html$program(
 	{
 		init: {
 			ctor: '_Tuple2',
-			_0: _terezka$elm_plot$Docs$initialModel,
+			_0: _terezka$elm_plot$Docs$init,
 			_1: _terezka$elm_plot$Docs$highlight(
 				{ctor: '_Tuple0'})
 		},
@@ -12951,7 +12952,7 @@ var _terezka$elm_plot$Docs$main = _elm_lang$html$Html$program(
 	})();
 var _terezka$elm_plot$Docs$Model = F3(
 	function (a, b, c) {
-		return {focused: a, hovering1: b, hovering2: c};
+		return {focused: a, rangeFrameHover: b, barsHover: c};
 	});
 
 var Elm = {};

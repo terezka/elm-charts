@@ -33,7 +33,7 @@ view : Maybe Point -> Html.Html Msg
 view hovering =
     viewBarsCustom
       { defaultBarsPlotCustomizations
-      | onHover = Just Hover2
+      | onHover = Just HoverBars
       , viewHintContainer = flyingHintContainer normalHintContainerInner hovering
       }
       (bars hovering)

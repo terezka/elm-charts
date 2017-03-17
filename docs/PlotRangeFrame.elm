@@ -56,11 +56,6 @@ scatter hovering =
   }
 
 
-dottedLine : AxisSummary -> LineCustomizations
-dottedLine =
-  fullLine [ stroke "#a3a3a3", strokeDasharray "2, 10" ]
-
-
 viewCircle : Float -> Float -> Svg Msg
 viewCircle x y =
   Svg.circle
@@ -68,16 +63,16 @@ viewCircle x y =
     , stroke "transparent"
     , strokeWidth "3px"
     , fill pinkStroke
-    , onMouseOver (Hover1 (Just { x = x, y = y }))
-    , onMouseOut (Hover1 Nothing)
+    , onMouseOver (HoverRangeFrame (Just { x = x, y = y }))
+    , onMouseOut (HoverRangeFrame Nothing)
     ]
     []
 
 
-hoverLine : Float -> Float -> Point -> Maybe (AxisSummary -> LineCustomizations)
-hoverLine x y hovered =
+flashyLine : Float -> Float -> Point -> Maybe (AxisSummary -> LineCustomizations)
+flashyLine x y hovered =
   if hovered.x == x && hovered.y == y then
-    Just dottedLine
+    Just (fullLine [ stroke "#a3a3a3", strokeDasharray "2, 10" ])
   else
     Nothing
 
@@ -85,8 +80,8 @@ hoverLine x y hovered =
 rangeFrameHintDot : Maybe Point -> ( Float, Float ) -> DataPoint Msg
 rangeFrameHintDot hovered ( x, y ) =
   { view = Just (viewCircle x y)
-  , xLine = Maybe.andThen (hoverLine x y) hovered
-  , yLine = Maybe.andThen (hoverLine x y) hovered
+  , xLine = Maybe.andThen (flashyLine x y) hovered
+  , yLine = Maybe.andThen (flashyLine x y) hovered
   , xTick = Just (simpleTick x)
   , yTick = Just (simpleTick y)
   , viewHint = Nothing
@@ -109,7 +104,8 @@ rangeFrameAxis hovered toValue =
 
 hoverLabel : Maybe Point -> (Point -> Float) -> List LabelCustomizations
 hoverLabel hovered toValue =
-  Maybe.map (toValue >> simpleLabel >> List.singleton) hovered
+  hovered
+    |> Maybe.map (toValue >> simpleLabel >> List.singleton)
     |> Maybe.withDefault []
 
 
@@ -138,11 +134,6 @@ scatter hovering =
   }
 
 
-dottedLine : AxisSummary -> LineCustomizations
-dottedLine =
-  fullLine [ stroke "#a3a3a3", strokeDasharray "2, 10" ]
-
-
 viewCircle : Float -> Float -> Svg Msg
 viewCircle x y =
   Svg.circle
@@ -156,10 +147,10 @@ viewCircle x y =
     []
 
 
-hoverLine : Float -> Float -> Point -> Maybe (AxisSummary -> LineCustomizations)
-hoverLine x y hovered =
+flashyLine : Float -> Float -> Point -> Maybe (AxisSummary -> LineCustomizations)
+flashyLine x y hovered =
   if hovered.x == x && hovered.y == y then
-    Just dottedLine
+    Just (fullLine [ stroke "#a3a3a3", strokeDasharray "2, 10" ])
   else
     Nothing
 
@@ -191,7 +182,8 @@ rangeFrameAxis hovered toValue =
 
 hoverLabel : Maybe Point -> (Point -> Float) -> List LabelCustomizations
 hoverLabel hovered toValue =
-  Maybe.map (toValue >> simpleLabel >> List.singleton) hovered
+  hovered
+    |> Maybe.map (toValue >> simpleLabel >> List.singleton)
     |> Maybe.withDefault []
 
 
