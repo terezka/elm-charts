@@ -2,7 +2,6 @@
 
 Plot stuff in SVG with Elm!
 
-[![Build Status](https://travis-ci.org/terezka/elm-plot.svg?branch=master)](https://travis-ci.org/terezka/elm-plot)
 
 ## Overview
 
@@ -61,11 +60,3 @@ All required dependencies are downloaded and installed when initially running th
 ```
 elm-test
 ```
-
-## Release log
-
-### 4.1.0
-- Fixed bug with plot crashing if range is zero.
-- Allow area and bar series to have a domain lowest above zero.
-- Add bezier smoothing feature to lines and areas. :dizzy: Thanks, @mathiasbaert!
-- Fix typos in docs. Thanks, @Mingan!
