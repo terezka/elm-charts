@@ -6,8 +6,8 @@ Plot stuff in SVG with Elm!
 
 ## Overview
 
-So, in the spirit of Elm and its goal of not only being a tool to express yourself elegantly,
-but also help you do so, this library tries to guide you towards nicer plots. Of course, it's not my
+So, in the spirit of Elm and its goal of not only being a tool to express your code elegantly,
+but also actively guiding you to do so, this library tries to guide you towards nicer plots. Of course, it's not just my
 own preferences I push upon you, but yet another straight (?) white guy called [Edward Tufte](https://en.wikipedia.org/wiki/Edward_Tufte) who wrote
 the book [The Visual Display of Quantitative Information](https://www.edwardtufte.com/tufte/books_vdqi) and had a
 lot of great ideas of how to make plots more readable. However, if you find that these restrictions are keeping you
