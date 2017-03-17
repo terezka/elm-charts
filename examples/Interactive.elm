@@ -56,7 +56,7 @@ view model =
         { defaultBarsPlotCustomizations
         | onHover = Just Hover
         , margin = { top = 20, bottom = 30, left = 40, right = 40 }
-        } |> Debug.log "here"
+        }
     in
       Plot.viewBarsCustom settings
         (groups (List.map2 (hintGroup model.hovering) [ "g1", "g3", "g3" ]))
