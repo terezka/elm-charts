@@ -1327,8 +1327,8 @@ toPlotSummary customizations toNiceReach points =
       , dataMin = plotSummary.y.min
       , dataMax = plotSummary.y.max
       , length = toFloat customizations.height
-      , marginLower = toFloat customizations.margin.bottom
-      , marginUpper = toFloat customizations.margin.top
+      , marginLower = toFloat customizations.margin.top
+      , marginUpper = toFloat customizations.margin.bottom
       , all = plotSummary.y.all
       }
     }
