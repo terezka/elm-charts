@@ -28,7 +28,7 @@ Something like this:
         ]
 ```
 
-You're welcome to take a look at the docs folder for more [exampels](https://github.com/terezka/elm-plot/tree/master/docs/src)!
+You're welcome to take a look at the docs folder for more [examples](https://github.com/terezka/elm-plot/tree/master/docs/src)!
 
 ### Missing something?
 
