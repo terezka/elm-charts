@@ -13,6 +13,10 @@ a {
 	cursor: pointer;
 }
 
+a:hover {
+	opacity: 0.75;
+}
+
 .view {
 	font-family: sans-serif;
 	color: #7F7F7F;
