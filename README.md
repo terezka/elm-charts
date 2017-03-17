@@ -49,7 +49,7 @@ and open [docs](http://localhost:8000/docs/Docs.elm) (The docs contain a bunch o
 ### Compile the Docs
 
 ```
-elm-make docs/Docs.elm --output=docs/docs.js
+elm-live docs/src/Docs.elm --output=docs/docs.js
 ```
 
 ### Tests
