@@ -17,14 +17,16 @@ import PlotBars
 
 type alias Model =
     { focused : Maybe String
-    , hovering : Maybe Point
+    , hovering1 : Maybe Point
+    , hovering2 : Maybe Point
     }
 
 
 initialModel : Model
 initialModel =
     { focused = Nothing
-    , hovering = Nothing
+    , hovering1 = Nothing
+    , hovering2 = Nothing
     }
 
 
@@ -38,8 +40,11 @@ update msg ({ focused } as model) =
         FocusExample id ->
             ( { model | focused = updateFocused id focused }, Cmd.none )
 
-        Hover point ->
-            { model | hovering = point } ! []
+        Hover1 point ->
+            { model | hovering1 = point } ! []
+
+        Hover2 point ->
+            { model | hovering2 = point } ! []
 
 
 updateFocused : String -> Maybe String -> Maybe String
@@ -160,10 +165,10 @@ port highlight : () -> Cmd msg
 
 examples : Model -> List (PlotExample Msg)
 examples model =
-    [ PlotRangeFrame.plotExample
+    [ PlotRangeFrame.plotExample model.hovering1
     , PlotSine.plotExample
     , PlotAxis.plotExample
-    , PlotBars.plotExample model.hovering
+    , PlotBars.plotExample model.hovering2
     ]
 
 

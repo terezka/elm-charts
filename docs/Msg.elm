@@ -3,4 +3,5 @@ import Svg.Plot exposing (Point)
 
 type Msg
     = FocusExample String
-    | Hover (Maybe Point)
+    | Hover1 (Maybe Point)
+    | Hover2 (Maybe Point)

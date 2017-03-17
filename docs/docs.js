@@ -8867,6 +8867,34 @@ var _elm_lang$svg$Svg_Attributes$accumulate = _elm_lang$virtual_dom$VirtualDom$a
 var _elm_lang$svg$Svg_Attributes$accelerate = _elm_lang$virtual_dom$VirtualDom$attribute('accelerate');
 var _elm_lang$svg$Svg_Attributes$accentHeight = _elm_lang$virtual_dom$VirtualDom$attribute('accent-height');
 
+var _elm_lang$svg$Svg_Events$on = _elm_lang$virtual_dom$VirtualDom$on;
+var _elm_lang$svg$Svg_Events$simpleOn = F2(
+	function (name, msg) {
+		return A2(
+			_elm_lang$svg$Svg_Events$on,
+			name,
+			_elm_lang$core$Json_Decode$succeed(msg));
+	});
+var _elm_lang$svg$Svg_Events$onBegin = _elm_lang$svg$Svg_Events$simpleOn('begin');
+var _elm_lang$svg$Svg_Events$onEnd = _elm_lang$svg$Svg_Events$simpleOn('end');
+var _elm_lang$svg$Svg_Events$onRepeat = _elm_lang$svg$Svg_Events$simpleOn('repeat');
+var _elm_lang$svg$Svg_Events$onAbort = _elm_lang$svg$Svg_Events$simpleOn('abort');
+var _elm_lang$svg$Svg_Events$onError = _elm_lang$svg$Svg_Events$simpleOn('error');
+var _elm_lang$svg$Svg_Events$onResize = _elm_lang$svg$Svg_Events$simpleOn('resize');
+var _elm_lang$svg$Svg_Events$onScroll = _elm_lang$svg$Svg_Events$simpleOn('scroll');
+var _elm_lang$svg$Svg_Events$onLoad = _elm_lang$svg$Svg_Events$simpleOn('load');
+var _elm_lang$svg$Svg_Events$onUnload = _elm_lang$svg$Svg_Events$simpleOn('unload');
+var _elm_lang$svg$Svg_Events$onZoom = _elm_lang$svg$Svg_Events$simpleOn('zoom');
+var _elm_lang$svg$Svg_Events$onActivate = _elm_lang$svg$Svg_Events$simpleOn('activate');
+var _elm_lang$svg$Svg_Events$onClick = _elm_lang$svg$Svg_Events$simpleOn('click');
+var _elm_lang$svg$Svg_Events$onFocusIn = _elm_lang$svg$Svg_Events$simpleOn('focusin');
+var _elm_lang$svg$Svg_Events$onFocusOut = _elm_lang$svg$Svg_Events$simpleOn('focusout');
+var _elm_lang$svg$Svg_Events$onMouseDown = _elm_lang$svg$Svg_Events$simpleOn('mousedown');
+var _elm_lang$svg$Svg_Events$onMouseMove = _elm_lang$svg$Svg_Events$simpleOn('mousemove');
+var _elm_lang$svg$Svg_Events$onMouseOut = _elm_lang$svg$Svg_Events$simpleOn('mouseout');
+var _elm_lang$svg$Svg_Events$onMouseOver = _elm_lang$svg$Svg_Events$simpleOn('mouseover');
+var _elm_lang$svg$Svg_Events$onMouseUp = _elm_lang$svg$Svg_Events$simpleOn('mouseup');
+
 var _myrho$elm_round$Round$funNum = F3(
 	function (fun, s, fl) {
 		return A2(
@@ -10939,7 +10967,15 @@ var _terezka$elm_plot$Svg_Plot$displace = F2(
 	});
 var _terezka$elm_plot$Svg_Plot$fullLine = F2(
 	function (attributes, summary) {
-		return {attributes: attributes, start: summary.min, end: summary.max};
+		return {
+			attributes: {
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$style('pointer-events: none;'),
+				_1: attributes
+			},
+			start: summary.min,
+			end: summary.max
+		};
 	});
 var _terezka$elm_plot$Svg_Plot$simpleLabel = function (position) {
 	return {
@@ -11864,8 +11900,11 @@ var _terezka$elm_plot$Svg_Plot$axisAtMax = _terezka$elm_plot$Svg_Plot$customAxis
 		};
 	});
 
-var _terezka$elm_plot$Msg$Hover = function (a) {
-	return {ctor: 'Hover', _0: a};
+var _terezka$elm_plot$Msg$Hover2 = function (a) {
+	return {ctor: 'Hover2', _0: a};
+};
+var _terezka$elm_plot$Msg$Hover1 = function (a) {
+	return {ctor: 'Hover1', _0: a};
 };
 var _terezka$elm_plot$Msg$FocusExample = function (a) {
 	return {ctor: 'FocusExample', _0: a};
@@ -12025,51 +12064,145 @@ var _terezka$elm_plot$PlotSine$view = A3(
 	_terezka$elm_plot$PlotSine$data);
 var _terezka$elm_plot$PlotSine$plotExample = {title: 'Sin', code: _terezka$elm_plot$PlotSine$code, view: _terezka$elm_plot$PlotSine$view, id: 'PlotSine'};
 
-var _terezka$elm_plot$PlotRangeFrame$code = '\nscatter : Series (List ( Float, Float )) msg\nscatter =\n  { axis = rangeFrameAxis\n  , interpolation = None\n  , toDataPoints = List.map dot\n  }\n\n\ndot : ( Float, Float ) -> DataPoint msg\ndot ( x, y ) =\n  rangeFrameDot (viewCircle 5 pinkStroke) x y\n\n\nrangeFrameAxis : Axis\nrangeFrameAxis =\n  customAxis <| \\summary ->\n    { position = closestToZero\n    , axisLine = Nothing\n    , ticks = List.map simpleTick [ summary.dataMin, summary.dataMax ]\n    , labels = List.map simpleLabel [ summary.dataMin, summary.dataMax ]\n    , flipAnchor = False\n    }\n\n\nview : Svg.Svg a\nview =\n  viewSeriesCustom\n    { defaultSeriesPlotCustomizations\n    | horizontalAxis = rangeFrameAxis\n    , margin = { top = 20, bottom = 20, left = 50, right = 40 }\n    , toRangeLowest = \\y -> y - 0.02\n    , toRangeLowest = \\y -> y - 1\n    }\n    [ scatter ]\n    data\n';
-var _terezka$elm_plot$PlotRangeFrame$rangeFrameAxis = _terezka$elm_plot$Svg_Plot$customAxis(
-	function (summary) {
+var _terezka$elm_plot$PlotRangeFrame$code = '\nscatter : Maybe Point -> Series (List ( Float, Float )) Msg\nscatter hovering =\n  { axis = rangeFrameAxis hovering .y\n  , interpolation = None\n  , toDataPoints = List.map (rangeFrameHintDot hovering)\n  }\n\n\ndottedLine : AxisSummary -> LineCustomizations\ndottedLine =\n  fullLine [ stroke \"#a3a3a3\", strokeDasharray \"2, 10\" ]\n\n\nviewCircle : Float -> Float -> Svg Msg\nviewCircle x y =\n  Svg.circle\n    [ r \"5\"\n    , stroke \"transparent\"\n    , strokeWidth \"3px\"\n    , fill pinkStroke\n    , onMouseOver (Hover (Just { x = x, y = y }))\n    , onMouseOut (Hover Nothing)\n    ]\n    []\n\n\nhoverLine : Float -> Float -> Point -> Maybe (AxisSummary -> LineCustomizations)\nhoverLine x y hovered =\n  if hovered.x == x && hovered.y == y then\n    Just dottedLine\n  else\n    Nothing\n\n\nrangeFrameHintDot : Maybe Point -> ( Float, Float ) -> DataPoint Msg\nrangeFrameHintDot hovered ( x, y ) =\n  { view = Just (viewCircle x y)\n  , xLine = Maybe.andThen (hoverLine x y) hovered\n  , yLine = Maybe.andThen (hoverLine x y) hovered\n  , xTick = Just (simpleTick x)\n  , yTick = Just (simpleTick y)\n  , viewHint = Nothing\n  , x = x\n  , y = y\n  }\n\n\nrangeFrameAxis : Maybe Point -> (Point -> Float) -> Axis\nrangeFrameAxis hovered toValue =\n  customAxis <| \\summary ->\n    { position = closestToZero\n    , axisLine = Nothing\n    , ticks = List.map simpleTick [ summary.dataMin, summary.dataMax ]\n    , labels = List.map simpleLabel [ summary.dataMin, summary.dataMax ]\n        ++ hoverLabel hovered toValue\n    , flipAnchor = False\n    }\n\n\nhoverLabel : Maybe Point -> (Point -> Float) -> List LabelCustomizations\nhoverLabel hovered toValue =\n  Maybe.map (toValue >> simpleLabel >> List.singleton) hovered\n    |> Maybe.withDefault []\n\n\nview : Maybe Point -> Svg.Svg Msg\nview hovering =\n  viewSeriesCustom\n    { defaultSeriesPlotCustomizations\n    | horizontalAxis = rangeFrameAxis hovering .x\n    , margin = { top = 20, bottom = 20, left = 50, right = 40 }\n    , toRangeLowest = \\y -> y - 0.02\n    , toDomainLowest = \\y -> y - 1\n    }\n    [ scatter hovering ]\n    data\n';
+var _terezka$elm_plot$PlotRangeFrame$hoverLabel = F2(
+	function (hovered, toValue) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			{ctor: '[]'},
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (_p0) {
+					return _elm_lang$core$List$singleton(
+						_terezka$elm_plot$Svg_Plot$simpleLabel(
+							toValue(_p0)));
+				},
+				hovered));
+	});
+var _terezka$elm_plot$PlotRangeFrame$rangeFrameAxis = F2(
+	function (hovered, toValue) {
+		return _terezka$elm_plot$Svg_Plot$customAxis(
+			function (summary) {
+				return {
+					position: _terezka$elm_plot$Svg_Plot$closestToZero,
+					axisLine: _elm_lang$core$Maybe$Nothing,
+					ticks: A2(
+						_elm_lang$core$List$map,
+						_terezka$elm_plot$Svg_Plot$simpleTick,
+						{
+							ctor: '::',
+							_0: summary.dataMin,
+							_1: {
+								ctor: '::',
+								_0: summary.dataMax,
+								_1: {ctor: '[]'}
+							}
+						}),
+					labels: A2(
+						_elm_lang$core$Basics_ops['++'],
+						A2(
+							_elm_lang$core$List$map,
+							_terezka$elm_plot$Svg_Plot$simpleLabel,
+							{
+								ctor: '::',
+								_0: summary.dataMin,
+								_1: {
+									ctor: '::',
+									_0: summary.dataMax,
+									_1: {ctor: '[]'}
+								}
+							}),
+						A2(_terezka$elm_plot$PlotRangeFrame$hoverLabel, hovered, toValue)),
+					flipAnchor: false
+				};
+			});
+	});
+var _terezka$elm_plot$PlotRangeFrame$viewCircle = F2(
+	function (x, y) {
+		return A2(
+			_elm_lang$svg$Svg$circle,
+			{
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$r('5'),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$stroke('transparent'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$strokeWidth('3px'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$fill(_terezka$elm_plot$Common$pinkStroke),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Events$onMouseOver(
+									_terezka$elm_plot$Msg$Hover1(
+										_elm_lang$core$Maybe$Just(
+											{x: x, y: y}))),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Events$onMouseOut(
+										_terezka$elm_plot$Msg$Hover1(_elm_lang$core$Maybe$Nothing)),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}
+				}
+			},
+			{ctor: '[]'});
+	});
+var _terezka$elm_plot$PlotRangeFrame$dottedLine = _terezka$elm_plot$Svg_Plot$fullLine(
+	{
+		ctor: '::',
+		_0: _elm_lang$svg$Svg_Attributes$stroke('#a3a3a3'),
+		_1: {
+			ctor: '::',
+			_0: _elm_lang$svg$Svg_Attributes$strokeDasharray('2, 10'),
+			_1: {ctor: '[]'}
+		}
+	});
+var _terezka$elm_plot$PlotRangeFrame$hoverLine = F3(
+	function (x, y, hovered) {
+		return (_elm_lang$core$Native_Utils.eq(hovered.x, x) && _elm_lang$core$Native_Utils.eq(hovered.y, y)) ? _elm_lang$core$Maybe$Just(_terezka$elm_plot$PlotRangeFrame$dottedLine) : _elm_lang$core$Maybe$Nothing;
+	});
+var _terezka$elm_plot$PlotRangeFrame$rangeFrameHintDot = F2(
+	function (hovered, _p1) {
+		var _p2 = _p1;
+		var _p4 = _p2._1;
+		var _p3 = _p2._0;
 		return {
-			position: _terezka$elm_plot$Svg_Plot$closestToZero,
-			axisLine: _elm_lang$core$Maybe$Nothing,
-			ticks: A2(
-				_elm_lang$core$List$map,
-				_terezka$elm_plot$Svg_Plot$simpleTick,
-				{
-					ctor: '::',
-					_0: summary.dataMin,
-					_1: {
-						ctor: '::',
-						_0: summary.dataMax,
-						_1: {ctor: '[]'}
-					}
-				}),
-			labels: A2(
-				_elm_lang$core$List$map,
-				_terezka$elm_plot$Svg_Plot$simpleLabel,
-				{
-					ctor: '::',
-					_0: summary.dataMin,
-					_1: {
-						ctor: '::',
-						_0: summary.dataMax,
-						_1: {ctor: '[]'}
-					}
-				}),
-			flipAnchor: false
+			view: _elm_lang$core$Maybe$Just(
+				A2(_terezka$elm_plot$PlotRangeFrame$viewCircle, _p3, _p4)),
+			xLine: A2(
+				_elm_lang$core$Maybe$andThen,
+				A2(_terezka$elm_plot$PlotRangeFrame$hoverLine, _p3, _p4),
+				hovered),
+			yLine: A2(
+				_elm_lang$core$Maybe$andThen,
+				A2(_terezka$elm_plot$PlotRangeFrame$hoverLine, _p3, _p4),
+				hovered),
+			xTick: _elm_lang$core$Maybe$Just(
+				_terezka$elm_plot$Svg_Plot$simpleTick(_p3)),
+			yTick: _elm_lang$core$Maybe$Just(
+				_terezka$elm_plot$Svg_Plot$simpleTick(_p4)),
+			viewHint: _elm_lang$core$Maybe$Nothing,
+			x: _p3,
+			y: _p4
 		};
 	});
-var _terezka$elm_plot$PlotRangeFrame$dot = function (_p0) {
-	var _p1 = _p0;
-	return A3(
-		_terezka$elm_plot$Svg_Plot$rangeFrameDot,
-		A2(_terezka$elm_plot$Svg_Plot$viewCircle, 5, _terezka$elm_plot$Common$pinkStroke),
-		_p1._0,
-		_p1._1);
-};
-var _terezka$elm_plot$PlotRangeFrame$scatter = {
-	axis: _terezka$elm_plot$PlotRangeFrame$rangeFrameAxis,
-	interpolation: _terezka$elm_plot$Svg_Plot$None,
-	toDataPoints: _elm_lang$core$List$map(_terezka$elm_plot$PlotRangeFrame$dot)
+var _terezka$elm_plot$PlotRangeFrame$scatter = function (hovering) {
+	return {
+		axis: A2(
+			_terezka$elm_plot$PlotRangeFrame$rangeFrameAxis,
+			hovering,
+			function (_) {
+				return _.y;
+			}),
+		interpolation: _terezka$elm_plot$Svg_Plot$None,
+		toDataPoints: _elm_lang$core$List$map(
+			_terezka$elm_plot$PlotRangeFrame$rangeFrameHintDot(hovering))
+	};
 };
 var _terezka$elm_plot$PlotRangeFrame$data = {
 	ctor: '::',
@@ -12176,27 +12309,41 @@ var _terezka$elm_plot$PlotRangeFrame$data = {
 		}
 	}
 };
-var _terezka$elm_plot$PlotRangeFrame$view = A3(
-	_terezka$elm_plot$Svg_Plot$viewSeriesCustom,
-	_elm_lang$core$Native_Utils.update(
-		_terezka$elm_plot$Svg_Plot$defaultSeriesPlotCustomizations,
+var _terezka$elm_plot$PlotRangeFrame$view = function (hovering) {
+	return A3(
+		_terezka$elm_plot$Svg_Plot$viewSeriesCustom,
+		_elm_lang$core$Native_Utils.update(
+			_terezka$elm_plot$Svg_Plot$defaultSeriesPlotCustomizations,
+			{
+				horizontalAxis: A2(
+					_terezka$elm_plot$PlotRangeFrame$rangeFrameAxis,
+					hovering,
+					function (_) {
+						return _.x;
+					}),
+				margin: {top: 20, bottom: 20, left: 50, right: 40},
+				toRangeLowest: function (y) {
+					return y - 2.0e-2;
+				},
+				toDomainLowest: function (y) {
+					return y - 1;
+				}
+			}),
 		{
-			horizontalAxis: _terezka$elm_plot$PlotRangeFrame$rangeFrameAxis,
-			margin: {top: 20, bottom: 20, left: 50, right: 40},
-			toRangeLowest: function (y) {
-				return y - 2.0e-2;
-			},
-			toDomainLowest: function (y) {
-				return y - 1;
-			}
-		}),
-	{
-		ctor: '::',
-		_0: _terezka$elm_plot$PlotRangeFrame$scatter,
-		_1: {ctor: '[]'}
-	},
-	_terezka$elm_plot$PlotRangeFrame$data);
-var _terezka$elm_plot$PlotRangeFrame$plotExample = {title: 'PlotRangeFrame', code: _terezka$elm_plot$PlotRangeFrame$code, view: _terezka$elm_plot$PlotRangeFrame$view, id: 'PlotRangeFrame'};
+			ctor: '::',
+			_0: _terezka$elm_plot$PlotRangeFrame$scatter(hovering),
+			_1: {ctor: '[]'}
+		},
+		_terezka$elm_plot$PlotRangeFrame$data);
+};
+var _terezka$elm_plot$PlotRangeFrame$plotExample = function (hovered) {
+	return {
+		title: 'PlotRangeFrame',
+		code: _terezka$elm_plot$PlotRangeFrame$code,
+		view: _terezka$elm_plot$PlotRangeFrame$view(hovered),
+		id: 'PlotRangeFrame'
+	};
+};
 
 var _terezka$elm_plot$PlotAxis$code = '\ncustomArea : Series (List ( Float, Float )) msg\ncustomArea =\n  { axis = rightAxis\n  , interpolation = Monotone Nothing [ stroke pinkStroke ]\n  , toDataPoints = List.map (\\( x, y ) -> triangle x y)\n  }\n\n\ncustomLine : Series (List ( Float, Float )) msg\ncustomLine =\n  { axis = axisAtMin\n  , interpolation = Monotone Nothing [ stroke blueStroke ]\n  , toDataPoints = List.map blueCircle\n  }\n\n\nblueCircle : ( Float, Float ) -> DataPoint msg\nblueCircle ( x, y ) =\n  dot (viewCircle 5 blueStroke) x (y * 1.2)\n\n\nrightAxis : Axis\nrightAxis =\n  customAxis <| \\summary ->\n    { position = Basics.max\n    , axisLine = Nothing\n    , ticks = List.map simpleTick (decentPositions summary)\n    , labels = List.map label (decentPositions summary)\n    , flipAnchor = True\n    }\n\n\nlabel : Float -> LabelCustomizations\nlabel v =\n  { position = v\n  , view = viewLabel [] (toString (v * 27))\n  }\n\n\nhorizontalAxis : Axis\nhorizontalAxis =\n  customAxis <| \\summary ->\n    { position = closestToZero\n    , axisLine = Just (fullLine [ stroke \"grey\" ] summary)\n    , ticks = List.map simpleTick (decentPositions summary)\n    , labels = List.map simpleLabel (decentPositions summary |> remove -2)\n    , flipAnchor = False\n    }\n\n\nview : Svg.Svg a\nview =\n  viewSeriesCustom\n    { defaultSeriesPlotCustomizations\n    | horizontalAxis = horizontalAxis\n    }\n    [ customLine, customArea ]\n    data\n';
 var _terezka$elm_plot$PlotAxis$horizontalAxis = _terezka$elm_plot$Svg_Plot$customAxis(
@@ -12432,7 +12579,7 @@ var _terezka$elm_plot$PlotBars$view = function (hovering) {
 		_elm_lang$core$Native_Utils.update(
 			_terezka$elm_plot$Svg_Plot$defaultBarsPlotCustomizations,
 			{
-				onHover: _elm_lang$core$Maybe$Just(_terezka$elm_plot$Msg$Hover),
+				onHover: _elm_lang$core$Maybe$Just(_terezka$elm_plot$Msg$Hover2),
 				viewHintContainer: A2(_terezka$elm_plot$Svg_Plot$flyingHintContainer, _terezka$elm_plot$Svg_Plot$normalHintContainerInner, hovering)
 			}),
 		_terezka$elm_plot$PlotBars$bars(hovering),
@@ -12450,7 +12597,7 @@ var _terezka$elm_plot$PlotBars$plotExample = function (point) {
 var _terezka$elm_plot$Docs$examples = function (model) {
 	return {
 		ctor: '::',
-		_0: _terezka$elm_plot$PlotRangeFrame$plotExample,
+		_0: _terezka$elm_plot$PlotRangeFrame$plotExample(model.hovering1),
 		_1: {
 			ctor: '::',
 			_0: _terezka$elm_plot$PlotSine$plotExample,
@@ -12459,7 +12606,7 @@ var _terezka$elm_plot$Docs$examples = function (model) {
 				_0: _terezka$elm_plot$PlotAxis$plotExample,
 				_1: {
 					ctor: '::',
-					_0: _terezka$elm_plot$PlotBars$plotExample(model.hovering),
+					_0: _terezka$elm_plot$PlotBars$plotExample(model.hovering2),
 					_1: {ctor: '[]'}
 				}
 			}
@@ -12757,26 +12904,34 @@ var _terezka$elm_plot$Docs$update = F2(
 		var _p11 = _p10;
 		var _p13 = _p11;
 		var _p12 = msg;
-		if (_p12.ctor === 'FocusExample') {
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					_p13,
-					{
-						focused: A2(_terezka$elm_plot$Docs$updateFocused, _p12._0, _p11.focused)
-					}),
-				_1: _elm_lang$core$Platform_Cmd$none
-			};
-		} else {
-			return A2(
-				_elm_lang$core$Platform_Cmd_ops['!'],
-				_elm_lang$core$Native_Utils.update(
-					_p13,
-					{hovering: _p12._0}),
-				{ctor: '[]'});
+		switch (_p12.ctor) {
+			case 'FocusExample':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						_p13,
+						{
+							focused: A2(_terezka$elm_plot$Docs$updateFocused, _p12._0, _p11.focused)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'Hover1':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						_p13,
+						{hovering1: _p12._0}),
+					{ctor: '[]'});
+			default:
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						_p13,
+						{hovering2: _p12._0}),
+					{ctor: '[]'});
 		}
 	});
-var _terezka$elm_plot$Docs$initialModel = {focused: _elm_lang$core$Maybe$Nothing, hovering: _elm_lang$core$Maybe$Nothing};
+var _terezka$elm_plot$Docs$initialModel = {focused: _elm_lang$core$Maybe$Nothing, hovering1: _elm_lang$core$Maybe$Nothing, hovering2: _elm_lang$core$Maybe$Nothing};
 var _terezka$elm_plot$Docs$highlight = _elm_lang$core$Native_Platform.outgoingPort(
 	'highlight',
 	function (v) {
@@ -12794,9 +12949,9 @@ var _terezka$elm_plot$Docs$main = _elm_lang$html$Html$program(
 		subscriptions: _elm_lang$core$Basics$always(_elm_lang$core$Platform_Sub$none),
 		view: _terezka$elm_plot$Docs$view
 	})();
-var _terezka$elm_plot$Docs$Model = F2(
-	function (a, b) {
-		return {focused: a, hovering: b};
+var _terezka$elm_plot$Docs$Model = F3(
+	function (a, b, c) {
+		return {focused: a, hovering1: b, hovering2: c};
 	});
 
 var Elm = {};

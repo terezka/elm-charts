@@ -136,7 +136,7 @@ import Html exposing (Html, div, span)
 import Html.Events
 import Html.Attributes
 import Svg exposing (Svg, Attribute, svg, text_, tspan, text, g, path, rect, polygon)
-import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath, transform)
+import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath, transform, strokeDasharray)
 import Svg.Draw as Draw exposing (..)
 import Svg.Colors exposing (..)
 import Json.Decode as Json
@@ -272,8 +272,8 @@ onHovering stuff hovering x =
 emphasizedDot : Svg msg -> Float -> Float -> DataPoint msg
 emphasizedDot view x y =
   { view = Just view
-  , xLine = Just (fullLine [ stroke darkGrey, Attributes.strokeDasharray "5, 5" ])
-  , yLine = Just (fullLine [ stroke darkGrey, Attributes.strokeDasharray "5, 5" ])
+  , xLine = Just (fullLine [ stroke darkGrey, strokeDasharray "5, 5" ])
+  , yLine = Just (fullLine [ stroke darkGrey, strokeDasharray "5, 5" ])
   , xTick = Nothing
   , yTick = Nothing
   , viewHint = Nothing
@@ -935,7 +935,7 @@ simpleLabel position =
 -}
 fullLine : List (Attribute Never) -> AxisSummary -> LineCustomizations
 fullLine attributes summary =
-  { attributes = attributes
+  { attributes = style "pointer-events: none;" :: attributes
   , start = summary.min
   , end = summary.max
   }
