@@ -1,6 +1,6 @@
 
 body {
-	margin: 0 40px;
+	margin: 0;
 }
 
 * {
@@ -26,6 +26,7 @@ a {
 .view--left {
 	flex-grow: 1;
 	width: 100%;
+	min-width: 300px;
 }
 
 .view--right {
@@ -95,7 +96,7 @@ a {
 	margin: 0 auto;
 }
 
-@media (max-width: 1325px) {
+@media (max-width: 1500px) {
 	.view-plot, .view-heading {
 		display: block;
 	}
