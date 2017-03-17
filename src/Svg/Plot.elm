@@ -301,6 +301,8 @@ rangeFrameDot view x y =
   }
 
 
+{-| A regular hint.
+-}
 normalHint : Float -> Html msg
 normalHint y =
   span

@@ -11871,7 +11871,7 @@ var _terezka$elm_plot$Msg$FocusExample = function (a) {
 	return {ctor: 'FocusExample', _0: a};
 };
 
-var _terezka$elm_plot$PlotSine$code = '\ncustomLine : Series (List ( Float, Float )) msg\ncustomLine =\n  { axis = verticalAxis\n  , interpolation = Monotone Nothing [ stroke pinkStroke ]\n  , toDataPoints = List.map (\\( x, y ) -> clear x y)\n  }\n\n\nverticalAxis : Axis\nverticalAxis =\n  customAxis <| \\summary ->\n    { position = closestToZero\n    , axisLine = Just (simpleLine summary)\n    , ticks = List.map simpleTick (interval 0 0.5 summary)\n    , labels = List.map simpleLabel (interval 0 0.5 summary)\n    }\n\n\nhorizontalAxis : Axis\nhorizontalAxis =\n  customAxis <| \\summary ->\n    { position = closestToZero\n    , axisLine = Just (simpleLine summary)\n    , ticks = List.map simpleTick (interval 0 10 summary)\n    , labels = []\n    }\n\n\ntitle : Svg msg\ntitle =\n  viewLabel\n    [ fill axisColor\n    , style \"text-anchor: end;\"\n    , displace -10 35\n    ]\n    \"f(x) = sin ( x * π / 20 )\"\n\n\nview : Svg.Svg a\nview =\n  viewSeriesCustom\n    { defaultSeriesPlotCustomizations\n    | horizontalAxis = horizontalAxis\n    , junk = \\summary -> [ viewJunk title summary.x.dataMax summary.y.max  ]\n    , toDomainLowest = \\y -> y - 0.25\n    , toRangeLowest = \\y -> y - 25\n    }\n    [ customLine ]\n    data\n';
+var _terezka$elm_plot$PlotSine$code = '\ncustomLine : Series (List ( Float, Float )) msg\ncustomLine =\n  { axis = verticalAxis\n  , interpolation = Monotone Nothing [ stroke pinkStroke ]\n  , toDataPoints = List.map (\\( x, y ) -> clear x y)\n  }\n\n\nverticalAxis : Axis\nverticalAxis =\n  customAxis <| \\summary ->\n    { position = Basics.min\n    , axisLine = Just (dataLine summary)\n    , ticks = List.map simpleTick (interval 0 0.5 summary)\n    , labels = List.map simpleLabel (interval 0 0.5 summary)\n    , flipAnchor = False\n    }\n\n\nhorizontalAxis : Axis\nhorizontalAxis =\n  customAxis <| \\summary ->\n    { position = Basics.min\n    , axisLine = Just (dataLine summary)\n    , ticks = List.map simpleTick [ 0, 90, 180, 270, 360 ]\n    , labels = List.map simpleLabel [ 0, 90, 180, 270, 360 ]\n    , flipAnchor = False\n    }\n\n\ndataLine : AxisSummary -> LineCustomizations\ndataLine summary =\n  { attributes = [ stroke \"grey\" ]\n  , start = summary.dataMin\n  , end = summary.dataMax\n  }\n\n\ntitle : Svg msg\ntitle =\n  viewLabel\n    [ fill axisColor\n    , style \"text-anchor: end; font-style: italic;\"\n    ]\n    \"f(x) = sin x\"\n\n\nview : Svg.Svg a\nview =\n  viewSeriesCustom\n    { defaultSeriesPlotCustomizations\n    | horizontalAxis = horizontalAxis\n    , junk = \\summary -> [ viewJunk title summary.x.dataMax summary.y.max  ]\n    , toDomainLowest = \\y -> y - 0.25\n    , toRangeLowest = \\y -> y - 25\n    }\n    [ customLine ]\n    data\n';
 var _terezka$elm_plot$PlotSine$title = A2(
 	_terezka$elm_plot$Svg_Plot$viewLabel,
 	{
@@ -11879,25 +11879,28 @@ var _terezka$elm_plot$PlotSine$title = A2(
 		_0: _elm_lang$svg$Svg_Attributes$fill(_terezka$elm_plot$Common$axisColor),
 		_1: {
 			ctor: '::',
-			_0: _elm_lang$svg$Svg_Attributes$style('text-anchor: end;'),
+			_0: _elm_lang$svg$Svg_Attributes$style('text-anchor: end; font-style: italic;'),
 			_1: {ctor: '[]'}
 		}
 	},
 	'f(x) = sin x');
+var _terezka$elm_plot$PlotSine$dataLine = function (summary) {
+	return {
+		attributes: {
+			ctor: '::',
+			_0: _elm_lang$svg$Svg_Attributes$stroke('grey'),
+			_1: {ctor: '[]'}
+		},
+		start: summary.dataMin,
+		end: summary.dataMax
+	};
+};
 var _terezka$elm_plot$PlotSine$horizontalAxis = _terezka$elm_plot$Svg_Plot$customAxis(
 	function (summary) {
 		return {
 			position: _elm_lang$core$Basics$min,
 			axisLine: _elm_lang$core$Maybe$Just(
-				{
-					attributes: {
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$stroke('grey'),
-						_1: {ctor: '[]'}
-					},
-					start: summary.dataMin,
-					end: summary.dataMax
-				}),
+				_terezka$elm_plot$PlotSine$dataLine(summary)),
 			ticks: A2(
 				_elm_lang$core$List$map,
 				_terezka$elm_plot$Svg_Plot$simpleTick,
@@ -11954,15 +11957,7 @@ var _terezka$elm_plot$PlotSine$verticalAxis = _terezka$elm_plot$Svg_Plot$customA
 		return {
 			position: _elm_lang$core$Basics$min,
 			axisLine: _elm_lang$core$Maybe$Just(
-				{
-					attributes: {
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$stroke('grey'),
-						_1: {ctor: '[]'}
-					},
-					start: summary.dataMin,
-					end: summary.dataMax
-				}),
+				_terezka$elm_plot$PlotSine$dataLine(summary)),
 			ticks: A2(
 				_elm_lang$core$List$map,
 				_terezka$elm_plot$Svg_Plot$simpleTick,

@@ -21,6 +21,7 @@ a {
 	display: flex;
 	justify-content: space-around;
 	width: 100%;
+	overflow: hidden;
 }
 
 .view--left {
@@ -107,6 +108,7 @@ a {
 
 	.view-plot--left, .view-plot--right {
 		width: 100%;
+		padding-right: 120px;
 	}
 
 	.view-plot--right {

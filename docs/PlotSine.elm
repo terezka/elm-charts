@@ -32,7 +32,7 @@ verticalAxis : Axis
 verticalAxis =
   customAxis <| \summary ->
     { position = Basics.min
-    , axisLine = Just { attributes = [ stroke "grey" ], start = summary.dataMin, end = summary.dataMax }
+    , axisLine = Just (dataLine summary)
     , ticks = List.map simpleTick (interval 0 0.5 summary)
     , labels = List.map simpleLabel (interval 0 0.5 summary)
     , flipAnchor = False
@@ -43,18 +43,26 @@ horizontalAxis : Axis
 horizontalAxis =
   customAxis <| \summary ->
     { position = Basics.min
-    , axisLine = Just { attributes = [ stroke "grey" ], start = summary.dataMin, end = summary.dataMax }
+    , axisLine = Just (dataLine summary)
     , ticks = List.map simpleTick [ 0, 90, 180, 270, 360 ]
     , labels = List.map simpleLabel [ 0, 90, 180, 270, 360 ]
     , flipAnchor = False
     }
 
 
+dataLine : AxisSummary -> LineCustomizations
+dataLine summary =
+  { attributes = [ stroke "grey" ]
+  , start = summary.dataMin
+  , end = summary.dataMax
+  }
+
+
 title : Svg msg
 title =
   viewLabel
     [ fill axisColor
-    , style "text-anchor: end;"
+    , style "text-anchor: end; font-style: italic;"
     ]
     "f(x) = sin x"
 
@@ -86,31 +94,40 @@ customLine =
 verticalAxis : Axis
 verticalAxis =
   customAxis <| \\summary ->
-    { position = closestToZero
-    , axisLine = Just (simpleLine summary)
+    { position = Basics.min
+    , axisLine = Just (dataLine summary)
     , ticks = List.map simpleTick (interval 0 0.5 summary)
     , labels = List.map simpleLabel (interval 0 0.5 summary)
+    , flipAnchor = False
     }
 
 
 horizontalAxis : Axis
 horizontalAxis =
   customAxis <| \\summary ->
-    { position = closestToZero
-    , axisLine = Just (simpleLine summary)
-    , ticks = List.map simpleTick (interval 0 10 summary)
-    , labels = []
+    { position = Basics.min
+    , axisLine = Just (dataLine summary)
+    , ticks = List.map simpleTick [ 0, 90, 180, 270, 360 ]
+    , labels = List.map simpleLabel [ 0, 90, 180, 270, 360 ]
+    , flipAnchor = False
     }
+
+
+dataLine : AxisSummary -> LineCustomizations
+dataLine summary =
+  { attributes = [ stroke "grey" ]
+  , start = summary.dataMin
+  , end = summary.dataMax
+  }
 
 
 title : Svg msg
 title =
   viewLabel
     [ fill axisColor
-    , style "text-anchor: end;"
-    , displace -10 35
+    , style "text-anchor: end; font-style: italic;"
     ]
-    "f(x) = sin ( x * π / 20 )"
+    "f(x) = sin x"
 
 
 view : Svg.Svg a
