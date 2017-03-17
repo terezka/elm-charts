@@ -53,25 +53,13 @@ a:hover {
 }
 
 .view-heading {
-	margin-left: 40px;
 	display: none;
 }
 
 .view-heading__code-open {
-	margin-top: 30px;
+	padding-top: 10px;
 	color: #9ea0a2;
 	font-size: 12px;
-	cursor: pointer;
-}
-
-
-.view-code__link {
-	color: #9ea0a2;
-	font-size: 12px;
-	position: absolute;
-	margin: 15px 20px;
-	bottom: 0;
-	right: 0;
 	cursor: pointer;
 }
 
@@ -90,6 +78,21 @@ a:hover {
 
 .view-code {
 	position: relative;
+}
+
+.view-code__link {
+	color: #9ea0a2;
+	font-size: 12px;
+	position: absolute;
+	margin: 15px 20px;
+	bottom: 0;
+	right: 0;
+	cursor: pointer;
+	display: none;
+}
+
+.view-code:hover .view-code__link {
+	display: block;
 }
 
 .view-code__inner {
@@ -116,12 +119,23 @@ a:hover {
 	}
 
 	.view-plot--right {
+		padding-top: 40px;
 		padding-left: 40px;
 	}
 
 	.view-code__inner {
 		height: auto;
 		max-height: 480px;
+	}
+
+	.view-code .view-code__link {
+		display: none !important;
+	}
+
+	.view-heading__code-open .view-code__link {
+		display: inline-block !important;
+		margin: 0;
+		position: relative;
 	}
 }
 

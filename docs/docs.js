@@ -12494,7 +12494,7 @@ var _terezka$elm_plot$Docs$viewLink = function (id) {
 		},
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html$text('See full source'),
+			_0: _elm_lang$html$Html$text('full source'),
 			_1: {ctor: '[]'}
 		});
 };
@@ -12542,17 +12542,32 @@ var _terezka$elm_plot$Docs$viewToggler = function (id) {
 		{
 			ctor: '::',
 			_0: _elm_lang$html$Html_Attributes$class('view-heading__code-open'),
-			_1: {
-				ctor: '::',
-				_0: _elm_lang$html$Html_Events$onClick(
-					_terezka$elm_plot$Msg$FocusExample(id)),
-				_1: {ctor: '[]'}
-			}
+			_1: {ctor: '[]'}
 		},
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html$text('View source snippet'),
-			_1: {ctor: '[]'}
+			_0: A2(
+				_elm_lang$html$Html$span,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Events$onClick(
+						_terezka$elm_plot$Msg$FocusExample(id)),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('view source'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html$text(' / '),
+				_1: {
+					ctor: '::',
+					_0: _terezka$elm_plot$Docs$viewLink(id),
+					_1: {ctor: '[]'}
+				}
+			}
 		});
 };
 var _terezka$elm_plot$Docs$viewHeading = F2(
@@ -12598,11 +12613,7 @@ var _terezka$elm_plot$Docs$viewExample = F2(
 					{
 						ctor: '::',
 						_0: _p7.view,
-						_1: {
-							ctor: '::',
-							_0: A2(_terezka$elm_plot$Docs$viewHeading, model, _p8),
-							_1: {ctor: '[]'}
-						}
+						_1: {ctor: '[]'}
 					}),
 				_1: {
 					ctor: '::',
@@ -12616,7 +12627,11 @@ var _terezka$elm_plot$Docs$viewExample = F2(
 						{
 							ctor: '::',
 							_0: A2(_terezka$elm_plot$Docs$viewCode, model, _p8),
-							_1: {ctor: '[]'}
+							_1: {
+								ctor: '::',
+								_0: A2(_terezka$elm_plot$Docs$viewHeading, model, _p8),
+								_1: {ctor: '[]'}
+							}
 						}),
 					_1: {ctor: '[]'}
 				}

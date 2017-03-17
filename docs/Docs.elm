@@ -81,10 +81,12 @@ viewExample model ({ title, id, view, code } as example) =
     div [ class ("view-plot " ++ visibilityClass model id) ]
         [ div
             [ class "view-plot--left" ]
-            [ view, viewHeading model example ]
+            [ view ]
         , div
             [ class "view-plot--right" ]
-            [ viewCode model example ]
+            [ viewCode model example
+            , viewHeading model example
+            ]
         ]
 
 
@@ -97,11 +99,15 @@ viewHeading model { title, id } =
 
 viewToggler : String -> Html.Html Msg
 viewToggler id =
-    p
-        [ class "view-heading__code-open"
-        , onClick (FocusExample id)
-        ]
-        [ text "View source snippet" ]
+    p [ class "view-heading__code-open" ]
+      [ span
+          [ onClick (FocusExample id)
+          ]
+          [ text "view source" ]
+      , text " / "
+      , viewLink id
+      ]
+
 
 
 viewCode : Model -> PlotExample msg -> Html Msg
@@ -121,7 +127,7 @@ viewLink id =
         [ class "view-code__link"
         , href (toUrl id)
         ]
-        [ text "See full source" ]
+        [ text "full source" ]
 
 
 
