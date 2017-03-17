@@ -1,4 +1,4 @@
-module Svg.Draw
+module Internal.Draw
   exposing
     ( Point
     , PlotSummary

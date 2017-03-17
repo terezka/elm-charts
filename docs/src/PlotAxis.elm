@@ -2,7 +2,7 @@ module PlotAxis exposing (plotExample)
 
 import Svg exposing (Svg)
 import Svg.Attributes exposing (stroke)
-import Svg.Plot exposing (..)
+import Plot exposing (..)
 import Common exposing (..)
 
 

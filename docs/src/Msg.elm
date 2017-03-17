@@ -1,5 +1,5 @@
 module Msg exposing (Msg(..))
-import Svg.Plot exposing (Point)
+import Plot exposing (Point)
 
 
 type Msg

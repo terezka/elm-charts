@@ -2,7 +2,7 @@ module PlotSine exposing (plotExample)
 
 import Svg exposing (Svg)
 import Svg.Attributes exposing (..)
-import Svg.Plot exposing (..)
+import Plot exposing (..)
 import Common exposing (..)
 
 

@@ -8,7 +8,7 @@
         "./docs/src"
     ],
     "exposed-modules": [
-        "Svg.Plot"
+        "Plot"
     ],
     "dependencies": {
         "debois/elm-dom": "1.2.3 <= v < 2.0.0",

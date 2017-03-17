@@ -2,7 +2,7 @@ module PlotBars exposing (plotExample)
 
 import Html
 import Msg exposing (..)
-import Svg.Plot exposing (..)
+import Plot exposing (..)
 import Common exposing (..)
 
 

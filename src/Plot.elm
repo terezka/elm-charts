@@ -1,4 +1,4 @@
-module Svg.Plot
+module Plot
     exposing
         ( PlotCustomizations
         , PlotSummary
@@ -137,8 +137,8 @@ import Html.Events
 import Html.Attributes
 import Svg exposing (Svg, Attribute, svg, text_, tspan, text, g, path, rect, polygon)
 import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath, transform, strokeDasharray)
-import Svg.Draw as Draw exposing (..)
-import Svg.Colors exposing (..)
+import Internal.Draw as Draw exposing (..)
+import Internal.Colors exposing (..)
 import Json.Decode as Json
 import Round
 import Regex
@@ -565,6 +565,7 @@ normalBarLabel label position =
   - Add attributes to your whole plot (Useful when you want to do events for your plot).
   - Add an id (the id in here will overrule an id attribute you add in `.attributes`).
   - Change the width or height of your plot. I recommend the golden ratio!
+  - Add SVG `defs` for all kinds [tricks](https://github.com/terezka/elm-plot/blob/master/examples/Gradient.elm).
   - Change the margin (useful when you can't see your ticks!).
   - Add a message which will be sent when your hover over a point on your plot!
   - Add your own container for your hints or use the predefined ones.
@@ -581,6 +582,7 @@ type alias PlotCustomizations msg =
   , id : String
   , width : Int
   , height : Int
+  , defs : List (Svg msg)
   , margin :
     { top : Int
     , right : Int
@@ -607,6 +609,7 @@ type alias PlotCustomizations msg =
 defaultSeriesPlotCustomizations : PlotCustomizations msg
 defaultSeriesPlotCustomizations =
   { attributes = []
+  , defs = []
   , id = "elm-plot"
   , width = 647
   , height = 440
@@ -1150,13 +1153,14 @@ addNiceReachForBars ({ x, y } as summary) =
   }
 
 
+
 -- CLIP PATH
 
 
 defineClipPath : PlotCustomizations msg -> PlotSummary -> Svg.Svg msg
 defineClipPath customizations summary =
-  Svg.defs []
-    [ Svg.clipPath [ Attributes.id (toClipPathId customizations) ]
+  Svg.defs [] <|
+    (Svg.clipPath [ Attributes.id (toClipPathId customizations) ]
       [ Svg.rect
         [ Attributes.x (toString summary.x.marginLower)
         , Attributes.y (toString summary.y.marginLower)
@@ -1165,7 +1169,7 @@ defineClipPath customizations summary =
         ]
         []
       ]
-    ]
+    ) :: customizations.defs
 
 
 toClipPathId : PlotCustomizations msg -> String
@@ -1210,6 +1214,7 @@ innerAttributes customizations =
 viewActualJunk : PlotSummary -> JunkCustomizations msg -> Svg msg
 viewActualJunk summary { x, y, view } =
   g [ place summary { x = x, y = y } 0 0 ] [ view ]
+
 
 
 -- HINT HANDLER
@@ -1258,7 +1263,6 @@ toNearestX summary exactX =
 diff : Float -> Float -> Float
 diff a b =
   abs (a - b)
-
 
 
 
@@ -1424,7 +1428,6 @@ viewInterpolation customizations summary toLine toArea area attributes dataPoint
     Just color ->
       draw
         (fill color
-        :: fill pinkFill
         :: stroke pinkStroke
         :: class "elm-plot__series__interpolation"
         :: clipPath ("url(#" ++ toClipPathId customizations ++ ")")

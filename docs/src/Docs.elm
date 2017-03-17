@@ -5,7 +5,7 @@ import Html.Events exposing (onClick)
 import Html.Attributes exposing (style, src, href, class, classList, id, name)
 import Msg exposing (..)
 import Common exposing (..)
-import Svg.Plot exposing (Point)
+import Plot exposing (Point)
 import PlotSine
 import PlotRangeFrame
 import PlotAxis

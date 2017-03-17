@@ -1,7 +1,7 @@
 module Interactive exposing (..)
 
 import Html exposing (h1, p, text, div, node)
-import Svg.Plot as Plot exposing (..)
+import Plot exposing (..)
 
 
 -- MODEL
@@ -58,7 +58,7 @@ view model =
         }
     in
       Plot.viewBarsCustom settings
-        (grouped (List.map2 (hintGroup model.hovering) [ "g1", "g3", "g3" ]))
+        (groups (List.map2 (hintGroup model.hovering) [ "g1", "g3", "g3" ]))
         barData
 
 

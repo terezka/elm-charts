@@ -1,4 +1,4 @@
-module Svg.Colors exposing (..)
+module Internal.Colors exposing (..)
 
 
 pinkFill : String

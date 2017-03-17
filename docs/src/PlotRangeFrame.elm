@@ -3,7 +3,7 @@ module PlotRangeFrame exposing (plotExample)
 import Svg exposing (Svg)
 import Svg.Attributes exposing (stroke, strokeDasharray, r, fill, strokeWidth)
 import Svg.Events exposing (onMouseOver, onMouseOut)
-import Svg.Plot exposing (..)
+import Plot exposing (..)
 import Msg exposing (..)
 import Common exposing (..)
 
