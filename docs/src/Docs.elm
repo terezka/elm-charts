@@ -105,7 +105,7 @@ viewFooter model { title, id } =
 viewToggler : Model -> String -> Html.Html Msg
 viewToggler model id =
     p [ class "view-toggler" ]
-      [ span [ onClick (FocusExample id) ] [ viewToggleText model id ]
+      [ a [ onClick (FocusExample id) ] [ viewToggleText model id ]
       , text " / "
       , viewLink id
       ]

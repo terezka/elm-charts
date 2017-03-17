@@ -56,8 +56,8 @@ scatter hovering =
   }
 
 
-viewCircle : Float -> Float -> Svg Msg
-viewCircle x y =
+circle : Float -> Float -> Svg Msg
+circle x y =
   Svg.circle
     [ r "5"
     , stroke "transparent"
@@ -79,7 +79,7 @@ flashyLine x y hovered =
 
 rangeFrameHintDot : Maybe Point -> ( Float, Float ) -> DataPoint Msg
 rangeFrameHintDot hovered ( x, y ) =
-  { view = Just (viewCircle x y)
+  { view = Just (circle x y)
   , xLine = Maybe.andThen (flashyLine x y) hovered
   , yLine = Maybe.andThen (flashyLine x y) hovered
   , xTick = Just (simpleTick x)
@@ -134,8 +134,8 @@ scatter hovering =
   }
 
 
-viewCircle : Float -> Float -> Svg Msg
-viewCircle x y =
+circle : Float -> Float -> Svg Msg
+circle x y =
   Svg.circle
     [ r "5"
     , stroke "transparent"
@@ -157,7 +157,7 @@ flashyLine x y hovered =
 
 rangeFrameHintDot : Maybe Point -> ( Float, Float ) -> DataPoint Msg
 rangeFrameHintDot hovered ( x, y ) =
-  { view = Just (viewCircle x y)
+  { view = Just (circle x y)
   , xLine = Maybe.andThen (hoverLine x y) hovered
   , yLine = Maybe.andThen (hoverLine x y) hovered
   , xTick = Just (simpleTick x)

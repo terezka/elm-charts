@@ -88,16 +88,17 @@ a:hover {
 
 
 .view-toggler {
-	padding-top: 10px;
 	color: #9ea0a2;
 	font-size: 12px;
 	cursor: pointer;
+	text-align: right;
 }
 
 
 .view-code {
 	position: relative;
 }
+
 
 .view-link {
 	color: #9ea0a2;
@@ -110,18 +111,26 @@ a:hover {
 	display: none;
 }
 
+
 .view-code:hover .view-link {
 	display: block;
 }
+
 
 .view-code__inner {
 	text-align: left;
 	height: 435px;
 }
 
+
 .elm-plot {
 	margin: 0 auto;
 }
+
+
+
+/* Smaller screens */
+
 
 @media (max-width: 1500px) {
 	.view-plot, .view-footer {

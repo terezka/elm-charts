@@ -5,7 +5,7 @@
     "license": "BSD3",
     "source-directories": [
         "./src",
-        "./docs"
+        "./docs/src"
     ],
     "exposed-modules": [
         "Svg.Plot"

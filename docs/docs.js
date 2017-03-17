@@ -12064,7 +12064,7 @@ var _terezka$elm_plot$PlotSine$view = A3(
 	_terezka$elm_plot$PlotSine$data);
 var _terezka$elm_plot$PlotSine$plotExample = {title: 'Sin', code: _terezka$elm_plot$PlotSine$code, view: _terezka$elm_plot$PlotSine$view, id: 'PlotSine'};
 
-var _terezka$elm_plot$PlotRangeFrame$code = '\nscatter : Maybe Point -> Series (List ( Float, Float )) Msg\nscatter hovering =\n  { axis = rangeFrameAxis hovering .y\n  , interpolation = None\n  , toDataPoints = List.map (rangeFrameHintDot hovering)\n  }\n\n\nviewCircle : Float -> Float -> Svg Msg\nviewCircle x y =\n  Svg.circle\n    [ r \"5\"\n    , stroke \"transparent\"\n    , strokeWidth \"3px\"\n    , fill pinkStroke\n    , onMouseOver (Hover (Just { x = x, y = y }))\n    , onMouseOut (Hover Nothing)\n    ]\n    []\n\n\nflashyLine : Float -> Float -> Point -> Maybe (AxisSummary -> LineCustomizations)\nflashyLine x y hovered =\n  if hovered.x == x && hovered.y == y then\n    Just (fullLine [ stroke \"#a3a3a3\", strokeDasharray \"2, 10\" ])\n  else\n    Nothing\n\n\nrangeFrameHintDot : Maybe Point -> ( Float, Float ) -> DataPoint Msg\nrangeFrameHintDot hovered ( x, y ) =\n  { view = Just (viewCircle x y)\n  , xLine = Maybe.andThen (hoverLine x y) hovered\n  , yLine = Maybe.andThen (hoverLine x y) hovered\n  , xTick = Just (simpleTick x)\n  , yTick = Just (simpleTick y)\n  , viewHint = Nothing\n  , x = x\n  , y = y\n  }\n\n\nrangeFrameAxis : Maybe Point -> (Point -> Float) -> Axis\nrangeFrameAxis hovered toValue =\n  customAxis <| \\summary ->\n    { position = closestToZero\n    , axisLine = Nothing\n    , ticks = List.map simpleTick [ summary.dataMin, summary.dataMax ]\n    , labels = List.map simpleLabel [ summary.dataMin, summary.dataMax ]\n        ++ hoverLabel hovered toValue\n    , flipAnchor = False\n    }\n\n\nhoverLabel : Maybe Point -> (Point -> Float) -> List LabelCustomizations\nhoverLabel hovered toValue =\n  hovered\n    |> Maybe.map (toValue >> simpleLabel >> List.singleton)\n    |> Maybe.withDefault []\n\n\nview : Maybe Point -> Svg.Svg Msg\nview hovering =\n  viewSeriesCustom\n    { defaultSeriesPlotCustomizations\n    | horizontalAxis = rangeFrameAxis hovering .x\n    , margin = { top = 20, bottom = 20, left = 50, right = 40 }\n    , toRangeLowest = \\y -> y - 0.02\n    , toDomainLowest = \\y -> y - 1\n    }\n    [ scatter hovering ]\n    data\n';
+var _terezka$elm_plot$PlotRangeFrame$code = '\nscatter : Maybe Point -> Series (List ( Float, Float )) Msg\nscatter hovering =\n  { axis = rangeFrameAxis hovering .y\n  , interpolation = None\n  , toDataPoints = List.map (rangeFrameHintDot hovering)\n  }\n\n\ncircle : Float -> Float -> Svg Msg\ncircle x y =\n  Svg.circle\n    [ r \"5\"\n    , stroke \"transparent\"\n    , strokeWidth \"3px\"\n    , fill pinkStroke\n    , onMouseOver (Hover (Just { x = x, y = y }))\n    , onMouseOut (Hover Nothing)\n    ]\n    []\n\n\nflashyLine : Float -> Float -> Point -> Maybe (AxisSummary -> LineCustomizations)\nflashyLine x y hovered =\n  if hovered.x == x && hovered.y == y then\n    Just (fullLine [ stroke \"#a3a3a3\", strokeDasharray \"2, 10\" ])\n  else\n    Nothing\n\n\nrangeFrameHintDot : Maybe Point -> ( Float, Float ) -> DataPoint Msg\nrangeFrameHintDot hovered ( x, y ) =\n  { view = Just (circle x y)\n  , xLine = Maybe.andThen (hoverLine x y) hovered\n  , yLine = Maybe.andThen (hoverLine x y) hovered\n  , xTick = Just (simpleTick x)\n  , yTick = Just (simpleTick y)\n  , viewHint = Nothing\n  , x = x\n  , y = y\n  }\n\n\nrangeFrameAxis : Maybe Point -> (Point -> Float) -> Axis\nrangeFrameAxis hovered toValue =\n  customAxis <| \\summary ->\n    { position = closestToZero\n    , axisLine = Nothing\n    , ticks = List.map simpleTick [ summary.dataMin, summary.dataMax ]\n    , labels = List.map simpleLabel [ summary.dataMin, summary.dataMax ]\n        ++ hoverLabel hovered toValue\n    , flipAnchor = False\n    }\n\n\nhoverLabel : Maybe Point -> (Point -> Float) -> List LabelCustomizations\nhoverLabel hovered toValue =\n  hovered\n    |> Maybe.map (toValue >> simpleLabel >> List.singleton)\n    |> Maybe.withDefault []\n\n\nview : Maybe Point -> Svg.Svg Msg\nview hovering =\n  viewSeriesCustom\n    { defaultSeriesPlotCustomizations\n    | horizontalAxis = rangeFrameAxis hovering .x\n    , margin = { top = 20, bottom = 20, left = 50, right = 40 }\n    , toRangeLowest = \\y -> y - 0.02\n    , toDomainLowest = \\y -> y - 1\n    }\n    [ scatter hovering ]\n    data\n';
 var _terezka$elm_plot$PlotRangeFrame$hoverLabel = F2(
 	function (hovered, toValue) {
 		return A2(
@@ -12131,7 +12131,7 @@ var _terezka$elm_plot$PlotRangeFrame$flashyLine = F3(
 					}
 				})) : _elm_lang$core$Maybe$Nothing;
 	});
-var _terezka$elm_plot$PlotRangeFrame$viewCircle = F2(
+var _terezka$elm_plot$PlotRangeFrame$circle = F2(
 	function (x, y) {
 		return A2(
 			_elm_lang$svg$Svg$circle,
@@ -12173,7 +12173,7 @@ var _terezka$elm_plot$PlotRangeFrame$rangeFrameHintDot = F2(
 		var _p3 = _p2._0;
 		return {
 			view: _elm_lang$core$Maybe$Just(
-				A2(_terezka$elm_plot$PlotRangeFrame$viewCircle, _p3, _p4)),
+				A2(_terezka$elm_plot$PlotRangeFrame$circle, _p3, _p4)),
 			xLine: A2(
 				_elm_lang$core$Maybe$andThen,
 				A2(_terezka$elm_plot$PlotRangeFrame$flashyLine, _p3, _p4),
@@ -12702,7 +12702,7 @@ var _terezka$elm_plot$Docs$viewToggler = F2(
 			{
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$span,
+					_elm_lang$html$Html$a,
 					{
 						ctor: '::',
 						_0: _elm_lang$html$Html_Events$onClick(
