@@ -1,4 +1,4 @@
-module Internal.Colors exposing (..)
+module Colors exposing (..)
 
 
 pinkFill : String

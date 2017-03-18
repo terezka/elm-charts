@@ -10370,8 +10370,8 @@ var _terezka$elm_plot$Plot$toPlotSummary = F3(
 				dataMin: plotSummary.y.min,
 				dataMax: plotSummary.y.max,
 				length: _elm_lang$core$Basics$toFloat(customizations.height),
-				marginLower: _elm_lang$core$Basics$toFloat(customizations.margin.bottom),
-				marginUpper: _elm_lang$core$Basics$toFloat(customizations.margin.top),
+				marginLower: _elm_lang$core$Basics$toFloat(customizations.margin.top),
+				marginUpper: _elm_lang$core$Basics$toFloat(customizations.margin.bottom),
 				all: plotSummary.y.all
 			}
 		};
