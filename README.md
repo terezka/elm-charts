@@ -4,7 +4,7 @@ Plot stuff in SVG with Elm! Go check it out [here](https://terezka.github.io/elm
 
 ## Overview
 
-So, in the spirit of Elm which, with its many oppinions, aims to guide you towards elegant architecture, I'm giving you this oppinionated plotting library aiming to guide you towards more elegant and expressive plots. Of course, it's not just my own preferences I impose on you, but yet another straight (?) white guy called [Edward Tufte](https://en.wikipedia.org/wiki/Edward_Tufte), who wrote the book [The Visual Display of Quantitative Information](https://www.edwardtufte.com/tufte/books_vdqi), and had a lot of great ideas of how to make plots more readable. However, if you find that these restrictions are keeping you from doing something incredible vital, then lets talk about it and see if it makes sense to allow it.
+So, in the spirit of Elm which, with its many oppinions, aims to guide you towards elegant architecture, I'm made this oppinionated plotting library aiming to guide you towards more elegant and expressive plots! Of course, it's not just my own preferences I impose on you, but yet another straight (?) white guy called [Edward Tufte](https://en.wikipedia.org/wiki/Edward_Tufte), who wrote the book [The Visual Display of Quantitative Information](https://www.edwardtufte.com/tufte/books_vdqi), and had a lot of great ideas of how to make plots more readable. However, if you find that these oppinions are keeping you from doing something incredible vital, then lets [talk about it](https://elmlang.slack.com/messages/elm-plot) and see if it makes sense to allow it.
 
 > Graphical excellence is that which gives to the viewer the greatest number of ideas in the shortest time with the least ink in the smallest space. - Edward Tufte
 
