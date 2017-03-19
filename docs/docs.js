@@ -12499,7 +12499,7 @@ var _terezka$elm_plot$PlotAxis$view = A3(
 	_terezka$elm_plot$PlotAxis$data);
 var _terezka$elm_plot$PlotAxis$plotExample = {title: 'Multiple axis', code: _terezka$elm_plot$PlotAxis$code, view: _terezka$elm_plot$PlotAxis$view, id: 'Axis'};
 
-var _terezka$elm_plot$PlotBars$code = '\nbars : Maybe Point -> Bars (List ( List Float )) msg\nbars hovering =\n  groups (List.map2 (hintGroup hovering) [ \"Q1\", \"Q2\", \"Q3\", \"Q4\" ])\n\n\nview : Maybe Point -> Html.Html Msg\nview hovering =\n    viewBarsCustom\n      { defaultBarsPlotCustomizations\n      | onHover = Just Hover\n      , hintContainer = flyingHintContainer normalHintContainerInner hovering\n      }\n      (bars hovering)\n      barData\n';
+var _terezka$elm_plot$PlotBars$code = '\nbars : Maybe Point -> Bars (List ( List Float )) msg\nbars hovering =\n  groups (List.map2 (hintGroup hovering) [ \"Q1\", \"Q2\", \"Q3\", \"Q4\" ])\n\n\nview : Maybe Point -> Html.Html Msg\nview hovering =\n    viewBarsCustom\n      { defaultBarsPlotCustomizations\n      | onHover = Just Hover\n      , hintContainer = flyingHintContainer normalHintContainerInner hovering\n      }\n      (bars hovering)\n      data\n';
 var _terezka$elm_plot$PlotBars$bars = function (hovering) {
 	return _terezka$elm_plot$Plot$groups(
 		A2(
@@ -12523,7 +12523,7 @@ var _terezka$elm_plot$PlotBars$bars = function (hovering) {
 				}
 			}));
 };
-var _terezka$elm_plot$PlotBars$barData = {
+var _terezka$elm_plot$PlotBars$data = {
 	ctor: '::',
 	_0: {
 		ctor: '::',
@@ -12582,7 +12582,7 @@ var _terezka$elm_plot$PlotBars$view = function (hovering) {
 				hintContainer: A2(_terezka$elm_plot$Plot$flyingHintContainer, _terezka$elm_plot$Plot$normalHintContainerInner, hovering)
 			}),
 		_terezka$elm_plot$PlotBars$bars(hovering),
-		_terezka$elm_plot$PlotBars$barData);
+		_terezka$elm_plot$PlotBars$data);
 };
 var _terezka$elm_plot$PlotBars$plotExample = function (point) {
 	return {

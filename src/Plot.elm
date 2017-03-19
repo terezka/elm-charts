@@ -457,7 +457,18 @@ type MaxBarWidth
   | Fixed Float
 
 
-{-| For regular bar charts.
+{-| For pink and blue bar groups. If you have more than two colors, you have to
+  make your own group. Under this documentation, it looks like this:
+
+    groups : (data -> List BarGroup) -> Bars data msg
+    groups toGroups =
+      { axis = normalAxis
+      , toGroups = toGroups
+      , styles = [ [ fill pinkFill ], [ fill blueFill ] ]
+      , maxWidth = Percentage 75
+      }
+
+  So you can just go right ahead and add a third pastel to those styles!
 -}
 groups : (data -> List BarGroup) -> Bars data msg
 groups toGroups =
@@ -468,7 +479,7 @@ groups toGroups =
   }
 
 
-{-| For regular groups.
+{-| A pretty plain group, nothing fancy.
 -}
 group : String -> List Float -> BarGroup
 group label heights =
@@ -479,7 +490,7 @@ group label heights =
   }
 
 
-{-| For groups with hint glitter.
+{-| For groups with a hint.
 -}
 hintGroup : Maybe Point -> String -> List Float -> BarGroup
 hintGroup hovering label heights =
@@ -574,8 +585,8 @@ normalBarLabel label position =
   - Change the bounds of your plot. For example, if you want your plot to start
     atleast at -5 on the y-axis, then add `toDomainLowest = min -5`.
 
-  _Note:_ The `id` is particularily important when you have
-  several plots in your dom.
+_Note:_ The `id` is particularily important when you have
+several plots in your dom.
 -}
 type alias PlotCustomizations msg =
   { attributes : List (Attribute msg)
@@ -777,7 +788,6 @@ type Axis
   - Change the look and feel of the axis line.
   - Add a variation of ticks.
   - Add a variation of labels.
-  - Add a title or whatever.
 
 -}
 type alias AxisCustomizations =
@@ -838,7 +848,7 @@ sometimesYouDoNotHaveAnAxis =
         , axisLine = Just (simpleLine summary)
         , ticks = List.map simpleTick (decentPositions summary |> remove 0)
         , labels = List.map simpleLabel (decentPositions summary |> remove 0)
-        , whatever = []
+        , flipAnchor = False
         }
 
   But the special snowflake you are, you might want something different.
@@ -1077,7 +1087,19 @@ addNiceReachForArea area ({ y, x } as summary) =
 -- VIEW BARS
 
 
-{-| -}
+{-| This is for viewing a bar chart! The example below renders four groups of two
+  bars each, labeled Q1, Q2, Q3, Q4 respectively.
+
+    view : Svg msg
+    view =
+      viewBars
+        (groups (List.map (\data -> group data.label data.heights)))
+        [ { label = "Q1", heights = [ 1, 2 ] }
+        , { label = "Q2", heights = [ 3, 4 ] }
+        , { label = "Q3", heights = [ 4, 5 ] }
+        , { label = "Q4", heights = [ 3, 2 ] }
+        ]
+-}
 viewBars : Bars data msg -> data -> Html msg
 viewBars =
   viewBarsCustom defaultBarsPlotCustomizations
@@ -1699,7 +1721,7 @@ viewGlitterLines summary { xLine, yLine, x, y } =
 -- TICK HELP
 
 
-{-| For decently spaces positions. Useful in tick/label and grid configurations.
+{-| For decently spaced positions. Useful in tick/label and grid configurations.
 -}
 decentPositions : AxisSummary -> List Float
 decentPositions summary =
@@ -1734,7 +1756,6 @@ interval offset delta { min, max } =
         , axisLine = Just (simpleLine summary)
         , ticks = List.map simpleTick (decentPositions summary |> remove 0)
         , labels = List.map simpleLabel (decentPositions summary |> remove 0)
-        , whatever = []
         }
 
   See how in the normal axis we make a bunch of ticks, but then remove then one we don't

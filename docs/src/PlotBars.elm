@@ -15,8 +15,8 @@ plotExample point =
     }
 
 
-barData : List ( List Float )
-barData =
+data : List ( List Float )
+data =
   [ [ 1, 2 ]
   , [ 1, 3 ]
   , [ 2, 6 ]
@@ -37,7 +37,7 @@ view hovering =
       , hintContainer = flyingHintContainer normalHintContainerInner hovering
       }
       (bars hovering)
-      barData
+      data
 
 
 code : String
@@ -56,5 +56,5 @@ view hovering =
       , hintContainer = flyingHintContainer normalHintContainerInner hovering
       }
       (bars hovering)
-      barData
+      data
 """
