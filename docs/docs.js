@@ -11693,7 +11693,7 @@ var _terezka$elm_plot$Plot$Percentage = function (a) {
 	return {ctor: 'Percentage', _0: a};
 };
 var _terezka$elm_plot$Plot$YeahGridsAreTotallyLame = {ctor: 'YeahGridsAreTotallyLame'};
-var _terezka$elm_plot$Plot$emptyGrid = _terezka$elm_plot$Plot$YeahGridsAreTotallyLame;
+var _terezka$elm_plot$Plot$clearGrid = _terezka$elm_plot$Plot$YeahGridsAreTotallyLame;
 var _terezka$elm_plot$Plot$Grid = function (a) {
 	return {ctor: 'Grid', _0: a};
 };
@@ -11838,7 +11838,7 @@ var _terezka$elm_plot$Plot$defaultSeriesPlotCustomizations = {
 	onHover: _elm_lang$core$Maybe$Nothing,
 	hintContainer: _terezka$elm_plot$Plot$normalHintContainer,
 	horizontalAxis: _terezka$elm_plot$Plot$normalAxis,
-	grid: {horizontal: _terezka$elm_plot$Plot$emptyGrid, vertical: _terezka$elm_plot$Plot$emptyGrid},
+	grid: {horizontal: _terezka$elm_plot$Plot$clearGrid, vertical: _terezka$elm_plot$Plot$clearGrid},
 	junk: _elm_lang$core$Basics$always(
 		{ctor: '[]'}),
 	toDomainLowest: _elm_lang$core$Basics$identity,
@@ -11854,7 +11854,7 @@ var _terezka$elm_plot$Plot$defaultBarsPlotCustomizations = _elm_lang$core$Native
 	});
 var _terezka$elm_plot$Plot$viewBars = _terezka$elm_plot$Plot$viewBarsCustom(_terezka$elm_plot$Plot$defaultBarsPlotCustomizations);
 var _terezka$elm_plot$Plot$viewSeries = _terezka$elm_plot$Plot$viewSeriesCustom(_terezka$elm_plot$Plot$defaultSeriesPlotCustomizations);
-var _terezka$elm_plot$Plot$emptyAxis = _terezka$elm_plot$Plot$customAxis(
+var _terezka$elm_plot$Plot$clearAxis = _terezka$elm_plot$Plot$customAxis(
 	function (summary) {
 		return {
 			position: _terezka$elm_plot$Plot$closestToZero,

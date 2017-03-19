@@ -50,7 +50,7 @@ module Plot
         , LabelCustomizations
         , LineCustomizations
         , sometimesYouDoNotHaveAnAxis
-        , emptyAxis
+        , clearAxis
         , normalAxis
         , normalBarsAxis
         , axisAtMin
@@ -69,7 +69,7 @@ module Plot
         , Grid
         , GridLineCustomizations
         , decentGrid
-        , emptyGrid
+        , clearGrid
         -- HELP
         , viewCircle
         , viewSquare
@@ -114,7 +114,7 @@ Just thought you might want a hand with all the views you need for you data poin
 @docs Point, normalHintContainer, flyingHintContainer, normalHintContainerInner
 
 ## Grid customizations
-@docs Grid, GridLineCustomizations, decentGrid, emptyGrid
+@docs Grid, GridLineCustomizations, decentGrid, clearGrid
 
 ## Junk
 @docs JunkCustomizations, junk
@@ -123,7 +123,7 @@ Just thought you might want a hand with all the views you need for you data poin
 @docs Axis, AxisSummary, TickCustomizations, LabelCustomizations, LineCustomizations
 
 # Various axis
-@docs normalAxis, normalBarsAxis, sometimesYouDoNotHaveAnAxis, emptyAxis, axisAtMin, axisAtMax, customAxis
+@docs normalAxis, normalBarsAxis, sometimesYouDoNotHaveAnAxis, clearAxis, axisAtMin, axisAtMax, customAxis
 
 ## Position helpers
 @docs decentPositions, interval, remove, closestToZero
@@ -286,7 +286,7 @@ emphasizedDot view x y =
 
 {-| This dot implements a special plot in [Tuftes](https://en.wikipedia.org/wiki/Edward_Tufte) [book](https://www.amazon.com/Visual-Display-Quantitative-Information/dp/1930824130).
   It basically just adds ticks to your axis where [your data points are](https://plot.ly/~riddhiman/254/miles-per-gallon-of-fuel-vs-car-weight-lb1000.png)!
-  You might want to use `emptyAxis` to remove all the other useless chart junk, now that your have all
+  You might want to use `clearAxis` to remove all the other useless chart junk, now that your have all
   these nice ticks.
 -}
 rangeFrameDot : Svg msg -> Float -> Float -> DataPoint msg
@@ -635,8 +635,8 @@ defaultSeriesPlotCustomizations =
   , hintContainer = normalHintContainer
   , horizontalAxis = normalAxis
   , grid =
-      { horizontal = emptyGrid
-      , vertical = emptyGrid
+      { horizontal = clearGrid
+      , vertical = clearGrid
       }
   , junk = always []
   , toDomainLowest = identity
@@ -654,7 +654,33 @@ type alias JunkCustomizations msg =
   }
 
 
-{-| -}
+{-| Takes a view, a x coordinate and an y coordinate and you can put your junk anywhere!
+  If you want to add a title, which I assume is the real reason why you're here, you can do this:
+
+    title : Svg msg
+    title =
+      viewLabel
+        [ fill "bleak-capitalistic-color"
+        , style "text-anchor: end; font-style: italic;"
+        ]
+        "Ca$h earned"
+
+    view : Svg.Svg a
+    view =
+      viewSeriesCustom
+        { defaultSeriesPlotCustomizations
+        | ...
+        , junk = \summary -> [ junk title summary.x.max summary.y.max  ]
+        , ...
+        }
+        [ customLine ]
+        data
+
+Not sure if self explanatory, but `summary.x.min/max`, `summary.y.min/max`
+are just floats which you can do anything you'd like with.
+
+You can of course also put other junk here, like legends for example.
+-}
 junk : Svg msg -> Float -> Float -> JunkCustomizations msg
 junk title x y =
   { x = x
@@ -770,8 +796,8 @@ decentGrid =
 
 {-| No grid. Tufte would be proud of you. 💛
 -}
-emptyGrid : Grid
-emptyGrid =
+clearGrid : Grid
+clearGrid =
   YeahGridsAreTotallyLame
 
 
@@ -873,8 +899,8 @@ normalAxis =
 
 {-| An axis closest to zero, but doesn't look like much unless you use the `rangeFrameDot`.
 -}
-emptyAxis : Axis
-emptyAxis =
+clearAxis : Axis
+clearAxis =
   customAxis <| \summary ->
     { position = closestToZero
     , axisLine = Nothing
