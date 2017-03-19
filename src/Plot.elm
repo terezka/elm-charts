@@ -954,7 +954,11 @@ displace x y =
   transform <| "translate(" ++ toString x ++ ", " ++ toString y ++ ")"
 
 
-{-| -}
+{-| A helper to position your axis as close to zero as possible, meaning if your
+ range is 4 - 10, then the x-axis will be a 4, as that's the closest to zero it gets.
+ Useful for avoiding confusion when your axis disappears below the reach of your plot
+ because zero is not in your plot.
+-}
 closestToZero : Float -> Float -> Float
 closestToZero min max =
   clamp min max 0
