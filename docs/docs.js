@@ -11649,6 +11649,10 @@ var _terezka$elm_plot$Plot$PlotCustomizations = function (a) {
 		};
 	};
 };
+var _terezka$elm_plot$Plot$JunkCustomizations = F3(
+	function (a, b, c) {
+		return {x: a, y: b, view: c};
+	});
 var _terezka$elm_plot$Plot$GridLineCustomizations = F2(
 	function (a, b) {
 		return {attributes: a, position: b};
@@ -11668,10 +11672,6 @@ var _terezka$elm_plot$Plot$TickCustomizations = F3(
 var _terezka$elm_plot$Plot$LabelCustomizations = F2(
 	function (a, b) {
 		return {view: a, position: b};
-	});
-var _terezka$elm_plot$Plot$JunkCustomizations = F3(
-	function (a, b, c) {
-		return {x: a, y: b, view: c};
 	});
 var _terezka$elm_plot$Plot$TempPlotSummary = F2(
 	function (a, b) {
@@ -12063,9 +12063,9 @@ var _terezka$elm_plot$PlotSine$view = A3(
 	_terezka$elm_plot$PlotSine$data);
 var _terezka$elm_plot$PlotSine$plotExample = {title: 'Sin', code: _terezka$elm_plot$PlotSine$code, view: _terezka$elm_plot$PlotSine$view, id: 'PlotSine'};
 
-var _terezka$elm_plot$PlotRangeFrame$code = '\nscatter : Maybe Point -> Series (List ( Float, Float )) Msg\nscatter hovering =\n  { axis = rangeFrameAxis hovering .y\n  , interpolation = None\n  , toDataPoints = List.map (rangeFrameHintDot hovering)\n  }\n\n\ncircle : Float -> Float -> Svg Msg\ncircle x y =\n  Svg.circle\n    [ r \"5\"\n    , stroke \"transparent\"\n    , strokeWidth \"3px\"\n    , fill pinkStroke\n    , onMouseOver (Hover (Just { x = x, y = y }))\n    , onMouseOut (Hover Nothing)\n    ]\n    []\n\n\nflashyLine : Float -> Float -> Point -> Maybe (AxisSummary -> LineCustomizations)\nflashyLine x y hovered =\n  if hovered.x == x && hovered.y == y then\n    Just (fullLine [ stroke \"#a3a3a3\", strokeDasharray \"2, 10\" ])\n  else\n    Nothing\n\n\nrangeFrameHintDot : Maybe Point -> ( Float, Float ) -> DataPoint Msg\nrangeFrameHintDot hovered ( x, y ) =\n  { view = Just (circle x y)\n  , xLine = Maybe.andThen (hoverLine x y) hovered\n  , yLine = Maybe.andThen (hoverLine x y) hovered\n  , xTick = Just (simpleTick x)\n  , yTick = Just (simpleTick y)\n  , viewHint = Nothing\n  , x = x\n  , y = y\n  }\n\n\nrangeFrameAxis : Maybe Point -> (Point -> Float) -> Axis\nrangeFrameAxis hovered toValue =\n  customAxis <| \\summary ->\n    { position = closestToZero\n    , axisLine = Nothing\n    , ticks = List.map simpleTick [ summary.dataMin, summary.dataMax ]\n    , labels = List.map simpleLabel [ summary.dataMin, summary.dataMax ]\n        ++ hoverLabel hovered toValue\n    , flipAnchor = False\n    }\n\n\nhoverLabel : Maybe Point -> (Point -> Float) -> List LabelCustomizations\nhoverLabel hovered toValue =\n  hovered\n    |> Maybe.map (toValue >> simpleLabel >> List.singleton)\n    |> Maybe.withDefault []\n\n\nview : Maybe Point -> Svg.Svg Msg\nview hovering =\n  viewSeriesCustom\n    { defaultSeriesPlotCustomizations\n    | horizontalAxis = rangeFrameAxis hovering .x\n    , margin = { top = 20, bottom = 20, left = 50, right = 40 }\n    , toRangeLowest = \\y -> y - 0.02\n    , toDomainLowest = \\y -> y - 1\n    }\n    [ scatter hovering ]\n    data\n';
-var _terezka$elm_plot$PlotRangeFrame$hoverLabel = F2(
-	function (hovered, toValue) {
+var _terezka$elm_plot$PlotRangeFrame$code = '\nscatter : Maybe Point -> Series (List ( Float, Float )) Msg\nscatter hinting =\n  { axis = rangeFrameAxis hinting .y\n  , interpolation = None\n  , toDataPoints = List.map (rangeFrameHintDot hinting)\n  }\n\n\ncircle : Float -> Float -> Svg Msg\ncircle x y =\n  Svg.circle\n    [ r \"5\"\n    , stroke \"transparent\"\n    , strokeWidth \"3px\"\n    , fill pinkStroke\n    , onMouseOver (Hover (Just { x = x, y = y }))\n    , onMouseOut (Hover Nothing)\n    ]\n    []\n\n\nflashyLine : Float -> Float -> Point -> Maybe (AxisSummary -> LineCustomizations)\nflashyLine x y hinted =\n  if hinted.x == x && hinted.y == y then\n    Just (fullLine [ stroke \"#a3a3a3\", strokeDasharray \"2, 10\" ])\n  else\n    Nothing\n\n\nrangeFrameHintDot : Maybe Point -> ( Float, Float ) -> DataPoint Msg\nrangeFrameHintDot hinted ( x, y ) =\n  { view = Just (circle x y)\n  , xLine = Maybe.andThen (hintLine x y) hinted\n  , yLine = Maybe.andThen (hintLine x y) hinted\n  , xTick = Just (simpleTick x)\n  , yTick = Just (simpleTick y)\n  , viewHint = Nothing\n  , x = x\n  , y = y\n  }\n\n\nrangeFrameAxis : Maybe Point -> (Point -> Float) -> Axis\nrangeFrameAxis hinted toValue =\n  customAxis <| \\summary ->\n    { position = closestToZero\n    , axisLine = Nothing\n    , ticks = List.map simpleTick [ summary.dataMin, summary.dataMax ]\n    , labels = List.map simpleLabel [ summary.dataMin, summary.dataMax ]\n        ++ hintLabel hinted toValue\n    , flipAnchor = False\n    }\n\n\nhintLabel : Maybe Point -> (Point -> Float) -> List LabelCustomizations\nhintLabel hinted toValue =\n  hinted\n    |> Maybe.map (toValue >> simpleLabel >> List.singleton)\n    |> Maybe.withDefault []\n\n\nview : Maybe Point -> Svg.Svg Msg\nview hinting =\n  viewSeriesCustom\n    { defaultSeriesPlotCustomizations\n    | horizontalAxis = rangeFrameAxis hinting .x\n    , margin = { top = 20, bottom = 20, left = 50, right = 40 }\n    , toRangeLowest = \\y -> y - 0.02\n    , toDomainLowest = \\y -> y - 1\n    }\n    [ scatter hinting ]\n    data\n';
+var _terezka$elm_plot$PlotRangeFrame$hintLabel = F2(
+	function (hinted, toValue) {
 		return A2(
 			_elm_lang$core$Maybe$withDefault,
 			{ctor: '[]'},
@@ -12076,10 +12076,10 @@ var _terezka$elm_plot$PlotRangeFrame$hoverLabel = F2(
 						_terezka$elm_plot$Plot$simpleLabel(
 							toValue(_p0)));
 				},
-				hovered));
+				hinted));
 	});
 var _terezka$elm_plot$PlotRangeFrame$rangeFrameAxis = F2(
-	function (hovered, toValue) {
+	function (hinted, toValue) {
 		return _terezka$elm_plot$Plot$customAxis(
 			function (summary) {
 				return {
@@ -12111,14 +12111,14 @@ var _terezka$elm_plot$PlotRangeFrame$rangeFrameAxis = F2(
 									_1: {ctor: '[]'}
 								}
 							}),
-						A2(_terezka$elm_plot$PlotRangeFrame$hoverLabel, hovered, toValue)),
+						A2(_terezka$elm_plot$PlotRangeFrame$hintLabel, hinted, toValue)),
 					flipAnchor: false
 				};
 			});
 	});
 var _terezka$elm_plot$PlotRangeFrame$flashyLine = F3(
-	function (x, y, hovered) {
-		return (_elm_lang$core$Native_Utils.eq(hovered.x, x) && _elm_lang$core$Native_Utils.eq(hovered.y, y)) ? _elm_lang$core$Maybe$Just(
+	function (x, y, hinted) {
+		return (_elm_lang$core$Native_Utils.eq(hinted.x, x) && _elm_lang$core$Native_Utils.eq(hinted.y, y)) ? _elm_lang$core$Maybe$Just(
 			_terezka$elm_plot$Plot$fullLine(
 				{
 					ctor: '::',
@@ -12166,7 +12166,7 @@ var _terezka$elm_plot$PlotRangeFrame$circle = F2(
 			{ctor: '[]'});
 	});
 var _terezka$elm_plot$PlotRangeFrame$rangeFrameHintDot = F2(
-	function (hovered, _p1) {
+	function (hinted, _p1) {
 		var _p2 = _p1;
 		var _p4 = _p2._1;
 		var _p3 = _p2._0;
@@ -12176,11 +12176,11 @@ var _terezka$elm_plot$PlotRangeFrame$rangeFrameHintDot = F2(
 			xLine: A2(
 				_elm_lang$core$Maybe$andThen,
 				A2(_terezka$elm_plot$PlotRangeFrame$flashyLine, _p3, _p4),
-				hovered),
+				hinted),
 			yLine: A2(
 				_elm_lang$core$Maybe$andThen,
 				A2(_terezka$elm_plot$PlotRangeFrame$flashyLine, _p3, _p4),
-				hovered),
+				hinted),
 			xTick: _elm_lang$core$Maybe$Just(
 				_terezka$elm_plot$Plot$simpleTick(_p3)),
 			yTick: _elm_lang$core$Maybe$Just(
@@ -12190,17 +12190,17 @@ var _terezka$elm_plot$PlotRangeFrame$rangeFrameHintDot = F2(
 			y: _p4
 		};
 	});
-var _terezka$elm_plot$PlotRangeFrame$scatter = function (hovering) {
+var _terezka$elm_plot$PlotRangeFrame$scatter = function (hinting) {
 	return {
 		axis: A2(
 			_terezka$elm_plot$PlotRangeFrame$rangeFrameAxis,
-			hovering,
+			hinting,
 			function (_) {
 				return _.y;
 			}),
 		interpolation: _terezka$elm_plot$Plot$None,
 		toDataPoints: _elm_lang$core$List$map(
-			_terezka$elm_plot$PlotRangeFrame$rangeFrameHintDot(hovering))
+			_terezka$elm_plot$PlotRangeFrame$rangeFrameHintDot(hinting))
 	};
 };
 var _terezka$elm_plot$PlotRangeFrame$data = {
@@ -12308,7 +12308,7 @@ var _terezka$elm_plot$PlotRangeFrame$data = {
 		}
 	}
 };
-var _terezka$elm_plot$PlotRangeFrame$view = function (hovering) {
+var _terezka$elm_plot$PlotRangeFrame$view = function (hinting) {
 	return A3(
 		_terezka$elm_plot$Plot$viewSeriesCustom,
 		_elm_lang$core$Native_Utils.update(
@@ -12316,7 +12316,7 @@ var _terezka$elm_plot$PlotRangeFrame$view = function (hovering) {
 			{
 				horizontalAxis: A2(
 					_terezka$elm_plot$PlotRangeFrame$rangeFrameAxis,
-					hovering,
+					hinting,
 					function (_) {
 						return _.x;
 					}),
@@ -12330,16 +12330,16 @@ var _terezka$elm_plot$PlotRangeFrame$view = function (hovering) {
 			}),
 		{
 			ctor: '::',
-			_0: _terezka$elm_plot$PlotRangeFrame$scatter(hovering),
+			_0: _terezka$elm_plot$PlotRangeFrame$scatter(hinting),
 			_1: {ctor: '[]'}
 		},
 		_terezka$elm_plot$PlotRangeFrame$data);
 };
-var _terezka$elm_plot$PlotRangeFrame$plotExample = function (hovered) {
+var _terezka$elm_plot$PlotRangeFrame$plotExample = function (hinted) {
 	return {
 		title: 'PlotRangeFrame',
 		code: _terezka$elm_plot$PlotRangeFrame$code,
-		view: _terezka$elm_plot$PlotRangeFrame$view(hovered),
+		view: _terezka$elm_plot$PlotRangeFrame$view(hinted),
 		id: 'PlotRangeFrame'
 	};
 };

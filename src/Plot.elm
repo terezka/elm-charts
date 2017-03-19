@@ -8,6 +8,7 @@ module Plot
         , normalHintContainer
         , flyingHintContainer
         , normalHintContainerInner
+        , JunkCustomizations
         , junk
         -- SERIES
         , viewSeries
@@ -106,17 +107,17 @@ Just thought you might want a hand with all the views you need for you data poin
 ## Custom bars
 @docs Bars, BarGroup, MaxBarWidth, hintGroup, customGroups, customGroup
 
-# Custom view
+# Custom plot
 @docs PlotCustomizations, PlotSummary, defaultSeriesPlotCustomizations, viewSeriesCustom, defaultBarsPlotCustomizations, viewBarsCustom
 
-## Hover customizations
+## Hint customizations
 @docs Point, normalHintContainer, flyingHintContainer, normalHintContainerInner
 
 ## Grid customizations
 @docs Grid, GridLineCustomizations, decentGrid, emptyGrid
 
 ## Junk
-@docs junk
+@docs JunkCustomizations, junk
 
 # Axis customizations
 @docs Axis, AxisSummary, TickCustomizations, LabelCustomizations, LineCustomizations
@@ -645,7 +646,15 @@ defaultSeriesPlotCustomizations =
   }
 
 
-{-|  -}
+{-| Just add whatever you want. A title might be an idea though. -}
+type alias JunkCustomizations msg =
+  { x : Float
+  , y : Float
+  , view : Svg msg
+  }
+
+
+{-| -}
 junk : Svg msg -> Float -> Float -> JunkCustomizations msg
 junk title x y =
   { x = x
@@ -819,15 +828,6 @@ type alias TickCustomizations =
 type alias LabelCustomizations =
   { view : Svg Never
   , position : Float
-  }
-
-
-{-| Just add whatever you want. A title might be an idea though.
--}
-type alias JunkCustomizations msg =
-  { x : Float
-  , y : Float
-  , view : Svg msg
   }
 
 
