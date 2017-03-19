@@ -9,10 +9,10 @@ import Common exposing (..)
 
 
 plotExample : Maybe Point -> PlotExample Msg
-plotExample hovered =
+plotExample hinted =
     { title = "PlotRangeFrame"
     , code = code
-    , view = view hovered
+    , view = view hinted
     , id = "PlotRangeFrame"
     }
 
@@ -49,10 +49,10 @@ data =
 
 
 scatter : Maybe Point -> Series (List ( Float, Float )) Msg
-scatter hovering =
-  { axis = rangeFrameAxis hovering .y
+scatter hinting =
+  { axis = rangeFrameAxis hinting .y
   , interpolation = None
-  , toDataPoints = List.map (rangeFrameHintDot hovering)
+  , toDataPoints = List.map (rangeFrameHintDot hinting)
   }
 
 
@@ -70,18 +70,18 @@ circle x y =
 
 
 flashyLine : Float -> Float -> Point -> Maybe (AxisSummary -> LineCustomizations)
-flashyLine x y hovered =
-  if hovered.x == x && hovered.y == y then
+flashyLine x y hinted =
+  if hinted.x == x && hinted.y == y then
     Just (fullLine [ stroke "#a3a3a3", strokeDasharray "2, 10" ])
   else
     Nothing
 
 
 rangeFrameHintDot : Maybe Point -> ( Float, Float ) -> DataPoint Msg
-rangeFrameHintDot hovered ( x, y ) =
+rangeFrameHintDot hinted ( x, y ) =
   { view = Just (circle x y)
-  , xLine = Maybe.andThen (flashyLine x y) hovered
-  , yLine = Maybe.andThen (flashyLine x y) hovered
+  , xLine = Maybe.andThen (flashyLine x y) hinted
+  , yLine = Maybe.andThen (flashyLine x y) hinted
   , xTick = Just (simpleTick x)
   , yTick = Just (simpleTick y)
   , hint = Nothing
@@ -91,34 +91,34 @@ rangeFrameHintDot hovered ( x, y ) =
 
 
 rangeFrameAxis : Maybe Point -> (Point -> Float) -> Axis
-rangeFrameAxis hovered toValue =
+rangeFrameAxis hinted toValue =
   customAxis <| \summary ->
     { position = closestToZero
     , axisLine = Nothing
     , ticks = List.map simpleTick [ summary.dataMin, summary.dataMax ]
     , labels = List.map simpleLabel [ summary.dataMin, summary.dataMax ]
-        ++ hoverLabel hovered toValue
+        ++ hintLabel hinted toValue
     , flipAnchor = False
     }
 
 
-hoverLabel : Maybe Point -> (Point -> Float) -> List LabelCustomizations
-hoverLabel hovered toValue =
-  hovered
+hintLabel : Maybe Point -> (Point -> Float) -> List LabelCustomizations
+hintLabel hinted toValue =
+  hinted
     |> Maybe.map (toValue >> simpleLabel >> List.singleton)
     |> Maybe.withDefault []
 
 
 view : Maybe Point -> Svg.Svg Msg
-view hovering =
+view hinting =
   viewSeriesCustom
     { defaultSeriesPlotCustomizations
-    | horizontalAxis = rangeFrameAxis hovering .x
+    | horizontalAxis = rangeFrameAxis hinting .x
     , margin = { top = 20, bottom = 20, left = 50, right = 40 }
     , toRangeLowest = \y -> y - 0.01
     , toDomainLowest = \y -> y - 1
     }
-    [ scatter hovering ]
+    [ scatter hinting ]
     data
 
 
@@ -127,10 +127,10 @@ code : String
 code =
     """
 scatter : Maybe Point -> Series (List ( Float, Float )) Msg
-scatter hovering =
-  { axis = rangeFrameAxis hovering .y
+scatter hinting =
+  { axis = rangeFrameAxis hinting .y
   , interpolation = None
-  , toDataPoints = List.map (rangeFrameHintDot hovering)
+  , toDataPoints = List.map (rangeFrameHintDot hinting)
   }
 
 
@@ -148,18 +148,18 @@ circle x y =
 
 
 flashyLine : Float -> Float -> Point -> Maybe (AxisSummary -> LineCustomizations)
-flashyLine x y hovered =
-  if hovered.x == x && hovered.y == y then
+flashyLine x y hinted =
+  if hinted.x == x && hinted.y == y then
     Just (fullLine [ stroke "#a3a3a3", strokeDasharray "2, 10" ])
   else
     Nothing
 
 
 rangeFrameHintDot : Maybe Point -> ( Float, Float ) -> DataPoint Msg
-rangeFrameHintDot hovered ( x, y ) =
+rangeFrameHintDot hinted ( x, y ) =
   { view = Just (circle x y)
-  , xLine = Maybe.andThen (hoverLine x y) hovered
-  , yLine = Maybe.andThen (hoverLine x y) hovered
+  , xLine = Maybe.andThen (hintLine x y) hinted
+  , yLine = Maybe.andThen (hintLine x y) hinted
   , xTick = Just (simpleTick x)
   , yTick = Just (simpleTick y)
   , viewHint = Nothing
@@ -169,33 +169,33 @@ rangeFrameHintDot hovered ( x, y ) =
 
 
 rangeFrameAxis : Maybe Point -> (Point -> Float) -> Axis
-rangeFrameAxis hovered toValue =
+rangeFrameAxis hinted toValue =
   customAxis <| \\summary ->
     { position = closestToZero
     , axisLine = Nothing
     , ticks = List.map simpleTick [ summary.dataMin, summary.dataMax ]
     , labels = List.map simpleLabel [ summary.dataMin, summary.dataMax ]
-        ++ hoverLabel hovered toValue
+        ++ hintLabel hinted toValue
     , flipAnchor = False
     }
 
 
-hoverLabel : Maybe Point -> (Point -> Float) -> List LabelCustomizations
-hoverLabel hovered toValue =
-  hovered
+hintLabel : Maybe Point -> (Point -> Float) -> List LabelCustomizations
+hintLabel hinted toValue =
+  hinted
     |> Maybe.map (toValue >> simpleLabel >> List.singleton)
     |> Maybe.withDefault []
 
 
 view : Maybe Point -> Svg.Svg Msg
-view hovering =
+view hinting =
   viewSeriesCustom
     { defaultSeriesPlotCustomizations
-    | horizontalAxis = rangeFrameAxis hovering .x
+    | horizontalAxis = rangeFrameAxis hinting .x
     , margin = { top = 20, bottom = 20, left = 50, right = 40 }
     , toRangeLowest = \\y -> y - 0.02
     , toDomainLowest = \\y -> y - 1
     }
-    [ scatter hovering ]
+    [ scatter hinting ]
     data
 """
