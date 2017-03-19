@@ -2,7 +2,6 @@
 
 Plot stuff in SVG with Elm!
 
-
 ## Overview
 
 So, in the spirit of Elm and its goal of not only being a tool to express your code elegantly,
@@ -11,6 +10,8 @@ own preferences I push upon you, but yet another straight (?) white guy called [
 the book [The Visual Display of Quantitative Information](https://www.edwardtufte.com/tufte/books_vdqi) and had a
 lot of great ideas of how to make plots more readable. However, if you find that these restrictions are keeping you
 from doing something incredible vital, then lets talk about it and see if it makes sense to allow it.
+
+> Graphical excellence is that which gives to the viewer the greatest number of ideas in the shortest time with the least ink in the smallest space. - Edward Tufte
 
 ### What does the api look like?
 
@@ -28,7 +29,7 @@ Something like this:
         ]
 ```
 
-You're welcome to take a look at the docs folder for more [exampels](https://github.com/terezka/elm-plot/tree/master/docs/src)!
+You're welcome to take a look at the docs folder for more [examples](https://github.com/terezka/elm-plot/tree/master/docs/src)!
 
 ### Missing something?
 
