@@ -34,7 +34,7 @@ view hovering =
     viewBarsCustom
       { defaultBarsPlotCustomizations
       | onHover = Just HoverBars
-      , viewHintContainer = flyingHintContainer normalHintContainerInner hovering
+      , hintContainer = flyingHintContainer normalHintContainerInner hovering
       }
       (bars hovering)
       barData
@@ -53,7 +53,7 @@ view hovering =
     viewBarsCustom
       { defaultBarsPlotCustomizations
       | onHover = Just Hover
-      , viewHintContainer = flyingHintContainer normalHintContainerInner hovering
+      , hintContainer = flyingHintContainer normalHintContainerInner hovering
       }
       (bars hovering)
       barData

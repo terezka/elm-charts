@@ -10370,8 +10370,8 @@ var _terezka$elm_plot$Plot$toPlotSummary = F3(
 				dataMin: plotSummary.y.min,
 				dataMax: plotSummary.y.max,
 				length: _elm_lang$core$Basics$toFloat(customizations.height),
-				marginLower: _elm_lang$core$Basics$toFloat(customizations.margin.bottom),
-				marginUpper: _elm_lang$core$Basics$toFloat(customizations.margin.top),
+				marginLower: _elm_lang$core$Basics$toFloat(customizations.margin.top),
+				marginUpper: _elm_lang$core$Basics$toFloat(customizations.margin.bottom),
 				all: plotSummary.y.all
 			}
 		};
@@ -10837,7 +10837,7 @@ var _terezka$elm_plot$Plot$viewSeriesCustom = F3(
 			var _p66 = A2(
 				_elm_lang$core$List$filterMap,
 				function (_) {
-					return _.viewHint;
+					return _.hint;
 				},
 				allDataPoints);
 			if (_p66.ctor === '[]') {
@@ -10846,7 +10846,7 @@ var _terezka$elm_plot$Plot$viewSeriesCustom = F3(
 				return A2(
 					_elm_lang$html$Html$map,
 					_elm_lang$core$Basics$never,
-					A2(customizations.viewHintContainer, summary, _p66));
+					A2(customizations.hintContainer, summary, _p66));
 			}
 		}();
 		var viewVerticalAxes = _elm_lang$core$Maybe$Just(
@@ -10944,65 +10944,6 @@ var _terezka$elm_plot$Plot$viewSeriesCustom = F3(
 				}
 			});
 	});
-var _terezka$elm_plot$Plot$displace = F2(
-	function (x, y) {
-		return _elm_lang$svg$Svg_Attributes$transform(
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'translate(',
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					_elm_lang$core$Basics$toString(x),
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						', ',
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(y),
-							')')))));
-	});
-var _terezka$elm_plot$Plot$fullLine = F2(
-	function (attributes, summary) {
-		return {
-			attributes: {
-				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$style('pointer-events: none;'),
-				_1: attributes
-			},
-			start: summary.min,
-			end: summary.max
-		};
-	});
-var _terezka$elm_plot$Plot$simpleLabel = function (position) {
-	return {
-		position: position,
-		view: A2(
-			_terezka$elm_plot$Plot$viewLabel,
-			{ctor: '[]'},
-			_elm_lang$core$Basics$toString(position))
-	};
-};
-var _terezka$elm_plot$Plot$simpleTick = function (position) {
-	return {
-		position: position,
-		length: 5,
-		attributes: {
-			ctor: '::',
-			_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Internal_Colors$darkGrey),
-			_1: {ctor: '[]'}
-		}
-	};
-};
-var _terezka$elm_plot$Plot$simpleLine = function (summary) {
-	return A2(
-		_terezka$elm_plot$Plot$fullLine,
-		{
-			ctor: '::',
-			_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Internal_Colors$darkGrey),
-			_1: {ctor: '[]'}
-		},
-		summary);
-};
 var _terezka$elm_plot$Plot$closestToZero = F2(
 	function (min, max) {
 		return A3(_elm_lang$core$Basics$clamp, min, max, 0);
@@ -11203,7 +11144,7 @@ var _terezka$elm_plot$Plot$viewBarsCustom = F3(
 				_elm_lang$core$List$indexedMap,
 				F2(
 					function (index, group) {
-						return group.viewHint(
+						return group.hint(
 							_elm_lang$core$Basics$toFloat(index) + 1);
 					}),
 				groups));
@@ -11215,7 +11156,7 @@ var _terezka$elm_plot$Plot$viewBarsCustom = F3(
 				return A2(
 					_elm_lang$html$Html$map,
 					_elm_lang$core$Basics$never,
-					A2(customizations.viewHintContainer, summary, _p78));
+					A2(customizations.hintContainer, summary, _p78));
 			}
 		}();
 		var children = A2(
@@ -11276,6 +11217,65 @@ var _terezka$elm_plot$Plot$viewBarsCustom = F3(
 				}
 			});
 	});
+var _terezka$elm_plot$Plot$displace = F2(
+	function (x, y) {
+		return _elm_lang$svg$Svg_Attributes$transform(
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'translate(',
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					_elm_lang$core$Basics$toString(x),
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						', ',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(y),
+							')')))));
+	});
+var _terezka$elm_plot$Plot$fullLine = F2(
+	function (attributes, summary) {
+		return {
+			attributes: {
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$style('pointer-events: none;'),
+				_1: attributes
+			},
+			start: summary.min,
+			end: summary.max
+		};
+	});
+var _terezka$elm_plot$Plot$simpleLabel = function (position) {
+	return {
+		position: position,
+		view: A2(
+			_terezka$elm_plot$Plot$viewLabel,
+			{ctor: '[]'},
+			_elm_lang$core$Basics$toString(position))
+	};
+};
+var _terezka$elm_plot$Plot$simpleTick = function (position) {
+	return {
+		position: position,
+		length: 5,
+		attributes: {
+			ctor: '::',
+			_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Internal_Colors$darkGrey),
+			_1: {ctor: '[]'}
+		}
+	};
+};
+var _terezka$elm_plot$Plot$simpleLine = function (summary) {
+	return A2(
+		_terezka$elm_plot$Plot$fullLine,
+		{
+			ctor: '::',
+			_0: _elm_lang$svg$Svg_Attributes$stroke(_terezka$elm_plot$Internal_Colors$darkGrey),
+			_1: {ctor: '[]'}
+		},
+		summary);
+};
 var _terezka$elm_plot$Plot$normalHintContainerInner = F2(
 	function (isLeft, hints) {
 		var margin = isLeft ? 10 : 10;
@@ -11398,7 +11398,7 @@ var _terezka$elm_plot$Plot$normalHintContainer = function (summary) {
 			_1: {ctor: '[]'}
 		});
 };
-var _terezka$elm_plot$Plot$viewJunk = F3(
+var _terezka$elm_plot$Plot$junk = F3(
 	function (title, x, y) {
 		return {x: x, y: y, view: title};
 	});
@@ -11445,7 +11445,7 @@ var _terezka$elm_plot$Plot$rangeFrameDot = F3(
 				_terezka$elm_plot$Plot$simpleTick(x)),
 			yTick: _elm_lang$core$Maybe$Just(
 				_terezka$elm_plot$Plot$simpleTick(y)),
-			viewHint: _elm_lang$core$Maybe$Nothing,
+			hint: _elm_lang$core$Maybe$Nothing,
 			x: x,
 			y: y
 		};
@@ -11478,7 +11478,7 @@ var _terezka$elm_plot$Plot$emphasizedDot = F3(
 					})),
 			xTick: _elm_lang$core$Maybe$Nothing,
 			yTick: _elm_lang$core$Maybe$Nothing,
-			viewHint: _elm_lang$core$Maybe$Nothing,
+			hint: _elm_lang$core$Maybe$Nothing,
 			x: x,
 			y: y
 		};
@@ -11509,7 +11509,7 @@ var _terezka$elm_plot$Plot$hintDot = F4(
 			yLine: _elm_lang$core$Maybe$Nothing,
 			xTick: _elm_lang$core$Maybe$Nothing,
 			yTick: _elm_lang$core$Maybe$Nothing,
-			viewHint: A3(
+			hint: A3(
 				_terezka$elm_plot$Plot$onHovering,
 				_terezka$elm_plot$Plot$normalHint(y),
 				hovering,
@@ -11526,7 +11526,7 @@ var _terezka$elm_plot$Plot$dot = F3(
 			yLine: _elm_lang$core$Maybe$Nothing,
 			xTick: _elm_lang$core$Maybe$Nothing,
 			yTick: _elm_lang$core$Maybe$Nothing,
-			viewHint: _elm_lang$core$Maybe$Nothing,
+			hint: _elm_lang$core$Maybe$Nothing,
 			x: x,
 			y: y
 		};
@@ -11543,7 +11543,7 @@ var _terezka$elm_plot$Plot$circle = _terezka$elm_plot$Plot$dot(
 	A2(_terezka$elm_plot$Plot$viewCircle, 5, _terezka$elm_plot$Internal_Colors$pinkStroke));
 var _terezka$elm_plot$Plot$DataPoint = F8(
 	function (a, b, c, d, e, f, g, h) {
-		return {view: a, xLine: b, yLine: c, xTick: d, yTick: e, viewHint: f, x: g, y: h};
+		return {view: a, xLine: b, yLine: c, xTick: d, yTick: e, hint: f, x: g, y: h};
 	});
 var _terezka$elm_plot$Plot$customDot = _terezka$elm_plot$Plot$DataPoint;
 var _terezka$elm_plot$Plot$Series = F3(
@@ -11558,7 +11558,7 @@ var _terezka$elm_plot$Plot$Bars = F4(
 var _terezka$elm_plot$Plot$customGroups = _terezka$elm_plot$Plot$Bars;
 var _terezka$elm_plot$Plot$BarGroup = F4(
 	function (a, b, c, d) {
-		return {label: a, viewHint: b, verticalLine: c, bars: d};
+		return {label: a, hint: b, verticalLine: c, bars: d};
 	});
 var _terezka$elm_plot$Plot$customGroup = _terezka$elm_plot$Plot$BarGroup;
 var _terezka$elm_plot$Plot$Bar = F2(
@@ -11570,7 +11570,7 @@ var _terezka$elm_plot$Plot$group = F2(
 		return {
 			label: _terezka$elm_plot$Plot$normalBarLabel(label),
 			verticalLine: _elm_lang$core$Basics$always(_elm_lang$core$Maybe$Nothing),
-			viewHint: _elm_lang$core$Basics$always(_elm_lang$core$Maybe$Nothing),
+			hint: _elm_lang$core$Basics$always(_elm_lang$core$Maybe$Nothing),
 			bars: A2(
 				_elm_lang$core$List$map,
 				_terezka$elm_plot$Plot$Bar(_elm_lang$core$Maybe$Nothing),
@@ -11590,7 +11590,7 @@ var _terezka$elm_plot$Plot$hintGroup = F3(
 						_1: {ctor: '[]'}
 					}),
 				hovering),
-			viewHint: function (g) {
+			hint: function (g) {
 				return A3(
 					_terezka$elm_plot$Plot$onHovering,
 					A2(
@@ -11610,7 +11610,7 @@ var _terezka$elm_plot$Plot$histogramBar = function (height) {
 	return {
 		label: _terezka$elm_plot$Plot$simpleLabel,
 		verticalLine: _elm_lang$core$Basics$always(_elm_lang$core$Maybe$Nothing),
-		viewHint: _elm_lang$core$Basics$always(_elm_lang$core$Maybe$Nothing),
+		hint: _elm_lang$core$Basics$always(_elm_lang$core$Maybe$Nothing),
 		bars: {
 			ctor: '::',
 			_0: A2(_terezka$elm_plot$Plot$Bar, _elm_lang$core$Maybe$Nothing, height),
@@ -11633,7 +11633,7 @@ var _terezka$elm_plot$Plot$PlotCustomizations = function (a) {
 												return function (m) {
 													return function (n) {
 														return function (o) {
-															return {attributes: a, id: b, width: c, height: d, defs: e, margin: f, onHover: g, viewHintContainer: h, horizontalAxis: i, grid: j, junk: k, toDomainLowest: l, toDomainHighest: m, toRangeLowest: n, toRangeHighest: o};
+															return {attributes: a, id: b, width: c, height: d, defs: e, margin: f, onHover: g, hintContainer: h, horizontalAxis: i, grid: j, junk: k, toDomainLowest: l, toDomainHighest: m, toRangeLowest: n, toRangeHighest: o};
 														};
 													};
 												};
@@ -11836,7 +11836,7 @@ var _terezka$elm_plot$Plot$defaultSeriesPlotCustomizations = {
 	height: 440,
 	margin: {top: 20, right: 40, bottom: 20, left: 40},
 	onHover: _elm_lang$core$Maybe$Nothing,
-	viewHintContainer: _terezka$elm_plot$Plot$normalHintContainer,
+	hintContainer: _terezka$elm_plot$Plot$normalHintContainer,
 	horizontalAxis: _terezka$elm_plot$Plot$normalAxis,
 	grid: {horizontal: _terezka$elm_plot$Plot$emptyGrid, vertical: _terezka$elm_plot$Plot$emptyGrid},
 	junk: _elm_lang$core$Basics$always(
@@ -11909,7 +11909,7 @@ var _terezka$elm_plot$Msg$FocusExample = function (a) {
 	return {ctor: 'FocusExample', _0: a};
 };
 
-var _terezka$elm_plot$PlotSine$code = '\ncustomLine : Series (List ( Float, Float )) msg\ncustomLine =\n  { axis = verticalAxis\n  , interpolation = Monotone Nothing [ stroke pinkStroke ]\n  , toDataPoints = List.map (\\( x, y ) -> clear x y)\n  }\n\n\nverticalAxis : Axis\nverticalAxis =\n  customAxis <| \\summary ->\n    { position = Basics.min\n    , axisLine = Just (dataLine summary)\n    , ticks = List.map simpleTick (interval 0 0.5 summary)\n    , labels = List.map simpleLabel (interval 0 0.5 summary)\n    , flipAnchor = False\n    }\n\n\nhorizontalAxis : Axis\nhorizontalAxis =\n  customAxis <| \\summary ->\n    { position = Basics.min\n    , axisLine = Just (dataLine summary)\n    , ticks = List.map simpleTick [ 0, 90, 180, 270, 360 ]\n    , labels = List.map simpleLabel [ 0, 90, 180, 270, 360 ]\n    , flipAnchor = False\n    }\n\n\ndataLine : AxisSummary -> LineCustomizations\ndataLine summary =\n  { attributes = [ stroke \"grey\" ]\n  , start = summary.dataMin\n  , end = summary.dataMax\n  }\n\n\ntitle : Svg msg\ntitle =\n  viewLabel\n    [ fill axisColor\n    , style \"text-anchor: end; font-style: italic;\"\n    ]\n    \"f(x) = sin x\"\n\n\nview : Svg.Svg a\nview =\n  viewSeriesCustom\n    { defaultSeriesPlotCustomizations\n    | horizontalAxis = horizontalAxis\n    , junk = \\summary -> [ viewJunk title summary.x.dataMax summary.y.max  ]\n    , toDomainLowest = \\y -> y - 0.25\n    , toRangeLowest = \\y -> y - 25\n    }\n    [ customLine ]\n    data\n';
+var _terezka$elm_plot$PlotSine$code = '\ncustomLine : Series (List ( Float, Float )) msg\ncustomLine =\n  { axis = verticalAxis\n  , interpolation = Monotone Nothing [ stroke pinkStroke ]\n  , toDataPoints = List.map (\\( x, y ) -> clear x y)\n  }\n\n\nverticalAxis : Axis\nverticalAxis =\n  customAxis <| \\summary ->\n    { position = Basics.min\n    , axisLine = Just (dataLine summary)\n    , ticks = List.map simpleTick (interval 0 0.5 summary)\n    , labels = List.map simpleLabel (interval 0 0.5 summary)\n    , flipAnchor = False\n    }\n\n\nhorizontalAxis : Axis\nhorizontalAxis =\n  customAxis <| \\summary ->\n    { position = Basics.min\n    , axisLine = Just (dataLine summary)\n    , ticks = List.map simpleTick [ 0, 90, 180, 270, 360 ]\n    , labels = List.map simpleLabel [ 0, 90, 180, 270, 360 ]\n    , flipAnchor = False\n    }\n\n\ndataLine : AxisSummary -> LineCustomizations\ndataLine summary =\n  { attributes = [ stroke \"grey\" ]\n  , start = summary.dataMin\n  , end = summary.dataMax\n  }\n\n\ntitle : Svg msg\ntitle =\n  viewLabel\n    [ fill axisColor\n    , style \"text-anchor: end; font-style: italic;\"\n    ]\n    \"f(x) = sin x\"\n\n\nview : Svg.Svg a\nview =\n  viewSeriesCustom\n    { defaultSeriesPlotCustomizations\n    | horizontalAxis = horizontalAxis\n    , junk = \\summary -> [ junk title summary.x.dataMax summary.y.max  ]\n    , toDomainLowest = \\y -> y - 0.25\n    , toRangeLowest = \\y -> y - 25\n    }\n    [ customLine ]\n    data\n';
 var _terezka$elm_plot$PlotSine$title = A2(
 	_terezka$elm_plot$Plot$viewLabel,
 	{
@@ -12044,7 +12044,7 @@ var _terezka$elm_plot$PlotSine$view = A3(
 			junk: function (summary) {
 				return {
 					ctor: '::',
-					_0: A3(_terezka$elm_plot$Plot$viewJunk, _terezka$elm_plot$PlotSine$title, summary.x.dataMax, summary.y.max),
+					_0: A3(_terezka$elm_plot$Plot$junk, _terezka$elm_plot$PlotSine$title, summary.x.dataMax, summary.y.max),
 					_1: {ctor: '[]'}
 				};
 			},
@@ -12185,7 +12185,7 @@ var _terezka$elm_plot$PlotRangeFrame$rangeFrameHintDot = F2(
 				_terezka$elm_plot$Plot$simpleTick(_p3)),
 			yTick: _elm_lang$core$Maybe$Just(
 				_terezka$elm_plot$Plot$simpleTick(_p4)),
-			viewHint: _elm_lang$core$Maybe$Nothing,
+			hint: _elm_lang$core$Maybe$Nothing,
 			x: _p3,
 			y: _p4
 		};
@@ -12499,7 +12499,7 @@ var _terezka$elm_plot$PlotAxis$view = A3(
 	_terezka$elm_plot$PlotAxis$data);
 var _terezka$elm_plot$PlotAxis$plotExample = {title: 'Multiple axis', code: _terezka$elm_plot$PlotAxis$code, view: _terezka$elm_plot$PlotAxis$view, id: 'Axis'};
 
-var _terezka$elm_plot$PlotBars$code = '\nbars : Maybe Point -> Bars (List ( List Float )) msg\nbars hovering =\n  groups (List.map2 (hintGroup hovering) [ \"Q1\", \"Q2\", \"Q3\", \"Q4\" ])\n\n\nview : Maybe Point -> Html.Html Msg\nview hovering =\n    viewBarsCustom\n      { defaultBarsPlotCustomizations\n      | onHover = Just Hover\n      , viewHintContainer = flyingHintContainer normalHintContainerInner hovering\n      }\n      (bars hovering)\n      barData\n';
+var _terezka$elm_plot$PlotBars$code = '\nbars : Maybe Point -> Bars (List ( List Float )) msg\nbars hovering =\n  groups (List.map2 (hintGroup hovering) [ \"Q1\", \"Q2\", \"Q3\", \"Q4\" ])\n\n\nview : Maybe Point -> Html.Html Msg\nview hovering =\n    viewBarsCustom\n      { defaultBarsPlotCustomizations\n      | onHover = Just Hover\n      , hintContainer = flyingHintContainer normalHintContainerInner hovering\n      }\n      (bars hovering)\n      barData\n';
 var _terezka$elm_plot$PlotBars$bars = function (hovering) {
 	return _terezka$elm_plot$Plot$groups(
 		A2(
@@ -12579,7 +12579,7 @@ var _terezka$elm_plot$PlotBars$view = function (hovering) {
 			_terezka$elm_plot$Plot$defaultBarsPlotCustomizations,
 			{
 				onHover: _elm_lang$core$Maybe$Just(_terezka$elm_plot$Msg$HoverBars),
-				viewHintContainer: A2(_terezka$elm_plot$Plot$flyingHintContainer, _terezka$elm_plot$Plot$normalHintContainerInner, hovering)
+				hintContainer: A2(_terezka$elm_plot$Plot$flyingHintContainer, _terezka$elm_plot$Plot$normalHintContainerInner, hovering)
 			}),
 		_terezka$elm_plot$PlotBars$bars(hovering),
 		_terezka$elm_plot$PlotBars$barData);

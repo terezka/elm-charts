@@ -84,7 +84,7 @@ rangeFrameHintDot hovered ( x, y ) =
   , yLine = Maybe.andThen (flashyLine x y) hovered
   , xTick = Just (simpleTick x)
   , yTick = Just (simpleTick y)
-  , viewHint = Nothing
+  , hint = Nothing
   , x = x
   , y = y
   }

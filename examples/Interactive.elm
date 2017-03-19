@@ -8,7 +8,7 @@ import Plot exposing (..)
 
 
 type alias Model =
-    { hovering : Maybe { x : Float, y : Float } }
+    { hovering : Maybe Point }
 
 
 initialModel : Model
@@ -21,7 +21,7 @@ initialModel =
 
 
 type Msg
-    = Hover (Maybe { x : Float, y : Float })
+    = Hover (Maybe Point)
 
 
 update : Msg -> Model -> Model
@@ -31,7 +31,7 @@ update msg model =
         { model | hovering = point }
 
 
-myDot : Maybe { x : Float, y : Float } -> { x : Float, y : Float } -> DataPoint msg
+myDot : Maybe Point -> Point -> DataPoint msg
 myDot hovering point =
     hintDot (viewCircle 5 "#ff9edf") hovering point.x point.y
 

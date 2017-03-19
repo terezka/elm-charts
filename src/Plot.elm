@@ -8,7 +8,7 @@ module Plot
         , normalHintContainer
         , flyingHintContainer
         , normalHintContainerInner
-        , viewJunk
+        , junk
         -- SERIES
         , viewSeries
         , viewSeriesCustom
@@ -116,7 +116,7 @@ Just thought you might want a hand with all the views you need for you data poin
 @docs Grid, GridLineCustomizations, decentGrid, emptyGrid
 
 ## Junk
-@docs viewJunk
+@docs junk
 
 # Axis customizations
 @docs Axis, AxisSummary, TickCustomizations, LabelCustomizations, LineCustomizations
@@ -207,7 +207,7 @@ clear =
     recommends placing a tick where [the actual data point is](https://plot.ly/~riddhiman/254/miles-per-gallon-of-fuel-vs-car-weight-lb1000.png).
     Adding a tick view to this, will cast a tick to the horizontal axis and allow you to make a plot as in the link.
   - `yTick`: Like `xTick`, but vertically.
-  - `viewHint`: The view added here will show up in the hint container (Whose view can be
+  - `hint`: The view added here will show up in the hint container (Whose view can be
     customized in the `PlotCustomizations`).
 
 -}
@@ -217,7 +217,7 @@ type alias DataPoint msg =
   , yLine : Maybe (AxisSummary -> LineCustomizations)
   , xTick : Maybe TickCustomizations
   , yTick : Maybe TickCustomizations
-  , viewHint : Maybe (Html Never)
+  , hint : Maybe (Html Never)
   , x : Float
   , y : Float
   }
@@ -232,7 +232,7 @@ dot view x y =
   , yLine = Nothing
   , xTick = Nothing
   , yTick = Nothing
-  , viewHint = Nothing
+  , hint = Nothing
   , x = x
   , y = y
   }
@@ -249,7 +249,7 @@ hintDot view hovering x y =
   , yLine = Nothing
   , xTick = Nothing
   , yTick = Nothing
-  , viewHint = onHovering (normalHint y) hovering x
+  , hint = onHovering (normalHint y) hovering x
   , x = x
   , y = y
   }
@@ -276,7 +276,7 @@ emphasizedDot view x y =
   , yLine = Just (fullLine [ stroke darkGrey, strokeDasharray "5, 5" ])
   , xTick = Nothing
   , yTick = Nothing
-  , viewHint = Nothing
+  , hint = Nothing
   , x = x
   , y = y
   }
@@ -295,7 +295,7 @@ rangeFrameDot view x y =
   , yLine = Nothing
   , xTick = Just (simpleTick x)
   , yTick = Just (simpleTick y)
-  , viewHint = Nothing
+  , hint = Nothing
   , x = x
   , y = y
   }
@@ -429,13 +429,13 @@ type alias Bars data msg =
   at that data point. This is a function as you don't get to pick your own x.
   This is because bar charts per design is supposed to be scattered at a consistent
   interval.
-  - The `viewHint` property is the view which will show up in your hint when
+  - The `hint` property is the view which will show up in your hint when
   hovering the group.
   - The `verticalLine` property is an option to add a vertical line. Nice when you have a hint.
 -}
 type alias BarGroup =
   { label : Float -> LabelCustomizations
-  , viewHint : Float -> Maybe (Svg Never)
+  , hint : Float -> Maybe (Svg Never)
   , verticalLine : Float -> Maybe (AxisSummary -> LineCustomizations)
   , bars : List Bar
   }
@@ -474,7 +474,7 @@ group : String -> List Float -> BarGroup
 group label heights =
   { label = normalBarLabel label
   , verticalLine = always Nothing
-  , viewHint = always Nothing
+  , hint = always Nothing
   , bars = List.map (Bar Nothing) heights
   }
 
@@ -485,7 +485,7 @@ hintGroup : Maybe Point -> String -> List Float -> BarGroup
 hintGroup hovering label heights =
   { label = normalBarLabel label
   , verticalLine = onHovering (fullLine [ stroke darkGrey ]) hovering
-  , viewHint = \g -> onHovering (div [] <| List.map normalHint heights) hovering g
+  , hint = \g -> onHovering (div [] <| List.map normalHint heights) hovering g
   , bars = List.map (Bar Nothing) heights
   }
 
@@ -507,7 +507,7 @@ histogramBar : Float -> BarGroup
 histogramBar height =
   { label = simpleLabel
   , verticalLine = always Nothing
-  , viewHint = always Nothing
+  , hint = always Nothing
   , bars = [ Bar Nothing height ]
   }
 
@@ -590,13 +590,13 @@ type alias PlotCustomizations msg =
     , left : Int
     }
   , onHover : Maybe (Maybe Point -> msg)
-  , viewHintContainer : PlotSummary -> List (Html Never) -> Html Never
+  , hintContainer : PlotSummary -> List (Html Never) -> Html Never
   , horizontalAxis : Axis
   , grid :
     { horizontal : Grid
     , vertical : Grid
     }
-  , junk : PlotSummary -> List { x : Float, y : Float, view : Svg msg }
+  , junk : PlotSummary -> List (JunkCustomizations msg)
   , toDomainLowest : Float -> Float
   , toDomainHighest : Float -> Float
   , toRangeLowest : Float -> Float
@@ -620,7 +620,7 @@ defaultSeriesPlotCustomizations =
       , left = 40
       }
   , onHover = Nothing
-  , viewHintContainer = normalHintContainer
+  , hintContainer = normalHintContainer
   , horizontalAxis = normalAxis
   , grid =
       { horizontal = emptyGrid
@@ -634,9 +634,9 @@ defaultSeriesPlotCustomizations =
   }
 
 
-{-| -}
-viewJunk : Svg msg -> Float -> Float -> JunkCustomizations msg
-viewJunk title x y =
+{-|  -}
+junk : Svg msg -> Float -> Float -> JunkCustomizations msg
+junk title x y =
   { x = x
   , y = y
   , view = title
@@ -787,12 +787,6 @@ type alias AxisCustomizations =
   , labels : List LabelCustomizations
   , flipAnchor : Bool
   }
-
-
-{-| -}
-closestToZero : Float -> Float -> Float
-closestToZero min max =
-  clamp min max 0
 
 
 {-| -}
@@ -950,6 +944,12 @@ displace x y =
   transform <| "translate(" ++ toString x ++ ", " ++ toString y ++ ")"
 
 
+{-| -}
+closestToZero : Float -> Float -> Float
+closestToZero min max =
+  clamp min max 0
+
+
 -- VIEW SERIES
 
 
@@ -1017,12 +1017,12 @@ viewSeriesCustom customizations series data =
         |> Just
 
     viewHint =
-      case List.filterMap .viewHint allDataPoints of
+      case List.filterMap .hint allDataPoints of
         [] ->
           text ""
 
         views ->
-          Html.map never <| customizations.viewHintContainer summary views
+          Html.map never <| customizations.hintContainer summary views
 
     viewJunks =
       customizations.junk summary
@@ -1119,7 +1119,7 @@ viewBarsCustom customizations bars data =
 
     hints =
       groups
-      |> List.indexedMap (\index group -> group.viewHint (toFloat index + 1))
+      |> List.indexedMap (\index group -> group.hint (toFloat index + 1))
       |> List.filterMap identity
 
     viewHint =
@@ -1128,7 +1128,7 @@ viewBarsCustom customizations bars data =
           text ""
 
         hints ->
-          Html.map never <| customizations.viewHintContainer summary hints
+          Html.map never <| customizations.hintContainer summary hints
 
     children =
       List.filterMap identity

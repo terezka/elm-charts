@@ -72,7 +72,7 @@ view =
   viewSeriesCustom
     { defaultSeriesPlotCustomizations
     | horizontalAxis = horizontalAxis
-    , junk = \summary -> [ viewJunk title summary.x.dataMax summary.y.max  ]
+    , junk = \summary -> [ junk title summary.x.dataMax summary.y.max  ]
     , toDomainLowest = \y -> y - 0.25
     , toRangeLowest = \y -> y - 25
     }
@@ -135,7 +135,7 @@ view =
   viewSeriesCustom
     { defaultSeriesPlotCustomizations
     | horizontalAxis = horizontalAxis
-    , junk = \\summary -> [ viewJunk title summary.x.dataMax summary.y.max  ]
+    , junk = \\summary -> [ junk title summary.x.dataMax summary.y.max  ]
     , toDomainLowest = \\y -> y - 0.25
     , toRangeLowest = \\y -> y - 25
     }
