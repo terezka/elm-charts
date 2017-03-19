@@ -5,7 +5,6 @@ import Plot exposing (..)
 import Plot.Line as Line
 import Plot.Axis as Axis
 import Plot.Grid as Grid
-import Plot.Line as Line
 import Common exposing (..)
 
 
