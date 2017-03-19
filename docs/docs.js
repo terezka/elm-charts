@@ -12322,7 +12322,7 @@ var _terezka$elm_plot$PlotRangeFrame$view = function (hovering) {
 					}),
 				margin: {top: 20, bottom: 20, left: 50, right: 40},
 				toRangeLowest: function (y) {
-					return y - 2.0e-2;
+					return y - 1.0e-2;
 				},
 				toDomainLowest: function (y) {
 					return y - 1;

@@ -115,7 +115,7 @@ view hovering =
     { defaultSeriesPlotCustomizations
     | horizontalAxis = rangeFrameAxis hovering .x
     , margin = { top = 20, bottom = 20, left = 50, right = 40 }
-    , toRangeLowest = \y -> y - 0.02
+    , toRangeLowest = \y -> y - 0.01
     , toDomainLowest = \y -> y - 1
     }
     [ scatter hovering ]
