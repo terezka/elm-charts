@@ -123,12 +123,12 @@ Just thought you might want a hand with all the views you need for you data poin
 @docs Axis, AxisSummary, TickCustomizations, LabelCustomizations, LineCustomizations
 
 # Various axis
-@docs normalAxis, normalBarsAxis, sometimesYouDoNotHaveAnAxis, clearAxis, axisAtMin, axisAtMax, customAxis
+@docs normalAxis, normalBarsAxis, sometimesYouDoNotHaveAnAxis, clearAxis, axisAtMin, axisAtMax, customAxis, closestToZero
 
 ## Position helpers
-@docs decentPositions, interval, remove, closestToZero
+@docs decentPositions, interval, remove
 
-## Small configuration helpers
+## Small axis helpers
 @docs simpleLine, simpleTick, simpleLabel, fullLine, viewLabel, displace
 
 -}
