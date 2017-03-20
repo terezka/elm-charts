@@ -1,0 +1,173 @@
+
+body {
+	margin: 0;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+a {
+	color: #84868a;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+a:hover {
+	opacity: 0.75;
+}
+
+
+
+/* View */
+
+
+.view {
+	font-family: sans-serif;
+	color: #7F7F7F;
+	font-weight: 200;
+	margin: 200px auto 0px;
+	display: flex;
+	justify-content: space-around;
+	width: 100%;
+	overflow: hidden;
+}
+
+.view--left {
+	flex-grow: 1;
+	width: 100%;
+	min-width: 300px;
+}
+
+.view--right {
+	width: 100%;
+}
+
+
+
+/* View header */
+
+
+.view-header {
+	text-align: right;
+	min-width: 200px;
+	padding-right: 40px;
+}
+
+.view-header h1 {
+	margin-top: 0;
+}
+
+.view-header__title {
+	font-weight: 200;
+}
+
+
+
+/* View example */
+
+
+.view-plot {
+	vertical-align: top;
+	margin: 0 auto;
+	margin-bottom: 240px;
+	display: flex;
+	justify-content: flex-end;
+}
+
+
+.view-plot--left, .view-plot--right {
+	padding-right: 40px;
+	width: 50%;
+}
+
+
+.view-footer {
+	display: none;
+}
+
+
+.view-toggler {
+	color: #9ea0a2;
+	font-size: 12px;
+	cursor: pointer;
+	text-align: right;
+}
+
+
+.view-code {
+	position: relative;
+}
+
+
+.view-link {
+	color: #9ea0a2;
+	font-size: 12px;
+	position: absolute;
+	margin: 15px 20px;
+	bottom: 0;
+	right: 0;
+	cursor: pointer;
+	display: none;
+}
+
+
+.view-code:hover .view-link {
+	display: block;
+}
+
+
+.view-code__inner {
+	text-align: left;
+	height: 435px;
+}
+
+
+.elm-plot {
+	margin: 0 auto;
+}
+
+
+
+/* Smaller screens */
+
+
+@media (max-width: 1500px) {
+	.view-plot, .view-footer {
+		display: block;
+	}
+
+	.view-plot__closed .view-code {
+		display: none;
+	}
+
+	.view-plot--left, .view-plot--right {
+		width: 100%;
+		padding-right: 120px;
+	}
+
+	.view-plot--right {
+		padding-top: 40px;
+		padding-left: 40px;
+	}
+
+	.view-code__inner {
+		height: auto;
+		max-height: 480px;
+	}
+
+	.view-code .view-link {
+		display: none !important;
+	}
+
+	.view-toggler .view-link {
+		display: inline-block !important;
+		margin: 0;
+		position: relative;
+	}
+}
+
+.elm-plot__labels {
+	fill: #565656;
+	font-size: 12px;
+}

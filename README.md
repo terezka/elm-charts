@@ -33,7 +33,7 @@ Something like this:
 			]
 ```
 
-You're welcome to take a look at the docs folder for many more [examples](https://github.com/terezka/elm-plot/tree/master/docs)! 
+You're welcome to take a look at the docs folder for many more [examples](https://github.com/terezka/elm-plot/tree/master/docs)!
 
 ### Missing something?
 

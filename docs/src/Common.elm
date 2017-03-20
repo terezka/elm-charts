@@ -1,8 +1,6 @@
 module Common
     exposing
         ( PlotExample
-        , ViewPlot(..)
-        , Id
         , plotSize
         , axisColor
         , axisColorLight
@@ -14,25 +12,15 @@ module Common
         , skinStroke
         )
 
-import Svg
-import Plot
-
-
-type alias Id =
-    String
+import Svg exposing (Svg)
 
 
 type alias PlotExample msg =
     { title : String
-    , id : Id
-    , view : ViewPlot msg
+    , id : String
+    , view : Svg msg
     , code : String
     }
-
-
-type ViewPlot msg
-    = ViewStatic (Svg.Svg msg)
-    | ViewInteractive Id (Plot.State -> Svg.Svg (Plot.Interaction msg))
 
 
 plotSize : ( Int, Int )
@@ -42,12 +30,22 @@ plotSize =
 
 axisColor : String
 axisColor =
-    "#949494"
+    "#afafaf"
 
 
 axisColorLight : String
 axisColorLight =
     "#e4e4e4"
+
+
+pinkFill : String
+pinkFill =
+    "rgba(253, 185, 231, 0.5)"
+
+
+pinkStroke : String
+pinkStroke =
+    "#ff9edf"
 
 
 blueFill : String
@@ -68,13 +66,3 @@ skinFill =
 skinStroke : String
 skinStroke =
     "#f7e0d2"
-
-
-pinkFill : String
-pinkFill =
-    "#fdb9e7"
-
-
-pinkStroke : String
-pinkStroke =
-    "#ff9edf"

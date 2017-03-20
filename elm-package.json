@@ -1,24 +1,14 @@
 {
     "version": "4.1.0",
-    "summary": "Customizable svg ploting elements",
+    "summary": "Tufte plots in SVG and Elm!",
     "repository": "https://github.com/terezka/elm-plot.git",
     "license": "BSD3",
     "source-directories": [
         "./src",
-        "./docs"
+        "./docs/src"
     ],
     "exposed-modules": [
-        "Plot",
-        "Plot.Area",
-        "Plot.Axis",
-        "Plot.Bars",
-        "Plot.Grid",
-        "Plot.Hint",
-        "Plot.Label",
-        "Plot.Line",
-        "Plot.Scatter",
-        "Plot.Tick",
-        "Plot.Types"
+        "Plot"
     ],
     "dependencies": {
         "debois/elm-dom": "1.2.3 <= v < 2.0.0",
