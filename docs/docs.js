@@ -11541,6 +11541,14 @@ var _terezka$elm_plot$Plot$square = _terezka$elm_plot$Plot$dot(
 	A2(_terezka$elm_plot$Plot$viewSquare, 10, _terezka$elm_plot$Internal_Colors$pinkStroke));
 var _terezka$elm_plot$Plot$circle = _terezka$elm_plot$Plot$dot(
 	A2(_terezka$elm_plot$Plot$viewCircle, 5, _terezka$elm_plot$Internal_Colors$pinkStroke));
+var _terezka$elm_plot$Plot$PlotSummary = F2(
+	function (a, b) {
+		return {x: a, y: b};
+	});
+var _terezka$elm_plot$Plot$AxisSummary = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {min: a, max: b, dataMin: c, dataMax: d, marginLower: e, marginUpper: f, length: g, all: h};
+	});
 var _terezka$elm_plot$Plot$DataPoint = F8(
 	function (a, b, c, d, e, f, g, h) {
 		return {view: a, xLine: b, yLine: c, xTick: d, yTick: e, hint: f, x: g, y: h};
