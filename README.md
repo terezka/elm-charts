@@ -1,14 +1,12 @@
 # Elm Plot
 
-Plot stuff in SVG with Elm!
-
+Plot stuff in SVG with Elm! Go check it out [here](https://terezka.github.io/elm-plot).
 
 ## Overview
 
-Currently, this library can draw scatter, line, bar and area-series, grids, hints, and as many axes as you could wish for with easily configurable ticks and labels. I'm still working on catching up with common features of the plotting libraries already around and the API might change, so please bear with me!
+So, in the spirit of Elm which, with its many oppinions, aims to guide you towards elegant architecture, I'm made this oppinionated plotting library aiming to guide you towards more elegant and expressive plots! Of course, it's not just my own preferences I impose on you, but yet another straight (?) white guy called [Edward Tufte](https://en.wikipedia.org/wiki/Edward_Tufte), who wrote the book [The Visual Display of Quantitative Information](https://www.edwardtufte.com/tufte/books_vdqi), and had a lot of great ideas of how to make plots more readable. However, if you find that these oppinions are keeping you from doing something incredible vital, then lets [talk about it](https://elmlang.slack.com/messages/elm-plot) and see if it makes sense to allow it.
 
-![alt tag](https://raw.githubusercontent.com/terezka/elm-plot/master/example.png)
-
+> Graphical excellence is that which gives to the viewer the greatest number of ideas in the shortest time with the least ink in the smallest space. - Edward Tufte
 
 ### What does the api look like?
 
@@ -16,28 +14,21 @@ Something like this:
 
 ```elm
     main =
-		plot
-			[ size plotSize
-			, margin ( 10, 20, 40, 20 )
-			]
-			[ line
-			    [ Line.stroke pinkStroke
-			    , Line.strokeWidth 2
-			    ]
-			    data
-			, xAxis
-			    [ Axis.line [ Line.stroke axisColor ]
-			    , Axis.tick [ Tick.viewDynamic toTickStyle ]
-			    , Axis.label [ Label.viewDynamic toLabelStyle ]
-			    ]
-			]
+      viewSeries
+        [ area (List.map (\{ x, y } -> circle x y)) ]
+        [ { x = 0, y = 1 }
+        , { x = 2, y = 2 }
+        , { x = 3, y = 3 }
+        , { x = 4, y = 5 }
+        , { x = 5, y = 8 }
+        ]
 ```
 
-You're welcome to take a look at the docs folder for many more [examples](https://github.com/terezka/elm-plot/tree/master/docs)!
+You're welcome to take a look at the docs folder for more [examples](https://github.com/terezka/elm-plot/tree/master/docs/src)!
 
 ### Missing something?
 
-Let me know! Open an issue (or PR) or write at #elm-plot in the elm-lang's [slack](http://elmlang.herokuapp.com). Please don't hesitate - I'm happy to answer any questions or get any kind of feedback! ✨
+Let me know! Open an issue (or PR) or write in [slack](https://elmlang.slack.com/messages/elm-plot). Please don't hesitate, I'm happy to answer any questions or receive feedback!
 
 ## Development
 
@@ -53,7 +44,7 @@ and open [docs](http://localhost:8000/docs/Docs.elm) (The docs contain a bunch o
 ### Compile the Docs
 
 ```
-elm-make docs/Docs.elm --output=docs/docs.js
+elm-live docs/src/Docs.elm --output=docs/docs.js
 ```
 
 ### Tests
@@ -65,11 +56,3 @@ All required dependencies are downloaded and installed when initially running th
 ```
 elm-test
 ```
-
-## Release log
-
-### 4.1.0
-- Fixed bug with plot crashing if range is zero.
-- Allow area and bar series to have a domain lowest above zero.
-- Add bezier smoothing feature to lines and areas. :dizzy: Thanks, @mathiasbaert!
-- Fix typos in docs. Thanks, @Mingan!
