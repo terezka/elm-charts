@@ -1,7 +1,7 @@
 
 body {
 	margin: 0;
-	font-size: 12px;
+	font-size: 16px;
 }
 
 * {
@@ -33,13 +33,13 @@ a:hover {
 
 .view--left {
 	display: inline-block;
-	width: 30%;
+	width: 25%;
 	float: left;
 }
 
 .view--right {
 	display: inline-block;
-	width: 70%;
+	width: 75%;
 	float: right;
 }
 
@@ -92,6 +92,7 @@ a:hover {
 
 .view-toggler * {
 	color: #9ea0a2;
+	font-size: 0.75em;
 	cursor: pointer;
 }
 
@@ -109,6 +110,7 @@ a:hover {
 	right: 0;
 	cursor: pointer;
 	display: none;
+	font-size: 0.75em;
 }
 
 
@@ -120,6 +122,7 @@ a:hover {
 .view-code__inner {
 	text-align: left;
 	height: 375px;
+	font-size: 0.75em;
 }
 
 
@@ -129,6 +132,7 @@ a:hover {
 
 .elm-plot__labels {
 	fill: #565656;
+	font-size: 0.8em;
 }
 
 
@@ -138,6 +142,10 @@ a:hover {
 @media (max-width: 1500px) {
 	.view-plot, .view-footer {
 		display: block;
+	}
+
+	.view-code__inner {
+		font-size: 0.85em;
 	}
 
 	.view-plot__closed .view-code {
@@ -150,7 +158,7 @@ a:hover {
 
 	.view-plot--right {
 		padding-top: 1em;
-		padding-left: 1em;
+		padding-left: 3em;
 	}
 
 	.view-code__inner {
