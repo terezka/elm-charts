@@ -39,7 +39,7 @@ elm package install
 elm-reactor
 ```
 
-and open [docs](http://localhost:8000/docs/Docs.elm) (The docs contain a bunch of examples convenient for developing).
+and open [docs](https://terezka.github.io/elm-plot/) (The docs contain a bunch of examples convenient for developing).
 
 ### Compile the Docs
 
