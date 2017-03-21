@@ -756,7 +756,7 @@ viewFlyingHintContainer inner { x } summary hints =
             , ( "pointer-events", "none" )
             ]
     in
-        div [ Html.Attributes.style style ] [ inner isLeft hints ]
+        div [ Html.Attributes.style style, class "elm-plot__hint" ] [ inner isLeft hints ]
 
 
 {-| The normal hint view.
@@ -778,6 +778,7 @@ normalHintContainerInner isLeft hints =
                 , ( "border-radius", "2px" )
                 , ( "color", "black" )
                 ]
+            , class "elm-plot__hint"
             ]
             hints
 

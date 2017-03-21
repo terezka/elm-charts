@@ -11275,7 +11275,11 @@ var _terezka$elm_plot$Plot$normalHintContainerInner = F2(
 							}
 						}
 					}),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__hint'),
+					_1: {ctor: '[]'}
+				}
 			},
 			hints);
 	});
@@ -11321,7 +11325,11 @@ var _terezka$elm_plot$Plot$viewFlyingHintContainer = F4(
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html_Attributes$style(style),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$class('elm-plot__hint'),
+					_1: {ctor: '[]'}
+				}
 			},
 			{
 				ctor: '::',
