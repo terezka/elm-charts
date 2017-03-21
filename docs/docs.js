@@ -9189,37 +9189,49 @@ var _terezka$elm_plot$Internal_Draw$place = F4(
 	});
 var _terezka$elm_plot$Internal_Draw$unScaleValue = F2(
 	function (axis, v) {
-		return (((v - axis.marginLower) * _terezka$elm_plot$Internal_Draw$range(axis)) / _terezka$elm_plot$Internal_Draw$length(axis)) + axis.min;
+		return (v * _terezka$elm_plot$Internal_Draw$range(axis)) / _terezka$elm_plot$Internal_Draw$length(axis);
+	});
+var _terezka$elm_plot$Internal_Draw$toUnSVGX = F2(
+	function (_p13, value) {
+		var _p14 = _p13;
+		var _p15 = _p14.x;
+		return A2(_terezka$elm_plot$Internal_Draw$unScaleValue, _p15, value - _p15.marginLower) + _p15.min;
+	});
+var _terezka$elm_plot$Internal_Draw$toUnSVGY = F2(
+	function (_p16, value) {
+		var _p17 = _p16;
+		var _p18 = _p17.y;
+		return (_terezka$elm_plot$Internal_Draw$range(_p18) - A2(_terezka$elm_plot$Internal_Draw$unScaleValue, _p18, value - _p18.marginLower)) + _p18.min;
 	});
 var _terezka$elm_plot$Internal_Draw$Point = F2(
 	function (a, b) {
 		return {x: a, y: b};
 	});
 var _terezka$elm_plot$Internal_Draw$stringifyCommand = function (command) {
-	var _p13 = command;
-	switch (_p13.ctor) {
+	var _p19 = command;
+	switch (_p19.ctor) {
 		case 'Move':
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				'M',
 				_terezka$elm_plot$Internal_Draw$pointToString(
-					A2(_terezka$elm_plot$Internal_Draw$Point, _p13._0, _p13._1)));
+					A2(_terezka$elm_plot$Internal_Draw$Point, _p19._0, _p19._1)));
 		case 'Line':
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				'L',
 				_terezka$elm_plot$Internal_Draw$pointToString(
-					A2(_terezka$elm_plot$Internal_Draw$Point, _p13._0, _p13._1)));
+					A2(_terezka$elm_plot$Internal_Draw$Point, _p19._0, _p19._1)));
 		case 'HorizontalLine':
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				'H',
-				_elm_lang$core$Basics$toString(_p13._0));
+				_elm_lang$core$Basics$toString(_p19._0));
 		case 'VerticalLine':
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				'V',
-				_elm_lang$core$Basics$toString(_p13._0));
+				_elm_lang$core$Basics$toString(_p19._0));
 		case 'CubicBeziers':
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
@@ -9227,13 +9239,13 @@ var _terezka$elm_plot$Internal_Draw$stringifyCommand = function (command) {
 				_terezka$elm_plot$Internal_Draw$pointsToString(
 					{
 						ctor: '::',
-						_0: A2(_terezka$elm_plot$Internal_Draw$Point, _p13._0, _p13._1),
+						_0: A2(_terezka$elm_plot$Internal_Draw$Point, _p19._0, _p19._1),
 						_1: {
 							ctor: '::',
-							_0: A2(_terezka$elm_plot$Internal_Draw$Point, _p13._2, _p13._3),
+							_0: A2(_terezka$elm_plot$Internal_Draw$Point, _p19._2, _p19._3),
 							_1: {
 								ctor: '::',
-								_0: A2(_terezka$elm_plot$Internal_Draw$Point, _p13._4, _p13._5),
+								_0: A2(_terezka$elm_plot$Internal_Draw$Point, _p19._4, _p19._5),
 								_1: {ctor: '[]'}
 							}
 						}
@@ -9245,10 +9257,10 @@ var _terezka$elm_plot$Internal_Draw$stringifyCommand = function (command) {
 				_terezka$elm_plot$Internal_Draw$pointsToString(
 					{
 						ctor: '::',
-						_0: A2(_terezka$elm_plot$Internal_Draw$Point, _p13._0, _p13._1),
+						_0: A2(_terezka$elm_plot$Internal_Draw$Point, _p19._0, _p19._1),
 						_1: {
 							ctor: '::',
-							_0: A2(_terezka$elm_plot$Internal_Draw$Point, _p13._2, _p13._3),
+							_0: A2(_terezka$elm_plot$Internal_Draw$Point, _p19._2, _p19._3),
 							_1: {ctor: '[]'}
 						}
 					}));
@@ -9259,10 +9271,10 @@ var _terezka$elm_plot$Internal_Draw$stringifyCommand = function (command) {
 				_terezka$elm_plot$Internal_Draw$pointsToString(
 					{
 						ctor: '::',
-						_0: A2(_terezka$elm_plot$Internal_Draw$Point, _p13._0, _p13._1),
+						_0: A2(_terezka$elm_plot$Internal_Draw$Point, _p19._0, _p19._1),
 						_1: {
 							ctor: '::',
-							_0: A2(_terezka$elm_plot$Internal_Draw$Point, _p13._2, _p13._3),
+							_0: A2(_terezka$elm_plot$Internal_Draw$Point, _p19._2, _p19._3),
 							_1: {ctor: '[]'}
 						}
 					}));
@@ -9271,7 +9283,7 @@ var _terezka$elm_plot$Internal_Draw$stringifyCommand = function (command) {
 				_elm_lang$core$Basics_ops['++'],
 				'T',
 				_terezka$elm_plot$Internal_Draw$pointToString(
-					A2(_terezka$elm_plot$Internal_Draw$Point, _p13._0, _p13._1)));
+					A2(_terezka$elm_plot$Internal_Draw$Point, _p19._0, _p19._1)));
 		case 'Arc':
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
@@ -9280,20 +9292,20 @@ var _terezka$elm_plot$Internal_Draw$stringifyCommand = function (command) {
 					{
 						ctor: '::',
 						_0: _terezka$elm_plot$Internal_Draw$pointToString(
-							A2(_terezka$elm_plot$Internal_Draw$Point, _p13._0, _p13._1)),
+							A2(_terezka$elm_plot$Internal_Draw$Point, _p19._0, _p19._1)),
 						_1: {
 							ctor: '::',
-							_0: _elm_lang$core$Basics$toString(_p13._2),
+							_0: _elm_lang$core$Basics$toString(_p19._2),
 							_1: {
 								ctor: '::',
-								_0: _terezka$elm_plot$Internal_Draw$boolToString(_p13._3),
+								_0: _terezka$elm_plot$Internal_Draw$boolToString(_p19._3),
 								_1: {
 									ctor: '::',
-									_0: _terezka$elm_plot$Internal_Draw$boolToString(_p13._4),
+									_0: _terezka$elm_plot$Internal_Draw$boolToString(_p19._4),
 									_1: {
 										ctor: '::',
 										_0: _terezka$elm_plot$Internal_Draw$pointToString(
-											A2(_terezka$elm_plot$Internal_Draw$Point, _p13._5, _p13._6)),
+											A2(_terezka$elm_plot$Internal_Draw$Point, _p19._5, _p19._6)),
 										_1: {ctor: '[]'}
 									}
 								}
@@ -9359,36 +9371,36 @@ var _terezka$elm_plot$Internal_Draw$monotoneXNext = F3(
 	function (points, tangent0, commands) {
 		monotoneXNext:
 		while (true) {
-			var _p14 = points;
-			if ((_p14.ctor === '::') && (_p14._1.ctor === '::')) {
-				if (_p14._1._1.ctor === '::') {
-					var _p17 = _p14._1._1._0;
-					var _p16 = _p14._1._0;
-					var _p15 = _p14._0;
-					var tangent1 = A3(_terezka$elm_plot$Internal_Draw$slope3, _p15, _p16, _p17);
+			var _p20 = points;
+			if ((_p20.ctor === '::') && (_p20._1.ctor === '::')) {
+				if (_p20._1._1.ctor === '::') {
+					var _p23 = _p20._1._1._0;
+					var _p22 = _p20._1._0;
+					var _p21 = _p20._0;
+					var tangent1 = A3(_terezka$elm_plot$Internal_Draw$slope3, _p21, _p22, _p23);
 					var nextCommands = A2(
 						_elm_lang$core$Basics_ops['++'],
 						commands,
-						A4(_terezka$elm_plot$Internal_Draw$monotoneXCurve, _p15, _p16, tangent0, tangent1));
-					var _v7 = {
+						A4(_terezka$elm_plot$Internal_Draw$monotoneXCurve, _p21, _p22, tangent0, tangent1));
+					var _v9 = {
 						ctor: '::',
-						_0: _p16,
-						_1: {ctor: '::', _0: _p17, _1: _p14._1._1._1}
+						_0: _p22,
+						_1: {ctor: '::', _0: _p23, _1: _p20._1._1._1}
 					},
-						_v8 = tangent1,
-						_v9 = nextCommands;
-					points = _v7;
-					tangent0 = _v8;
-					commands = _v9;
+						_v10 = tangent1,
+						_v11 = nextCommands;
+					points = _v9;
+					tangent0 = _v10;
+					commands = _v11;
 					continue monotoneXNext;
 				} else {
-					var _p19 = _p14._1._0;
-					var _p18 = _p14._0;
-					var tangent1 = A3(_terezka$elm_plot$Internal_Draw$slope3, _p18, _p19, _p19);
+					var _p25 = _p20._1._0;
+					var _p24 = _p20._0;
+					var tangent1 = A3(_terezka$elm_plot$Internal_Draw$slope3, _p24, _p25, _p25);
 					return A2(
 						_elm_lang$core$Basics_ops['++'],
 						commands,
-						A4(_terezka$elm_plot$Internal_Draw$monotoneXCurve, _p18, _p19, tangent0, tangent1));
+						A4(_terezka$elm_plot$Internal_Draw$monotoneXCurve, _p24, _p25, tangent0, tangent1));
 				}
 			} else {
 				return commands;
@@ -9396,22 +9408,22 @@ var _terezka$elm_plot$Internal_Draw$monotoneXNext = F3(
 		}
 	});
 var _terezka$elm_plot$Internal_Draw$monotoneXBegin = function (points) {
-	var _p20 = points;
-	if (((_p20.ctor === '::') && (_p20._1.ctor === '::')) && (_p20._1._1.ctor === '::')) {
-		var _p23 = _p20._1._1._0;
-		var _p22 = _p20._1._0;
-		var _p21 = _p20._0;
-		var tangent1 = A3(_terezka$elm_plot$Internal_Draw$slope3, _p21, _p22, _p23);
-		var tangent0 = A3(_terezka$elm_plot$Internal_Draw$slope2, _p21, _p22, tangent1);
+	var _p26 = points;
+	if (((_p26.ctor === '::') && (_p26._1.ctor === '::')) && (_p26._1._1.ctor === '::')) {
+		var _p29 = _p26._1._1._0;
+		var _p28 = _p26._1._0;
+		var _p27 = _p26._0;
+		var tangent1 = A3(_terezka$elm_plot$Internal_Draw$slope3, _p27, _p28, _p29);
+		var tangent0 = A3(_terezka$elm_plot$Internal_Draw$slope2, _p27, _p28, tangent1);
 		return A2(
 			_elm_lang$core$Basics_ops['++'],
-			A4(_terezka$elm_plot$Internal_Draw$monotoneXCurve, _p21, _p22, tangent0, tangent1),
+			A4(_terezka$elm_plot$Internal_Draw$monotoneXCurve, _p27, _p28, tangent0, tangent1),
 			A3(
 				_terezka$elm_plot$Internal_Draw$monotoneXNext,
 				{
 					ctor: '::',
-					_0: _p22,
-					_1: {ctor: '::', _0: _p23, _1: _p20._1._1._1}
+					_0: _p28,
+					_1: {ctor: '::', _0: _p29, _1: _p26._1._1._1}
 				},
 				tangent1,
 				{ctor: '[]'}));
@@ -9429,20 +9441,20 @@ var _terezka$elm_plot$Internal_Draw$Line = F2(
 	function (a, b) {
 		return {ctor: 'Line', _0: a, _1: b};
 	});
-var _terezka$elm_plot$Internal_Draw$lineCommand = function (_p24) {
-	var _p25 = _p24;
-	return A2(_terezka$elm_plot$Internal_Draw$Line, _p25.x, _p25.y);
+var _terezka$elm_plot$Internal_Draw$lineCommand = function (_p30) {
+	var _p31 = _p30;
+	return A2(_terezka$elm_plot$Internal_Draw$Line, _p31.x, _p31.y);
 };
 var _terezka$elm_plot$Internal_Draw$areaEnd = F2(
 	function (plot, points) {
-		var _p26 = _elm_lang$core$List$head(
+		var _p32 = _elm_lang$core$List$head(
 			_elm_lang$core$List$reverse(points));
-		if (_p26.ctor === 'Just') {
+		if (_p32.ctor === 'Just') {
 			return {
 				ctor: '::',
 				_0: A2(
 					_terezka$elm_plot$Internal_Draw$Line,
-					_p26._0.x,
+					_p32._0.x,
 					_terezka$elm_plot$Internal_Draw$yClosestToZero(plot)),
 				_1: {ctor: '[]'}
 			};
@@ -9456,11 +9468,11 @@ var _terezka$elm_plot$Internal_Draw$Move = F2(
 	});
 var _terezka$elm_plot$Internal_Draw$lineBegin = F2(
 	function (plot, points) {
-		var _p27 = points;
-		if (_p27.ctor === '::') {
+		var _p33 = points;
+		if (_p33.ctor === '::') {
 			return {
 				ctor: '::',
-				_0: A2(_terezka$elm_plot$Internal_Draw$Move, _p27._0.x, _p27._0.y),
+				_0: A2(_terezka$elm_plot$Internal_Draw$Move, _p33._0.x, _p33._0.y),
 				_1: {ctor: '[]'}
 			};
 		} else {
@@ -9469,18 +9481,18 @@ var _terezka$elm_plot$Internal_Draw$lineBegin = F2(
 	});
 var _terezka$elm_plot$Internal_Draw$areaBegin = F2(
 	function (plot, points) {
-		var _p28 = points;
-		if (_p28.ctor === '::') {
-			var _p29 = _p28._0.x;
+		var _p34 = points;
+		if (_p34.ctor === '::') {
+			var _p35 = _p34._0.x;
 			return {
 				ctor: '::',
 				_0: A2(
 					_terezka$elm_plot$Internal_Draw$Move,
-					_p29,
+					_p35,
 					_terezka$elm_plot$Internal_Draw$yClosestToZero(plot)),
 				_1: {
 					ctor: '::',
-					_0: A2(_terezka$elm_plot$Internal_Draw$Line, _p29, _p28._0.y),
+					_0: A2(_terezka$elm_plot$Internal_Draw$Line, _p35, _p34._0.y),
 					_1: {ctor: '[]'}
 				}
 			};
@@ -9490,62 +9502,62 @@ var _terezka$elm_plot$Internal_Draw$areaBegin = F2(
 	});
 var _terezka$elm_plot$Internal_Draw$translateCommand = F2(
 	function (plot, command) {
-		var _p30 = command;
-		switch (_p30.ctor) {
+		var _p36 = command;
+		switch (_p36.ctor) {
 			case 'Move':
 				return A2(
 					_terezka$elm_plot$Internal_Draw$Move,
-					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p30._0),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p30._1));
+					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p36._0),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p36._1));
 			case 'Line':
 				return A2(
 					_terezka$elm_plot$Internal_Draw$Line,
-					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p30._0),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p30._1));
+					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p36._0),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p36._1));
 			case 'HorizontalLine':
 				return _terezka$elm_plot$Internal_Draw$HorizontalLine(
-					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p30._0));
+					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p36._0));
 			case 'VerticalLine':
 				return _terezka$elm_plot$Internal_Draw$VerticalLine(
-					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p30._0));
+					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p36._0));
 			case 'CubicBeziers':
 				return A6(
 					_terezka$elm_plot$Internal_Draw$CubicBeziers,
-					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p30._0),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p30._1),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p30._2),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p30._3),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p30._4),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p30._5));
+					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p36._0),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p36._1),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p36._2),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p36._3),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p36._4),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p36._5));
 			case 'CubicBeziersShort':
 				return A4(
 					_terezka$elm_plot$Internal_Draw$CubicBeziersShort,
-					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p30._0),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p30._1),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p30._2),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p30._3));
+					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p36._0),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p36._1),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p36._2),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p36._3));
 			case 'QuadraticBeziers':
 				return A4(
 					_terezka$elm_plot$Internal_Draw$QuadraticBeziers,
-					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p30._0),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p30._1),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p30._2),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p30._3));
+					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p36._0),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p36._1),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p36._2),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p36._3));
 			case 'QuadraticBeziersShort':
 				return A2(
 					_terezka$elm_plot$Internal_Draw$QuadraticBeziersShort,
-					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p30._0),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p30._1));
+					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p36._0),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p36._1));
 			case 'Arc':
 				return A7(
 					_terezka$elm_plot$Internal_Draw$Arc,
-					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p30._0),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p30._1),
-					_p30._2,
-					_p30._3,
-					_p30._4,
-					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p30._5),
-					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p30._6));
+					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p36._0),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p36._1),
+					_p36._2,
+					_p36._3,
+					_p36._4,
+					A2(_terezka$elm_plot$Internal_Draw$toSVGX, plot, _p36._5),
+					A2(_terezka$elm_plot$Internal_Draw$toSVGY, plot, _p36._6));
 			default:
 				return _terezka$elm_plot$Internal_Draw$Close;
 		}
@@ -10402,12 +10414,12 @@ var _terezka$elm_plot$Plot$unScalePoint = F4(
 				x: A2(
 					_terezka$elm_plot$Plot$toNearestX,
 					summary,
-					A2(_terezka$elm_plot$Internal_Draw$unScaleValue, summary.x, mouseX - _p42.left)),
+					A2(_terezka$elm_plot$Internal_Draw$toUnSVGX, summary, (summary.x.length * (mouseX - _p42.left)) / _p42.width)),
 				y: A3(
 					_elm_lang$core$Basics$clamp,
 					summary.y.min,
 					summary.y.max,
-					A2(_terezka$elm_plot$Internal_Draw$unScaleValue, summary.y, (summary.y.length - mouseY) - _p42.top))
+					A2(_terezka$elm_plot$Internal_Draw$toUnSVGY, summary, (summary.y.length * (mouseY - _p42.top)) / _p42.height))
 			});
 	});
 var _terezka$elm_plot$Plot$plotPosition = _elm_lang$core$Json_Decode$oneOf(

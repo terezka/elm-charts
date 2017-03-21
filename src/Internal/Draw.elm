@@ -6,12 +6,14 @@ module Internal.Draw
     , Command
     , draw
     , place
+    , range
+    , length
     , scaleValue
     , unScaleValue
-    , range
+    , toUnSVGX
+    , toUnSVGY
     , toSVGX
     , toSVGY
-    , length
     , linear
     , linearArea
     , monotoneX
@@ -67,7 +69,17 @@ scaleValue axis value =
 
 unScaleValue : AxisSummary -> Float -> Float
 unScaleValue axis v =
-    ((v - axis.marginLower) * (range axis) / (length axis)) + axis.min
+  v * (range axis) / (length axis)
+
+
+toUnSVGX : PlotSummary -> Float -> Float
+toUnSVGX { x } value =
+  unScaleValue x (value - x.marginLower) + x.min
+
+
+toUnSVGY : PlotSummary -> Float -> Float
+toUnSVGY { y } value =
+  range y - unScaleValue y (value - y.marginLower) + y.min
 
 
 toSVGX : PlotSummary -> Float -> Float
