@@ -1308,10 +1308,10 @@ plotPosition =
 
 
 unScalePoint : PlotSummary -> Float -> Float -> DOM.Rectangle -> Maybe Point
-unScalePoint summary mouseX mouseY { left, top } =
+unScalePoint summary mouseX mouseY { left, top, width, height } =
     Just
-        { x = toNearestX summary <| unScaleValue summary.x (mouseX - left)
-        , y = clamp summary.y.min summary.y.max <| unScaleValue summary.y (summary.y.length - mouseY - top)
+        { x = toNearestX summary <| toUnSVGX summary (summary.x.length * (mouseX - left) / width)
+        , y = clamp summary.y.min summary.y.max <| toUnSVGY summary (summary.y.length * (mouseY - top) / height)
         }
 
 
