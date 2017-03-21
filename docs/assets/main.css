@@ -202,4 +202,8 @@ a:hover {
 	body {
 		font-size: 5px;
 	}
+
+	.elm-plot__labels {
+		font-size: 2em;
+	}
 }
