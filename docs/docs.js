@@ -12630,7 +12630,7 @@ var _terezka$elm_plot$Docs$visibilityClass = F2(
 var _terezka$elm_plot$Docs$toUrl = function (end) {
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
-		'https://github.com/terezka/elm-plot/blob/master/docs/',
+		'https://github.com/terezka/elm-plot/blob/master/docs/src/',
 		A2(_elm_lang$core$Basics_ops['++'], end, '.elm'));
 };
 var _terezka$elm_plot$Docs$viewLink = function (id) {

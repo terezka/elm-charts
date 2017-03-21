@@ -12,23 +12,22 @@ import PlotAxis
 import PlotBars
 
 
-
 -- MODEL
 
 
 type alias Model =
-  { focused : Maybe String
-  , rangeFrameHover : Maybe Point
-  , barsHover : Maybe Point
-  }
+    { focused : Maybe String
+    , rangeFrameHover : Maybe Point
+    , barsHover : Maybe Point
+    }
 
 
 init : Model
 init =
-  { focused = Nothing
-  , rangeFrameHover = Nothing
-  , barsHover = Nothing
-  }
+    { focused = Nothing
+    , rangeFrameHover = Nothing
+    , barsHover = Nothing
+    }
 
 
 
@@ -37,23 +36,23 @@ init =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ focused } as model) =
-  case msg of
-    FocusExample id ->
-      { model | focused = updateFocused id focused } ! []
+    case msg of
+        FocusExample id ->
+            { model | focused = updateFocused id focused } ! []
 
-    HoverRangeFrame point ->
-      { model | rangeFrameHover = point } ! []
+        HoverRangeFrame point ->
+            { model | rangeFrameHover = point } ! []
 
-    HoverBars point ->
-      { model | barsHover = point } ! []
+        HoverBars point ->
+            { model | barsHover = point } ! []
 
 
 updateFocused : String -> Maybe String -> Maybe String
 updateFocused newId model =
-  if Just newId == model then
-    Nothing
-  else
-    Just newId
+    if Just newId == model then
+        Nothing
+    else
+        Just newId
 
 
 
@@ -62,22 +61,22 @@ updateFocused newId model =
 
 view : Model -> Html Msg
 view model =
-  div [ class "view" ]
-    [ div [ class "view--left" ] [ viewHeader ]
-    , div [ class "view--right" ] (List.map (viewExample model) (examples model))
-    ]
+    div [ class "view" ]
+        [ div [ class "view--left" ] [ viewHeader ]
+        , div [ class "view--right" ] (List.map (viewExample model) (examples model))
+        ]
 
 
 viewHeader : Html msg
 viewHeader =
-  header [ class "view-header" ]
-    [ h1 [ class "view-header__title" ] [ text "elm-plot" ]
-    , p []
-        [ a [ href "https://github.com/terezka/elm-plot" ] [ text "github" ]
-        , text " / "
-        , a [ href "https://twitter.com/terezk_a" ] [ text "twitter" ]
+    header [ class "view-header" ]
+        [ h1 [ class "view-header__title" ] [ text "elm-plot" ]
+        , p []
+            [ a [ href "https://github.com/terezka/elm-plot" ] [ text "github" ]
+            , text " / "
+            , a [ href "https://twitter.com/terezk_a" ] [ text "twitter" ]
+            ]
         ]
-    ]
 
 
 
@@ -105,18 +104,18 @@ viewFooter model { title, id } =
 viewToggler : Model -> String -> Html.Html Msg
 viewToggler model id =
     p [ class "view-toggler" ]
-      [ a [ onClick (FocusExample id) ] [ viewToggleText model id ]
-      , text " / "
-      , viewLink id
-      ]
+        [ a [ onClick (FocusExample id) ] [ viewToggleText model id ]
+        , text " / "
+        , viewLink id
+        ]
 
 
 viewToggleText : Model -> String -> Html msg
 viewToggleText { focused } id =
     if focused == Just id then
-      text "hide source"
+        text "hide source"
     else
-      text "view source"
+        text "view source"
 
 
 viewCode : Model -> PlotExample msg -> Html Msg
@@ -130,7 +129,7 @@ viewCode model { id, code } =
 viewLink : String -> Html.Html Msg
 viewLink id =
     a [ class "view-link", href (toUrl id) ]
-      [ text "full source" ]
+        [ text "full source" ]
 
 
 
@@ -139,7 +138,7 @@ viewLink id =
 
 toUrl : String -> String
 toUrl end =
-    "https://github.com/terezka/elm-plot/blob/master/docs/" ++ end ++ ".elm"
+    "https://github.com/terezka/elm-plot/blob/master/docs/src/" ++ end ++ ".elm"
 
 
 visibilityClass : Model -> String -> String
@@ -148,8 +147,6 @@ visibilityClass { focused } id =
         "view-plot__open"
     else
         "view-plot__closed"
-
-
 
 
 

@@ -1,5 +1,5 @@
 {
-    "version": "5.0.0",
+    "version": "5.0.1",
     "summary": "Tufte plots in SVG and Elm!",
     "repository": "https://github.com/terezka/elm-plot.git",
     "license": "BSD3",

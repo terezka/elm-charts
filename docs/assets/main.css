@@ -88,10 +88,13 @@ a:hover {
 
 
 .view-toggler {
-	color: #9ea0a2;
-	font-size: 12px;
-	cursor: pointer;
 	text-align: right;
+}
+
+.view-toggler a {
+	font-size: 12px;
+	color: #9ea0a2;
+	cursor: pointer;
 }
 
 
@@ -149,6 +152,7 @@ a:hover {
 	.view-plot--right {
 		padding-top: 40px;
 		padding-left: 40px;
+		font-size: 11px;
 	}
 
 	.view-code__inner {
