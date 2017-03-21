@@ -737,7 +737,7 @@ viewFlyingHintContainer : (Bool -> List (Html Never) -> Html Never) -> Point -> 
 viewFlyingHintContainer inner { x } summary hints =
     let
         xOffset =
-            (toSVGX summary x) * 100 / summary.x.length
+            toSVGX summary x
 
         isLeft =
             (x - summary.x.min) > (range summary.x) / 2
@@ -751,7 +751,7 @@ viewFlyingHintContainer inner { x } summary hints =
         style =
             [ ( "position", "absolute" )
             , ( "top", "25%" )
-            , ( "left", toString xOffset ++ "%" )
+            , ( "left", toString xOffset ++ "px" )
             , ( "transform", direction )
             , ( "pointer-events", "none" )
             ]
@@ -1262,6 +1262,8 @@ containerAttributes customizations summary =
             , Html.Attributes.style
                 [ ( "position", "relative" )
                 , ( "margin", "0 auto" )
+                , ( "width", toString customizations.width ++ "px" )
+                , ( "height", toString customizations.height ++ "px" )
                 ]
             ]
 
@@ -1270,6 +1272,8 @@ containerAttributes customizations summary =
             , Html.Attributes.style
                 [ ( "position", "relative" )
                 , ( "margin", "0 auto" )
+                , ( "width", toString customizations.width ++ "px" )
+                , ( "height", toString customizations.height ++ "px" )
                 ]
             ]
 
@@ -1277,7 +1281,9 @@ containerAttributes customizations summary =
 innerAttributes : PlotCustomizations msg -> List (Attribute msg)
 innerAttributes customizations =
     customizations.attributes
-        ++ [ Attributes.viewBox <| "0 0 " ++ (toString customizations.width) ++ " " ++ (toString customizations.height) ]
+        ++ [ Attributes.width (toString customizations.width)
+           , Attributes.height (toString customizations.height)
+           ]
 
 
 viewActualJunk : PlotSummary -> JunkCustomizations msg -> Svg msg

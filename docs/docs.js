@@ -10463,18 +10463,14 @@ var _terezka$elm_plot$Plot$innerAttributes = function (customizations) {
 		customizations.attributes,
 		{
 			ctor: '::',
-			_0: _elm_lang$svg$Svg_Attributes$viewBox(
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					'0 0 ',
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						_elm_lang$core$Basics$toString(customizations.width),
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							' ',
-							_elm_lang$core$Basics$toString(customizations.height))))),
-			_1: {ctor: '[]'}
+			_0: _elm_lang$svg$Svg_Attributes$width(
+				_elm_lang$core$Basics$toString(customizations.width)),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$height(
+					_elm_lang$core$Basics$toString(customizations.height)),
+				_1: {ctor: '[]'}
+			}
 		});
 };
 var _terezka$elm_plot$Plot$containerAttributes = F2(
@@ -10504,7 +10500,29 @@ var _terezka$elm_plot$Plot$containerAttributes = F2(
 									_1: {
 										ctor: '::',
 										_0: {ctor: '_Tuple2', _0: 'margin', _1: '0 auto'},
-										_1: {ctor: '[]'}
+										_1: {
+											ctor: '::',
+											_0: {
+												ctor: '_Tuple2',
+												_0: 'width',
+												_1: A2(
+													_elm_lang$core$Basics_ops['++'],
+													_elm_lang$core$Basics$toString(customizations.width),
+													'px')
+											},
+											_1: {
+												ctor: '::',
+												_0: {
+													ctor: '_Tuple2',
+													_0: 'height',
+													_1: A2(
+														_elm_lang$core$Basics_ops['++'],
+														_elm_lang$core$Basics$toString(customizations.height),
+														'px')
+												},
+												_1: {ctor: '[]'}
+											}
+										}
 									}
 								}),
 							_1: {ctor: '[]'}
@@ -10525,7 +10543,29 @@ var _terezka$elm_plot$Plot$containerAttributes = F2(
 							_1: {
 								ctor: '::',
 								_0: {ctor: '_Tuple2', _0: 'margin', _1: '0 auto'},
-								_1: {ctor: '[]'}
+								_1: {
+									ctor: '::',
+									_0: {
+										ctor: '_Tuple2',
+										_0: 'width',
+										_1: A2(
+											_elm_lang$core$Basics_ops['++'],
+											_elm_lang$core$Basics$toString(customizations.width),
+											'px')
+									},
+									_1: {
+										ctor: '::',
+										_0: {
+											ctor: '_Tuple2',
+											_0: 'height',
+											_1: A2(
+												_elm_lang$core$Basics_ops['++'],
+												_elm_lang$core$Basics$toString(customizations.height),
+												'px')
+										},
+										_1: {ctor: '[]'}
+									}
+								}
 							}
 						}),
 					_1: {ctor: '[]'}
@@ -11287,7 +11327,7 @@ var _terezka$elm_plot$Plot$viewFlyingHintContainer = F4(
 			_p81 - summary.x.min,
 			_terezka$elm_plot$Internal_Draw$range(summary.x) / 2) > 0;
 		var direction = isLeft ? 'translateX(-100%)' : 'translateX(0)';
-		var xOffset = (A2(_terezka$elm_plot$Internal_Draw$toSVGX, summary, _p81) * 100) / summary.x.length;
+		var xOffset = A2(_terezka$elm_plot$Internal_Draw$toSVGX, summary, _p81);
 		var style = {
 			ctor: '::',
 			_0: {ctor: '_Tuple2', _0: 'position', _1: 'absolute'},
@@ -11302,7 +11342,7 @@ var _terezka$elm_plot$Plot$viewFlyingHintContainer = F4(
 						_1: A2(
 							_elm_lang$core$Basics_ops['++'],
 							_elm_lang$core$Basics$toString(xOffset),
-							'%')
+							'px')
 					},
 					_1: {
 						ctor: '::',
@@ -12683,14 +12723,7 @@ var _terezka$elm_plot$Docs$viewToggler = F2(
 					}),
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$span,
-						{ctor: '[]'},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(' / '),
-							_1: {ctor: '[]'}
-						}),
+					_0: _elm_lang$html$Html$text(' / '),
 					_1: {
 						ctor: '::',
 						_0: _terezka$elm_plot$Docs$viewLink(id),
@@ -12808,14 +12841,7 @@ var _terezka$elm_plot$Docs$viewHeader = A2(
 						}),
 					_1: {
 						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$span,
-							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text(' / '),
-								_1: {ctor: '[]'}
-							}),
+						_0: _elm_lang$html$Html$text(' / '),
 						_1: {
 							ctor: '::',
 							_0: A2(
