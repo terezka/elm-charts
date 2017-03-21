@@ -1,7 +1,7 @@
 
 body {
 	margin: 0;
-	font-size: 12px;
+	font-size: 16px;
 }
 
 * {
@@ -33,13 +33,13 @@ a:hover {
 
 .view--left {
 	display: inline-block;
-	width: 30%;
+	width: 25%;
 	float: left;
 }
 
 .view--right {
 	display: inline-block;
-	width: 70%;
+	width: 75%;
 	float: right;
 }
 
@@ -120,6 +120,7 @@ a:hover {
 .view-code__inner {
 	text-align: left;
 	height: 375px;
+	font-size: 0.75em;
 }
 
 
@@ -138,6 +139,10 @@ a:hover {
 @media (max-width: 1500px) {
 	.view-plot, .view-footer {
 		display: block;
+	}
+
+	.view-code__inner {
+		font-size: 0.85em;
 	}
 
 	.view-plot__closed .view-code {
