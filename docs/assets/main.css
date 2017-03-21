@@ -92,6 +92,7 @@ a:hover {
 
 .view-toggler * {
 	color: #9ea0a2;
+	font-size: 0.75em;
 	cursor: pointer;
 }
 
@@ -109,6 +110,7 @@ a:hover {
 	right: 0;
 	cursor: pointer;
 	display: none;
+	font-size: 0.75em;
 }
 
 
@@ -130,6 +132,7 @@ a:hover {
 
 .elm-plot__labels {
 	fill: #565656;
+	font-size: 0.8em;
 }
 
 
@@ -155,7 +158,7 @@ a:hover {
 
 	.view-plot--right {
 		padding-top: 1em;
-		padding-left: 1em;
+		padding-left: 3em;
 	}
 
 	.view-code__inner {
