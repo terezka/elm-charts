@@ -1,6 +1,7 @@
 
 body {
 	margin: 0;
+	font-size: 12px;
 }
 
 * {
@@ -26,21 +27,20 @@ a:hover {
 	font-family: sans-serif;
 	color: #7F7F7F;
 	font-weight: 200;
-	margin: 200px auto 0px;
-	display: flex;
-	justify-content: space-around;
-	width: 100%;
+	margin: 10em auto 0px;
 	overflow: hidden;
 }
 
 .view--left {
-	flex-grow: 1;
-	width: 100%;
-	min-width: 300px;
+	display: inline-block;
+	width: 30%;
+	float: left;
 }
 
 .view--right {
-	width: 100%;
+	display: inline-block;
+	width: 70%;
+	float: right;
 }
 
 
@@ -50,8 +50,7 @@ a:hover {
 
 .view-header {
 	text-align: right;
-	min-width: 200px;
-	padding-right: 40px;
+	padding-right: 2em;
 }
 
 .view-header h1 {
@@ -70,14 +69,14 @@ a:hover {
 .view-plot {
 	vertical-align: top;
 	margin: 0 auto;
-	margin-bottom: 240px;
+	margin-bottom: 10em;
 	display: flex;
 	justify-content: flex-end;
 }
 
 
 .view-plot--left, .view-plot--right {
-	padding-right: 40px;
+	padding-right: 3em;
 	width: 50%;
 }
 
@@ -91,8 +90,7 @@ a:hover {
 	text-align: right;
 }
 
-.view-toggler a {
-	font-size: 12px;
+.view-toggler * {
 	color: #9ea0a2;
 	cursor: pointer;
 }
@@ -105,7 +103,6 @@ a:hover {
 
 .view-link {
 	color: #9ea0a2;
-	font-size: 12px;
 	position: absolute;
 	margin: 15px 20px;
 	bottom: 0;
@@ -122,7 +119,7 @@ a:hover {
 
 .view-code__inner {
 	text-align: left;
-	height: 435px;
+	height: 375px;
 }
 
 
@@ -130,6 +127,9 @@ a:hover {
 	margin: 0 auto;
 }
 
+.elm-plot__labels {
+	fill: #565656;
+}
 
 
 /* Smaller screens */
@@ -146,13 +146,11 @@ a:hover {
 
 	.view-plot--left, .view-plot--right {
 		width: 100%;
-		padding-right: 120px;
 	}
 
 	.view-plot--right {
-		padding-top: 40px;
-		padding-left: 40px;
-		font-size: 11px;
+		padding-top: 1em;
+		padding-left: 1em;
 	}
 
 	.view-code__inner {
@@ -171,7 +169,29 @@ a:hover {
 	}
 }
 
-.elm-plot__labels {
-	fill: #565656;
-	font-size: 12px;
+
+@media (max-width: 1500px) {
+	body {
+		font-size: 16px;
+	}
+}
+
+
+@media (max-width: 1000px) {
+	body {
+		font-size: 14px;
+	}
+}
+
+
+@media (max-width: 800px) {
+	body {
+		font-size: 8px;
+	}
+}
+
+@media (max-width: 600px) {
+	body {
+		font-size: 5px;
+	}
 }

@@ -73,7 +73,7 @@ viewHeader =
         [ h1 [ class "view-header__title" ] [ text "elm-plot" ]
         , p []
             [ a [ href "https://github.com/terezka/elm-plot" ] [ text "github" ]
-            , text " / "
+            , span [] [ text " / " ]
             , a [ href "https://twitter.com/terezk_a" ] [ text "twitter" ]
             ]
         ]
@@ -105,7 +105,7 @@ viewToggler : Model -> String -> Html.Html Msg
 viewToggler model id =
     p [ class "view-toggler" ]
         [ a [ onClick (FocusExample id) ] [ viewToggleText model id ]
-        , text " / "
+        , span [] [ text " / " ]
         , viewLink id
         ]
 
