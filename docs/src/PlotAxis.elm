@@ -11,7 +11,7 @@ plotExample =
     { title = "Multiple axis"
     , code = code
     , view = view
-    , id = "Axis"
+    , id = "PlotAxis"
     }
 
 
