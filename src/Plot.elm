@@ -37,7 +37,7 @@ type alias Customizations msg =
     , bottom : Int
     , left : Int
     }
-  , horizontalAxis : Maybe Axis.Customizations
+  , horizontalAxis : Axis.Axis
   , onHover : Maybe (Maybe Point -> msg)
   , hintContainer : Summary -> List (Html Never) -> Html Never
   , junk : Summary -> List (Junk msg)
