@@ -87,15 +87,15 @@ module Plot
 @docs dots, line, area
 
 ## Simple data points
-Data points are the coordinates which makes up your series. They come with views or without.
-Pass your x and y coordinate respectively to create a data point for your series.
+Data points are the coordinates which make up your series. They come with views or without.
+Pass your x and y coordinates, respectively, to create a data point for your series.
 @docs clear, square, circle, diamond, triangle
 
 ## Custom series
 @docs Series, Interpolation, customSeries, DataPoint, dot, hintDot, rangeFrameDot, emphasizedDot, customDot
 
 ## Small helper views
-Just thought you might want a hand with all the views you need for you data points.
+Just thought you might want a hand with all the views you need for your data points.
 @docs viewCircle, viewSquare, viewDiamond, viewTriangle
 
 # Bars
@@ -146,7 +146,7 @@ import Regex
 import DOM
 
 
-{-| Just an x and an y property.
+{-| Just an x and a y property.
 -}
 type alias Point =
     Draw.Point
@@ -209,11 +209,11 @@ clear =
 
 
 {-| The data point. Here you can do tons of crazy stuff, although most
-  importantly, you can specify the coordinates of you plot with
-  the `x` and `y` properties. Besides that you can with:
+  importantly, you can specify the coordinates of your plot with
+  the `x` and `y` properties. Besides that you can:
 
-  - `view`: Add a SVG view at your data point.
-  - `xLine`: Provided a summary of the vertical axis, you can create
+  - `view`: Add an SVG view at your data point.
+  - `xLine`: Provide a summary of the vertical axis, you can create
     a horizontal line. Useful when hovering your point.
   - `yLine`: Same as `xLine`, but vertically.
   - `xTick`: So this is for the progressive plotter. [Tufte](https://en.wikipedia.org/wiki/Edward_Tufte)
@@ -236,7 +236,7 @@ type alias DataPoint msg =
     }
 
 
-{-| Makes a data point provided a view, a x and a y.
+{-| Makes a data point provided a `view`, an `x` and a `y`.
 -}
 dot : Svg msg -> Float -> Float -> DataPoint msg
 dot view x y =
@@ -252,7 +252,7 @@ dot view x y =
 
 
 {-| Like `dot`, except it also takes a maybe coordinates to know if
-  should add a hint view/vertical line or not.
+  it should add a hint view/vertical line or not.
 -}
 hintDot : Svg msg -> Maybe Point -> Float -> Float -> DataPoint msg
 hintDot view hovering x y =
@@ -297,7 +297,7 @@ emphasizedDot view x y =
 
 {-| This dot implements a special plot in [Tuftes](https://en.wikipedia.org/wiki/Edward_Tufte) [book](https://www.amazon.com/Visual-Display-Quantitative-Information/dp/1930824130).
   It basically just adds ticks to your axis where [your data points are](https://plot.ly/~riddhiman/254/miles-per-gallon-of-fuel-vs-car-weight-lb1000.png)!
-  You might want to use `clearAxis` to remove all the other useless chart junk, now that your have all
+  You might want to use `clearAxis` to remove all the other useless chart junk, now that you have all
   these nice ticks.
 -}
 rangeFrameDot : Svg msg -> Float -> Float -> DataPoint msg
@@ -389,7 +389,7 @@ area toDataPoints =
       , toDataPoints = toDataPoints
       }
 
-  Maybe pink isn't really your color and your want to make it green. No problem! You
+  Maybe pink isn't really your color and you want to make it green. No problem! You
   just add some different attributes to the interpolation. If you want a different
   interpolation or an area under that interpolation, look at the
   [Interpolation](#Interpolation) type for more info.
@@ -406,8 +406,8 @@ customSeries =
   - Monotone: A nice looking curvy line which doesn't extend outside the y values of the two
     points involved (Huh? Here's an [illustration](https://en.wikipedia.org/wiki/Monotone_cubic_interpolation#/media/File:MonotCubInt.png)).
 
-All but `None` **takes a color which determined whether it draws the area below the interpolation** and
-list of attributes which you can use for styling your interpolation.
+All but `None` **takes a color which determines whether it draws the area below the interpolation** and
+a list of attributes which you can use for styling your interpolation.
 -}
 type Interpolation
     = None
@@ -438,7 +438,7 @@ type alias Bars data msg =
   group.
   - The `label` is what will show up on the horizontal axis
   at that data point. This is a function as you don't get to pick your own x.
-  This is because bar charts per design is supposed to be scattered at a consistent
+  This is because bar charts, per design, are supposed to be scattered at a consistent
   interval.
   - The `hint` property is the view which will show up in your hint when
   hovering the group.
@@ -559,7 +559,7 @@ customGroup =
 
 
 {-| So because there is extra funky labels added to your bar groups,
-  your axis should not to clutter up with other random numbers. So use this one.
+  your axis should not be cluttered up with other random numbers. So use this one.
 -}
 normalBarsAxis : Axis
 normalBarsAxis =
@@ -668,7 +668,7 @@ type alias JunkCustomizations msg =
     }
 
 
-{-| Takes a view, a x coordinate and an y coordinate and you can put your junk anywhere!
+{-| Takes a `view`, an `x` coordinate and a `y` coordinate, and you can put your junk anywhere!
   If you want to add a title, which I assume is the real reason why you're here, you can do this:
 
     title : Svg msg
@@ -690,7 +690,7 @@ type alias JunkCustomizations msg =
         [ customLine ]
         data
 
-Not sure if self explanatory, but `summary.x.min/max`, `summary.y.min/max`
+Not sure if this is self explanatory, but `summary.x.min/max`, `summary.y.min/max`
 are just floats which you can do anything you'd like with.
 
 You can of course also put other junk here, like legends for example.
@@ -713,7 +713,7 @@ defaultBarsPlotCustomizations =
     }
 
 
-{-| A view located at the bottom left corner of you plot, holding the hint views you
+{-| A view located at the bottom left corner of your plot, holding the hint views you
   (maybe) added in your data points or groups.
 -}
 normalHintContainer : PlotSummary -> List (Html Never) -> Html Never
@@ -837,7 +837,7 @@ type Axis
 
 {-| The axis customizations. You may:
 
-  - Change the position of you axis. This is what the `axisAtMin` does!
+  - Change the position of your axis. This is what the `axisAtMin` does!
   - Change the look and feel of the axis line.
   - Add a variation of ticks.
   - Add a variation of labels.
@@ -960,7 +960,7 @@ axisAtMax =
             }
 
 
-{-| A nice grey line which goes from one side of you plot to the other.
+{-| A nice grey line which goes from one side of your plot to the other.
 -}
 simpleLine : AxisSummary -> LineCustomizations
 simpleLine summary =
@@ -1798,10 +1798,10 @@ decentPositions summary =
         interval 0 (niceInterval summary.min summary.max 5) summary
 
 
-{-| For ticks with a particular interval. The first value passed if the offset,
-  and the second value is actual interval. The offset in useful when you want
-   two sets of ticks with different views. For example if you want a long ticks
-   at every 2 * x and a small ticks at every 2 * x + 1.
+{-| For ticks with a particular interval. The first value passed is the offset,
+  and the second value is the actual interval. The offset is useful when you want
+   two sets of ticks with different views. For example, if you want a long tick
+   at every 2 * x and a small tick at every 2 * x + 1.
 -}
 interval : Float -> Float -> AxisSummary -> List Float
 interval offset delta { min, max } =
@@ -1830,7 +1830,7 @@ interval offset delta { min, max } =
         , labels = List.map simpleLabel (decentPositions summary |> remove 0)
         }
 
-  See how in the normal axis we make a bunch of ticks, but then remove then one we don't
+  See how in the normal axis we make a bunch of ticks, but then remove the one we don't
   want. You can do the same!
 -}
 remove : Float -> List Float -> List Float
