@@ -167,7 +167,7 @@ remove banned values =
 
 
 
--- UGH, TODO: put in /internal
+-- UTILS
 
 
 tickPosition : Float -> Float -> Int -> Float

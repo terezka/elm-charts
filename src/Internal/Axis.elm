@@ -26,7 +26,7 @@ viewHorizontal plot sometimesAnAxis =
           , viewMaybe customizations.view (viewHorizontalLabel plot axis (at position))
           ]
     in
-      g [ class "elm-plot__vertical-axis" ]
+      g [ class "elm-plot__horizontal-axis" ]
         [ viewMaybe axis.axisLine (viewAxisLine plot at)
         , g [ class "elm-plot__marks" ] (List.map viewMark axis.marks)
         ]
@@ -152,10 +152,26 @@ viewGrid plot toGridLine verticals horizontals =
 
 
 
--- HELPERS
+-- UTILS
 
 
 {-| -}
-composeAxis : (a -> Maybe Axis.Mark) -> List a -> { axis : Maybe Axis.Customizations } -> Maybe Axis.Customizations
-composeAxis toMark dataPoints { axis } =
-  Maybe.map (\axis -> { axis | marks = axis.marks ++ List.filterMap toMark dataPoints }) axis
+composeAxis : Base.Axis -> (a -> Maybe Axis.Mark) -> List a -> Axis.Axis -> Maybe Axis.Customizations
+composeAxis axisInfo toMark dataPoints axis =
+    Maybe.map (\toAxis -> addMarks toMark dataPoints (toAxis (toSummary axisInfo))) axis
+
+
+addMarks : (a -> Maybe Axis.Mark) -> List a -> Axis.Customizations -> Axis.Customizations
+addMarks toMark dataPoints axis =
+  { axis | marks = axis.marks ++ List.filterMap toMark dataPoints }
+
+
+
+{-| -}
+toSummary : Base.Axis -> Axis.Summary
+toSummary axis =
+  { min = axis.min
+  , max = axis.max
+  , dataMin = axis.dataMin
+  , dataMax = axis.dataMax
+  }
