@@ -70,6 +70,7 @@ module Plot
         , GridLineCustomizations
         , decentGrid
         , clearGrid
+        , customGrid
           -- HELP
         , viewCircle
         , viewSquare
@@ -114,7 +115,7 @@ Just thought you might want a hand with all the views you need for your data poi
 @docs Point, normalHintContainer, flyingHintContainer, normalHintContainerInner
 
 ## Grid customizations
-@docs Grid, GridLineCustomizations, decentGrid, clearGrid
+@docs Grid, GridLineCustomizations, decentGrid, clearGrid, customGrid
 
 ## Junk
 @docs JunkCustomizations, junk
@@ -806,7 +807,7 @@ type alias GridLineCustomizations =
 -}
 decentGrid : Grid
 decentGrid =
-    grid <|
+    customGrid <|
         \summary ->
             List.map (GridLineCustomizations [ stroke grey ]) (decentPositions summary)
 
@@ -820,8 +821,8 @@ clearGrid =
 
 {-| Make your own grid!
 -}
-grid : (AxisSummary -> List GridLineCustomizations) -> Grid
-grid =
+customGrid : (AxisSummary -> List GridLineCustomizations) -> Grid
+customGrid =
     Grid
 
 
