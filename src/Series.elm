@@ -1,14 +1,16 @@
-module Series exposing (Series, Interpolation(..), Dot, view)
+module Series exposing (Series, Interpolation(..), Dot, view, dot)
 
 {-|
-@docs Series, Interpolation, Dot, view
+@docs Series, Interpolation, Dot, view, dot
 -}
 
 import Svg exposing (Svg, Attribute, g, svg, text)
 import Svg.Attributes as Attributes exposing (class, width, height, fill, stroke)
 import Svg.Coordinates exposing (Plane, Point, minimum, maximum)
 import Svg.Plot exposing (..)
-import Axis exposing (Axis, Axis)
+import Axis exposing (Axis, Mark)
+import Internal.Axis exposing
+  ( composeAxisView, maybeComposeAxisView, raport, viewHorizontal, viewAxes, viewVertical)
 
 
 
@@ -30,11 +32,26 @@ type Interpolation msg
 {-| -}
 type alias Dot msg =
   { view : Maybe (Svg msg)
-  , xMark : Maybe (Axis.Report -> Axis.MarkView)
-  , yMark : Maybe (Axis.Report -> Axis.MarkView)
+  , xMark : Maybe (Axis.Raport -> Axis.MarkView)
+  , yMark : Maybe (Axis.Raport -> Axis.MarkView)
   , x : Float
   , y : Float
   }
+
+
+{-| -}
+dot : Svg msg -> Float -> Float -> Dot msg
+dot view x y =
+  { view = Just view
+  , xMark = Nothing
+  , yMark = Nothing
+  , x = x
+  , y = y
+  }
+
+
+type alias Config =
+  { dependentAxis : Axis.Raport -> Axis.View }
 
 
 
@@ -42,65 +59,88 @@ type alias Dot msg =
 
 
 {-| -}
-view : List (Series data msg) -> data -> Svg msg
-view series data =
+view : Config -> List (Series data msg) -> data -> Svg msg
+view config series data =
   let
+    dots =
+      List.map (getDots data) series
+
+    allDots =
+      List.concat dots
+
     plane =
-      planeFromDots series data
+      planeFromDots series allDots
+
+    dependentAxis =
+      composeAxisView plane.x config.dependentAxis (List.filterMap (xMark plane) allDots)
+
+    independentAxis series dots =
+      maybeComposeAxisView plane.y series.axis (List.filterMap (yMark plane) dots)
+
+    independentAxes =
+      List.map2 independentAxis series dots
   in
     svg
       [ width (toString plane.x.length)
       , height (toString plane.y.length)
       ]
-      (List.map (viewSeries plane data) series)
+      [ g [ class "elm-plot__all-series" ] (List.map2 (viewSeries plane) series dots)
+      , Svg.map never (viewHorizontal plane (Just dependentAxis))
+      , Svg.map never (viewAxes (viewVertical plane) independentAxes)
+      ]
 
+
+xMark : Plane -> Dot msg -> Maybe Mark
+xMark plane { x, xMark } =
+  Maybe.map (\view -> Mark x (view (raport plane.x))) xMark
+
+
+yMark : Plane -> Dot msg -> Maybe Mark
+yMark plane { y, yMark } =
+  Maybe.map (\view -> Mark y (view (raport plane.y))) yMark
 
 
 -- VIEW SERIES
 
 
-viewSeries : Plane -> data -> Series data msg -> Svg msg
-viewSeries plane data series =
-  let
-    dots =
-     getDots data series
-  in
-    case series.interpolation of
-      None ->
-        scatter plane dots
+viewSeries : Plane -> Series data msg -> List (Dot msg) -> Svg msg
+viewSeries plane series dots =
+  case series.interpolation of
+    None ->
+      scatter plane (svgDots dots)
 
-      Linear attributes ->
-        linear plane attributes dots
+    Linear attributes ->
+      linear plane attributes (svgDots dots)
 
-      Monotone attributes ->
-        monotone plane attributes dots
+    Monotone attributes ->
+      monotone plane attributes (svgDots dots)
 
+
+svgDots : List (Dot msg) -> List (Svg.Plot.Dot msg)
+svgDots =
+  List.map <| \dot -> { x = dot.x, y = dot.y, view = dot.view }
 
 
 -- PLANE
 
 
-planeFromDots : List (Series data msg) -> data -> Plane
-planeFromDots series data =
-  let
-    dots =
-      List.concat (List.map (getDots data) series)
-  in
-    { x =
-      { marginLower = 10
-      , marginUpper = 10
-      , length = 300
-      , min = minimum .x dots
-      , max = maximum .x dots
-      }
-    , y =
-      { marginLower = 10
-      , marginUpper = 10
-      , length = 300
-      , min = setAreaDomain series (minimum .y dots)
-      , max = maximum .y dots
-      }
+planeFromDots : List (Series data msg) -> List (Dot msg) -> Plane
+planeFromDots series dots =
+  { x =
+    { marginLower = 40
+    , marginUpper = 40
+    , length = 300
+    , min = minimum .x dots
+    , max = maximum .x dots
     }
+  , y =
+    { marginLower = 40
+    , marginUpper = 40
+    , length = 300
+    , min = setAreaDomain series (minimum .y dots)
+    , max = maximum .y dots
+    }
+  }
 
 
 setAreaDomain : List (Series data msg) -> Float -> Float

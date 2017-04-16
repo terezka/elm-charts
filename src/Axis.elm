@@ -11,12 +11,12 @@ import Regex
 
 {-| -}
 type Axis
-  = Axis (Report -> View)
+  = Axis (Raport -> View)
   | SometimesYouDontHaveAnAxis
 
 
 {-| -}
-type alias Report =
+type alias Raport =
   { min : Float
   , max : Float
   }
@@ -35,8 +35,8 @@ type alias View =
 type alias MarkView =
   { gridBelow : Maybe LineView
   , gridAbove : Maybe LineView
+  , label : Maybe (Svg Never)
   , tick : Maybe TickView
-  , view : Maybe (Svg Never)
   }
 
 
@@ -62,29 +62,44 @@ type alias TickView =
   }
 
 
+axis : (Raport -> View) -> Axis
+axis =
+  Axis
+
+
 {-| -}
-defaultMarkView : Report -> Float -> MarkView
-defaultMarkView summary position =
-  { gridBelow = Nothing
-  , gridAbove = Nothing
-  , tick = Just simpleTick
-  , view = Just (simpleLabel position)
+defaultAxis : Raport -> View
+defaultAxis raport =
+  { position = \min max -> min
+  , axisLine = Just (simpleLine raport)
+  , marks = List.map (defaultMark raport) (decentPositions raport)
+  , mirror = False
   }
 
 
 {-| -}
-defaultMark : Report -> Float -> Mark
-defaultMark summary position =
+defaultMarkView : Raport -> Float -> MarkView
+defaultMarkView raport position =
+  { gridBelow = Nothing
+  , gridAbove = Nothing
+  , tick = Just simpleTick
+  , label = Just (simpleLabel position)
+  }
+
+
+{-| -}
+defaultMark : Raport -> Float -> Mark
+defaultMark raport position =
   { position = position
-  , view = defaultMarkView summary position
+  , view = defaultMarkView raport position
   }
 
 
 {-| A nice grey line which goes from one side of you plot to the other.
 -}
-simpleLine : Report -> LineView
-simpleLine summary =
-  fullLine [ stroke darkGrey ] summary
+simpleLine : Raport -> LineView
+simpleLine raport =
+  fullLine [ stroke darkGrey ] raport
 
 
 {-| -}
@@ -109,11 +124,11 @@ viewLabel attributes string =
 
 {-| A line which goes from one end of the plot to the other.
 -}
-fullLine : List (Attribute Never) -> Report -> LineView
-fullLine attributes summary =
+fullLine : List (Attribute Never) -> Raport -> LineView
+fullLine attributes raport =
   { attributes = style "pointer-events: none;" :: attributes
-  , start = summary.min
-  , end = summary.max
+  , start = raport.min
+  , end = raport.max
   }
 
 
@@ -125,9 +140,9 @@ closestToZero min max =
 
 {-| For decently spaces positions. Useful in tick/label and grid configurations.
 -}
-decentPositions : Report -> List Float
-decentPositions summary =
-  interval 0 (niceInterval summary.min summary.max 10) summary
+decentPositions : Raport -> List Float
+decentPositions raport =
+  interval 0 (niceInterval raport.min raport.max 10) raport
 
 
 {-| For ticks with a particular interval. The first value passed if the offset,
@@ -135,7 +150,7 @@ decentPositions summary =
    two sets of ticks with different views. For example if you want a long ticks
    at every 2 * x and a small ticks at every 2 * x + 1.
 -}
-interval : Float -> Float -> Report -> List Float
+interval : Float -> Float -> Raport -> List Float
 interval offset delta { min, max } =
   let
     range = abs (min - max)
@@ -150,11 +165,11 @@ interval offset delta { min, max } =
 
     normalAxis : Axis
     normalAxis =
-      axis <| \summary ->
+      axis <| \raport ->
         { position = ClosestToZero
-        , axisLine = Just (simpleLine summary)
-        , ticks = List.map simpleTick (decentPositions summary |> remove 0)
-        , labels = List.map simpleLabel (decentPositions summary |> remove 0)
+        , axisLine = Just (simpleLine raport)
+        , ticks = List.map simpleTick (decentPositions raport |> remove 0)
+        , labels = List.map simpleLabel (decentPositions raport |> remove 0)
         , whatever = []
         }
 
