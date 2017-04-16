@@ -3,6 +3,7 @@ module Plot
         ( PlotCustomizations
         , PlotSummary
         , Point
+        , defaultAnimationCustomizations
         , defaultSeriesPlotCustomizations
         , defaultBarsPlotCustomizations
         , normalHintContainer
@@ -98,6 +99,9 @@ Pass your x and y coordinate respectively to create a data point for your series
 Just thought you might want a hand with all the views you need for you data points.
 @docs viewCircle, viewSquare, viewDiamond, viewTriangle
 
+# Animation
+@docs defaultAnimationCustomizations
+
 # Bars
 @docs viewBars
 
@@ -138,6 +142,7 @@ import Html.Events
 import Html.Attributes
 import Svg exposing (Svg, Attribute, svg, text_, tspan, text, g, path, rect, polygon)
 import Svg.Attributes as Attributes exposing (stroke, fill, class, r, x2, y2, style, strokeWidth, clipPath, transform, strokeDasharray)
+import Internal.Animations as Animations exposing (..)
 import Internal.Draw as Draw exposing (..)
 import Internal.Colors exposing (..)
 import Json.Decode as Json
@@ -598,6 +603,7 @@ normalBarLabel label position =
   - Add a grid, but do consider whether that will actually improve the readability of your plot.
   - Change the bounds of your plot. For example, if you want your plot to start
     atleast at -5 on the y-axis, then add `toDomainLowest = min -5`.
+  - Add an animation customization.
 
 _Note:_ The `id` is particularily important when you have
 several plots in your dom.
@@ -626,6 +632,28 @@ type alias PlotCustomizations msg =
     , toDomainHighest : Float -> Float
     , toRangeLowest : Float -> Float
     , toRangeHighest : Float -> Float
+    , animation : Maybe (Animations.AnimationCustomizations msg)
+    }
+
+
+{-| The default animation customizations.
+-}
+defaultAnimationCustomizations : AnimationCustomizations msg
+defaultAnimationCustomizations =
+    { accumulate = "none"
+    , additive = "sum"
+    , begin = "0s"
+    , calcMode = "spline"
+    , dur = "2s"
+    , fill = "freeze"
+    , onBegin = Nothing
+    , onEnd = Nothing
+    , onRepeat = Nothing
+    , keySplines = "0.5 0 0.5 1"
+    , keyTimes = "0; 1"
+    , repeatCount = "1"
+    , repeatDur = "indefinite"
+    , restart = "always"
     }
 
 
@@ -656,6 +684,7 @@ defaultSeriesPlotCustomizations =
     , toDomainHighest = identity
     , toRangeLowest = identity
     , toRangeHighest = identity
+    , animation = Nothing
     }
 
 
@@ -1207,10 +1236,10 @@ viewBarsCustom customizations bars data =
 
         children =
             List.filterMap identity
-                [ Just (defineClipPath customizations summary)
+                [ Just (defineBarClipPath customizations summary)
                 , viewHorizontalGrid summary customizations.grid.horizontal
                 , viewVerticalGrid summary customizations.grid.vertical
-                , viewActualBars summary bars groups
+                , viewActualBars customizations summary bars groups
                 , viewHorizontalAxis summary customizations.horizontalAxis xLabels []
                 , viewVerticalAxis summary bars.axis []
                 , viewGlitter
@@ -1234,18 +1263,64 @@ addNiceReachForBars ({ x, y } as summary) =
 
 defineClipPath : PlotCustomizations msg -> PlotSummary -> Svg.Svg msg
 defineClipPath customizations summary =
-    Svg.defs [] <|
-        (Svg.clipPath [ Attributes.id (toClipPathId customizations) ]
-            [ Svg.rect
-                [ Attributes.x (toString summary.x.marginLower)
-                , Attributes.y (toString summary.y.marginLower)
-                , Attributes.width (toString (length summary.x))
-                , Attributes.height (toString (length summary.y))
+    let
+        animation =
+            case customizations.animation of
+                Just animationCustomizations ->
+                    [ Animations.leftToRight animationCustomizations (toString <| length summary.x) ]
+
+                Nothing ->
+                    []
+
+    in
+        Svg.defs [] <|
+            (Svg.clipPath [ Attributes.id (toClipPathId customizations) ]
+                [ Svg.rect
+                    [ Attributes.x (toString summary.x.marginLower)
+                    , Attributes.y (toString summary.y.marginLower)
+                    , Attributes.width <|
+                        if List.isEmpty animation then
+                            toString (length summary.x)
+                        else
+                            "0"
+                    , Attributes.height (toString (length summary.y))
+                    ]
+                  <|
+                    animation
                 ]
-                []
-            ]
-        )
-            :: customizations.defs
+            )
+                :: customizations.defs
+
+
+defineBarClipPath : PlotCustomizations msg -> PlotSummary -> Svg.Svg msg
+defineBarClipPath customizations summary =
+    let
+        animation =
+            case customizations.animation of
+                Just animationCustomizations ->
+                    [ Animations.bottomToTop animationCustomizations (toString (length summary.y)) ]
+
+                Nothing ->
+                    []
+
+    in
+        Svg.defs [] <|
+            (Svg.clipPath [ Attributes.id (toClipPathId customizations) ]
+                [ Svg.rect
+                    [ Attributes.x "0"
+                    , Attributes.y <|
+                        if List.isEmpty animation then
+                            toString summary.y.marginLower
+                        else
+                            "0"
+                    , Attributes.width (toString <| length summary.x)
+                    , Attributes.height (toString (length summary.y))
+                    ]
+                  <|
+                    animation
+                ]
+            )
+                :: customizations.defs
 
 
 toClipPathId : PlotCustomizations msg -> String
@@ -1589,8 +1664,8 @@ viewTriangle color =
 -- VIEW BARS
 
 
-viewActualBars : PlotSummary -> Bars data msg -> List BarGroup -> Maybe (Svg msg)
-viewActualBars summary { styles, maxWidth } groups =
+viewActualBars : PlotCustomizations msg -> PlotSummary -> Bars data msg -> List BarGroup -> Maybe (Svg msg)
+viewActualBars customizations summary { styles, maxWidth } groups =
     let
         barsPerGroup =
             toFloat (List.length styles)
@@ -1626,6 +1701,7 @@ viewActualBars summary { styles, maxWidth } groups =
                     (attributes
                         ++ [ Attributes.width (toString (scaleValue summary.x width))
                            , Attributes.height (toString (scaleValue summary.y (abs height)))
+                           , clipPath ("url(#" ++ toClipPathId customizations ++ ")")
                            ]
                     )
                     []
