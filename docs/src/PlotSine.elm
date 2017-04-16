@@ -4,9 +4,9 @@ import Svg exposing (Svg)
 import Svg.Attributes exposing (..)
 import Plot exposing (..)
 import Common exposing (..)
+import Msg exposing (..)
 
-
-plotExample : PlotExample msg
+plotExample : PlotExample Msg
 plotExample =
   { title = "Sin"
   , code = code
@@ -67,14 +67,23 @@ title =
     "f(x) = sin x"
 
 
-view : Svg.Svg a
+view : Svg.Svg Msg
 view =
   viewSeriesCustom
     { defaultSeriesPlotCustomizations
-    | horizontalAxis = horizontalAxis
-    , junk = \summary -> [ junk title summary.x.dataMax summary.y.max  ]
+    | id = "PlotSine"
+    , horizontalAxis = horizontalAxis
+    , junk = \summary -> [ junk title summary.x.dataMax summary.y.max ]
     , toDomainLowest = \y -> y - 0.25
     , toRangeLowest = \y -> y - 25
+    , animation = Just
+      { defaultAnimationCustomizations
+      | dur = "4s"
+      , repeatCount = "3"
+      , onBegin = Just (AnimationStatus "STARTED")
+      , onEnd = Just (AnimationStatus "ENDED")
+      , onRepeat = Just (AnimationStatus "REPEATED")
+      }
     }
     [ customLine ]
     data
@@ -134,10 +143,19 @@ view : Svg.Svg a
 view =
   viewSeriesCustom
     { defaultSeriesPlotCustomizations
-    | horizontalAxis = horizontalAxis
+    | id = "PlotSine"
+    , horizontalAxis = horizontalAxis
     , junk = \\summary -> [ junk title summary.x.dataMax summary.y.max  ]
     , toDomainLowest = \\y -> y - 0.25
     , toRangeLowest = \\y -> y - 25
+    , animation = Just
+      { defaultAnimationCustomizations
+      | dur = "4s"
+      , repeatCount = "3"
+      , onBegin = Just (AnimationStatus "STARTED")
+      , onEnd = Just (AnimationStatus "ENDED")
+      , onRepeat = Just (AnimationStatus "REPEATED")
+      }
     }
     [ customLine ]
     data

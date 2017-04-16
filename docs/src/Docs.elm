@@ -19,6 +19,7 @@ type alias Model =
     { focused : Maybe String
     , rangeFrameHover : Maybe Point
     , barsHover : Maybe Point
+    , animationStatus : Maybe String
     }
 
 
@@ -27,6 +28,7 @@ init =
     { focused = Nothing
     , rangeFrameHover = Nothing
     , barsHover = Nothing
+    , animationStatus = Nothing
     }
 
 
@@ -45,6 +47,9 @@ update msg ({ focused } as model) =
 
         HoverBars point ->
             { model | barsHover = point } ! []
+
+        AnimationStatus status ->
+            { model | animationStatus = Just status } ! []
 
 
 updateFocused : String -> Maybe String -> Maybe String

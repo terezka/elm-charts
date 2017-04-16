@@ -33,8 +33,10 @@ view : Maybe Point -> Html.Html Msg
 view hovering =
   viewBarsCustom
     { defaultBarsPlotCustomizations
-    | onHover = Just HoverBars
+    | id = "PlotBars"
+    , onHover = Just HoverBars
     , hintContainer = flyingHintContainer normalHintContainerInner hovering
+    , animation = Just defaultAnimationCustomizations
     }
     (bars hovering)
     data
@@ -52,8 +54,10 @@ view : Maybe Point -> Html.Html Msg
 view hovering =
     viewBarsCustom
       { defaultBarsPlotCustomizations
-      | onHover = Just Hover
+      | id = "PlotBars"
+      , onHover = Just HoverBars
       , hintContainer = flyingHintContainer normalHintContainerInner hovering
+      , animation = Just defaultAnimationCustomizations
       }
       (bars hovering)
       data
