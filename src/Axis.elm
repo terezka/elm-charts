@@ -1,5 +1,7 @@
 module Axis exposing (..)
 
+{-| -}
+
 import Svg exposing (Svg, Attribute, text_, tspan, text)
 import Svg.Attributes exposing (style, stroke)
 import Colors exposing (..)
@@ -8,45 +10,45 @@ import Regex
 
 
 {-| -}
-type alias Axis =
-  Maybe (Summary -> Customizations)
+type Axis
+  = Axis (Report -> View)
+  | SometimesYouDontHaveAnAxis
 
 
 {-| -}
-type alias Summary =
+type alias Report =
   { min : Float
   , max : Float
-  , dataMin : Float
-  , dataMax : Float
   }
 
 
 {-| -}
-type alias Customizations =
+type alias View =
   { position : Float -> Float -> Float
-  , axisLine : Maybe LineCustomizations
+  , axisLine : Maybe LineView
   , marks : List Mark
-  , flipAnchor : Bool
+  , mirror : Bool
   }
 
 
 {-| -}
-type alias MarkCustomizations =
-  { gridBelow : Maybe LineCustomizations
-  , gridAbove : Maybe LineCustomizations
-  , tick : Maybe TickCustomizations
+type alias MarkView =
+  { gridBelow : Maybe LineView
+  , gridAbove : Maybe LineView
+  , tick : Maybe TickView
   , view : Maybe (Svg Never)
   }
 
 
+{-| -}
 type alias Mark =
   { position : Float
-  , customizations : MarkCustomizations
+  , view : MarkView
   }
 
 
 {-| -}
-type alias LineCustomizations =
+type alias LineView =
   { attributes : List (Attribute Never)
   , start : Float
   , end : Float
@@ -54,15 +56,15 @@ type alias LineCustomizations =
 
 
 {-| -}
-type alias TickCustomizations =
+type alias TickView =
   { attributes : List (Attribute Never)
   , length : Float
   }
 
 
 {-| -}
-defaultMarkCustomizations : Summary -> Float -> MarkCustomizations
-defaultMarkCustomizations summary position =
+defaultMarkView : Report -> Float -> MarkView
+defaultMarkView summary position =
   { gridBelow = Nothing
   , gridAbove = Nothing
   , tick = Just simpleTick
@@ -71,31 +73,29 @@ defaultMarkCustomizations summary position =
 
 
 {-| -}
-defaultMark : Summary -> Float -> Mark
+defaultMark : Report -> Float -> Mark
 defaultMark summary position =
   { position = position
-  , customizations = defaultMarkCustomizations summary position
+  , view = defaultMarkView summary position
   }
 
 
 {-| A nice grey line which goes from one side of you plot to the other.
 -}
-simpleLine : Summary -> LineCustomizations
+simpleLine : Report -> LineView
 simpleLine summary =
   fullLine [ stroke darkGrey ] summary
 
 
-{-| A simple but powerful tick.
--}
-simpleTick : TickCustomizations
+{-| -}
+simpleTick : TickView
 simpleTick =
   { length = 5
   , attributes = [ stroke darkGrey ]
   }
 
 
-{-| A simple label. You might want to try an make your own!
--}
+{-| -}
 simpleLabel : Float -> Svg Never
 simpleLabel position =
   viewLabel [] (toString position)
@@ -109,7 +109,7 @@ viewLabel attributes string =
 
 {-| A line which goes from one end of the plot to the other.
 -}
-fullLine : List (Attribute Never) -> Summary -> LineCustomizations
+fullLine : List (Attribute Never) -> Report -> LineView
 fullLine attributes summary =
   { attributes = style "pointer-events: none;" :: attributes
   , start = summary.min
@@ -125,7 +125,7 @@ closestToZero min max =
 
 {-| For decently spaces positions. Useful in tick/label and grid configurations.
 -}
-decentPositions : Summary -> List Float
+decentPositions : Report -> List Float
 decentPositions summary =
   interval 0 (niceInterval summary.min summary.max 10) summary
 
@@ -135,7 +135,7 @@ decentPositions summary =
    two sets of ticks with different views. For example if you want a long ticks
    at every 2 * x and a small ticks at every 2 * x + 1.
 -}
-interval : Float -> Float -> Summary -> List Float
+interval : Float -> Float -> Report -> List Float
 interval offset delta { min, max } =
   let
     range = abs (min - max)
