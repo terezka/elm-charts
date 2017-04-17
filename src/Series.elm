@@ -8,9 +8,16 @@ import Svg exposing (Svg, Attribute, g, svg, text)
 import Svg.Attributes as Attributes exposing (class, width, height, fill, stroke)
 import Svg.Coordinates exposing (Plane, Point, minimum, maximum)
 import Svg.Plot exposing (..)
-import Axis exposing (Axis, Mark)
+import Axis exposing (Axis, Mark, defaultMarkView)
 import Internal.Axis exposing
-  ( composeAxisView, maybeComposeAxisView, raport, viewHorizontal, viewAxes, viewVertical)
+  ( composeAxisView
+  , maybeComposeAxisView
+  , raport
+  , viewHorizontal
+  , viewAxes
+  , viewVertical
+  , viewGrid
+  )
 
 
 
@@ -32,8 +39,8 @@ type Interpolation msg
 {-| -}
 type alias Dot msg =
   { view : Maybe (Svg msg)
-  , xMark : Maybe (Axis.Raport -> Axis.MarkView)
-  , yMark : Maybe (Axis.Raport -> Axis.MarkView)
+  , xMark : Maybe Axis.MarkView
+  , yMark : Maybe Axis.MarkView
   , x : Float
   , y : Float
   }
@@ -43,8 +50,8 @@ type alias Dot msg =
 dot : Svg msg -> Float -> Float -> Dot msg
 dot view x y =
   { view = Just view
-  , xMark = Nothing
-  , yMark = Nothing
+  , xMark = Just (defaultMarkView x)
+  , yMark = Just (defaultMarkView y)
   , x = x
   , y = y
   }
@@ -79,6 +86,9 @@ view config series data =
 
     independentAxes =
       List.map2 independentAxis series dots
+
+    yMarks =
+      List.concatMap .marks (List.filterMap identity independentAxes)
   in
     svg
       [ width (toString plane.x.length)
@@ -87,17 +97,19 @@ view config series data =
       [ g [ class "elm-plot__all-series" ] (List.map2 (viewSeries plane) series dots)
       , Svg.map never (viewHorizontal plane (Just dependentAxis))
       , Svg.map never (viewAxes (viewVertical plane) independentAxes)
+      , Svg.map never (viewGrid plane .gridAbove dependentAxis.marks yMarks)
       ]
 
 
 xMark : Plane -> Dot msg -> Maybe Mark
 xMark plane { x, xMark } =
-  Maybe.map (\view -> Mark x (view (raport plane.x))) xMark
+  Maybe.map (\view -> Mark x view) xMark
 
 
 yMark : Plane -> Dot msg -> Maybe Mark
 yMark plane { y, yMark } =
-  Maybe.map (\view -> Mark y (view (raport plane.y))) yMark
+  Maybe.map (\view -> Mark y view) yMark
+
 
 
 -- VIEW SERIES
@@ -121,6 +133,7 @@ svgDots =
   List.map <| \dot -> { x = dot.x, y = dot.y, view = dot.view }
 
 
+
 -- PLANE
 
 
@@ -129,7 +142,7 @@ planeFromDots series dots =
   { x =
     { marginLower = 40
     , marginUpper = 40
-    , length = 300
+    , length = 600
     , min = minimum .x dots
     , max = maximum .x dots
     }
