@@ -25,7 +25,7 @@ Currently the library has the following features:
    - Series
       - Plain and area series.
       - Interpolations include none (a scatter), linear, and monotone-x.
-   - Horizontally stacked bar charts.
+   - Horizontally stacked bar charts / histograms.
    - All plots have the option for customizable axis, ticks and labels.
    
 ## What is the API like?
