@@ -33,8 +33,8 @@ type alias View =
 
 {-| -}
 type alias MarkView =
-  { gridBelow : Maybe (Raport -> LineView)
-  , gridAbove : Maybe (Raport -> LineView)
+  { gridBelow : Maybe (List (Attribute Never))
+  , lineAbove : Maybe (Raport -> LineView)
   , label : Maybe (Svg Never)
   , tick : Maybe TickView
   }
@@ -72,7 +72,7 @@ defaultAxis : Raport -> View
 defaultAxis raport =
   { position = \min max -> min
   , axisLine = Just (simpleLine raport)
-  , marks = List.map gridyMark (decentPositions raport)
+  , marks = List.map defaultMark (decentPositions raport)
   , mirror = False
   }
 
@@ -81,7 +81,7 @@ defaultAxis raport =
 defaultMarkView : Float -> MarkView
 defaultMarkView position =
   { gridBelow = Nothing
-  , gridAbove = Nothing
+  , lineAbove = Nothing
   , tick = Just simpleTick
   , label = Just (simpleLabel position)
   }
@@ -98,8 +98,8 @@ defaultMark position =
 {-| -}
 gridyMarkView : Float -> MarkView
 gridyMarkView position =
-  { gridBelow = Just simpleLine
-  , gridAbove = Nothing
+  { gridBelow = Just [ stroke darkGrey ]
+  , lineAbove = Nothing
   , tick = Just simpleTick
   , label = Just (simpleLabel position)
   }
@@ -117,8 +117,8 @@ gridyMark position =
 {-| A nice grey line which goes from one side of you plot to the other.
 -}
 simpleLine : Raport -> LineView
-simpleLine raport =
-  fullLine [ stroke darkGrey ] raport
+simpleLine =
+  fullLine [ stroke darkGrey ]
 
 
 {-| -}

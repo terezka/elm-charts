@@ -3,7 +3,7 @@ module Internal.Axis exposing (..)
 import Svg exposing (Svg, Attribute, g)
 import Svg.Attributes exposing (class, x1, x2, y1, y2, style, fill)
 import Svg.Coordinates as Coordinates exposing (Plane, Point, place, placeWithOffset)
-import Svg.Plot exposing (linear, clear, xTick, yTick, horizontal, vertical)
+import Svg.Plot exposing (linear, clear, xTick, yTick, horizontal, vertical, fullHorizontal, fullVertical)
 import Internal.Utils exposing (viewMaybe)
 import Axis exposing (Axis(..))
 
@@ -117,22 +117,34 @@ viewVerticalLabel plot { mirror } position view =
 -- VIEW GRID
 
 
-viewGrid : Plane -> (Axis.MarkView -> Maybe (Axis.Raport -> Axis.LineView)) -> List Axis.Mark -> List Axis.Mark -> Svg Never
-viewGrid plane getGridLine verticals horizontals =
+viewGrid : Plane -> List Axis.Mark -> List Axis.Mark -> Svg Never
+viewGrid plane verticals horizontals =
+  let
+    unfoldHorizontal { position, view } =
+      Maybe.map (\attributes -> fullHorizontal plane attributes position) view.gridBelow
+
+    unfoldVertical { position, view } =
+      Maybe.map (\attributes -> fullVertical plane attributes position) view.gridBelow
+  in
+    g [ class "elm-plot__grid" ]
+      [ g [ class "elm-plot__horizontal-grid" ] (List.filterMap unfoldHorizontal horizontals)
+      , g [ class "elm-plot__vertical-grid" ] (List.filterMap unfoldVertical horizontals)
+      ]
+
+
+viewBunchOfLines : Plane -> List Axis.Mark -> List Axis.Mark -> Svg Never
+viewBunchOfLines plane verticals horizontals =
   let
     -- TODO: There gotta be a way to pipe this
-    
+
     viewGridLine direction position { attributes, start, end } =
       direction plane attributes position start end
 
-    assembleGridLine toAxis direction position creator =
-      viewGridLine direction position (creator (raport (toAxis plane)))
+    unfold toAxis direction { position, view } =
+      Maybe.map (\toView -> viewGridLine direction position (toView (raport (toAxis plane)))) view.lineAbove
 
-    unfoldGridline toAxis viewDirectional { position, view } =
-      Maybe.map (assembleGridLine toAxis viewDirectional position) (getGridLine view)
-
-    viewGridLines axis viewDirectional =
-      List.filterMap (unfoldGridline axis viewDirectional)
+    viewGridLines toAxis direction =
+      List.filterMap (unfold toAxis direction)
   in
     g [ class "elm-plot__grid" ]
       [ g [ class "elm-plot__horizontal-grid" ] (viewGridLines .x horizontal horizontals)

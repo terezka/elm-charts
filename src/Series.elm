@@ -8,7 +8,7 @@ import Svg exposing (Svg, Attribute, g, svg, text)
 import Svg.Attributes as Attributes exposing (class, width, height, fill, stroke)
 import Svg.Coordinates exposing (Plane, Point, minimum, maximum)
 import Svg.Plot exposing (..)
-import Axis exposing (Axis, Mark, defaultMarkView)
+import Axis exposing (Axis, Mark, defaultMarkView, gridyMarkView)
 import Internal.Axis exposing
   ( composeAxisView
   , maybeComposeAxisView
@@ -17,6 +17,7 @@ import Internal.Axis exposing
   , viewAxes
   , viewVertical
   , viewGrid
+  , viewBunchOfLines
   )
 
 
@@ -50,8 +51,8 @@ type alias Dot msg =
 dot : Svg msg -> Float -> Float -> Dot msg
 dot view x y =
   { view = Just view
-  , xMark = Nothing
-  , yMark = Nothing
+  , xMark = Just (gridyMarkView x)
+  , yMark = Just (gridyMarkView y)
   , x = x
   , y = y
   }
@@ -94,11 +95,11 @@ view config series data =
       [ width (toString plane.x.length)
       , height (toString plane.y.length)
       ]
-      [ Svg.map never (viewGrid plane .gridBelow dependentAxis.marks yMarks)
+      [ Svg.map never (viewGrid plane dependentAxis.marks yMarks)
       , g [ class "elm-plot__all-series" ] (List.map2 (viewSeries plane) series dots)
       , Svg.map never (viewHorizontal plane (Just dependentAxis))
       , Svg.map never (viewAxes (viewVertical plane) independentAxes)
-      , Svg.map never (viewGrid plane .gridAbove dependentAxis.marks yMarks)
+      , Svg.map never (viewBunchOfLines plane dependentAxis.marks yMarks)
       ]
 
 
