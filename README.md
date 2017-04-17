@@ -23,8 +23,8 @@ and see if it makes sense to allow it.
 Currently the library has the following features:
 
    - Series
-    - Plain and area series.
-    - Interpolations include none (a scatter), linear, and monotone-x.
+      - Plain and area series.
+      - Interpolations include none (a scatter), linear, and monotone-x.
    - Horizontally stacked bar charts.
    
 ## What is the API like?
