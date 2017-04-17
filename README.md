@@ -18,7 +18,7 @@ However, if you find that these opinions are keeping you from doing something
 incredibly vital, then let's [talk about it](https://elmlang.slack.com/messages/elm-plot) 
 and see if it makes sense to allow it.
 
-### Features
+## Features
 
 Currently the library has the following features:
 
@@ -27,7 +27,7 @@ Currently the library has the following features:
     - Interpolations include none (a scatter), linear, and monotone-x.
    - Horizontally stacked bar charts.
    
-### What is the API like?
+## What is the API like?
 
 Aiming to provide you with an easy start, the library has different levels of customizations.
 At a very basic level it could look like this:
@@ -46,7 +46,7 @@ At a very basic level it could look like this:
 
 You're welcome to take a look at the `/docs` folder for more [examples](https://github.com/terezka/elm-plot/tree/master/docs/src)!
 
-### Missing something?
+## Missing something?
 
 Let me know! Open an issue (or PR) or write in [slack](https://elmlang.slack.com/messages/elm-plot). Please don't hesitate, I'm happy to answer any questions or receive feedback!
 
