@@ -58,7 +58,7 @@ type alias LineView =
 {-| -}
 type alias TickView =
   { attributes : List (Attribute Never)
-  , length : Float
+  , length : Int
   }
 
 
