@@ -18,6 +18,7 @@ import Internal.Axis exposing
   , viewVertical
   , viewGrid
   , viewBunchOfLines
+  , apply
   )
 
 
@@ -59,7 +60,7 @@ dot view x y =
 
 
 type alias Config =
-  { dependentAxis : Axis.Raport -> Axis.View }
+  { dependentAxis : Axis.View }
 
 
 
@@ -80,26 +81,26 @@ view config series data =
       planeFromDots series allDots
 
     dependentAxis =
-      composeAxisView plane.x config.dependentAxis (List.filterMap (xMark plane) allDots)
+      composeAxisView config.dependentAxis (List.filterMap (xMark plane) allDots)
 
     independentAxis series dots =
-      maybeComposeAxisView plane.y series.axis (List.filterMap (yMark plane) dots)
+      maybeComposeAxisView series.axis (List.filterMap (yMark plane) dots)
 
     independentAxes =
       List.map2 independentAxis series dots
 
     yMarks =
-      List.concatMap .marks (List.filterMap identity independentAxes)
+      List.concatMap (.marks >> apply plane.x) (List.filterMap identity independentAxes)
   in
     svg
       [ width (toString plane.x.length)
       , height (toString plane.y.length)
       ]
-      [ Svg.map never (viewGrid plane dependentAxis.marks yMarks)
+      [ Svg.map never (viewGrid plane (apply plane.y dependentAxis.marks) yMarks)
       , g [ class "elm-plot__all-series" ] (List.map2 (viewSeries plane) series dots)
       , Svg.map never (viewHorizontal plane (Just dependentAxis))
       , Svg.map never (viewAxes (viewVertical plane) independentAxes)
-      , Svg.map never (viewBunchOfLines plane dependentAxis.marks yMarks)
+      , Svg.map never (viewBunchOfLines plane (apply plane.y dependentAxis.marks) yMarks)
       ]
 
 

@@ -11,7 +11,7 @@ import Regex
 
 {-| -}
 type Axis
-  = Axis (Raport -> View)
+  = Axis View
   | SometimesYouDontHaveAnAxis
 
 
@@ -25,16 +25,16 @@ type alias Raport =
 {-| -}
 type alias View =
   { position : Float -> Float -> Float
-  , axisLine : Maybe LineView
-  , marks : List Mark
+  , line : Maybe (Raport -> LineView)
+  , marks : Raport -> List Mark
   , mirror : Bool
   }
 
 
 {-| -}
 type alias MarkView =
-  { gridBelow : Maybe (List (Attribute Never))
-  , lineAbove : Maybe (Raport -> LineView)
+  { grid : Maybe (List (Attribute Never))
+  , junk : Maybe (Raport -> LineView)
   , label : Maybe (Svg Never)
   , tick : Maybe TickView
   }
@@ -62,17 +62,17 @@ type alias TickView =
   }
 
 
-axis : (Raport -> View) -> Axis
+axis : View -> Axis
 axis =
   Axis
 
 
 {-| -}
-defaultAxis : Raport -> View
-defaultAxis raport =
+defaultAxis : View
+defaultAxis =
   { position = \min max -> min
-  , axisLine = Just (simpleLine raport)
-  , marks = List.map defaultMark (decentPositions raport)
+  , line = Just simpleLine
+  , marks = decentPositions >> List.map defaultMark
   , mirror = False
   }
 
@@ -80,8 +80,8 @@ defaultAxis raport =
 {-| -}
 defaultMarkView : Float -> MarkView
 defaultMarkView position =
-  { gridBelow = Nothing
-  , lineAbove = Nothing
+  { grid = Nothing
+  , junk = Nothing
   , tick = Just simpleTick
   , label = Just (simpleLabel position)
   }
@@ -98,8 +98,8 @@ defaultMark position =
 {-| -}
 gridyMarkView : Float -> MarkView
 gridyMarkView position =
-  { gridBelow = Just [ stroke darkGrey ]
-  , lineAbove = Nothing
+  { grid = Just [ stroke darkGrey ]
+  , junk = Nothing
   , tick = Just simpleTick
   , label = Just (simpleLabel position)
   }

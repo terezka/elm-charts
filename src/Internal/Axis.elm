@@ -32,8 +32,8 @@ viewHorizontal plane sometimesAnAxis =
           ]
     in
       g [ class "elm-plot__horizontal-axis" ]
-        [ viewMaybe axis.axisLine viewAxisLine
-        , g [ class "elm-plot__marks" ] (List.map viewMark axis.marks)
+        [ viewMaybe axis.line (apply plane.x >> viewAxisLine)
+        , g [ class "elm-plot__marks" ] (List.map viewMark (apply plane.x axis.marks))
         ]
 
 
@@ -57,8 +57,8 @@ viewVertical plane sometimesAnAxis =
           ]
     in
       g [ class "elm-plot__vertical-axis" ]
-        [ viewMaybe axis.axisLine viewAxisLine
-        , g [ class "elm-plot__marks" ] (List.map viewMark axis.marks)
+        [ viewMaybe axis.line (apply plane.y >> viewAxisLine)
+        , g [ class "elm-plot__marks" ] (List.map viewMark (apply plane.y axis.marks))
         ]
 
 
@@ -121,10 +121,10 @@ viewGrid : Plane -> List Axis.Mark -> List Axis.Mark -> Svg Never
 viewGrid plane verticals horizontals =
   let
     unfoldHorizontal { position, view } =
-      Maybe.map (\attributes -> fullHorizontal plane attributes position) view.gridBelow
+      Maybe.map (\attributes -> fullHorizontal plane attributes position) view.grid
 
     unfoldVertical { position, view } =
-      Maybe.map (\attributes -> fullVertical plane attributes position) view.gridBelow
+      Maybe.map (\attributes -> fullVertical plane attributes position) view.grid
   in
     g [ class "elm-plot__grid" ]
       [ g [ class "elm-plot__horizontal-grid" ] (List.filterMap unfoldHorizontal horizontals)
@@ -141,7 +141,7 @@ viewBunchOfLines plane verticals horizontals =
       direction plane attributes position start end
 
     unfold toAxis direction { position, view } =
-      Maybe.map (\toView -> viewGridLine direction position (toView (raport (toAxis plane)))) view.lineAbove
+      Maybe.map (\toView -> viewGridLine direction position (toView (raport (toAxis plane)))) view.junk
 
     viewGridLines toAxis direction =
       List.filterMap (unfold toAxis direction)
@@ -163,20 +163,21 @@ raport axis =
   }
 
 
-composeAxisView : Coordinates.Axis -> (Axis.Raport -> Axis.View) -> List Axis.Mark -> Axis.View
-composeAxisView axis creator marks =
-  let
-    axisView =
-      creator (raport axis)
-  in
-    { axisView | marks = axisView.marks ++ marks }
+apply : Coordinates.Axis -> (Axis.Raport -> a) -> a
+apply axis toStuff =
+  toStuff (raport axis)
 
 
-maybeComposeAxisView : Coordinates.Axis -> Axis.Axis -> List Axis.Mark -> Maybe Axis.View
-maybeComposeAxisView axis sometimesAnAxis marks =
+composeAxisView : Axis.View -> List Axis.Mark -> Axis.View
+composeAxisView axisView marks =
+  { axisView | marks = axisView.marks >> List.append marks }
+
+
+maybeComposeAxisView : Axis.Axis -> List Axis.Mark -> Maybe Axis.View
+maybeComposeAxisView sometimesAnAxis marks =
   case sometimesAnAxis of
-    Axis creator ->
-      Just (composeAxisView axis creator marks)
+    Axis axisView ->
+      Just (composeAxisView axisView marks)
 
     SometimesYouDontHaveAnAxis ->
       Nothing
