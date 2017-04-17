@@ -10,14 +10,13 @@ import Svg.Coordinates exposing (Plane, Point, minimum, maximum)
 import Svg.Plot exposing (..)
 import Axis exposing (Axis, Mark, defaultMarkView, gridyMarkView)
 import Internal.Axis exposing
-  ( composeAxisView
-  , maybeComposeAxisView
-  , raport
-  , viewHorizontal
-  , viewAxes
-  , viewVertical
+  ( viewHorizontal
+  , viewVerticals
   , viewGrid
   , viewBunchOfLines
+  , compose
+  , maybeCompose
+  , raport
   , apply
   )
 
@@ -53,7 +52,7 @@ dot : Svg msg -> Float -> Float -> Dot msg
 dot view x y =
   { view = Just view
   , xMark = Just (gridyMarkView x)
-  , yMark = Just (gridyMarkView y)
+  , yMark = Nothing
   , x = x
   , y = y
   }
@@ -81,26 +80,29 @@ view config series data =
       planeFromDots series allDots
 
     dependentAxis =
-      composeAxisView config.dependentAxis (List.filterMap (xMark plane) allDots)
+      compose config.dependentAxis (List.filterMap (xMark plane) allDots)
 
     independentAxis series dots =
-      maybeComposeAxisView series.axis (List.filterMap (yMark plane) dots)
+      maybeCompose series.axis (List.filterMap (yMark plane) dots)
 
     independentAxes =
-      List.map2 independentAxis series dots
+      List.filterMap identity (List.map2 independentAxis series dots)
+
+    xMarks =
+      apply plane.y dependentAxis.marks
 
     yMarks =
-      List.concatMap (.marks >> apply plane.x) (List.filterMap identity independentAxes)
+      List.concatMap (.marks >> apply plane.x) independentAxes
   in
     svg
       [ width (toString plane.x.length)
       , height (toString plane.y.length)
       ]
-      [ Svg.map never (viewGrid plane (apply plane.y dependentAxis.marks) yMarks)
+      [ Svg.map never (viewGrid plane xMarks yMarks)
       , g [ class "elm-plot__all-series" ] (List.map2 (viewSeries plane) series dots)
-      , Svg.map never (viewHorizontal plane (Just dependentAxis))
-      , Svg.map never (viewAxes (viewVertical plane) independentAxes)
-      , Svg.map never (viewBunchOfLines plane (apply plane.y dependentAxis.marks) yMarks)
+      , Svg.map never (viewHorizontal plane dependentAxis)
+      , Svg.map never (viewVerticals plane independentAxes)
+      , Svg.map never (viewBunchOfLines plane xMarks yMarks)
       ]
 
 

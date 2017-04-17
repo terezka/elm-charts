@@ -12,59 +12,57 @@ import Axis exposing (Axis(..))
 -- VIEWS
 
 
-viewHorizontal : Plane -> Maybe Axis.View -> Svg Never
-viewHorizontal plane sometimesAnAxis =
-  viewMaybe sometimesAnAxis <| \axis ->
-    let
-      axisPosition =
-        axis.position plane.y.min plane.y.max
+viewHorizontal : Plane -> Axis.View -> Svg Never
+viewHorizontal plane axis =
+  let
+    axisPosition =
+      axis.position plane.y.min plane.y.max
 
-      at x =
-        { x = x, y = axisPosition }
+    at x =
+      { x = x, y = axisPosition }
 
-      viewAxisLine { attributes, start, end } =
-        horizontal plane attributes axisPosition start end
+    viewAxisLine { attributes, start, end } =
+      horizontal plane attributes axisPosition start end
 
-      viewMark { position, view } =
-        g [ class "elm-plot__mark" ]
-          [ viewMaybe view.tick (viewHorizontalTick plane axis (at position))
-          , viewMaybe view.label (viewHorizontalLabel plane axis (at position))
-          ]
-    in
-      g [ class "elm-plot__horizontal-axis" ]
-        [ viewMaybe axis.line (apply plane.x >> viewAxisLine)
-        , g [ class "elm-plot__marks" ] (List.map viewMark (apply plane.x axis.marks))
+    viewMark { position, view } =
+      g [ class "elm-plot__mark" ]
+        [ viewMaybe view.tick (viewHorizontalTick plane axis (at position))
+        , viewMaybe view.label (viewHorizontalLabel plane axis (at position))
         ]
+  in
+    g [ class "elm-plot__axis--horizontal" ]
+      [ viewMaybe axis.line (apply plane.x >> viewAxisLine)
+      , g [ class "elm-plot__marks" ] (List.map viewMark (apply plane.x axis.marks))
+      ]
 
 
-viewVertical : Plane -> Maybe Axis.View -> Svg Never
-viewVertical plane sometimesAnAxis =
-  viewMaybe sometimesAnAxis <| \axis ->
-    let
-      axisPosition =
-        axis.position plane.x.min plane.x.max
+viewVertical : Plane -> Axis.View -> Svg Never
+viewVertical plane axis =
+  let
+    axisPosition =
+      axis.position plane.x.min plane.x.max
 
-      at y =
-        { x = axisPosition, y = y }
+    at y =
+      { x = axisPosition, y = y }
 
-      viewAxisLine { attributes, start, end } =
-        vertical plane attributes axisPosition start end
+    viewAxisLine { attributes, start, end } =
+      vertical plane attributes axisPosition start end
 
-      viewMark { position, view } =
-        g [ class "elm-plot__mark" ]
-          [ viewMaybe view.tick (viewVerticalTick plane axis (at position))
-          , viewMaybe view.label (viewVerticalLabel plane axis (at position))
-          ]
-    in
-      g [ class "elm-plot__vertical-axis" ]
-        [ viewMaybe axis.line (apply plane.y >> viewAxisLine)
-        , g [ class "elm-plot__marks" ] (List.map viewMark (apply plane.y axis.marks))
+    viewMark { position, view } =
+      g [ class "elm-plot__mark" ]
+        [ viewMaybe view.tick (viewVerticalTick plane axis (at position))
+        , viewMaybe view.label (viewVerticalLabel plane axis (at position))
         ]
+  in
+    g [ class "elm-plot__axis--vertical" ]
+      [ viewMaybe axis.line (apply plane.y >> viewAxisLine)
+      , g [ class "elm-plot__marks" ] (List.map viewMark (apply plane.y axis.marks))
+      ]
 
 
-viewAxes : (Maybe Axis.View -> Svg Never) -> List (Maybe Axis.View) -> Svg Never
-viewAxes view axes =
-  g [ class "elm-plot__independent-axes" ] (List.map view axes)
+viewVerticals : Plane -> List Axis.View -> Svg Never
+viewVerticals plane axes =
+  g [ class "elm-plot__axes--vertical" ] (List.map (viewVertical plane) axes)
 
 
 
@@ -127,8 +125,8 @@ viewGrid plane verticals horizontals =
       Maybe.map (\attributes -> fullVertical plane attributes position) view.grid
   in
     g [ class "elm-plot__grid" ]
-      [ g [ class "elm-plot__horizontal-grid" ] (List.filterMap unfoldHorizontal horizontals)
-      , g [ class "elm-plot__vertical-grid" ] (List.filterMap unfoldVertical horizontals)
+      [ g [ class "elm-plot__grid--horizontal" ] (List.filterMap unfoldHorizontal horizontals)
+      , g [ class "elm-plot__grid--vertical" ] (List.filterMap unfoldVertical horizontals)
       ]
 
 
@@ -146,9 +144,9 @@ viewBunchOfLines plane verticals horizontals =
     viewGridLines toAxis direction =
       List.filterMap (unfold toAxis direction)
   in
-    g [ class "elm-plot__grid" ]
-      [ g [ class "elm-plot__horizontal-grid" ] (viewGridLines .x horizontal horizontals)
-      , g [ class "elm-plot__vertical-grid" ] (viewGridLines .y vertical verticals)
+    g [ class "elm-plot__junk-lines" ]
+      [ g [ class "elm-plot__junk-lines--horizontal" ] (viewGridLines .x horizontal horizontals)
+      , g [ class "elm-plot__junk-lines--vertical" ] (viewGridLines .y vertical verticals)
       ]
 
 
@@ -168,16 +166,16 @@ apply axis toStuff =
   toStuff (raport axis)
 
 
-composeAxisView : Axis.View -> List Axis.Mark -> Axis.View
-composeAxisView axisView marks =
+compose : Axis.View -> List Axis.Mark -> Axis.View
+compose axisView marks =
   { axisView | marks = axisView.marks >> List.append marks }
 
 
-maybeComposeAxisView : Axis.Axis -> List Axis.Mark -> Maybe Axis.View
-maybeComposeAxisView sometimesAnAxis marks =
+maybeCompose : Axis.Axis -> List Axis.Mark -> Maybe Axis.View
+maybeCompose sometimesAnAxis marks =
   case sometimesAnAxis of
     Axis axisView ->
-      Just (composeAxisView axisView marks)
+      Just (compose axisView marks)
 
     SometimesYouDontHaveAnAxis ->
       Nothing

@@ -62,6 +62,7 @@ type alias TickView =
   }
 
 
+{-| -}
 axis : View -> Axis
 axis =
   Axis
@@ -98,8 +99,8 @@ defaultMark position =
 {-| -}
 gridyMarkView : Float -> MarkView
 gridyMarkView position =
-  { grid = Just [ stroke darkGrey ]
-  , junk = Nothing
+  { grid = Nothing
+  , junk = Just simpleLine
   , tick = Just simpleTick
   , label = Just (simpleLabel position)
   }
