@@ -50,8 +50,8 @@ type alias Dot msg =
 dot : Svg msg -> Float -> Float -> Dot msg
 dot view x y =
   { view = Just view
-  , xMark = Just (defaultMarkView x)
-  , yMark = Just (defaultMarkView y)
+  , xMark = Nothing
+  , yMark = Nothing
   , x = x
   , y = y
   }
@@ -94,7 +94,8 @@ view config series data =
       [ width (toString plane.x.length)
       , height (toString plane.y.length)
       ]
-      [ g [ class "elm-plot__all-series" ] (List.map2 (viewSeries plane) series dots)
+      [ Svg.map never (viewGrid plane .gridBelow dependentAxis.marks yMarks)
+      , g [ class "elm-plot__all-series" ] (List.map2 (viewSeries plane) series dots)
       , Svg.map never (viewHorizontal plane (Just dependentAxis))
       , Svg.map never (viewAxes (viewVertical plane) independentAxes)
       , Svg.map never (viewGrid plane .gridAbove dependentAxis.marks yMarks)

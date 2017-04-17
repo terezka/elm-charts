@@ -99,7 +99,7 @@ defaultMark position =
 gridyMarkView : Float -> MarkView
 gridyMarkView position =
   { gridBelow = Just simpleLine
-  , gridAbove = Just simpleLine
+  , gridAbove = Nothing
   , tick = Just simpleTick
   , label = Just (simpleLabel position)
   }
