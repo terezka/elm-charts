@@ -9,7 +9,7 @@ not only aim to provide tools to make whatever visualization you need, but also
 guide you to make better visualizations. _Better_ is of course subjective, but
 this library chooses to follow the school of [Edward Tufte](https://en.wikipedia.org/wiki/Edward_Tufte), 
 author of the book [The Visual Display of Quantitative Information](https://www.edwardtufte.com/tufte/books_vdqi).
-Generally, his ideas of ideal visualizations are summarized well by the following quote:
+Generally, his ideas on ideal visualizations are summarized well by the following quote:
 
 > Graphical excellence is that which gives to the viewer the greatest number of 
 ideas in the shortest time with the least ink in the smallest space. - Edward Tufte
