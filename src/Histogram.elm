@@ -11,7 +11,7 @@ import Svg.Plot exposing (..)
 import Axis exposing (Axis, Mark, defaultMarkView, gridyMarkView)
 import Internal.Axis exposing
   ( viewHorizontal
-  , viewVerticals
+  , viewVertical
   , viewGrid
   , viewBunchOfLines
   , compose
@@ -73,7 +73,12 @@ view config histograms data =
 
     mark position =
       { position = position
-      , view = Axis.MarkView Nothing Nothing (Just (config.dependentAxis.mark.label position)) config.dependentAxis.mark.tick
+      , view =
+          { grid = Nothing
+          , junk = Nothing
+          , label = Just (config.dependentAxis.mark.label position)
+          , tick = config.dependentAxis.mark.tick
+          }
       }
 
     dependentAxis =
@@ -83,21 +88,17 @@ view config histograms data =
       , mirror = False
       }
 
-    independentAxes =
-      [ config.independentAxis ]
-
     yMarks =
-      List.concatMap (.marks >> apply plane.x) independentAxes
+      apply plane.x config.independentAxis.marks
   in
     svg
       [ width (toString plane.x.length)
       , height (toString plane.y.length)
       ]
       [ Svg.map never (viewGrid plane [] yMarks)
-      , g [ class "elm-plot__all-histograms" ]
-          (List.map (viewHistogram plane config) bars)
+      , g [ class "elm-plot__all-histograms" ] (List.map (viewHistogram plane config) bars)
       , Svg.map never (viewHorizontal plane dependentAxis)
-      , Svg.map never (viewVerticals plane independentAxes)
+      , Svg.map never (viewVertical plane config.independentAxis)
       , Svg.map never (viewBunchOfLines plane [] yMarks)
       ]
 
