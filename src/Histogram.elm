@@ -52,6 +52,7 @@ type alias DependentAxis =
 {-| -}
 type alias Config =
   { interval : Float
+  , intervalBegin : Float
   , independentAxis : Axis.View
   , dependentAxis : DependentAxis
   }
@@ -109,7 +110,11 @@ view config histograms data =
 
 viewHistogram : Plane -> Config -> List (Bar msg) -> Svg msg
 viewHistogram plane config bars =
-  Svg.Plot.histogram plane { bars = bars, interval = config.interval }
+  Svg.Plot.histogram plane
+    { bars = bars
+    , intervalBegin = config.intervalBegin
+    , interval = config.interval
+    }
 
 
 
@@ -122,8 +127,8 @@ planeFromBars config bars =
     { marginLower = 40
     , marginUpper = 40
     , length = 600
-    , min = 0
-    , max = config.interval * (numberOfBars bars)
+    , min = config.intervalBegin
+    , max = config.intervalBegin + config.interval * (numberOfBars bars)
     }
   , y =
     { marginLower = 40
@@ -137,7 +142,6 @@ planeFromBars config bars =
 
 
 -- HELPERS
-
 
 
 numberOfBars : List (List (Bar msg)) -> Float
