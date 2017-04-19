@@ -1,7 +1,7 @@
-module Histogram exposing (Histogram, Bar, view, bar)
+module Grouped exposing (Grouped, Group, Bar, view, bar)
 
 {-|
-@docs Histogram, Bar, view, bar
+@docs Grouped, Bar, view
 -}
 
 import Svg exposing (Svg, Attribute, g, svg, text)
@@ -21,10 +21,17 @@ import Internal.Axis exposing
   )
 
 
+{-| -}
+type alias Group msg =
+  { bars : List (Bar msg)
+  , label : String
+  }
 
 {-| -}
-type alias Histogram data msg =
-  data -> List (Bar msg)
+type alias Grouped data msg =
+  { toGroups : data -> List (Group msg)
+  , width : Float
+  }
 
 
 {-| -}
@@ -51,16 +58,14 @@ type alias DependentAxis =
 
 {-| -}
 type alias DependentMark =
-  { label : Float -> Svg Never
+  { label : String -> Svg Never
   , tick : Maybe Axis.TickView
   }
 
 
 {-| -}
 type alias Config =
-  { interval : Float
-  , intervalBegin : Float
-  , independentAxis : Axis.View
+  { independentAxis : Axis.View
   , dependentAxis : DependentAxis
   }
 
@@ -70,21 +75,21 @@ type alias Config =
 
 
 {-| -}
-view : Config -> List (Histogram data msg) -> data -> Svg msg
-view config histograms data =
+view : Config -> Grouped data msg -> data -> Svg msg
+view config grouped data =
   let
-    bars =
-      List.map (\h -> h data) histograms
+    groups =
+      grouped.toGroups data
 
     plane =
-      planeFromBars config bars
+      planeFromBars config groups
 
-    mark position =
-      { position = position
+    mark index group =
+      { position = toFloat index + 1
       , view =
           { grid = Nothing
           , junk = Nothing
-          , label = Just (config.dependentAxis.mark.label position)
+          , label = Just (config.dependentAxis.mark.label group.label)
           , tick = config.dependentAxis.mark.tick
           }
       }
@@ -92,7 +97,7 @@ view config histograms data =
     dependentAxis =
       { position = \_ _ -> 0
       , line = config.dependentAxis.line
-      , marks = Axis.interval 0 config.interval >> List.map mark
+      , marks = \_ -> List.indexedMap mark groups
       , mirror = False
       }
 
@@ -104,7 +109,7 @@ view config histograms data =
       , height (toString plane.y.length)
       ]
       [ Svg.map never (viewGrid plane [] yMarks)
-      , g [ class "elm-plot__all-histograms" ] (List.map (viewHistogram plane config) bars)
+      , viewGrouped plane grouped groups
       , Svg.map never (viewHorizontal plane dependentAxis)
       , Svg.map never (viewVertical plane config.independentAxis)
       , Svg.map never (viewBunchOfLines plane [] yMarks)
@@ -115,12 +120,11 @@ view config histograms data =
 -- VIEW HISTOGRAM
 
 
-viewHistogram : Plane -> Config -> List (Bar msg) -> Svg msg
-viewHistogram plane config bars =
-  Svg.Plot.histogram plane
-    { bars = bars
-    , intervalBegin = config.intervalBegin
-    , interval = config.interval
+viewGrouped : Plane -> Grouped data msg -> List (Group msg) -> Svg msg
+viewGrouped plane grouped groups =
+  Svg.Plot.grouped plane
+    { groups = List.map .bars groups
+    , width = grouped.width
     }
 
 
@@ -128,29 +132,20 @@ viewHistogram plane config bars =
 -- PLANE
 
 
-planeFromBars : Config -> List (List (Bar msg)) -> Plane
-planeFromBars config bars =
+planeFromBars : Config -> List (Group msg) -> Plane
+planeFromBars config groups =
   { x =
     { marginLower = 40
     , marginUpper = 40
     , length = 600
-    , min = config.intervalBegin
-    , max = config.intervalBegin + config.interval * (numberOfBars bars)
+    , min = 0.5
+    , max = toFloat (List.length groups) + 0.5
     }
   , y =
     { marginLower = 40
     , marginUpper = 40
     , length = 300
-    , min = min 0 (minimum .y (List.concat bars))
-    , max = max 0 (maximum .y (List.concat bars))
+    , min = min 0 (minimum .y (List.concatMap .bars groups))
+    , max = max 0 (maximum .y (List.concatMap .bars groups))
     }
   }
-
-
-
--- HELPERS
-
-
-numberOfBars : List (List (Bar msg)) -> Float
-numberOfBars =
-  List.foldl (List.length >> toFloat >> max) 1

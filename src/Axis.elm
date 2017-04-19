@@ -137,6 +137,12 @@ simpleLabel position =
 
 
 {-| -}
+label : String -> Svg Never
+label string =
+  viewLabel [] string
+
+
+{-| -}
 viewLabel : List (Svg.Attribute msg) -> String -> Svg msg
 viewLabel attributes string =
   text_ attributes [ tspan [] [ text string ] ]
