@@ -89,17 +89,17 @@ lengthOfTick { mirror } length =
 
 
 viewHorizontalLabel : Plane -> Axis.View -> Point -> Svg Never -> Svg Never
-viewHorizontalLabel plot { mirror } position view =
+viewHorizontalLabel plane { mirror } position view =
   let
     offset =
       if mirror then -10 else 20
   in
-    g [ placeWithOffset plot position 0 offset , style "text-anchor: middle;" ]
+    g [ placeWithOffset plane position 0 offset, style "text-anchor: middle;" ]
       [ view ]
 
 
 viewVerticalLabel : Plane -> Axis.View -> Point -> Svg Never -> Svg Never
-viewVerticalLabel plot { mirror } position view =
+viewVerticalLabel plane { mirror } position view =
   let
     anchorOfLabel =
       if mirror then "text-anchor: start;" else "text-anchor: end;"
@@ -107,7 +107,7 @@ viewVerticalLabel plot { mirror } position view =
     offset =
       if mirror then 20 else -10
   in
-    g [ placeWithOffset plot position offset 5, style anchorOfLabel ]
+    g [ placeWithOffset plane position offset 5, style anchorOfLabel ]
       [ view ]
 
 
