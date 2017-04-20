@@ -5,7 +5,7 @@ import Html.Attributes exposing (style)
 import Svg exposing (Svg)
 import Svg.Attributes as Attributes exposing (fill)
 import Series exposing (..)
-import Axis exposing (..)
+
 
 data : List ( Float, Float )
 data =

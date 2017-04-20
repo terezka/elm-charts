@@ -5,14 +5,39 @@ import Svg.Attributes exposing (class, x1, x2, y1, y2, style, fill)
 import Svg.Coordinates as Coordinates exposing (Plane, Point, place, placeWithOffset)
 import Svg.Plot exposing (linear, clear, xTick, yTick, horizontal, vertical, fullHorizontal, fullVertical)
 import Internal.Utils exposing (viewMaybe)
-import Axis exposing (Axis(..))
+import Axis exposing (..)
+
+
+{-| -}
+type alias View =
+  { position : Float -> Float -> Float
+  , line : Maybe (Raport -> LineView)
+  , marks : Raport -> List Mark
+  , mirror : Bool
+  }
+
+
+{-| -}
+type alias MarkView =
+  { grid : Maybe (List (Attribute Never))
+  , junk : Maybe (Raport -> LineView)
+  , label : Maybe (Svg Never)
+  , tick : Maybe TickView
+  }
+
+
+{-| -}
+type alias Mark =
+  { position : Float
+  , view : MarkView
+  }
 
 
 
 -- VIEWS
 
 
-viewHorizontal : Plane -> Axis.View -> Svg Never
+viewHorizontal : Plane -> View -> Svg Never
 viewHorizontal plane axis =
   let
     axisPosition =
@@ -36,7 +61,7 @@ viewHorizontal plane axis =
       ]
 
 
-viewVertical : Plane -> Axis.View -> Svg Never
+viewVertical : Plane -> View -> Svg Never
 viewVertical plane axis =
   let
     axisPosition =
@@ -60,7 +85,7 @@ viewVertical plane axis =
       ]
 
 
-viewVerticals : Plane -> List Axis.View -> Svg Never
+viewVerticals : Plane -> List View -> Svg Never
 viewVerticals plane axes =
   g [ class "elm-plot__axes--vertical" ] (List.map (viewVertical plane) axes)
 
@@ -69,17 +94,17 @@ viewVerticals plane axes =
 -- VIEW TICK
 
 
-viewHorizontalTick : Plane -> Axis.View -> Point -> Axis.TickView -> Svg Never
+viewHorizontalTick : Plane -> View -> Point -> Axis.TickView -> Svg Never
 viewHorizontalTick plane view { x, y } { attributes, length } =
   xTick plane (lengthOfTick view length) attributes y x
 
 
-viewVerticalTick : Plane -> Axis.View -> Point -> Axis.TickView -> Svg Never
+viewVerticalTick : Plane -> View -> Point -> Axis.TickView -> Svg Never
 viewVerticalTick plane view { x, y } { attributes, length } =
   yTick plane (lengthOfTick view length) attributes x y
 
 
-lengthOfTick : Axis.View -> Int -> Int
+lengthOfTick : View -> Int -> Int
 lengthOfTick { mirror } length =
   if mirror then -length else length
 
@@ -88,7 +113,7 @@ lengthOfTick { mirror } length =
 -- VIEW LABEL
 
 
-viewHorizontalLabel : Plane -> Axis.View -> Point -> Svg Never -> Svg Never
+viewHorizontalLabel : Plane -> View -> Point -> Svg Never -> Svg Never
 viewHorizontalLabel plane { mirror } position view =
   let
     offset =
@@ -98,7 +123,7 @@ viewHorizontalLabel plane { mirror } position view =
       [ view ]
 
 
-viewVerticalLabel : Plane -> Axis.View -> Point -> Svg Never -> Svg Never
+viewVerticalLabel : Plane -> View -> Point -> Svg Never -> Svg Never
 viewVerticalLabel plane { mirror } position view =
   let
     anchorOfLabel =
@@ -115,7 +140,7 @@ viewVerticalLabel plane { mirror } position view =
 -- VIEW GRID
 
 
-viewGrid : Plane -> List Axis.Mark -> List Axis.Mark -> Svg Never
+viewGrid : Plane -> List Mark -> List Mark -> Svg Never
 viewGrid plane verticals horizontals =
   let
     unfoldHorizontal { position, view } =
@@ -130,7 +155,7 @@ viewGrid plane verticals horizontals =
       ]
 
 
-viewBunchOfLines : Plane -> List Axis.Mark -> List Axis.Mark -> Svg Never
+viewBunchOfLines : Plane -> List Mark -> List Mark -> Svg Never
 viewBunchOfLines plane verticals horizontals =
   let
     -- TODO: There gotta be a way to pipe this
@@ -166,16 +191,6 @@ apply axis toStuff =
   toStuff (raport axis)
 
 
-compose : Axis.View -> List Axis.Mark -> Axis.View
+compose : View -> List Mark -> View
 compose axisView marks =
   { axisView | marks = axisView.marks >> List.append marks }
-
-
-maybeCompose : Axis.Axis -> List Axis.Mark -> Maybe Axis.View
-maybeCompose sometimesAnAxis marks =
-  case sometimesAnAxis of
-    Axis axisView ->
-      Just (compose axisView marks)
-
-    SometimesYouDontHaveAnAxis ->
-      Nothing

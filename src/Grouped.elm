@@ -1,4 +1,4 @@
-module Grouped exposing (Grouped, Group, Bar, view, bar)
+module Grouped exposing (..)
 
 {-|
 @docs Grouped, Bar, view
@@ -8,14 +8,13 @@ import Svg exposing (Svg, Attribute, g, svg, text)
 import Svg.Attributes as Attributes exposing (class, width, height, fill, stroke)
 import Svg.Coordinates exposing (Plane, Point, minimum, maximum)
 import Svg.Plot exposing (..)
-import Axis exposing (Axis, Mark, defaultMarkView, gridyMarkView)
+import Axis exposing (..)
 import Internal.Axis exposing
   ( viewHorizontal
   , viewVertical
   , viewGrid
   , viewBunchOfLines
   , compose
-  , maybeCompose
   , raport
   , apply
   )
@@ -64,9 +63,62 @@ type alias DependentMark =
 
 
 {-| -}
+type alias IndependentAxis =
+  { position : Float -> Float -> Float
+  , line : Maybe (Raport -> LineView)
+  , marks : Raport -> List Mark
+  , mirror : Bool
+  }
+
+
+{-| -}
+type alias MarkView =
+  { grid : Maybe (List (Attribute Never))
+  , junk : Maybe (Raport -> LineView)
+  , label : Maybe (Svg Never)
+  , tick : Maybe TickView
+  }
+
+
+{-| -}
+type alias Mark =
+  { position : Float
+  , view : MarkView
+  }
+
+
+{-| -}
 type alias Config =
-  { independentAxis : Axis.View
+  { independentAxis : IndependentAxis
   , dependentAxis : DependentAxis
+  }
+
+
+{-| -}
+defaultAxis : IndependentAxis
+defaultAxis =
+  { position = \min max -> min
+  , line = Just simpleLine
+  , marks = decentPositions >> List.map defaultMark
+  , mirror = False
+  }
+
+
+{-| -}
+defaultMarkView : Float -> MarkView
+defaultMarkView position =
+  { grid = Nothing
+  , junk = Nothing
+  , tick = Just simpleTick
+  , label = Just (simpleLabel position)
+  }
+
+
+{-| -}
+defaultMark : Float -> Mark
+defaultMark position =
+  { position = position
+  , view = defaultMarkView position
   }
 
 

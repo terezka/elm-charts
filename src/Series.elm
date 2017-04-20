@@ -1,21 +1,20 @@
-module Series exposing (Series, Interpolation(..), Dot, view, dot)
+module Series exposing (Series, Interpolation(..), Dot, view, dot, Axis, axis, defaultAxis)
 
 {-|
-@docs Series, Interpolation, Dot, view, dot
+@docs Series, Interpolation, Dot, view, dot, Axis, axis, defaultAxis
 -}
 
 import Svg exposing (Svg, Attribute, g, svg, text)
 import Svg.Attributes as Attributes exposing (class, width, height, fill, stroke)
 import Svg.Coordinates exposing (Plane, Point, minimum, maximum)
 import Svg.Plot exposing (..)
-import Axis exposing (Axis, Mark, defaultMarkView, gridyMarkView)
+import Axis exposing (..)
 import Internal.Axis exposing
   ( viewHorizontal
   , viewVerticals
   , viewGrid
   , viewBunchOfLines
   , compose
-  , maybeCompose
   , raport
   , apply
   )
@@ -40,8 +39,8 @@ type Interpolation msg
 {-| -}
 type alias Dot msg =
   { view : Maybe (Svg msg)
-  , xMark : Maybe Axis.MarkView
-  , yMark : Maybe Axis.MarkView
+  , xMark : Maybe MarkView
+  , yMark : Maybe MarkView
   , x : Float
   , y : Float
   }
@@ -59,7 +58,95 @@ dot view x y =
 
 
 type alias Config =
-  { dependentAxis : Axis.View }
+  { dependentAxis : AxisView }
+
+
+
+-- AXIS
+
+
+{-| -}
+type Axis
+  = Axis AxisView
+  | SometimesYouDontHaveAnAxis
+
+
+
+{-| -}
+type alias AxisView =
+  { position : Float -> Float -> Float
+  , line : Maybe (Raport -> LineView)
+  , marks : Raport -> List Mark
+  , mirror : Bool
+  }
+
+
+{-| -}
+type alias MarkView =
+  { grid : Maybe (List (Attribute Never))
+  , junk : Maybe (Raport -> LineView)
+  , label : Maybe (Svg Never)
+  , tick : Maybe TickView
+  }
+
+
+{-| -}
+type alias Mark =
+  { position : Float
+  , view : MarkView
+  }
+
+
+{-| -}
+axis : AxisView -> Axis
+axis =
+  Axis
+
+
+{-| -}
+defaultAxis : AxisView
+defaultAxis =
+  { position = \min max -> min
+  , line = Just simpleLine
+  , marks = decentPositions >> List.map defaultMark
+  , mirror = False
+  }
+
+
+{-| -}
+defaultMarkView : Float -> MarkView
+defaultMarkView position =
+  { grid = Nothing
+  , junk = Nothing
+  , tick = Just simpleTick
+  , label = Just (simpleLabel position)
+  }
+
+
+{-| -}
+defaultMark : Float -> Mark
+defaultMark position =
+  { position = position
+  , view = defaultMarkView position
+  }
+
+
+{-| -}
+gridyMarkView : Float -> MarkView
+gridyMarkView position =
+  { grid = Nothing
+  , junk = Just simpleLine
+  , tick = Just simpleTick
+  , label = Just (simpleLabel position)
+  }
+
+
+{-| -}
+gridyMark : Float -> Mark
+gridyMark position =
+  { position = position
+  , view = gridyMarkView position
+  }
 
 
 
@@ -192,3 +279,13 @@ getDots data { toDots } =
 hasFill : List (Attribute msg) -> Bool
 hasFill attributes =
   List.any (toString >> String.contains "realKey = \"fill\"") attributes
+
+
+maybeCompose : Axis -> List Mark -> Maybe AxisView
+maybeCompose sometimesAnAxis marks =
+  case sometimesAnAxis of
+    Axis axisView ->
+      Just (compose axisView marks)
+
+    SometimesYouDontHaveAnAxis ->
+      Nothing
