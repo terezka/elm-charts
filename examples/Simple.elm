@@ -6,7 +6,7 @@ import Svg exposing (Svg)
 import Svg.Attributes as Attributes exposing (fill, stroke)
 import Series exposing (..)
 import Colors exposing (..)
-
+import Axis exposing (..)
 
 data =
   { first =
@@ -23,6 +23,15 @@ data =
     ]
   }
 
+
+{-| -}
+defaultAxisView : AxisView
+defaultAxisView =
+  { position = \min max -> min
+  , line = Just simpleLine
+  , marks = decentPositions >> List.map gridMark
+  , mirror = False
+  }
 
 
 main : Html msg

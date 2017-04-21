@@ -1,7 +1,7 @@
-module Series exposing (Series, Interpolation(..), Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig)
+module Series exposing (Series, Interpolation(..), Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig, gridMark, AxisView)
 
 {-|
-@docs Series, Interpolation, Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig
+@docs Series, Interpolation, Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig, gridMark, AxisView
 -}
 
 import Svg exposing (Svg, Attribute, g, svg, text)
@@ -9,6 +9,7 @@ import Svg.Attributes as Attributes exposing (class, width, height, fill, stroke
 import Svg.Coordinates exposing (Plane, Point, minimum, maximum)
 import Svg.Plot exposing (..)
 import Axis exposing (..)
+import Colors exposing (..)
 import Internal.Axis exposing
   ( viewHorizontal
   , viewVerticals
@@ -134,20 +135,20 @@ defaultMark position =
 
 
 {-| -}
-gridyMarkView : Float -> MarkView
-gridyMarkView position =
-  { grid = Nothing
-  , junk = Just simpleLine
+gridMarkView : Float -> MarkView
+gridMarkView position =
+  { grid = Just [ stroke grey ]
+  , junk = Nothing
   , tick = Just simpleTick
   , label = Just (simpleLabel position)
   }
 
 
 {-| -}
-gridyMark : Float -> Mark
-gridyMark position =
+gridMark : Float -> Mark
+gridMark position =
   { position = position
-  , view = gridyMarkView position
+  , view = gridMarkView position
   }
 
 
