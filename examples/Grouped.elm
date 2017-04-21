@@ -32,7 +32,7 @@ group index data =
 independentAxis : IndependentAxis
 independentAxis =
   { position = \min max -> min
-  , line = Just simpleLine
+  , line = Nothing
   , marks = \_ -> List.map independentMark [ 0, 1, 2, 3, 4, 5 ]
   , mirror = False
   }

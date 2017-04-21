@@ -1,7 +1,7 @@
-module Series exposing (Series, Interpolation(..), Dot, view, dot, Axis, axis, defaultAxis)
+module Series exposing (Series, Interpolation(..), Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig)
 
 {-|
-@docs Series, Interpolation, Dot, view, dot, Axis, axis, defaultAxis
+@docs Series, Interpolation, Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig
 -}
 
 import Svg exposing (Svg, Attribute, g, svg, text)
@@ -50,15 +50,11 @@ type alias Dot msg =
 dot : Svg msg -> Float -> Float -> Dot msg
 dot view x y =
   { view = Just view
-  , xMark = Just (gridyMarkView x)
+  , xMark = Nothing
   , yMark = Nothing
   , x = x
   , y = y
   }
-
-
-type alias Config =
-  { dependentAxis : AxisView }
 
 
 
@@ -104,8 +100,14 @@ axis =
 
 
 {-| -}
-defaultAxis : AxisView
-defaultAxis =
+sometimesYouDontHaveAnAxis : Axis
+sometimesYouDontHaveAnAxis =
+  SometimesYouDontHaveAnAxis
+
+
+{-| -}
+defaultAxisView : AxisView
+defaultAxisView =
   { position = \min max -> min
   , line = Just simpleLine
   , marks = decentPositions >> List.map defaultMark
@@ -150,12 +152,33 @@ gridyMark position =
 
 
 
+-- CONFIG
+
+
+{-| -}
+type alias Config =
+  { dependentAxis : AxisView }
+
+
+{-| -}
+defaultConfig : Config
+defaultConfig =
+  { dependentAxis = defaultAxisView }
+
+
+
 -- VIEW
 
 
 {-| -}
-view : Config -> List (Series data msg) -> data -> Svg msg
-view config series data =
+view : List (Series data msg) -> data -> Svg msg
+view =
+  viewCustom defaultConfig
+
+
+{-| -}
+viewCustom : Config -> List (Series data msg) -> data -> Svg msg
+viewCustom config series data =
   let
     dots =
       List.map (getDots data) series
