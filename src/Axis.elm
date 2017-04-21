@@ -84,7 +84,7 @@ closestToZero min max =
 -}
 decentPositions : Raport -> List Float
 decentPositions raport =
-  interval 0 (niceInterval raport.min raport.max 10) raport
+  interval raport.min (niceInterval raport.min raport.max 10) raport
 
 
 {-| For ticks with a particular interval. The first value passed if the offset,
@@ -93,13 +93,21 @@ decentPositions raport =
    at every 2 * x and a small ticks at every 2 * x + 1.
 -}
 interval : Float -> Float -> Raport -> List Float
-interval offset delta { min, max } =
+interval intersection delta { min, max } =
   let
-    range = abs (min - max)
-    value = firstValue delta min + offset
-    indexes = List.range 0 <| count delta min range value
+    firstValue =
+      Internal.Utils.firstValue delta min intersection
+
+    ticks result index =
+      let
+        next = tickPosition delta firstValue index
+      in
+        if next <= max then
+          ticks (result ++ [ next ]) (index + 1)
+        else
+          result
   in
-    List.map (tickPosition delta value) indexes
+    ticks [] 0
 
 
 {-| If you regret a particular position. Typically used for removing the label

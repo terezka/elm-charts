@@ -40,19 +40,14 @@ deltaPrecision delta =
     |> abs
 
 
-firstValue : Float -> Float -> Float
-firstValue delta lowest =
-  ceilToNearest delta lowest
+firstValue : Float -> Float -> Float -> Float
+firstValue delta min intersection =
+  min + (intersection - min - offset delta (intersection - min))
 
 
-ceilToNearest : Float -> Float -> Float
-ceilToNearest precision value =
-  toFloat (ceiling (value / precision)) * precision
-
-
-count : Float -> Float -> Float -> Float -> Int
-count delta lowest range firstValue =
-  floor ((range - (abs lowest - abs firstValue)) / delta)
+offset : Float -> Float -> Float
+offset precision value =
+  toFloat (floor (value / precision)) * precision
 
 
 {-| -}

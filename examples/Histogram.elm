@@ -5,7 +5,6 @@ import Html.Attributes exposing (style)
 import Svg exposing (Svg)
 import Svg.Attributes as Attributes exposing (fill, stroke)
 import Histogram exposing (..)
-import Axis exposing (..)
 import Colors exposing (..)
 
 data : List ( Float, Float )
@@ -20,15 +19,9 @@ data =
 main : Html msg
 main =
   div [ style [ ("padding", "40px" ) ] ]
-    [ view
-        { dependentAxis =
-            { line = Just simpleLine
-            , mark =
-                { label = simpleLabel
-                , tick = Just simpleTick
-                }
-            }
-        , independentAxis = defaultAxis
+    [ viewCustom
+        { dependentAxis = defaultDependentAxis
+        , independentAxis = defaultIndependentAxis
         , intervalBegin = 23
         , interval = 2.1
         }

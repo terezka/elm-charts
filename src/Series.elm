@@ -1,7 +1,7 @@
-module Series exposing (Series, Interpolation(..), Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig, gridMark, AxisView)
+module Series exposing (Series, Interpolation(..), Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig, gridMark, AxisView, sometimesYouDontHaveAnAxis)
 
 {-|
-@docs Series, Interpolation, Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig, gridMark, AxisView
+@docs Series, Interpolation, Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig, gridMark, AxisView, sometimesYouDontHaveAnAxis
 -}
 
 import Svg exposing (Svg, Attribute, g, svg, text)
@@ -200,10 +200,10 @@ viewCustom config series data =
       List.filterMap identity (List.map2 independentAxis series dots)
 
     xMarks =
-      apply plane.y dependentAxis.marks
+      apply plane.x dependentAxis.marks
 
     yMarks =
-      List.concatMap (.marks >> apply plane.x) independentAxes
+      List.concatMap (.marks >> apply plane.y) independentAxes
   in
     svg
       [ width (toString plane.x.length)

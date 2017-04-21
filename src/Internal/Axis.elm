@@ -151,7 +151,7 @@ viewGrid plane verticals horizontals =
   in
     g [ class "elm-plot__grid" ]
       [ g [ class "elm-plot__grid--horizontal" ] (List.filterMap unfoldHorizontal horizontals)
-      , g [ class "elm-plot__grid--vertical" ] (List.filterMap unfoldVertical horizontals)
+      , g [ class "elm-plot__grid--vertical" ] (List.filterMap unfoldVertical verticals)
       ]
 
 
