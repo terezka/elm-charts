@@ -53,8 +53,8 @@ simpleLabel position =
 
 
 {-| -}
-label : String -> Svg Never
-label string =
+stringLabel : String -> Svg Never
+stringLabel string =
   viewLabel [] string
 
 

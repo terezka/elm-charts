@@ -158,8 +158,6 @@ viewGrid plane verticals horizontals =
 viewBunchOfLines : Plane -> List Mark -> List Mark -> Svg Never
 viewBunchOfLines plane verticals horizontals =
   let
-    -- TODO: There gotta be a way to pipe this
-
     viewGridLine direction position { attributes, start, end } =
       direction plane attributes position start end
 

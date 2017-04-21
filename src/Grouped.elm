@@ -26,6 +26,7 @@ type alias Group msg =
   , label : String
   }
 
+
 {-| -}
 type alias Grouped data msg =
   { toGroups : data -> List (Group msg)
@@ -40,39 +41,50 @@ type alias Bar msg =
   }
 
 
-{-| -}
-bar : List (Attribute msg) -> Float -> Bar msg
-bar attributes y =
-  { attributes = attributes
-  , y = y
-  }
+
+-- DEPENDENT AXIS
 
 
 {-| -}
 type alias DependentAxis =
   { line : Maybe (Axis.Raport -> Axis.LineView)
-  , mark : DependentMark
+  , mark : DependentMarkView
   }
 
 
 {-| -}
-type alias DependentMark =
+type alias DependentMarkView =
   { label : String -> Svg Never
   , tick : Maybe Axis.TickView
   }
 
 
 {-| -}
+defaultDependentAxis : DependentAxis
+defaultDependentAxis =
+  { line = Just simpleLine
+  , mark =
+      { label = stringLabel
+      , tick = Just simpleTick
+      }
+  }
+
+
+
+-- INDEPENDENT AXIS
+
+
+{-| -}
 type alias IndependentAxis =
   { position : Float -> Float -> Float
   , line : Maybe (Raport -> LineView)
-  , marks : Raport -> List Mark
+  , marks : Raport -> List IndependentMark
   , mirror : Bool
   }
 
 
 {-| -}
-type alias MarkView =
+type alias IndependentMarkView =
   { grid : Maybe (List (Attribute Never))
   , junk : Maybe (Raport -> LineView)
   , label : Maybe (Svg Never)
@@ -81,32 +93,25 @@ type alias MarkView =
 
 
 {-| -}
-type alias Mark =
+type alias IndependentMark =
   { position : Float
-  , view : MarkView
+  , view : IndependentMarkView
   }
 
 
 {-| -}
-type alias Config =
-  { independentAxis : IndependentAxis
-  , dependentAxis : DependentAxis
-  }
-
-
-{-| -}
-defaultAxis : IndependentAxis
-defaultAxis =
+defaultIndependentAxis : IndependentAxis
+defaultIndependentAxis =
   { position = \min max -> min
   , line = Just simpleLine
-  , marks = decentPositions >> List.map defaultMark
+  , marks = decentPositions >> List.map defaultIndependentMark
   , mirror = False
   }
 
 
 {-| -}
-defaultMarkView : Float -> MarkView
-defaultMarkView position =
+defaultIndependentMarkView : Float -> IndependentMarkView
+defaultIndependentMarkView position =
   { grid = Nothing
   , junk = Nothing
   , tick = Just simpleTick
@@ -115,10 +120,28 @@ defaultMarkView position =
 
 
 {-| -}
-defaultMark : Float -> Mark
-defaultMark position =
+defaultIndependentMark : Float -> IndependentMark
+defaultIndependentMark position =
   { position = position
-  , view = defaultMarkView position
+  , view = defaultIndependentMarkView position
+  }
+
+
+
+-- CONFIG
+
+
+{-| -}
+type alias Config =
+  { dependentAxis : DependentAxis
+  , independentAxis : IndependentAxis
+  }
+
+
+defaultConfig : Config
+defaultConfig =
+  { dependentAxis = defaultDependentAxis
+  , independentAxis = defaultIndependentAxis
   }
 
 
@@ -127,8 +150,14 @@ defaultMark position =
 
 
 {-| -}
-view : Config -> Grouped data msg -> data -> Svg msg
-view config grouped data =
+view : Grouped data msg -> data -> Svg msg
+view =
+  viewCustom defaultConfig
+
+
+{-| -}
+viewCustom : Config -> Grouped data msg -> data -> Svg msg
+viewCustom config grouped data =
   let
     groups =
       grouped.toGroups data
@@ -154,7 +183,7 @@ view config grouped data =
       }
 
     yMarks =
-      apply plane.x config.independentAxis.marks
+      apply plane.y config.independentAxis.marks
   in
     svg
       [ width (toString plane.x.length)
@@ -162,14 +191,14 @@ view config grouped data =
       ]
       [ Svg.map never (viewGrid plane [] yMarks)
       , viewGrouped plane grouped groups
+      , Svg.map never (viewBunchOfLines plane [] yMarks)
       , Svg.map never (viewHorizontal plane dependentAxis)
       , Svg.map never (viewVertical plane config.independentAxis)
-      , Svg.map never (viewBunchOfLines plane [] yMarks)
       ]
 
 
 
--- VIEW HISTOGRAM
+-- VIEW GROUPED
 
 
 viewGrouped : Plane -> Grouped data msg -> List (Group msg) -> Svg msg
