@@ -89,13 +89,8 @@ view { toTiles, tilesPerRow, vertical, horizontal, width, height, colors } data 
     toRougeTile tile =
       Tiles.Tile tile.content (tileAttributes tile) tile.index
 
-    ( marginLeft, marginRight, verticalPosition, anchor, offset ) =
-      case vertical.position of
-        Lower ->
-          ( vertical.width, 0, vertical.width, "end", -5 )
 
-        Upper ->
-          ( 0, vertical.width, toFloat width - vertical.width, "start", 5 )
+    -- HORIZONTAL AXIS
 
     ( marginTop, marginBottom, horizontalPosition ) =
       case horizontal.position of
@@ -106,7 +101,7 @@ view { toTiles, tilesPerRow, vertical, horizontal, width, height, colors } data 
           ( horizontal.width, 0, 0 )
 
     horizontalLabelXCoord index =
-      tileWidth * toFloat index + tileWidth / 2
+      tileWidth * (toFloat index + 0.5)
 
     viewHorizontalLabel index view =
       g [ transform <| translate (horizontalLabelXCoord index) 0
@@ -114,8 +109,19 @@ view { toTiles, tilesPerRow, vertical, horizontal, width, height, colors } data 
         ]
         [ view ]
 
+
+    -- VERTICAL AXIS
+
+    ( marginLeft, marginRight, verticalPosition, anchor, offset ) =
+      case vertical.position of
+        Lower ->
+          ( vertical.width, 0, vertical.width, "end", -5 )
+
+        Upper ->
+          ( 0, vertical.width, toFloat width - vertical.width, "start", 5 )
+
     verticalLabelYCoord index =
-      toFloat height - horizontal.width - tileHeight * toFloat index - tileHeight / 2 + 10
+      toFloat height - marginTop - tileHeight * (toFloat index + 0.5) + 10
 
     viewVerticalLabel index view =
       g [ transform <| translate offset (verticalLabelYCoord index)
