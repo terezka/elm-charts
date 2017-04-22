@@ -6,6 +6,7 @@ module HeatMap exposing (HeatMap, Tile, ColorScale(..), view, Position(..))
 
 import Svg exposing (Svg, Attribute, svg, g, path, rect, text)
 import Svg.Attributes as Attributes exposing (class, width, height, fill, stroke, transform, style)
+import Svg.Tiles as Tiles exposing (..)
 import Array exposing (Array)
 
 
@@ -16,8 +17,8 @@ type alias HeatMap data msg =
   , tilesPerRow : Int
   , vertical : Axis
   , horizontal : Axis
-  , width : Float
-  , height : Float
+  , width : Int
+  , height : Int
   , colors :
     { scale : ColorScale
     , missing : String
@@ -29,6 +30,7 @@ type alias HeatMap data msg =
 type alias Axis =
   { labels : List (Svg Never)
   , position : Position
+  , width : Float
   }
 
 
@@ -58,27 +60,14 @@ view { toTiles, tilesPerRow, vertical, horizontal, width, height, colors } data 
     tiles =
       toTiles data
 
-    lowestValue =
-      List.filterMap .value tiles
-        |> List.minimum
-        |> Maybe.withDefault 0
-
-    highestValue =
-      List.filterMap .value tiles
-        |> List.maximum
-        |> Maybe.withDefault lowestValue
-
     tileWidth =
-      width / toFloat tilesPerRow
-
-    tilesPerColumn =
-      ceiling (toFloat (List.length tiles) / toFloat tilesPerRow)
+      toFloat <| Tiles.tileWidth (width - round vertical.width) tilesPerRow
 
     tileHeight =
-      height / toFloat tilesPerColumn
+      toFloat <| Tiles.tileHeight (height - round horizontal.width) tilesPerRow (List.length tiles)
 
-    proportion value =
-      (value - lowestValue) / (highestValue - lowestValue)
+    proportion =
+      Tiles.proportion identity (List.filterMap .value tiles)
 
     tileColor value =
       case value of
@@ -88,39 +77,33 @@ view { toTiles, tilesPerRow, vertical, horizontal, width, height, colors } data 
         Nothing ->
           colors.missing
 
-    tileXCoord index =
-      tileWidth * toFloat (index % tilesPerRow)
+    xCoord =
+      Tiles.tileXCoord tileWidth tilesPerRow
 
-    tileYCoord index =
-      tileHeight * toFloat (index // tilesPerRow)
+    yCoord =
+      Tiles.tileYCoord tileHeight tilesPerRow
 
-    tileAttributes { value, index, attributes } =
-      [ Attributes.stroke "white"
-      , Attributes.strokeWidth "1px"
-      ]
-      ++ attributes ++
-      [ Attributes.width (toString tileWidth)
-      , Attributes.height (toString tileHeight)
-      , Attributes.fill (tileColor value)
-      ]
+    tileAttributes { value, attributes } =
+      attributes ++ [ fill (tileColor value) ]
 
-    viewTile tile =
-      g [ Attributes.class "elm-plot__heat-map__tile"
-        , transform (translate (tileXCoord tile.index) (tileYCoord tile.index))
-        ]
-        [ rect (tileAttributes tile) []
-        , viewJust tile.content
-        ]
+    toRougeTile tile =
+      Tiles.Tile tile.content (tileAttributes tile) tile.index
+
+    horizontalLabelXCoord index =
+      tileWidth * toFloat index + tileWidth / 2
 
     viewHorizontalLabel index view =
-      g [ transform (translate (tileWidth * toFloat index) height)
+      g [ transform <| translate (horizontalLabelXCoord index) 0
         , style "text-anchor: middle;"
         ]
         [ view ]
 
+    verticalLabelYCoord index =
+      toFloat height - horizontal.width - tileHeight * toFloat index - tileHeight / 2 + 10
+
     viewVerticalLabel index view =
-      g [ transform (translate 0 (height - tileHeight * toFloat index))
-        , style "text-anchor: start;"
+      g [ transform <| translate -5 (verticalLabelYCoord index)
+        , style "text-anchor: end;"
         ]
         [ view ]
   in
@@ -128,9 +111,22 @@ view { toTiles, tilesPerRow, vertical, horizontal, width, height, colors } data 
       [ Attributes.width (toString width)
       , Attributes.height (toString height)
       ]
-      [ g [ Attributes.class "elm-plot__heat-map" ] (List.map viewTile tiles)
-      , Svg.map never <| g [] (List.indexedMap viewHorizontalLabel horizontal.labels)
-      , Svg.map never <| g [] (List.indexedMap viewVerticalLabel vertical.labels)
+      [ g [ Attributes.class "elm-plot__heat-map"
+          , transform (translate vertical.width 0)
+          ]
+          [ Tiles.view
+              { tiles = List.map toRougeTile tiles
+              , tilesPerRow = tilesPerRow
+              , tileWidth = tileWidth
+              , tileHeight = tileHeight
+              }
+          ]
+      , Svg.map never <|
+          g [ transform <| translate vertical.width (toFloat height - horizontal.width + 20) ]
+            (List.indexedMap viewHorizontalLabel horizontal.labels)
+      , Svg.map never <|
+          g [ transform (translate vertical.width 0) ]
+            (List.indexedMap viewVerticalLabel vertical.labels)
       ]
 
 
@@ -142,6 +138,15 @@ colorScale scale =
 
     Chunks colors ->
       chunk colors
+
+
+
+-- BORING FUNCTIONS
+
+
+translate : Float -> Float -> String
+translate x y =
+  "translate(" ++ toString x ++ ", " ++ toString y ++ ")"
 
 
 gradient : Int -> Int -> Int -> Float -> String
@@ -161,20 +166,6 @@ chunk : Array String -> Float -> String
 chunk colors proportion =
   Array.get (chunkColorIndex colors proportion) colors
     |> Maybe.withDefault "-- doesn't happen (hopefully) --"
-
-
-
--- BORING FUNCTIONS
-
-
-viewJust : Maybe (Svg msg) -> Svg msg
-viewJust view =
-  g [ transform (translate 5 15) ] [ Maybe.withDefault (text "") view ]
-
-
-translate : Float -> Float -> String
-translate x y =
-  "translate(" ++ toString x ++ ", " ++ toString y ++ ")"
 
 
 chunkColorIndex : Array String -> Float -> Int

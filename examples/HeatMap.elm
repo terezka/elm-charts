@@ -7,22 +7,19 @@ import HeatMap exposing (..)
 import Axis exposing (..)
 
 
-data : List Float
-data =
-  [ 1, 2, 3, 6, 8, 9, 6, 4, 2, 1, 3, 6, 8, 9, 6, 4, 2, 1, 4, 2, 1, 9, 6, 4, 2, 1, 3, 6, 8, 9, 6, 4, 2, 1, 4, 2, 1, 3, 6, 8, 9, 1, 2, 3, 6, 8, 9, 6, 4, 2, 1, 3, 6, 8, 9, 6, 4, 2, 1, 4, 2, 1, 9, 6, 4, 2, 1, 3, 6, 8, 9, 6, 4, 2, 1, 4, 2, 1, 3, 6, 8, 9,6, 4, 2, 1, 4, 2, 1, 3, 6, 8, 9, 6, 4, 2, 1, 4, 2, 1, 3, 6, 8, 9, 2, 1, 3, 6, 8, 9 ]
-
-
 heatmap : HeatMap (List Float) msg
 heatmap =
   { toTiles = List.indexedMap tile
   , tilesPerRow = 10
   , horizontal =
-      { labels = [ stringLabel "Hey", stringLabel "2", stringLabel "3" ]
+      { labels = List.map (toString >> stringLabel) (List.range 0 9)
       , position = Lower
+      , width = 30
       }
   , vertical =
-      { labels = [ stringLabel "Hey", stringLabel "2", stringLabel "3" ]
+      { labels = List.map (toString >> (++) "no. " >> stringLabel) (List.range 0 10)
       , position = Lower
+      , width = 50
       }
   , width = 300
   , height = 300
@@ -46,4 +43,15 @@ tile index value =
 
 main : Svg msg
 main =
-  div [ style [ ("padding", "40px" ) ] ] [ HeatMap.view heatmap data ]
+  div
+    [ style [ ("padding", "40px" ) ] ]
+    [ HeatMap.view heatmap data ]
+
+
+
+-- DATA
+
+
+data : List Float
+data =
+  [ 1, 2, 3, 6, 8, 9, 6, 4, 2, 1, 3, 6, 8, 9, 6, 4, 2, 1, 4, 2, 1, 9, 6, 4, 2, 1, 3, 6, 8, 9, 6, 4, 2, 1, 4, 2, 1, 3, 6, 8, 9, 1, 2, 3, 6, 8, 9, 6, 4, 2, 1, 3, 6, 8, 9, 6, 4, 2, 1, 4, 2, 1, 9, 6, 4, 2, 1, 3, 6, 8, 9, 6, 4, 2, 1, 4, 2, 1, 3, 6, 8, 9,6, 4, 2, 1, 4, 2, 1, 3, 6, 8, 9, 6, 4, 2, 1, 4, 2, 1, 3, 6, 8, 9, 2, 1, 3, 6, 8, 9 ]
