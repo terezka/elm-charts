@@ -13,7 +13,7 @@ heatmap =
   , tilesPerRow = 10
   , horizontal =
       { labels = List.map (toString >> stringLabel) (List.range 0 9)
-      , position = Lower
+      , position = Upper
       , width = 30
       }
   , vertical =
@@ -21,7 +21,7 @@ heatmap =
       , position = Lower
       , width = 50
       }
-  , width = 300
+  , width = 600
   , height = 300
   , colors =
     { scale = Gradient 253 185 231

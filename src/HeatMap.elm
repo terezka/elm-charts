@@ -89,6 +89,22 @@ view { toTiles, tilesPerRow, vertical, horizontal, width, height, colors } data 
     toRougeTile tile =
       Tiles.Tile tile.content (tileAttributes tile) tile.index
 
+    ( marginLeft, marginRight, verticalPosition, anchor, offset ) =
+      case vertical.position of
+        Lower ->
+          ( vertical.width, 0, vertical.width, "end", -5 )
+
+        Upper ->
+          ( 0, vertical.width, toFloat width - vertical.width, "start", 5 )
+
+    ( marginTop, marginBottom, horizontalPosition ) =
+      case horizontal.position of
+        Lower ->
+          ( 0, horizontal.width, toFloat height - horizontal.width )
+
+        Upper ->
+          ( horizontal.width, 0, 0 )
+
     horizontalLabelXCoord index =
       tileWidth * toFloat index + tileWidth / 2
 
@@ -102,8 +118,8 @@ view { toTiles, tilesPerRow, vertical, horizontal, width, height, colors } data 
       toFloat height - horizontal.width - tileHeight * toFloat index - tileHeight / 2 + 10
 
     viewVerticalLabel index view =
-      g [ transform <| translate -5 (verticalLabelYCoord index)
-        , style "text-anchor: end;"
+      g [ transform <| translate offset (verticalLabelYCoord index)
+        , style <| "text-anchor: " ++ anchor ++ ";"
         ]
         [ view ]
   in
@@ -112,7 +128,7 @@ view { toTiles, tilesPerRow, vertical, horizontal, width, height, colors } data 
       , Attributes.height (toString height)
       ]
       [ g [ Attributes.class "elm-plot__heat-map"
-          , transform (translate vertical.width 0)
+          , transform (translate marginLeft marginTop)
           ]
           [ Tiles.view
               { tiles = List.map toRougeTile tiles
@@ -122,10 +138,10 @@ view { toTiles, tilesPerRow, vertical, horizontal, width, height, colors } data 
               }
           ]
       , Svg.map never <|
-          g [ transform <| translate vertical.width (toFloat height - horizontal.width + 20) ]
+          g [ transform <| translate marginLeft (horizontalPosition + 20) ]
             (List.indexedMap viewHorizontalLabel horizontal.labels)
       , Svg.map never <|
-          g [ transform (translate vertical.width 0) ]
+          g [ transform (translate verticalPosition marginTop) ]
             (List.indexedMap viewVerticalLabel vertical.labels)
       ]
 
