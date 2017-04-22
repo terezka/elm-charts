@@ -98,7 +98,7 @@ view { toTiles, tilesPerRow, vertical, horizontal, width, height, colors } data 
           ( 0, horizontal.width, toFloat height - horizontal.width )
 
         Upper ->
-          ( horizontal.width, 0, 0 )
+          ( horizontal.width, 0, 5 )
 
     horizontalLabelXCoord index =
       tileWidth * (toFloat index + 0.5)
@@ -121,7 +121,7 @@ view { toTiles, tilesPerRow, vertical, horizontal, width, height, colors } data 
           ( 0, vertical.width, toFloat width - vertical.width, "start", 5 )
 
     verticalLabelYCoord index =
-      toFloat height - marginTop - tileHeight * (toFloat index + 0.5) + 10
+      tileHeight * (toFloat index + 0.5) + 5
 
     viewVerticalLabel index view =
       g [ transform <| translate offset (verticalLabelYCoord index)

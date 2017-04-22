@@ -5,6 +5,7 @@ import Html.Attributes exposing (style)
 import Svg exposing (Svg, svg, g, circle, text_, text, tspan)
 import HeatMap exposing (..)
 import Axis exposing (..)
+import Colors exposing (..)
 
 
 heatmap : HeatMap (List Float) msg
@@ -18,14 +19,14 @@ heatmap =
       }
   , vertical =
       { labels = List.map (toString >> (++) "no. " >> stringLabel) (List.range 0 10)
-      , position = Lower
+      , position = Upper
       , width = 50
       }
   , width = 600
   , height = 300
   , colors =
     { scale = Gradient 253 185 231
-    , missing = "grey"
+    , missing = grey
     }
   }
 
