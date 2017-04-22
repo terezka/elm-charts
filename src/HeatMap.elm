@@ -1,4 +1,4 @@
-module HeatMap exposing (HeatMap, Tile, ColorScale(..), view)
+module HeatMap exposing (HeatMap, Tile, ColorScale(..), view, Position(..))
 
 {-|
 @docs HeatMap, Tile, ColorScale, view

@@ -9,10 +9,6 @@ import Axis exposing (..)
 import Colors exposing (..)
 
 
-data : List (List Float)
-data =
-  [ [ 2, 3, 1 ], [ 5, 1, 4 ], [ 1, 5, 3 ] ]
-
 
 colors : List (List (Attribute msg))
 colors =
@@ -74,11 +70,10 @@ main =
     ]
 
 
-viewCircle : Svg msg
-viewCircle =
-  Svg.circle
-    [ Attributes.r "5"
-    , Attributes.stroke "transparent"
-    , Attributes.fill "pink"
-    ]
-    []
+
+-- DATA
+
+
+data : List (List Float)
+data =
+  [ [ 2, 3, 1 ], [ 5, 1, 4 ], [ 1, 5, 3 ] ]

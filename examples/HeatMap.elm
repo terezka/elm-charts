@@ -16,9 +16,13 @@ heatmap : HeatMap (List Float) msg
 heatmap =
   { toTiles = List.indexedMap tile
   , tilesPerRow = 10
-  , labels =
-      { horizontal = [ label "Hey", label "2", label "3" ]
-      , vertical = [ label "Hey", label "2", label "3" ]
+  , horizontal =
+      { labels = [ stringLabel "Hey", stringLabel "2", stringLabel "3" ]
+      , position = Lower
+      }
+  , vertical =
+      { labels = [ stringLabel "Hey", stringLabel "2", stringLabel "3" ]
+      , position = Lower
       }
   , width = 300
   , height = 300
