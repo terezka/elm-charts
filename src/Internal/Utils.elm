@@ -3,12 +3,59 @@ module Internal.Utils exposing (..)
 import Svg exposing (Svg, text)
 import Round
 import Regex
+import Array
+
+
+-- GENERAL
 
 
 {-| -}
 viewMaybe : Maybe a -> (a -> Svg msg) -> Svg msg
 viewMaybe a view =
   Maybe.withDefault (text "") (Maybe.map view a)
+
+
+
+-- DOM STUFF
+
+
+translate : Float -> Float -> String
+translate x y =
+  "translate(" ++ toString x ++ ", " ++ toString y ++ ")"
+
+
+
+-- COLOR STUFF
+
+
+{-| -}
+gradient : Int -> Int -> Int -> Float -> String
+gradient r g b opacity =
+  "rgba("
+    ++ toString r
+    ++ ", "
+    ++ toString g
+    ++ ", "
+    ++ toString b
+    ++ ", "
+    ++ toString opacity
+    ++ ")"
+
+
+{-| -}
+chunk : List String -> Float -> String
+chunk colors proportion =
+  Array.get (chunkColorIndex colors proportion) (Array.fromList colors)
+    |> Maybe.withDefault "-- doesn't happen (hopefully) --"
+
+
+chunkColorIndex : List String -> Float -> Int
+chunkColorIndex colors proportion =
+  proportion
+    * toFloat (List.length colors)
+    |> round
+    |> max 0
+    |> min (List.length colors - 1)
 
 
 

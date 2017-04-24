@@ -9,7 +9,7 @@ module Choropleth exposing (Choropleth, Tile, ColorScale(..), view, america)
 import Svg exposing (Svg, Attribute, svg, g, path, rect, text)
 import Svg.Attributes as Attributes exposing (class, width, height, fill, stroke, transform, style)
 import Svg.Tiles as Tiles exposing (..)
-import Array exposing (Array)
+import Internal.Utils exposing (..)
 
 
 
@@ -26,6 +26,7 @@ type alias Choropleth data msg =
   }
 
 
+{-| -}
 type alias Pattern =
   { tilesPerRow : Int
   , indices : List Int
@@ -43,7 +44,7 @@ type alias Tile msg =
 {-| -}
 type ColorScale
   = Gradient Int Int Int
-  | Chunks (Array String)
+  | Chunks (List String)
 
 
 {-| -}
@@ -54,10 +55,14 @@ view { toTiles, pattern, width, height, colors } data =
       toTiles data
 
     tileWidth =
-      toFloat <| Tiles.tileWidth width pattern.tilesPerRow
+      Tiles.tileWidth width pattern.tilesPerRow
+        |> toFloat
 
     tileHeight =
-      toFloat <| Tiles.tileHeight height pattern.tilesPerRow (List.maximum pattern.indices |> Maybe.withDefault 1)
+      List.maximum pattern.indices
+        |> Maybe.withDefault 1
+        |> Tiles.tileHeight height pattern.tilesPerRow
+        |> toFloat
 
     proportion =
       Tiles.proportion identity (List.filterMap .value tiles)
@@ -121,36 +126,3 @@ colorScale scale =
 
     Chunks colors ->
       chunk colors
-
-
-translate : Float -> Float -> String
-translate x y =
-  "translate(" ++ toString x ++ ", " ++ toString y ++ ")"
-
-
-gradient : Int -> Int -> Int -> Float -> String
-gradient r g b opacity =
-  "rgba("
-    ++ toString r
-    ++ ", "
-    ++ toString g
-    ++ ", "
-    ++ toString b
-    ++ ", "
-    ++ toString opacity
-    ++ ")"
-
-
-chunk : Array String -> Float -> String
-chunk colors proportion =
-  Array.get (chunkColorIndex colors proportion) colors
-    |> Maybe.withDefault "-- doesn't happen (hopefully) --"
-
-
-chunkColorIndex : Array String -> Float -> Int
-chunkColorIndex colors proportion =
-  proportion
-    * toFloat (Array.length colors)
-    |> round
-    |> max 0
-    |> min (Array.length colors - 1)

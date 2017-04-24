@@ -7,7 +7,7 @@ module HeatMap exposing (HeatMap, Tile, ColorScale(..), view, Position(..))
 import Svg exposing (Svg, Attribute, svg, g, path, rect, text)
 import Svg.Attributes as Attributes exposing (class, width, height, fill, stroke, transform, style)
 import Svg.Tiles as Tiles exposing (..)
-import Array exposing (Array)
+import Internal.Utils exposing (..)
 
 
 
@@ -50,7 +50,7 @@ type alias Tile msg =
 {-| -}
 type ColorScale
   = Gradient Int Int Int
-  | Chunks (Array String)
+  | Chunks (List String)
 
 
 {-| -}
@@ -152,6 +152,10 @@ view { toTiles, tilesPerRow, vertical, horizontal, width, height, colors } data 
       ]
 
 
+
+-- BORING FUNCTIONS
+
+
 colorScale : ColorScale -> Float -> String
 colorScale scale =
   case scale of
@@ -160,40 +164,3 @@ colorScale scale =
 
     Chunks colors ->
       chunk colors
-
-
-
--- BORING FUNCTIONS
-
-
-translate : Float -> Float -> String
-translate x y =
-  "translate(" ++ toString x ++ ", " ++ toString y ++ ")"
-
-
-gradient : Int -> Int -> Int -> Float -> String
-gradient r g b opacity =
-  "rgba("
-    ++ toString r
-    ++ ", "
-    ++ toString g
-    ++ ", "
-    ++ toString b
-    ++ ", "
-    ++ toString opacity
-    ++ ")"
-
-
-chunk : Array String -> Float -> String
-chunk colors proportion =
-  Array.get (chunkColorIndex colors proportion) colors
-    |> Maybe.withDefault "-- doesn't happen (hopefully) --"
-
-
-chunkColorIndex : Array String -> Float -> Int
-chunkColorIndex colors proportion =
-  proportion
-    * toFloat (Array.length colors)
-    |> round
-    |> max 0
-    |> min (Array.length colors - 1)

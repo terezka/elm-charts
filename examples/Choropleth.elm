@@ -12,10 +12,10 @@ map : Choropleth (List Float) msg
 map =
   { toTiles = List.map tile
   , pattern = america
-  , width = 450
-  , height = 300
+  , width = 300
+  , height = 200
   , colors =
-    { scale = Chunks (Array.fromList [ "green", "purple", "darkpurple" ])
+    { scale = Chunks (Array.fromList [ "rgb(27, 120, 55)", "rgb(127, 191, 123)", "rgb(217, 240, 211)", "rgb(231, 212, 232)", "rgb(175, 141, 195)", "rgb(118, 42, 131)" ])
     , missing = grey
     }
   }
