@@ -170,7 +170,7 @@ rangeFrameHintDot hinted ( x, y ) =
 
 rangeFrameAxis : Maybe Point -> (Point -> Float) -> Axis
 rangeFrameAxis hinted toValue =
-  customAxis <| \summary ->
+  customAxis <| \\summary ->
     { position = closestToZero
     , axisLine = Nothing
     , ticks = List.map simpleTick [ summary.dataMin, summary.dataMax ]
