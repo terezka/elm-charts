@@ -193,8 +193,8 @@ view hinting =
     { defaultSeriesPlotCustomizations
     | horizontalAxis = rangeFrameAxis hinting .x
     , margin = { top = 20, bottom = 20, left = 50, right = 40 }
-    , toRangeLowest = \y -> y - 0.01
-    , toDomainLowest = \y -> y - 1
+    , toRangeLowest = \\y -> y - 0.01
+    , toDomainLowest = \\y -> y - 1
     }
     [ scatter hinting ]
     data
