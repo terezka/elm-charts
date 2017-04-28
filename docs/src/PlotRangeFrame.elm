@@ -141,8 +141,8 @@ circle x y =
     , stroke "transparent"
     , strokeWidth "3px"
     , fill pinkStroke
-    , onMouseOver (Hover (Just { x = x, y = y }))
-    , onMouseOut (Hover Nothing)
+    , onMouseOver (HoverRangeFrame (Just { x = x, y = y }))
+    , onMouseOut (HoverRangeFrame Nothing)
     ]
     []
 
@@ -158,11 +158,11 @@ flashyLine x y hinted =
 rangeFrameHintDot : Maybe Point -> ( Float, Float ) -> DataPoint Msg
 rangeFrameHintDot hinted ( x, y ) =
   { view = Just (circle x y)
-  , xLine = Maybe.andThen (hintLine x y) hinted
-  , yLine = Maybe.andThen (hintLine x y) hinted
+  , xLine = Maybe.andThen (flashyLine x y) hinted
+  , yLine = Maybe.andThen (flashyLine x y) hinted
   , xTick = Just (simpleTick x)
   , yTick = Just (simpleTick y)
-  , viewHint = Nothing
+  , hint = Nothing
   , x = x
   , y = y
   }
@@ -193,7 +193,7 @@ view hinting =
     { defaultSeriesPlotCustomizations
     | horizontalAxis = rangeFrameAxis hinting .x
     , margin = { top = 20, bottom = 20, left = 50, right = 40 }
-    , toRangeLowest = \\y -> y - 0.02
+    , toRangeLowest = \\y -> y - 0.01
     , toDomainLowest = \\y -> y - 1
     }
     [ scatter hinting ]
