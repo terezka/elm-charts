@@ -1,12 +1,36 @@
-module Series exposing (Series, Interpolation(..), Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig, gridMark, AxisView, sometimesYouDontHaveAnAxis)
+module Series exposing (
+  Series
+  , viewCustom
+  , Interpolation(..)
+  , Mark
+  , MarkView
+  , Dot
+  , view
+  , dot
+  , Axis
+  , axis
+  , defaultAxisView
+  , defaultConfig
+  , defaultMark
+  , gridMark
+  , AxisView
+  , sometimesYouDontHaveAnAxis
+  , Hint
+  , Amount(..)
+  )
 
 {-|
-@docs Series, Interpolation, Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig, gridMark, AxisView, sometimesYouDontHaveAnAxis
+@docs Series, Interpolation, Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig, gridMark, AxisView, sometimesYouDontHaveAnAxis, defaultMark
+@docs Mark, MarkView, viewCustom, Hint, Amount
 -}
 
 import Svg exposing (Svg, Attribute, g, svg, text)
 import Svg.Attributes as Attributes exposing (class, width, height, fill, stroke)
-import Svg.Coordinates exposing (Plane, Point, minimum, maximum)
+import Html exposing (Html, div)
+import Html.Events exposing (on, onMouseLeave)
+import Json.Decode as Json
+import DOM
+import Svg.Coordinates exposing (Plane, Point, minimum, maximum, toCartesianX, toCartesianY)
 import Svg.Plot exposing (..)
 import Axis exposing (..)
 import Colors exposing (..)
@@ -157,14 +181,30 @@ gridMark position =
 
 
 {-| -}
-type alias Config =
-  { dependentAxis : AxisView }
+type Amount = Aligned | One
 
 
 {-| -}
-defaultConfig : Config
+type alias Config msg =
+  { dependentAxis : AxisView
+  , hint : Maybe (Hint msg)
+  }
+
+
+{-| -}
+type alias Hint msg =
+  { proximity : Maybe Int
+  , find : Amount
+  , msg : Maybe Point -> msg
+  }
+
+
+{-| -}
+defaultConfig : Config msg
 defaultConfig =
-  { dependentAxis = defaultAxisView }
+  { dependentAxis = defaultAxisView
+  , hint = Nothing
+  }
 
 
 
@@ -172,13 +212,13 @@ defaultConfig =
 
 
 {-| -}
-view : List (Series data msg) -> data -> Svg msg
+view : List (Series data msg) -> data -> Html msg
 view =
   viewCustom defaultConfig
 
 
 {-| -}
-viewCustom : Config -> List (Series data msg) -> data -> Svg msg
+viewCustom : Config msg -> List (Series data msg) -> data -> Html msg
 viewCustom config series data =
   let
     dots =
@@ -205,16 +245,31 @@ viewCustom config series data =
     yMarks =
       List.concatMap (.marks >> apply plane.y) independentAxes
   in
-    svg
-      [ width (toString plane.x.length)
-      , height (toString plane.y.length)
+    container plane config
+      [ svg
+        [ width (toString plane.x.length)
+        , height (toString plane.y.length)
+        ]
+        [ Svg.map never (viewGrid plane xMarks yMarks)
+        , g [ class "elm-plot__all-series" ] (List.map2 (viewSeries plane) series dots)
+        , Svg.map never (viewHorizontal plane dependentAxis)
+        , Svg.map never (viewVerticals plane independentAxes)
+        , Svg.map never (viewBunchOfLines plane xMarks yMarks)
+        ]
       ]
-      [ Svg.map never (viewGrid plane xMarks yMarks)
-      , g [ class "elm-plot__all-series" ] (List.map2 (viewSeries plane) series dots)
-      , Svg.map never (viewHorizontal plane dependentAxis)
-      , Svg.map never (viewVerticals plane independentAxes)
-      , Svg.map never (viewBunchOfLines plane xMarks yMarks)
-      ]
+
+
+container : Plane -> Config msg -> List (Svg msg) -> Html msg
+container plane config =
+  case config.hint of
+    Just hint ->
+        div
+          [ on "mousemove" (handleHint plane hint)
+          , onMouseLeave (hint.msg Nothing)
+          ]
+
+    Nothing ->
+      div []
 
 
 xMark : Plane -> Dot msg -> Maybe Mark
@@ -313,3 +368,33 @@ maybeCompose sometimesAnAxis marks =
 
     SometimesYouDontHaveAnAxis ->
       Nothing
+
+
+
+-- HINT DECODER
+
+
+handleHint : Plane -> Hint msg -> Json.Decoder msg
+handleHint plane hint =
+    Json.map3
+        (hintMessage plane hint)
+        (Json.field "clientX" Json.float)
+        (Json.field "clientY" Json.float)
+        (DOM.target plotPosition)
+
+
+plotPosition : Json.Decoder DOM.Rectangle
+plotPosition =
+    Json.oneOf
+        [ DOM.boundingClientRect
+        , Json.lazy (\_ -> DOM.parentElement plotPosition)
+        ]
+
+
+hintMessage : Plane -> Hint msg -> Float -> Float -> DOM.Rectangle -> msg
+hintMessage plane hint mouseX mouseY { left, top } =
+  hint.msg <|
+    Just
+      { x = clamp plane.x.min plane.x.max <| toCartesianX plane (mouseX - left)
+      , y = clamp plane.y.min plane.y.max <| toCartesianY plane (mouseY - top)
+      }

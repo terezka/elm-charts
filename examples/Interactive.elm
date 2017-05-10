@@ -1,7 +1,10 @@
 module Interactive exposing (..)
 
 import Html exposing (h1, p, text, div, node)
-import Plot exposing (..)
+import Svg exposing (Svg)
+import Svg.Attributes as Attributes exposing (fill, stroke)
+import Series exposing (..)
+import Colors exposing (..)
 
 
 -- MODEL
@@ -31,36 +34,53 @@ update msg model =
         { model | hovering = point }
 
 
-myDot : Maybe { x : Float, y : Float } -> { x : Float, y : Float } -> DataPoint msg
-myDot hovering point =
-    hintDot (viewCircle 5 "#ff9edf") hovering point.x point.y
-
-
 
 -- VIEW
 
-barData : List ( List Float )
-barData =
-  [ [ 1, 4 ]
-  , [ 1, 5 ]
-  , [ 2, 10 ]
-  , [ 4, -2 ]
-  , [ 5, 14 ]
-  ]
+data : { first : List ( Float, Float ), second : List ( Float, Float ) }
+data =
+  { first =
+    [ ( -2, -3 )
+    , ( 0, 0 )
+    , ( 3, 60 )
+    , ( 6, 20 )
+    , ( 9, 40 )
+    , ( 12, 100 )
+    ]
+  , second =
+    [ ( 1, 30 )
+    , ( 2, 40 )
+    , ( 5, 20 )
+    , ( 7.8, 0 )
+    ]
+  }
 
-
-view : Model -> Html.Html Msg
+view : Model -> Svg Msg
 view model =
-    let
-      settings =
-        { defaultBarsPlotCustomizations
-        | onHover = Just Hover
-        , margin = { top = 20, bottom = 30, left = 40, right = 40 }
+  Series.viewCustom
+    { defaultConfig
+    | hint = Just
+        { proximity = Just 10
+        , find = One
+        , msg = Hover
         }
-    in
-      Plot.viewBarsCustom settings
-        (groups (List.map2 (hintGroup model.hovering) [ "g1", "g3", "g3" ]))
-        barData
+    }
+    [ { axis = axis defaultAxisView
+      , interpolation = None
+      , toDots = .first >> List.map (\(x, y) -> dot (viewCircle pinkStroke) x y)
+      }
+    ]
+    data
+
+
+viewCircle : String -> Svg msg
+viewCircle color =
+  Svg.circle
+    [ Attributes.r "5"
+    , Attributes.stroke "transparent"
+    , Attributes.fill color
+    ]
+    []
 
 
 main : Program Never Model Msg
