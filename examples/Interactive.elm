@@ -61,7 +61,7 @@ view model =
     { defaultConfig
     | hint = Just
         { proximity = Just 10
-        , find = One
+        , find = Single
         , msg = Hover
         }
     }

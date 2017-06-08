@@ -14,28 +14,28 @@ colors : List (List (Attribute msg))
 colors =
   [ [ stroke transparent ]
   , [ stroke transparent, fill blueFill ]
-  , [ stroke transparent, fill "lightpink" ]
+  , [ stroke transparent, fill "#f1ccf7" ]
   ]
 
 
 group : Int -> List Float -> Group msg
 group index data =
   { bars = List.map2 (Bar ) colors data
-  , label = "Disease no. " ++ toString index
+  , label = "No. " ++ toString (index + 1)
   }
 
 
-independentAxis : IndependentAxis
-independentAxis =
+dependentAxis : DependentAxis
+dependentAxis =
   { position = \min max -> min
   , line = Nothing
-  , marks = \_ -> List.map independentMark [ 0, 1, 2, 3, 4, 5 ]
+  , marks = \_ -> List.map dependentMark [ 0, 1, 2, 3, 4, 5 ]
   , mirror = False
   }
 
 
-independentMarkView : Float -> IndependentMarkView
-independentMarkView position =
+dependentMarkView : Float -> DependentMarkView
+dependentMarkView position =
   { grid = Nothing
   , junk = Just (fullLine [ stroke "white", strokeWidth "2px" ])
   , tick = Just simpleTick
@@ -43,10 +43,10 @@ independentMarkView position =
   }
 
 
-independentMark : Float -> IndependentMark
-independentMark position =
+dependentMark : Float -> DependentMark
+dependentMark position =
   { position = position
-  , view = independentMarkView position
+  , view = dependentMarkView position
   }
 
 
@@ -54,14 +54,14 @@ main : Html msg
 main =
   div [ style [ ("padding", "40px" ) ] ]
     [ viewCustom
-        { dependentAxis =
+        { independentAxis =
             { line = Just simpleLine
             , mark =
                 { label = stringLabel
                 , tick = Just simpleTick
                 }
             }
-        , independentAxis = independentAxis
+        , dependentAxis = dependentAxis
         }
         { toGroups = List.indexedMap group
         , width = 0.9

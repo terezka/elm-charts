@@ -46,22 +46,22 @@ bar attributes y =
 
 
 {-| -}
-type alias DependentAxis =
+type alias IndependentAxis =
   { line : Maybe (Axis.Raport -> Axis.LineView)
-  , mark : DependentMarkView
+  , mark : IndependentMarkView
   }
 
 
 {-| -}
-type alias DependentMarkView =
+type alias IndependentMarkView =
   { label : Float -> Svg Never
   , tick : Maybe Axis.TickView
   }
 
 
 {-| -}
-defaultDependentAxis : DependentAxis
-defaultDependentAxis =
+defaultIndependentAxis : IndependentAxis
+defaultIndependentAxis =
   { line = Just simpleLine
   , mark =
       { label = simpleLabel
@@ -74,16 +74,16 @@ defaultDependentAxis =
 
 
 {-| -}
-type alias IndependentAxis =
+type alias DependentAxis =
   { position : Float -> Float -> Float
   , line : Maybe (Raport -> LineView)
-  , marks : Raport -> List IndependentMark
+  , marks : Raport -> List DependentMark
   , mirror : Bool
   }
 
 
 {-| -}
-type alias IndependentMarkView =
+type alias DependentMarkView =
   { grid : Maybe (List (Attribute Never))
   , junk : Maybe (Raport -> LineView)
   , label : Maybe (Svg Never)
@@ -92,15 +92,15 @@ type alias IndependentMarkView =
 
 
 {-| -}
-type alias IndependentMark =
+type alias DependentMark =
   { position : Float
-  , view : IndependentMarkView
+  , view : DependentMarkView
   }
 
 
 {-| -}
-defaultIndependentAxis : IndependentAxis
-defaultIndependentAxis =
+defaultDependentAxis : DependentAxis
+defaultDependentAxis =
   { position = \min max -> min
   , line = Just simpleLine
   , marks = decentPositions >> List.map defaultMark
@@ -109,7 +109,7 @@ defaultIndependentAxis =
 
 
 {-| -}
-defaultMarkView : Float -> IndependentMarkView
+defaultMarkView : Float -> DependentMarkView
 defaultMarkView position =
   { grid = Nothing
   , junk = Nothing
@@ -119,7 +119,7 @@ defaultMarkView position =
 
 
 {-| -}
-defaultMark : Float -> IndependentMark
+defaultMark : Float -> DependentMark
 defaultMark position =
   { position = position
   , view = defaultMarkView position
@@ -134,8 +134,8 @@ defaultMark position =
 type alias Config =
   { interval : Float
   , intervalBegin : Float
-  , independentAxis : IndependentAxis
   , dependentAxis : DependentAxis
+  , independentAxis : IndependentAxis
   }
 
 
@@ -174,20 +174,20 @@ viewCustom config histograms data =
       , view =
           { grid = Nothing
           , junk = Nothing
-          , label = Just (config.dependentAxis.mark.label position)
-          , tick = config.dependentAxis.mark.tick
+          , label = Just (config.independentAxis.mark.label position)
+          , tick = config.independentAxis.mark.tick
           }
       }
 
-    dependentAxis =
+    independentAxis =
       { position = \_ _ -> 0
-      , line = config.dependentAxis.line
+      , line = config.independentAxis.line
       , marks = Axis.interval config.intervalBegin config.interval >> List.map mark
       , mirror = False
       }
 
     yMarks =
-      apply plane.y config.independentAxis.marks
+      apply plane.y config.dependentAxis.marks
   in
     svg
       [ width (toString plane.x.length)
@@ -195,8 +195,8 @@ viewCustom config histograms data =
       ]
       [ Svg.map never (viewGrid plane [] yMarks)
       , g [ class "elm-plot__all-histograms" ] (List.map (viewHistogram plane config) bars)
-      , Svg.map never (viewHorizontal plane dependentAxis)
-      , Svg.map never (viewVertical plane config.independentAxis)
+      , Svg.map never (viewHorizontal plane independentAxis)
+      , Svg.map never (viewVertical plane config.dependentAxis)
       , Svg.map never (viewBunchOfLines plane [] yMarks)
       ]
 

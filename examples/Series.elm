@@ -8,6 +8,8 @@ import Series exposing (..)
 import Colors exposing (..)
 import Axis exposing (..)
 
+
+
 {-| -}
 defaultMarkView : Float -> MarkView
 defaultMarkView position =
@@ -49,20 +51,24 @@ main : Html msg
 main =
   div []
     [ div
-          [ style [ ("padding", "40px" ) ] ]
-          [ Series.viewCustom
-            { dependentAxis = defaultXAxisView }
+        [ style [ ("padding", "40px" ) ] ]
+        [ Series.viewCustom
+            { independentAxis = defaultXAxisView
+            , hint = Nothing
+            }
             [ { axis = axis defaultYAxisView
               , interpolation = None
               , toDots = .first >> List.map (\(x, y) -> dot (viewCircle pinkStroke) x y)
               }
             ]
             data
-          ]
+        ]
     , div
         [ style [ ("padding", "40px" ) ] ]
         [ Series.viewCustom
-          { dependentAxis = defaultXAxisView }
+          { independentAxis = defaultXAxisView
+          , hint = Nothing
+          }
           [ { axis = axis defaultYAxisView
             , interpolation = Linear [ fill pinkFill, stroke pinkStroke ]
             , toDots = .first >> List.map (\(x, y) -> dot (viewCircle pinkStroke) x y)
@@ -71,17 +77,18 @@ main =
           data
         ]
     , div
-          [ style [ ("padding", "40px" ) ] ]
-          [ Series.viewCustom
-            { dependentAxis = defaultXAxisView }
-            [ { axis = axis defaultYAxisView
-              , interpolation = Monotone [ fill pinkFill ]
-              , toDots = .first >> List.map (\(x, y) -> dot (viewCircle pinkStroke) x y)
-              }
-            ]
-            data
+        [ style [ ("padding", "40px" ) ] ]
+        [ Series.viewCustom
+          { independentAxis = defaultXAxisView
+          , hint = Nothing
+          }
+          [ { axis = axis defaultYAxisView
+            , interpolation = Monotone [ fill pinkFill ]
+            , toDots = .first >> List.map (\(x, y) -> dot (viewCircle pinkStroke) x y)
+            }
           ]
-
+          data
+        ]
     ]
 
 

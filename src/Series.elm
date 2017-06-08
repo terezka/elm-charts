@@ -16,12 +16,12 @@ module Series exposing (
   , AxisView
   , sometimesYouDontHaveAnAxis
   , Hint
-  , Amount(..)
+  , Find(..)
   )
 
 {-|
 @docs Series, Interpolation, Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig, gridMark, AxisView, sometimesYouDontHaveAnAxis, defaultMark
-@docs Mark, MarkView, viewCustom, Hint, Amount
+@docs Mark, MarkView, viewCustom, Hint, Find
 -}
 
 import Svg exposing (Svg, Attribute, g, svg, text)
@@ -181,20 +181,20 @@ gridMark position =
 
 
 {-| -}
-type Amount = Aligned | One
-
-
-{-| -}
 type alias Config msg =
-  { dependentAxis : AxisView
+  { independentAxis : AxisView
   , hint : Maybe (Hint msg)
   }
 
 
 {-| -}
+type Find = Aligned | Single
+
+
+{-| -}
 type alias Hint msg =
   { proximity : Maybe Int
-  , find : Amount
+  , find : Find
   , msg : Maybe Point -> msg
   }
 
@@ -202,7 +202,7 @@ type alias Hint msg =
 {-| -}
 defaultConfig : Config msg
 defaultConfig =
-  { dependentAxis = defaultAxisView
+  { independentAxis = defaultAxisView
   , hint = Nothing
   }
 
@@ -230,17 +230,17 @@ viewCustom config series data =
     plane =
       planeFromDots series allDots
 
-    dependentAxis =
-      compose config.dependentAxis (List.filterMap (xMark plane) allDots)
+    independentAxis =
+      compose config.independentAxis (List.filterMap (xMark plane) allDots)
 
-    independentAxis series dots =
+    dependentAxis series dots =
       maybeCompose series.axis (List.filterMap (yMark plane) dots)
 
     independentAxes =
-      List.filterMap identity (List.map2 independentAxis series dots)
+      List.filterMap identity (List.map2 dependentAxis series dots)
 
     xMarks =
-      apply plane.x dependentAxis.marks
+      apply plane.x independentAxis.marks
 
     yMarks =
       List.concatMap (.marks >> apply plane.y) independentAxes
@@ -252,7 +252,7 @@ viewCustom config series data =
         ]
         [ Svg.map never (viewGrid plane xMarks yMarks)
         , g [ class "elm-plot__all-series" ] (List.map2 (viewSeries plane) series dots)
-        , Svg.map never (viewHorizontal plane dependentAxis)
+        , Svg.map never (viewHorizontal plane independentAxis)
         , Svg.map never (viewVerticals plane independentAxes)
         , Svg.map never (viewBunchOfLines plane xMarks yMarks)
         ]

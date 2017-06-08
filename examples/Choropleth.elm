@@ -5,7 +5,6 @@ import Html.Attributes exposing (style)
 import Svg exposing (Svg, svg, g, circle, text_, text, tspan)
 import Choropleth exposing (..)
 import Colors exposing (..)
-import Array
 
 
 map : Choropleth (List Float) msg
@@ -15,7 +14,13 @@ map =
   , width = 300
   , height = 200
   , colors =
-    { scale = Chunks (Array.fromList [ "rgb(27, 120, 55)", "rgb(127, 191, 123)", "rgb(217, 240, 211)", "rgb(231, 212, 232)", "rgb(175, 141, 195)", "rgb(118, 42, 131)" ])
+    { scale =
+        Chunks
+          [ "rgba(241, 204, 247, 0.35)"
+          , "rgba(241, 204, 247, 0.55)"
+          , "rgba(241, 204, 247, 0.75)"
+          , "rgba(241, 204, 247, 0.95)"
+          ]
     , missing = grey
     }
   }
@@ -34,7 +39,8 @@ tile value =
 main : Svg msg
 main =
   div
-    [ style [ ("padding", "40px" ) ] ]
+    [ style [ ("padding"
+    , "40px" ) ] ]
     [ Choropleth.view map data ]
 
 

@@ -18,7 +18,7 @@ heatmap =
       , width = 30
       }
   , vertical =
-      { labels = List.map (toString >> (++) "no. " >> stringLabel) (List.range 0 10)
+      { labels = List.map (toString >> stringLabel) (List.range 0 10)
       , position = Upper
       , width = 50
       }
