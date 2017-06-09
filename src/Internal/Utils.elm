@@ -1,5 +1,6 @@
 module Internal.Utils exposing (..)
 
+import Html exposing (Html)
 import Svg exposing (Svg, text)
 import Round
 import Regex
@@ -14,6 +15,11 @@ viewMaybe : Maybe a -> (a -> Svg msg) -> Svg msg
 viewMaybe a view =
   Maybe.withDefault (text "") (Maybe.map view a)
 
+
+{-| -}
+viewMaybeHtml : Maybe a -> (a -> Html msg) -> Html msg
+viewMaybeHtml a view =
+  Maybe.withDefault (Html.text "") (Maybe.map view a)
 
 
 -- DOM STUFF

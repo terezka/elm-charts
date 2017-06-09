@@ -5,7 +5,7 @@ import Svg exposing (Svg)
 import Svg.Attributes as Attributes exposing (fill, stroke)
 import Series exposing (..)
 import Colors exposing (..)
-
+import Hint exposing (..)
 
 -- MODEL
 
@@ -37,23 +37,6 @@ update msg model =
 
 -- VIEW
 
-data : { first : List ( Float, Float ), second : List ( Float, Float ) }
-data =
-  { first =
-    [ ( -2, -3 )
-    , ( 0, 0 )
-    , ( 3, 60 )
-    , ( 6, 20 )
-    , ( 9, 40 )
-    , ( 12, 100 )
-    ]
-  , second =
-    [ ( 1, 30 )
-    , ( 2, 40 )
-    , ( 5, 20 )
-    , ( 7.8, 0 )
-    ]
-  }
 
 view : Model -> Svg Msg
 view model =
@@ -61,8 +44,9 @@ view model =
     { defaultConfig
     | hint = Just
         { proximity = Just 10
-        , find = Single
+        , view = Single (toString >> Svg.text)
         , msg = Hover
+        , model = model.hovering
         }
     }
     [ { axis = axis defaultAxisView
@@ -83,6 +67,29 @@ viewCircle color =
     []
 
 
+
+-- Boring stuff
+
+
 main : Program Never Model Msg
 main =
     Html.beginnerProgram { model = initialModel, update = update, view = view }
+
+
+data : { first : List ( Float, Float ), second : List ( Float, Float ) }
+data =
+  { first =
+    [ ( -2, -3 )
+    , ( 0, 0 )
+    , ( 3, 60 )
+    , ( 6, 20 )
+    , ( 9, 40 )
+    , ( 12, 100 )
+    ]
+  , second =
+    [ ( 1, 30 )
+    , ( 2, 40 )
+    , ( 5, 20 )
+    , ( 7.8, 0 )
+    ]
+  }

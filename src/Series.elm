@@ -15,25 +15,24 @@ module Series exposing (
   , gridMark
   , AxisView
   , sometimesYouDontHaveAnAxis
-  , Hint
-  , Find(..)
   )
 
 {-|
 @docs Series, Interpolation, Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig, gridMark, AxisView, sometimesYouDontHaveAnAxis, defaultMark
-@docs Mark, MarkView, viewCustom, Hint, Find
+@docs Mark, MarkView, viewCustom
 -}
 
 import Svg exposing (Svg, Attribute, g, svg, text)
 import Svg.Attributes as Attributes exposing (class, width, height, fill, stroke)
 import Html exposing (Html, div)
 import Html.Events exposing (on, onMouseLeave)
-import Json.Decode as Json
-import DOM
 import Svg.Coordinates exposing (Plane, Point, minimum, maximum, toCartesianX, toCartesianY)
 import Svg.Plot exposing (..)
 import Axis exposing (..)
 import Colors exposing (..)
+import Hint exposing (Hint)
+import Internal.Hint exposing (handleHint)
+import Internal.Utils exposing (viewMaybeHtml)
 import Internal.Axis exposing
   ( viewHorizontal
   , viewVerticals
@@ -188,18 +187,6 @@ type alias Config msg =
 
 
 {-| -}
-type Find = Aligned | Single
-
-
-{-| -}
-type alias Hint msg =
-  { proximity : Maybe Int
-  , find : Find
-  , msg : Maybe Point -> msg
-  }
-
-
-{-| -}
 defaultConfig : Config msg
 defaultConfig =
   { independentAxis = defaultAxisView
@@ -256,6 +243,7 @@ viewCustom config series data =
         , Svg.map never (viewVerticals plane independentAxes)
         , Svg.map never (viewBunchOfLines plane xMarks yMarks)
         ]
+      , Html.map never <| viewMaybeHtml config.hint (viewHint allDots)
       ]
 
 
@@ -264,7 +252,7 @@ container plane config =
   case config.hint of
     Just hint ->
         div
-          [ on "mousemove" (handleHint plane hint)
+          [ on "mousemove" (handleHint plane hint.msg)
           , onMouseLeave (hint.msg Nothing)
           ]
 
@@ -303,6 +291,88 @@ svgDots : List (Dot msg) -> List (Svg.Plot.Dot msg)
 svgDots =
   List.map <| \dot -> { x = dot.x, y = dot.y, view = dot.view }
 
+
+
+-- VIEW HINT
+
+
+viewHint : List (Dot msg) -> Hint msg -> Html Never
+viewHint dots hint =
+  case ( dots, hint.model ) of
+    ( first :: rest, Just model ) ->
+      viewHintPoint first dots hint model
+        |> Maybe.withDefault (Html.text "")
+
+    ( _, _ ) ->
+      Html.text ""
+
+
+viewHintPoint : Dot msg -> List (Dot msg) -> Hint msg -> Point -> Maybe (Html Never)
+viewHintPoint first dots hint hovered =
+  let
+    findProximity dot =
+      sqrt <| abs (dot.x - hovered.x) + abs (dot.y - hovered.y)
+
+    findProximityX dot =
+      abs (dot.x - hovered.x)
+
+    withinProximity proximity dot =
+      findProximity dot <= proximity
+
+    getCloser closest dot =
+      if findProximity closest < findProximity dot then
+        closest
+      else
+        dot
+
+    getCloserX dot allClosest =
+      let
+        closest =
+          List.head allClosest
+            |> Maybe.withDefault first
+      in
+        if findProximityX closest == findProximityX dot then
+          dot :: allClosest
+        else if findProximityX closest < findProximityX dot then
+          [ closest ]
+        else
+          [ dot ]
+
+    noEmptyList list =
+      if List.isEmpty list then
+        Just list
+      else
+        Nothing
+  in
+    case ( hint.view, hint.proximity ) of
+      ( Hint.Single view, Just proximity ) ->
+        List.filter (withinProximity proximity) dots
+          |> List.map dotToPoint
+          |> List.head
+          |> Maybe.map view
+
+      ( Hint.Single view, Nothing ) ->
+        List.foldl getCloser first dots
+          |> dotToPoint
+          |> view
+          |> Just
+
+      ( Hint.Aligned view, Just proximity ) ->
+        List.filter (withinProximity proximity) dots
+          |> List.map dotToPoint
+          |> noEmptyList
+          |> Maybe.map view
+
+      ( Hint.Aligned view, Nothing ) ->
+        List.foldl getCloserX [] dots
+          |> List.map dotToPoint
+          |> view
+          |> Just
+
+
+dotToPoint : Dot msg -> Point
+dotToPoint dot =
+  { x = dot.x, y = dot.y }
 
 
 -- PLANE
@@ -368,33 +438,3 @@ maybeCompose sometimesAnAxis marks =
 
     SometimesYouDontHaveAnAxis ->
       Nothing
-
-
-
--- HINT DECODER
-
-
-handleHint : Plane -> Hint msg -> Json.Decoder msg
-handleHint plane hint =
-    Json.map3
-        (hintMessage plane hint)
-        (Json.field "clientX" Json.float)
-        (Json.field "clientY" Json.float)
-        (DOM.target plotPosition)
-
-
-plotPosition : Json.Decoder DOM.Rectangle
-plotPosition =
-    Json.oneOf
-        [ DOM.boundingClientRect
-        , Json.lazy (\_ -> DOM.parentElement plotPosition)
-        ]
-
-
-hintMessage : Plane -> Hint msg -> Float -> Float -> DOM.Rectangle -> msg
-hintMessage plane hint mouseX mouseY { left, top } =
-  hint.msg <|
-    Just
-      { x = clamp plane.x.min plane.x.max <| toCartesianX plane (mouseX - left)
-      , y = clamp plane.y.min plane.y.max <| toCartesianY plane (mouseY - top)
-      }
