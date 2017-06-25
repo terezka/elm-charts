@@ -3,6 +3,7 @@ module Interactive exposing (..)
 import Html exposing (h1, p, text, div, node)
 import Svg exposing (Svg)
 import Svg.Attributes as Attributes exposing (fill, stroke)
+import Axis exposing (..)
 import Series exposing (..)
 import Colors exposing (..)
 import Hint exposing (..)
@@ -42,9 +43,10 @@ view : Model -> Svg Msg
 view model =
   Series.viewCustom
     { defaultConfig
-    | hint = Just
-        { proximity = Just 10
-        , view = Single (toString >> Svg.text)
+    | independentAxis = axisView
+    , hint = Just
+        { proximity = Nothing
+        , view = Aligned (toString >> Svg.text)
         , msg = Hover
         , model = model.hovering
         }
@@ -55,6 +57,16 @@ view model =
       }
     ]
     data
+
+
+axisView : AxisView
+axisView =
+  { position = \min max -> min
+  , line = Just simpleLine
+  , marks = decentPositions >> List.map gridMark
+  , mirror = False
+  }
+
 
 
 viewCircle : String -> Svg msg
@@ -82,6 +94,7 @@ data =
     [ ( -2, -3 )
     , ( 0, 0 )
     , ( 3, 60 )
+    , ( 3, 20 )
     , ( 6, 20 )
     , ( 9, 40 )
     , ( 12, 100 )

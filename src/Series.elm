@@ -26,7 +26,7 @@ import Svg exposing (Svg, Attribute, g, svg, text)
 import Svg.Attributes as Attributes exposing (class, width, height, fill, stroke)
 import Html exposing (Html, div)
 import Html.Events exposing (on, onMouseLeave)
-import Svg.Coordinates exposing (Plane, Point, minimum, maximum, toCartesianX, toCartesianY)
+import Svg.Coordinates exposing (Plane, Point, minimum, maximum, toSVGX, toSVGY, toCartesianX, toCartesianY)
 import Svg.Plot exposing (..)
 import Axis exposing (..)
 import Colors exposing (..)
@@ -243,7 +243,7 @@ viewCustom config series data =
         , Svg.map never (viewVerticals plane independentAxes)
         , Svg.map never (viewBunchOfLines plane xMarks yMarks)
         ]
-      , Html.map never <| viewMaybeHtml config.hint (viewHint allDots)
+      , Html.map never <| viewMaybeHtml config.hint (viewHint plane allDots)
       ]
 
 
@@ -296,47 +296,50 @@ svgDots =
 -- VIEW HINT
 
 
-viewHint : List (Dot msg) -> Hint msg -> Html Never
-viewHint dots hint =
+viewHint : Plane -> List (Dot msg) -> Hint msg -> Html Never
+viewHint plane dots hint =
   case ( dots, hint.model ) of
     ( first :: rest, Just model ) ->
-      viewHintPoint first dots hint model
+      viewHintPoint plane first dots hint model
         |> Maybe.withDefault (Html.text "")
 
     ( _, _ ) ->
       Html.text ""
 
 
-viewHintPoint : Dot msg -> List (Dot msg) -> Hint msg -> Point -> Maybe (Html Never)
-viewHintPoint first dots hint hovered =
+viewHintPoint : Plane -> Dot msg -> List (Dot msg) -> Hint msg -> Point -> Maybe (Html Never)
+viewHintPoint plane first dots hint hovered =
   let
-    findProximity dot =
-      sqrt <| abs (dot.x - hovered.x) + abs (dot.y - hovered.y)
+    distanceX dot =
+      abs (toSVGX plane dot.x - toSVGX plane hovered.x)
 
-    findProximityX dot =
-      abs (dot.x - hovered.x)
+    distanceY dot =
+      abs (toSVGY plane dot.y - toSVGY plane hovered.y)
+
+    distance dot =
+        sqrt (distanceX dot + distanceY dot)
 
     withinProximity proximity dot =
-      findProximity dot <= proximity
+      distance dot <= proximity
 
-    getCloser closest dot =
-      if findProximity closest < findProximity dot then
+    getClosest closest dot =
+      if distance closest < distance dot then
         closest
       else
         dot
 
-    getCloserX dot allClosest =
+    getClosestX dot allClosest =
       let
         closest =
           List.head allClosest
             |> Maybe.withDefault first
       in
-        if findProximityX closest == findProximityX dot then
+        if distanceX closest == distanceX dot then
           dot :: allClosest
-        else if findProximityX closest < findProximityX dot then
-          [ closest ]
-        else
+        else if distanceX closest > distanceX dot then
           [ dot ]
+        else
+          allClosest
 
     noEmptyList list =
       if List.isEmpty list then
@@ -352,7 +355,7 @@ viewHintPoint first dots hint hovered =
           |> Maybe.map view
 
       ( Hint.Single view, Nothing ) ->
-        List.foldl getCloser first dots
+        List.foldl getClosest first dots
           |> dotToPoint
           |> view
           |> Just
@@ -364,7 +367,7 @@ viewHintPoint first dots hint hovered =
           |> Maybe.map view
 
       ( Hint.Aligned view, Nothing ) ->
-        List.foldl getCloserX [] dots
+        List.foldl getClosestX [ first ] dots
           |> List.map dotToPoint
           |> view
           |> Just
