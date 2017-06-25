@@ -1,9 +1,15 @@
 module Internal.Utils exposing (..)
 
+import Html exposing (Html, Attribute)
 import Svg exposing (Svg, text)
 import Round
 import Regex
 import Array
+
+
+{-| -}
+type alias Positioned a =
+  { a | x : Float, y : Float }
 
 
 -- GENERAL
@@ -15,13 +21,34 @@ viewMaybe a view =
   Maybe.withDefault (text "") (Maybe.map view a)
 
 
+{-| -}
+viewMaybeHtml : Maybe a -> (a -> Html msg) -> Html msg
+viewMaybeHtml a view =
+  Maybe.withDefault (Html.text "") (Maybe.map view a)
+
+
+{-| -}
+nonEmptyList : List a -> Maybe (List a)
+nonEmptyList list =
+  if List.isEmpty list then
+    Nothing
+  else
+    Just list
+
 
 -- DOM STUFF
 
 
+{-| -}
 translate : Float -> Float -> String
 translate x y =
   "translate(" ++ toString x ++ ", " ++ toString y ++ ")"
+
+
+{- ... but it's so much nicer ux! -}
+hasFill : List (Attribute msg) -> Bool
+hasFill attributes =
+  List.any (toString >> String.contains "realKey = \"fill\"") attributes
 
 
 

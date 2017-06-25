@@ -15,25 +15,24 @@ module Series exposing (
   , gridMark
   , AxisView
   , sometimesYouDontHaveAnAxis
-  , Hint
-  , Find(..)
   )
 
 {-|
 @docs Series, Interpolation, Dot, view, dot, Axis, axis, defaultAxisView, defaultConfig, gridMark, AxisView, sometimesYouDontHaveAnAxis, defaultMark
-@docs Mark, MarkView, viewCustom, Hint, Find
+@docs Mark, MarkView, viewCustom
 -}
 
 import Svg exposing (Svg, Attribute, g, svg, text)
 import Svg.Attributes as Attributes exposing (class, width, height, fill, stroke)
 import Html exposing (Html, div)
 import Html.Events exposing (on, onMouseLeave)
-import Json.Decode as Json
-import DOM
-import Svg.Coordinates exposing (Plane, Point, minimum, maximum, toCartesianX, toCartesianY)
+import Svg.Coordinates exposing (Plane, Point, minimum, maximum, toSVGX, toSVGY, toCartesianX, toCartesianY)
 import Svg.Plot exposing (..)
 import Axis exposing (..)
 import Colors exposing (..)
+import Hint exposing (Hint)
+import Internal.Hint as Hint
+import Internal.Utils exposing (viewMaybeHtml, nonEmptyList, hasFill)
 import Internal.Axis exposing
   ( viewHorizontal
   , viewVerticals
@@ -188,18 +187,6 @@ type alias Config msg =
 
 
 {-| -}
-type Find = Aligned | Single
-
-
-{-| -}
-type alias Hint msg =
-  { proximity : Maybe Int
-  , find : Find
-  , msg : Maybe Point -> msg
-  }
-
-
-{-| -}
 defaultConfig : Config msg
 defaultConfig =
   { independentAxis = defaultAxisView
@@ -256,6 +243,7 @@ viewCustom config series data =
         , Svg.map never (viewVerticals plane independentAxes)
         , Svg.map never (viewBunchOfLines plane xMarks yMarks)
         ]
+      , Html.map never <| viewMaybeHtml config.hint (Hint.viewHint plane allDots)
       ]
 
 
@@ -264,7 +252,7 @@ container plane config =
   case config.hint of
     Just hint ->
         div
-          [ on "mousemove" (handleHint plane hint)
+          [ on "mousemove" (Hint.decoder plane hint.msg)
           , onMouseLeave (hint.msg Nothing)
           ]
 
@@ -354,12 +342,6 @@ getDots data { toDots } =
   toDots data
 
 
-{- ... -}
-hasFill : List (Attribute msg) -> Bool
-hasFill attributes =
-  List.any (toString >> String.contains "realKey = \"fill\"") attributes
-
-
 maybeCompose : Axis -> List Mark -> Maybe AxisView
 maybeCompose sometimesAnAxis marks =
   case sometimesAnAxis of
@@ -368,33 +350,3 @@ maybeCompose sometimesAnAxis marks =
 
     SometimesYouDontHaveAnAxis ->
       Nothing
-
-
-
--- HINT DECODER
-
-
-handleHint : Plane -> Hint msg -> Json.Decoder msg
-handleHint plane hint =
-    Json.map3
-        (hintMessage plane hint)
-        (Json.field "clientX" Json.float)
-        (Json.field "clientY" Json.float)
-        (DOM.target plotPosition)
-
-
-plotPosition : Json.Decoder DOM.Rectangle
-plotPosition =
-    Json.oneOf
-        [ DOM.boundingClientRect
-        , Json.lazy (\_ -> DOM.parentElement plotPosition)
-        ]
-
-
-hintMessage : Plane -> Hint msg -> Float -> Float -> DOM.Rectangle -> msg
-hintMessage plane hint mouseX mouseY { left, top } =
-  hint.msg <|
-    Just
-      { x = clamp plane.x.min plane.x.max <| toCartesianX plane (mouseX - left)
-      , y = clamp plane.y.min plane.y.max <| toCartesianY plane (mouseY - top)
-      }
