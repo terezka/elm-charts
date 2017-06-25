@@ -31,8 +31,8 @@ import Svg.Plot exposing (..)
 import Axis exposing (..)
 import Colors exposing (..)
 import Hint exposing (Hint)
-import Internal.Hint exposing (handleHint)
-import Internal.Utils exposing (viewMaybeHtml)
+import Internal.Hint as Hint
+import Internal.Utils exposing (viewMaybeHtml, nonEmptyList, hasFill)
 import Internal.Axis exposing
   ( viewHorizontal
   , viewVerticals
@@ -243,7 +243,7 @@ viewCustom config series data =
         , Svg.map never (viewVerticals plane independentAxes)
         , Svg.map never (viewBunchOfLines plane xMarks yMarks)
         ]
-      , Html.map never <| viewMaybeHtml config.hint (viewHint plane allDots)
+      , Html.map never <| viewMaybeHtml config.hint (Hint.viewHint plane allDots)
       ]
 
 
@@ -252,7 +252,7 @@ container plane config =
   case config.hint of
     Just hint ->
         div
-          [ on "mousemove" (handleHint plane hint.msg)
+          [ on "mousemove" (Hint.decoder plane hint.msg)
           , onMouseLeave (hint.msg Nothing)
           ]
 
@@ -291,94 +291,6 @@ svgDots : List (Dot msg) -> List (Svg.Plot.Dot msg)
 svgDots =
   List.map <| \dot -> { x = dot.x, y = dot.y, view = dot.view }
 
-
-
--- VIEW HINT
-
-
-viewHint : Plane -> List (Dot msg) -> Hint msg -> Html Never
-viewHint plane dots hint =
-  case ( dots, hint.model ) of
-    ( first :: rest, Just model ) ->
-      viewHintPoint plane first dots hint model
-        |> Maybe.withDefault (Html.text "")
-
-    ( _, _ ) ->
-      Html.text ""
-
-
-viewHintPoint : Plane -> Dot msg -> List (Dot msg) -> Hint msg -> Point -> Maybe (Html Never)
-viewHintPoint plane first dots hint hovered =
-  let
-    distanceX dot =
-      (toSVGX plane dot.x - toSVGX plane hovered.x) ^ 2
-
-    distanceY dot =
-      (toSVGY plane dot.y - toSVGY plane hovered.y) ^ 2
-
-    distance dot =
-        sqrt (distanceX dot + distanceY dot)
-
-    withinProximity proximity dot =
-      distance dot <= proximity
-
-    withinProximityX proximity dot =
-      abs (toSVGX plane dot.x - toSVGX plane hovered.x) <= proximity
-
-    getClosest closest dot =
-      if distance closest < distance dot then
-        closest
-      else
-        dot
-
-    getClosestX dot allClosest =
-      case List.head allClosest of
-        Just closest ->
-            if distanceX closest == distanceX dot then
-              dot :: allClosest
-            else if distanceX closest > distanceX dot then
-              [ dot ]
-            else
-              allClosest
-
-        Nothing ->
-          [ dot ]
-
-    nonEmptyList list =
-      if List.isEmpty list then
-        Nothing
-      else
-        Just list
-  in
-    case ( hint.view, hint.proximity ) of
-      ( Hint.Single view, Just proximity ) ->
-        List.filter (withinProximity proximity) dots
-          |> List.head
-          |> Maybe.map (dotToPoint >> view)
-
-      ( Hint.Single view, Nothing ) ->
-        List.foldl getClosest first dots
-          |> dotToPoint
-          |> view
-          |> Just
-
-      ( Hint.Aligned view, Just proximity ) ->
-        List.filter (withinProximityX proximity) dots
-          |> List.foldl getClosestX []
-          |> List.map dotToPoint
-          |> nonEmptyList
-          |> Maybe.map view
-
-      ( Hint.Aligned view, Nothing ) ->
-        List.foldl getClosestX [] dots
-          |> List.map dotToPoint
-          |> view
-          |> Just
-
-
-dotToPoint : Dot msg -> Point
-dotToPoint dot =
-  { x = dot.x, y = dot.y }
 
 
 -- PLANE
@@ -428,12 +340,6 @@ isArea series =
 getDots : data -> Series data msg -> List (Dot msg)
 getDots data { toDots } =
   toDots data
-
-
-{- ... -}
-hasFill : List (Attribute msg) -> Bool
-hasFill attributes =
-  List.any (toString >> String.contains "realKey = \"fill\"") attributes
 
 
 maybeCompose : Axis -> List Mark -> Maybe AxisView

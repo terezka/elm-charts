@@ -55,6 +55,10 @@ view model =
       , interpolation = None
       , toDots = .first >> List.map (\(x, y) -> dot (viewCircle pinkStroke) x y)
       }
+    , { axis = axis defaultAxisView
+      , interpolation = Monotone []
+      , toDots = .second >> List.map (\(x, y) -> dot (viewCircle blueStroke) x y)
+      }
     ]
     data
 
@@ -93,12 +97,12 @@ data =
   { first =
     [ ( 3, 20 )
     , ( 4, 50 )
-    , ( 4, 30 )
     , ( 12, 100 )
     ]
   , second =
     [ ( 1, 30 )
     , ( 2, 40 )
+    , ( 4, 30 )
     , ( 5, 20 )
     , ( 7.8, 0 )
     ]
