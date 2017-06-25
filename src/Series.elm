@@ -311,16 +311,19 @@ viewHintPoint : Plane -> Dot msg -> List (Dot msg) -> Hint msg -> Point -> Maybe
 viewHintPoint plane first dots hint hovered =
   let
     distanceX dot =
-      abs (toSVGX plane dot.x - toSVGX plane hovered.x)
+      (toSVGX plane dot.x - toSVGX plane hovered.x) ^ 2
 
     distanceY dot =
-      abs (toSVGY plane dot.y - toSVGY plane hovered.y)
+      (toSVGY plane dot.y - toSVGY plane hovered.y) ^ 2
 
     distance dot =
         sqrt (distanceX dot + distanceY dot)
 
     withinProximity proximity dot =
       distance dot <= proximity
+
+    withinProximityX proximity dot =
+      abs (toSVGX plane dot.x - toSVGX plane hovered.x) <= proximity
 
     getClosest closest dot =
       if distance closest < distance dot then
@@ -329,30 +332,29 @@ viewHintPoint plane first dots hint hovered =
         dot
 
     getClosestX dot allClosest =
-      let
-        closest =
-          List.head allClosest
-            |> Maybe.withDefault first
-      in
-        if distanceX closest == distanceX dot then
-          dot :: allClosest
-        else if distanceX closest > distanceX dot then
-          [ dot ]
-        else
-          allClosest
+      case List.head allClosest of
+        Just closest ->
+            if distanceX closest == distanceX dot then
+              dot :: allClosest
+            else if distanceX closest > distanceX dot then
+              [ dot ]
+            else
+              allClosest
 
-    noEmptyList list =
+        Nothing ->
+          [ dot ]
+
+    nonEmptyList list =
       if List.isEmpty list then
-        Just list
-      else
         Nothing
+      else
+        Just list
   in
     case ( hint.view, hint.proximity ) of
       ( Hint.Single view, Just proximity ) ->
         List.filter (withinProximity proximity) dots
-          |> List.map dotToPoint
           |> List.head
-          |> Maybe.map view
+          |> Maybe.map (dotToPoint >> view)
 
       ( Hint.Single view, Nothing ) ->
         List.foldl getClosest first dots
@@ -361,13 +363,14 @@ viewHintPoint plane first dots hint hovered =
           |> Just
 
       ( Hint.Aligned view, Just proximity ) ->
-        List.filter (withinProximity proximity) dots
+        List.filter (withinProximityX proximity) dots
+          |> List.foldl getClosestX []
           |> List.map dotToPoint
-          |> noEmptyList
+          |> nonEmptyList
           |> Maybe.map view
 
       ( Hint.Aligned view, Nothing ) ->
-        List.foldl getClosestX [ first ] dots
+        List.foldl getClosestX [] dots
           |> List.map dotToPoint
           |> view
           |> Just

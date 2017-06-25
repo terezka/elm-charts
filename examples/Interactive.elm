@@ -45,7 +45,7 @@ view model =
     { defaultConfig
     | independentAxis = axisView
     , hint = Just
-        { proximity = Nothing
+        { proximity = Just 10
         , view = Aligned (toString >> Svg.text)
         , msg = Hover
         , model = model.hovering
@@ -72,7 +72,7 @@ axisView =
 viewCircle : String -> Svg msg
 viewCircle color =
   Svg.circle
-    [ Attributes.r "5"
+    [ Attributes.r "10"
     , Attributes.stroke "transparent"
     , Attributes.fill color
     ]
@@ -91,12 +91,9 @@ main =
 data : { first : List ( Float, Float ), second : List ( Float, Float ) }
 data =
   { first =
-    [ ( -2, -3 )
-    , ( 0, 0 )
-    , ( 3, 60 )
-    , ( 3, 20 )
-    , ( 6, 20 )
-    , ( 9, 40 )
+    [ ( 3, 20 )
+    , ( 4, 50 )
+    , ( 4, 30 )
     , ( 12, 100 )
     ]
   , second =
