@@ -680,7 +680,7 @@ type alias JunkCustomizations msg =
         ]
         "Ca$h earned"
 
-    view : Svg.Svg a
+    view : Html msg
     view =
       viewSeriesCustom
         { defaultSeriesPlotCustomizations
@@ -1022,7 +1022,7 @@ closestToZero min max =
   of the last argument given to `viewSeries`, where the coordinates are
   emphasized with a circle.
 
-    view : Svg msg
+    view : Html msg
     view =
       viewSeries
         [ area (List.map (\{ x, y } -> circle x y)) ]
@@ -1144,7 +1144,7 @@ addNiceReachForArea area ({ y, x } as summary) =
 {-| This is for viewing a bar chart! The example below renders four groups of two
   bars each, labeled Q1, Q2, Q3, Q4 respectively.
 
-    view : Svg msg
+    view : Html msg
     view =
       viewBars
         (groups (List.map (\data -> group data.label data.heights)))
