@@ -55,17 +55,17 @@ Let me know! Open an issue (or PR) or write in [slack](https://elmlang.slack.com
 
 ### Setup
 
-```elm
+```shell
 elm package install
-elm-reactor
+elm reactor
 ```
 
 and open [docs](https://terezka.github.io/elm-plot/) (The docs contain a bunch of examples convenient for developing).
 
 ### Compile the Docs
 
-```
-elm-live docs/src/Docs.elm --output=docs/docs.js
+```shell
+elm live docs/src/Docs.elm --output=docs/docs.js
 ```
 
 ### Tests
@@ -74,6 +74,6 @@ Tests are written with [elm-test](https://github.com/elm-community/elm-test).
 For further information on elm-test check the documentation.
 All required dependencies are downloaded and installed when initially running the command.
 
-```
-elm-test
+```shell
+elm test
 ```
