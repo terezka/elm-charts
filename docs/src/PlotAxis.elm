@@ -11,13 +11,13 @@ plotExample =
     { title = "Multiple axis"
     , code = code
     , view = view
-    , id = "Axis"
+    , id = "PlotAxis"
     }
 
 
 data : List ( Float, Float )
 data =
-    [ ( -2, 10 ), ( -1, 20 ), ( -0.5, -5 ),( 0, 10 ), ( 0.5, 20 ), ( 1, -5 ), ( 1.5, 4 ), ( 2, -7 ), ( 2.5, 5 ), ( 3, 20 ), ( 3.5, 7 ), ( 4, 28 ) ]
+    [ ( -2, 10 ), ( -1, 20 ), ( -0.5, -5 ), ( 0, 10 ), ( 0.5, 20 ), ( 1, -5 ), ( 1.5, 4 ), ( 2, -7 ), ( 2.5, 5 ), ( 3, 20 ), ( 3.5, 7 ), ( 4, 28 ) ]
 
 
 customArea : Series (List ( Float, Float )) msg
