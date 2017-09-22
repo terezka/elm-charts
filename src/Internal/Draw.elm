@@ -199,7 +199,7 @@ areaBegin : PlotSummary -> List Point -> List Command
 areaBegin plot points =
   case points of
     { x, y } :: rest ->
-      [ Move x (yClosestToZero plot), Line x y ]
+      [ Move x plot.y.min, Line x y ]
 
     _ ->
       []
@@ -209,15 +209,10 @@ areaEnd : PlotSummary -> List Point -> List Command
 areaEnd plot points =
   case List.head <| List.reverse <| points of
     Just { x, y } ->
-      [ Line x (yClosestToZero plot) ]
+      [ Line x plot.y.min ]
 
     Nothing ->
       []
-
-
-yClosestToZero : PlotSummary -> Float
-yClosestToZero { y } =
-  clamp y.min y.max 0
 
 
 -- PATH COMMANDS
