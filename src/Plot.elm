@@ -77,6 +77,7 @@ module Plot
         , viewDiamond
         , viewTriangle
         , displace
+        , scaleValue
         )
 
 {-|
@@ -109,7 +110,7 @@ Just thought you might want a hand with all the views you need for your data poi
 @docs Bars, BarGroup, MaxBarWidth, hintGroup, customGroups, customGroup
 
 # Custom plot
-@docs PlotCustomizations, PlotSummary, defaultSeriesPlotCustomizations, viewSeriesCustom, defaultBarsPlotCustomizations, viewBarsCustom
+@docs PlotCustomizations, PlotSummary, defaultSeriesPlotCustomizations, viewSeriesCustom, defaultBarsPlotCustomizations, viewBarsCustom, scaleValue
 
 ## Hint customizations
 @docs Point, normalHintContainer, flyingHintContainer, normalHintContainerInner
@@ -174,6 +175,10 @@ type alias AxisSummary =
     }
 
 
+{-| -}
+scaleValue : AxisSummary -> Float -> Float
+scaleValue =
+  Draw.scaleValue
 
 -- DATA POINTS
 
@@ -226,7 +231,7 @@ clear =
 
 -}
 type alias DataPoint msg =
-    { view : Maybe (Svg msg)
+    { view : Maybe (PlotSummary -> Svg msg)
     , xLine : Maybe (AxisSummary -> LineCustomizations)
     , yLine : Maybe (AxisSummary -> LineCustomizations)
     , xTick : Maybe TickCustomizations
@@ -241,7 +246,7 @@ type alias DataPoint msg =
 -}
 dot : Svg msg -> Float -> Float -> DataPoint msg
 dot view x y =
-    { view = Just view
+    { view = Just (\summary -> view)
     , xLine = Nothing
     , yLine = Nothing
     , xTick = Nothing
@@ -257,7 +262,7 @@ dot view x y =
 -}
 hintDot : Svg msg -> Maybe Point -> Float -> Float -> DataPoint msg
 hintDot view hovering x y =
-    { view = Just view
+    { view = Just (\summary -> view)
     , xLine = onHovering (fullLine [ stroke darkGrey ]) hovering x
     , yLine = Nothing
     , xTick = Nothing
@@ -285,7 +290,7 @@ onHovering stuff hovering x =
 -}
 emphasizedDot : Svg msg -> Float -> Float -> DataPoint msg
 emphasizedDot view x y =
-    { view = Just view
+    { view = Just (\summary -> view)
     , xLine = Just (fullLine [ stroke darkGrey, strokeDasharray "5, 5" ])
     , yLine = Just (fullLine [ stroke darkGrey, strokeDasharray "5, 5" ])
     , xTick = Nothing
@@ -303,7 +308,7 @@ emphasizedDot view x y =
 -}
 rangeFrameDot : Svg msg -> Float -> Float -> DataPoint msg
 rangeFrameDot view x y =
-    { view = Just view
+    { view = Just (\summary -> view)
     , xLine = Nothing
     , yLine = Nothing
     , xTick = Just (simpleTick x)
@@ -324,7 +329,7 @@ normalHint y =
 {-| Just do whatever you want.
 -}
 customDot :
-    Maybe (Svg msg)
+    Maybe (PlotSummary -> Svg msg)
     -> Maybe (AxisSummary -> LineCustomizations)
     -> Maybe (AxisSummary -> LineCustomizations)
     -> Maybe TickCustomizations
@@ -1527,7 +1532,7 @@ viewDataPoint plotSummary { x, y, view } =
             Nothing
 
         Just svgView ->
-            Just <| g [ place plotSummary { x = x, y = y } 0 0 ] [ svgView ]
+            Just <| g [ place plotSummary { x = x, y = y } 0 0 ] [ svgView plotSummary ]
 
 
 {-| Pass radius and color to make a circle!

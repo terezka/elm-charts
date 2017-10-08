@@ -61,7 +61,6 @@ length : AxisSummary -> Float
 length axis =
   axis.length - axis.marginLower - axis.marginUpper
 
-
 scaleValue : AxisSummary -> Float -> Float
 scaleValue axis value =
   value * (length axis) / (range axis)
