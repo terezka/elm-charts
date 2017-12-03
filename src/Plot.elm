@@ -743,17 +743,16 @@ viewFlyingHintContainer inner { x } summary hints =
         isLeft =
             (x - summary.x.min) > (range summary.x) / 2
 
-        direction =
+        pos =
             if isLeft then
-                "translateX(-100%)"
+                ( "right", toString (100 - xOffset) ++ "%" )
             else
-                "translateX(0)"
+                ( "left", toString xOffset ++ "%" )
 
         style =
             [ ( "position", "absolute" )
             , ( "top", "25%" )
-            , ( "left", toString xOffset ++ "%" )
-            , ( "transform", direction )
+            , pos
             , ( "pointer-events", "none" )
             ]
     in
