@@ -1,3 +1,8 @@
+# DEPRECATED!
+
+The library is in the process of being split up in smaller libraries. The one for lines is public [here](https://github.com/terezka/lines).
+
+
 # Elm Plot
 
 A library for plotting using SVG and Elm. You can take a look [here](https://terezka.github.io/elm-plot)!
