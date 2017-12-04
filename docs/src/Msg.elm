@@ -6,3 +6,4 @@ type Msg
     = FocusExample String
     | HoverRangeFrame (Maybe Point)
     | HoverBars (Maybe Point)
+    | AnimationStatus String
