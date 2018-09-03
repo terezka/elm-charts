@@ -2,7 +2,7 @@ module Interactive exposing (..)
 
 import Html exposing (h1, p, text, div, node)
 import Plot exposing (..)
-
+import Browser
 
 -- MODEL
 
@@ -11,8 +11,8 @@ type alias Model =
     { hovering : Maybe Point }
 
 
-initialModel : Model
-initialModel =
+init : Model
+init =
     { hovering = Nothing }
 
 
@@ -63,6 +63,6 @@ view model =
         barData
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    Html.beginnerProgram { model = initialModel, update = update, view = view }
+    Browser.sandbox { init = init, update = update, view = view }
