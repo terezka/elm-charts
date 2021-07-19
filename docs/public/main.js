@@ -19815,6 +19815,11 @@ var $author$project$Chart$Attributes$tickLength = F2(
 			config,
 			{tickLength: v});
 	});
+var $author$project$Chart$Attributes$withGrid = function (config) {
+	return _Utils_update(
+		config,
+		{grid: true});
+};
 var $author$project$Chart$Attributes$x2 = F2(
 	function (v, config) {
 		return _Utils_update(
@@ -22516,7 +22521,9 @@ var $author$project$Charts$Terminology$view = A2(
 	_List_fromArray(
 		[
 			$author$project$Chart$grid(_List_Nil),
-			$author$project$Chart$yLabels(_List_Nil),
+			$author$project$Chart$yLabels(
+			_List_fromArray(
+				[$author$project$Chart$Attributes$withGrid])),
 			$author$project$Chart$xAxis(
 			_List_fromArray(
 				[$author$project$Chart$Attributes$noArrow])),
@@ -23530,11 +23537,6 @@ var $author$project$Examples$BarCharts$BarLabels$data = _List_fromArray(
 		A9($author$project$Examples$BarCharts$BarLabels$Datum, 3.0, 0.6, 1.0, 3.2, 4.8, 5.4, 7.2, 8.3, 'Sweden'),
 		A9($author$project$Examples$BarCharts$BarLabels$Datum, 4.0, 0.2, 1.2, 3.0, 4.1, 5.5, 7.9, 8.1, 'Finland')
 	]);
-var $author$project$Chart$Attributes$withGrid = function (config) {
-	return _Utils_update(
-		config,
-		{grid: true});
-};
 var $author$project$Chart$xLabels = function (edits) {
 	var toTicks = F2(
 		function (p, config) {

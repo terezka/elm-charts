@@ -22,7 +22,7 @@ view =
     , CA.padding { top = 40, bottom = 30, left = 0, right = 0 }
     ]
     [ C.grid []
-    , C.yLabels []
+    , C.yLabels [ CA.withGrid ]
     , C.xAxis [ CA.noArrow ]
 
     , C.bars
