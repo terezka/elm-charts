@@ -38127,7 +38127,9 @@ var $author$project$Ui$Code$view = function (config) {
 				$mdgriffith$elm_ui$Element$htmlAttribute(
 				A2($elm$html$Html$Attributes$style, 'padding', '0 20px')),
 				$mdgriffith$elm_ui$Element$htmlAttribute(
-				A2($elm$html$Html$Attributes$style, 'overflow-x', 'scroll')),
+				A2($elm$html$Html$Attributes$style, 'overflow-x', 'auto')),
+				$mdgriffith$elm_ui$Element$htmlAttribute(
+				A2($elm$html$Html$Attributes$style, 'line-height', '1.2')),
 				$mdgriffith$elm_ui$Element$Font$size(14),
 				$mdgriffith$elm_ui$Element$Font$family(
 				_List_fromArray(
