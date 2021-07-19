@@ -34,7 +34,7 @@ view config =
         , E.htmlAttribute (HA.style "white-space" "pre")
         , E.htmlAttribute (HA.style "padding" "0 20px")
         , E.htmlAttribute (HA.style "overflow-x" "auto")
-        , E.htmlAttribute (HA.style "line-height" "1.2")
+        , E.htmlAttribute (HA.style "line-height" "1.3")
         , F.size 14
         , F.family [ F.typeface "Source Code Pro", F.monospace ]
         , E.alignTop
