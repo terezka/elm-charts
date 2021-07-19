@@ -1,18 +1,28 @@
-# Elm Charts
+# elm-charts-alpha
 
-DEPRECATED! This library is for plotting charts using SVG and Elm.
+Make charts! Alpha version, so liable to changes.
 
-# Features
+```elm
 
-Right now, this library can make make:
+import Chart as C
+import Chart.Attributes as CA
 
-   - Series
-      - Plain and area series.
-      - Interpolations include none (a scatter), linear, and monotone-x.
-   - Horizontally stacked bar charts / histograms.
-   - All plots have the option for customizable axis, ticks and labels.
-
-# Development
-
-Just run `elm install` and `elm reactor` and go to `http://localhost:8000/examples` to play with
-the examples.
+main : Svg msg
+main =
+  C.chart
+    [ CA.height 300
+    , CA.width 300
+    ]
+    [ C.xTicks []
+    , C.yTicks []
+    , C.xLabels []
+    , C.yLabels []
+    , C.xAxis []
+    , C.yAxis []
+    , C.series .x
+        [ C.scatter .y []
+        , C.scatter .z []
+        ]
+        data
+    ]
+```
