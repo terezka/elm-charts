@@ -338,7 +338,7 @@ viewFeature window config =
 
       viewCode =
         E.el
-          [ E.width E.fill
+          [ E.width (E.maximum 500 E.fill)
           , E.height E.fill
           , BG.color (E.rgb255 250 250 250)
           ]

@@ -4,32 +4,32 @@ module Examples.Frontpage.Familiar exposing (..)
 -- THIS IS A GENERATED MODULE!
 
 import Html exposing (Html)
-import Chart as C
-import Chart.Attributes as CA
-import Time
+import Chart exposing (..)
+import Chart.Attributes as CA exposing (..)
+import Time exposing (utc)
 
 
-chart : Html Msg
-chart =
-  C.chart
-    [ CA.height 350
-    , CA.width 570
-    , CA.margin { top = 10, bottom = 30, left = 30, right = 10 }
+viewChart : Html Msg
+viewChart =
+  chart
+    [ height 350
+    , width 570
+    , margin { top = 10, bottom = 30, left = 30, right = 10 }
     ]
-    [ C.xLabels [ CA.times Time.utc, CA.amount 12 ]
-    , C.yLabels [ CA.amount 6, CA.withGrid ]
-    , C.xAxis []
-    , C.yAxis []
-    , C.series .x
-        [ C.interpolated .y [ CA.width 2 ] []
-        , C.interpolated .z [ CA.width 2 ] []
+    [ xLabels [ CA.times utc, amount 12 ]
+    , yLabels [ withGrid, amount 6 ]
+    , xAxis []
+    , yAxis []
+    , series .x
+        [ interpolated .y [ width 2 ] []
+        , interpolated .z [ width 2 ] []
         ]
         data
     ]
 
 view : Model -> Html Msg
 view model =
-  chart
+  viewChart
 
 
 meta =
@@ -88,25 +88,25 @@ data =
 smallCode : String
 smallCode =
   """
-import Chart as C
-import Chart.Attributes as CA
-import Time
+import Chart exposing (..)
+import Chart.Attributes as CA exposing (..)
+import Time exposing (utc)
 
 
-chart : Html Msg
-chart =
-  C.chart
-    [ CA.height 350
-    , CA.width 570
-    , CA.margin { top = 10, bottom = 30, left = 30, right = 10 }
+viewChart : Html Msg
+viewChart =
+  chart
+    [ height 350
+    , width 570
+    , margin { top = 10, bottom = 30, left = 30, right = 10 }
     ]
-    [ C.xLabels [ CA.times Time.utc, CA.amount 12 ]
-    , C.yLabels [ CA.amount 6, CA.withGrid ]
-    , C.xAxis []
-    , C.yAxis []
-    , C.series .x
-        [ C.interpolated .y [ CA.width 2 ] []
-        , C.interpolated .z [ CA.width 2 ] []
+    [ xLabels [ CA.times utc, amount 12 ]
+    , yLabels [ withGrid, amount 6 ]
+    , xAxis []
+    , yAxis []
+    , series .x
+        [ interpolated .y [ width 2 ] []
+        , interpolated .z [ width 2 ] []
         ]
         data
     ]
@@ -117,25 +117,25 @@ largeCode : String
 largeCode =
   """
 import Html exposing (Html)
-import Chart as C
-import Chart.Attributes as CA
-import Time
+import Chart exposing (..)
+import Chart.Attributes as CA exposing (..)
+import Time exposing (utc)
 
 
-chart : Html Msg
-chart =
-  C.chart
-    [ CA.height 350
-    , CA.width 570
-    , CA.margin { top = 10, bottom = 30, left = 30, right = 10 }
+viewChart : Html Msg
+viewChart =
+  chart
+    [ height 350
+    , width 570
+    , margin { top = 10, bottom = 30, left = 30, right = 10 }
     ]
-    [ C.xLabels [ CA.times Time.utc, CA.amount 12 ]
-    , C.yLabels [ CA.amount 6, CA.withGrid ]
-    , C.xAxis []
-    , C.yAxis []
-    , C.series .x
-        [ C.interpolated .y [ CA.width 2 ] []
-        , C.interpolated .z [ CA.width 2 ] []
+    [ xLabels [ CA.times utc, amount 12 ]
+    , yLabels [ withGrid, amount 6 ]
+    , xAxis []
+    , yAxis []
+    , series .x
+        [ interpolated .y [ width 2 ] []
+        , interpolated .z [ width 2 ] []
         ]
         data
     ]
