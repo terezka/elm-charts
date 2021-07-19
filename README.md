@@ -1,6 +1,6 @@
-# elm-charts-alpha
+# elm-charts
 
-Make charts! Alpha version, so liable to changes.
+Make charts!
 
 ```elm
 
