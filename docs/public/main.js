@@ -15938,7 +15938,7 @@ var $author$project$Page$Administration$view = function (model) {
 						]),
 					_List_fromArray(
 						[
-							A2($author$project$Ui$Layout$link, 'https://github.com/terezka', 'GitHub'),
+							A2($author$project$Ui$Layout$link, 'https://github.com/terezka/elm-charts', 'GitHub'),
 							A2($author$project$Ui$Layout$link, 'https://twitter.com/tereza_sokol', 'Twitter'),
 							A2($author$project$Ui$Layout$link, 'https://github.com/terezka/elm-charts/issues', 'Report an issue'),
 							A2($author$project$Ui$Layout$link, 'mailto:terezasokol@gmail.com', 'Contact')

@@ -156,7 +156,7 @@ view model =
               , E.paddingXY 0 30
               , E.spacing 20
               ]
-              [ Layout.link "https://github.com/terezka" "GitHub"
+              [ Layout.link "https://github.com/terezka/elm-charts" "GitHub"
               , Layout.link "https://twitter.com/tereza_sokol" "Twitter"
               , Layout.link "https://github.com/terezka/elm-charts/issues" "Report an issue"
               , Layout.link "mailto:terezasokol@gmail.com" "Contact"
