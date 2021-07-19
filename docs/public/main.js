@@ -15884,7 +15884,7 @@ var $author$project$Page$Administration$view = function (model) {
 									$mdgriffith$elm_ui$Element$text('Here are some upcoming features and improvements in approximate order of priority. '),
 									$mdgriffith$elm_ui$Element$text('If you have more suggestions or have wishes regarding the priority, then '),
 									$mdgriffith$elm_ui$Element$text('you\'re welcome to '),
-									A2($author$project$Ui$Layout$link, 'https://github.com/terezka/charts/issues', 'open an issue'),
+									A2($author$project$Ui$Layout$link, 'https://github.com/terezka/elm-charts/issues', 'open an issue'),
 									$mdgriffith$elm_ui$Element$text(' or contact me directly.')
 								])),
 							A2(
@@ -15940,7 +15940,7 @@ var $author$project$Page$Administration$view = function (model) {
 						[
 							A2($author$project$Ui$Layout$link, 'https://github.com/terezka', 'GitHub'),
 							A2($author$project$Ui$Layout$link, 'https://twitter.com/tereza_sokol', 'Twitter'),
-							A2($author$project$Ui$Layout$link, 'https://github.com/terezka/charts/issues', 'Report an issue'),
+							A2($author$project$Ui$Layout$link, 'https://github.com/terezka/elm-charts/issues', 'Report an issue'),
 							A2($author$project$Ui$Layout$link, 'mailto:terezasokol@gmail.com', 'Contact')
 						]))
 				])),
@@ -34921,7 +34921,7 @@ var $author$project$Page$Section$view = function (model) {
 								[$mdgriffith$elm_ui$Element$Font$underline]),
 							{
 								label: $mdgriffith$elm_ui$Element$text('official Elm documentation'),
-								url: 'https://package.elm-lang.org/packages/terezka/charts/latest'
+								url: 'https://package.elm-lang.org/packages/terezka/elm-charts/latest'
 							}),
 							$mdgriffith$elm_ui$Element$text('.')
 						])),
@@ -38406,7 +38406,7 @@ var $author$project$Page$Example$view = function (model) {
 								[$mdgriffith$elm_ui$Element$Font$underline]),
 							{
 								label: $mdgriffith$elm_ui$Element$text('official Elm documentation'),
-								url: 'https://package.elm-lang.org/packages/terezka/charts/latest'
+								url: 'https://package.elm-lang.org/packages/terezka/elm-charts/latest'
 							}),
 							$mdgriffith$elm_ui$Element$text('.')
 						])),
@@ -38478,7 +38478,7 @@ var $author$project$Page$GettingStarted$view = function (model) {
 								[$mdgriffith$elm_ui$Element$Font$underline]),
 							{
 								label: $mdgriffith$elm_ui$Element$text('official Elm documentation'),
-								url: 'https://package.elm-lang.org/packages/terezka/charts/latest'
+								url: 'https://package.elm-lang.org/packages/terezka/elm-charts/latest'
 							}),
 							$mdgriffith$elm_ui$Element$text('.')
 						])),
@@ -38751,7 +38751,7 @@ var $author$project$Page$Home$features = function (model) {
 								_List_fromArray(
 									[
 										$mdgriffith$elm_ui$Element$width(
-										A2($mdgriffith$elm_ui$Element$minimum, 90, $mdgriffith$elm_ui$Element$fill)),
+										$mdgriffith$elm_ui$Element$px(90)),
 										$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill)
 									]));
 						case 'Medium':
@@ -38759,7 +38759,7 @@ var $author$project$Page$Home$features = function (model) {
 								_List_fromArray(
 									[
 										$mdgriffith$elm_ui$Element$width(
-										A2($mdgriffith$elm_ui$Element$minimum, 90, $mdgriffith$elm_ui$Element$fill)),
+										$mdgriffith$elm_ui$Element$px(90)),
 										$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill)
 									]));
 						default:
@@ -38767,7 +38767,7 @@ var $author$project$Page$Home$features = function (model) {
 								_List_fromArray(
 									[
 										$mdgriffith$elm_ui$Element$width(
-										A2($mdgriffith$elm_ui$Element$minimum, 50, $mdgriffith$elm_ui$Element$fill)),
+										$mdgriffith$elm_ui$Element$px(50)),
 										$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill)
 									]));
 					}

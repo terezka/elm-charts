@@ -417,13 +417,13 @@ features model =
         let viewOne =
               case Layout.screen model.window of
                 Layout.Large ->
-                  E.link [ E.width (E.minimum 90 E.fill), E.height E.fill ]
+                  E.link [ E.width (E.px 90), E.height E.fill ]
 
                 Layout.Medium ->
-                  E.link [ E.width (E.minimum 90 E.fill), E.height E.fill ]
+                  E.link [ E.width (E.px 90), E.height E.fill ]
 
                 Layout.Small ->
-                  E.link [ E.width (E.minimum 50 E.fill), E.height E.fill ]
+                  E.link [ E.width (E.px 50), E.height E.fill ]
         in
         [ Examples.BarCharts__Histogram
         , Examples.BarCharts__TooltipStack
@@ -438,7 +438,13 @@ features model =
         , Examples.BarCharts__Margin
         , Examples.ScatterCharts__Shapes
         ]
-          |> List.map (\id -> { url = Thumbnail.toUrl id, label = E.el [ E.width E.fill ] <| E.html (Examples.view Examples.init id) })
+          |> List.map (\id ->
+              { url = Thumbnail.toUrl id
+              , label =
+                  E.el [ E.width E.fill ] <|
+                    E.html (Examples.view Examples.init id)
+              }
+            )
           |> List.map viewOne
           |> E.wrappedRow
               [ E.spacing 30
