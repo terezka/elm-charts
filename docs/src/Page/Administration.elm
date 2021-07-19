@@ -128,7 +128,7 @@ view model =
                   [ E.text "Here are some upcoming features and improvements in approximate order of priority. "
                   , E.text "If you have more suggestions or have wishes regarding the priority, then "
                   , E.text "you're welcome to "
-                  , Layout.link "https://github.com/terezka/charts/issues" "open an issue"
+                  , Layout.link "https://github.com/terezka/elm-charts/issues" "open an issue"
                   , E.text " or contact me directly."
                   ]
 
@@ -158,7 +158,7 @@ view model =
               ]
               [ Layout.link "https://github.com/terezka" "GitHub"
               , Layout.link "https://twitter.com/tereza_sokol" "Twitter"
-              , Layout.link "https://github.com/terezka/charts/issues" "Report an issue"
+              , Layout.link "https://github.com/terezka/elm-charts/issues" "Report an issue"
               , Layout.link "mailto:terezasokol@gmail.com" "Contact"
               ]
           ]

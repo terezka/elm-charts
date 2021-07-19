@@ -126,7 +126,7 @@ view model =
             [ E.text "This catalog is meant to document through example. For documentation of exact interface, see the "
             , E.link
                 [ F.underline ]
-                { url = "https://package.elm-lang.org/packages/terezka/charts/latest"
+                { url = "https://package.elm-lang.org/packages/terezka/elm-charts/latest"
                 , label = E.text "official Elm documentation"
                 }
             , E.text "."
