@@ -38453,11 +38453,10 @@ var $author$project$Page$GettingStarted$view = function (model) {
 					$mdgriffith$elm_ui$Element$paragraph,
 					_List_fromArray(
 						[
-							$mdgriffith$elm_ui$Element$paddingEach(
-							{bottom: 50, left: 0, right: 0, top: 20}),
 							$mdgriffith$elm_ui$Element$Font$size(14),
 							$mdgriffith$elm_ui$Element$width(
-							A2($mdgriffith$elm_ui$Element$maximum, 600, $mdgriffith$elm_ui$Element$fill))
+							A2($mdgriffith$elm_ui$Element$maximum, 600, $mdgriffith$elm_ui$Element$fill)),
+							A2($mdgriffith$elm_ui$Element$paddingXY, 0, 20)
 						]),
 					_List_fromArray(
 						[
@@ -38478,10 +38477,32 @@ var $author$project$Page$GettingStarted$view = function (model) {
 								[$mdgriffith$elm_ui$Element$Font$underline]),
 							{
 								label: $mdgriffith$elm_ui$Element$text('official Elm documentation'),
-								url: 'https://package.elm-lang.org/packages/terezka/elm-charts/latest'
+								url: 'https://package.elm-lang.org/packages/terezka/charts/latest'
 							}),
-							$mdgriffith$elm_ui$Element$text('.')
+							$mdgriffith$elm_ui$Element$text('. Install by running the following command in your project directory:')
 						])),
+					A2(
+					$mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							$mdgriffith$elm_ui$Element$paddingEach(
+							{bottom: 50, left: 0, right: 0, top: 0})
+						]),
+					A2(
+						$mdgriffith$elm_ui$Element$el,
+						_List_fromArray(
+							[
+								$mdgriffith$elm_ui$Element$Background$color(
+								A3($mdgriffith$elm_ui$Element$rgb255, 250, 250, 250)),
+								A2($mdgriffith$elm_ui$Element$paddingXY, 15, 10),
+								$mdgriffith$elm_ui$Element$Font$family(
+								_List_fromArray(
+									[
+										$mdgriffith$elm_ui$Element$Font$typeface('Source Code Pro'),
+										$mdgriffith$elm_ui$Element$Font$monospace
+									]))
+							]),
+						$mdgriffith$elm_ui$Element$text('elm install terezka/elm-charts'))),
 					function () {
 					var viewTitle = function (title) {
 						return A2(

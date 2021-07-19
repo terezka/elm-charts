@@ -104,9 +104,9 @@ view model =
         , Layout.heading model.window "Getting started"
 
         , E.paragraph
-            [ E.paddingEach { top = 20, bottom = 50, left = 0, right = 0 }
-            , F.size 14
+            [ F.size 14
             , E.width (E.maximum 600 E.fill)
+            , E.paddingXY 0 20
             ]
             [ E.text "Here's how to make basic charts. If your needs exceed these, check out "
             , E.text "the "
@@ -118,11 +118,20 @@ view model =
             , E.text " or the "
             , E.link
                 [ F.underline ]
-                { url = "https://package.elm-lang.org/packages/terezka/elm-charts/latest"
+                { url = "https://package.elm-lang.org/packages/terezka/charts/latest"
                 , label = E.text "official Elm documentation"
                 }
-            , E.text "."
+            , E.text ". Install by running the following command in your project directory:"
             ]
+
+        , E.el
+            [ E.paddingEach { top = 0, bottom = 50, left = 0, right = 0 } ]
+            <| E.el
+                [ BG.color (E.rgb255 250 250 250)
+                , E.paddingXY 15 10
+                , F.family [ F.typeface "Source Code Pro", F.monospace ]
+                ]
+                (E.text "elm install terezka/elm-charts")
 
         , let frame title attr els =
                 case Layout.screen model.window of
