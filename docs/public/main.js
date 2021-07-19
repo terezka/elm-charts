@@ -38129,7 +38129,7 @@ var $author$project$Ui$Code$view = function (config) {
 				$mdgriffith$elm_ui$Element$htmlAttribute(
 				A2($elm$html$Html$Attributes$style, 'overflow-x', 'auto')),
 				$mdgriffith$elm_ui$Element$htmlAttribute(
-				A2($elm$html$Html$Attributes$style, 'line-height', '1.2')),
+				A2($elm$html$Html$Attributes$style, 'line-height', '1.3')),
 				$mdgriffith$elm_ui$Element$Font$size(14),
 				$mdgriffith$elm_ui$Element$Font$family(
 				_List_fromArray(
