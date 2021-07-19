@@ -25,10 +25,7 @@ module Chart exposing
   )
 
 
-{-| Alpha version!
-
-**See also the visual catalog of
-examples at [elm-charts.org](https://www.elm-charts.org/documentation).**
+{-| **Make sure to check out the many examples at [elm-charts.org](https://www.elm-charts.org/documentation).**
 
 The configuration of this charting library mirrors the pattern of HTML elements
 and attributes. It looks something like this:
@@ -56,11 +53,11 @@ and attributes. It looks something like this:
 
 All the elements, like `chart`, `xTicks`, `yTicks`, `xLabels`, `yLabels`, `bars` and `bar` in the example
 above, and many others, are defined in this module. All the attributes, like `width`, `height`, `color`, and `opacity`,
-are defined in `Chart.Attributes`. Attributes and other functions related to events are located in
+are defined in `Chart.Attributes`. Attributes related to events are located in
 the `Chart.Events` module. Functions for working with rendered chart items are located in `Chart.Item`.
 Lastly, `Chart.Svg` holds charting primitives in case you have very special needs.
 
-In the following examples, I will assume the imports:
+In the examples throughout the documentation, I will assume the imports:
 
     import Html as H exposing (Html)
     import Html.Attributes as HA
@@ -182,8 +179,8 @@ type alias Container data msg =
   }
 
 
-{-| This is the root element of your chart. All your chart elements must be contained in
-a `chart` element. The below example illustrates what configurations are available for
+{-| This is the root container of your chart. All your chart elements must be placed in
+here. The below example illustrates what configurations are available for
 the `chart` element.
 
     view : Html msg
