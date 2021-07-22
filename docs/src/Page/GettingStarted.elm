@@ -118,7 +118,7 @@ view model =
             , E.text " or the "
             , E.link
                 [ F.underline ]
-                { url = "https://package.elm-lang.org/packages/terezka/charts/latest"
+                { url = "https://package.elm-lang.org/packages/terezka/elm-charts/latest"
                 , label = E.text "official Elm documentation"
                 }
             , E.text ". Install by running the following command in your project directory:"
