@@ -1300,8 +1300,8 @@ very custom ticks and `yTicks` does not cut it. See `xTick` for
 usage and customization.
 
 -}
-yTick : List (Attribute Tick) -> Float -> Element data msg
-yTick edits val =
+yTick : List (Attribute Tick) -> Element data msg
+yTick edits =
   let toConfig p =
         Helpers.apply edits
           { x = CA.middle p.x
