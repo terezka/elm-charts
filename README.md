@@ -1,9 +1,12 @@
 # elm-charts
 
-Make charts!
+Make charts in all Elm. The package can draw charts at a variety of customizations, down to including your very own SVG elements, as well as editing the SVG made by the package. It has great support for interactivity, layering different charts, and adding irregular details.
+
+You can check out the many examples at https://elm-charts.org!
+
+Here is also a basic example to copy and play with.
 
 ```elm
-
 import Chart as C
 import Chart.Attributes as CA
 
@@ -19,10 +22,6 @@ main =
     , C.yLabels []
     , C.xAxis []
     , C.yAxis []
-    , C.series .x
-        [ C.scatter .y []
-        , C.scatter .z []
-        ]
-        data
+    , C.bars [ C.bar identity [] ] [ 2, 4, 3 ]
     ]
 ```
