@@ -170,7 +170,7 @@ view model =
                       , F.size 12
                       , BG.color (E.rgb255 250 250 250)
                       ]
-                      (Code.view { template = code, edits = [] })
+                      (Code.view code)
                   ]
           in
           E.column

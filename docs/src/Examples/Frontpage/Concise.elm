@@ -46,6 +46,7 @@ view model =
 
     , C.bars
         [ CA.roundTop 0.2
+        , CA.roundBottom 0.2
         , CA.margin 0.2
         , CA.spacing 0.05
         , CA.noGrid
@@ -158,6 +159,7 @@ smallCode =
 
     , C.bars
         [ CA.roundTop 0.2
+        , CA.roundBottom 0.2
         , CA.margin 0.2
         , CA.spacing 0.05
         , CA.noGrid
@@ -266,6 +268,7 @@ view model =
 
     , C.bars
         [ CA.roundTop 0.2
+        , CA.roundBottom 0.2
         , CA.margin 0.2
         , CA.spacing 0.05
         , CA.noGrid

@@ -3,6 +3,7 @@ module Ui.Code exposing (view)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+import Html.Lazy as HL
 import Element as E
 import Element.Font as F
 import Element.Border as B
@@ -12,21 +13,9 @@ import Element.Background as BG
 import SyntaxHighlight as SH
 
 
-
-view : { template : String, edits : List String } -> E.Element msg
-view config =
-  let fillTemplate ( i, e ) =
-        String.replace ("{{" ++ String.fromInt (i + 1) ++ "}}") (String.trim e)
-  in
-  H.div []
-    [ SH.useTheme SH.gitHub
-    , List.indexedMap Tuple.pair config.edits
-        |> List.foldl fillTemplate config.template
-        |> fixIndent
-        |> SH.elm
-        |> Result.map (SH.toBlockHtml (Just 1))
-        |> Result.withDefault (H.pre [] [ H.code [] [ H.text config.template ]])
-    ]
+view : String -> E.Element msg
+view code =
+  HL.lazy viewCode code
     |> E.html
     |> E.el
         [ E.width E.fill
@@ -38,6 +27,18 @@ view config =
         , F.size 14
         , F.family [ F.typeface "Source Code Pro", F.monospace ]
         , E.alignTop
+        ]
+
+
+viewCode : String -> H.Html msg
+viewCode code =
+    H.div []
+        [ SH.useTheme SH.gitHub
+        , code
+            |> fixIndent
+            |> SH.elm
+            |> Result.map (SH.toBlockHtml (Just 1))
+            |> Result.withDefault (H.pre [] [ H.code [] [ H.text code ]])
         ]
 
 

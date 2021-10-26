@@ -33,7 +33,7 @@ meta =
   , categoryOrder = 4
   , name = "Timeline"
   , description = "Use dates as labels."
-  , order = 8
+  , order = 7
   }
 
 

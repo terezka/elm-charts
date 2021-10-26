@@ -30,7 +30,7 @@ meta =
   , categoryOrder = 4
   , name = "Only integers"
   , description = "Only show integer labels."
-  , order = 8
+  , order = 7
   }
 
 

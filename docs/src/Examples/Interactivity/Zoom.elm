@@ -175,9 +175,9 @@ view model =
 meta =
   { category = "Interactivity"
   , categoryOrder = 5
-  , name = "Zoom"
+  , name = "Zoom box"
   , description = "Add zoom effect."
-  , order = 20
+  , order = 21
   }
 
 

@@ -25,7 +25,7 @@ meta =
   { category = "Navigation"
   , categoryOrder = 4
   , name = "Position"
-  , description = "Change position of items."
+  , description = "Change color of position."
   , order = 3
   }
 

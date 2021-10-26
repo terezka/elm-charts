@@ -1,4 +1,4 @@
-module Data.Salary exposing (Datum, womenPerc, womenSalaryPerc, menSalaryPerc, groupBy, data, avgSalaryWomen, avgSalaryMen)
+module Articles.GenderAndSalery.Data exposing (Datum, womenPerc, womenSalaryPerc, menSalaryPerc, groupBy, data, avgSalaryWomen, avgSalaryMen)
 
 import Csv.Decode as Cvs
 import Dict
@@ -42,30 +42,38 @@ groupBy toV =
   List.foldl fold Dict.empty >> Dict.toList
 
 
-avgSalaryWomen : Float
-avgSalaryWomen =
-  let totalSalary =
+avgSalaryWomen : Float -> Float
+avgSalaryWomen year =
+  let yearData =
         data
+          |> List.filter (\d -> d.year == year)
+
+      totalSalary =
+        yearData
           |> List.map (\d -> d.salaryWomen * d.numOfWomen)
           |> List.sum
 
       totalWomen =
-        data
+        yearData
           |> List.map .numOfWomen
           |> List.sum
   in
   totalSalary / totalWomen
 
 
-avgSalaryMen : Float
-avgSalaryMen =
-  let totalSalary =
+avgSalaryMen : Float -> Float
+avgSalaryMen year =
+  let yearData =
         data
+          |> List.filter (\d -> d.year == year)
+
+      totalSalary =
+        yearData
           |> List.map (\d -> d.salaryMen * d.numOfMen)
           |> List.sum
 
       totalMen =
-        data
+        yearData
           |> List.map .numOfMen
           |> List.sum
   in

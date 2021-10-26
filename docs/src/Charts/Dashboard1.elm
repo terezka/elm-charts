@@ -7,9 +7,7 @@ import Svg as S exposing (Svg, svg, g, circle, text_, text)
 import Svg.Attributes as SA exposing (width, height, stroke, fill, r, transform)
 import Browser
 import Time
-import Data.Iris as Iris
-import Data.Salary as Salary
-import Data.Education as Education
+
 import Dict
 import Time
 import DateFormat as F

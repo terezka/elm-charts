@@ -338,11 +338,11 @@ viewFeature window config =
 
       viewCode =
         E.el
-          [ E.width E.fill
+          [ E.width (E.maximum 600 E.fill)
           , E.height E.fill
           , BG.color (E.rgb255 250 250 250)
           ]
-          (Code.view { template = config.code, edits = [] })
+          (Code.view config.code)
   in
   case Layout.screen window of
     Layout.Large ->

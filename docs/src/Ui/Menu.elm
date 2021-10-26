@@ -94,7 +94,7 @@ links =
   List.map viewLink
     [ Link Route.gettingStarted "Getting started"
     , Link Route.documentation "Documentation"
-    --, Link Route.gallery "Gallery"
+    --, Link Route.articles "Articles"
     , Link Route.administration "Administration"
     ]
 

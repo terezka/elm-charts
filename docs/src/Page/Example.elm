@@ -192,13 +192,10 @@ viewContent model =
           , E.height E.fill
           , BG.color (E.rgb255 250 250 250)
           ] <|
-          Code.view
-              { template =
-                  if model.showFullCode
-                  then Examples.largeCode currentId
-                  else Examples.smallCode currentId
-              , edits = []
-              }
+          Code.view <|
+              if model.showFullCode
+              then Examples.largeCode currentId
+              else Examples.smallCode currentId
   in
   case Layout.screen model.window of
     Layout.Large ->

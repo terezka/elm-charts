@@ -1,4 +1,4 @@
-module Data.Education exposing (Datum, data, reshape)
+module Data.Education exposing (Datum, Year, basic, data)
 
 import Csv.Decode as Cvs
 import Dict
@@ -17,32 +17,72 @@ type alias Group =
   }
 
 
-reshape : List Datum -> List { year : Float, women : { done : Float, ongoing : Float }, men : { done : Float, ongoing : Float } }
-reshape =
-  let done = "Fuldfort kort videregaende uddannelse"
+type alias Year =
+  { year : Float
+  , women : Education
+  , men : Education
+  }
+
+
+type alias Education =
+  { short : Float
+  , medium : Float
+  , long : Float
+  , bachelor : Float
+  , researcher : Float
+  }
+
+
+data : List Year
+data =
+  let short = "Fuldfort kort videregaende uddannelse"
+      medium = "Fuldfort mellemlange videregaende uddannelser"
+      long = "Fuldfort lange videregaende uddannelser"
+      bachelor = "Fuldfort bachelor"
+      researcher = "Fuldfort forskeruddannelser"
+      researcher2 = "Fuldført forskeruddannelser"
       ongoing = "Igangvarende korte videregaende uddannelser"
-      findAmongst n = List.filter (\g -> g.name == n) >> List.head
+
+      findAmongst ns genderData =
+        genderData
+          |> List.filter (\g -> List.member g.name ns)
+          |> List.head
+          |> Maybe.map .amount
+          |> Maybe.withDefault 0
   in
   List.filterMap (\d ->
-      case [ findAmongst done d.women, findAmongst ongoing d.women, findAmongst done d.men, findAmongst ongoing d.men ] of
-        [ Just doneWoman, Just ongoingWoman, Just doneMen, Just ongoingMen ] ->
+      case
+        [ findAmongst [short] d.women
+        , findAmongst [medium] d.women
+        , findAmongst [long] d.women
+        , findAmongst [bachelor] d.women
+        , findAmongst [researcher, researcher2] d.women
+
+        , findAmongst [short] d.men
+        , findAmongst [medium] d.men
+        , findAmongst [long] d.men
+        , findAmongst [bachelor] d.men
+        , findAmongst [researcher, researcher2] d.men
+        ]
+      of
+        [ shortWoman, mediumWoman, longWoman, bachelorWoman, researcherWoman, shortMen, mediumMen, longMen, bachelorMen, researcherMen ] ->
           Just
             { year = d.year
-            , women = { done = doneWoman.amount, ongoing = ongoingWoman.amount }
-            , men = { done = doneMen.amount, ongoing = ongoingMen.amount }
+            , women = Education shortWoman mediumWoman longWoman bachelorWoman researcherWoman
+            , men = Education shortMen mediumMen longMen bachelorMen researcherMen
             }
 
-        _ ->
+        e ->
           Nothing
-    )
+    ) basic
 
 
 
 -- DATA
 
 
-data : List Datum
-data =
+basic : List Datum
+basic =
   Cvs.decodeCustom { fieldSeparator = ';' } Cvs.FieldNamesFromFirstRow decoder csv
     |> Result.map process
     |> Result.withDefault []
@@ -79,7 +119,12 @@ process =
           "Mand" -> Just { datum | men = Group raw.group num :: datum.men }
           _ -> Nothing
   in
-  List.foldl fold Dict.empty >> Dict.toList >> List.map (\(year, datum) -> Datum year datum.men datum.women)
+  List.foldl fold Dict.empty >> Dict.toList >> List.map (\(year, datum) ->
+    { year = year
+    , women = datum.women
+    , men = datum.men
+    }
+  )
 
 
 type alias Raw =
