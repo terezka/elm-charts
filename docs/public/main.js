@@ -7310,8 +7310,8 @@ var $elm$core$List$filterMap = F2(
 	});
 var $elm$browser$Browser$Events$onSelfMsg = F3(
 	function (router, _v0, state) {
-		var key = _v0.fz;
 		var event = _v0.fb;
+		var key = _v0.fz;
 		var toMessage = function (_v2) {
 			var subKey = _v2.a;
 			var _v3 = _v2.b;
@@ -12817,8 +12817,8 @@ var $mdgriffith$elm_ui$Internal$Model$toStyleSheetString = F2(
 			combine,
 			{dS: _List_Nil, dj: _List_Nil},
 			stylesheet);
-		var topLevel = _v0.dj;
 		var rules = _v0.dS;
+		var topLevel = _v0.dj;
 		return _Utils_ap(
 			$mdgriffith$elm_ui$Internal$Model$renderTopLevelValues(topLevel),
 			$elm$core$String$concat(rules));
@@ -14764,8 +14764,8 @@ var $mdgriffith$elm_ui$Internal$Model$htmlClass = function (cls) {
 var $elm$html$Html$Attributes$rel = _VirtualDom_attribute('rel');
 var $mdgriffith$elm_ui$Element$link = F2(
 	function (attrs, _v0) {
-		var url = _v0.jq;
 		var label = _v0.dM;
+		var url = _v0.jq;
 		return A4(
 			$mdgriffith$elm_ui$Internal$Model$element,
 			$mdgriffith$elm_ui$Internal$Model$asEl,
@@ -14864,10 +14864,10 @@ var $mdgriffith$elm_ui$Internal$Model$paddingName = F4(
 		return 'pad-' + ($elm$core$String$fromInt(top) + ('-' + ($elm$core$String$fromInt(right) + ('-' + ($elm$core$String$fromInt(bottom) + ('-' + $elm$core$String$fromInt(left)))))));
 	});
 var $mdgriffith$elm_ui$Element$paddingEach = function (_v0) {
-	var top = _v0.di;
-	var right = _v0.c6;
-	var bottom = _v0.a5;
 	var left = _v0.c3;
+	var bottom = _v0.a5;
+	var right = _v0.c6;
+	var top = _v0.di;
 	if (_Utils_eq(top, right) && (_Utils_eq(top, bottom) && _Utils_eq(top, left))) {
 		var topFloat = top;
 		return A2(
@@ -15101,8 +15101,8 @@ var $elm$html$Html$Attributes$tabindex = function (n) {
 };
 var $mdgriffith$elm_ui$Element$Input$button = F2(
 	function (attrs, _v0) {
-		var onPress = _v0.h8;
 		var label = _v0.dM;
+		var onPress = _v0.h8;
 		return A4(
 			$mdgriffith$elm_ui$Internal$Model$element,
 			$mdgriffith$elm_ui$Internal$Model$asEl,
@@ -15734,8 +15734,8 @@ var $mdgriffith$elm_ui$Internal$Model$toHtml = F2(
 				var html = el.a;
 				return html($mdgriffith$elm_ui$Internal$Model$asEl);
 			case 1:
-				var styles = el.a.iL;
 				var html = el.a.hH;
+				var styles = el.a.iL;
 				return A2(
 					html,
 					mode(styles),
@@ -15970,7 +15970,7 @@ var $author$project$Page$Administration$view = function (model) {
 									$mdgriffith$elm_ui$Element$text('Here are some upcoming features and improvements in approximate order of priority. '),
 									$mdgriffith$elm_ui$Element$text('If you have more suggestions or have wishes regarding the priority, then '),
 									$mdgriffith$elm_ui$Element$text('you\'re welcome to '),
-									A2($author$project$Ui$Layout$link, 'https://github.com/terezka/charts/issues', 'open an issue'),
+									A2($author$project$Ui$Layout$link, 'https://github.com/terezka/elm-charts/issues', 'open an issue'),
 									$mdgriffith$elm_ui$Element$text(' or contact me directly.')
 								])),
 							A2(
@@ -16024,9 +16024,9 @@ var $author$project$Page$Administration$view = function (model) {
 						]),
 					_List_fromArray(
 						[
-							A2($author$project$Ui$Layout$link, 'https://github.com/terezka/charts', 'GitHub'),
+							A2($author$project$Ui$Layout$link, 'https://github.com/terezka/elm-charts', 'GitHub'),
 							A2($author$project$Ui$Layout$link, 'https://twitter.com/tereza_sokol', 'Twitter'),
-							A2($author$project$Ui$Layout$link, 'https://github.com/terezka/charts/issues', 'Report an issue'),
+							A2($author$project$Ui$Layout$link, 'https://github.com/terezka/elm-charts/issues', 'Report an issue'),
 							A2($author$project$Ui$Layout$link, 'mailto:terezasokol@gmail.com', 'Contact')
 						]))
 				])),
@@ -21996,13 +21996,13 @@ var $terezka$intervals$Intervals$Time$ceilingDay = F3(
 var $justinmimbs$time_extra$Time$Extra$Hour = 12;
 var $justinmimbs$time_extra$Time$Extra$partsToPosix = F2(
 	function (zone, _v0) {
-		var year = _v0.dq;
-		var month = _v0.fE;
-		var day = _v0.e4;
-		var hour = _v0.eh;
-		var minute = _v0.er;
-		var second = _v0.eA;
 		var millisecond = _v0.eq;
+		var second = _v0.eA;
+		var minute = _v0.er;
+		var hour = _v0.eh;
+		var day = _v0.e4;
+		var month = _v0.fE;
+		var year = _v0.dq;
 		return A3(
 			$justinmimbs$time_extra$Time$Extra$posixFromDateTime,
 			zone,
@@ -23210,10 +23210,10 @@ var $mdgriffith$elm_ui$Element$Border$widthXY = F2(
 				x));
 	});
 var $mdgriffith$elm_ui$Element$Border$widthEach = function (_v0) {
-	var bottom = _v0.a5;
-	var top = _v0.di;
-	var left = _v0.c3;
 	var right = _v0.c6;
+	var left = _v0.c3;
+	var top = _v0.di;
+	var bottom = _v0.a5;
 	return (_Utils_eq(top, bottom) && _Utils_eq(left, right)) ? (_Utils_eq(top, right) ? $mdgriffith$elm_ui$Element$Border$width(top) : A2($mdgriffith$elm_ui$Element$Border$widthXY, left, top)) : A2(
 		$mdgriffith$elm_ui$Internal$Model$StyleClass,
 		$mdgriffith$elm_ui$Internal$Flag$borderWidth,
@@ -35244,7 +35244,7 @@ var $author$project$Page$Section$view = function (model) {
 								[$mdgriffith$elm_ui$Element$Font$underline]),
 							{
 								dM: $mdgriffith$elm_ui$Element$text('official Elm documentation'),
-								jq: 'https://package.elm-lang.org/packages/terezka/charts/latest'
+								jq: 'https://package.elm-lang.org/packages/terezka/elm-charts/latest'
 							}),
 							$mdgriffith$elm_ui$Element$text('.')
 						])),
@@ -38600,7 +38600,7 @@ var $author$project$Page$Example$view = function (model) {
 								[$mdgriffith$elm_ui$Element$Font$underline]),
 							{
 								dM: $mdgriffith$elm_ui$Element$text('official Elm documentation'),
-								jq: 'https://package.elm-lang.org/packages/terezka/charts/latest'
+								jq: 'https://package.elm-lang.org/packages/terezka/elm-charts/latest'
 							}),
 							$mdgriffith$elm_ui$Element$text('.')
 						])),
@@ -38671,7 +38671,7 @@ var $author$project$Page$GettingStarted$view = function (model) {
 								[$mdgriffith$elm_ui$Element$Font$underline]),
 							{
 								dM: $mdgriffith$elm_ui$Element$text('official Elm documentation'),
-								jq: 'https://package.elm-lang.org/packages/terezka/charts/latest'
+								jq: 'https://package.elm-lang.org/packages/terezka/elm-charts/latest'
 							}),
 							$mdgriffith$elm_ui$Element$text('. Install by running the following command in your project directory:')
 						])),
