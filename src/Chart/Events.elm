@@ -1,7 +1,7 @@
 module Chart.Events exposing
   ( Attribute, Event
-  , onMouseMove, onMouseLeave, onMouseUp, onMouseDown, onClick, on
-  , Decoder, Point, getCoords, getNearest, getNearestX, getWithin, getWithinX
+  , onMouseMove, onMouseLeave, onMouseUp, onMouseDown, onClick, onDoubleClick, on
+  , Decoder, Point, getCoords, getSvgCoords, getNearest, getNearestX, getWithin, getWithinX, getOffset
   , map, map2, map3, map4
   )
 
@@ -10,10 +10,12 @@ module Chart.Events exposing
 
 # Event handlers
 @docs Attribute, Event
-@docs onMouseMove, onMouseLeave, onMouseUp, onMouseDown, onClick, on
+@docs onMouseMove, onMouseLeave, onMouseUp, onMouseDown, onClick, onDoubleClick, on
 
 ## Decoders
-@docs Decoder, Point, getCoords, getNearest, getNearestX, getWithin, getWithinX
+@docs Decoder, Point
+@docs getNearest, getNearestX, getWithin, getWithinX
+@docs getCoords, getSvgCoords, getOffset
 @docs map, map2, map3, map4
 
 -}
@@ -41,7 +43,7 @@ type alias Attribute x data msg =
   { x | events : List (Event data msg) } -> { x | events : List (Event data msg) }
 
 
-{-| Add an click event handler.
+{-| Add a click event handler.
 
     C.chart
       [ CE.onClick Clicked C.getCoords ]
@@ -53,7 +55,14 @@ onClick onMsg decoder =
   on "click" (map onMsg decoder)
 
 
-{-| Add an mouse move event handler.
+{-| Add a double click event handler.
+-}
+onDoubleClick : (a -> msg) -> Decoder data a -> Attribute x data msg
+onDoubleClick onMsg decoder =
+  on "dblclick" (map onMsg decoder)
+
+
+{-| Add a mouse move event handler.
 
     C.chart
       [ CE.onMouseMove (CE.getNearest CI.bars) ]
@@ -66,21 +75,21 @@ onMouseMove onMsg decoder =
   on "mousemove" (map onMsg decoder)
 
 
-{-| Add an mouse up event handler. See example at [elm-charts.org](https://www.elm-charts.org/documentation/interactivity/zoom).
+{-| Add a mouse up event handler. See example at [elm-charts.org](https://www.elm-charts.org/documentation/interactivity/zoom).
 -}
 onMouseUp : (a -> msg) -> Decoder data a -> Attribute x data msg
 onMouseUp onMsg decoder =
   on "mouseup" (map onMsg decoder)
 
 
-{-| Add an mouse down event handler. See example at [elm-charts.org](https://www.elm-charts.org/documentation/interactivity/zoom).
+{-| Add a mouse down event handler. See example at [elm-charts.org](https://www.elm-charts.org/documentation/interactivity/zoom).
 -}
 onMouseDown : (a -> msg) -> Decoder data a -> Attribute x data msg
 onMouseDown onMsg decoder =
   on "mousedown" (map onMsg decoder)
 
 
-{-| Add an mouse leave event handler. See example at [elm-charts.org](https://www.elm-charts.org/documentation/interactivity/basic-bar-tooltip).
+{-| Add a mouse leave event handler. See example at [elm-charts.org](https://www.elm-charts.org/documentation/interactivity/basic-bar-tooltip).
 -}
 onMouseLeave : msg -> Attribute x data msg
 onMouseLeave onMsg =
@@ -133,6 +142,24 @@ type alias Point =
 getCoords : Decoder data Point
 getCoords =
   IE.getCoords
+
+
+{-| Decode to get the SVG coordinates of the event.
+
+-}
+getSvgCoords : Decoder data Point
+getSvgCoords =
+  IE.getSvgCoords
+
+
+
+{-| Decode to get the event offset from center in cartesian coordinates.
+
+-}
+getOffset : Decoder data Point
+getOffset =
+  IE.getOffset
+
 
 
 {-| Decode to get the nearest item to the event. Use the `Remodel` functions in `Chart.Item`

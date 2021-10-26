@@ -385,14 +385,27 @@ definePlane config elements =
           SvgElement _ -> acc
           HtmlElement _ -> acc
 
+      width = max 1 (config.width - config.padding.left - config.padding.right)
+      height = max 1 (config.height - config.padding.bottom - config.padding.top)
+
       limits_ =
         List.foldl collectLimits [] elements
           |> C.foldPosition identity
-          |> \pos -> { x = toLimit pos.x1 pos.x2, y = toLimit pos.y1 pos.y2 }
+          |> \pos ->
+                { x = toLimit width config.margin.left config.margin.right pos.x1 pos.x2
+                , y = toLimit height config.margin.top config.margin.bottom pos.y1 pos.y2
+                }
           |> \{ x, y } -> { x = fixSingles x, y = fixSingles y }
 
-      toLimit min max =
-        { min = min, max = max, dataMin = min, dataMax = max }
+      toLimit length marginMin marginMax min max =
+        { length = length
+        , marginMin = marginMin
+        , marginMax = marginMax
+        , min = min
+        , max = max
+        , dataMin = min
+        , dataMax = max
+        }
 
       fixSingles bs =
         if bs.min == bs.max then { bs | max = bs.min + 10 } else bs
@@ -408,10 +421,7 @@ definePlane config elements =
           some -> List.foldl (\f b -> f b) limits_.y some
 
       unpadded =
-        { width = max 1 (config.width - config.padding.left - config.padding.right)
-        , height = max 1 (config.height - config.padding.bottom - config.padding.top)
-        , margin = config.margin
-        , x = calcRange
+        { x = calcRange
         , y = calcDomain
         }
 
@@ -427,17 +437,16 @@ definePlane config elements =
       yMin = calcDomain.min - scalePadY config.padding.bottom
       yMax = calcDomain.max + scalePadY config.padding.top
   in
-  { width = config.width
-  , height = config.height
-  , margin = config.margin
-  , x =
+  { x =
       { calcRange
-      | min = min xMin xMax
+      | length = config.width
+      , min = min xMin xMax
       , max = max xMin xMax
       }
   , y =
       { calcDomain
-      | min = min yMin yMax
+      | length = config.height
+      , min = min yMin yMax
       , max = max yMin yMax
       }
   }
@@ -900,6 +909,9 @@ type alias Labels =
   , format : Maybe (Float -> String)
   , rotate : Float
   , grid : Bool
+  , hideOverflow : Bool
+  , attrs : List (S.Attribute Never)
+  , ellipsis : Maybe { width : Float, height : Float }
   }
 
 
@@ -930,6 +942,13 @@ The example below illustrates the configuration:
 
           , CA.format (\num -> String.fromFloat num ++ "°")
               -- Format the "nice" number
+
+          , CA.ellipsis 40 10
+              -- Add ellipsis. Arguments are width and height of label.
+              -- Note: There is no SVG feature for ellipsis, so this
+              -- turns labels into HTML.
+
+          , CA.hideOverflow -- Cut off labels if exeeding chart bounds
 
           , CA.pinned .max  -- Change what y position the labels are set at
                             -- .max is at the very top
@@ -974,6 +993,9 @@ xLabels edits =
           , uppercase = False
           , rotate = 0
           , fontSize = Nothing
+          , attrs = []
+          , hideOverflow = False
+          , ellipsis = Nothing
           }
 
       toTicks p config =
@@ -996,6 +1018,9 @@ xLabels edits =
             , fontSize = config.fontSize
             , uppercase = config.uppercase
             , rotate = config.rotate
+            , attrs = config.attrs
+            , hideOverflow = config.hideOverflow
+            , ellipsis = config.ellipsis
             }
             [ S.text item.label ]
             { x = item.value
@@ -1026,6 +1051,9 @@ yLabels edits =
           , uppercase = False
           , fontSize = Nothing
           , rotate = 0
+          , attrs = []
+          , hideOverflow = False
+          , ellipsis = Nothing
           }
 
       toTicks p config =
@@ -1047,6 +1075,9 @@ yLabels edits =
             , fontSize = config.fontSize
             , uppercase = config.uppercase
             , rotate = config.rotate
+            , attrs = config.attrs
+            , ellipsis = config.ellipsis
+            , hideOverflow = config.hideOverflow
             , anchor =
                 case config.anchor of
                   Nothing -> Just (if config.flip then IS.Start else IS.End)
@@ -1075,6 +1106,9 @@ type alias Label =
   , uppercase : Bool
   , flip : Bool
   , grid : Bool
+  , hideOverflow : Bool
+  , attrs : List (S.Attribute Never)
+  , ellipsis : Maybe { width : Float, height : Float }
   }
 
 
@@ -1117,6 +1151,11 @@ A full list of possible attributes:
           , CA.rotate 90    -- Rotate label 90 degrees
           , CA.uppercase    -- Make uppercase
           , CA.flip         -- Flip to opposite direction
+          , CA.hideOverflow -- Cut off labels if exeeding chart bounds
+          , CA.ellipsis 40 10
+              -- Add ellipsis. Arguments are width and height of label.
+              -- Note: There is no SVG feature for ellipsis, so this
+              -- turns labels into HTML.
 
           , CA.withGrid     -- Add grid line by each label.
           ]
@@ -1144,6 +1183,9 @@ xLabel edits inner =
           , rotate = 0
           , flip = False
           , grid = False
+          , attrs = []
+          , hideOverflow = False
+          , ellipsis = Nothing
           }
 
       toTickValues p config ts =
@@ -1166,8 +1208,9 @@ xLabel edits inner =
       , color = config.color
       , anchor = config.anchor
       , rotate = config.rotate
-      , hideOverflow = False
-      , attrs = []
+      , attrs = config.attrs
+      , ellipsis = config.ellipsis
+      , hideOverflow = config.hideOverflow
       }
       string
       { x = config.x, y = config.y }
@@ -1195,6 +1238,9 @@ yLabel edits inner =
           , rotate = 0
           , flip = False
           , grid = False
+          , attrs = []
+          , hideOverflow = False
+          , ellipsis = Nothing
           }
 
       toTickValues p config ts =
@@ -1220,8 +1266,9 @@ yLabel edits inner =
             Nothing -> Just (if config.flip then IS.Start else IS.End)
             Just anchor -> Just anchor
       , rotate = config.rotate
-      , hideOverflow = False
-      , attrs = []
+      , attrs = config.attrs
+      , ellipsis = config.ellipsis
+      , hideOverflow = config.hideOverflow
       }
       string
       { x = config.x, y = config.y }
@@ -1774,7 +1821,9 @@ type alias ItemLabel a =
   , rotate : Float
   , uppercase : Bool
   , attrs : List (S.Attribute Never)
+  , ellipsis : Maybe { width : Float, height : Float }
   , position : CS.Plane -> a -> CS.Point
+  , hideOverflow : Bool
   , format : Maybe (a -> String)
   }
 
@@ -1791,6 +1840,8 @@ defaultLabel =
   , rotate = IS.defaultLabel.rotate
   , uppercase = IS.defaultLabel.uppercase
   , attrs = IS.defaultLabel.attrs
+  , hideOverflow = IS.defaultLabel.hideOverflow
+  , ellipsis = IS.defaultLabel.ellipsis
   , position = CI.getBottom
   , format = Nothing
   }
@@ -1807,7 +1858,8 @@ toLabelFromItemLabel config =
   , fontSize = config.fontSize
   , uppercase = config.uppercase
   , rotate = config.rotate
-  , hideOverflow = False
+  , ellipsis = config.ellipsis
+  , hideOverflow = config.hideOverflow
   , attrs = config.attrs
   }
 
@@ -2077,7 +2129,7 @@ type alias Bars data =
 
 {-| Add a bar series to your chart. Here's some handy terminology:
 
-![bar chart terminology](https://github.com/terezka/elm-charts/blob/master/docs/images/bar-chart-terminology.png?raw=true)
+![bar chart terminology](https://github.com/terezka/charts/blob/master/docs/images/bar-chart-terminology.png?raw=true)
 
 Each `data` in your `List data` is a "bin". For
 each "bin", whatever number of bars your have specified in the second argument will
@@ -2707,6 +2759,11 @@ Other attributes you can use:
       , CA.rotate 90    -- Rotate label 90 degrees
       , CA.uppercase    -- Make uppercase
 
+      , CA.ellipsis 40 10
+          -- Add ellipsis. Arguments are width and height of label.
+          -- Note: There is no SVG feature for ellipsis, so this
+          -- turns labels into HTML.
+
        -- Add arbitrary SVG attributes to your labels.
       , CA.attrs [ SA.class "my-label" ]
       ]
@@ -2916,8 +2973,25 @@ binned binWidth func data =
 
       toBin datum =
         floor (func datum / binWidth)
+
+      fillHoles bins =
+        let keys = Dict.keys bins
+            smallest = Maybe.withDefault 0 (List.minimum keys)
+            largest = Maybe.withDefault 0 (List.maximum keys)
+            eachKey k bs =
+              if k + 1 >= largest
+                then bs
+                else eachKey (k + 1) (addIfMissing (k + 1) bs)
+
+            addIfMissing k bs =
+              case Dict.get k bs of
+                Just _ -> bs
+                Nothing -> Dict.insert k [] bs
+        in
+        eachKey smallest bins
   in
   List.foldr fold Dict.empty data
+    |> fillHoles
     |> Dict.toList
     |> List.map (\( bin, ds ) -> { bin = toFloat bin * binWidth, data = ds })
 

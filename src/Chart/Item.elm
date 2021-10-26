@@ -41,7 +41,7 @@ Or when using functions like `C.eachBar` or `C.eachBin`:
       [ CE.onMouseMove OnHover (CE.getNearest CI.bars) ]
       [ C.bars [ C.bar .x [] ] data
       , C.eachBar <| \plane bar ->
-          [ C.label [] [ S.text (String.fromFloat (CI.getY bar)) ] (CI.getTop bar) ]
+          [ C.label [] [ S.text (String.fromFloat (CI.getY bar)) ] (CI.getTop plane bar) ]
       ]
 
 # Single items

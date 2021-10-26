@@ -17,7 +17,7 @@ module Chart.Svg exposing
 
   , position, positionHtml
 
-  , Plane, Axis, Margin, Position, Point
+  , Plane, Axis, Position, Point
   , fromSvg, fromCartesian
   , lengthInSvgX, lengthInSvgY
   , lengthInCartesianX, lengthInCartesianY
@@ -93,10 +93,11 @@ You can see what attributes are applicable given their configuration record.
 @docs position, positionHtml
 
 # Working with the coordinate system
-@docs Plane, Axis, Margin, Position, Point
+@docs Plane, Axis, Position, Point
 @docs fromSvg, fromCartesian
 @docs lengthInSvgX, lengthInSvgY
 @docs lengthInCartesianX, lengthInCartesianY
+@docs hideOverflow
 
 # Seaching
 @docs getNearest, getNearestX, getWithin, getWithinX
@@ -291,6 +292,7 @@ type alias Label =
   , uppercase : Bool
   , hideOverflow : Bool
   , attrs : List (S.Attribute Never)
+  , ellipsis : Maybe { width : Float, height : Float }
   }
 
 
@@ -391,6 +393,7 @@ type alias Dot =
   , highlightWidth : Float
   , highlightColor : String
   , shape : Maybe Internal.Svg.Shape
+  , hideOverflow : Bool
   }
 
 
@@ -544,20 +547,8 @@ Using this you'll be able to translate cartesian coordinates into SVG ones and b
 
 -}
 type alias Plane =
-  { width : Float
-  , height : Float
-  , margin : Margin
-  , x : Axis
+  { x : Axis
   , y : Axis
-  }
-
-
-{-| -}
-type alias Margin =
-  { top : Float
-  , right : Float
-  , left : Float
-  , bottom : Float
   }
 
 
@@ -570,9 +561,19 @@ type alias Margin =
 
 -}
 type alias Axis =
-  { dataMin : Float
+  { length : Float
+  , marginMin : Float
+  , marginMax : Float
+  , dataMin : Float
   , dataMax : Float
   , min : Float
+  , max : Float
+  }
+
+
+{-| -}
+type alias Limit =
+  { min : Float
   , max : Float
   }
 
@@ -641,7 +642,9 @@ lengthInCartesianY =
   Internal.Svg.lengthInCartesianY
 
 
-{-| Hide overflow. -}
+{-| Hide overflow. Sometimes your element might reach outside the chart area.
+This will cut the excess.
+-}
 hideOverflow : Plane -> S.Attribute Never
 hideOverflow =
   Internal.Svg.withinChartArea

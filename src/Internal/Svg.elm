@@ -60,8 +60,8 @@ container plane config below chartEls above =
           , HA.style "height" "100%"
           ]
         else
-          [ HA.style "width" (String.fromFloat plane.width ++ "px")
-          , HA.style "height" (String.fromFloat plane.height ++ "px")
+          [ HA.style "width" (String.fromFloat plane.x.length ++ "px")
+          , HA.style "height" (String.fromFloat plane.y.length ++ "px")
           ]
 
       htmlAttrs =
@@ -74,12 +74,12 @@ container plane config below chartEls above =
 
       svgAttrsSize =
         if config.responsive then
-          [ SA.viewBox ("0 0 " ++ String.fromFloat plane.width ++ " " ++ String.fromFloat plane.height)
+          [ SA.viewBox ("0 0 " ++ String.fromFloat plane.x.length ++ " " ++ String.fromFloat plane.y.length)
           , HA.style "display" "block"
           ]
         else
-          [ SA.width (String.fromFloat plane.width)
-          , SA.height (String.fromFloat plane.height)
+          [ SA.width (String.fromFloat plane.x.length)
+          , SA.height (String.fromFloat plane.y.length)
           , HA.style "display" "block"
           ]
 
@@ -90,10 +90,10 @@ container plane config below chartEls above =
         SE.on event.name (decoder plane event.handler)
 
       chartPosition =
-        [ SA.x (String.fromFloat plane.margin.left)
-        , SA.y (String.fromFloat plane.margin.top)
-        , SA.width (String.fromFloat (plane.width - plane.margin.left - plane.margin.right))
-        , SA.height (String.fromFloat (plane.height - plane.margin.bottom - plane.margin.top))
+        [ SA.x (String.fromFloat plane.x.marginMin)
+        , SA.y (String.fromFloat plane.y.marginMin)
+        , SA.width (String.fromFloat (Coord.innerWidth plane))
+        , SA.height (String.fromFloat (Coord.innerHeight plane))
         , SA.fill "transparent"
         ]
 
@@ -614,11 +614,8 @@ defaultLineLegend =
 barLegend : Legend msg -> Bar ->  Html msg
 barLegend config barConfig =
   let fakePlane =
-        { width = config.width
-        , height = config.height
-        , margin = Coord.Margin 0 0 0 0
-        , x = Coord.Axis 0 10 0 10
-        , y = Coord.Axis 0 10 0 10
+        { x = Coord.Axis config.width 0 0 0 10 0 10
+        , y = Coord.Axis config.height 0 0 0 10 0 10
         }
 
       fontStyle =
@@ -653,11 +650,8 @@ lineLegend config interConfig dotConfig =
         if interConfig.opacity == 0 then topMargin else 0
 
       fakePlane =
-        { width = config.width
-        , height = config.height
-        , margin = Coord.Margin 0 0 0 0
-        , x = Coord.Axis 0 10 0 10
-        , y = Coord.Axis 0 10 0 10
+        { x = Coord.Axis config.width 0 0 0 10 0 10
+        , y = Coord.Axis config.height 0 0 0 10 0 10
         }
 
       fontStyle =
@@ -701,6 +695,7 @@ type alias Label =
   , uppercase : Bool
   , hideOverflow : Bool
   , attrs : List (S.Attribute Never)
+  , ellipsis : Maybe { width : Float, height : Float }
   }
 
 
@@ -717,43 +712,98 @@ defaultLabel =
   , uppercase = False
   , hideOverflow = False
   , attrs = []
+  , ellipsis = Nothing
   }
 
 
 {-| -}
 label : Plane -> Label -> List (Svg msg) -> Point -> Svg msg
 label plane config inner point =
-  let fontStyle =
-        case config.fontSize of
-          Just size_ -> "font-size: " ++ String.fromInt size_ ++ "px;"
-          Nothing -> ""
+  case config.ellipsis of
+    Nothing ->
+      let fontStyle =
+            case config.fontSize of
+              Just size_ -> "font-size: " ++ String.fromInt size_ ++ "px;"
+              Nothing -> ""
 
-      anchorStyle =
-        case config.anchor of
-          Nothing -> "text-anchor: middle;"
-          Just End -> "text-anchor: end;"
-          Just Start -> "text-anchor: start;"
-          Just Middle -> "text-anchor: middle;"
+          anchorStyle =
+            case config.anchor of
+              Nothing -> "text-anchor: middle;"
+              Just End -> "text-anchor: end;"
+              Just Start -> "text-anchor: start;"
+              Just Middle -> "text-anchor: middle;"
 
-      uppercaseStyle =
-        if config.uppercase then "text-transform: uppercase;" else ""
+          uppercaseStyle =
+            if config.uppercase then "text-transform: uppercase;" else ""
 
-      withOverflowWrap el =
-        if config.hideOverflow then
-          S.g [ withinChartArea plane ] [ el ]
-        else
-          el
-  in
-  withOverflowWrap <|
-    withAttrs config.attrs S.text_
-      [ SA.class "elm-charts__label"
-      , SA.stroke config.border
-      , SA.strokeWidth (String.fromFloat config.borderWidth)
-      , SA.fill config.color
-      , position plane -config.rotate point.x point.y config.xOff config.yOff
-      , SA.style <| String.join " " [ "pointer-events: none;", fontStyle, anchorStyle, uppercaseStyle ]
-      ]
-      [ S.tspan [] inner ]
+          withOverflowWrap el =
+            if config.hideOverflow then
+              S.g [ withinChartArea plane ] [ el ]
+            else
+              el
+      in
+      withOverflowWrap <|
+        withAttrs config.attrs S.text_
+          [ SA.class "elm-charts__label"
+          , SA.stroke config.border
+          , SA.strokeWidth (String.fromFloat config.borderWidth)
+          , SA.fill config.color
+          , position plane -config.rotate point.x point.y config.xOff config.yOff
+          , SA.style <| String.join " " [ "pointer-events: none;", fontStyle, anchorStyle, uppercaseStyle ]
+          ]
+          [ S.tspan [] inner ]
+
+    Just ellipsis ->
+      let fontStyle =
+            case config.fontSize of
+              Just size_ -> HA.style "font-size"  (String.fromInt size_ ++ "px")
+              Nothing -> HA.style "" ""
+
+          xOffWithAnchor =
+            case config.anchor of
+              Nothing -> config.xOff - ellipsis.width / 2
+              Just End -> config.xOff - ellipsis.width
+              Just Start -> config.xOff
+              Just Middle -> config.xOff - ellipsis.width / 2
+
+          anchorStyle =
+            case config.anchor of
+              Nothing -> HA.style "text-align" "center"
+              Just End -> HA.style "text-align" "right"
+              Just Start -> HA.style "text-align" "left"
+              Just Middle -> HA.style "text-align" "center"
+
+          uppercaseStyle =
+            if config.uppercase then HA.style "text-transform" "uppercase" else HA.style "" ""
+
+          withOverflowWrap el =
+            if config.hideOverflow then
+              S.g [ withinChartArea plane ] [ el ]
+            else
+              el
+      in
+      withOverflowWrap <|
+        withAttrs config.attrs S.foreignObject
+          [ SA.class "elm-charts__label"
+          , SA.class "elm-charts__html-label"
+          , SA.width (String.fromFloat ellipsis.width)
+          , SA.height (String.fromFloat ellipsis.height)
+          , position plane -config.rotate point.x point.y xOffWithAnchor (config.yOff - 10)
+          ]
+          [ H.div
+              [ HA.attribute "xmlns" "http://www.w3.org/1999/xhtml"
+              , HA.style "white-space" "nowrap"
+              , HA.style "overflow" "hidden"
+              , HA.style "text-overflow" "ellipsis"
+              , HA.style "height" "100%"
+              , HA.style "pointer-events" "none"
+              , HA.style "color" config.color
+              , fontStyle
+              , uppercaseStyle
+              , anchorStyle
+              ]
+              inner
+          ]
 
 
 
@@ -883,19 +933,24 @@ bar plane config point =
         , y2 = pos.y2 + highlightWidthCarY
         }
 
-      w = abs (pos.x2 - pos.x1)
-      roundingTop = Coord.scaleSVGX plane w * 0.5 * (clamp 0 1 config.roundTop)
-      roundingBottom = Coord.scaleSVGX plane w * 0.5 * (clamp 0 1 config.roundBottom)
+      width = abs (pos.x2 - pos.x1)
+      roundingTop = Coord.scaleSVGX plane width * 0.5 * (clamp 0 1 config.roundTop)
+      roundingBottom = Coord.scaleSVGX plane width * 0.5 * (clamp 0 1 config.roundBottom)
       radiusTopX = Coord.scaleCartesianX plane roundingTop
       radiusTopY = Coord.scaleCartesianY plane roundingTop
       radiusBottomX = Coord.scaleCartesianX plane roundingBottom
       radiusBottomY = Coord.scaleCartesianY plane roundingBottom
 
+      height = abs (pos.y2 - pos.y1)
+      ( roundTop, roundBottom ) =
+        if height - radiusTopY * 0.8 - radiusBottomY * 0.8 <= 0 || width - radiusTopX * 0.8 - radiusBottomX * 0.8 <= 0
+        then ( 0, 0 ) else ( config.roundTop, config.roundBottom )
+
       ( commands, highlightCommands ) =
         if pos.y1 == pos.y2 then
           ( [], [] )
         else
-          case ( config.roundTop > 0, config.roundBottom > 0 ) of
+          case ( roundTop > 0, roundBottom > 0 ) of
             ( False, False ) ->
               ( [ C.Move pos.x1 pos.y1
                 , C.Line pos.x1 pos.y2
@@ -1186,6 +1241,7 @@ type alias Dot =
   , highlightWidth : Float
   , highlightColor : String
   , shape : Maybe Shape
+  , hideOverflow : Bool
   }
 
 
@@ -1209,16 +1265,20 @@ defaultDot =
   , highlightWidth = 5
   , highlightColor = ""
   , shape = Nothing
+  , hideOverflow = False
   }
 
 
 {-| -}
 dot : Plane -> (data -> Float) -> (data -> Float) -> Dot -> data -> Svg msg
 dot plane toX toY config datum_ =
-  let x_ = Coord.toSVGX plane (toX datum_)
-      y_ = Coord.toSVGY plane (toY datum_)
+  let xOrg = toX datum_
+      yOrg = toY datum_
+      x_ = Coord.toSVGX plane xOrg
+      y_ = Coord.toSVGY plane yOrg
       area_ = 2 * pi * config.size
       highlightColor = if config.highlightColor == "" then config.color else config.highlightColor
+      showDot = isWithinPlane plane xOrg yOrg || config.hideOverflow
 
       styleAttrs =
         [ SA.stroke (if config.border == "" then config.color else config.border)
@@ -1226,6 +1286,7 @@ dot plane toX toY config datum_ =
         , SA.fillOpacity (String.fromFloat config.opacity)
         , SA.fill config.color
         , SA.class "elm-charts__dot"
+        , if config.hideOverflow then withinChartArea plane else SA.class ""
         ]
 
       highlightAttrs =
@@ -1246,7 +1307,7 @@ dot plane toX toY config datum_ =
         else
           toEl (toAttrs 0 ++ styleAttrs) []
   in
-  if not (isWithinPlane plane (toX datum_) (toY datum_)) then S.text "" else
+  if not showDot then S.text "" else
   case config.shape of
     Nothing ->
       S.text ""
@@ -1390,9 +1451,9 @@ defaultTooltip =
 tooltip : Plane -> Position -> Tooltip -> List (H.Attribute Never) -> List (H.Html Never) -> H.Html msg
 tooltip plane pos config htmlAttrs content =
   let distanceTop = Coord.toSVGY plane pos.y2
-      distanceBottom = plane.height - Coord.toSVGY plane pos.y1
+      distanceBottom = plane.y.length - Coord.toSVGY plane pos.y1
       distanceLeft = Coord.toSVGX plane pos.x2
-      distanceRight = plane.width - Coord.toSVGX plane pos.x1
+      distanceRight = plane.x.length - Coord.toSVGX plane pos.x1
 
       direction =
         case config.direction of
@@ -1482,8 +1543,8 @@ position plane rotation x_ y_ xOff_ yOff_ =
 positionHtml : Plane -> Float -> Float -> Float -> Float -> List (H.Attribute msg) -> List (H.Html msg) -> H.Html msg
 positionHtml plane x y xOff yOff attrs content =
     let
-        xPercentage = (Coord.toSVGX plane x + xOff) * 100 / plane.width
-        yPercentage = (Coord.toSVGY plane y - yOff) * 100 / plane.height
+        xPercentage = (Coord.toSVGX plane x + xOff) * 100 / plane.x.length
+        yPercentage = (Coord.toSVGY plane y - yOff) * 100 / plane.y.length
 
         posititonStyles =
           [ HA.style "left" (String.fromFloat xPercentage ++ "%")
@@ -1645,21 +1706,24 @@ decoder plane toMsg =
   let
     handle mouseX mouseY box =
       let
-        widthPercent = box.width / plane.width
-        heightPercent = box.height / plane.height
+        widthPercent = box.width / plane.x.length
+        heightPercent = box.height / plane.y.length
 
         xPrev = plane.x
         yPrev = plane.y
 
         newPlane =
           { plane
-          | width = box.width
-          , height = box.height
-          , margin =
-              { top = plane.margin.top * heightPercent
-              , right = plane.margin.right * widthPercent
-              , left = plane.margin.left * widthPercent
-              , bottom = plane.margin.bottom * heightPercent
+          | x =
+              { xPrev | length = box.width
+              , marginMin = plane.x.marginMin * widthPercent
+              , marginMax = plane.x.marginMax * widthPercent
+              }
+          , y =
+              { yPrev
+              | length = box.height
+              , marginMin = plane.y.marginMin * heightPercent
+              , marginMax = plane.y.marginMax * heightPercent
               }
           }
 

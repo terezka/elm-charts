@@ -1,63 +1,4 @@
-module Internal.Coordinates
-  exposing
-    ( Plane, Limit, Margin
-    , toId
-    , scaleSVGX, scaleSVGY
-    , toSVGX, toSVGY
-    , scaleCartesianX, scaleCartesianY
-    , toCartesianX, toCartesianY
-    , Point, Position
-
-    , fromProps, Axis
-    , foldPosition
-
-    , top, right, bottom, left, center
-    , topLeft, topRight, bottomLeft, bottomRight
-    , pointToPosition
-    )
-
-{-| This module contains helpers for cartesian/SVG coordinate translation.
-
-# Plane
-@docs Plane, Axis
-
-# Plane from data
-
-You may want to produce a plane which fits all your data. For that you need
-to find the minimum and maximum values withing your data in order to calculate
-the domain and range.
-
-@docs minimum, maximum
-
-    planeFromPoints : List Point -> Plane
-    planeFromPoints points =
-      { x =
-        { marginLower = 10
-        , marginUpper = 10
-        , length = 300
-        , min = minimum .x points
-        , max = maximum .x points
-        }
-      , y =
-        { marginLower = 10
-        , marginUpper = 10
-        , length = 300
-        , min = minimum .y points
-        , max = maximum .y points
-        }
-      }
-
-# Cartesian to SVG
-@docs toSVGX, toSVGY, scaleSVG
-
-# SVG to cartesian
-@docs toCartesianX, toCartesianY, scaleCartesian
-
-# Helpers
-@docs place, placeWithOffset
-
--}
-
+module Internal.Coordinates exposing (..)
 
 
 type alias Point =
@@ -179,26 +120,17 @@ fromProps xs ys data =
 
 {-| -}
 type alias Plane =
-  { width : Float
-  , height : Float
-  , margin : Margin
-  , x : Axis
+  { x : Axis
   , y : Axis
   }
 
 
 {-| -}
-type alias Margin =
-  { top : Float
-  , right : Float
-  , left : Float
-  , bottom : Float
-  }
-
-
-{-| -}
 type alias Axis =
-  { dataMin : Float
+  { length : Float
+  , marginMin : Float
+  , marginMax : Float
+  , dataMin : Float
   , dataMax : Float
   , min : Float
   , max : Float
@@ -225,16 +157,16 @@ toId plane =
   in
   String.join "_"
     [ "elm-charts__id"
-    , numToStr plane.width
-    , numToStr plane.height
-    , numToStr plane.margin.top
-    , numToStr plane.margin.right
-    , numToStr plane.margin.bottom
-    , numToStr plane.margin.left
+    , numToStr plane.x.length
     , numToStr plane.x.min
     , numToStr plane.x.max
+    , numToStr plane.x.marginMin
+    , numToStr plane.x.marginMax
+    , numToStr plane.y.length
     , numToStr plane.y.min
     , numToStr plane.y.max
+    , numToStr plane.y.marginMin
+    , numToStr plane.y.marginMax
     ]
 
 
@@ -259,14 +191,14 @@ scaleSVGY plane value =
 -}
 toSVGX : Plane -> Float -> Float
 toSVGX plane value =
-  scaleSVGX plane (value - plane.x.min) + plane.margin.left
+  scaleSVGX plane (value - plane.x.min) + plane.x.marginMin
 
 
 {-| Translate a SVG y-coordinate to its cartesian y-coordinate.
 -}
 toSVGY : Plane -> Float -> Float
 toSVGY plane value =
-  scaleSVGY plane (plane.y.max - value) + plane.margin.top
+  scaleSVGY plane (plane.y.max - value) + plane.y.marginMin
 
 
 {-| For scaling a SVG value to a cartesian value. Note that this will _not_
@@ -282,18 +214,23 @@ scaleCartesianY plane value =
   value * (range plane.y) / (innerHeight plane)
 
 
+scaleCartesian : Axis -> Float -> Float
+scaleCartesian axis value =
+  value * (range axis) / (innerLength axis)
+
+
 {-| Translate a cartesian x-coordinate to its SVG x-coordinate.
 -}
 toCartesianX : Plane -> Float -> Float
 toCartesianX plane value =
-  scaleCartesianX plane (value - plane.margin.left) + plane.x.min
+  scaleCartesianX plane (value - plane.x.marginMin) + plane.x.min
 
 
 {-| Translate a cartesian y-coordinate to its SVG y-coordinate.
 -}
 toCartesianY : Plane -> Float -> Float
 toCartesianY plane value =
-  range plane.y - scaleCartesianY plane (value - plane.margin.top) + plane.y.min
+  range plane.y - scaleCartesianY plane (value - plane.y.marginMin) + plane.y.min
 
 
 
@@ -301,17 +238,22 @@ toCartesianY plane value =
 
 
 range : Axis -> Float
-range limits =
-  let diff = limits.max - limits.min in
+range axis =
+  let diff = axis.max - axis.min in
   if diff > 0 then diff else 1
 
 
 innerWidth : Plane -> Float
 innerWidth plane =
-  max 1 (plane.width - plane.margin.left - plane.margin.right)
+  innerLength plane.x
 
 
 innerHeight : Plane -> Float
 innerHeight plane =
-  max 1 (plane.height - plane.margin.top - plane.margin.bottom)
+  innerLength plane.y
+
+
+innerLength : Axis -> Float
+innerLength axis =
+  max 1 (axis.length - axis.marginMin - axis.marginMax)
 

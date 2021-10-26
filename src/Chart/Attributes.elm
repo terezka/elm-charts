@@ -6,11 +6,13 @@ module Chart.Attributes exposing
 
   -- LIMITS
   , range, domain, limits
-  , lowest, highest, orLower, orHigher, exactly, more, less, window, likeData, zero, middle, percent
+  , lowest, highest, orLower, orHigher, exactly, more, less, window, likeData
+  , zoom, move, centerAt, pad
+  , zero, middle, percent
 
   -- LABELS
   , fontSize, uppercase, format, position
-  , alignLeft, alignRight, alignMiddle, content
+  , alignLeft, alignRight, alignMiddle, ellipsis
 
   -- AXIS
   , amount, flip, pinned
@@ -68,11 +70,13 @@ below are only guiding.
 
 ## Limits
 @docs range, domain, limits
-@docs lowest, highest, orLower, orHigher, exactly, more, less, window, likeData, zero, middle, percent
+@docs lowest, highest, orLower, orHigher, exactly, more, less, window, likeData
+@docs zoom, move, centerAt, pad
+@docs zero, middle, percent
 
 ## Labels
 @docs fontSize, uppercase, format, position
-@docs alignLeft, alignRight, alignMiddle, content
+@docs alignLeft, alignRight, alignMiddle, ellipsis
 
 ## Axis
 @docs amount, flip, pinned
@@ -81,6 +85,7 @@ below are only guiding.
 ## Coordinates
 @docs x, y, x1, y1, x2, y2, x2Svg, y2Svg, length
 @docs moveLeft, moveRight, moveUp, moveDown
+@docs hideOverflow
 
 ## Decoration
 @docs border, borderWidth, color, opacity, highlight, highlightWidth, highlightColor, background, noArrow, rotate
@@ -131,17 +136,17 @@ type alias Attribute c =
 
 {-| Change the lower bound of an axis.
 
-    CA.lowest -5 CA.orLower initial  -- { dataMin = 0, dataMax = 10, min = -5, max = 10 }
-    CA.lowest -5 CA.orHigher initial -- { dataMin = 0, dataMax = 10, min = 0, max = 10 }
-    CA.lowest 2 CA.exactly initial   -- { dataMin = 0, dataMax = 10, min = 2, max = 10 }
-    CA.lowest 2 CA.less initial   -- { dataMin = 0, dataMax = 10, min = -2, max = 10 }
-    CA.lowest 3 CA.more initial   -- { dataMin = 0, dataMax = 10, min = 3, max = 10 }
+    CA.lowest -5 CA.orLower initial  -- { initial | min = -5, max = 10 }
+    CA.lowest -5 CA.orHigher initial -- { initial | min = 0, max = 10 }
+    CA.lowest 2 CA.exactly initial   -- { initial | min = 2, max = 10 }
+    CA.lowest 2 CA.less initial   -- { initial | min = -2, max = 10 }
+    CA.lowest 3 CA.more initial   -- { initial | min = 3, max = 10 }
 
 where
 
-    initial : Axis
+    initial : Chart.Svg.Axis
     initial =
-      { dataMin = 0, dataMax = 10, min = 0, max = 10 }
+      { .. | min = 0, max = 10 }
 
 -}
 lowest : Float -> (Float -> Float -> Float -> Float) -> Attribute C.Axis
@@ -167,13 +172,13 @@ likeData b =
 
 {-| Set an axis to an exact window.
 
-    CA.window 2 5 initial   -- { dataMin = 0, dataMax = 10, min = 2, max = 5 }
+    CA.window 2 5 initial   -- { initial | min = 2, max = 5 }
 
 where
 
     initial : Axis
     initial =
-      { dataMin = 0, dataMax = 10, min = 0, max = 10 }
+      { .. | min = 0, max = 10 }
 
 -}
 window : Float -> Float -> Attribute C.Axis
@@ -219,6 +224,64 @@ more v o _ =
 less : Float -> Float -> Float -> Float
 less v o _ =
   o - v
+
+
+{-| Zoom with a certain percentage.
+
+    CA.range [ CA.zoom 150 ]
+
+-}
+zoom : Float -> Attribute C.Axis
+zoom per axis =
+  let full = axis.max - axis.min
+      zoomedFull = full / (max 1 per / 100)
+      off = (full - zoomedFull) / 2
+  in
+  { axis | min = axis.min + off, max = axis.max - off }
+
+
+{-| Offset entire range.
+
+    CA.move 5 initial   -- { initial | min = 5, max = 15 }
+
+where
+
+    initial : Axis
+    initial =
+      { .. | min = 0, max = 10 }
+
+-}
+move : Float -> Attribute C.Axis
+move v axis =
+  { axis | min = axis.min + v, max = axis.max + v }
+
+
+{-| Add padding (in px) to range/domain.
+
+    CA.range [ CA.pad 5 10 ]
+
+-}
+pad : Float -> Float -> Attribute C.Axis
+pad minPad maxPad axis =
+  let scale = C.scaleCartesian axis in
+  { axis | min = axis.min - scale minPad, max = axis.max + scale maxPad }
+
+
+{-| Center range/domain at certain point.
+
+    CA.centerAt 20 initial -- { initial | min = -30, max = 70 }
+
+where
+
+    initial : Axis
+    initial =
+      { .. | min = 0, max = 100 }
+
+-}
+centerAt : Float -> Attribute C.Axis
+centerAt v axis =
+  let full = axis.max - axis.min in
+  { axis | min = v - full / 2, max = v + full / 2 }
 
 
 {-| Given an axis, find the value within it closest to zero.
@@ -475,6 +538,12 @@ uppercase config =
 format : x -> Attribute { a | format : Maybe x }
 format v config =
   { config | format = Just v }
+
+
+{-| Note: There is no SVG feature for ellipsis, so this turns labels into HTML. -}
+ellipsis : Float -> Float -> Attribute { a | ellipsis : Maybe { height : Float, width : Float } }
+ellipsis w h config =
+  { config | ellipsis = Just { width = w, height = h } }
 
 
 {-| -}
@@ -790,13 +859,6 @@ plus config =
 cross : Attribute { a | shape : Maybe CS.Shape }
 cross config =
   { config | shape = Just CS.Cross }
-
-
-{-| -}
-content : v -> Attribute { a | content : v }
-content v config =
-  { config | content = v }
-
 
 
 {-| -}
