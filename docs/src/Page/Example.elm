@@ -7,6 +7,7 @@ import Route exposing (Route)
 import Session exposing (Session)
 import Browser.Navigation as Navigation
 import Html
+import Html.Attributes as HA
 import Ui.Layout as Layout
 import Ui.Menu as Menu
 import Ui.Code as Code
@@ -171,13 +172,16 @@ viewContent model =
           ]
 
       viewChart isCenter =
-        E.el
-          [ E.width (E.fill |> E.maximum 320 |> E.minimum 300 )
-          , if isCenter then E.centerX else E.alignTop
-          , E.alignTop
-          , E.paddingEach { top = 0, bottom = 40, left = 0, right = 0 }
-          ]
-          (E.map OnExampleMsg <| E.html <| Examples.view model.examples currentId)
+        Examples.view model.examples currentId
+          |> E.html
+          |> E.map OnExampleMsg
+          |> E.el
+              [ E.width (E.fill |> E.maximum 320 |> E.minimum 300)
+              , E.height E.fill
+              , if isCenter then E.centerX else E.alignTop
+              , E.alignTop
+              , E.paddingEach { top = 0, bottom = 40, left = 0, right = 0 }
+              ]
 
       viewToggler =
         I.button
@@ -187,15 +191,10 @@ viewContent model =
           }
 
       viewCode =
-        E.el
-          [ E.width E.fill
-          , E.height E.fill
-          , BG.color (E.rgb255 250 250 250)
-          ] <|
-          Code.view <|
-              if model.showFullCode
-              then Examples.largeCode currentId
-              else Examples.smallCode currentId
+        Code.view <|
+          if model.showFullCode
+            then Examples.largeCode currentId
+            else Examples.smallCode currentId
   in
   case Layout.screen model.window of
     Layout.Large ->
@@ -206,6 +205,7 @@ viewContent model =
         , E.spacing 30
         ]
         [ viewText
+        , viewToggler
         , E.row
             [ E.width E.fill
             , E.height E.fill
@@ -213,15 +213,8 @@ viewContent model =
             , E.alignTop
             ]
             [ viewChart False
-            , E.column
-                [ E.width (E.fillPortion 2)
-                , E.height E.fill
-                , E.spacing 20
-                ]
-                [ viewToggler
-                , viewCode
-                ]
-              ]
+            , viewCode
+            ]
         ]
 
     Layout.Medium ->
@@ -232,41 +225,30 @@ viewContent model =
         , E.spacing 30
         ]
         [ viewText
-        , E.row
-            [ E.width E.fill
-            , E.height E.fill
-            , E.spacing 50
-            , E.alignTop
+        , viewChart True
+        , viewToggler
+        , E.el
+            [ E.height E.fill
+            , E.width E.fill
             ]
-            [ viewChart False
-            , E.column
-                [ E.width (E.fillPortion 2)
-                , E.height E.fill
-                , E.spacing 20
-                ]
-                [ viewToggler
-                , viewCode
-                ]
-              ]
+            viewCode
         ]
 
     Layout.Small ->
       E.column
         [ E.width E.fill
+        , E.height E.fill
         , E.paddingEach { top = 20, bottom = 0, left = 0, right = 0 }
         , E.spacing 30
         ]
         [ viewText
         , viewChart True
         , viewToggler
-        , E.column
-              [ E.width E.fill
-              , E.alignTop
-              , E.centerX
-              , E.spacing 20
-              ]
-              [ viewCode
-              ]
+        , E.el
+            [ E.height E.fill
+            , E.width E.fill
+            ]
+            viewCode
         ]
 
 
