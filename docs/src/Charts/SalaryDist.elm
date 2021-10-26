@@ -142,11 +142,12 @@ view model =
         , C.label [ CA.fontSize 11, CA.moveDown 12 ] [ S.text "Data from Danmarks Statestik" ] { x = CA.middle p.x, y = p.y.max }
         , C.label [ CA.fontSize 12, CA.moveDown 25 ] [ S.text "Average salary in DKK" ] { x = CA.middle p.x, y = p.y.min }
         , C.label [ CA.fontSize 12, CA.moveLeft 15, CA.rotate 90 ] [ S.text "Womens percentage of mens salary" ] { x = p.x.min, y = CA.middle p.y }
-        , C.line [ CA.dashed [ 4, 2 ], CA.opacity 0.7, CA.color "#f56dbc", CA.x1 Salary.avgSalaryWomen ]
-        , C.line [ CA.dashed [ 4, 2 ], CA.opacity 0.7, CA.color "#58a9f6", CA.x1 Salary.avgSalaryMen ]
+        , C.line [ CA.dashed [ 4, 2 ], CA.opacity 0.7, CA.color "#f56dbc", CA.x1 Salary.avgSalaryWomen, CA.hideOverflow ]
+        , C.line [ CA.dashed [ 4, 2 ], CA.opacity 0.7, CA.color "#58a9f6", CA.x1 Salary.avgSalaryMen, CA.hideOverflow ]
         ]
 
-    , C.line [ CA.dashed [ 3, 3 ], CA.y1 100 ]
+    , C.withPlane <| \p ->
+        [ C.line [ CA.dashed [ 3, 3 ], CA.y1 100, CA.hideOverflow ] ]
 
     , salarySeries model 0.7 5 200
 
@@ -156,8 +157,8 @@ view model =
             top = CI.getTop p product
         in
         if String.startsWith "251 " datum.sector then
-          [ C.line [ CA.color color, CA.break, CA.x1 top.x, CA.y1 top.y, CA.x2Svg 10, CA.y2Svg 10 ]
-          , C.label [ CA.color color,CA.alignLeft, CA.moveRight 13, CA.moveUp 7 ] [ S.text "Software engineering" ] top
+          [ C.line [ CA.color color, CA.break, CA.x1 top.x, CA.y1 top.y, CA.x2Svg 10, CA.y2Svg 10, CA.hideOverflow ]
+          , C.label [ CA.color color,CA.alignLeft, CA.moveRight 13, CA.moveUp 7, CA.hideOverflow ] [ S.text "Software engineering" ] top
           ]
         else
           []

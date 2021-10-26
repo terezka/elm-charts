@@ -1,6 +1,7 @@
 module Internal.Coordinates
   exposing
     ( Plane, Limit, Margin
+    , toId
     , scaleSVGX, scaleSVGY
     , toSVGX, toSVGY
     , scaleCartesianX, scaleCartesianY
@@ -209,6 +210,32 @@ type alias Limit =
   { min : Float
   , max : Float
   }
+
+
+
+-- ID
+
+
+{-| An id for the clip path. This needs to be unique for the particular dimensions
+of the chart, but not necessarily for the whole document. -}
+toId : Plane -> String
+toId plane =
+  let numToStr =
+        String.fromFloat >> String.replace "." "-"
+  in
+  String.join "_"
+    [ "elm-charts__id"
+    , numToStr plane.width
+    , numToStr plane.height
+    , numToStr plane.margin.top
+    , numToStr plane.margin.right
+    , numToStr plane.margin.bottom
+    , numToStr plane.margin.left
+    , numToStr plane.x.min
+    , numToStr plane.x.max
+    , numToStr plane.y.min
+    , numToStr plane.y.max
+    ]
 
 
 

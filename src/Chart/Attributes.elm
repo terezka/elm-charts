@@ -19,6 +19,7 @@ module Chart.Attributes exposing
   -- COORDINATES
   , x, y, x1, x2Svg, y1, x2, y2, y2Svg, length
   , moveLeft, moveRight, moveUp, moveDown
+  , hideOverflow
 
   -- DECORATION
   , border, borderWidth, color, opacity, highlight, highlightWidth, highlightColor, background, noArrow, rotate
@@ -414,6 +415,12 @@ moveUp v config =
 moveDown : Float -> Attribute { a | yOff : Float }
 moveDown v config =
   { config | yOff = config.yOff + v }
+
+
+{-| -}
+hideOverflow : Attribute { a | hideOverflow : Bool }
+hideOverflow config =
+  { config | hideOverflow = True }
 
 
 {-| -}
