@@ -1304,8 +1304,8 @@ yTick : List (Attribute Tick) -> Float -> Element data msg
 yTick edits val =
   let toConfig p =
         Helpers.apply edits
-          { x = CA.middle p.x
-          , y = CA.zero p.y
+          { x = CA.zero p.x
+          , y = CA.middle p.y
           , length = 5
           , color = "rgb(210, 210, 210)"
           , width = 1
