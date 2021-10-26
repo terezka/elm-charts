@@ -239,11 +239,11 @@ viewChart model year =
     , C.withPlane <| \p ->
         [ C.label [ CA.fontSize 12, CA.moveDown 17, CA.alignRight ] [ S.text "Average salary" ] { x = p.x.max, y = p.y.min }
         , C.label [ CA.fontSize 12, CA.moveLeft 12, CA.alignRight, CA.rotate 90 ] [ S.text "Womens % of mens salary" ] { x = p.x.min, y = p.y.max }
-        , C.line [ CA.dashed [ 4, 2 ], CA.opacity 0.7, CA.color "#f56dbc", CA.x1 (Salary.avgSalaryWomen year) ]
-        , C.line [ CA.dashed [ 4, 2 ], CA.opacity 0.7, CA.color "#58a9f6", CA.x1 (Salary.avgSalaryMen year) ]
+        , C.line [ CA.dashed [ 4, 2 ], CA.opacity 0.7, CA.color "#f56dbc", CA.x1 (Salary.avgSalaryWomen year), CA.hideOverflow ]
+        , C.line [ CA.dashed [ 4, 2 ], CA.opacity 0.7, CA.color "#58a9f6", CA.x1 (Salary.avgSalaryMen year), CA.hideOverflow ]
         ]
 
-    , C.line [ CA.dashed [ 3, 3 ], CA.y1 100 ]
+    , C.line [ CA.dashed [ 3, 3 ], CA.y1 100, CA.hideOverflow ]
 
     , salarySeries model year 0.9 5 150
 
@@ -258,11 +258,6 @@ viewChart model year =
           ]
         else
           []
-
-    , C.withPlane <| \p ->
-        [ C.line [ CA.color "red", CA.y1 (CA.middle p.y) ]
-        , C.line [ CA.color "red", CA.x1 (CA.middle p.x) ]
-        ]
 
     --, case model.window of
     --    Just _ ->
@@ -338,7 +333,7 @@ salarySeries : Model -> Float -> Float -> Float -> Float -> C.Element Salary.Dat
 salarySeries model year border highlightSize size =
   C.series .salaryBoth
       [ C.scatterMaybe Salary.womenSalaryPerc
-          [ CA.opacity 0.4, CA.circle, CA.border CA.blue, CA.borderWidth border ]
+          [ CA.opacity 0.4, CA.circle, CA.border CA.blue, CA.borderWidth border, CA.hideOverflow ]
             |> C.variation (\i d ->
                   let precentOfWomen =
                         Salary.womenPerc d
