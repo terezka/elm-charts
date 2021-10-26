@@ -1,6 +1,6 @@
 # elm-charts
 
-Make charts in all Elm. The package can draw charts at a variety of customizations, down to including your very own SVG elements, as well as editing the SVG made by the package. It has great support for interactivity, layering different charts, and adding irregular details.
+Make SVG charts in all Elm. The package can draw charts at a variety of different levels of customizations, from basic charts with standard features to very custom styles. The library also allows including your very own SVG elements still easily utilizing the coordinate system calculated from your data, as well as editing the SVG made by the package. It has great support for interactivity, layering different charts, and adding irregular details.
 
 You can check out [the many examples](https://elm-charts.org)!
 
