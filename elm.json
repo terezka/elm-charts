@@ -23,7 +23,7 @@
         "elm-explorations/test": "1.2.2 <= v < 2.0.0",
         "myrho/elm-round": "1.0.4 <= v < 2.0.0",
         "ryannhg/date-format": "2.3.0 <= v < 3.0.0",
-        "terezka/intervals": "2.0.0 <= v < 3.0.0"
+        "terezka/intervals": "2.0.1 <= v < 3.0.0"
     },
     "test-dependencies": {}
 }
