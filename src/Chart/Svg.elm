@@ -21,6 +21,7 @@ module Chart.Svg exposing
   , fromSvg, fromCartesian
   , lengthInSvgX, lengthInSvgY
   , lengthInCartesianX, lengthInCartesianY
+  , hideOverflow
 
   , getNearest, getNearestX, getWithin, getWithinX
   )
@@ -172,6 +173,7 @@ type alias Line =
   , opacity : Float
   , break : Bool
   , flip : Bool
+  , hideOverflow : Bool
   , attrs : List (S.Attribute Never)
   }
 
@@ -193,6 +195,7 @@ type alias Rect =
   , border : String
   , borderWidth : Float
   , opacity : Float
+  , hideOverflow : Bool
   , attrs : List (S.Attribute Never)
   }
 
@@ -286,6 +289,7 @@ type alias Label =
   , anchor : Maybe Internal.Svg.Anchor
   , rotate : Float
   , uppercase : Bool
+  , hideOverflow : Bool
   , attrs : List (S.Attribute Never)
   }
 
@@ -635,3 +639,9 @@ lengthInCartesianX =
 lengthInCartesianY : Plane -> Float -> Float
 lengthInCartesianY =
   Internal.Svg.lengthInCartesianY
+
+
+{-| Hide overflow. -}
+hideOverflow : Plane -> S.Attribute Never
+hideOverflow =
+  Internal.Svg.withinChartArea

@@ -1166,6 +1166,7 @@ xLabel edits inner =
       , color = config.color
       , anchor = config.anchor
       , rotate = config.rotate
+      , hideOverflow = False
       , attrs = []
       }
       string
@@ -1219,6 +1220,7 @@ yLabel edits inner =
             Nothing -> Just (if config.flip then IS.Start else IS.End)
             Just anchor -> Just anchor
       , rotate = config.rotate
+      , hideOverflow = False
       , attrs = []
       }
       string
@@ -1805,6 +1807,7 @@ toLabelFromItemLabel config =
   , fontSize = config.fontSize
   , uppercase = config.uppercase
   , rotate = config.rotate
+  , hideOverflow = False
   , attrs = config.attrs
   }
 
