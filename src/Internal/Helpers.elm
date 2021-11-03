@@ -33,7 +33,7 @@ gatherWith testFn list =
             [] -> List.reverse gathered
             toGather :: population ->
               let ( gathering, remaining ) = List.partition (testFn toGather) population in
-              helper remaining <| ( toGather, gathering ) :: gathered
+              helper remaining (( toGather, gathering ) :: gathered)
     in
     helper list []
 
