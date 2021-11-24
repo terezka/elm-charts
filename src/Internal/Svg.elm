@@ -94,7 +94,7 @@ container plane config below chartEls above =
         , SA.y (String.fromFloat plane.y.marginMin)
         , SA.width (String.fromFloat (Coord.innerWidth plane))
         , SA.height (String.fromFloat (Coord.innerHeight plane))
-        , SA.fill "transparent"
+        , SA.fill "none"
         ]
 
       clipPathDefs =
