@@ -65,7 +65,7 @@ onDoubleClick onMsg decoder =
 {-| Add a mouse move event handler.
 
     C.chart
-      [ CE.onMouseMove (CE.getNearest CI.bars) ]
+      [ CE.onMouseMove OnHover (CE.getNearest CI.bars) ]
       [ .. ]
 
 See example at [elm-charts.org](https://www.elm-charts.org/documentation/interactivity/basic-bar-tooltip).
