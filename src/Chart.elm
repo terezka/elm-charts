@@ -207,15 +207,15 @@ the `chart` element.
         -- your data, but you can change them like this:
         , CA.range
             [ CA.lowest -5 CA.orLower
-                -- Makes sure that your x-axis begins at -5 or lower, no matter
+                -- Makes sure that your y-axis begins at -5 or lower, no matter
                 -- what your data is like.
             , CA.highest 10 CA.orHigher
-                -- Makes sure that your x-axis ends at 10 or higher, no matter
+                -- Makes sure that your y-axis ends at 10 or higher, no matter
                 -- what your data is like.
             ]
         , CA.domain
             [ CA.lowest 0 CA.exactly ]
-                -- Makes sure that your y-axis begins at exactly 0, no matter
+                -- Makes sure that your x-axis begins at exactly 0, no matter
                 -- what your data is like.
 
         -- Add event triggers to your chart. Learn more about these in
@@ -412,17 +412,17 @@ definePlane config elements =
 
       calcRange =
         case config.range of
-          [] -> limits_.x
-          some -> List.foldl (\f b -> f b) limits_.x some
+          [] -> limits_.y
+          some -> List.foldl (\f b -> f b) limits_.y some
 
       calcDomain =
         case config.domain of
-          [] -> CA.lowest 0 CA.orLower limits_.y
-          some -> List.foldl (\f b -> f b) limits_.y some
+          [] -> CA.lowest 0 CA.orLower limits_.x
+          some -> List.foldl (\f b -> f b) limits_.x some
 
       unpadded =
-        { x = calcRange
-        , y = calcDomain
+        { x = calcDomain
+        , y = calcRange
         }
 
       scalePadX =
@@ -431,21 +431,21 @@ definePlane config elements =
       scalePadY =
         C.scaleCartesianY unpadded
 
-      xMin = calcRange.min - scalePadX config.padding.left
-      xMax = calcRange.max + scalePadX config.padding.right
+      xMin = calcDomain.min - scalePadX config.padding.left
+      xMax = calcDomain.max + scalePadX config.padding.right
 
-      yMin = calcDomain.min - scalePadY config.padding.bottom
-      yMax = calcDomain.max + scalePadY config.padding.top
+      yMin = calcRange.min - scalePadY config.padding.bottom
+      yMax = calcRange.max + scalePadY config.padding.top
   in
   { x =
       { calcRange
-      | length = config.width
+      | length = config.height
       , min = min xMin xMax
       , max = max xMin xMax
       }
   , y =
       { calcDomain
-      | length = config.height
+      | length = config.width
       , min = min yMin yMax
       , max = max yMin yMax
       }
@@ -2781,7 +2781,7 @@ label attrs inner point =
     C.chart []
       [ C.labelAt (CA.percent 20) (CA.percent 90) [] [ S.text "Data from Fruits.com" ] ]
 
-The example above adds your label at 20% the length of your range and 90% of your domain.
+The example above adds your label at 20% the length of your domain and 90% of your range.
 
 Other attributes you can use:
 
@@ -2907,8 +2907,8 @@ html func =
 
     C.chart []
       [ C.svgAt .min .max 10 20 [ .. ]
-          -- Add .. at x = the minumum value of your range (x-axis) + 12 SVG units
-          -- and y = the maximum value of your domain (y-axis) + 20 SVG units
+          -- Add .. at x = the minumum value of your range (y-axis) + 12 SVG units
+          -- and y = the maximum value of your domain (x-axis) + 20 SVG units
       ]
 
 -}
