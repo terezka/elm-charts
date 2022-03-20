@@ -99,7 +99,7 @@ You can see what attributes are applicable given their configuration record.
 @docs lengthInCartesianX, lengthInCartesianY
 @docs hideOverflow
 
-# Seaching
+# Searching
 @docs getNearest, getNearestX, getWithin, getWithinX
 
 -}
