@@ -22,6 +22,6 @@ main =
     , C.yLabels []
     , C.xAxis []
     , C.yAxis []
-    , C.bars [ C.bar identity [] ] [ 2, 4, 3 ]
+    , C.bars [] [ C.bar identity [] ] [ 2, 4, 3 ]
     ]
 ```
