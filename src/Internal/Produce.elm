@@ -113,12 +113,12 @@ toBarSeries elIndex barsAttrs properties data =
             y1 = minY <| Maybe.withDefault 0 visual - Maybe.withDefault 0 value
             y2 = minY <| Maybe.withDefault 0 visual
 
-            isFirst = sectionIndex == 0
-            isLast = toFloat sectionIndex == numOfSections - 1
+            isTop = sectionIndex == 0
+            isBottom = toFloat sectionIndex == numOfSections - 1
             isSingle = numOfSections == 1
 
-            roundTop = if isSingle || isLast then barsConfig.roundTop else 0
-            roundBottom = if isSingle || isFirst then barsConfig.roundBottom else 0
+            roundTop = if isSingle || isTop then barsConfig.roundTop else 0
+            roundBottom = if isSingle || isBottom then barsConfig.roundBottom else 0
 
             defaultColor = Helpers.toDefaultColor colorIndex
             defaultAttrs = [ CA.roundTop roundTop, CA.roundBottom roundBottom, CA.color defaultColor, CA.border defaultColor ]
@@ -167,7 +167,7 @@ toBarSeries elIndex barsAttrs properties data =
   in
   Helpers.withSurround data toBin |> \bins ->
     List.map P.toConfigs properties
-      |> List.indexedMap (\barIndex stacks -> List.indexedMap (toSeriesItem bins stacks barIndex) (List.reverse stacks))
+      |> List.indexedMap (\barIndex stacks -> List.indexedMap (toSeriesItem bins stacks barIndex) stacks)
       |> List.concat
       |> List.indexedMap (\propIndex f -> f (elIndex + propIndex))
       |> List.filterMap identity
