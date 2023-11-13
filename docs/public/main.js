@@ -40525,14 +40525,20 @@ var $author$project$Page$Home$view = function (model) {
 									$mdgriffith$elm_ui$Element$text('Sponsored by')
 								])),
 							A2(
-							$mdgriffith$elm_ui$Element$image,
+							$mdgriffith$elm_ui$Element$link,
 							_List_fromArray(
-								[
-									$mdgriffith$elm_ui$Element$centerX,
-									$mdgriffith$elm_ui$Element$width(
-									A2($mdgriffith$elm_ui$Element$maximum, 230, $mdgriffith$elm_ui$Element$fill))
-								]),
-							{hm: 'BairesDev', iG: 'baires-dev.png'})
+								[$mdgriffith$elm_ui$Element$centerX]),
+							{
+								dL: A2(
+									$mdgriffith$elm_ui$Element$image,
+									_List_fromArray(
+										[
+											$mdgriffith$elm_ui$Element$width(
+											A2($mdgriffith$elm_ui$Element$maximum, 230, $mdgriffith$elm_ui$Element$fill))
+										]),
+									{hm: 'BairesDev', iG: 'baires-dev.png'}),
+								jq: 'https://www.bairesdev.com/sponsoring-open-source-projects/'
+							})
 						]))
 				])),
 		i4: 'elm-charts'

@@ -214,7 +214,11 @@ view model =
               , E.spacing 60
               ]
               [ E.paragraph [ F.size 32, F.center ] [ E.text "Sponsored by"]
-              , E.image [ E.centerX, E.width (E.maximum 230 E.fill) ] { src = "baires-dev.png", description = "BairesDev" }
+              , E.link 
+                  [ E.centerX ] 
+                  { url = "https://www.bairesdev.com/sponsoring-open-source-projects/"
+                  , label = E.image [ E.width (E.maximum 230 E.fill) ] { src = "baires-dev.png", description = "BairesDev" }
+                  }
               ]
           ]
     }
