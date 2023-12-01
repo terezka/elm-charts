@@ -61,7 +61,7 @@ view model =
                 { name = "Temperature"
                 , color = color
                 , position = { x1 = x, x2 = x + 2, y1 = y, y2 = y + 2 }
-                , format = .y >> String.fromFloat >> (\v -> v ++ " C°")
+                , format = \coord -> String.fromFloat coord.y ++ " C°"
                 , data = { x = toFloat index, y = value }
                 , render = \p ->
                     CS.rect p
@@ -127,7 +127,7 @@ smallCode =
                 { name = "Temperature"
                 , color = color
                 , position = { x1 = x, x2 = x + 2, y1 = y, y2 = y + 2 }
-                , format = .y >> String.fromFloat >> (\\v -> v ++ " C°")
+                , format = \\coord -> String.fromFloat coord.y ++ " C°"
                 , data = { x = toFloat index, y = value }
                 , render = \\p ->
                     CS.rect p

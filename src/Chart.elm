@@ -373,7 +373,7 @@ definePlane config elements =
           Indexed _ -> acc
           SeriesElement lims _ _ _ -> acc ++ lims
           BarsElement lims _ _ _ _ -> acc ++ lims
-          CustomElement _ _ -> acc
+          CustomElement item _ -> acc ++ [ Item.getLimits item ]
           AxisElement _ _ -> acc
           TicksElement _ _ -> acc
           TickElement _ _ _ -> acc
@@ -513,7 +513,7 @@ getTickValues plane items elements =
           Indexed _ -> acc
           SeriesElement _ _ _ _     -> acc
           BarsElement _ _ _ func _  -> func plane acc
-          CustomElement _ func      -> acc
+          CustomElement _ _         -> acc
           AxisElement func _        -> func plane acc
           TicksElement func _       -> func plane acc
           TickElement toC func _    -> func plane (toC plane) acc

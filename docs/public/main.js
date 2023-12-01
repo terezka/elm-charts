@@ -18360,7 +18360,13 @@ var $author$project$Chart$definePlane = F2(
 						var lims = el.a;
 						return _Utils_ap(acc, lims);
 					case 3:
-						return acc;
+						var item = el.a;
+						return _Utils_ap(
+							acc,
+							_List_fromArray(
+								[
+									$author$project$Internal$Item$getLimits(item)
+								]));
 					case 4:
 						return acc;
 					case 5:
@@ -18559,7 +18565,6 @@ var $author$project$Chart$getTickValues = F3(
 						var func = el.d;
 						return A2(func, plane, acc);
 					case 3:
-						var func = el.b;
 						return acc;
 					case 4:
 						var func = el.a;
@@ -28091,17 +28096,9 @@ var $author$project$Examples$Frame$CustomElements$view = function (model) {
 								{
 									c: color,
 									dC: {b: index, a: value},
-									S: A2(
-										$elm$core$Basics$composeR,
-										function ($) {
-											return $.a;
-										},
-										A2(
-											$elm$core$Basics$composeR,
-											$elm$core$String$fromFloat,
-											function (v) {
-												return v + ' C°';
-											})),
+									S: function (coord) {
+										return $elm$core$String$fromFloat(coord.a) + ' C°';
+									},
 									dO: 'Temperature',
 									F: {a1: x, dm: x + 2, jy: y, eO: y + 2},
 									ij: function (p) {
@@ -35742,7 +35739,7 @@ var $author$project$Examples$Frame$Background$smallCode = '\n  C.chart\n    [ CA
 var $author$project$Examples$Frame$Basic$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xAxis []\n    , C.xTicks []\n    , C.xLabels []\n    , C.yAxis []\n    , C.yTicks []\n    , C.yLabels []\n    ]\n  ';
 var $author$project$Examples$Frame$Color$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xAxis []\n    , C.xTicks []\n    , C.xLabels []\n    , C.yAxis [ CA.color CA.pink ]\n    , C.yTicks [ CA.color CA.pink ]\n    , C.yLabels [ CA.color CA.pink ]\n    ]\n  ';
 var $author$project$Examples$Frame$Coordinates$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xAxis []\n    , C.xTicks []\n    , C.xLabels []\n    , C.yAxis []\n    , C.yTicks []\n    , C.yLabels []\n\n    , C.svg <| \\p ->\n        let point = { x = 6, y = 4 }\n            pointSvg = CS.fromCartesian p point\n            color = if CS.fromSvg p pointSvg == point then "purple" else "blue"\n        in\n        S.g []\n          [ S.circle\n              [ SA.r "10"\n              , SA.fill color\n              , SA.cx (String.fromFloat pointSvg.x)\n              , SA.cy (String.fromFloat pointSvg.y)\n              ]\n              []\n          ]\n    ]\n  ';
-var $author$project$Examples$Frame$CustomElements$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CE.onMouseMove OnHover (CE.getNearest CI.any)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xTicks []\n    , C.xLabels []\n    , C.yTicks []\n    , C.yLabels []\n    , C.list <|\n        let heatmapItem index value =\n              let x = toFloat (remainderBy 5 index) * 2\n                  y = toFloat (index // 5) * 2\n                  color =\n                    if value > 8  then "#0E4D64" else\n                    if value > 6  then "#137177" else\n                    if value > 4  then "#188977" else\n                    if value > 2  then "#1D9A6C" else\n                    if value > 0  then "#74C67A" else\n                    if value == 0 then "#99D492" else\n                    "#0A2F51"\n              in\n              C.custom\n                { name = "Temperature"\n                , color = color\n                , position = { x1 = x, x2 = x + 2, y1 = y, y2 = y + 2 }\n                , format = .y >> String.fromFloat >> (\\v -> v ++ " C°")\n                , data = { x = toFloat index, y = value }\n                , render = \\p ->\n                    CS.rect p\n                      [ CA.x1 x\n                      , CA.x2 (x + 2)\n                      , CA.y1 y\n                      , CA.y2 (y + 2)\n                      , CA.color color\n                      , CA.border "white"\n                      ]\n                }\n        in\n        List.indexedMap heatmapItem\n          [ 2, 5, 8, 5, 3\n          , 5, 7, 9, 0, 3\n          , 2, 4, 6, 3, 5\n          , 7, 9, 0, 3, 2\n          , 4, 6, 7, 8, 10\n          ]\n\n    , C.each model.hovering <| \\_ item ->\n        [ C.tooltip item [ CA.center, CA.offset 0, CA.onTopOrBottom ] [] [] ]\n    ]\n  ';
+var $author$project$Examples$Frame$CustomElements$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CE.onMouseMove OnHover (CE.getNearest CI.any)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xTicks []\n    , C.xLabels []\n    , C.yTicks []\n    , C.yLabels []\n    , C.list <|\n        let heatmapItem index value =\n              let x = toFloat (remainderBy 5 index) * 2\n                  y = toFloat (index // 5) * 2\n                  color =\n                    if value > 8  then "#0E4D64" else\n                    if value > 6  then "#137177" else\n                    if value > 4  then "#188977" else\n                    if value > 2  then "#1D9A6C" else\n                    if value > 0  then "#74C67A" else\n                    if value == 0 then "#99D492" else\n                    "#0A2F51"\n              in\n              C.custom\n                { name = "Temperature"\n                , color = color\n                , position = { x1 = x, x2 = x + 2, y1 = y, y2 = y + 2 }\n                , format = \\coord -> String.fromFloat coord.y ++ " C°"\n                , data = { x = toFloat index, y = value }\n                , render = \\p ->\n                    CS.rect p\n                      [ CA.x1 x\n                      , CA.x2 (x + 2)\n                      , CA.y1 y\n                      , CA.y2 (y + 2)\n                      , CA.color color\n                      , CA.border "white"\n                      ]\n                }\n        in\n        List.indexedMap heatmapItem\n          [ 2, 5, 8, 5, 3\n          , 5, 7, 9, 0, 3\n          , 2, 4, 6, 3, 5\n          , 7, 9, 0, 3, 2\n          , 4, 6, 7, 8, 10\n          ]\n\n    , C.each model.hovering <| \\_ item ->\n        [ C.tooltip item [ CA.center, CA.offset 0, CA.onTopOrBottom ] [] [] ]\n    ]\n  ';
 var $author$project$Examples$Frame$CustomFormat$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xAxis []\n    , C.xLabels [ CA.format (\\x -> String.fromFloat x ++ " C°"), CA.withGrid ]\n    ]\n  ';
 var $author$project$Examples$Frame$CustomLabels$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xAxis []\n    , C.generate 12 CS.ints .x [] <| \\p num ->\n        let isEven = remainderBy 2 num == 0 in\n        [ C.xLabel\n            [ CA.x (toFloat num)\n            , CA.withGrid\n            , if isEven then identity else CA.y p.y.max\n            , if isEven then identity else CA.moveUp 28\n            , if isEven then identity else CA.fontSize 10\n            , if isEven then identity else CA.color CA.blue\n            ]\n            [ S.text (String.fromInt num ++ "°") ]\n        ]\n    ]\n  ';
 var $author$project$Examples$Frame$Dimensions$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.range\n        [ CA.lowest 5 CA.orLower\n        , CA.highest 90 CA.orHigher\n        ]\n    , CA.domain\n        [ CA.lowest 5 CA.orLower\n        , CA.highest 100 CA.orHigher\n        ]\n    ]\n    [ C.series .x\n        [ C.interpolated .y [  ] [] ]\n        [ { x = 10, y = 20 }\n        , { x = 80, y = 80 }\n        ]\n    , C.xLabels [ CA.amount 10, CA.withGrid ]\n    , C.yLabels [ CA.amount 10, CA.withGrid ]\n    ]\n  ';

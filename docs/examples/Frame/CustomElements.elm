@@ -59,8 +59,8 @@ view model =
               C.custom
                 { name = "Temperature"
                 , color = color
-                , position = { x1 = x, x2 = x + 2, y1 = y, y2 = y + 2 }
-                , format = .y >> String.fromFloat >> (\v -> v ++ " C°")
+                , position = { x1 = x + 10, x2 = x + 10 + 2, y1 = y + 10, y2 = y + 10 + 2 }
+                , format = \coord -> String.fromFloat coord.y ++ " C°"
                 , data = { x = toFloat index, y = value }
                 , render = \p ->
                     CS.rect p
