@@ -39,6 +39,31 @@ gatherWith testFn list =
 
 
 
+getMinAndMax : (a -> Float) -> List a -> ( Float, Float )
+getMinAndMax func list =
+  let fold xs (minM, maxM) =
+        case ( xs, minM, maxM ) of 
+          ( x :: rest, Just min, Just max ) -> 
+            let v = func x in fold rest
+            ( Just (Basics.min v min)
+            , Just (Basics.max v max) 
+            )
+
+          ( x :: rest, _, _ ) -> 
+            let v = func x in fold rest 
+            ( Just v
+            , Just v
+            )
+
+          ( [], _, _ ) -> 
+            ( Maybe.withDefault 0 minM
+            , Maybe.withDefault 1 maxM 
+            )
+  in
+  fold list (Nothing, Nothing)
+
+
+
 -- DEFAULTS
 
 

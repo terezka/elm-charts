@@ -35,6 +35,7 @@ type alias One data x =
 type Any
   = Dot S.Dot
   | Bar S.Bar
+  | Rect S.Rect
   | Custom
 
 

@@ -10,3 +10,6 @@ generate:
 
 build:
 	elm make src/Main.elm --output=public/main.js --optimize
+
+debug:
+	elm make src/Main.elm --output=public/main.js

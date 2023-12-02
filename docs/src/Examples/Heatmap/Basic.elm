@@ -1,4 +1,4 @@
-module Examples.Frame.CustomElements exposing (..)
+module Examples.Heatmap.Basic exposing (..)
 
 
 -- THIS IS A GENERATED MODULE!
@@ -10,6 +10,7 @@ import Chart.Attributes as CA
 import Chart.Events as CE
 import Chart.Item as CI
 import Chart.Svg as CS
+import Time exposing (Month(..))
 
 
 view : Model -> H.Html Msg
@@ -17,67 +18,92 @@ view model =
   C.chart
     [ CA.height 300
     , CA.width 300
+    , CA.domain [ CA.highest 1 CA.more ]
     ]
     [ C.xTicks []
     , C.xLabels []
     , C.yTicks []
     , C.yLabels []
-    , C.heatmap .x .y .value []
-        --[ colors [ "#99D492", "#74C67A", "#1D9A6C", "#188977", "#137177", "#0E4D64"]
-        --, smoothScale
-        --, name "Temperature"
-        --, borderWidth 1
-        --, borderColor "white"
-        --]
-        data
+    , C.heatmap toMonthNumber toCountryNum .temperature [] data
     ]
 
 
 type alias Datum =
-  { country : String
+  { country : Country
   , month : Month
   , temperature : Float
   }
 
 
+type Country
+  = Denmark
+  | Sweden
+  | Norway
+
+
+toCountryNum : Datum -> Float
+toCountryNum {country} =
+  case country of 
+    Denmark -> 0
+    Norway -> 1
+    Sweden -> 2
+
+
+toMonthNumber : Datum -> Float
+toMonthNumber {month} =
+  case month of
+    Jan -> 1
+    Feb -> 2
+    Mar -> 3
+    Apr -> 4
+    May -> 5
+    Jun -> 6
+    Jul -> 7
+    Aug -> 8
+    Sep -> 9
+    Oct -> 10
+    Nov -> 11
+    Dec -> 12
+
+
 data : List Datum
 data =
-  [ { country = "Denmark", month = Jan, temperature = 2 }
-  , { country = "Denmark", month = Feb, temperature = 2 }
-  , { country = "Denmark", month = Mar, temperature = 2 }
-  , { country = "Denmark", month = Apr, temperature = 2 }
-  , { country = "Denmark", month = May, temperature = 2 }
-  , { country = "Denmark", month = Jun, temperature = 2 }
-  , { country = "Denmark", month = Jul, temperature = 2 }
-  , { country = "Denmark", month = Aug, temperature = 2 }
-  , { country = "Denmark", month = Sep, temperature = 2 }
-  , { country = "Denmark", month = Oct, temperature = 2 }
-  , { country = "Denmark", month = Nov, temperature = 2 }
-  , { country = "Denmark", month = Dec, temperature = 2 }
-  , { country = "Sweden", month = Jan, temperature = 2 }
-  , { country = "Sweden", month = Feb, temperature = 2 }
-  , { country = "Sweden", month = Mar, temperature = 2 }
-  , { country = "Sweden", month = Apr, temperature = 2 }
-  , { country = "Sweden", month = May, temperature = 2 }
-  , { country = "Sweden", month = Jun, temperature = 2 }
-  , { country = "Sweden", month = Jul, temperature = 2 }
-  , { country = "Sweden", month = Aug, temperature = 2 }
-  , { country = "Sweden", month = Sep, temperature = 2 }
-  , { country = "Sweden", month = Oct, temperature = 2 }
-  , { country = "Sweden", month = Nov, temperature = 2 }
-  , { country = "Sweden", month = Dec, temperature = 2 }
-  , { country = "Norway", month = Jan, temperature = 2 }
-  , { country = "Norway", month = Feb, temperature = 2 }
-  , { country = "Norway", month = Mar, temperature = 2 }
-  , { country = "Norway", month = Apr, temperature = 2 }
-  , { country = "Norway", month = May, temperature = 2 }
-  , { country = "Norway", month = Jun, temperature = 2 }
-  , { country = "Norway", month = Jul, temperature = 2 }
-  , { country = "Norway", month = Aug, temperature = 2 }
-  , { country = "Norway", month = Sep, temperature = 2 }
-  , { country = "Norway", month = Oct, temperature = 2 }
-  , { country = "Norway", month = Nov, temperature = 2 }
-  , { country = "Norway", month = Dec, temperature = 2 }
+  [ Datum Denmark Jan -1
+  , Datum Denmark Feb 6
+  , Datum Denmark Mar 10 
+  , Datum Denmark Apr 14
+  , Datum Denmark May 18
+  , Datum Denmark Jun 20
+  , Datum Denmark Jul 21
+  , Datum Denmark Aug 21
+  , Datum Denmark Sep 17
+  , Datum Denmark Oct 9
+  , Datum Denmark Nov 4
+  , Datum Denmark Dec 0
+  , Datum Sweden Jan -8
+  , Datum Sweden Feb -2
+  , Datum Sweden Mar 6
+  , Datum Sweden Apr 10
+  , Datum Sweden May 12
+  , Datum Sweden Jun 18
+  , Datum Sweden Jul 20
+  , Datum Sweden Aug 19
+  , Datum Sweden Sep 15
+  , Datum Sweden Oct 4
+  , Datum Sweden Nov 2
+  , Datum Sweden Dec -5
+  , Datum Norway Jan -10
+  , Datum Norway Feb -5
+  , Datum Norway Mar -2 
+  , Datum Norway Apr 2
+  , Datum Norway May 5
+  , Datum Norway Jun 12
+  , Datum Norway Jul 15
+  , Datum Norway Aug 12
+  , Datum Norway Sep 3
+  , Datum Norway Oct -7
+  , Datum Norway Nov -9
+  , Datum Norway Dec -12
   ]
 
 
@@ -100,7 +126,7 @@ update msg model =
 
 
 meta =
-  { category = "Navigation"
+  { category = "Heat maps"
   , categoryOrder = 4
   , name = "Custom chart elements"
   , description = "Add custom tracked elements"
@@ -109,25 +135,29 @@ meta =
 
 
 
+--[ colors [ "#99D492", "#74C67A", "#1D9A6C", "#188977", "#137177", "#0E4D64"]
+--, smoothScale
+--, name "Temperature"
+--, borderWidth 1
+--, borderColor "white"
+--, width
+--, height
+--]
+
+
 smallCode : String
 smallCode =
   """
   C.chart
     [ CA.height 300
     , CA.width 300
+    , CA.domain [ CA.highest 1 CA.more ]
     ]
     [ C.xTicks []
     , C.xLabels []
     , C.yTicks []
     , C.yLabels []
-    , C.heatmap .x .y .value []
-        --[ colors [ "#99D492", "#74C67A", "#1D9A6C", "#188977", "#137177", "#0E4D64"]
-        --, smoothScale
-        --, name "Temperature"
-        --, borderWidth 1
-        --, borderColor "white"
-        --]
-        data
+    , C.heatmap toMonthNumber toCountryNum .temperature [] data
     ]
   """
 
@@ -142,6 +172,7 @@ import Chart.Attributes as CA
 import Chart.Events as CE
 import Chart.Item as CI
 import Chart.Svg as CS
+import Time exposing (Month(..))
 
 
 view : Model -> H.Html Msg
@@ -149,66 +180,91 @@ view model =
   C.chart
     [ CA.height 300
     , CA.width 300
+    , CA.domain [ CA.highest 1 CA.more ]
     ]
     [ C.xTicks []
     , C.xLabels []
     , C.yTicks []
     , C.yLabels []
-    , C.heatmap .x .y .value []
-        --[ colors [ "#99D492", "#74C67A", "#1D9A6C", "#188977", "#137177", "#0E4D64"]
-        --, smoothScale
-        --, name "Temperature"
-        --, borderWidth 1
-        --, borderColor "white"
-        --]
-        data
+    , C.heatmap toMonthNumber toCountryNum .temperature [] data
     ]
 
 
 type alias Datum =
-  { country : String
+  { country : Country
   , month : Month
   , temperature : Float
   }
 
 
+type Country
+  = Denmark
+  | Sweden
+  | Norway
+
+
+toCountryNum : Datum -> Float
+toCountryNum {country} =
+  case country of 
+    Denmark -> 0
+    Norway -> 1
+    Sweden -> 2
+
+
+toMonthNumber : Datum -> Float
+toMonthNumber {month} =
+  case month of
+    Jan -> 1
+    Feb -> 2
+    Mar -> 3
+    Apr -> 4
+    May -> 5
+    Jun -> 6
+    Jul -> 7
+    Aug -> 8
+    Sep -> 9
+    Oct -> 10
+    Nov -> 11
+    Dec -> 12
+
+
 data : List Datum
 data =
-  [ { country = "Denmark", month = Jan, temperature = 2 }
-  , { country = "Denmark", month = Feb, temperature = 2 }
-  , { country = "Denmark", month = Mar, temperature = 2 }
-  , { country = "Denmark", month = Apr, temperature = 2 }
-  , { country = "Denmark", month = May, temperature = 2 }
-  , { country = "Denmark", month = Jun, temperature = 2 }
-  , { country = "Denmark", month = Jul, temperature = 2 }
-  , { country = "Denmark", month = Aug, temperature = 2 }
-  , { country = "Denmark", month = Sep, temperature = 2 }
-  , { country = "Denmark", month = Oct, temperature = 2 }
-  , { country = "Denmark", month = Nov, temperature = 2 }
-  , { country = "Denmark", month = Dec, temperature = 2 }
-  , { country = "Sweden", month = Jan, temperature = 2 }
-  , { country = "Sweden", month = Feb, temperature = 2 }
-  , { country = "Sweden", month = Mar, temperature = 2 }
-  , { country = "Sweden", month = Apr, temperature = 2 }
-  , { country = "Sweden", month = May, temperature = 2 }
-  , { country = "Sweden", month = Jun, temperature = 2 }
-  , { country = "Sweden", month = Jul, temperature = 2 }
-  , { country = "Sweden", month = Aug, temperature = 2 }
-  , { country = "Sweden", month = Sep, temperature = 2 }
-  , { country = "Sweden", month = Oct, temperature = 2 }
-  , { country = "Sweden", month = Nov, temperature = 2 }
-  , { country = "Sweden", month = Dec, temperature = 2 }
-  , { country = "Norway", month = Jan, temperature = 2 }
-  , { country = "Norway", month = Feb, temperature = 2 }
-  , { country = "Norway", month = Mar, temperature = 2 }
-  , { country = "Norway", month = Apr, temperature = 2 }
-  , { country = "Norway", month = May, temperature = 2 }
-  , { country = "Norway", month = Jun, temperature = 2 }
-  , { country = "Norway", month = Jul, temperature = 2 }
-  , { country = "Norway", month = Aug, temperature = 2 }
-  , { country = "Norway", month = Sep, temperature = 2 }
-  , { country = "Norway", month = Oct, temperature = 2 }
-  , { country = "Norway", month = Nov, temperature = 2 }
-  , { country = "Norway", month = Dec, temperature = 2 }
+  [ Datum Denmark Jan -1
+  , Datum Denmark Feb 6
+  , Datum Denmark Mar 10 
+  , Datum Denmark Apr 14
+  , Datum Denmark May 18
+  , Datum Denmark Jun 20
+  , Datum Denmark Jul 21
+  , Datum Denmark Aug 21
+  , Datum Denmark Sep 17
+  , Datum Denmark Oct 9
+  , Datum Denmark Nov 4
+  , Datum Denmark Dec 0
+  , Datum Sweden Jan -8
+  , Datum Sweden Feb -2
+  , Datum Sweden Mar 6
+  , Datum Sweden Apr 10
+  , Datum Sweden May 12
+  , Datum Sweden Jun 18
+  , Datum Sweden Jul 20
+  , Datum Sweden Aug 19
+  , Datum Sweden Sep 15
+  , Datum Sweden Oct 4
+  , Datum Sweden Nov 2
+  , Datum Sweden Dec -5
+  , Datum Norway Jan -10
+  , Datum Norway Feb -5
+  , Datum Norway Mar -2 
+  , Datum Norway Apr 2
+  , Datum Norway May 5
+  , Datum Norway Jun 12
+  , Datum Norway Jul 15
+  , Datum Norway Aug 12
+  , Datum Norway Sep 3
+  , Datum Norway Oct -7
+  , Datum Norway Nov -9
+  , Datum Norway Dec -12
   ]
   """

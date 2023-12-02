@@ -787,7 +787,7 @@ view model chosen =
     ScatterCharts__Basic -> Html.map ExampleMsg107 (Example107.view model.example107)
 
 
-smallCode : Id -> Text
+smallCode : Id -> String
 smallCode chosen =
   case chosen of
     BarCharts__Gradient -> Example0.smallCode
@@ -900,7 +900,7 @@ smallCode chosen =
     ScatterCharts__Basic -> Example107.smallCode
 
 
-largeCode : Id -> Text
+largeCode : Id -> String
 largeCode chosen =
   case chosen of
     BarCharts__Gradient -> Example0.largeCode
@@ -1013,7 +1013,7 @@ largeCode chosen =
     ScatterCharts__Basic -> Example107.largeCode
 
 
-name : Id -> Text
+name : Id -> String
 name chosen =
   case chosen of
     BarCharts__Gradient -> "Examples.BarCharts.Gradient"
