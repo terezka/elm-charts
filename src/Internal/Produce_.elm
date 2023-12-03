@@ -41,7 +41,7 @@ defaultBars =
   }
 
 
-toBarSeries : Int -> List (CA.Attribute (Bars data)) -> List (Property data String () S.Bar) -> List data -> List (M.Many (I.One data S.Bar))
+toBarSeries : Int -> List (CA.Attribute (Bars data)) -> List (Property data () S.Bar) -> List data -> List (M.Many (I.One data S.Bar))
 toBarSeries elIndex barsAttrs properties data =
   let barsConfig =
         Helpers.apply barsAttrs defaultBars
@@ -49,7 +49,31 @@ toBarSeries elIndex barsAttrs properties data =
       toBarConfig attrs =
         Helpers.apply attrs S.defaultBar
 
-      forEachStack : List { datum : data, start : Float, end : Float } -> List (P.Config data String () S.Bar) -> ( Int, Int, List )
+      toBin index prevM curr nextM =
+        case ( barsConfig.x1, barsConfig.x2 ) of
+          ( Nothing, Nothing ) ->
+            { datum = curr, start = toFloat (index + 1) - 0.5, end = toFloat (index + 1) + 0.5 }
+
+          ( Just toStart, Nothing ) ->
+            case ( prevM, nextM ) of
+              ( _, Just next ) ->
+                { datum = curr, start = toStart curr, end = toStart next }
+              ( Just prev, Nothing ) ->
+                { datum = curr, start = toStart curr, end = toStart curr + (toStart curr - toStart prev) }
+              ( Nothing, Nothing ) ->
+                { datum = curr, start = toStart curr, end = toStart curr + 1 }
+
+          ( Nothing, Just toEnd ) ->
+            case ( prevM, nextM ) of
+              ( Just prev, _ ) ->
+                { datum = curr, start = toEnd prev, end = toEnd curr }
+              ( Nothing, Just next ) ->
+                { datum = curr, start = toEnd curr - (toEnd next - toEnd curr), end = toEnd curr }
+              ( Nothing, Nothing ) ->
+                { datum = curr, start = toEnd curr - 1, end = toEnd curr }
+
+          ( Just toStart, Just toEnd ) ->
+            { datum = curr, start = toStart curr, end = toEnd curr }
 
 
       toSeriesItem : List { datum : data, start : Float, end : Float } -> List (P.Config data String () S.Bar) -> Int -> Int -> P.Config data String () S.Bar -> Int -> Maybe (M.Many (I.One data S.Bar))
@@ -141,9 +165,7 @@ toBarSeries elIndex barsAttrs properties data =
           , toHtml = \c -> [ tooltipRow c.tooltipInfo.color (toDefaultName colorIndex c.tooltipInfo.name) (section.format bin.datum) ]
           }
   in
-  Helpers.withSurround data (toBin barsConfig) |> \bins ->
-    List.foldl forEachStack ( 0, 0, [] ) properties
-
+  Helpers.withSurround data toBin |> \bins ->
     List.map P.toConfigs properties
       |> List.indexedMap (\barIndex stacks -> List.indexedMap (toSeriesItem bins stacks barIndex) (List.reverse stacks))
       |> List.concat
@@ -151,193 +173,140 @@ toBarSeries elIndex barsAttrs properties data =
       |> List.filterMap identity
 
 
-toBin : Bars data -> Int -> Maybe data -> data -> Maybe data -> { datum : data, start : Float, end : Float }
-toBin barsConfig index prevM curr nextM =
-  case ( barsConfig.x1, barsConfig.x2 ) of
-    ( Nothing, Nothing ) ->
-      { datum = curr
-      , start = toFloat (index + 1) - 0.5
-      , end = toFloat (index + 1) + 0.5 
-      }
-
-    ( Just toX1, Nothing ) ->
-      case ( prevM, nextM ) of
-        ( _, Just next ) ->
-          { datum = curr
-          , start = toX1 curr
-          , end = toX1 next 
-          }
-
-        ( Just prev, Nothing ) ->
-          { datum = curr
-          , start = toX1 curr
-          , end = toX1 curr + (toX1 curr - toX1 prev) 
-          }
-
-        ( Nothing, Nothing ) ->
-          { datum = curr
-          , start = toX1 curr
-          , end = toX1 curr + 1 
-          }
-
-    ( Nothing, Just toX2 ) ->
-      case ( prevM, nextM ) of
-        ( Just prev, _ ) ->
-          { datum = curr
-          , start = toX2 prev
-          , end = toX2 curr 
-          }
-
-        ( Nothing, Just next ) ->
-          { datum = curr
-          , start = toX2 curr - (toX2 next - toX2 curr)
-          , end = toX2 curr 
-          }
-
-        ( Nothing, Nothing ) ->
-          { datum = curr
-          , start = toX2 curr - 1
-          , end = toX2 curr 
-          }
-
-    ( Just toX1, Just toX2 ) ->
-      { datum = curr
-      , start = toX1 curr
-      , end = toX2 curr 
-      }
-
-
 
 -- SERIES
 
 
 {-| -}
-toDotSeries : Int -> (data -> Float) -> List (Property data String S.Interpolation S.Dot) -> List data -> List (M.Many (I.One data S.Dot))
+toDotSeries : Int -> (data -> Float) -> List (Property data S.Interpolation S.Dot) -> List data -> List (M.Many (I.One data S.Dot))
 toDotSeries elIndex toX properties data =
-  let forEachStack property ( absoluteIndex, stackIndex, items ) =
-        let lineItems =
-              case property of 
-                NotStacked lineConfig ->
-                  forEachLine False absoluteIndex stackIndex 0 lineConfig
+  let forEachProperty property ( colorIndex, stackIndex, items ) =
+        let stackConfigs = P.toConfigs property       -- Unstacked properties will just be one config
+            isStacked = List.length lineConfigs > 1
 
-                Stacked lineConfigs ->
-                  List.indexedMap (forEachLine True absoluteIndex stackIndex) lineConfigs
-        in 
-        ( absoluteIndex + List.length lineConfigs
-        , stackIndex + 1
-        , items ++ lineItems
-        )
+            interpolationAttrs = 
+              [ CA.color (Helpers.toDefaultColor colorIndex)
+              , CA.opacity (if isStacked then 0.4 else 0) 
+              ] 
 
-      forEachLine isStacked absoluteIndex stackIndex seriesIndex lineConfig =
-        let defaultColor = Helpers.toDefaultColor absoluteIndex
-            defaultOpacity = if isStacked then 0.4 else 0
+            interConfig = 
+              Helpers.apply (interpolationAttrs ++ property.inter) S.defaultInterpolation 
 
-            interpolationAttrs = [ CA.color defaultColor, CA.opacity defaultOpacity ] 
-            interpolationConfig = Helpers.apply (interpolationAttrs ++ lineConfig.interpolation) S.defaultInterpolation 
+            dotItems = 
+              List.indexedMap (toDotItem stackIndex stackIndex colorIndex prop interConfig) data
 
-            dotItems = List.indexedMap (forEachDataPoint absoluteIndex stackIndex seriesIndex lineConfig interpolationConfig defaultColor defaultOpacity) data
-            
             viewSeries plane =
-              let toBottom datum =
-                    Maybe.map2 (\y ySum -> ySum - y) (lineConfig.toY datum) (lineConfig.toYSum datum)
+              let toBottom datum_ =
+                    Maybe.map2 (\real visual -> visual - real) (prop.value datum_) (prop.visual datum_)
               in
               S.g
                 [ SA.class "elm-charts__series" ]
-                [ S.area plane toX (Just toBottom) lineConfig.toYSum interpolationConfig data
-                , S.interpolation plane toX lineConfig.toYSum interpolationConfig data
+                [ S.area plane toX (Just toBottom) prop.visual interConfig data
+                , S.interpolation plane toX prop.visual interConfig data
                 , S.g [ SA.class "elm-charts__dots" ] (List.map (I.toSvg plane) dotItems)
                 ]
         in
         Helpers.withFirst dotItems <| \first rest ->
           I.Rendered
             { config = { items = ( first, rest ) }
-            , toSvg = \plane _ _ -> viewSeries plane
+            , toSvg = \plane _ _ ->
+                
             , toLimits = \c -> Coord.foldPosition I.getLimits ((\(x, xs) -> x :: xs) c.items)
             , toPosition = \plane c -> Coord.foldPosition (I.getPosition plane) ((\(x, xs) -> x :: xs) c.items)
             , toHtml = \c -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.toHtml ((\(x, xs) -> x :: xs) c.items)) ]
             }
-        
-      forEachDataPoint absoluteIndex stackIndex seriesIndex lineConfig interpolationConfig defaultColor defaultOpacity dataIndex datum =
-        let identification =
-              { stackIndex = stackIndex
-              , seriesIndex = seriesIndex
-              , absoluteIndex = absoluteIndex
-              , dataIndex = dataIndex
+
+
+
+      toSeriesItem lineIndex stacks stackIndex prop colorIndex =
+        let dotItems = List.indexedMap (toDotItem lineIndex stackIndex colorIndex prop interConfig) data
+            defaultOpacity = if List.length stacks > 1 then 0.4 else 0
+            interAttr = [ CA.color (Helpers.toDefaultColor colorIndex), CA.opacity defaultOpacity ] ++ prop.inter
+            interConfig = Helpers.apply interAttr S.defaultInterpolation 
+        in
+        case dotItems of
+          [] ->
+            Nothing
+
+          first :: rest ->
+            Just <| I.Rendered
+              { config = { items = ( first, rest ) }
+              , toSvg = \plane _ _ ->
+                  let toBottom datum_ =
+                        Maybe.map2 (\real visual -> visual - real) (prop.value datum_) (prop.visual datum_)
+                  in
+                  S.g
+                    [ SA.class "elm-charts__series" ]
+                    [ S.area plane toX (Just toBottom) prop.visual interConfig data
+                    , S.interpolation plane toX prop.visual interConfig data
+                    , S.g [ SA.class "elm-charts__dots" ] (List.map (I.toSvg plane) dotItems)
+                    ]
+              , toLimits = \c -> Coord.foldPosition I.getLimits ((\(x, xs) -> x :: xs) c.items)
+              , toPosition = \plane c -> Coord.foldPosition (I.getPosition plane) ((\(x, xs) -> x :: xs) c.items)
+              , toHtml = \c -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.toHtml ((\(x, xs) -> x :: xs) c.items)) ]
               }
 
-            defaultAttrs = 
-              [ CA.color defaultColor
-              , CA.border defaultColor
-              , if interpolationConfig.method == Nothing then CA.circle else identity 
-              ]
-
-            dotAttrs = 
-              defaultAttrs ++ 
-              lineConfig.decoration ++ 
-              lineConfig.variation identification datum
-
-            dotConfig = 
-              Helpers.apply dotAttrs S.defaultDot 
-
-            radius =
-              Maybe.withDefault 0 <| Maybe.map (S.toRadius config.size) config.shape
-
-            y = Maybe.withDefault 0 (lineConfig.toYSum datum)
-            x = toX datum
-
-            limits =
-              { x1 = x, x2 = x
-              , y1 = y, y2 = y 
-              }
+      toDotItem lineIndex stackIndex colorIndex prop interConfig dataIndex datum_ =
+        let defaultAttrs = [ CA.color interConfig.color, CA.border interConfig.color, if interConfig.method == Nothing then CA.circle else identity ]
+            dotAttrs = defaultAttrs ++ prop.attrs ++ prop.extra lineIndex stackIndex dataIndex prop.meta datum_
+            config = Helpers.apply dotAttrs S.defaultDot
+            x_ = toX datum_
+            y_ = Maybe.withDefault 0 (prop.visual datum_)
         in
         I.Rendered
           { toSvg = \plane _ _ ->
-              case lineConfig.toY datum of
+              case prop.value datum_ of
                 Nothing -> S.text ""
-                Just _ -> S.dot plane .x .y dotConfig { x = x, y = y }
-
-          , toHtml = \c -> 
-              [ tooltipRow c.tooltipInfo.color (toDefaultName colorIndex c.tooltipInfo.name) (prop.format datum) ]
-
-          , toLimits = \_ -> limits
-
+                Just _ -> S.dot plane .x .y config { x = x_, y = y_ }
+          , toHtml = \c -> [ tooltipRow c.tooltipInfo.color (toDefaultName colorIndex c.tooltipInfo.name) (prop.format datum_) ]
+          , toLimits = \_ -> { x1 = x_, x2 = x_, y1 = y_, y2 = y_ }
           , toPosition = \plane _ ->
-              let radiusX = Coord.scaleCartesianX plane radius
-                  radiusY = Coord.scaleCartesianY plane radius
+              let radius = Maybe.withDefault 0 <| Maybe.map (S.toRadius config.size) config.shape
+                  radiusX_ = Coord.scaleCartesianX plane radius
+                  radiusY_ = Coord.scaleCartesianY plane radius
               in
-              { x1 = x - radiusX, x2 = x + radiusX
-              , y1 = y - radiusY, y2 = y + radiusY
+              { x1 = x_ - radiusX_
+              , x2 = x_ + radiusX_
+              , y1 = y_ - radiusY_
+              , y2 = y_ + radiusY_
               }
-
           , config =
               { product = config
               , values =
-                  { datum = datum
-                  , x1 = x
-                  , x2 = x
-                  , y = y
-                  , isReal = lineConfig.toY datum /= Nothing
+                  { datum = datum_
+                  , x1 = x_
+                  , x2 = x_
+                  , y = y_
+                  , isReal =
+                      case prop.value datum_ of
+                        Just _ -> True
+                        Nothing -> False
                   }
               , tooltipInfo =
-                  { property = identification.stackIndex
-                  , stack = identification.seriesIndex
-                  , data = identification.dataIndex
-                  , index = identification.absoluteIndex
+                  { property = lineIndex
+                  , stack = stackIndex
+                  , data = dataIndex
+                  , index = colorIndex
                   , elIndex = elIndex
-                  , name = lineConfig.tooltipName
+                  , name = prop.meta
                   , color =
-                      case lineConfig.color of
-                        "white" -> interpolationConfig.color
-                        _       -> lineConfig.color
-                  , border = lineConfig.border
-                  , borderWidth = lineConfig.borderWidth
-                  , formatted = lineConfig.tooltipText datum
+                      case config.color of
+                        "white" -> interConfig.color
+                        _ -> config.color
+                  , border = config.border
+                  , borderWidth = config.borderWidth
+                  , formatted = prop.format datum_
                   }
               , toAny = I.Dot
               }
           }
   in
-  List.foldl forEachStack ( 0, 0, [] ) properties
+  List.foldl forEachProperty ( 0, lineIndex, [] ) properties
+  
+    |> List.indexedMap (\lineIndex stacks -> List.indexedMap (toSeriesItem lineIndex stacks) stacks)
+    |> List.concat
+    |> List.indexedMap (\propIndex f -> f (elIndex + propIndex))
+    |> List.filterMap identity
 
 
 

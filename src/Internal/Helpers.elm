@@ -26,6 +26,13 @@ withSurround all func =
   fold 0 Nothing [] all
 
 
+withFirst : List a -> (a -> List a -> b) -> Maybe b 
+withFirst xs func of 
+  case xs of 
+    x : rest -> Just (func x xs)
+    [] -> Nothing
+    
+
 gatherWith : (a -> a -> Bool) -> List a -> List ( a, List a )
 gatherWith testFn list =
     let helper scattered gathered =
