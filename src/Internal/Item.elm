@@ -1,4 +1,10 @@
-module Internal.Item exposing (..)
+module Internal.Item exposing 
+  ( Rendered(..), One, Any(..)
+  , toSvg, toHtml, getPosition, getLimits
+  , getColor, getName, getDatum, getX1, getX2, getY, isReal
+  , generalize, map, isDot, isBar, getX, getTooltipValue, getSize, isSame, filterMap
+  , getIdentification, getGeneral
+  )
 
 import Html as H exposing (Html)
 import Html.Attributes as HA
@@ -9,6 +15,7 @@ import Dict exposing (Dict)
 import Internal.Property as P exposing (Property)
 import Internal.Svg as S
 import Internal.Helpers as Helpers
+import Internal.Property exposing (Identification)
 
 
 type Rendered a =
@@ -26,6 +33,7 @@ type alias One data x =
   Rendered
     { product : x
     , tooltipInfo : TooltipInfo
+    , identification : Identification
     , values : Values data
     , toAny : x -> Any
     }
@@ -40,12 +48,7 @@ type Any
 
 {-| -}
 type alias TooltipInfo =
-  { property : Int
-  , stack : Int
-  , data : Int
-  , index : Int
-  , elIndex : Int
-  , name : Maybe String
+  { name : Maybe String
   , color : String
   , border : String
   , borderWidth : Float
@@ -106,7 +109,7 @@ getName : One data x -> String
 getName (Rendered item) =
   case item.config.tooltipInfo.name of
     Just name -> name
-    Nothing -> "Property #" ++ String.fromInt (item.config.tooltipInfo.index + 1)
+    Nothing -> "Property #" ++ String.fromInt (item.config.identification.absoluteIndex + 1)
 
 
 {-| -}
@@ -146,27 +149,9 @@ isReal (Rendered item) =
 
 
 {-| -}
-getElIndex : One data x -> Int
-getElIndex (Rendered item) =
-  item.config.tooltipInfo.elIndex
-
-
-{-| -}
-getPropertyIndex : One data x -> Int
-getPropertyIndex (Rendered item) =
-  item.config.tooltipInfo.property
-
-
-{-| -}
-getStackIndex : One data x -> Int
-getStackIndex (Rendered item) =
-  item.config.tooltipInfo.stack
-
-
-{-| -}
-getDataIndex : One data x -> Int
-getDataIndex (Rendered item) =
-  item.config.tooltipInfo.data
+getIdentification : One data x -> Identification
+getIdentification (Rendered item) =
+  item.config.identification
 
 
 {-| -}
@@ -190,10 +175,7 @@ getSize (Rendered item) =
 {-| -}
 isSame : One data x -> One data x -> Bool
 isSame a b =
-  getPropertyIndex a == getPropertyIndex b &&
-  getStackIndex a == getStackIndex b &&
-  getDataIndex a == getDataIndex b &&
-  getElIndex a == getElIndex b
+  getIdentification a == getIdentification b
 
 
 {-| -}
@@ -213,6 +195,7 @@ map func (Rendered item) =
             , y = item.config.values.y
             , isReal = item.config.values.isReal
             }
+        , identification = item.config.identification
         , tooltipInfo = item.config.tooltipInfo
         , toAny = item.config.toAny
         }
@@ -239,6 +222,7 @@ filterMap func =
                   , y = item.config.values.y
                   , isReal = item.config.values.isReal
                   }
+              , identification = item.config.identification
               , tooltipInfo = item.config.tooltipInfo
               , toAny = item.config.toAny
               }
@@ -264,6 +248,7 @@ generalize toAny (Rendered item) =
     , config =
         { product = toAny item.config.product
         , values = item.config.values
+        , identification = item.config.identification
         , tooltipInfo = item.config.tooltipInfo
         , toAny = identity
         }
@@ -282,6 +267,7 @@ isBar (Rendered item) =
         , config =
             { product = bar
             , values = item.config.values
+            , identification = item.config.identification
             , tooltipInfo = item.config.tooltipInfo
             , toAny = Bar
             }
@@ -307,6 +293,7 @@ isDot (Rendered item) =
         , config =
             { product = dot
             , values = item.config.values
+            , identification = item.config.identification
             , tooltipInfo = item.config.tooltipInfo
             , toAny = Dot
             }

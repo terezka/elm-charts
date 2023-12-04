@@ -140,7 +140,7 @@ stacks =
       { shared = \config ->
             { x1 = config.values.x1
             , x2 = config.values.x2
-            , property = config.tooltipInfo.property
+            , property = config.identification.stackIndex
             }
       , equality = \a b -> a.x1 == b.x1 && a.x2 == b.x2 && a.property == b.property
       , edits = identity
@@ -158,8 +158,8 @@ bins =
       { shared = \config ->
           { x1 = config.values.x1
           , x2 = config.values.x2
-          , elIndex = config.tooltipInfo.elIndex
-          , dataIndex = config.tooltipInfo.data
+          , elIndex = config.identification.elementIndex
+          , dataIndex = config.identification.dataIndex
           }
       , equality = \a b -> a.x1 == b.x1 && a.x2 == b.x2 && a.elIndex == b.elIndex && a.dataIndex == b.dataIndex
       , edits = editLimits (\item pos -> { pos | x1 = I.getX1 item, x2 = I.getX2 item })

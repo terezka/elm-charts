@@ -42,7 +42,7 @@ defaultBars =
 
 
 toBarSeries : Int -> List (CA.Attribute (Bars data)) -> List (Property data () S.Bar) -> List data -> List (M.Many (I.One data S.Bar))
-toBarSeries elIndex barsAttrs properties data =
+toBarSeries elementIndex barsAttrs properties data =
   let barsConfig = Helpers.apply barsAttrs defaultBars
       numOfStacks = if barsConfig.grouped then toFloat (List.length properties) else 1
 
@@ -76,11 +76,12 @@ toBarSeries elIndex barsAttrs properties data =
             }
 
       forEachDataPoint absoluteIndex stackSeriesConfigIndex barSeriesConfigIndex numOfBarsInStack barSeriesConfig dataIndex bin =
-        let ids =
+        let identification =
               { stackIndex = stackSeriesConfigIndex -- The number this stack configuration is within the full list of stack configurations. If no stacks, this is equal to seriesIndex.
               , seriesIndex = barSeriesConfigIndex  -- The number this bar configuration is within its stack. If no stacks, this is equal to stackIndex.
               , absoluteIndex = absoluteIndex       -- The number this bar configuration is within the total set of bar configurations.
               , dataIndex = dataIndex               -- The number this data point is within the list of data.
+              , elementIndex = elementIndex
               }
 
             start = bin.start
@@ -92,7 +93,7 @@ toBarSeries elIndex barsAttrs properties data =
             margin = length * barsConfig.margin
             spacing = length * barsConfig.spacing
             width = (length - margin * 2 - (numOfStacks - 1) * spacing) / numOfStacks
-            offset = if barsConfig.grouped then toFloat ids.stackIndex * width + toFloat ids.stackIndex * spacing else 0
+            offset = if barsConfig.grouped then toFloat identification.stackIndex * width + toFloat identification.stackIndex * spacing else 0
 
             x1 = start + margin + offset
             x2 = start + margin + offset + width
@@ -100,18 +101,18 @@ toBarSeries elIndex barsAttrs properties data =
             y1 = minY (Maybe.withDefault 0 ySum - Maybe.withDefault 0 y)
             y2 = minY (Maybe.withDefault 0 ySum)
 
-            isTop = ids.seriesIndex == 0
-            isBottom = ids.seriesIndex == numOfBarsInStack - 1
+            isTop = identification.seriesIndex == 0
+            isBottom = identification.seriesIndex == numOfBarsInStack - 1
             isSingle = numOfBarsInStack == 1
 
             roundTop = if isSingle || isTop then barsConfig.roundTop else 0
             roundBottom = if isSingle || isBottom then barsConfig.roundBottom else 0
 
-            defaultColor = Helpers.toDefaultColor ids.absoluteIndex
+            defaultColor = Helpers.toDefaultColor identification.absoluteIndex
             basicAttributes = [ CA.roundTop roundTop, CA.roundBottom roundBottom, CA.color defaultColor, CA.border defaultColor ]
 
             barPresentationConfig = 
-              Helpers.apply (basicAttributes ++ barSeriesConfig.presentation ++ barSeriesConfig.variation ids bin.datum) S.defaultBar
+              Helpers.apply (basicAttributes ++ barSeriesConfig.presentation ++ barSeriesConfig.variation identification bin.datum) S.defaultBar
                 |> updateColorIfGradientIsSet defaultColor
                 |> updateBorder defaultColor
         in
@@ -125,13 +126,9 @@ toBarSeries elIndex barsAttrs properties data =
                   , y = Maybe.withDefault 0 y
                   , isReal = y /= Nothing
                   }
+              , identification = identification
               , tooltipInfo =
-                  { property = ids.stackIndex
-                  , stack = ids.seriesIndex
-                  , data = ids.dataIndex
-                  , index = ids.absoluteIndex
-                  , elIndex = elIndex
-                  , name = barSeriesConfig.tooltipName
+                  { name = barSeriesConfig.tooltipName
                   , color = barPresentationConfig.color
                   , border = barPresentationConfig.border
                   , borderWidth = barPresentationConfig.borderWidth
@@ -142,7 +139,7 @@ toBarSeries elIndex barsAttrs properties data =
           , toLimits = \config -> { x1 = x1, x2 = x2, y1 = min y1 y2, y2 = max y1 y2 }
           , toPosition = \_ config -> { x1 = x1, x2 = x2, y1 = y1, y2 = y2 }
           , toSvg = \plane config position -> S.bar plane barPresentationConfig position
-          , toHtml = \c -> [ tooltipRow c.tooltipInfo.color (toDefaultName absoluteIndex c.tooltipInfo.name) (barSeriesConfig.tooltipText bin.datum) ]
+          , toHtml = \c -> [ tooltipRow c.tooltipInfo.color (toDefaultName identification c.tooltipInfo.name) (barSeriesConfig.tooltipText bin.datum) ]
           }
   in
   Helpers.withSurround data (toBin barsConfig) |> \bins ->
@@ -231,7 +228,7 @@ updateBorder defaultColor product =
 
 {-| -}
 toDotSeries : Int -> (data -> Float) -> List (Property data S.Interpolation S.Dot) -> List data -> List (M.Many (I.One data S.Dot))
-toDotSeries elIndex toX properties data =
+toDotSeries elementIndex toX properties data =
   let forEachStackSeriesConfig stackSeriesConfig ( absoluteIndex, stackSeriesConfigIndex, items ) =
         let lineItems =
               case stackSeriesConfig of 
@@ -280,8 +277,9 @@ toDotSeries elIndex toX properties data =
         let identification =
               { stackIndex = stackSeriesConfigIndex -- The number this stack configuration is within the full list of stack configurations. If no stacks, this is equal to seriesIndex.
               , seriesIndex = lineSeriesConfigIndex -- The number this line configuration is within its stack. If no stacks, this is equal to stackIndex.
-              , absoluteIndex = absoluteIndex       -- The number this line configuration is within the total set of line configurations.
+              , absoluteIndex = absoluteIndex       -- The number this line configuration is within the total set of line configurations. TODO FIX
               , dataIndex = dataIndex               -- The number this data point is within the list of data.
+              , elementIndex = elementIndex
               }
 
             defaultAttrs = 
@@ -316,7 +314,7 @@ toDotSeries elIndex toX properties data =
                 Just _ -> S.dot plane .x .y dotConfig { x = x, y = y }
 
           , toHtml = \c -> 
-              [ tooltipRow c.tooltipInfo.color (toDefaultName absoluteIndex c.tooltipInfo.name) (lineSeriesConfig.tooltipText datum) ]
+              [ tooltipRow c.tooltipInfo.color (toDefaultName identification c.tooltipInfo.name) (lineSeriesConfig.tooltipText datum) ]
 
           , toLimits = \_ -> limits
 
@@ -337,13 +335,9 @@ toDotSeries elIndex toX properties data =
                   , y = y
                   , isReal = lineSeriesConfig.toY datum /= Nothing
                   }
+              , identification = identification
               , tooltipInfo =
-                  { property = identification.stackIndex
-                  , stack = identification.seriesIndex
-                  , data = identification.dataIndex
-                  , index = identification.absoluteIndex
-                  , elIndex = elIndex
-                  , name = lineSeriesConfig.tooltipName
+                  { name = lineSeriesConfig.tooltipName
                   , color =
                       case dotConfig.color of
                         "white" -> interpolationConfig.color
@@ -382,6 +376,6 @@ tooltipRow color title text =
     ]
 
 
-toDefaultName : Int -> Maybe String -> String
-toDefaultName index name =
-  Maybe.withDefault ("Property #" ++ String.fromInt (index + 1)) name
+toDefaultName : P.Identification -> Maybe String -> String
+toDefaultName ids name =
+  Maybe.withDefault ("Property #" ++ String.fromInt (ids.absoluteIndex + 1)) name

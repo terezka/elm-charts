@@ -16414,7 +16414,7 @@ var $author$project$Internal$Many$bins = A2(
 					return _Utils_eq(a.x1, b.x1) && (_Utils_eq(a.x2, b.x2) && (_Utils_eq(a.elIndex, b.elIndex) && _Utils_eq(a.dataIndex, b.dataIndex)));
 				}),
 			shared: function (config) {
-				return {dataIndex: config.tooltipInfo.data, elIndex: config.tooltipInfo.elIndex, x1: config.values.x1, x2: config.values.x2};
+				return {dataIndex: config.identification.dataIndex, elIndex: config.identification.elementIndex, x1: config.values.x1, x2: config.values.x2};
 			}
 		}));
 var $author$project$Chart$Item$bins = $author$project$Internal$Many$bins;
@@ -16425,6 +16425,7 @@ var $author$project$Internal$Item$generalize = F2(
 		return $author$project$Internal$Item$Rendered(
 			{
 				config: {
+					identification: item.config.identification,
 					product: toAny(item.config.product),
 					toAny: $elm$core$Basics$identity,
 					tooltipInfo: item.config.tooltipInfo,
@@ -16478,6 +16479,7 @@ var $author$project$Internal$Item$map = F2(
 		return $author$project$Internal$Item$Rendered(
 			{
 				config: {
+					identification: item.config.identification,
 					product: item.config.product,
 					toAny: item.config.toAny,
 					tooltipInfo: item.config.tooltipInfo,
@@ -17437,10 +17439,10 @@ var $author$project$Internal$Produce$toBin = F5(
 		}
 	});
 var $author$project$Internal$Produce$toDefaultName = F2(
-	function (index, name) {
+	function (ids, name) {
 		return A2(
 			$elm$core$Maybe$withDefault,
-			'Property #' + $elm$core$String$fromInt(index + 1),
+			'Property #' + $elm$core$String$fromInt(ids.absoluteIndex + 1),
 			name);
 	});
 var $elm$html$Html$td = _VirtualDom_node('td');
@@ -17555,7 +17557,7 @@ var $author$project$Internal$Helpers$withSurround = F2(
 		return A4(fold, 0, $elm$core$Maybe$Nothing, _List_Nil, all);
 	});
 var $author$project$Internal$Produce$toBarSeries = F4(
-	function (elIndex, barsAttrs, properties, data) {
+	function (elementIndex, barsAttrs, properties, data) {
 		var barsConfig = A2($author$project$Internal$Helpers$apply, barsAttrs, $author$project$Internal$Produce$defaultBars);
 		var numOfStacks = barsConfig.grouped ? $elm$core$List$length(properties) : 1;
 		var forEachDataPoint = F7(
@@ -17569,20 +17571,20 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 				var y2 = minY(
 					A2($elm$core$Maybe$withDefault, 0, ySum));
 				var isSingle = numOfBarsInStack === 1;
-				var ids = {absoluteIndex: absoluteIndex, dataIndex: dataIndex, seriesIndex: barSeriesConfigIndex, stackIndex: stackSeriesConfigIndex};
-				var isBottom = _Utils_eq(ids.seriesIndex, numOfBarsInStack - 1);
+				var identification = {absoluteIndex: absoluteIndex, dataIndex: dataIndex, elementIndex: elementIndex, seriesIndex: barSeriesConfigIndex, stackIndex: stackSeriesConfigIndex};
+				var isBottom = _Utils_eq(identification.seriesIndex, numOfBarsInStack - 1);
 				var roundBottom = (isSingle || isBottom) ? barsConfig.roundBottom : 0;
-				var isTop = !ids.seriesIndex;
+				var isTop = !identification.seriesIndex;
 				var roundTop = (isSingle || isTop) ? barsConfig.roundTop : 0;
 				var end = bin.end;
 				var length = end - start;
 				var margin = length * barsConfig.margin;
 				var spacing = length * barsConfig.spacing;
 				var width = ((length - (margin * 2)) - ((numOfStacks - 1) * spacing)) / numOfStacks;
-				var offset = barsConfig.grouped ? ((ids.stackIndex * width) + (ids.stackIndex * spacing)) : 0;
+				var offset = barsConfig.grouped ? ((identification.stackIndex * width) + (identification.stackIndex * spacing)) : 0;
 				var x1 = (start + margin) + offset;
 				var x2 = ((start + margin) + offset) + width;
-				var defaultColor = $author$project$Internal$Helpers$toDefaultColor(ids.absoluteIndex);
+				var defaultColor = $author$project$Internal$Helpers$toDefaultColor(identification.absoluteIndex);
 				var basicAttributes = _List_fromArray(
 					[
 						$author$project$Chart$Attributes$roundTop(roundTop),
@@ -17602,24 +17604,20 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 								basicAttributes,
 								_Utils_ap(
 									barSeriesConfig.presentation,
-									A2(barSeriesConfig.variation, ids, bin.datum))),
+									A2(barSeriesConfig.variation, identification, bin.datum))),
 							$author$project$Internal$Svg$defaultBar)));
 				return $author$project$Internal$Item$Rendered(
 					{
 						config: {
+							identification: identification,
 							product: barPresentationConfig,
 							toAny: $author$project$Internal$Item$Bar,
 							tooltipInfo: {
 								border: barPresentationConfig.border,
 								borderWidth: barPresentationConfig.borderWidth,
 								color: barPresentationConfig.color,
-								data: ids.dataIndex,
-								elIndex: elIndex,
 								formatted: barSeriesConfig.tooltipText(bin.datum),
-								index: ids.absoluteIndex,
-								name: barSeriesConfig.tooltipName,
-								property: ids.stackIndex,
-								stack: ids.seriesIndex
+								name: barSeriesConfig.tooltipName
 							},
 							values: {
 								datum: bin.datum,
@@ -17635,7 +17633,7 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 									A3(
 									$author$project$Internal$Produce$tooltipRow,
 									c.tooltipInfo.color,
-									A2($author$project$Internal$Produce$toDefaultName, absoluteIndex, c.tooltipInfo.name),
+									A2($author$project$Internal$Produce$toDefaultName, identification, c.tooltipInfo.name),
 									barSeriesConfig.tooltipText(bin.datum))
 								]);
 						},
@@ -17852,7 +17850,7 @@ var $author$project$Internal$Item$isBar = function (_v0) {
 		return $elm$core$Maybe$Just(
 			$author$project$Internal$Item$Rendered(
 				{
-					config: {product: bar, toAny: $author$project$Internal$Item$Bar, tooltipInfo: item.config.tooltipInfo, values: item.config.values},
+					config: {identification: item.config.identification, product: bar, toAny: $author$project$Internal$Item$Bar, tooltipInfo: item.config.tooltipInfo, values: item.config.values},
 					toHtml: function (c) {
 						return item.toHtml(item.config);
 					},
@@ -19911,7 +19909,7 @@ var $author$project$Internal$Many$stacks = A2(
 					return _Utils_eq(a.x1, b.x1) && (_Utils_eq(a.x2, b.x2) && _Utils_eq(a.property, b.property));
 				}),
 			shared: function (config) {
-				return {property: config.tooltipInfo.property, x1: config.values.x1, x2: config.values.x2};
+				return {property: config.identification.stackIndex, x1: config.values.x1, x2: config.values.x2};
 			}
 		}));
 var $author$project$Chart$Item$stacks = $author$project$Internal$Many$stacks;
@@ -24495,17 +24493,9 @@ var $author$project$Examples$BarCharts$Gradient$view = function (model) {
 var $author$project$Examples$BarCharts$Highlight$OnHover = function (a) {
 	return {$: 'OnHover', a: a};
 };
-var $author$project$Internal$Item$getDataIndex = function (_v0) {
+var $author$project$Internal$Item$getIdentification = function (_v0) {
 	var item = _v0.a;
-	return item.config.tooltipInfo.data;
-};
-var $author$project$Internal$Item$getPropertyIndex = function (_v0) {
-	var item = _v0.a;
-	return item.config.tooltipInfo.property;
-};
-var $author$project$Internal$Item$getStackIndex = function (_v0) {
-	var item = _v0.a;
-	return item.config.tooltipInfo.stack;
+	return item.config.identification;
 };
 var $author$project$Chart$amongst = F2(
 	function (inQuestion, func) {
@@ -24514,14 +24504,10 @@ var $author$project$Chart$amongst = F2(
 				function (ids, datum) {
 					var check = function (product) {
 						return (_Utils_eq(
-							$author$project$Internal$Item$getPropertyIndex(product),
-							ids.stackIndex) && (_Utils_eq(
-							$author$project$Internal$Item$getStackIndex(product),
-							ids.seriesIndex) && (_Utils_eq(
-							$author$project$Internal$Item$getDataIndex(product),
-							ids.dataIndex) && _Utils_eq(
+							$author$project$Internal$Item$getIdentification(product),
+							ids) && _Utils_eq(
 							$author$project$Internal$Item$getDatum(product),
-							datum)))) ? func(datum) : _List_Nil;
+							datum)) ? func(datum) : _List_Nil;
 					};
 					return A2($elm$core$List$concatMap, check, inQuestion);
 				}));
@@ -27390,7 +27376,7 @@ var $elm$core$Maybe$map2 = F3(
 		}
 	});
 var $author$project$Internal$Produce$toDotSeries = F4(
-	function (elIndex, toX, properties, data) {
+	function (elementIndex, toX, properties, data) {
 		var forEachDataPoint = F9(
 			function (absoluteIndex, stackSeriesConfigIndex, lineSeriesConfigIndex, lineSeriesConfig, interpolationConfig, defaultColor, defaultOpacity, dataIndex, datum) {
 				var y = A2(
@@ -27399,7 +27385,7 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 					lineSeriesConfig.toYSum(datum));
 				var x = toX(datum);
 				var limits = {x1: x, x2: x, y1: y, y2: y};
-				var identification = {absoluteIndex: absoluteIndex, dataIndex: dataIndex, seriesIndex: lineSeriesConfigIndex, stackIndex: stackSeriesConfigIndex};
+				var identification = {absoluteIndex: absoluteIndex, dataIndex: dataIndex, elementIndex: elementIndex, seriesIndex: lineSeriesConfigIndex, stackIndex: stackSeriesConfigIndex};
 				var defaultAttrs = _List_fromArray(
 					[
 						$author$project$Chart$Attributes$color(interpolationConfig.color),
@@ -27422,6 +27408,7 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 				return $author$project$Internal$Item$Rendered(
 					{
 						config: {
+							identification: identification,
 							product: dotConfig,
 							toAny: $author$project$Internal$Item$Dot,
 							tooltipInfo: {
@@ -27435,13 +27422,8 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 										return dotConfig.color;
 									}
 								}(),
-								data: identification.dataIndex,
-								elIndex: elIndex,
 								formatted: lineSeriesConfig.tooltipText(datum),
-								index: identification.absoluteIndex,
-								name: lineSeriesConfig.tooltipName,
-								property: identification.stackIndex,
-								stack: identification.seriesIndex
+								name: lineSeriesConfig.tooltipName
 							},
 							values: {
 								datum: datum,
@@ -27459,7 +27441,7 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 									A3(
 									$author$project$Internal$Produce$tooltipRow,
 									c.tooltipInfo.color,
-									A2($author$project$Internal$Produce$toDefaultName, absoluteIndex, c.tooltipInfo.name),
+									A2($author$project$Internal$Produce$toDefaultName, identification, c.tooltipInfo.name),
 									lineSeriesConfig.tooltipText(datum))
 								]);
 						},
@@ -27934,19 +27916,15 @@ var $author$project$Chart$custom = function (config) {
 			var item = $author$project$Internal$Item$Rendered(
 				{
 					config: {
+						identification: {absoluteIndex: -1, dataIndex: -1, elementIndex: elIndex, seriesIndex: -1, stackIndex: -1},
 						product: _Utils_Tuple0,
 						toAny: $elm$core$Basics$always($author$project$Internal$Item$Custom),
 						tooltipInfo: {
 							border: config.color,
 							borderWidth: 0,
 							color: config.color,
-							data: 0,
-							elIndex: elIndex,
 							formatted: config.format(config.data),
-							index: 0,
-							name: $elm$core$Maybe$Just(config.name),
-							property: 0,
-							stack: 0
+							name: $elm$core$Maybe$Just(config.name)
 						},
 						values: {datum: config.data, isReal: true, x1: config.position.x1, x2: config.position.x2, y: config.position.y2}
 					},
@@ -30389,7 +30367,7 @@ var $author$project$Internal$Item$isDot = function (_v0) {
 		return $elm$core$Maybe$Just(
 			$author$project$Internal$Item$Rendered(
 				{
-					config: {product: dot, toAny: $author$project$Internal$Item$Dot, tooltipInfo: item.config.tooltipInfo, values: item.config.values},
+					config: {identification: item.config.identification, product: dot, toAny: $author$project$Internal$Item$Dot, tooltipInfo: item.config.tooltipInfo, values: item.config.values},
 					toHtml: function (c) {
 						return item.toHtml(item.config);
 					},
@@ -39659,6 +39637,7 @@ var $author$project$Internal$Item$filterMap = function (func) {
 					$author$project$Internal$Item$Rendered(
 						{
 							config: {
+								identification: item.config.identification,
 								product: item.config.product,
 								toAny: item.config.toAny,
 								tooltipInfo: item.config.tooltipInfo,

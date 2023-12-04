@@ -1773,9 +1773,7 @@ amongst : List (CI.One data x) -> (data -> List (Attribute deco)) -> Property da
 amongst inQuestion func =
   P.variation <| \ids datum ->
     let check product =
-          if Item.getPropertyIndex product == ids.stackIndex &&
-             Item.getStackIndex product == ids.seriesIndex &&
-             Item.getDataIndex product == ids.dataIndex &&
+          if Item.getIdentification product == ids &&
              Item.getDatum product == datum
           then func datum else []
     in
@@ -2392,13 +2390,15 @@ custom config =
                     , y = config.position.y2
                     , isReal = True
                     }
+                , identification =
+                    { stackIndex = -1
+                    , seriesIndex = -1
+                    , dataIndex = -1
+                    , absoluteIndex = -1
+                    , elementIndex = elIndex
+                    }
                 , tooltipInfo =
-                    { property = 0
-                    , stack = 0
-                    , data = 0
-                    , index = 0
-                    , elIndex = elIndex
-                    , name = Just config.name
+                    { name = Just config.name
                     , color = config.color
                     , border = config.color
                     , borderWidth = 0

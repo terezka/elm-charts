@@ -26,6 +26,7 @@ type alias Identification =
   , seriesIndex : Int     -- Index of the series within a stack.
   , absoluteIndex : Int   -- Index of series within the total set of series.
   , dataIndex : Int       -- Index of data point within data.
+  , elementIndex : Int    -- Index of element within chart.
   }
 
 
