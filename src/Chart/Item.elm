@@ -88,7 +88,7 @@ type alias Item x =
 {-| Get the default tooltip. -}
 getTooltip : Item x -> List (Html Never)
 getTooltip =
-  I.toHtml
+  I.tooltip
 
 
 {-| -}

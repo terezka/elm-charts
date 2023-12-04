@@ -16178,40 +16178,37 @@ var $author$project$Internal$Many$Remodel = F2(
 	function (a, b) {
 		return {$: 'Remodel', a: a, b: b};
 	});
-var $author$project$Internal$Item$Rendered = function (a) {
-	return {$: 'Rendered', a: a};
-};
+var $author$project$Internal$Item$Rendered = F2(
+	function (a, b) {
+		return {$: 'Rendered', a: a, b: b};
+	});
 var $author$project$Internal$Many$editLimits = F2(
 	function (edit, _v0) {
-		var group_ = _v0.a;
-		return $author$project$Internal$Item$Rendered(
+		var _v1 = _v0.a;
+		var x = _v1.a;
+		var xs = _v1.b;
+		var rendering = _v0.b;
+		return A2(
+			$author$project$Internal$Item$Rendered,
+			_Utils_Tuple2(x, xs),
 			_Utils_update(
-				group_,
+				rendering,
 				{
-					toLimits: function (c) {
-						return function (_v1) {
-							var x = _v1.a;
-							var xs = _v1.b;
-							return A2(
-								edit,
-								x,
-								group_.toLimits(c));
-						}(c.items);
-					}
+					limits: A2(edit, x, rendering.limits)
 				}));
 	});
 var $author$project$Internal$Item$getPosition = F2(
 	function (plane, _v0) {
-		var item = _v0.a;
-		return A2(item.toPosition, plane, item.config);
+		var item = _v0.b;
+		return item.toPosition(plane);
 	});
 var $author$project$Internal$Item$getX1 = function (_v0) {
-	var item = _v0.a;
-	return item.config.values.x1;
+	var meta = _v0.a;
+	return meta.x1;
 };
 var $author$project$Internal$Item$getX2 = function (_v0) {
-	var item = _v0.a;
-	return item.config.values.x2;
+	var meta = _v0.a;
+	return meta.x2;
 };
 var $elm$core$List$partition = F2(
 	function (pred, list) {
@@ -16298,62 +16295,32 @@ var $author$project$Internal$Coordinates$foldPosition = F2(
 	});
 var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
 var $author$project$Internal$Item$getLimits = function (_v0) {
-	var item = _v0.a;
-	return item.toLimits(item.config);
+	var item = _v0.b;
+	return item.limits;
 };
-var $elm$html$Html$table = _VirtualDom_node('table');
-var $author$project$Internal$Item$toHtml = function (_v0) {
-	var item = _v0.a;
-	return item.toHtml(item.config);
-};
-var $author$project$Internal$Item$toSvg = F2(
+var $author$project$Internal$Item$render = F2(
 	function (plane, _v0) {
-		var item = _v0.a;
-		return A3(
-			item.toSvg,
+		var item = _v0.b;
+		return A2(
+			item.render,
 			plane,
-			item.config,
-			A2(item.toPosition, plane, item.config));
+			item.toPosition(plane));
 	});
+var $elm$html$Html$table = _VirtualDom_node('table');
+var $author$project$Internal$Item$tooltip = function (_v0) {
+	var item = _v0.b;
+	return item.tooltip(_Utils_Tuple0);
+};
 var $author$project$Internal$Many$toGroup = F2(
 	function (first, rest) {
-		var concatTuple = function (_v1) {
-			var x = _v1.a;
-			var xs = _v1.b;
-			return A2($elm$core$List$cons, x, xs);
-		};
-		return $author$project$Internal$Item$Rendered(
+		var all = A2($elm$core$List$cons, first, rest);
+		return A2(
+			$author$project$Internal$Item$Rendered,
+			_Utils_Tuple2(first, rest),
 			{
-				config: {
-					items: _Utils_Tuple2(first, rest)
-				},
-				toHtml: function (c) {
-					return _List_fromArray(
-						[
-							A2(
-							$elm$html$Html$table,
-							_List_Nil,
-							A2(
-								$elm$core$List$concatMap,
-								$author$project$Internal$Item$toHtml,
-								concatTuple(c.items)))
-						]);
-				},
-				toLimits: function (c) {
-					return A2(
-						$author$project$Internal$Coordinates$foldPosition,
-						$author$project$Internal$Item$getLimits,
-						concatTuple(c.items));
-				},
-				toPosition: F2(
-					function (p, c) {
-						return A2(
-							$author$project$Internal$Coordinates$foldPosition,
-							$author$project$Internal$Item$getPosition(p),
-							concatTuple(c.items));
-					}),
-				toSvg: F3(
-					function (p, c, _v0) {
+				limits: A2($author$project$Internal$Coordinates$foldPosition, $author$project$Internal$Item$getLimits, all),
+				render: F2(
+					function (plane, _v0) {
 						return A2(
 							$elm$svg$Svg$g,
 							_List_fromArray(
@@ -16362,9 +16329,24 @@ var $author$project$Internal$Many$toGroup = F2(
 								]),
 							A2(
 								$elm$core$List$map,
-								$author$project$Internal$Item$toSvg(p),
-								concatTuple(c.items)));
-					})
+								$author$project$Internal$Item$render(plane),
+								all));
+					}),
+				toPosition: function (plane) {
+					return A2(
+						$author$project$Internal$Coordinates$foldPosition,
+						$author$project$Internal$Item$getPosition(plane),
+						all);
+				},
+				tooltip: function (c) {
+					return _List_fromArray(
+						[
+							A2(
+							$elm$html$Html$table,
+							_List_Nil,
+							A2($elm$core$List$concatMap, $author$project$Internal$Item$tooltip, all))
+						]);
+				}
 			});
 	});
 var $author$project$Internal$Many$groupingHelp = F2(
@@ -16373,8 +16355,9 @@ var $author$project$Internal$Many$groupingHelp = F2(
 		var equality = _v0.equality;
 		var edits = _v0.edits;
 		var toShared = function (_v2) {
-			var item = _v2.a;
-			return shared(item.config);
+			var meta = _v2.a;
+			var item = _v2.b;
+			return shared(meta);
 		};
 		var toNewGroup = function (_v1) {
 			var i = _v1.a;
@@ -16414,102 +16397,64 @@ var $author$project$Internal$Many$bins = A2(
 					return _Utils_eq(a.x1, b.x1) && (_Utils_eq(a.x2, b.x2) && (_Utils_eq(a.elIndex, b.elIndex) && _Utils_eq(a.dataIndex, b.dataIndex)));
 				}),
 			shared: function (config) {
-				return {dataIndex: config.identification.dataIndex, elIndex: config.identification.elementIndex, x1: config.values.x1, x2: config.values.x2};
+				return {dataIndex: config.identification.dataIndex, elIndex: config.identification.elementIndex, x1: config.x1, x2: config.x2};
 			}
 		}));
 var $author$project$Chart$Item$bins = $author$project$Internal$Many$bins;
 var $author$project$Internal$Produce$defaultBars = {grid: false, grouped: true, margin: 0.1, roundBottom: 0, roundTop: 0, spacing: 0.05, x1: $elm$core$Maybe$Nothing, x2: $elm$core$Maybe$Nothing};
-var $author$project$Internal$Item$generalize = F2(
-	function (toAny, _v0) {
-		var item = _v0.a;
-		return $author$project$Internal$Item$Rendered(
-			{
-				config: {
-					identification: item.config.identification,
-					product: toAny(item.config.product),
-					toAny: $elm$core$Basics$identity,
-					tooltipInfo: item.config.tooltipInfo,
-					values: item.config.values
-				},
-				toHtml: function (c) {
-					return $author$project$Internal$Item$toHtml(
-						$author$project$Internal$Item$Rendered(item));
-				},
-				toLimits: function (_v1) {
-					return item.toLimits(item.config);
-				},
-				toPosition: F2(
-					function (plane, _v2) {
-						return A2(item.toPosition, plane, item.config);
-					}),
-				toSvg: F3(
-					function (plane, _v3, _v4) {
-						return A2(
-							$author$project$Internal$Item$toSvg,
-							plane,
-							$author$project$Internal$Item$Rendered(item));
-					})
-			});
-	});
-var $author$project$Internal$Many$getMembers = function (_v0) {
-	var group_ = _v0.a;
-	return function (_v1) {
-		var x = _v1.a;
-		var xs = _v1.b;
-		return A2($elm$core$List$cons, x, xs);
-	}(group_.config.items);
+var $author$project$Internal$Item$generalize = function (_v0) {
+	var meta = _v0.a;
+	var item = _v0.b;
+	return A2(
+		$author$project$Internal$Item$Rendered,
+		{
+			color: meta.color,
+			datum: meta.datum,
+			identification: meta.identification,
+			isReal: meta.isReal,
+			name: meta.name,
+			presentation: meta.toAny(meta.presentation),
+			toAny: $elm$core$Basics$identity,
+			tooltipText: meta.tooltipText,
+			x1: meta.x1,
+			x2: meta.x2,
+			y: meta.y
+		},
+		item);
 };
-var $author$project$Internal$Many$getGenerals = function (group_) {
-	var generalize = function (_v0) {
-		var item = _v0.a;
-		return A2(
-			$author$project$Internal$Item$generalize,
-			item.config.toAny,
-			$author$project$Internal$Item$Rendered(item));
-	};
+var $author$project$Internal$Many$getMembers = function (_v0) {
+	var _v1 = _v0.a;
+	var x = _v1.a;
+	var xs = _v1.b;
+	return A2($elm$core$List$cons, x, xs);
+};
+var $author$project$Internal$Many$generalize = function (many) {
 	return A2(
 		$elm$core$List$map,
-		generalize,
-		$author$project$Internal$Many$getMembers(group_));
+		$author$project$Internal$Item$generalize,
+		$author$project$Internal$Many$getMembers(many));
 };
 var $author$project$Chart$Item$getLimits = $author$project$Internal$Item$getLimits;
 var $author$project$Internal$Item$map = F2(
 	function (func, _v0) {
-		var item = _v0.a;
-		return $author$project$Internal$Item$Rendered(
+		var meta = _v0.a;
+		var item = _v0.b;
+		return A2(
+			$author$project$Internal$Item$Rendered,
 			{
-				config: {
-					identification: item.config.identification,
-					product: item.config.product,
-					toAny: item.config.toAny,
-					tooltipInfo: item.config.tooltipInfo,
-					values: {
-						datum: func(item.config.values.datum),
-						isReal: item.config.values.isReal,
-						x1: item.config.values.x1,
-						x2: item.config.values.x2,
-						y: item.config.values.y
-					}
-				},
-				toHtml: function (_v1) {
-					return $author$project$Internal$Item$toHtml(
-						$author$project$Internal$Item$Rendered(item));
-				},
-				toLimits: function (_v2) {
-					return item.toLimits(item.config);
-				},
-				toPosition: F2(
-					function (plane, _v3) {
-						return A2(item.toPosition, plane, item.config);
-					}),
-				toSvg: F3(
-					function (plane, _v4, _v5) {
-						return A2(
-							$author$project$Internal$Item$toSvg,
-							plane,
-							$author$project$Internal$Item$Rendered(item));
-					})
-			});
+				color: meta.color,
+				datum: func(meta.datum),
+				identification: meta.identification,
+				isReal: meta.isReal,
+				name: meta.name,
+				presentation: meta.presentation,
+				toAny: meta.toAny,
+				tooltipText: meta.tooltipText,
+				x1: meta.x1,
+				x2: meta.x2,
+				y: meta.y
+			},
+			item);
 	});
 var $author$project$Internal$Legend$BarLegend = F2(
 	function (a, b) {
@@ -17606,56 +17551,48 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 									barSeriesConfig.presentation,
 									A2(barSeriesConfig.variation, identification, bin.datum))),
 							$author$project$Internal$Svg$defaultBar)));
-				return $author$project$Internal$Item$Rendered(
+				return A2(
+					$author$project$Internal$Item$Rendered,
 					{
-						config: {
-							identification: identification,
-							product: barPresentationConfig,
-							toAny: $author$project$Internal$Item$Bar,
-							tooltipInfo: {
-								border: barPresentationConfig.border,
-								borderWidth: barPresentationConfig.borderWidth,
-								color: barPresentationConfig.color,
-								formatted: barSeriesConfig.tooltipText(bin.datum),
-								name: barSeriesConfig.tooltipName
-							},
-							values: {
-								datum: bin.datum,
-								isReal: !_Utils_eq(y, $elm$core$Maybe$Nothing),
-								x1: start,
-								x2: end,
-								y: A2($elm$core$Maybe$withDefault, 0, y)
-							}
+						color: barPresentationConfig.color,
+						datum: bin.datum,
+						identification: identification,
+						isReal: !_Utils_eq(y, $elm$core$Maybe$Nothing),
+						name: barSeriesConfig.tooltipName,
+						presentation: barPresentationConfig,
+						toAny: $author$project$Internal$Item$Bar,
+						tooltipText: barSeriesConfig.tooltipText(bin.datum),
+						x1: start,
+						x2: end,
+						y: A2($elm$core$Maybe$withDefault, 0, y)
+					},
+					{
+						limits: {
+							x1: x1,
+							x2: x2,
+							y1: A2($elm$core$Basics$min, y1, y2),
+							y2: A2($elm$core$Basics$max, y1, y2)
 						},
-						toHtml: function (c) {
+						render: F2(
+							function (plane, position) {
+								return A3($author$project$Internal$Svg$bar, plane, barPresentationConfig, position);
+							}),
+						toPosition: function (_v5) {
+							return {x1: x1, x2: x2, y1: y1, y2: y2};
+						},
+						tooltip: function (_v6) {
 							return _List_fromArray(
 								[
 									A3(
 									$author$project$Internal$Produce$tooltipRow,
-									c.tooltipInfo.color,
-									A2($author$project$Internal$Produce$toDefaultName, identification, c.tooltipInfo.name),
+									barPresentationConfig.color,
+									A2($author$project$Internal$Produce$toDefaultName, identification, barSeriesConfig.tooltipName),
 									barSeriesConfig.tooltipText(bin.datum))
 								]);
-						},
-						toLimits: function (config) {
-							return {
-								x1: x1,
-								x2: x2,
-								y1: A2($elm$core$Basics$min, y1, y2),
-								y2: A2($elm$core$Basics$max, y1, y2)
-							};
-						},
-						toPosition: F2(
-							function (_v5, config) {
-								return {x1: x1, x2: x2, y1: y1, y2: y2};
-							}),
-						toSvg: F3(
-							function (plane, config, position) {
-								return A3($author$project$Internal$Svg$bar, plane, barPresentationConfig, position);
-							})
+						}
 					});
 			});
-		var forEachBar = F6(
+		var forEachBarSeriesConfig = F6(
 			function (bins, absoluteIndex, stackSeriesConfigIndex, numOfBarsInStack, barSeriesConfigIndex, barSeriesConfig) {
 				var absoluteIndexNew = absoluteIndex + barSeriesConfigIndex;
 				var items = A2(
@@ -17667,46 +17604,13 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 					items,
 					F2(
 						function (first, rest) {
-							var collapse = function (_v4) {
-								var x = _v4.a;
-								var xs = _v4.b;
-								return A2($elm$core$List$cons, x, xs);
-							};
-							return $author$project$Internal$Item$Rendered(
+							return A2(
+								$author$project$Internal$Item$Rendered,
+								_Utils_Tuple2(first, rest),
 								{
-									config: {
-										items: _Utils_Tuple2(first, rest)
-									},
-									toHtml: function (c) {
-										return _List_fromArray(
-											[
-												A2(
-												$elm$html$Html$table,
-												_List_fromArray(
-													[
-														A2($elm$html$Html$Attributes$style, 'margin', '0')
-													]),
-												A2(
-													$elm$core$List$concatMap,
-													$author$project$Internal$Item$toHtml,
-													collapse(c.items)))
-											]);
-									},
-									toLimits: function (c) {
-										return A2(
-											$author$project$Internal$Coordinates$foldPosition,
-											$author$project$Internal$Item$getLimits,
-											collapse(c.items));
-									},
-									toPosition: F2(
-										function (plane, c) {
-											return A2(
-												$author$project$Internal$Coordinates$foldPosition,
-												$author$project$Internal$Item$getPosition(plane),
-												collapse(c.items));
-										}),
-									toSvg: F3(
-										function (plane, c, _v3) {
+									limits: A2($author$project$Internal$Coordinates$foldPosition, $author$project$Internal$Item$getLimits, items),
+									render: F2(
+										function (plane, _v3) {
 											return A2(
 												$elm$svg$Svg$g,
 												_List_fromArray(
@@ -17715,9 +17619,27 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 													]),
 												A2(
 													$elm$core$List$map,
-													$author$project$Internal$Item$toSvg(plane),
-													collapse(c.items)));
-										})
+													$author$project$Internal$Item$render(plane),
+													items));
+										}),
+									toPosition: function (plane) {
+										return A2(
+											$author$project$Internal$Coordinates$foldPosition,
+											$author$project$Internal$Item$getPosition(plane),
+											items);
+									},
+									tooltip: function (_v4) {
+										return _List_fromArray(
+											[
+												A2(
+												$elm$html$Html$table,
+												_List_fromArray(
+													[
+														A2($elm$html$Html$Attributes$style, 'margin', '0')
+													]),
+												A2($elm$core$List$concatMap, $author$project$Internal$Item$tooltip, items))
+											]);
+									}
 								});
 						}));
 			});
@@ -17731,14 +17653,14 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 						var barSeriesConfig = stackSeriesConfig.a;
 						return _List_fromArray(
 							[
-								A6(forEachBar, bins, absoluteIndex, stackSeriesConfigIndex, 1, 0, barSeriesConfig)
+								A6(forEachBarSeriesConfig, bins, absoluteIndex, stackSeriesConfigIndex, 1, 0, barSeriesConfig)
 							]);
 					} else {
 						var barSeriesConfigs = stackSeriesConfig.a;
 						var numOfBarsInStack = $elm$core$List$length(barSeriesConfigs);
 						return A2(
 							$elm$core$List$indexedMap,
-							A4(forEachBar, bins, absoluteIndex, stackSeriesConfigIndex, numOfBarsInStack),
+							A4(forEachBarSeriesConfig, bins, absoluteIndex, stackSeriesConfigIndex, numOfBarsInStack),
 							barSeriesConfigs);
 					}
 				}();
@@ -17774,7 +17696,7 @@ var $author$project$Chart$barsMap = F4(
 				var generalized = A2(
 					$elm$core$List$map,
 					$author$project$Internal$Item$map(mapData),
-					A2($elm$core$List$concatMap, $author$project$Internal$Many$getGenerals, items));
+					A2($elm$core$List$concatMap, $author$project$Internal$Many$generalize, items));
 				var bins = A2($author$project$Chart$Item$apply, $author$project$Chart$Item$bins, generalized);
 				var toLimits = A2($elm$core$List$map, $author$project$Internal$Item$getLimits, bins);
 				var barsConfig = A2($author$project$Internal$Helpers$apply, edits, $author$project$Internal$Produce$defaultBars);
@@ -17816,7 +17738,7 @@ var $author$project$Chart$barsMap = F4(
 										]),
 									A2(
 										$elm$core$List$map,
-										$author$project$Internal$Item$toSvg(plane),
+										$author$project$Internal$Item$render(plane),
 										items)));
 						}),
 					index + $elm$core$List$length(
@@ -17843,29 +17765,16 @@ var $author$project$Internal$Many$andThen = F2(
 	});
 var $author$project$Chart$Item$andThen = $author$project$Internal$Many$andThen;
 var $author$project$Internal$Item$isBar = function (_v0) {
-	var item = _v0.a;
-	var _v1 = item.config.product;
+	var meta = _v0.a;
+	var item = _v0.b;
+	var _v1 = meta.presentation;
 	if (_v1.$ === 'Bar') {
 		var bar = _v1.a;
 		return $elm$core$Maybe$Just(
-			$author$project$Internal$Item$Rendered(
-				{
-					config: {identification: item.config.identification, product: bar, toAny: $author$project$Internal$Item$Bar, tooltipInfo: item.config.tooltipInfo, values: item.config.values},
-					toHtml: function (c) {
-						return item.toHtml(item.config);
-					},
-					toLimits: function (_v2) {
-						return item.toLimits(item.config);
-					},
-					toPosition: F2(
-						function (plane, _v3) {
-							return A2(item.toPosition, plane, item.config);
-						}),
-					toSvg: F2(
-						function (plane, config) {
-							return A2($author$project$Internal$Svg$bar, plane, config.product);
-						})
-				}));
+			A2(
+				$author$project$Internal$Item$Rendered,
+				{color: meta.color, datum: meta.datum, identification: meta.identification, isReal: meta.isReal, name: meta.name, presentation: bar, toAny: $author$project$Internal$Item$Bar, tooltipText: meta.tooltipText, x1: meta.x1, x2: meta.x2, y: meta.y},
+				item));
 	} else {
 		return $elm$core$Maybe$Nothing;
 	}
@@ -17902,16 +17811,14 @@ var $author$project$Chart$eachCustom = F2(
 				}));
 	});
 var $author$project$Internal$Item$getDatum = function (_v0) {
-	var item = _v0.a;
-	return item.config.values.datum;
+	var meta = _v0.a;
+	return meta.datum;
 };
 var $author$project$Internal$Many$getData = function (_v0) {
-	var group_ = _v0.a;
-	return function (_v1) {
-		var x = _v1.a;
-		var xs = _v1.b;
-		return $author$project$Internal$Item$getDatum(x);
-	}(group_.config.items);
+	var _v1 = _v0.a;
+	var x = _v1.a;
+	var xs = _v1.b;
+	return $author$project$Internal$Item$getDatum(x);
 };
 var $author$project$Chart$Item$getOneData = $author$project$Internal$Many$getData;
 var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
@@ -19875,8 +19782,8 @@ var $author$project$Charts$Terminology$data = _List_fromArray(
 		A7($author$project$Charts$Terminology$Data, 4, 8, 2, 1, 2, 2, 'D')
 	]);
 var $author$project$Internal$Item$isReal = function (_v0) {
-	var item = _v0.a;
-	return item.config.values.isReal;
+	var meta = _v0.a;
+	return meta.isReal;
 };
 var $author$project$Internal$Many$real = A2(
 	$author$project$Internal$Many$Remodel,
@@ -19909,7 +19816,7 @@ var $author$project$Internal$Many$stacks = A2(
 					return _Utils_eq(a.x1, b.x1) && (_Utils_eq(a.x2, b.x2) && _Utils_eq(a.property, b.property));
 				}),
 			shared: function (config) {
-				return {property: config.identification.stackIndex, x1: config.values.x1, x2: config.values.x2};
+				return {property: config.identification.stackIndex, x1: config.x1, x2: config.x2};
 			}
 		}));
 var $author$project$Chart$Item$stacks = $author$project$Internal$Many$stacks;
@@ -19946,8 +19853,8 @@ var $author$project$Chart$Item$getTop = function (p) {
 		$author$project$Internal$Coordinates$top);
 };
 var $author$project$Internal$Item$getY = function (_v0) {
-	var item = _v0.a;
-	return item.config.values.y;
+	var meta = _v0.a;
+	return meta.y;
 };
 var $author$project$Chart$Item$getY = $author$project$Internal$Item$getY;
 var $author$project$Chart$Attributes$height = F2(
@@ -24088,12 +23995,10 @@ var $author$project$Chart$eachBin = function (func) {
 			}));
 };
 var $author$project$Internal$Many$getMember = function (_v0) {
-	var group_ = _v0.a;
-	return function (_v1) {
-		var x = _v1.a;
-		var xs = _v1.b;
-		return x;
-	}(group_.config.items);
+	var _v1 = _v0.a;
+	var x = _v1.a;
+	var xs = _v1.b;
+	return x;
 };
 var $author$project$Chart$Item$getMember = $author$project$Internal$Many$getMember;
 var $author$project$Chart$Item$getX1 = $author$project$Internal$Item$getX1;
@@ -24494,8 +24399,8 @@ var $author$project$Examples$BarCharts$Highlight$OnHover = function (a) {
 	return {$: 'OnHover', a: a};
 };
 var $author$project$Internal$Item$getIdentification = function (_v0) {
-	var item = _v0.a;
-	return item.config.identification;
+	var meta = _v0.a;
+	return meta.identification;
 };
 var $author$project$Chart$amongst = F2(
 	function (inQuestion, func) {
@@ -24910,7 +24815,7 @@ var $author$project$Chart$tooltip = F4(
 		return $author$project$Chart$html(
 			function (p) {
 				var pos = $author$project$Internal$Item$getLimits(i);
-				var content_ = _Utils_eq(content, _List_Nil) ? $author$project$Internal$Item$toHtml(i) : content;
+				var content_ = _Utils_eq(content, _List_Nil) ? $author$project$Internal$Item$tooltip(i) : content;
 				return A3($author$project$Internal$Svg$isWithinPlane, p, pos.x1, pos.y2) ? A5(
 					$author$project$Chart$Svg$tooltip,
 					p,
@@ -27384,7 +27289,6 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 					0,
 					lineSeriesConfig.toYSum(datum));
 				var x = toX(datum);
-				var limits = {x1: x, x2: x, y1: y, y2: y};
 				var identification = {absoluteIndex: absoluteIndex, dataIndex: dataIndex, elementIndex: elementIndex, seriesIndex: lineSeriesConfigIndex, stackIndex: stackSeriesConfigIndex};
 				var defaultAttrs = _List_fromArray(
 					[
@@ -27405,59 +27309,30 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 						$elm$core$Maybe$map,
 						$author$project$Internal$Svg$toRadius(dotConfig.size),
 						dotConfig.shape));
-				return $author$project$Internal$Item$Rendered(
+				var tooltipTextColor = (dotConfig.color === 'white') ? ((dotConfig.border === 'white') ? interpolationConfig.color : dotConfig.border) : dotConfig.color;
+				return A2(
+					$author$project$Internal$Item$Rendered,
 					{
-						config: {
-							identification: identification,
-							product: dotConfig,
-							toAny: $author$project$Internal$Item$Dot,
-							tooltipInfo: {
-								border: dotConfig.border,
-								borderWidth: dotConfig.borderWidth,
-								color: function () {
-									var _v8 = dotConfig.color;
-									if (_v8 === 'white') {
-										return interpolationConfig.color;
-									} else {
-										return dotConfig.color;
-									}
-								}(),
-								formatted: lineSeriesConfig.tooltipText(datum),
-								name: lineSeriesConfig.tooltipName
-							},
-							values: {
-								datum: datum,
-								isReal: !_Utils_eq(
-									lineSeriesConfig.toY(datum),
-									$elm$core$Maybe$Nothing),
-								x1: x,
-								x2: x,
-								y: y
-							}
-						},
-						toHtml: function (c) {
-							return _List_fromArray(
-								[
-									A3(
-									$author$project$Internal$Produce$tooltipRow,
-									c.tooltipInfo.color,
-									A2($author$project$Internal$Produce$toDefaultName, identification, c.tooltipInfo.name),
-									lineSeriesConfig.tooltipText(datum))
-								]);
-						},
-						toLimits: function (_v9) {
-							return limits;
-						},
-						toPosition: F2(
-							function (plane, _v10) {
-								var radiusY = A2($author$project$Internal$Coordinates$scaleCartesianY, plane, radius);
-								var radiusX = A2($author$project$Internal$Coordinates$scaleCartesianX, plane, radius);
-								return {x1: x - radiusX, x2: x + radiusX, y1: y - radiusY, y2: y + radiusY};
-							}),
-						toSvg: F3(
-							function (plane, _v11, _v12) {
-								var _v13 = lineSeriesConfig.toY(datum);
-								if (_v13.$ === 'Nothing') {
+						color: tooltipTextColor,
+						datum: datum,
+						identification: identification,
+						isReal: !_Utils_eq(
+							lineSeriesConfig.toY(datum),
+							$elm$core$Maybe$Nothing),
+						name: lineSeriesConfig.tooltipName,
+						presentation: dotConfig,
+						toAny: $author$project$Internal$Item$Dot,
+						tooltipText: lineSeriesConfig.tooltipText(datum),
+						x1: x,
+						x2: x,
+						y: y
+					},
+					{
+						limits: {x1: x, x2: x, y1: y, y2: y},
+						render: F2(
+							function (plane, _v5) {
+								var _v6 = lineSeriesConfig.toY(datum);
+								if (_v6.$ === 'Nothing') {
 									return $elm$svg$Svg$text('');
 								} else {
 									return A5(
@@ -27472,7 +27347,22 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 										dotConfig,
 										{x: x, y: y});
 								}
-							})
+							}),
+						toPosition: function (plane) {
+							var radiusY = A2($author$project$Internal$Coordinates$scaleCartesianY, plane, radius);
+							var radiusX = A2($author$project$Internal$Coordinates$scaleCartesianX, plane, radius);
+							return {x1: x - radiusX, x2: x + radiusX, y1: y - radiusY, y2: y + radiusY};
+						},
+						tooltip: function (_v7) {
+							return _List_fromArray(
+								[
+									A3(
+									$author$project$Internal$Produce$tooltipRow,
+									tooltipTextColor,
+									A2($author$project$Internal$Produce$toDefaultName, identification, lineSeriesConfig.tooltipName),
+									lineSeriesConfig.tooltipText(datum))
+								]);
+						}
 					});
 			});
 		var forEachLine = F5(
@@ -27529,7 +27419,7 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 									]),
 								A2(
 									$elm$core$List$map,
-									$author$project$Internal$Item$toSvg(plane),
+									$author$project$Internal$Item$render(plane),
 									dotItems))
 							]));
 				};
@@ -27538,12 +27428,22 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 					dotItems,
 					F2(
 						function (first, rest) {
-							return $author$project$Internal$Item$Rendered(
+							return A2(
+								$author$project$Internal$Item$Rendered,
+								_Utils_Tuple2(first, rest),
 								{
-									config: {
-										items: _Utils_Tuple2(first, rest)
+									limits: A2($author$project$Internal$Coordinates$foldPosition, $author$project$Internal$Item$getLimits, dotItems),
+									render: F2(
+										function (plane, _v3) {
+											return viewSeries(plane);
+										}),
+									toPosition: function (plane) {
+										return A2(
+											$author$project$Internal$Coordinates$foldPosition,
+											$author$project$Internal$Item$getPosition(plane),
+											dotItems);
 									},
-									toHtml: function (c) {
+									tooltip: function (_v4) {
 										return _List_fromArray(
 											[
 												A2(
@@ -27552,41 +27452,9 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 													[
 														A2($elm$html$Html$Attributes$style, 'margin', '0')
 													]),
-												A2(
-													$elm$core$List$concatMap,
-													$author$project$Internal$Item$toHtml,
-													function (_v3) {
-														var x = _v3.a;
-														var xs = _v3.b;
-														return A2($elm$core$List$cons, x, xs);
-													}(c.items)))
+												A2($elm$core$List$concatMap, $author$project$Internal$Item$tooltip, dotItems))
 											]);
-									},
-									toLimits: function (c) {
-										return A2(
-											$author$project$Internal$Coordinates$foldPosition,
-											$author$project$Internal$Item$getLimits,
-											function (_v4) {
-												var x = _v4.a;
-												var xs = _v4.b;
-												return A2($elm$core$List$cons, x, xs);
-											}(c.items));
-									},
-									toPosition: F2(
-										function (plane, c) {
-											return A2(
-												$author$project$Internal$Coordinates$foldPosition,
-												$author$project$Internal$Item$getPosition(plane),
-												function (_v5) {
-													var x = _v5.a;
-													var xs = _v5.b;
-													return A2($elm$core$List$cons, x, xs);
-												}(c.items));
-										}),
-									toSvg: F3(
-										function (plane, _v6, _v7) {
-											return viewSeries(plane);
-										})
+									}
 								});
 						}));
 			});
@@ -27637,7 +27505,7 @@ var $author$project$Chart$seriesMap = F4(
 				var generalized = A2(
 					$elm$core$List$map,
 					$author$project$Internal$Item$map(mapData),
-					A2($elm$core$List$concatMap, $author$project$Internal$Many$getGenerals, items));
+					A2($elm$core$List$concatMap, $author$project$Internal$Many$generalize, items));
 				return _Utils_Tuple2(
 					A4(
 						$author$project$Chart$SeriesElement,
@@ -27656,7 +27524,7 @@ var $author$project$Chart$seriesMap = F4(
 										]),
 									A2(
 										$elm$core$List$map,
-										$author$project$Internal$Item$toSvg(p),
+										$author$project$Internal$Item$render(p),
 										items)));
 						}),
 					index + $elm$core$List$length(
@@ -27903,62 +27771,53 @@ var $author$project$Chart$CustomElement = F2(
 	function (a, b) {
 		return {$: 'CustomElement', a: a, b: b};
 	});
-var $author$project$Internal$Item$getGeneral = function (_v0) {
-	var item = _v0.a;
-	return A2(
-		$author$project$Internal$Item$generalize,
-		item.config.toAny,
-		$author$project$Internal$Item$Rendered(item));
-};
 var $author$project$Chart$custom = function (config) {
 	return $author$project$Chart$Indexed(
 		function (elIndex) {
-			var item = $author$project$Internal$Item$Rendered(
+			var item = A2(
+				$author$project$Internal$Item$Rendered,
 				{
-					config: {
-						identification: {absoluteIndex: -1, dataIndex: -1, elementIndex: elIndex, seriesIndex: -1, stackIndex: -1},
-						product: _Utils_Tuple0,
-						toAny: $elm$core$Basics$always($author$project$Internal$Item$Custom),
-						tooltipInfo: {
-							border: config.color,
-							borderWidth: 0,
-							color: config.color,
-							formatted: config.format(config.data),
-							name: $elm$core$Maybe$Just(config.name)
-						},
-						values: {datum: config.data, isReal: true, x1: config.position.x1, x2: config.position.x2, y: config.position.y2}
+					color: config.color,
+					datum: config.data,
+					identification: {absoluteIndex: -1, dataIndex: -1, elementIndex: elIndex, seriesIndex: -1, stackIndex: -1},
+					isReal: true,
+					name: $elm$core$Maybe$Just(config.name),
+					presentation: _Utils_Tuple0,
+					toAny: $elm$core$Basics$always($author$project$Internal$Item$Custom),
+					tooltipText: config.format(config.data),
+					x1: config.position.x1,
+					x2: config.position.x2,
+					y: config.position.y2
+				},
+				{
+					limits: config.position,
+					render: F2(
+						function (plane, position) {
+							return config.render(plane);
+						}),
+					toPosition: function (_v0) {
+						return config.position;
 					},
-					toHtml: function (c) {
+					tooltip: function (_v1) {
 						return _List_fromArray(
 							[
 								A3(
 								$author$project$Internal$Produce$tooltipRow,
-								c.tooltipInfo.color,
-								A2($elm$core$Maybe$withDefault, 'Custom', c.tooltipInfo.name),
-								c.tooltipInfo.formatted)
+								config.color,
+								config.name,
+								config.format(config.data))
 							]);
-					},
-					toLimits: function (_v0) {
-						return config.position;
-					},
-					toPosition: F2(
-						function (_v1, _v2) {
-							return config.position;
-						}),
-					toSvg: F3(
-						function (plane, _v3, position) {
-							return config.render(plane);
-						})
+					}
 				});
 			return _Utils_Tuple2(
 				A2(
 					$author$project$Chart$CustomElement,
-					$author$project$Internal$Item$getGeneral(item),
+					$author$project$Internal$Item$generalize(item),
 					function (p) {
 						return A2(
 							$elm$svg$Svg$map,
 							$elm$core$Basics$never,
-							A2($author$project$Internal$Item$toSvg, p, item));
+							A2($author$project$Internal$Item$render, p, item));
 					}),
 				elIndex + 1);
 		});
@@ -30360,39 +30219,16 @@ var $author$project$Internal$Many$fromPoint = function (point) {
 	return {x1: point.x, x2: point.x, y1: point.y, y2: point.y};
 };
 var $author$project$Internal$Item$isDot = function (_v0) {
-	var item = _v0.a;
-	var _v1 = item.config.product;
+	var meta = _v0.a;
+	var item = _v0.b;
+	var _v1 = meta.presentation;
 	if (_v1.$ === 'Dot') {
 		var dot = _v1.a;
 		return $elm$core$Maybe$Just(
-			$author$project$Internal$Item$Rendered(
-				{
-					config: {identification: item.config.identification, product: dot, toAny: $author$project$Internal$Item$Dot, tooltipInfo: item.config.tooltipInfo, values: item.config.values},
-					toHtml: function (c) {
-						return item.toHtml(item.config);
-					},
-					toLimits: function (_v2) {
-						return item.toLimits(item.config);
-					},
-					toPosition: F2(
-						function (plane, _v3) {
-							return A2(item.toPosition, plane, item.config);
-						}),
-					toSvg: F3(
-						function (plane, config, pos) {
-							return config.values.isReal ? A5(
-								$author$project$Internal$Svg$dot,
-								plane,
-								function ($) {
-									return $.x;
-								},
-								function ($) {
-									return $.y;
-								},
-								config.product,
-								{x: config.values.x1, y: config.values.y}) : $elm$svg$Svg$text('');
-						})
-				}));
+			A2(
+				$author$project$Internal$Item$Rendered,
+				{color: meta.color, datum: meta.datum, identification: meta.identification, isReal: meta.isReal, name: meta.name, presentation: dot, toAny: $author$project$Internal$Item$Dot, tooltipText: meta.tooltipText, x1: meta.x1, x2: meta.x2, y: meta.y},
+				item));
 	} else {
 		return $elm$core$Maybe$Nothing;
 	}
@@ -30649,13 +30485,13 @@ var $author$project$Examples$Interactivity$ChangeContent$data = _List_fromArray(
 		A8($author$project$Examples$Interactivity$ChangeContent$Datum, 4.0, 0.2, 1.2, 3.0, 4.1, 5.5, 7.9, 8.1)
 	]);
 var $author$project$Internal$Item$getColor = function (_v0) {
-	var item = _v0.a;
-	return item.config.tooltipInfo.color;
+	var meta = _v0.a;
+	return meta.color;
 };
 var $author$project$Chart$Item$getColor = $author$project$Internal$Item$getColor;
 var $author$project$Internal$Item$getX = function (_v0) {
-	var item = _v0.a;
-	return item.config.values.x1;
+	var meta = _v0.a;
+	return meta.x1;
 };
 var $author$project$Chart$Item$getX = $author$project$Internal$Item$getX;
 var $author$project$Examples$Interactivity$ChangeContent$view = function (model) {
@@ -39629,39 +39465,16 @@ var $author$project$Chart$barMaybe = function (y) {
 var $author$project$Internal$Item$filterMap = function (func) {
 	return $elm$core$List$filterMap(
 		function (_v0) {
-			var item = _v0.a;
-			var _v1 = func(item.config.values.datum);
+			var meta = _v0.a;
+			var item = _v0.b;
+			var _v1 = func(meta.datum);
 			if (_v1.$ === 'Just') {
 				var b = _v1.a;
 				return $elm$core$Maybe$Just(
-					$author$project$Internal$Item$Rendered(
-						{
-							config: {
-								identification: item.config.identification,
-								product: item.config.product,
-								toAny: item.config.toAny,
-								tooltipInfo: item.config.tooltipInfo,
-								values: {datum: b, isReal: item.config.values.isReal, x1: item.config.values.x1, x2: item.config.values.x2, y: item.config.values.y}
-							},
-							toHtml: function (_v2) {
-								return $author$project$Internal$Item$toHtml(
-									$author$project$Internal$Item$Rendered(item));
-							},
-							toLimits: function (_v3) {
-								return item.toLimits(item.config);
-							},
-							toPosition: F2(
-								function (plane, _v4) {
-									return A2(item.toPosition, plane, item.config);
-								}),
-							toSvg: F3(
-								function (plane, _v5, _v6) {
-									return A2(
-										$author$project$Internal$Item$toSvg,
-										plane,
-										$author$project$Internal$Item$Rendered(item));
-								})
-						}));
+					A2(
+						$author$project$Internal$Item$Rendered,
+						{color: meta.color, datum: b, identification: meta.identification, isReal: meta.isReal, name: meta.name, presentation: meta.presentation, toAny: meta.toAny, tooltipText: meta.tooltipText, x1: meta.x1, x2: meta.x2, y: meta.y},
+						item));
 			} else {
 				return $elm$core$Maybe$Nothing;
 			}
@@ -39735,7 +39548,7 @@ var $author$project$Internal$Events$getNearestX = function (grouping) {
 			}));
 };
 var $author$project$Chart$Events$getNearestX = $author$project$Internal$Events$getNearestX;
-var $author$project$Chart$Item$getTooltip = $author$project$Internal$Item$toHtml;
+var $author$project$Chart$Item$getTooltip = $author$project$Internal$Item$tooltip;
 var $author$project$Internal$Svg$withinRadiusX = F4(
 	function (plane, radius, searched, point) {
 		return _Utils_cmp(

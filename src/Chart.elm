@@ -639,7 +639,7 @@ tooltip : CI.Item a -> List (Attribute Tooltip) -> List (H.Attribute Never) -> L
 tooltip i edits attrs_ content =
   html <| \p ->
     let pos = Item.getLimits i
-        content_ = if content == [] then Item.toHtml i else content
+        content_ = if content == [] then Item.tooltip i else content
     in
     if IS.isWithinPlane p pos.x1 pos.y2 -- TODO
     then CS.tooltip p (Item.getPosition p i) edits attrs_ content_
@@ -2245,7 +2245,7 @@ barsMap mapData edits properties data =
           Produce.toBarSeries index edits properties data
 
         generalized =
-          List.concatMap Many.getGenerals items
+          List.concatMap Many.generalize items
             |> List.map (Item.map mapData)
 
         bins =
@@ -2266,7 +2266,7 @@ barsMap mapData edits properties data =
           List.map Item.getLimits bins
     in
     ( BarsElement toLimits generalized legends_ toTicks <| \plane ->
-        S.g [ SA.class "elm-charts__bar-series" ] (List.map (Item.toSvg plane) items)
+        S.g [ SA.class "elm-charts__bar-series" ] (List.map (Item.render plane) items)
           |> S.map never
     , index + List.length (List.concatMap P.toConfigs properties)
     )
@@ -2334,7 +2334,7 @@ seriesMap mapData toX properties data =
           Produce.toDotSeries index toX properties data
 
         generalized =
-          List.concatMap Many.getGenerals items
+          List.concatMap Many.generalize items
             |> List.map (Item.map mapData)
 
         legends_ =
@@ -2344,7 +2344,7 @@ seriesMap mapData toX properties data =
           List.map Item.getLimits items
     in
     ( SeriesElement toLimits generalized legends_ <| \p ->
-        S.g [ SA.class "elm-charts__dot-series" ] (List.map (Item.toSvg p) items)
+        S.g [ SA.class "elm-charts__dot-series" ] (List.map (Item.render p) items)
           |> S.map never
     , index + List.length (List.concatMap P.toConfigs properties)
     )
@@ -2381,39 +2381,32 @@ custom config =
   Indexed <| \elIndex ->
     let item =
           Item.Rendered
-            { config =
-                { product = ()
-                , values =
-                    { datum = config.data
-                    , x1 = config.position.x1
-                    , x2 = config.position.x2
-                    , y = config.position.y2
-                    , isReal = True
-                    }
-                , identification =
-                    { stackIndex = -1
-                    , seriesIndex = -1
-                    , dataIndex = -1
-                    , absoluteIndex = -1
-                    , elementIndex = elIndex
-                    }
-                , tooltipInfo =
-                    { name = Just config.name
-                    , color = config.color
-                    , border = config.color
-                    , borderWidth = 0
-                    , formatted = config.format config.data
-                    }
-                , toAny = always Item.Custom
+            { presentation = ()
+            , color = config.color
+            , datum = config.data
+            , x1 = config.position.x1
+            , x2 = config.position.x2
+            , y = config.position.y2
+            , isReal = True
+            , identification =
+                { stackIndex = -1
+                , seriesIndex = -1
+                , dataIndex = -1
+                , absoluteIndex = -1
+                , elementIndex = elIndex
                 }
-            , toLimits = \_ -> config.position
-            , toPosition = \_ _ -> config.position
-            , toSvg = \plane _ position -> config.render plane
-            , toHtml = \c -> [ Produce.tooltipRow c.tooltipInfo.color (Maybe.withDefault "Custom" c.tooltipInfo.name) (c.tooltipInfo.formatted) ]
+            , name = Just config.name
+            , tooltipText = config.format config.data
+            , toAny = always Item.Custom
+            }
+            { limits = config.position
+            , toPosition = \_ -> config.position
+            , render = \plane position -> config.render plane
+            , tooltip = \() -> [ Produce.tooltipRow config.color config.name (config.format config.data) ]
             }
     in
-    ( CustomElement (Item.getGeneral item) <| \p ->
-        S.map never (Item.toSvg p item)
+    ( CustomElement (Item.generalize item) <| \p ->
+        S.map never (Item.render p item)
     , elIndex + 1
     )
 

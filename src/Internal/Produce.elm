@@ -66,13 +66,11 @@ toBarSeries elementIndex barsAttrs properties data =
             items = List.indexedMap (forEachDataPoint absoluteIndexNew stackSeriesConfigIndex barSeriesConfigIndex numOfBarsInStack barSeriesConfig) bins 
         in
         Helpers.withFirst items <| \first rest ->
-          let collapse (x, xs) = x :: xs in
-          I.Rendered
-            { config = { items = ( first, rest ) }
-            , toLimits = \c -> Coord.foldPosition I.getLimits (collapse c.items)
-            , toPosition = \plane c -> Coord.foldPosition (I.getPosition plane) (collapse c.items)
-            , toSvg = \plane c _ -> S.g [ SA.class "elm-charts__series" ] (List.map (I.toSvg plane) (collapse c.items))
-            , toHtml = \c -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.toHtml (collapse c.items)) ]
+          I.Rendered ( first, rest )
+            { limits = Coord.foldPosition I.getLimits items
+            , toPosition = \plane -> Coord.foldPosition (I.getPosition plane) items
+            , render = \plane _ -> S.g [ SA.class "elm-charts__series" ] (List.map (I.render plane) items)
+            , tooltip = \() -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.tooltip items) ]
             }
 
       forEachDataPoint absoluteIndex stackSeriesConfigIndex barSeriesConfigIndex numOfBarsInStack barSeriesConfig dataIndex bin =
@@ -117,29 +115,27 @@ toBarSeries elementIndex barsAttrs properties data =
                 |> updateBorder defaultColor
         in
         I.Rendered
-          { config =
-              { product = barPresentationConfig
-              , values =
-                  { datum = bin.datum
-                  , x1 = start
-                  , x2 = end
-                  , y = Maybe.withDefault 0 y
-                  , isReal = y /= Nothing
-                  }
-              , identification = identification
-              , tooltipInfo =
-                  { name = barSeriesConfig.tooltipName
-                  , color = barPresentationConfig.color
-                  , border = barPresentationConfig.border
-                  , borderWidth = barPresentationConfig.borderWidth
-                  , formatted = barSeriesConfig.tooltipText bin.datum
-                  }
-              , toAny = I.Bar
-              }
-          , toLimits = \config -> { x1 = x1, x2 = x2, y1 = min y1 y2, y2 = max y1 y2 }
-          , toPosition = \_ config -> { x1 = x1, x2 = x2, y1 = y1, y2 = y2 }
-          , toSvg = \plane config position -> S.bar plane barPresentationConfig position
-          , toHtml = \c -> [ tooltipRow c.tooltipInfo.color (toDefaultName identification c.tooltipInfo.name) (barSeriesConfig.tooltipText bin.datum) ]
+          { presentation = barPresentationConfig
+          , color = barPresentationConfig.color
+          , datum = bin.datum
+          , x1 = start
+          , x2 = end
+          , y = Maybe.withDefault 0 y
+          , isReal = y /= Nothing
+          , identification = identification
+          , name = barSeriesConfig.tooltipName
+          , tooltipText = barSeriesConfig.tooltipText bin.datum
+          , toAny = I.Bar
+          }
+          { limits = { x1 = x1, x2 = x2, y1 = min y1 y2, y2 = max y1 y2 }
+          , toPosition = \_ -> { x1 = x1, x2 = x2, y1 = y1, y2 = y2 }
+          , render = \plane position -> S.bar plane barPresentationConfig position
+          , tooltip = \() -> 
+              [ tooltipRow 
+                  barPresentationConfig.color 
+                  (toDefaultName identification barSeriesConfig.tooltipName) 
+                  (barSeriesConfig.tooltipText bin.datum) 
+              ]
           }
   in
   Helpers.withSurround data (toBin barsConfig) |> \bins ->
@@ -261,16 +257,15 @@ toDotSeries elementIndex toX properties data =
                 [ SA.class "elm-charts__series" ]
                 [ S.area plane toX (Just toBottom) lineSeriesConfig.toYSum interpolationConfig data
                 , S.interpolation plane toX lineSeriesConfig.toYSum interpolationConfig data
-                , S.g [ SA.class "elm-charts__dots" ] (List.map (I.toSvg plane) dotItems)
+                , S.g [ SA.class "elm-charts__dots" ] (List.map (I.render plane) dotItems)
                 ]
         in
         Helpers.withFirst dotItems <| \first rest ->
-          I.Rendered
-            { config = { items = ( first, rest ) }
-            , toSvg = \plane _ _ -> viewSeries plane
-            , toLimits = \c -> Coord.foldPosition I.getLimits ((\(x, xs) -> x :: xs) c.items)
-            , toPosition = \plane c -> Coord.foldPosition (I.getPosition plane) ((\(x, xs) -> x :: xs) c.items)
-            , toHtml = \c -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.toHtml ((\(x, xs) -> x :: xs) c.items)) ]
+          I.Rendered ( first, rest )
+            { render = \plane _ -> viewSeries plane
+            , limits = Coord.foldPosition I.getLimits dotItems
+            , toPosition = \plane -> Coord.foldPosition (I.getPosition plane) dotItems
+            , tooltip = \() -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.tooltip dotItems) ]
             }
         
       forEachDataPoint absoluteIndex stackSeriesConfigIndex lineSeriesConfigIndex lineSeriesConfig interpolationConfig defaultColor defaultOpacity dataIndex datum =
@@ -302,23 +297,31 @@ toDotSeries elementIndex toX properties data =
             y = Maybe.withDefault 0 (lineSeriesConfig.toYSum datum)
             x = toX datum
 
-            limits =
-              { x1 = x, x2 = x
-              , y1 = y, y2 = y 
-              }
+            tooltipTextColor =
+              if dotConfig.color == "white" then 
+                if dotConfig.border == "white" then interpolationConfig.color else dotConfig.border
+              else
+                dotConfig.color
         in
         I.Rendered
-          { toSvg = \plane _ _ ->
-              case lineSeriesConfig.toY datum of
-                Nothing -> S.text ""
-                Just _ -> S.dot plane .x .y dotConfig { x = x, y = y }
+          { presentation = dotConfig
+          , color = tooltipTextColor
+          , datum = datum
+          , x1 = x
+          , x2 = x
+          , y = y
+          , isReal = lineSeriesConfig.toY datum /= Nothing
+          , identification = identification
+          , name = lineSeriesConfig.tooltipName
+          , tooltipText = lineSeriesConfig.tooltipText datum
+          , toAny = I.Dot
+          }
+          { limits = 
+              { x1 = x, x2 = x
+              , y1 = y, y2 = y
+              }
 
-          , toHtml = \c -> 
-              [ tooltipRow c.tooltipInfo.color (toDefaultName identification c.tooltipInfo.name) (lineSeriesConfig.tooltipText datum) ]
-
-          , toLimits = \_ -> limits
-
-          , toPosition = \plane _ ->
+          , toPosition = \plane ->
               let radiusX = Coord.scaleCartesianX plane radius
                   radiusY = Coord.scaleCartesianY plane radius
               in
@@ -326,28 +329,16 @@ toDotSeries elementIndex toX properties data =
               , y1 = y - radiusY, y2 = y + radiusY
               }
 
-          , config =
-              { product = dotConfig
-              , values =
-                  { datum = datum
-                  , x1 = x
-                  , x2 = x
-                  , y = y
-                  , isReal = lineSeriesConfig.toY datum /= Nothing
-                  }
-              , identification = identification
-              , tooltipInfo =
-                  { name = lineSeriesConfig.tooltipName
-                  , color =
-                      case dotConfig.color of
-                        "white" -> interpolationConfig.color
-                        _       -> dotConfig.color
-                  , border = dotConfig.border
-                  , borderWidth = dotConfig.borderWidth
-                  , formatted = lineSeriesConfig.tooltipText datum
-                  }
-              , toAny = I.Dot
-              }
+          , render = \plane _ ->
+              case lineSeriesConfig.toY datum of
+                Nothing -> S.text ""
+                Just _ -> S.dot plane .x .y dotConfig { x = x, y = y }
+                
+          , tooltip = \() -> 
+              [ tooltipRow tooltipTextColor
+                  (toDefaultName identification lineSeriesConfig.tooltipName) 
+                  (lineSeriesConfig.tooltipText datum) 
+              ]
           }
   in
   List.foldl forEachStackSeriesConfig ( 0, 0, [] ) properties
