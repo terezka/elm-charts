@@ -17700,7 +17700,7 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 				A3(
 					$elm$core$List$foldl,
 					forEachStackSeriesConfig(bins),
-					_Utils_Tuple3(0, 0, _List_Nil),
+					_Utils_Tuple3(elementIndex, 0, _List_Nil),
 					properties));
 		}(
 			A2(
@@ -17762,8 +17762,7 @@ var $author$project$Chart$barsMap = F4(
 										$author$project$Internal$Item$render(plane),
 										items)));
 						}),
-					index + $elm$core$List$length(
-						A2($elm$core$List$concatMap, $author$project$Internal$Property$toConfigs, properties)));
+					index + $elm$core$List$length(items));
 			});
 	});
 var $author$project$Chart$bars = F3(
@@ -27576,7 +27575,7 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 			A3(
 				$elm$core$List$foldl,
 				forEachStackSeriesConfig,
-				_Utils_Tuple3(0, 0, _List_Nil),
+				_Utils_Tuple3(elementIndex, 0, _List_Nil),
 				properties));
 	});
 var $author$project$Chart$seriesMap = F4(
@@ -27611,8 +27610,7 @@ var $author$project$Chart$seriesMap = F4(
 										$author$project$Internal$Item$render(p),
 										items)));
 						}),
-					index + $elm$core$List$length(
-						A2($elm$core$List$concatMap, $author$project$Internal$Property$toConfigs, properties)));
+					index + $elm$core$List$length(items));
 			});
 	});
 var $author$project$Chart$series = F3(

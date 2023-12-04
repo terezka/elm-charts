@@ -2362,7 +2362,7 @@ barsMap mapData edits properties data =
     ( BarsElement toLimits generalized legends toTicks <| \plane ->
         S.g [ SA.class "elm-charts__bar-series" ] (List.map (Item.render plane) items)
           |> S.map never
-    , index + List.length (List.concatMap P.toConfigs properties)
+    , index + List.length items
     )
 
 
@@ -2440,7 +2440,7 @@ seriesMap mapData toX properties data =
     ( SeriesElement toLimits generalized legends <| \p ->
         S.g [ SA.class "elm-charts__dot-series" ] (List.map (Item.render p) items)
           |> S.map never
-    , index + List.length (List.concatMap P.toConfigs properties)
+    , index + List.length items
     )
 
 
