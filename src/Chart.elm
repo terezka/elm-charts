@@ -21,6 +21,8 @@ module Chart exposing
   , each, eachBin, eachStack, eachBar, eachDot, eachItem, eachCustom
   , withPlane, withBins, withStacks, withBars, withDots, withItems
 
+  , scale
+
   , binned
   )
 
@@ -168,8 +170,8 @@ import Chart.Item as CI
 type alias Container data msg =
   { width : Float
   , height : Float
-  , margin : { top : Float, bottom : Float, left : Float, right : Float }
-  , padding : { top : Float, bottom : Float, left : Float, right : Float }
+  , margin : Box
+  , padding : Box
   , responsive : Bool
   , range : List (Attribute C.Axis)
   , domain : List (Attribute C.Axis)
@@ -177,6 +179,10 @@ type alias Container data msg =
   , htmlAttrs : List (H.Attribute msg)
   , attrs : List (S.Attribute msg)
   }
+
+
+type alias Box =
+  { top : Float, bottom : Float, left : Float, right : Float }
 
 
 {-| This is the root container of your chart. All your chart elements must be placed in
@@ -260,20 +266,7 @@ chart edits unindexedElements =
           }
 
       indexedElements =
-        let toIndexedEl el ( acc, index ) =
-              case el of
-                Indexed toElAndIndex ->
-                  let ( newEl, newIndex ) = toElAndIndex index in
-                  ( acc ++ [ newEl ], newIndex )
-
-                ListOfElements els ->
-                  List.foldl toIndexedEl ( acc, index ) els
-
-                _ ->
-                  ( acc ++ [ el ], index )
-        in
-        List.foldl toIndexedEl ( [], 0 ) unindexedElements
-          |> Tuple.first
+        addIndexes unindexedElements
 
       elements =
         let isGrid el =
@@ -287,16 +280,16 @@ chart edits unindexedElements =
         definePlane config elements
 
       items =
-        getItems plane elements
+        getItems elements
 
-      legends_ =
+      legends =
         getLegends elements
 
       tickValues =
         getTickValues plane items elements
 
       ( beforeEls, chartEls, afterEls ) =
-        viewElements config plane tickValues items legends_ elements
+        viewElements config plane tickValues items legends elements
 
       toEvent (IE.Event event_) =
         let (IE.Decoder decoder) = event_.decoder in
@@ -360,13 +353,26 @@ type Element data msg
       (C.Plane -> List (CI.One data CI.Any) -> List (Element data msg))
   | ListOfElements
       (List (Element data msg))
+  | ScaleElement 
+      (List (Element data msg))
+      (List (CI.One data CI.Any)) 
+      (List Legend.Legend) 
+      (Container data msg -> ( List (H.Html msg), List (S.Svg msg), List (H.Html msg) ))
   | SvgElement
       (C.Plane -> S.Svg msg)
   | HtmlElement
       (C.Plane -> List Legend.Legend -> H.Html msg)
 
 
-definePlane : Container data msg -> List (Element data msg) -> C.Plane
+definePlane :
+  { x 
+    | padding : Box
+    , margin : Box
+    , range : List (Attribute C.Axis)
+    , domain : List (Attribute C.Axis)
+    , width : Float
+    , height : Float 
+    } -> List (Element data msg) -> C.Plane
 definePlane config elements =
   let collectLimits el acc =
         case el of
@@ -382,6 +388,7 @@ definePlane config elements =
           GridElement _ -> acc
           SubElements _ -> acc
           ListOfElements subs -> List.foldl collectLimits acc subs
+          ScaleElement els _ _ _ -> List.foldl collectLimits acc els
           SvgElement _ -> acc
           HtmlElement _ -> acc
 
@@ -452,8 +459,25 @@ definePlane config elements =
   }
 
 
-getItems : C.Plane -> List (Element data msg) -> List (CI.One data CI.Any)
-getItems plane elements =
+addIndexes : List (Element data msg) -> List (Element data msg)
+addIndexes =
+  let toIndexedElements element ( allElements, index ) =
+        case element of
+          Indexed func ->
+            let ( indexedElement, nextIndex ) = func index in
+            ( allElements ++ [ indexedElement ], nextIndex )
+
+          ListOfElements elements ->
+            List.foldl toIndexedElements ( allElements, index ) elements
+
+          _ ->
+            ( allElements ++ [ element ], index )
+  in
+  List.foldl toIndexedElements ( [], 0 ) >> Tuple.first
+
+
+getItems : List (Element data msg) -> List (CI.One data CI.Any)
+getItems elements =
   let toItems el acc =
         case el of
           Indexed _ -> acc
@@ -468,6 +492,7 @@ getItems plane elements =
           GridElement _ -> acc
           SubElements _ -> acc -- TODO add phantom type to only allow decorative els in this
           ListOfElements subs -> List.foldl toItems acc subs
+          ScaleElement _ items _ _ -> acc ++ items
           SvgElement _ -> acc
           HtmlElement _ -> acc
   in
@@ -479,8 +504,8 @@ getLegends elements =
   let toLegends el acc =
         case el of
           Indexed _ -> acc
-          SeriesElement _ _ legends_ _ -> acc ++ legends_
-          BarsElement _ _ legends_ _ _ -> acc ++ legends_
+          SeriesElement _ _ legends _ -> acc ++ legends
+          BarsElement _ _ legends _ _ -> acc ++ legends
           CustomElement _ _ -> acc
           AxisElement _ _ -> acc
           TicksElement _ _ -> acc
@@ -490,6 +515,7 @@ getLegends elements =
           GridElement _ -> acc
           SubElements _ -> acc
           ListOfElements subs -> List.foldl toLegends acc subs
+          ScaleElement _ _ legends _ -> acc ++ legends
           SvgElement _ -> acc
           HtmlElement _ -> acc
   in
@@ -522,6 +548,7 @@ getTickValues plane items elements =
           SubElements func          -> List.foldl toValues acc (func plane items)
           GridElement _             -> acc
           ListOfElements subs       -> List.foldl toValues acc subs
+          ScaleElement els _ _ _    -> List.foldl toValues acc els
           SvgElement _              -> acc
           HtmlElement _             -> acc
   in
@@ -529,7 +556,7 @@ getTickValues plane items elements =
 
 
 viewElements : Container data msg -> C.Plane -> TickValues -> List (CI.One data CI.Any) -> List Legend.Legend -> List (Element data msg) -> ( List (H.Html msg), List (S.Svg msg), List (H.Html msg) )
-viewElements config plane tickValues allItems allLegends elements =
+viewElements containerConfig plane tickValues allItems allLegends elements =
   let viewOne el ( before, chart_, after ) =
         case el of
           Indexed _                 -> ( before,chart_, after )
@@ -544,6 +571,7 @@ viewElements config plane tickValues allItems allLegends elements =
           GridElement view          -> ( before, view plane tickValues :: chart_, after )
           SubElements func          -> List.foldr viewOne ( before, chart_, after ) (func plane allItems)
           ListOfElements els        -> List.foldr viewOne ( before, chart_, after ) els
+          ScaleElement _ _ _ func   -> func containerConfig |> (\(b, c, e) -> ( b ++ before, c ++ chart_, e ++ after ))
           SvgElement view           -> ( before, view plane :: chart_, after )
           HtmlElement view          ->
             ( if List.length chart_ > 0 then view plane allLegends :: before else before
@@ -552,6 +580,62 @@ viewElements config plane tickValues allItems allLegends elements =
             )
   in
   List.foldr viewOne ([], [], []) elements
+
+
+
+-- SCALE
+
+
+{-| -}
+type alias Scale =
+  { range : List (Attribute C.Axis)
+  , domain : List (Attribute C.Axis)
+  }
+
+
+scale : List (Attribute Scale) -> List (Element data msg) -> Element data msg
+scale attrs unindexedElements =
+  let config = 
+        Helpers.apply attrs
+          { range = []
+          , domain = []
+          }
+
+      elements =
+        addIndexes unindexedElements
+
+      items =
+        getItems elements
+
+      legends =
+        getLegends elements
+  in
+  Indexed <| \index ->
+    ( ScaleElement elements items legends <| \containerConfig ->
+        let container =
+              { padding = containerConfig.padding
+              , margin = containerConfig.margin
+              , range = config.range
+              , domain = config.domain
+              , width = containerConfig.width
+              , height = containerConfig.height
+              }
+
+            plane =
+              definePlane container elements
+
+            tickValues =
+              getTickValues plane items elements
+
+            ( beforeEls, chartEls, afterEls ) =
+              viewElements containerConfig plane tickValues items legends elements
+        in
+        ( beforeEls, chartEls, afterEls )
+    , index + List.length elements
+    )
+  
+
+
 
 
 
@@ -2251,7 +2335,7 @@ barsMap mapData edits properties data =
         bins =
           CI.apply CI.bins generalized
 
-        legends_ =
+        legends =
           Legend.toBarLegends index edits properties
 
         toTicks plane acc =
@@ -2265,7 +2349,7 @@ barsMap mapData edits properties data =
         toLimits =
           List.map Item.getLimits bins
     in
-    ( BarsElement toLimits generalized legends_ toTicks <| \plane ->
+    ( BarsElement toLimits generalized legends toTicks <| \plane ->
         S.g [ SA.class "elm-charts__bar-series" ] (List.map (Item.render plane) items)
           |> S.map never
     , index + List.length (List.concatMap P.toConfigs properties)
@@ -2337,13 +2421,13 @@ seriesMap mapData toX properties data =
           List.concatMap Many.generalize items
             |> List.map (Item.map mapData)
 
-        legends_ =
+        legends =
           Legend.toDotLegends index properties
 
         toLimits =
           List.map Item.getLimits items
     in
-    ( SeriesElement toLimits generalized legends_ <| \p ->
+    ( SeriesElement toLimits generalized legends <| \p ->
         S.g [ SA.class "elm-charts__dot-series" ] (List.map (Item.render p) items)
           |> S.map never
     , index + List.length (List.concatMap P.toConfigs properties)
@@ -2670,13 +2754,13 @@ See live example:
 -}
 legendsAt : (C.Axis -> Float) -> (C.Axis -> Float) -> List (Attribute (CS.Legends msg)) -> List (Attribute (CS.Legend msg)) -> Element data msg
 legendsAt toX toY attrs children =
-  HtmlElement <| \p legends_ ->
+  HtmlElement <| \p legends ->
     let viewLegend legend =
           case legend of
             Legend.BarLegend name barAttrs -> CS.barLegend (CA.title name :: children) barAttrs
             Legend.LineLegend name interAttrs dotAttrs -> CS.lineLegend (CA.title name :: children) interAttrs dotAttrs
     in
-    CS.legendsAt p (toX p.x) (toY p.y) attrs (List.map viewLegend legends_)
+    CS.legendsAt p (toX p.x) (toY p.y) attrs (List.map viewLegend legends)
 
 
 {-| Generate "nice" numbers. Useful in combination with `xLabel`, `yLabel`, `xTick`, and `yTick`.

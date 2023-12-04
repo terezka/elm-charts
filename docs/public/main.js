@@ -5531,6 +5531,7 @@ var $author$project$Examples$LineCharts__Labels = {$: 'LineCharts__Labels'};
 var $author$project$Examples$LineCharts__Legends = {$: 'LineCharts__Legends'};
 var $author$project$Examples$LineCharts__Missing = {$: 'LineCharts__Missing'};
 var $author$project$Examples$LineCharts__Montone = {$: 'LineCharts__Montone'};
+var $author$project$Examples$LineCharts__MultipleScales = {$: 'LineCharts__MultipleScales'};
 var $author$project$Examples$LineCharts__Pattern = {$: 'LineCharts__Pattern'};
 var $author$project$Examples$LineCharts__Stacked = {$: 'LineCharts__Stacked'};
 var $author$project$Examples$LineCharts__Stepped = {$: 'LineCharts__Stepped'};
@@ -5549,7 +5550,7 @@ var $author$project$Examples$ScatterCharts__Shapes = {$: 'ScatterCharts__Shapes'
 var $author$project$Examples$ScatterCharts__Sizes = {$: 'ScatterCharts__Sizes'};
 var $author$project$Examples$ScatterCharts__Tooltip = {$: 'ScatterCharts__Tooltip'};
 var $author$project$Examples$all = _List_fromArray(
-	[$author$project$Examples$BarCharts__Gradient, $author$project$Examples$BarCharts__VariableWidth, $author$project$Examples$BarCharts__Title, $author$project$Examples$BarCharts__TooltipStack, $author$project$Examples$BarCharts__Tooltip, $author$project$Examples$BarCharts__BarLabels, $author$project$Examples$BarCharts__Pattern, $author$project$Examples$BarCharts__Histogram, $author$project$Examples$BarCharts__BinLabelsAdvanced, $author$project$Examples$BarCharts__Spacing, $author$project$Examples$BarCharts__Highlight, $author$project$Examples$BarCharts__DataDependent, $author$project$Examples$BarCharts__Color, $author$project$Examples$BarCharts__TooltipBin, $author$project$Examples$BarCharts__Corners, $author$project$Examples$BarCharts__Ungroup, $author$project$Examples$BarCharts__BinLabels, $author$project$Examples$BarCharts__Stacked, $author$project$Examples$BarCharts__Margin, $author$project$Examples$BarCharts__Borders, $author$project$Examples$BarCharts__Opacity, $author$project$Examples$BarCharts__Legends, $author$project$Examples$BarCharts__Basic, $author$project$Examples$Frame__Lines, $author$project$Examples$Frame__Position, $author$project$Examples$Frame__Coordinates, $author$project$Examples$Frame__GridFilter, $author$project$Examples$Frame__Dimensions, $author$project$Examples$Frame__CustomElements, $author$project$Examples$Frame__NoArrow, $author$project$Examples$Frame__Background, $author$project$Examples$Frame__Rect, $author$project$Examples$Frame__Padding, $author$project$Examples$Frame__Times, $author$project$Examples$Frame__OnlyInts, $author$project$Examples$Frame__GridColor, $author$project$Examples$Frame__Offset, $author$project$Examples$Frame__Ellipsis, $author$project$Examples$Frame__Color, $author$project$Examples$Frame__Amount, $author$project$Examples$Frame__Titles, $author$project$Examples$Frame__CustomLabels, $author$project$Examples$Frame__Margin, $author$project$Examples$Frame__LabelWithLine, $author$project$Examples$Frame__DotGrid, $author$project$Examples$Frame__CustomFormat, $author$project$Examples$Frame__AxisLength, $author$project$Examples$Frame__Arbitrary, $author$project$Examples$Frame__Legends, $author$project$Examples$Frame__Basic, $author$project$Examples$Interactivity__ChangeContent, $author$project$Examples$Interactivity__Direction, $author$project$Examples$Interactivity__ChangeDot, $author$project$Examples$Interactivity__Border, $author$project$Examples$Interactivity__Zoom, $author$project$Examples$Interactivity__BasicBin, $author$project$Examples$Interactivity__BasicStack, $author$project$Examples$Interactivity__Coordinates, $author$project$Examples$Interactivity__ChangeName, $author$project$Examples$Interactivity__NoArrow, $author$project$Examples$Interactivity__FilterSearch, $author$project$Examples$Interactivity__Background, $author$project$Examples$Interactivity__BasicBar, $author$project$Examples$Interactivity__BasicArea, $author$project$Examples$Interactivity__ZoomAlt, $author$project$Examples$Interactivity__TrickyTooltip, $author$project$Examples$Interactivity__Multiple, $author$project$Examples$Interactivity__BasicLine, $author$project$Examples$Interactivity__Offset, $author$project$Examples$Interactivity__DoubleSearch, $author$project$Examples$Interactivity__ChangeUnit, $author$project$Examples$Interactivity__Focal, $author$project$Examples$LineCharts__Area, $author$project$Examples$LineCharts__Gradient, $author$project$Examples$LineCharts__Width, $author$project$Examples$LineCharts__TooltipStack, $author$project$Examples$LineCharts__Tooltip, $author$project$Examples$LineCharts__Montone, $author$project$Examples$LineCharts__Pattern, $author$project$Examples$LineCharts__Dots, $author$project$Examples$LineCharts__Dashed, $author$project$Examples$LineCharts__Color, $author$project$Examples$LineCharts__Stepped, $author$project$Examples$LineCharts__Stacked, $author$project$Examples$LineCharts__Labels, $author$project$Examples$LineCharts__Missing, $author$project$Examples$LineCharts__Legends, $author$project$Examples$LineCharts__Basic, $author$project$Examples$Frontpage__BasicBubble, $author$project$Examples$Frontpage__BasicNavigation, $author$project$Examples$Frontpage__BasicBar, $author$project$Examples$Frontpage__BasicArea, $author$project$Examples$Frontpage__Concise, $author$project$Examples$Frontpage__BasicLine, $author$project$Examples$Frontpage__BasicScatter, $author$project$Examples$Frontpage__Familiar, $author$project$Examples$ScatterCharts__Colors, $author$project$Examples$ScatterCharts__Shapes, $author$project$Examples$ScatterCharts__Tooltip, $author$project$Examples$ScatterCharts__Highlight, $author$project$Examples$ScatterCharts__DataDependent, $author$project$Examples$ScatterCharts__Borders, $author$project$Examples$ScatterCharts__Labels, $author$project$Examples$ScatterCharts__Opacity, $author$project$Examples$ScatterCharts__Sizes, $author$project$Examples$ScatterCharts__Legends, $author$project$Examples$ScatterCharts__Basic]);
+	[$author$project$Examples$BarCharts__Gradient, $author$project$Examples$BarCharts__VariableWidth, $author$project$Examples$BarCharts__Title, $author$project$Examples$BarCharts__TooltipStack, $author$project$Examples$BarCharts__Tooltip, $author$project$Examples$BarCharts__BarLabels, $author$project$Examples$BarCharts__Pattern, $author$project$Examples$BarCharts__Histogram, $author$project$Examples$BarCharts__BinLabelsAdvanced, $author$project$Examples$BarCharts__Spacing, $author$project$Examples$BarCharts__Highlight, $author$project$Examples$BarCharts__DataDependent, $author$project$Examples$BarCharts__Color, $author$project$Examples$BarCharts__TooltipBin, $author$project$Examples$BarCharts__Corners, $author$project$Examples$BarCharts__Ungroup, $author$project$Examples$BarCharts__BinLabels, $author$project$Examples$BarCharts__Stacked, $author$project$Examples$BarCharts__Margin, $author$project$Examples$BarCharts__Borders, $author$project$Examples$BarCharts__Opacity, $author$project$Examples$BarCharts__Legends, $author$project$Examples$BarCharts__Basic, $author$project$Examples$Frame__Lines, $author$project$Examples$Frame__Position, $author$project$Examples$Frame__Coordinates, $author$project$Examples$Frame__GridFilter, $author$project$Examples$Frame__Dimensions, $author$project$Examples$Frame__CustomElements, $author$project$Examples$Frame__NoArrow, $author$project$Examples$Frame__Background, $author$project$Examples$Frame__Rect, $author$project$Examples$Frame__Padding, $author$project$Examples$Frame__Times, $author$project$Examples$Frame__OnlyInts, $author$project$Examples$Frame__GridColor, $author$project$Examples$Frame__Offset, $author$project$Examples$Frame__Ellipsis, $author$project$Examples$Frame__Color, $author$project$Examples$Frame__Amount, $author$project$Examples$Frame__Titles, $author$project$Examples$Frame__CustomLabels, $author$project$Examples$Frame__Margin, $author$project$Examples$Frame__LabelWithLine, $author$project$Examples$Frame__DotGrid, $author$project$Examples$Frame__CustomFormat, $author$project$Examples$Frame__AxisLength, $author$project$Examples$Frame__Arbitrary, $author$project$Examples$Frame__Legends, $author$project$Examples$Frame__Basic, $author$project$Examples$Interactivity__ChangeContent, $author$project$Examples$Interactivity__Direction, $author$project$Examples$Interactivity__ChangeDot, $author$project$Examples$Interactivity__Border, $author$project$Examples$Interactivity__Zoom, $author$project$Examples$Interactivity__BasicBin, $author$project$Examples$Interactivity__BasicStack, $author$project$Examples$Interactivity__Coordinates, $author$project$Examples$Interactivity__ChangeName, $author$project$Examples$Interactivity__NoArrow, $author$project$Examples$Interactivity__FilterSearch, $author$project$Examples$Interactivity__Background, $author$project$Examples$Interactivity__BasicBar, $author$project$Examples$Interactivity__BasicArea, $author$project$Examples$Interactivity__ZoomAlt, $author$project$Examples$Interactivity__TrickyTooltip, $author$project$Examples$Interactivity__Multiple, $author$project$Examples$Interactivity__BasicLine, $author$project$Examples$Interactivity__Offset, $author$project$Examples$Interactivity__DoubleSearch, $author$project$Examples$Interactivity__ChangeUnit, $author$project$Examples$Interactivity__Focal, $author$project$Examples$LineCharts__Area, $author$project$Examples$LineCharts__Gradient, $author$project$Examples$LineCharts__Width, $author$project$Examples$LineCharts__TooltipStack, $author$project$Examples$LineCharts__Tooltip, $author$project$Examples$LineCharts__Montone, $author$project$Examples$LineCharts__Pattern, $author$project$Examples$LineCharts__Dots, $author$project$Examples$LineCharts__Dashed, $author$project$Examples$LineCharts__MultipleScales, $author$project$Examples$LineCharts__Color, $author$project$Examples$LineCharts__Stepped, $author$project$Examples$LineCharts__Stacked, $author$project$Examples$LineCharts__Labels, $author$project$Examples$LineCharts__Missing, $author$project$Examples$LineCharts__Legends, $author$project$Examples$LineCharts__Basic, $author$project$Examples$Frontpage__BasicBubble, $author$project$Examples$Frontpage__BasicNavigation, $author$project$Examples$Frontpage__BasicBar, $author$project$Examples$Frontpage__BasicArea, $author$project$Examples$Frontpage__Concise, $author$project$Examples$Frontpage__BasicLine, $author$project$Examples$Frontpage__BasicScatter, $author$project$Examples$Frontpage__Familiar, $author$project$Examples$ScatterCharts__Colors, $author$project$Examples$ScatterCharts__Shapes, $author$project$Examples$ScatterCharts__Tooltip, $author$project$Examples$ScatterCharts__Highlight, $author$project$Examples$ScatterCharts__DataDependent, $author$project$Examples$ScatterCharts__Borders, $author$project$Examples$ScatterCharts__Labels, $author$project$Examples$ScatterCharts__Opacity, $author$project$Examples$ScatterCharts__Sizes, $author$project$Examples$ScatterCharts__Legends, $author$project$Examples$ScatterCharts__Basic]);
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
 var $author$project$Examples$BarCharts$BarLabels$meta = {category: 'Bar charts', categoryOrder: 1, description: 'Add custom bar labels.', name: 'Labels for bars', order: 15};
@@ -5645,6 +5646,7 @@ var $author$project$Examples$LineCharts$Labels$meta = {category: 'Line charts', 
 var $author$project$Examples$LineCharts$Legends$meta = {category: 'Line charts', categoryOrder: 3, description: 'Add legends to your chart.', name: 'Legends', order: 12};
 var $author$project$Examples$LineCharts$Missing$meta = {category: 'Line charts', categoryOrder: 3, description: 'Handle missing data.', name: 'Missing data', order: 4};
 var $author$project$Examples$LineCharts$Montone$meta = {category: 'Line charts', categoryOrder: 3, description: 'Use a monotone interpolation.', name: 'Monotone', order: 2};
+var $author$project$Examples$LineCharts$MultipleScales$meta = {category: 'Line charts', categoryOrder: 3, description: 'Lines on different scales.', name: 'Multiple Scales', order: 17};
 var $author$project$Examples$LineCharts$Pattern$meta = {category: 'Line charts', categoryOrder: 3, description: 'Add a pattern to the area under the curve.', name: 'Pattern', order: 11};
 var $author$project$Examples$LineCharts$Stacked$meta = {category: 'Line charts', categoryOrder: 3, description: 'Stack lines.', name: 'Stacked', order: 8};
 var $author$project$Examples$LineCharts$Stepped$meta = {category: 'Line charts', categoryOrder: 3, description: 'Use a stepped interpolation.', name: 'Stepped', order: 3};
@@ -5826,6 +5828,8 @@ var $author$project$Examples$meta = function (chosen) {
 			return $author$project$Examples$LineCharts$Dots$meta;
 		case 'LineCharts__Dashed':
 			return $author$project$Examples$LineCharts$Dashed$meta;
+		case 'LineCharts__MultipleScales':
+			return $author$project$Examples$LineCharts$MultipleScales$meta;
 		case 'LineCharts__Color':
 			return $author$project$Examples$LineCharts$Color$meta;
 		case 'LineCharts__Stepped':
@@ -6581,6 +6585,7 @@ var $author$project$Examples$LineCharts$Labels$init = _Utils_Tuple0;
 var $author$project$Examples$LineCharts$Legends$init = _Utils_Tuple0;
 var $author$project$Examples$LineCharts$Missing$init = _Utils_Tuple0;
 var $author$project$Examples$LineCharts$Montone$init = _Utils_Tuple0;
+var $author$project$Examples$LineCharts$MultipleScales$init = _Utils_Tuple0;
 var $author$project$Examples$LineCharts$Pattern$init = _Utils_Tuple0;
 var $author$project$Examples$LineCharts$Stacked$init = _Utils_Tuple0;
 var $author$project$Examples$LineCharts$Stepped$init = _Utils_Tuple0;
@@ -6598,7 +6603,7 @@ var $author$project$Examples$ScatterCharts$Opacity$init = _Utils_Tuple0;
 var $author$project$Examples$ScatterCharts$Shapes$init = _Utils_Tuple0;
 var $author$project$Examples$ScatterCharts$Sizes$init = _Utils_Tuple0;
 var $author$project$Examples$ScatterCharts$Tooltip$init = {hovering: _List_Nil};
-var $author$project$Examples$init = {example0: $author$project$Examples$BarCharts$Gradient$init, example1: $author$project$Examples$BarCharts$VariableWidth$init, example10: $author$project$Examples$BarCharts$Highlight$init, example100: $author$project$Examples$ScatterCharts$DataDependent$init, example101: $author$project$Examples$ScatterCharts$Borders$init, example102: $author$project$Examples$ScatterCharts$Labels$init, example103: $author$project$Examples$ScatterCharts$Opacity$init, example104: $author$project$Examples$ScatterCharts$Sizes$init, example105: $author$project$Examples$ScatterCharts$Legends$init, example106: $author$project$Examples$ScatterCharts$Basic$init, example11: $author$project$Examples$BarCharts$DataDependent$init, example12: $author$project$Examples$BarCharts$Color$init, example13: $author$project$Examples$BarCharts$TooltipBin$init, example14: $author$project$Examples$BarCharts$Corners$init, example15: $author$project$Examples$BarCharts$Ungroup$init, example16: $author$project$Examples$BarCharts$BinLabels$init, example17: $author$project$Examples$BarCharts$Stacked$init, example18: $author$project$Examples$BarCharts$Margin$init, example19: $author$project$Examples$BarCharts$Borders$init, example2: $author$project$Examples$BarCharts$Title$init, example20: $author$project$Examples$BarCharts$Opacity$init, example21: $author$project$Examples$BarCharts$Legends$init, example22: $author$project$Examples$BarCharts$Basic$init, example23: $author$project$Examples$Frame$Lines$init, example24: $author$project$Examples$Frame$Position$init, example25: $author$project$Examples$Frame$Coordinates$init, example26: $author$project$Examples$Frame$GridFilter$init, example27: $author$project$Examples$Frame$Dimensions$init, example28: $author$project$Examples$Frame$CustomElements$init, example29: $author$project$Examples$Frame$NoArrow$init, example3: $author$project$Examples$BarCharts$TooltipStack$init, example30: $author$project$Examples$Frame$Background$init, example31: $author$project$Examples$Frame$Rect$init, example32: $author$project$Examples$Frame$Padding$init, example33: $author$project$Examples$Frame$Times$init, example34: $author$project$Examples$Frame$OnlyInts$init, example35: $author$project$Examples$Frame$GridColor$init, example36: $author$project$Examples$Frame$Offset$init, example37: $author$project$Examples$Frame$Ellipsis$init, example38: $author$project$Examples$Frame$Color$init, example39: $author$project$Examples$Frame$Amount$init, example4: $author$project$Examples$BarCharts$Tooltip$init, example40: $author$project$Examples$Frame$Titles$init, example41: $author$project$Examples$Frame$CustomLabels$init, example42: $author$project$Examples$Frame$Margin$init, example43: $author$project$Examples$Frame$LabelWithLine$init, example44: $author$project$Examples$Frame$DotGrid$init, example45: $author$project$Examples$Frame$CustomFormat$init, example46: $author$project$Examples$Frame$AxisLength$init, example47: $author$project$Examples$Frame$Arbitrary$init, example48: $author$project$Examples$Frame$Legends$init, example49: $author$project$Examples$Frame$Basic$init, example5: $author$project$Examples$BarCharts$BarLabels$init, example50: $author$project$Examples$Interactivity$ChangeContent$init, example51: $author$project$Examples$Interactivity$Direction$init, example52: $author$project$Examples$Interactivity$ChangeDot$init, example53: $author$project$Examples$Interactivity$Border$init, example54: $author$project$Examples$Interactivity$Zoom$init, example55: $author$project$Examples$Interactivity$BasicBin$init, example56: $author$project$Examples$Interactivity$BasicStack$init, example57: $author$project$Examples$Interactivity$Coordinates$init, example58: $author$project$Examples$Interactivity$ChangeName$init, example59: $author$project$Examples$Interactivity$NoArrow$init, example6: $author$project$Examples$BarCharts$Pattern$init, example60: $author$project$Examples$Interactivity$FilterSearch$init, example61: $author$project$Examples$Interactivity$Background$init, example62: $author$project$Examples$Interactivity$BasicBar$init, example63: $author$project$Examples$Interactivity$BasicArea$init, example64: $author$project$Examples$Interactivity$ZoomAlt$init, example65: $author$project$Examples$Interactivity$TrickyTooltip$init, example66: $author$project$Examples$Interactivity$Multiple$init, example67: $author$project$Examples$Interactivity$BasicLine$init, example68: $author$project$Examples$Interactivity$Offset$init, example69: $author$project$Examples$Interactivity$DoubleSearch$init, example7: $author$project$Examples$BarCharts$Histogram$init, example70: $author$project$Examples$Interactivity$ChangeUnit$init, example71: $author$project$Examples$Interactivity$Focal$init, example72: $author$project$Examples$LineCharts$Area$init, example73: $author$project$Examples$LineCharts$Gradient$init, example74: $author$project$Examples$LineCharts$Width$init, example75: $author$project$Examples$LineCharts$TooltipStack$init, example76: $author$project$Examples$LineCharts$Tooltip$init, example77: $author$project$Examples$LineCharts$Montone$init, example78: $author$project$Examples$LineCharts$Pattern$init, example79: $author$project$Examples$LineCharts$Dots$init, example8: $author$project$Examples$BarCharts$BinLabelsAdvanced$init, example80: $author$project$Examples$LineCharts$Dashed$init, example81: $author$project$Examples$LineCharts$Color$init, example82: $author$project$Examples$LineCharts$Stepped$init, example83: $author$project$Examples$LineCharts$Stacked$init, example84: $author$project$Examples$LineCharts$Labels$init, example85: $author$project$Examples$LineCharts$Missing$init, example86: $author$project$Examples$LineCharts$Legends$init, example87: $author$project$Examples$LineCharts$Basic$init, example88: $author$project$Examples$Frontpage$BasicBubble$init, example89: $author$project$Examples$Frontpage$BasicNavigation$init, example9: $author$project$Examples$BarCharts$Spacing$init, example90: $author$project$Examples$Frontpage$BasicBar$init, example91: $author$project$Examples$Frontpage$BasicArea$init, example92: $author$project$Examples$Frontpage$Concise$init, example93: $author$project$Examples$Frontpage$BasicLine$init, example94: $author$project$Examples$Frontpage$BasicScatter$init, example95: $author$project$Examples$Frontpage$Familiar$init, example96: $author$project$Examples$ScatterCharts$Colors$init, example97: $author$project$Examples$ScatterCharts$Shapes$init, example98: $author$project$Examples$ScatterCharts$Tooltip$init, example99: $author$project$Examples$ScatterCharts$Highlight$init};
+var $author$project$Examples$init = {example0: $author$project$Examples$BarCharts$Gradient$init, example1: $author$project$Examples$BarCharts$VariableWidth$init, example10: $author$project$Examples$BarCharts$Highlight$init, example100: $author$project$Examples$ScatterCharts$Highlight$init, example101: $author$project$Examples$ScatterCharts$DataDependent$init, example102: $author$project$Examples$ScatterCharts$Borders$init, example103: $author$project$Examples$ScatterCharts$Labels$init, example104: $author$project$Examples$ScatterCharts$Opacity$init, example105: $author$project$Examples$ScatterCharts$Sizes$init, example106: $author$project$Examples$ScatterCharts$Legends$init, example107: $author$project$Examples$ScatterCharts$Basic$init, example11: $author$project$Examples$BarCharts$DataDependent$init, example12: $author$project$Examples$BarCharts$Color$init, example13: $author$project$Examples$BarCharts$TooltipBin$init, example14: $author$project$Examples$BarCharts$Corners$init, example15: $author$project$Examples$BarCharts$Ungroup$init, example16: $author$project$Examples$BarCharts$BinLabels$init, example17: $author$project$Examples$BarCharts$Stacked$init, example18: $author$project$Examples$BarCharts$Margin$init, example19: $author$project$Examples$BarCharts$Borders$init, example2: $author$project$Examples$BarCharts$Title$init, example20: $author$project$Examples$BarCharts$Opacity$init, example21: $author$project$Examples$BarCharts$Legends$init, example22: $author$project$Examples$BarCharts$Basic$init, example23: $author$project$Examples$Frame$Lines$init, example24: $author$project$Examples$Frame$Position$init, example25: $author$project$Examples$Frame$Coordinates$init, example26: $author$project$Examples$Frame$GridFilter$init, example27: $author$project$Examples$Frame$Dimensions$init, example28: $author$project$Examples$Frame$CustomElements$init, example29: $author$project$Examples$Frame$NoArrow$init, example3: $author$project$Examples$BarCharts$TooltipStack$init, example30: $author$project$Examples$Frame$Background$init, example31: $author$project$Examples$Frame$Rect$init, example32: $author$project$Examples$Frame$Padding$init, example33: $author$project$Examples$Frame$Times$init, example34: $author$project$Examples$Frame$OnlyInts$init, example35: $author$project$Examples$Frame$GridColor$init, example36: $author$project$Examples$Frame$Offset$init, example37: $author$project$Examples$Frame$Ellipsis$init, example38: $author$project$Examples$Frame$Color$init, example39: $author$project$Examples$Frame$Amount$init, example4: $author$project$Examples$BarCharts$Tooltip$init, example40: $author$project$Examples$Frame$Titles$init, example41: $author$project$Examples$Frame$CustomLabels$init, example42: $author$project$Examples$Frame$Margin$init, example43: $author$project$Examples$Frame$LabelWithLine$init, example44: $author$project$Examples$Frame$DotGrid$init, example45: $author$project$Examples$Frame$CustomFormat$init, example46: $author$project$Examples$Frame$AxisLength$init, example47: $author$project$Examples$Frame$Arbitrary$init, example48: $author$project$Examples$Frame$Legends$init, example49: $author$project$Examples$Frame$Basic$init, example5: $author$project$Examples$BarCharts$BarLabels$init, example50: $author$project$Examples$Interactivity$ChangeContent$init, example51: $author$project$Examples$Interactivity$Direction$init, example52: $author$project$Examples$Interactivity$ChangeDot$init, example53: $author$project$Examples$Interactivity$Border$init, example54: $author$project$Examples$Interactivity$Zoom$init, example55: $author$project$Examples$Interactivity$BasicBin$init, example56: $author$project$Examples$Interactivity$BasicStack$init, example57: $author$project$Examples$Interactivity$Coordinates$init, example58: $author$project$Examples$Interactivity$ChangeName$init, example59: $author$project$Examples$Interactivity$NoArrow$init, example6: $author$project$Examples$BarCharts$Pattern$init, example60: $author$project$Examples$Interactivity$FilterSearch$init, example61: $author$project$Examples$Interactivity$Background$init, example62: $author$project$Examples$Interactivity$BasicBar$init, example63: $author$project$Examples$Interactivity$BasicArea$init, example64: $author$project$Examples$Interactivity$ZoomAlt$init, example65: $author$project$Examples$Interactivity$TrickyTooltip$init, example66: $author$project$Examples$Interactivity$Multiple$init, example67: $author$project$Examples$Interactivity$BasicLine$init, example68: $author$project$Examples$Interactivity$Offset$init, example69: $author$project$Examples$Interactivity$DoubleSearch$init, example7: $author$project$Examples$BarCharts$Histogram$init, example70: $author$project$Examples$Interactivity$ChangeUnit$init, example71: $author$project$Examples$Interactivity$Focal$init, example72: $author$project$Examples$LineCharts$Area$init, example73: $author$project$Examples$LineCharts$Gradient$init, example74: $author$project$Examples$LineCharts$Width$init, example75: $author$project$Examples$LineCharts$TooltipStack$init, example76: $author$project$Examples$LineCharts$Tooltip$init, example77: $author$project$Examples$LineCharts$Montone$init, example78: $author$project$Examples$LineCharts$Pattern$init, example79: $author$project$Examples$LineCharts$Dots$init, example8: $author$project$Examples$BarCharts$BinLabelsAdvanced$init, example80: $author$project$Examples$LineCharts$Dashed$init, example81: $author$project$Examples$LineCharts$MultipleScales$init, example82: $author$project$Examples$LineCharts$Color$init, example83: $author$project$Examples$LineCharts$Stepped$init, example84: $author$project$Examples$LineCharts$Stacked$init, example85: $author$project$Examples$LineCharts$Labels$init, example86: $author$project$Examples$LineCharts$Missing$init, example87: $author$project$Examples$LineCharts$Legends$init, example88: $author$project$Examples$LineCharts$Basic$init, example89: $author$project$Examples$Frontpage$BasicBubble$init, example9: $author$project$Examples$BarCharts$Spacing$init, example90: $author$project$Examples$Frontpage$BasicNavigation$init, example91: $author$project$Examples$Frontpage$BasicBar$init, example92: $author$project$Examples$Frontpage$BasicArea$init, example93: $author$project$Examples$Frontpage$Concise$init, example94: $author$project$Examples$Frontpage$BasicLine$init, example95: $author$project$Examples$Frontpage$BasicScatter$init, example96: $author$project$Examples$Frontpage$Familiar$init, example97: $author$project$Examples$ScatterCharts$Colors$init, example98: $author$project$Examples$ScatterCharts$Shapes$init, example99: $author$project$Examples$ScatterCharts$Tooltip$init};
 var $author$project$Page$Section$init = F3(
 	function (key, session, params) {
 		return _Utils_Tuple2(
@@ -8127,6 +8132,10 @@ var $author$project$Examples$LineCharts$Montone$update = F2(
 	function (msg, model) {
 		return model;
 	});
+var $author$project$Examples$LineCharts$MultipleScales$update = F2(
+	function (msg, model) {
+		return model;
+	});
 var $author$project$Examples$LineCharts$Pattern$update = F2(
 	function (msg, model) {
 		return model;
@@ -8779,182 +8788,189 @@ var $author$project$Examples$update = F2(
 				return _Utils_update(
 					model,
 					{
-						example81: A2($author$project$Examples$LineCharts$Color$update, sub, model.example81)
+						example81: A2($author$project$Examples$LineCharts$MultipleScales$update, sub, model.example81)
 					});
 			case 'ExampleMsg82':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example82: A2($author$project$Examples$LineCharts$Stepped$update, sub, model.example82)
+						example82: A2($author$project$Examples$LineCharts$Color$update, sub, model.example82)
 					});
 			case 'ExampleMsg83':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example83: A2($author$project$Examples$LineCharts$Stacked$update, sub, model.example83)
+						example83: A2($author$project$Examples$LineCharts$Stepped$update, sub, model.example83)
 					});
 			case 'ExampleMsg84':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example84: A2($author$project$Examples$LineCharts$Labels$update, sub, model.example84)
+						example84: A2($author$project$Examples$LineCharts$Stacked$update, sub, model.example84)
 					});
 			case 'ExampleMsg85':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example85: A2($author$project$Examples$LineCharts$Missing$update, sub, model.example85)
+						example85: A2($author$project$Examples$LineCharts$Labels$update, sub, model.example85)
 					});
 			case 'ExampleMsg86':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example86: A2($author$project$Examples$LineCharts$Legends$update, sub, model.example86)
+						example86: A2($author$project$Examples$LineCharts$Missing$update, sub, model.example86)
 					});
 			case 'ExampleMsg87':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example87: A2($author$project$Examples$LineCharts$Basic$update, sub, model.example87)
+						example87: A2($author$project$Examples$LineCharts$Legends$update, sub, model.example87)
 					});
 			case 'ExampleMsg88':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example88: A2($author$project$Examples$Frontpage$BasicBubble$update, sub, model.example88)
+						example88: A2($author$project$Examples$LineCharts$Basic$update, sub, model.example88)
 					});
 			case 'ExampleMsg89':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example89: A2($author$project$Examples$Frontpage$BasicNavigation$update, sub, model.example89)
+						example89: A2($author$project$Examples$Frontpage$BasicBubble$update, sub, model.example89)
 					});
 			case 'ExampleMsg90':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example90: A2($author$project$Examples$Frontpage$BasicBar$update, sub, model.example90)
+						example90: A2($author$project$Examples$Frontpage$BasicNavigation$update, sub, model.example90)
 					});
 			case 'ExampleMsg91':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example91: A2($author$project$Examples$Frontpage$BasicArea$update, sub, model.example91)
+						example91: A2($author$project$Examples$Frontpage$BasicBar$update, sub, model.example91)
 					});
 			case 'ExampleMsg92':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example92: A2($author$project$Examples$Frontpage$Concise$update, sub, model.example92)
+						example92: A2($author$project$Examples$Frontpage$BasicArea$update, sub, model.example92)
 					});
 			case 'ExampleMsg93':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example93: A2($author$project$Examples$Frontpage$BasicLine$update, sub, model.example93)
+						example93: A2($author$project$Examples$Frontpage$Concise$update, sub, model.example93)
 					});
 			case 'ExampleMsg94':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example94: A2($author$project$Examples$Frontpage$BasicScatter$update, sub, model.example94)
+						example94: A2($author$project$Examples$Frontpage$BasicLine$update, sub, model.example94)
 					});
 			case 'ExampleMsg95':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example95: A2($author$project$Examples$Frontpage$Familiar$update, sub, model.example95)
+						example95: A2($author$project$Examples$Frontpage$BasicScatter$update, sub, model.example95)
 					});
 			case 'ExampleMsg96':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example96: A2($author$project$Examples$ScatterCharts$Colors$update, sub, model.example96)
+						example96: A2($author$project$Examples$Frontpage$Familiar$update, sub, model.example96)
 					});
 			case 'ExampleMsg97':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example97: A2($author$project$Examples$ScatterCharts$Shapes$update, sub, model.example97)
+						example97: A2($author$project$Examples$ScatterCharts$Colors$update, sub, model.example97)
 					});
 			case 'ExampleMsg98':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example98: A2($author$project$Examples$ScatterCharts$Tooltip$update, sub, model.example98)
+						example98: A2($author$project$Examples$ScatterCharts$Shapes$update, sub, model.example98)
 					});
 			case 'ExampleMsg99':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example99: A2($author$project$Examples$ScatterCharts$Highlight$update, sub, model.example99)
+						example99: A2($author$project$Examples$ScatterCharts$Tooltip$update, sub, model.example99)
 					});
 			case 'ExampleMsg100':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example100: A2($author$project$Examples$ScatterCharts$DataDependent$update, sub, model.example100)
+						example100: A2($author$project$Examples$ScatterCharts$Highlight$update, sub, model.example100)
 					});
 			case 'ExampleMsg101':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example101: A2($author$project$Examples$ScatterCharts$Borders$update, sub, model.example101)
+						example101: A2($author$project$Examples$ScatterCharts$DataDependent$update, sub, model.example101)
 					});
 			case 'ExampleMsg102':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example102: A2($author$project$Examples$ScatterCharts$Labels$update, sub, model.example102)
+						example102: A2($author$project$Examples$ScatterCharts$Borders$update, sub, model.example102)
 					});
 			case 'ExampleMsg103':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example103: A2($author$project$Examples$ScatterCharts$Opacity$update, sub, model.example103)
+						example103: A2($author$project$Examples$ScatterCharts$Labels$update, sub, model.example103)
 					});
 			case 'ExampleMsg104':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example104: A2($author$project$Examples$ScatterCharts$Sizes$update, sub, model.example104)
+						example104: A2($author$project$Examples$ScatterCharts$Opacity$update, sub, model.example104)
 					});
 			case 'ExampleMsg105':
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example105: A2($author$project$Examples$ScatterCharts$Legends$update, sub, model.example105)
+						example105: A2($author$project$Examples$ScatterCharts$Sizes$update, sub, model.example105)
+					});
+			case 'ExampleMsg106':
+				var sub = msg.a;
+				return _Utils_update(
+					model,
+					{
+						example106: A2($author$project$Examples$ScatterCharts$Legends$update, sub, model.example106)
 					});
 			default:
 				var sub = msg.a;
 				return _Utils_update(
 					model,
 					{
-						example106: A2($author$project$Examples$ScatterCharts$Basic$update, sub, model.example106)
+						example107: A2($author$project$Examples$ScatterCharts$Basic$update, sub, model.example107)
 					});
 		}
 	});
@@ -17696,7 +17712,7 @@ var $author$project$Chart$barsMap = F4(
 	function (mapData, edits, properties, data) {
 		return $author$project$Chart$Indexed(
 			function (index) {
-				var legends_ = A3($author$project$Internal$Legend$toBarLegends, index, edits, properties);
+				var legends = A3($author$project$Internal$Legend$toBarLegends, index, edits, properties);
 				var items = A4($author$project$Internal$Produce$toBarSeries, index, edits, properties, data);
 				var generalized = A2(
 					$elm$core$List$map,
@@ -17729,7 +17745,7 @@ var $author$project$Chart$barsMap = F4(
 						$author$project$Chart$BarsElement,
 						toLimits,
 						generalized,
-						legends_,
+						legends,
 						toTicks,
 						function (plane) {
 							return A2(
@@ -18068,6 +18084,47 @@ var $author$project$Internal$Svg$Event = F2(
 	function (name, handler) {
 		return {handler: handler, name: name};
 	});
+var $author$project$Chart$addIndexes = function () {
+	var toIndexedElements = F2(
+		function (element, _v0) {
+			var allElements = _v0.a;
+			var index = _v0.b;
+			switch (element.$) {
+				case 'Indexed':
+					var func = element.a;
+					var _v2 = func(index);
+					var indexedElement = _v2.a;
+					var nextIndex = _v2.b;
+					return _Utils_Tuple2(
+						_Utils_ap(
+							allElements,
+							_List_fromArray(
+								[indexedElement])),
+						nextIndex);
+				case 'ListOfElements':
+					var elements = element.a;
+					return A3(
+						$elm$core$List$foldl,
+						toIndexedElements,
+						_Utils_Tuple2(allElements, index),
+						elements);
+				default:
+					return _Utils_Tuple2(
+						_Utils_ap(
+							allElements,
+							_List_fromArray(
+								[element])),
+						index);
+			}
+		});
+	return A2(
+		$elm$core$Basics$composeR,
+		A2(
+			$elm$core$List$foldl,
+			toIndexedElements,
+			_Utils_Tuple2(_List_Nil, 0)),
+		$elm$core$Tuple$first);
+}();
 var $elm$svg$Svg$clipPath = $elm$svg$Svg$trustedNode('clipPath');
 var $elm$json$Json$Decode$map3 = _Json_map3;
 var $elm$json$Json$Decode$float = _Json_decodeFloat;
@@ -18380,6 +18437,9 @@ var $author$project$Chart$definePlane = F2(
 					case 'ListOfElements':
 						var subs = el.a;
 						return A3($elm$core$List$foldl, collectLimits, acc, subs);
+					case 'ScaleElement':
+						var els = el.a;
+						return A3($elm$core$List$foldl, collectLimits, acc, els);
 					case 'SvgElement':
 						return acc;
 					default:
@@ -18452,51 +18512,53 @@ var $author$project$Chart$definePlane = F2(
 				})
 		};
 	});
-var $author$project$Chart$getItems = F2(
-	function (plane, elements) {
-		var toItems = F2(
-			function (el, acc) {
-				switch (el.$) {
-					case 'Indexed':
-						return acc;
-					case 'SeriesElement':
-						var items = el.b;
-						return _Utils_ap(acc, items);
-					case 'BarsElement':
-						var items = el.b;
-						return _Utils_ap(acc, items);
-					case 'CustomElement':
-						var item = el.a;
-						return _Utils_ap(
-							acc,
-							_List_fromArray(
-								[item]));
-					case 'AxisElement':
-						var func = el.a;
-						return acc;
-					case 'TicksElement':
-						return acc;
-					case 'TickElement':
-						return acc;
-					case 'LabelsElement':
-						return acc;
-					case 'LabelElement':
-						return acc;
-					case 'GridElement':
-						return acc;
-					case 'SubElements':
-						return acc;
-					case 'ListOfElements':
-						var subs = el.a;
-						return A3($elm$core$List$foldl, toItems, acc, subs);
-					case 'SvgElement':
-						return acc;
-					default:
-						return acc;
-				}
-			});
-		return A3($elm$core$List$foldl, toItems, _List_Nil, elements);
-	});
+var $author$project$Chart$getItems = function (elements) {
+	var toItems = F2(
+		function (el, acc) {
+			switch (el.$) {
+				case 'Indexed':
+					return acc;
+				case 'SeriesElement':
+					var items = el.b;
+					return _Utils_ap(acc, items);
+				case 'BarsElement':
+					var items = el.b;
+					return _Utils_ap(acc, items);
+				case 'CustomElement':
+					var item = el.a;
+					return _Utils_ap(
+						acc,
+						_List_fromArray(
+							[item]));
+				case 'AxisElement':
+					var func = el.a;
+					return acc;
+				case 'TicksElement':
+					return acc;
+				case 'TickElement':
+					return acc;
+				case 'LabelsElement':
+					return acc;
+				case 'LabelElement':
+					return acc;
+				case 'GridElement':
+					return acc;
+				case 'SubElements':
+					return acc;
+				case 'ListOfElements':
+					var subs = el.a;
+					return A3($elm$core$List$foldl, toItems, acc, subs);
+				case 'ScaleElement':
+					var items = el.b;
+					return _Utils_ap(acc, items);
+				case 'SvgElement':
+					return acc;
+				default:
+					return acc;
+			}
+		});
+	return A3($elm$core$List$foldl, toItems, _List_Nil, elements);
+};
 var $author$project$Chart$getLegends = function (elements) {
 	var toLegends = F2(
 		function (el, acc) {
@@ -18504,11 +18566,11 @@ var $author$project$Chart$getLegends = function (elements) {
 				case 'Indexed':
 					return acc;
 				case 'SeriesElement':
-					var legends_ = el.c;
-					return _Utils_ap(acc, legends_);
+					var legends = el.c;
+					return _Utils_ap(acc, legends);
 				case 'BarsElement':
-					var legends_ = el.c;
-					return _Utils_ap(acc, legends_);
+					var legends = el.c;
+					return _Utils_ap(acc, legends);
 				case 'CustomElement':
 					return acc;
 				case 'AxisElement':
@@ -18528,6 +18590,9 @@ var $author$project$Chart$getLegends = function (elements) {
 				case 'ListOfElements':
 					var subs = el.a;
 					return A3($elm$core$List$foldl, toLegends, acc, subs);
+				case 'ScaleElement':
+					var legends = el.c;
+					return _Utils_ap(acc, legends);
 				case 'SvgElement':
 					return acc;
 				default:
@@ -18596,6 +18661,9 @@ var $author$project$Chart$getTickValues = F3(
 					case 'ListOfElements':
 						var subs = el.a;
 						return A3($elm$core$List$foldl, toValues, acc, subs);
+					case 'ScaleElement':
+						var els = el.a;
+						return A3($elm$core$List$foldl, toValues, acc, els);
 					case 'SvgElement':
 						return acc;
 					default:
@@ -19537,7 +19605,7 @@ var $author$project$Chart$grid = function (edits) {
 			}));
 };
 var $author$project$Chart$viewElements = F6(
-	function (config, plane, tickValues, allItems, allLegends, elements) {
+	function (containerConfig, plane, tickValues, allItems, allLegends, elements) {
 		var viewOne = F2(
 			function (el, _v0) {
 				var before = _v0.a;
@@ -19653,6 +19721,18 @@ var $author$project$Chart$viewElements = F6(
 							viewOne,
 							_Utils_Tuple3(before, chart_, after),
 							els);
+					case 'ScaleElement':
+						var func = el.d;
+						return function (_v2) {
+							var b = _v2.a;
+							var c = _v2.b;
+							var e = _v2.c;
+							return _Utils_Tuple3(
+								_Utils_ap(b, before),
+								_Utils_ap(c, chart_),
+								_Utils_ap(e, after));
+						}(
+							func(containerConfig));
 					case 'SvgElement':
 						var view = el.a;
 						return _Utils_Tuple3(
@@ -19684,45 +19764,7 @@ var $author$project$Chart$viewElements = F6(
 	});
 var $author$project$Chart$chart = F2(
 	function (edits, unindexedElements) {
-		var indexedElements = function () {
-			var toIndexedEl = F2(
-				function (el, _v4) {
-					var acc = _v4.a;
-					var index = _v4.b;
-					switch (el.$) {
-						case 'Indexed':
-							var toElAndIndex = el.a;
-							var _v6 = toElAndIndex(index);
-							var newEl = _v6.a;
-							var newIndex = _v6.b;
-							return _Utils_Tuple2(
-								_Utils_ap(
-									acc,
-									_List_fromArray(
-										[newEl])),
-								newIndex);
-						case 'ListOfElements':
-							var els = el.a;
-							return A3(
-								$elm$core$List$foldl,
-								toIndexedEl,
-								_Utils_Tuple2(acc, index),
-								els);
-						default:
-							return _Utils_Tuple2(
-								_Utils_ap(
-									acc,
-									_List_fromArray(
-										[el])),
-								index);
-					}
-				});
-			return A3(
-				$elm$core$List$foldl,
-				toIndexedEl,
-				_Utils_Tuple2(_List_Nil, 0),
-				unindexedElements).a;
-		}();
+		var indexedElements = $author$project$Chart$addIndexes(unindexedElements);
 		var elements = function () {
 			var isGrid = function (el) {
 				if (el.$ === 'GridElement') {
@@ -19736,7 +19778,17 @@ var $author$project$Chart$chart = F2(
 				$author$project$Chart$grid(_List_Nil),
 				indexedElements);
 		}();
-		var legends_ = $author$project$Chart$getLegends(elements);
+		var items = $author$project$Chart$getItems(elements);
+		var toEvent = function (_v2) {
+			var event_ = _v2.a;
+			var _v1 = event_.decoder;
+			var decoder = _v1.a;
+			return A2(
+				$author$project$Internal$Svg$Event,
+				event_.name,
+				decoder(items));
+		};
+		var legends = $author$project$Chart$getLegends(elements);
 		var config = A2(
 			$author$project$Internal$Helpers$apply,
 			edits,
@@ -19756,18 +19808,8 @@ var $author$project$Chart$chart = F2(
 				width: 300
 			});
 		var plane = A2($author$project$Chart$definePlane, config, elements);
-		var items = A2($author$project$Chart$getItems, plane, elements);
-		var toEvent = function (_v2) {
-			var event_ = _v2.a;
-			var _v1 = event_.decoder;
-			var decoder = _v1.a;
-			return A2(
-				$author$project$Internal$Svg$Event,
-				event_.name,
-				decoder(items));
-		};
 		var tickValues = A3($author$project$Chart$getTickValues, plane, items, elements);
-		var _v0 = A6($author$project$Chart$viewElements, config, plane, tickValues, items, legends_, elements);
+		var _v0 = A6($author$project$Chart$viewElements, config, plane, tickValues, items, legends, elements);
 		var beforeEls = _v0.a;
 		var chartEls = _v0.b;
 		var afterEls = _v0.c;
@@ -23437,6 +23479,9 @@ var $author$project$Examples$ExampleMsg105 = function (a) {
 var $author$project$Examples$ExampleMsg106 = function (a) {
 	return {$: 'ExampleMsg106', a: a};
 };
+var $author$project$Examples$ExampleMsg107 = function (a) {
+	return {$: 'ExampleMsg107', a: a};
+};
 var $author$project$Examples$ExampleMsg11 = function (a) {
 	return {$: 'ExampleMsg11', a: a};
 };
@@ -25959,7 +26004,7 @@ var $author$project$Chart$legendsAt = F4(
 	function (toX, toY, attrs, children) {
 		return $author$project$Chart$HtmlElement(
 			F2(
-				function (p, legends_) {
+				function (p, legends) {
 					var viewLegend = function (legend) {
 						if (legend.$ === 'BarLegend') {
 							var name = legend.a;
@@ -25991,7 +26036,7 @@ var $author$project$Chart$legendsAt = F4(
 						toX(p.x),
 						toY(p.y),
 						attrs,
-						A2($elm$core$List$map, viewLegend, legends_));
+						A2($elm$core$List$map, viewLegend, legends));
 				}));
 	});
 var $author$project$Internal$Property$name = F2(
@@ -27539,7 +27584,7 @@ var $author$project$Chart$seriesMap = F4(
 	function (mapData, toX, properties, data) {
 		return $author$project$Chart$Indexed(
 			function (index) {
-				var legends_ = A2($author$project$Internal$Legend$toDotLegends, index, properties);
+				var legends = A2($author$project$Internal$Legend$toDotLegends, index, properties);
 				var items = A4($author$project$Internal$Produce$toDotSeries, index, toX, properties, data);
 				var toLimits = A2($elm$core$List$map, $author$project$Internal$Item$getLimits, items);
 				var generalized = A2(
@@ -27551,7 +27596,7 @@ var $author$project$Chart$seriesMap = F4(
 						$author$project$Chart$SeriesElement,
 						toLimits,
 						generalized,
-						legends_,
+						legends,
 						function (p) {
 							return A2(
 								$elm$svg$Svg$map,
@@ -33257,6 +33302,137 @@ var $author$project$Examples$LineCharts$Montone$view = function (model) {
 				$author$project$Examples$LineCharts$Montone$data)
 			]));
 };
+var $author$project$Examples$LineCharts$MultipleScales$Datum = F3(
+	function (x, y, z) {
+		return {x: x, y: y, z: z};
+	});
+var $author$project$Examples$LineCharts$MultipleScales$data = _List_fromArray(
+	[
+		A3($author$project$Examples$LineCharts$MultipleScales$Datum, 1, 2, 120),
+		A3($author$project$Examples$LineCharts$MultipleScales$Datum, 2, 10, 50),
+		A3($author$project$Examples$LineCharts$MultipleScales$Datum, 3, 5, 100)
+	]);
+var $author$project$Chart$ScaleElement = F4(
+	function (a, b, c, d) {
+		return {$: 'ScaleElement', a: a, b: b, c: c, d: d};
+	});
+var $author$project$Chart$scale = F2(
+	function (attrs, unindexedElements) {
+		var elements = $author$project$Chart$addIndexes(unindexedElements);
+		var items = $author$project$Chart$getItems(elements);
+		var legends = $author$project$Chart$getLegends(elements);
+		var config = A2(
+			$author$project$Internal$Helpers$apply,
+			attrs,
+			{domain: _List_Nil, range: _List_Nil});
+		return $author$project$Chart$Indexed(
+			function (index) {
+				return _Utils_Tuple2(
+					A4(
+						$author$project$Chart$ScaleElement,
+						elements,
+						items,
+						legends,
+						function (containerConfig) {
+							var container = {domain: config.domain, height: containerConfig.height, margin: containerConfig.margin, padding: containerConfig.padding, range: config.range, width: containerConfig.width};
+							var plane = A2($author$project$Chart$definePlane, container, elements);
+							var tickValues = A3($author$project$Chart$getTickValues, plane, items, elements);
+							var _v0 = A6($author$project$Chart$viewElements, containerConfig, plane, tickValues, items, legends, elements);
+							var beforeEls = _v0.a;
+							var chartEls = _v0.b;
+							var afterEls = _v0.c;
+							return _Utils_Tuple3(beforeEls, chartEls, afterEls);
+						}),
+					index + $elm$core$List$length(elements));
+			});
+	});
+var $author$project$Examples$LineCharts$MultipleScales$view = function (model) {
+	return A2(
+		$author$project$Chart$chart,
+		_List_fromArray(
+			[
+				$author$project$Chart$Attributes$height(300),
+				$author$project$Chart$Attributes$width(300),
+				$author$project$Chart$Attributes$padding(
+				{bottom: 0, left: 30, right: 30, top: 10})
+			]),
+		_List_fromArray(
+			[
+				$author$project$Chart$xLabels(_List_Nil),
+				$author$project$Chart$yLabels(
+				_List_fromArray(
+					[$author$project$Chart$Attributes$withGrid])),
+				$author$project$Chart$yAxis(
+				_List_fromArray(
+					[
+						$author$project$Chart$Attributes$color($author$project$Chart$Attributes$pink)
+					])),
+				A3(
+				$author$project$Chart$series,
+				function ($) {
+					return $.x;
+				},
+				_List_fromArray(
+					[
+						A3(
+						$author$project$Chart$interpolated,
+						function ($) {
+							return $.y;
+						},
+						_List_fromArray(
+							[
+								$author$project$Chart$Attributes$color($author$project$Chart$Attributes$pink)
+							]),
+						_List_fromArray(
+							[$author$project$Chart$Attributes$circle]))
+					]),
+				$author$project$Examples$LineCharts$MultipleScales$data),
+				A2(
+				$author$project$Chart$scale,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A3(
+						$author$project$Chart$series,
+						function ($) {
+							return $.x;
+						},
+						_List_fromArray(
+							[
+								A3(
+								$author$project$Chart$interpolated,
+								function ($) {
+									return $.z;
+								},
+								_List_fromArray(
+									[
+										$author$project$Chart$Attributes$color($author$project$Chart$Attributes$blue)
+									]),
+								_List_fromArray(
+									[$author$project$Chart$Attributes$circle]))
+							]),
+						$author$project$Examples$LineCharts$MultipleScales$data),
+						$author$project$Chart$yLabels(
+						_List_fromArray(
+							[
+								$author$project$Chart$Attributes$pinned(
+								function ($) {
+									return $.max;
+								}),
+								$author$project$Chart$Attributes$flip
+							])),
+						$author$project$Chart$yAxis(
+						_List_fromArray(
+							[
+								$author$project$Chart$Attributes$pinned(
+								function ($) {
+									return $.max;
+								}),
+								$author$project$Chart$Attributes$color($author$project$Chart$Attributes$blue)
+							]))
+					]))
+			]));
+};
 var $author$project$Examples$LineCharts$Pattern$Datum = F7(
 	function (x, y, z, v, w, p, q) {
 		return {p: p, q: q, v: v, w: w, x: x, y: y, z: z};
@@ -34910,136 +35086,141 @@ var $author$project$Examples$view = F2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg80,
 					$author$project$Examples$LineCharts$Dashed$view(model.example80));
-			case 'LineCharts__Color':
+			case 'LineCharts__MultipleScales':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg81,
-					$author$project$Examples$LineCharts$Color$view(model.example81));
-			case 'LineCharts__Stepped':
+					$author$project$Examples$LineCharts$MultipleScales$view(model.example81));
+			case 'LineCharts__Color':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg82,
-					$author$project$Examples$LineCharts$Stepped$view(model.example82));
-			case 'LineCharts__Stacked':
+					$author$project$Examples$LineCharts$Color$view(model.example82));
+			case 'LineCharts__Stepped':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg83,
-					$author$project$Examples$LineCharts$Stacked$view(model.example83));
-			case 'LineCharts__Labels':
+					$author$project$Examples$LineCharts$Stepped$view(model.example83));
+			case 'LineCharts__Stacked':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg84,
-					$author$project$Examples$LineCharts$Labels$view(model.example84));
-			case 'LineCharts__Missing':
+					$author$project$Examples$LineCharts$Stacked$view(model.example84));
+			case 'LineCharts__Labels':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg85,
-					$author$project$Examples$LineCharts$Missing$view(model.example85));
-			case 'LineCharts__Legends':
+					$author$project$Examples$LineCharts$Labels$view(model.example85));
+			case 'LineCharts__Missing':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg86,
-					$author$project$Examples$LineCharts$Legends$view(model.example86));
-			case 'LineCharts__Basic':
+					$author$project$Examples$LineCharts$Missing$view(model.example86));
+			case 'LineCharts__Legends':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg87,
-					$author$project$Examples$LineCharts$Basic$view(model.example87));
-			case 'Frontpage__BasicBubble':
+					$author$project$Examples$LineCharts$Legends$view(model.example87));
+			case 'LineCharts__Basic':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg88,
-					$author$project$Examples$Frontpage$BasicBubble$view(model.example88));
-			case 'Frontpage__BasicNavigation':
+					$author$project$Examples$LineCharts$Basic$view(model.example88));
+			case 'Frontpage__BasicBubble':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg89,
-					$author$project$Examples$Frontpage$BasicNavigation$view(model.example89));
-			case 'Frontpage__BasicBar':
+					$author$project$Examples$Frontpage$BasicBubble$view(model.example89));
+			case 'Frontpage__BasicNavigation':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg90,
-					$author$project$Examples$Frontpage$BasicBar$view(model.example90));
-			case 'Frontpage__BasicArea':
+					$author$project$Examples$Frontpage$BasicNavigation$view(model.example90));
+			case 'Frontpage__BasicBar':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg91,
-					$author$project$Examples$Frontpage$BasicArea$view(model.example91));
-			case 'Frontpage__Concise':
+					$author$project$Examples$Frontpage$BasicBar$view(model.example91));
+			case 'Frontpage__BasicArea':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg92,
-					$author$project$Examples$Frontpage$Concise$view(model.example92));
-			case 'Frontpage__BasicLine':
+					$author$project$Examples$Frontpage$BasicArea$view(model.example92));
+			case 'Frontpage__Concise':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg93,
-					$author$project$Examples$Frontpage$BasicLine$view(model.example93));
-			case 'Frontpage__BasicScatter':
+					$author$project$Examples$Frontpage$Concise$view(model.example93));
+			case 'Frontpage__BasicLine':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg94,
-					$author$project$Examples$Frontpage$BasicScatter$view(model.example94));
-			case 'Frontpage__Familiar':
+					$author$project$Examples$Frontpage$BasicLine$view(model.example94));
+			case 'Frontpage__BasicScatter':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg95,
-					$author$project$Examples$Frontpage$Familiar$view(model.example95));
-			case 'ScatterCharts__Colors':
+					$author$project$Examples$Frontpage$BasicScatter$view(model.example95));
+			case 'Frontpage__Familiar':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg96,
-					$author$project$Examples$ScatterCharts$Colors$view(model.example96));
-			case 'ScatterCharts__Shapes':
+					$author$project$Examples$Frontpage$Familiar$view(model.example96));
+			case 'ScatterCharts__Colors':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg97,
-					$author$project$Examples$ScatterCharts$Shapes$view(model.example97));
-			case 'ScatterCharts__Tooltip':
+					$author$project$Examples$ScatterCharts$Colors$view(model.example97));
+			case 'ScatterCharts__Shapes':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg98,
-					$author$project$Examples$ScatterCharts$Tooltip$view(model.example98));
-			case 'ScatterCharts__Highlight':
+					$author$project$Examples$ScatterCharts$Shapes$view(model.example98));
+			case 'ScatterCharts__Tooltip':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg99,
-					$author$project$Examples$ScatterCharts$Highlight$view(model.example99));
-			case 'ScatterCharts__DataDependent':
+					$author$project$Examples$ScatterCharts$Tooltip$view(model.example99));
+			case 'ScatterCharts__Highlight':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg100,
-					$author$project$Examples$ScatterCharts$DataDependent$view(model.example100));
-			case 'ScatterCharts__Borders':
+					$author$project$Examples$ScatterCharts$Highlight$view(model.example100));
+			case 'ScatterCharts__DataDependent':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg101,
-					$author$project$Examples$ScatterCharts$Borders$view(model.example101));
-			case 'ScatterCharts__Labels':
+					$author$project$Examples$ScatterCharts$DataDependent$view(model.example101));
+			case 'ScatterCharts__Borders':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg102,
-					$author$project$Examples$ScatterCharts$Labels$view(model.example102));
-			case 'ScatterCharts__Opacity':
+					$author$project$Examples$ScatterCharts$Borders$view(model.example102));
+			case 'ScatterCharts__Labels':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg103,
-					$author$project$Examples$ScatterCharts$Opacity$view(model.example103));
-			case 'ScatterCharts__Sizes':
+					$author$project$Examples$ScatterCharts$Labels$view(model.example103));
+			case 'ScatterCharts__Opacity':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg104,
-					$author$project$Examples$ScatterCharts$Sizes$view(model.example104));
-			case 'ScatterCharts__Legends':
+					$author$project$Examples$ScatterCharts$Opacity$view(model.example104));
+			case 'ScatterCharts__Sizes':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg105,
-					$author$project$Examples$ScatterCharts$Legends$view(model.example105));
-			default:
+					$author$project$Examples$ScatterCharts$Sizes$view(model.example105));
+			case 'ScatterCharts__Legends':
 				return A2(
 					$elm$html$Html$map,
 					$author$project$Examples$ExampleMsg106,
-					$author$project$Examples$ScatterCharts$Basic$view(model.example106));
+					$author$project$Examples$ScatterCharts$Legends$view(model.example106));
+			default:
+				return A2(
+					$elm$html$Html$map,
+					$author$project$Examples$ExampleMsg107,
+					$author$project$Examples$ScatterCharts$Basic$view(model.example107));
 		}
 	});
 var $author$project$Ui$Thumbnail$viewOne = F2(
@@ -35580,6 +35761,7 @@ var $author$project$Examples$LineCharts$Labels$largeCode = '\nimport Html as H\n
 var $author$project$Examples$LineCharts$Legends$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [  ] [ CA.cross, CA.borderWidth 2, CA.border "white" ]\n            |> C.named "Cats"\n        , C.interpolated .z [  ] [ CA.cross, CA.borderWidth 2, CA.border "white" ]\n            |> C.named "Fish"\n        ]\n        data\n    , C.legendsAt .min .max\n        [ CA.column\n        , CA.moveRight 15\n        , CA.spacing 5\n        ]\n        [ CA.width 20 ]\n    ]\n  ';
 var $author$project$Examples$LineCharts$Missing$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolatedMaybe .y [ CA.stepped ] []\n        ]\n        data\n    ]\n\n\ntype alias Datum =\n  { x : Float\n  , y : Maybe Float\n  , z : Maybe Float\n  }\n\ndata : List Datum\ndata =\n  [ Datum 1  (Just 2) (Just 1)\n  , Datum 2  (Just 3) (Just 2)\n  , Datum 3  (Just 4) (Just 3)\n  , Datum 4  Nothing (Just 4)\n  , Datum 5  (Just 2) (Just 3)\n  , Datum 6  (Just 4) (Just 1)\n  , Datum 7  (Just 5) (Just 2)\n  , Datum 8  (Just 6) Nothing\n  , Datum 9  (Just 5) (Just 4)\n  , Datum 10 (Just 4) (Just 3)\n  ]\n\n\n  ';
 var $author$project$Examples$LineCharts$Montone$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [ CA.monotone ] []\n        , C.interpolated .z [ CA.monotone ] []\n        ]\n        data\n    ]\n  ';
+var $author$project$Examples$LineCharts$MultipleScales$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 10, left = 30, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.yAxis [ CA.color CA.pink ]\n    , C.series .x\n        [ C.interpolated .y [ CA.color CA.pink ] [ CA.circle ]\n        ]\n        data\n    , C.scale \n        []\n        [ C.series .x [ C.interpolated .z [ CA.color CA.blue ] [ CA.circle ] ] data\n        , C.yLabels [ CA.pinned .max, CA.flip ]\n        , C.yAxis [ CA.pinned .max, CA.color CA.blue ]\n        ]\n    ]\n  ';
 var $author$project$Examples$LineCharts$Pattern$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.stacked\n          [ C.interpolated .y [ CA.striped [ CA.width 3, CA.spacing 4, CA.rotate 90 ] ] []\n          , C.interpolated .z [ CA.dotted [ CA.width 3, CA.spacing 4 ] ] []\n          ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Stacked$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.stacked\n          [ C.interpolated .y [] []\n          , C.interpolated .z [] []\n          ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Stepped$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [ CA.stepped ] []\n        , C.interpolated .z [ CA.stepped ] []\n        ]\n        data\n    ]\n\n\ntype alias Datum =\n  { x : Float\n  , y : Float\n  , z : Float\n  }\n\ndata : List Datum\ndata =\n  [ Datum 1  2 1\n  , Datum 2  3 2\n  , Datum 3  4 3\n  , Datum 4  3 4\n  , Datum 5  2 3\n  , Datum 6  4 1\n  , Datum 7  5 2\n  , Datum 8  6 3\n  , Datum 9  5 4\n  , Datum 10 4 3\n  ]\n\n\n  ';
@@ -35761,6 +35943,8 @@ var $author$project$Examples$largeCode = function (chosen) {
 			return $author$project$Examples$LineCharts$Dots$largeCode;
 		case 'LineCharts__Dashed':
 			return $author$project$Examples$LineCharts$Dashed$largeCode;
+		case 'LineCharts__MultipleScales':
+			return $author$project$Examples$LineCharts$MultipleScales$largeCode;
 		case 'LineCharts__Color':
 			return $author$project$Examples$LineCharts$Color$largeCode;
 		case 'LineCharts__Stepped':
@@ -35905,6 +36089,7 @@ var $author$project$Examples$LineCharts$Labels$smallCode = '\n  C.chart\n    [ C
 var $author$project$Examples$LineCharts$Legends$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [  ] [ CA.cross, CA.borderWidth 2, CA.border "white" ]\n            |> C.named "Cats"\n        , C.interpolated .z [  ] [ CA.cross, CA.borderWidth 2, CA.border "white" ]\n            |> C.named "Fish"\n        ]\n        data\n    , C.legendsAt .min .max\n        [ CA.column\n        , CA.moveRight 15\n        , CA.spacing 5\n        ]\n        [ CA.width 20 ]\n    ]\n  ';
 var $author$project$Examples$LineCharts$Missing$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolatedMaybe .y [ CA.stepped ] []\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Montone$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [ CA.monotone ] []\n        , C.interpolated .z [ CA.monotone ] []\n        ]\n        data\n    ]\n  ';
+var $author$project$Examples$LineCharts$MultipleScales$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 10, left = 30, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.yAxis [ CA.color CA.pink ]\n    , C.series .x\n        [ C.interpolated .y [ CA.color CA.pink ] [ CA.circle ]\n        ]\n        data\n    , C.scale \n        []\n        [ C.series .x [ C.interpolated .z [ CA.color CA.blue ] [ CA.circle ] ] data\n        , C.yLabels [ CA.pinned .max, CA.flip ]\n        , C.yAxis [ CA.pinned .max, CA.color CA.blue ]\n        ]\n    ]\n  ';
 var $author$project$Examples$LineCharts$Pattern$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.stacked\n          [ C.interpolated .y [ CA.striped [ CA.width 3, CA.spacing 4, CA.rotate 90 ] ] []\n          , C.interpolated .z [ CA.dotted [ CA.width 3, CA.spacing 4 ] ] []\n          ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Stacked$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.stacked\n          [ C.interpolated .y [] []\n          , C.interpolated .z [] []\n          ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Stepped$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [ CA.stepped ] []\n        , C.interpolated .z [ CA.stepped ] []\n        ]\n        data\n    ]\n  ';
@@ -36086,6 +36271,8 @@ var $author$project$Examples$smallCode = function (chosen) {
 			return $author$project$Examples$LineCharts$Dots$smallCode;
 		case 'LineCharts__Dashed':
 			return $author$project$Examples$LineCharts$Dashed$smallCode;
+		case 'LineCharts__MultipleScales':
+			return $author$project$Examples$LineCharts$MultipleScales$smallCode;
 		case 'LineCharts__Color':
 			return $author$project$Examples$LineCharts$Color$smallCode;
 		case 'LineCharts__Stepped':
