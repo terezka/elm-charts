@@ -18084,597 +18084,6 @@ var $author$project$Internal$Svg$Event = F2(
 	function (name, handler) {
 		return {handler: handler, name: name};
 	});
-var $author$project$Chart$addIndexes = function () {
-	var toIndexedElements = F2(
-		function (element, _v0) {
-			var allElements = _v0.a;
-			var index = _v0.b;
-			switch (element.$) {
-				case 'Indexed':
-					var func = element.a;
-					var _v2 = func(index);
-					var indexedElement = _v2.a;
-					var nextIndex = _v2.b;
-					return _Utils_Tuple2(
-						_Utils_ap(
-							allElements,
-							_List_fromArray(
-								[indexedElement])),
-						nextIndex);
-				case 'ListOfElements':
-					var elements = element.a;
-					return A3(
-						$elm$core$List$foldl,
-						toIndexedElements,
-						_Utils_Tuple2(allElements, index),
-						elements);
-				default:
-					return _Utils_Tuple2(
-						_Utils_ap(
-							allElements,
-							_List_fromArray(
-								[element])),
-						index);
-			}
-		});
-	return A2(
-		$elm$core$Basics$composeR,
-		A2(
-			$elm$core$List$foldl,
-			toIndexedElements,
-			_Utils_Tuple2(_List_Nil, 0)),
-		$elm$core$Tuple$first);
-}();
-var $elm$svg$Svg$clipPath = $elm$svg$Svg$trustedNode('clipPath');
-var $elm$json$Json$Decode$map3 = _Json_map3;
-var $elm$json$Json$Decode$float = _Json_decodeFloat;
-var $debois$elm_dom$DOM$offsetHeight = A2($elm$json$Json$Decode$field, 'offsetHeight', $elm$json$Json$Decode$float);
-var $debois$elm_dom$DOM$offsetWidth = A2($elm$json$Json$Decode$field, 'offsetWidth', $elm$json$Json$Decode$float);
-var $elm$json$Json$Decode$map4 = _Json_map4;
-var $debois$elm_dom$DOM$offsetLeft = A2($elm$json$Json$Decode$field, 'offsetLeft', $elm$json$Json$Decode$float);
-var $elm$json$Json$Decode$null = _Json_decodeNull;
-var $elm$json$Json$Decode$oneOf = _Json_oneOf;
-var $debois$elm_dom$DOM$offsetParent = F2(
-	function (x, decoder) {
-		return $elm$json$Json$Decode$oneOf(
-			_List_fromArray(
-				[
-					A2(
-					$elm$json$Json$Decode$field,
-					'offsetParent',
-					$elm$json$Json$Decode$null(x)),
-					A2($elm$json$Json$Decode$field, 'offsetParent', decoder)
-				]));
-	});
-var $debois$elm_dom$DOM$offsetTop = A2($elm$json$Json$Decode$field, 'offsetTop', $elm$json$Json$Decode$float);
-var $debois$elm_dom$DOM$scrollLeft = A2($elm$json$Json$Decode$field, 'scrollLeft', $elm$json$Json$Decode$float);
-var $debois$elm_dom$DOM$scrollTop = A2($elm$json$Json$Decode$field, 'scrollTop', $elm$json$Json$Decode$float);
-var $debois$elm_dom$DOM$position = F2(
-	function (x, y) {
-		return A2(
-			$elm$json$Json$Decode$andThen,
-			function (_v0) {
-				var x_ = _v0.a;
-				var y_ = _v0.b;
-				return A2(
-					$debois$elm_dom$DOM$offsetParent,
-					_Utils_Tuple2(x_, y_),
-					A2($debois$elm_dom$DOM$position, x_, y_));
-			},
-			A5(
-				$elm$json$Json$Decode$map4,
-				F4(
-					function (scrollLeftP, scrollTopP, offsetLeftP, offsetTopP) {
-						return _Utils_Tuple2((x + offsetLeftP) - scrollLeftP, (y + offsetTopP) - scrollTopP);
-					}),
-				$debois$elm_dom$DOM$scrollLeft,
-				$debois$elm_dom$DOM$scrollTop,
-				$debois$elm_dom$DOM$offsetLeft,
-				$debois$elm_dom$DOM$offsetTop));
-	});
-var $debois$elm_dom$DOM$boundingClientRect = A4(
-	$elm$json$Json$Decode$map3,
-	F3(
-		function (_v0, width, height) {
-			var x = _v0.a;
-			var y = _v0.b;
-			return {height: height, left: x, top: y, width: width};
-		}),
-	A2($debois$elm_dom$DOM$position, 0, 0),
-	$debois$elm_dom$DOM$offsetWidth,
-	$debois$elm_dom$DOM$offsetHeight);
-var $elm$json$Json$Decode$lazy = function (thunk) {
-	return A2(
-		$elm$json$Json$Decode$andThen,
-		thunk,
-		$elm$json$Json$Decode$succeed(_Utils_Tuple0));
-};
-var $debois$elm_dom$DOM$parentElement = function (decoder) {
-	return A2($elm$json$Json$Decode$field, 'parentElement', decoder);
-};
-function $author$project$Internal$Svg$cyclic$decodePosition() {
-	return $elm$json$Json$Decode$oneOf(
-		_List_fromArray(
-			[
-				$debois$elm_dom$DOM$boundingClientRect,
-				$elm$json$Json$Decode$lazy(
-				function (_v0) {
-					return $debois$elm_dom$DOM$parentElement(
-						$author$project$Internal$Svg$cyclic$decodePosition());
-				})
-			]));
-}
-try {
-	var $author$project$Internal$Svg$decodePosition = $author$project$Internal$Svg$cyclic$decodePosition();
-	$author$project$Internal$Svg$cyclic$decodePosition = function () {
-		return $author$project$Internal$Svg$decodePosition;
-	};
-} catch ($) {
-	throw 'Some top-level definitions from `Internal.Svg` are causing infinite recursion:\n\n  ┌─────┐\n  │    decodePosition\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
-var $author$project$Internal$Coordinates$toCartesianX = F2(
-	function (plane, value) {
-		return A2($author$project$Internal$Coordinates$scaleCartesianX, plane, value - plane.x.marginMin) + plane.x.min;
-	});
-var $author$project$Internal$Coordinates$toCartesianY = F2(
-	function (plane, value) {
-		return ($author$project$Internal$Coordinates$range(plane.y) - A2($author$project$Internal$Coordinates$scaleCartesianY, plane, value - plane.y.marginMin)) + plane.y.min;
-	});
-var $author$project$Internal$Svg$fromSvg = F2(
-	function (plane, point) {
-		return {
-			x: A2($author$project$Internal$Coordinates$toCartesianX, plane, point.x),
-			y: A2($author$project$Internal$Coordinates$toCartesianY, plane, point.y)
-		};
-	});
-var $debois$elm_dom$DOM$target = function (decoder) {
-	return A2($elm$json$Json$Decode$field, 'target', decoder);
-};
-var $author$project$Internal$Svg$decoder = F2(
-	function (plane, toMsg) {
-		var handle = F3(
-			function (mouseX, mouseY, box) {
-				var yPrev = plane.y;
-				var xPrev = plane.x;
-				var widthPercent = box.width / plane.x.length;
-				var heightPercent = box.height / plane.y.length;
-				var newPlane = _Utils_update(
-					plane,
-					{
-						x: _Utils_update(
-							xPrev,
-							{length: box.width, marginMax: plane.x.marginMax * widthPercent, marginMin: plane.x.marginMin * widthPercent}),
-						y: _Utils_update(
-							yPrev,
-							{length: box.height, marginMax: plane.y.marginMax * heightPercent, marginMin: plane.y.marginMin * heightPercent})
-					});
-				var searched = A2(
-					$author$project$Internal$Svg$fromSvg,
-					newPlane,
-					{x: mouseX - box.left, y: mouseY - box.top});
-				return A2(toMsg, newPlane, searched);
-			});
-		return A4(
-			$elm$json$Json$Decode$map3,
-			handle,
-			A2($elm$json$Json$Decode$field, 'pageX', $elm$json$Json$Decode$float),
-			A2($elm$json$Json$Decode$field, 'pageY', $elm$json$Json$Decode$float),
-			$debois$elm_dom$DOM$target($author$project$Internal$Svg$decodePosition));
-	});
-var $elm$svg$Svg$Events$on = $elm$html$Html$Events$on;
-var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
-var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
-var $author$project$Internal$Svg$container = F5(
-	function (plane, config, below, chartEls, above) {
-		var toEvent = function (event) {
-			return A2(
-				$elm$svg$Svg$Events$on,
-				event.name,
-				A2($author$project$Internal$Svg$decoder, plane, event.handler));
-		};
-		var svgAttrsSize = config.responsive ? _List_fromArray(
-			[
-				$elm$svg$Svg$Attributes$viewBox(
-				'0 0 ' + ($elm$core$String$fromFloat(plane.x.length) + (' ' + $elm$core$String$fromFloat(plane.y.length)))),
-				A2($elm$html$Html$Attributes$style, 'display', 'block')
-			]) : _List_fromArray(
-			[
-				$elm$svg$Svg$Attributes$width(
-				$elm$core$String$fromFloat(plane.x.length)),
-				$elm$svg$Svg$Attributes$height(
-				$elm$core$String$fromFloat(plane.y.length)),
-				A2($elm$html$Html$Attributes$style, 'display', 'block')
-			]);
-		var htmlAttrsSize = config.responsive ? _List_fromArray(
-			[
-				A2($elm$html$Html$Attributes$style, 'width', '100%'),
-				A2($elm$html$Html$Attributes$style, 'height', '100%')
-			]) : _List_fromArray(
-			[
-				A2(
-				$elm$html$Html$Attributes$style,
-				'width',
-				$elm$core$String$fromFloat(plane.x.length) + 'px'),
-				A2(
-				$elm$html$Html$Attributes$style,
-				'height',
-				$elm$core$String$fromFloat(plane.y.length) + 'px')
-			]);
-		var htmlAttrsDef = _List_fromArray(
-			[
-				$elm$html$Html$Attributes$class('elm-charts__container-inner')
-			]);
-		var htmlAttrs = _Utils_ap(
-			config.htmlAttrs,
-			_Utils_ap(htmlAttrsDef, htmlAttrsSize));
-		var chartPosition = _List_fromArray(
-			[
-				$elm$svg$Svg$Attributes$x(
-				$elm$core$String$fromFloat(plane.x.marginMin)),
-				$elm$svg$Svg$Attributes$y(
-				$elm$core$String$fromFloat(plane.y.marginMin)),
-				$elm$svg$Svg$Attributes$width(
-				$elm$core$String$fromFloat(
-					$author$project$Internal$Coordinates$innerWidth(plane))),
-				$elm$svg$Svg$Attributes$height(
-				$elm$core$String$fromFloat(
-					$author$project$Internal$Coordinates$innerHeight(plane))),
-				$elm$svg$Svg$Attributes$fill('transparent')
-			]);
-		var clipPathDefs = A2(
-			$elm$svg$Svg$defs,
-			_List_Nil,
-			_List_fromArray(
-				[
-					A2(
-					$elm$svg$Svg$clipPath,
-					_List_fromArray(
-						[
-							$elm$svg$Svg$Attributes$id(
-							$author$project$Internal$Coordinates$toId(plane))
-						]),
-					_List_fromArray(
-						[
-							A2($elm$svg$Svg$rect, chartPosition, _List_Nil)
-						]))
-				]));
-		var catcher = A2(
-			$elm$svg$Svg$rect,
-			_Utils_ap(
-				chartPosition,
-				A2($elm$core$List$map, toEvent, config.events)),
-			_List_Nil);
-		var chart = A2(
-			$elm$svg$Svg$svg,
-			_Utils_ap(svgAttrsSize, config.attrs),
-			_Utils_ap(
-				_List_fromArray(
-					[clipPathDefs]),
-				_Utils_ap(
-					chartEls,
-					_List_fromArray(
-						[catcher]))));
-		return A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class('elm-charts__container'),
-					A2($elm$html$Html$Attributes$style, 'position', 'relative')
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$div,
-					htmlAttrs,
-					_Utils_ap(
-						below,
-						_Utils_ap(
-							_List_fromArray(
-								[chart]),
-							above)))
-				]));
-	});
-var $author$project$Chart$Attributes$lowest = F2(
-	function (v, edit) {
-		return $author$project$Internal$Helpers$Attribute(
-			function (b) {
-				return _Utils_update(
-					b,
-					{
-						min: A3(edit, v, b.min, b.dataMin)
-					});
-			});
-	});
-var $author$project$Chart$Attributes$orLower = F3(
-	function (least, real, _v0) {
-		return (_Utils_cmp(real, least) > 0) ? least : real;
-	});
-var $author$project$Chart$definePlane = F2(
-	function (config, elements) {
-		var width = A2($elm$core$Basics$max, 1, (config.width - config.padding.left) - config.padding.right);
-		var toLimit = F5(
-			function (length, marginMin, marginMax, min, max) {
-				return {dataMax: max, dataMin: min, length: length, marginMax: marginMax, marginMin: marginMin, max: max, min: min};
-			});
-		var height = A2($elm$core$Basics$max, 1, (config.height - config.padding.bottom) - config.padding.top);
-		var fixSingles = function (bs) {
-			return _Utils_eq(bs.min, bs.max) ? _Utils_update(
-				bs,
-				{max: bs.min + 10}) : bs;
-		};
-		var collectLimits = F2(
-			function (el, acc) {
-				switch (el.$) {
-					case 'Indexed':
-						return acc;
-					case 'SeriesElement':
-						var lims = el.a;
-						return _Utils_ap(acc, lims);
-					case 'BarsElement':
-						var lims = el.a;
-						return _Utils_ap(acc, lims);
-					case 'CustomElement':
-						var item = el.a;
-						return _Utils_ap(
-							acc,
-							_List_fromArray(
-								[
-									$author$project$Internal$Item$getLimits(item)
-								]));
-					case 'AxisElement':
-						return acc;
-					case 'TicksElement':
-						return acc;
-					case 'TickElement':
-						return acc;
-					case 'LabelsElement':
-						return acc;
-					case 'LabelElement':
-						return acc;
-					case 'GridElement':
-						return acc;
-					case 'SubElements':
-						return acc;
-					case 'ListOfElements':
-						var subs = el.a;
-						return A3($elm$core$List$foldl, collectLimits, acc, subs);
-					case 'ScaleElement':
-						return acc;
-					case 'SvgElement':
-						return acc;
-					default:
-						return acc;
-				}
-			});
-		var limits_ = function (pos) {
-			return function (_v3) {
-				var x = _v3.x;
-				var y = _v3.y;
-				return {
-					x: fixSingles(x),
-					y: fixSingles(y)
-				};
-			}(
-				{
-					x: A5(toLimit, width, config.margin.left, config.margin.right, pos.x1, pos.x2),
-					y: A5(toLimit, height, config.margin.top, config.margin.bottom, pos.y1, pos.y2)
-				});
-		}(
-			A2(
-				$author$project$Internal$Coordinates$foldPosition,
-				$elm$core$Basics$identity,
-				A3($elm$core$List$foldl, collectLimits, _List_Nil, elements)));
-		var calcRange = function () {
-			var _v2 = config.range;
-			if (!_v2.b) {
-				return limits_.x;
-			} else {
-				var some = _v2;
-				return A2($author$project$Internal$Helpers$apply, some, limits_.x);
-			}
-		}();
-		var calcDomain = function () {
-			var _v1 = config.domain;
-			if (!_v1.b) {
-				return A2(
-					$author$project$Internal$Helpers$apply,
-					_List_fromArray(
-						[
-							A2($author$project$Chart$Attributes$lowest, 0, $author$project$Chart$Attributes$orLower)
-						]),
-					limits_.y);
-			} else {
-				var some = _v1;
-				return A2($author$project$Internal$Helpers$apply, some, limits_.y);
-			}
-		}();
-		var unpadded = {x: calcRange, y: calcDomain};
-		var scalePadX = $author$project$Internal$Coordinates$scaleCartesianX(unpadded);
-		var xMax = calcRange.max + scalePadX(config.padding.right);
-		var xMin = calcRange.min - scalePadX(config.padding.left);
-		var scalePadY = $author$project$Internal$Coordinates$scaleCartesianY(unpadded);
-		var yMax = calcDomain.max + scalePadY(config.padding.top);
-		var yMin = calcDomain.min - scalePadY(config.padding.bottom);
-		return {
-			x: _Utils_update(
-				calcRange,
-				{
-					length: config.width,
-					max: A2($elm$core$Basics$max, xMin, xMax),
-					min: A2($elm$core$Basics$min, xMin, xMax)
-				}),
-			y: _Utils_update(
-				calcDomain,
-				{
-					length: config.height,
-					max: A2($elm$core$Basics$max, yMin, yMax),
-					min: A2($elm$core$Basics$min, yMin, yMax)
-				})
-		};
-	});
-var $author$project$Chart$getItems = function (elements) {
-	var toItems = F2(
-		function (el, acc) {
-			switch (el.$) {
-				case 'Indexed':
-					return acc;
-				case 'SeriesElement':
-					var items = el.b;
-					return _Utils_ap(acc, items);
-				case 'BarsElement':
-					var items = el.b;
-					return _Utils_ap(acc, items);
-				case 'CustomElement':
-					var item = el.a;
-					return _Utils_ap(
-						acc,
-						_List_fromArray(
-							[item]));
-				case 'AxisElement':
-					var func = el.a;
-					return acc;
-				case 'TicksElement':
-					return acc;
-				case 'TickElement':
-					return acc;
-				case 'LabelsElement':
-					return acc;
-				case 'LabelElement':
-					return acc;
-				case 'GridElement':
-					return acc;
-				case 'SubElements':
-					return acc;
-				case 'ListOfElements':
-					var subs = el.a;
-					return A3($elm$core$List$foldl, toItems, acc, subs);
-				case 'ScaleElement':
-					var items = el.b;
-					return _Utils_ap(acc, items);
-				case 'SvgElement':
-					return acc;
-				default:
-					return acc;
-			}
-		});
-	return A3($elm$core$List$foldl, toItems, _List_Nil, elements);
-};
-var $author$project$Chart$getLegends = function (elements) {
-	var toLegends = F2(
-		function (el, acc) {
-			switch (el.$) {
-				case 'Indexed':
-					return acc;
-				case 'SeriesElement':
-					var legends = el.c;
-					return _Utils_ap(acc, legends);
-				case 'BarsElement':
-					var legends = el.c;
-					return _Utils_ap(acc, legends);
-				case 'CustomElement':
-					return acc;
-				case 'AxisElement':
-					return acc;
-				case 'TicksElement':
-					return acc;
-				case 'TickElement':
-					return acc;
-				case 'LabelsElement':
-					return acc;
-				case 'LabelElement':
-					return acc;
-				case 'GridElement':
-					return acc;
-				case 'SubElements':
-					return acc;
-				case 'ListOfElements':
-					var subs = el.a;
-					return A3($elm$core$List$foldl, toLegends, acc, subs);
-				case 'ScaleElement':
-					var legends = el.c;
-					return _Utils_ap(acc, legends);
-				case 'SvgElement':
-					return acc;
-				default:
-					return acc;
-			}
-		});
-	return A3($elm$core$List$foldl, toLegends, _List_Nil, elements);
-};
-var $author$project$Chart$TickValues = F4(
-	function (xAxis, yAxis, xs, ys) {
-		return {xAxis: xAxis, xs: xs, yAxis: yAxis, ys: ys};
-	});
-var $author$project$Chart$getTickValues = F3(
-	function (plane, items, elements) {
-		var toValues = F2(
-			function (el, acc) {
-				switch (el.$) {
-					case 'Indexed':
-						return acc;
-					case 'SeriesElement':
-						return acc;
-					case 'BarsElement':
-						var func = el.d;
-						return A2(func, plane, acc);
-					case 'CustomElement':
-						return acc;
-					case 'AxisElement':
-						var func = el.a;
-						return A2(func, plane, acc);
-					case 'TicksElement':
-						var func = el.a;
-						return A2(func, plane, acc);
-					case 'TickElement':
-						var toC = el.a;
-						var func = el.b;
-						return A3(
-							func,
-							plane,
-							toC(plane),
-							acc);
-					case 'LabelsElement':
-						var toC = el.a;
-						var func = el.b;
-						return A3(
-							func,
-							plane,
-							toC(plane),
-							acc);
-					case 'LabelElement':
-						var toC = el.a;
-						var func = el.b;
-						return A3(
-							func,
-							plane,
-							toC(plane),
-							acc);
-					case 'SubElements':
-						var func = el.a;
-						return A3(
-							$elm$core$List$foldl,
-							toValues,
-							acc,
-							A2(func, plane, items));
-					case 'GridElement':
-						return acc;
-					case 'ListOfElements':
-						var subs = el.a;
-						return A3($elm$core$List$foldl, toValues, acc, subs);
-					case 'ScaleElement':
-						var els = el.a;
-						return A3($elm$core$List$foldl, toValues, acc, els);
-					case 'SvgElement':
-						return acc;
-					default:
-						return acc;
-				}
-			});
-		return A3(
-			$elm$core$List$foldl,
-			toValues,
-			A4($author$project$Chart$TickValues, _List_Nil, _List_Nil, _List_Nil, _List_Nil),
-			elements);
-	});
 var $author$project$Chart$GridElement = function (a) {
 	return {$: 'GridElement', a: a};
 };
@@ -18733,6 +18142,7 @@ var $author$project$Internal$Svg$plusPath = F4(
 					'v' + $elm$core$String$fromFloat(r3 - off)
 				]));
 	});
+var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
 var $elm$core$Basics$degrees = function (angleInDegrees) {
 	return (angleInDegrees * $elm$core$Basics$pi) / 180;
 };
@@ -18755,6 +18165,7 @@ var $author$project$Internal$Svg$trianglePath = F4(
 					'z'
 				]));
 	});
+var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
 var $author$project$Internal$Svg$dot = F5(
 	function (plane, toX, toY, config, datum_) {
 		var yOrg = toY(datum_);
@@ -19603,6 +19014,607 @@ var $author$project$Chart$grid = function (edits) {
 						]));
 			}));
 };
+var $author$project$Chart$addGridIfNone = function (elements) {
+	var isGrid = function (el) {
+		if (el.$ === 'GridElement') {
+			return true;
+		} else {
+			return false;
+		}
+	};
+	return A2($elm$core$List$any, isGrid, elements) ? elements : A2(
+		$elm$core$List$cons,
+		$author$project$Chart$grid(_List_Nil),
+		elements);
+};
+var $author$project$Chart$addIndexes = function () {
+	var toIndexedElements = F2(
+		function (element, _v0) {
+			var allElements = _v0.a;
+			var index = _v0.b;
+			switch (element.$) {
+				case 'Indexed':
+					var func = element.a;
+					var _v2 = func(index);
+					var indexedElement = _v2.a;
+					var nextIndex = _v2.b;
+					return _Utils_Tuple2(
+						_Utils_ap(
+							allElements,
+							_List_fromArray(
+								[indexedElement])),
+						nextIndex);
+				case 'ListOfElements':
+					var elements = element.a;
+					return A3(
+						$elm$core$List$foldl,
+						toIndexedElements,
+						_Utils_Tuple2(allElements, index),
+						elements);
+				default:
+					return _Utils_Tuple2(
+						_Utils_ap(
+							allElements,
+							_List_fromArray(
+								[element])),
+						index);
+			}
+		});
+	return A2(
+		$elm$core$Basics$composeR,
+		A2(
+			$elm$core$List$foldl,
+			toIndexedElements,
+			_Utils_Tuple2(_List_Nil, 0)),
+		$elm$core$Tuple$first);
+}();
+var $elm$svg$Svg$clipPath = $elm$svg$Svg$trustedNode('clipPath');
+var $elm$json$Json$Decode$map3 = _Json_map3;
+var $elm$json$Json$Decode$float = _Json_decodeFloat;
+var $debois$elm_dom$DOM$offsetHeight = A2($elm$json$Json$Decode$field, 'offsetHeight', $elm$json$Json$Decode$float);
+var $debois$elm_dom$DOM$offsetWidth = A2($elm$json$Json$Decode$field, 'offsetWidth', $elm$json$Json$Decode$float);
+var $elm$json$Json$Decode$map4 = _Json_map4;
+var $debois$elm_dom$DOM$offsetLeft = A2($elm$json$Json$Decode$field, 'offsetLeft', $elm$json$Json$Decode$float);
+var $elm$json$Json$Decode$null = _Json_decodeNull;
+var $elm$json$Json$Decode$oneOf = _Json_oneOf;
+var $debois$elm_dom$DOM$offsetParent = F2(
+	function (x, decoder) {
+		return $elm$json$Json$Decode$oneOf(
+			_List_fromArray(
+				[
+					A2(
+					$elm$json$Json$Decode$field,
+					'offsetParent',
+					$elm$json$Json$Decode$null(x)),
+					A2($elm$json$Json$Decode$field, 'offsetParent', decoder)
+				]));
+	});
+var $debois$elm_dom$DOM$offsetTop = A2($elm$json$Json$Decode$field, 'offsetTop', $elm$json$Json$Decode$float);
+var $debois$elm_dom$DOM$scrollLeft = A2($elm$json$Json$Decode$field, 'scrollLeft', $elm$json$Json$Decode$float);
+var $debois$elm_dom$DOM$scrollTop = A2($elm$json$Json$Decode$field, 'scrollTop', $elm$json$Json$Decode$float);
+var $debois$elm_dom$DOM$position = F2(
+	function (x, y) {
+		return A2(
+			$elm$json$Json$Decode$andThen,
+			function (_v0) {
+				var x_ = _v0.a;
+				var y_ = _v0.b;
+				return A2(
+					$debois$elm_dom$DOM$offsetParent,
+					_Utils_Tuple2(x_, y_),
+					A2($debois$elm_dom$DOM$position, x_, y_));
+			},
+			A5(
+				$elm$json$Json$Decode$map4,
+				F4(
+					function (scrollLeftP, scrollTopP, offsetLeftP, offsetTopP) {
+						return _Utils_Tuple2((x + offsetLeftP) - scrollLeftP, (y + offsetTopP) - scrollTopP);
+					}),
+				$debois$elm_dom$DOM$scrollLeft,
+				$debois$elm_dom$DOM$scrollTop,
+				$debois$elm_dom$DOM$offsetLeft,
+				$debois$elm_dom$DOM$offsetTop));
+	});
+var $debois$elm_dom$DOM$boundingClientRect = A4(
+	$elm$json$Json$Decode$map3,
+	F3(
+		function (_v0, width, height) {
+			var x = _v0.a;
+			var y = _v0.b;
+			return {height: height, left: x, top: y, width: width};
+		}),
+	A2($debois$elm_dom$DOM$position, 0, 0),
+	$debois$elm_dom$DOM$offsetWidth,
+	$debois$elm_dom$DOM$offsetHeight);
+var $elm$json$Json$Decode$lazy = function (thunk) {
+	return A2(
+		$elm$json$Json$Decode$andThen,
+		thunk,
+		$elm$json$Json$Decode$succeed(_Utils_Tuple0));
+};
+var $debois$elm_dom$DOM$parentElement = function (decoder) {
+	return A2($elm$json$Json$Decode$field, 'parentElement', decoder);
+};
+function $author$project$Internal$Svg$cyclic$decodePosition() {
+	return $elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				$debois$elm_dom$DOM$boundingClientRect,
+				$elm$json$Json$Decode$lazy(
+				function (_v0) {
+					return $debois$elm_dom$DOM$parentElement(
+						$author$project$Internal$Svg$cyclic$decodePosition());
+				})
+			]));
+}
+try {
+	var $author$project$Internal$Svg$decodePosition = $author$project$Internal$Svg$cyclic$decodePosition();
+	$author$project$Internal$Svg$cyclic$decodePosition = function () {
+		return $author$project$Internal$Svg$decodePosition;
+	};
+} catch ($) {
+	throw 'Some top-level definitions from `Internal.Svg` are causing infinite recursion:\n\n  ┌─────┐\n  │    decodePosition\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
+var $author$project$Internal$Coordinates$toCartesianX = F2(
+	function (plane, value) {
+		return A2($author$project$Internal$Coordinates$scaleCartesianX, plane, value - plane.x.marginMin) + plane.x.min;
+	});
+var $author$project$Internal$Coordinates$toCartesianY = F2(
+	function (plane, value) {
+		return ($author$project$Internal$Coordinates$range(plane.y) - A2($author$project$Internal$Coordinates$scaleCartesianY, plane, value - plane.y.marginMin)) + plane.y.min;
+	});
+var $author$project$Internal$Svg$fromSvg = F2(
+	function (plane, point) {
+		return {
+			x: A2($author$project$Internal$Coordinates$toCartesianX, plane, point.x),
+			y: A2($author$project$Internal$Coordinates$toCartesianY, plane, point.y)
+		};
+	});
+var $debois$elm_dom$DOM$target = function (decoder) {
+	return A2($elm$json$Json$Decode$field, 'target', decoder);
+};
+var $author$project$Internal$Svg$decoder = F2(
+	function (plane, toMsg) {
+		var handle = F3(
+			function (mouseX, mouseY, box) {
+				var yPrev = plane.y;
+				var xPrev = plane.x;
+				var widthPercent = box.width / plane.x.length;
+				var heightPercent = box.height / plane.y.length;
+				var newPlane = _Utils_update(
+					plane,
+					{
+						x: _Utils_update(
+							xPrev,
+							{length: box.width, marginMax: plane.x.marginMax * widthPercent, marginMin: plane.x.marginMin * widthPercent}),
+						y: _Utils_update(
+							yPrev,
+							{length: box.height, marginMax: plane.y.marginMax * heightPercent, marginMin: plane.y.marginMin * heightPercent})
+					});
+				var searched = A2(
+					$author$project$Internal$Svg$fromSvg,
+					newPlane,
+					{x: mouseX - box.left, y: mouseY - box.top});
+				return A2(toMsg, newPlane, searched);
+			});
+		return A4(
+			$elm$json$Json$Decode$map3,
+			handle,
+			A2($elm$json$Json$Decode$field, 'pageX', $elm$json$Json$Decode$float),
+			A2($elm$json$Json$Decode$field, 'pageY', $elm$json$Json$Decode$float),
+			$debois$elm_dom$DOM$target($author$project$Internal$Svg$decodePosition));
+	});
+var $elm$svg$Svg$Events$on = $elm$html$Html$Events$on;
+var $author$project$Internal$Svg$container = F5(
+	function (plane, config, below, chartEls, above) {
+		var toEvent = function (event) {
+			return A2(
+				$elm$svg$Svg$Events$on,
+				event.name,
+				A2($author$project$Internal$Svg$decoder, plane, event.handler));
+		};
+		var svgAttrsSize = config.responsive ? _List_fromArray(
+			[
+				$elm$svg$Svg$Attributes$viewBox(
+				'0 0 ' + ($elm$core$String$fromFloat(plane.x.length) + (' ' + $elm$core$String$fromFloat(plane.y.length)))),
+				A2($elm$html$Html$Attributes$style, 'display', 'block')
+			]) : _List_fromArray(
+			[
+				$elm$svg$Svg$Attributes$width(
+				$elm$core$String$fromFloat(plane.x.length)),
+				$elm$svg$Svg$Attributes$height(
+				$elm$core$String$fromFloat(plane.y.length)),
+				A2($elm$html$Html$Attributes$style, 'display', 'block')
+			]);
+		var htmlAttrsSize = config.responsive ? _List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'width', '100%'),
+				A2($elm$html$Html$Attributes$style, 'height', '100%')
+			]) : _List_fromArray(
+			[
+				A2(
+				$elm$html$Html$Attributes$style,
+				'width',
+				$elm$core$String$fromFloat(plane.x.length) + 'px'),
+				A2(
+				$elm$html$Html$Attributes$style,
+				'height',
+				$elm$core$String$fromFloat(plane.y.length) + 'px')
+			]);
+		var htmlAttrsDef = _List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('elm-charts__container-inner')
+			]);
+		var htmlAttrs = _Utils_ap(
+			config.htmlAttrs,
+			_Utils_ap(htmlAttrsDef, htmlAttrsSize));
+		var chartPosition = _List_fromArray(
+			[
+				$elm$svg$Svg$Attributes$x(
+				$elm$core$String$fromFloat(plane.x.marginMin)),
+				$elm$svg$Svg$Attributes$y(
+				$elm$core$String$fromFloat(plane.y.marginMin)),
+				$elm$svg$Svg$Attributes$width(
+				$elm$core$String$fromFloat(
+					$author$project$Internal$Coordinates$innerWidth(plane))),
+				$elm$svg$Svg$Attributes$height(
+				$elm$core$String$fromFloat(
+					$author$project$Internal$Coordinates$innerHeight(plane))),
+				$elm$svg$Svg$Attributes$fill('transparent')
+			]);
+		var clipPathDefs = A2(
+			$elm$svg$Svg$defs,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$svg$Svg$clipPath,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$id(
+							$author$project$Internal$Coordinates$toId(plane))
+						]),
+					_List_fromArray(
+						[
+							A2($elm$svg$Svg$rect, chartPosition, _List_Nil)
+						]))
+				]));
+		var catcher = A2(
+			$elm$svg$Svg$rect,
+			_Utils_ap(
+				chartPosition,
+				A2($elm$core$List$map, toEvent, config.events)),
+			_List_Nil);
+		var chart = A2(
+			$elm$svg$Svg$svg,
+			_Utils_ap(svgAttrsSize, config.attrs),
+			_Utils_ap(
+				_List_fromArray(
+					[clipPathDefs]),
+				_Utils_ap(
+					chartEls,
+					_List_fromArray(
+						[catcher]))));
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('elm-charts__container'),
+					A2($elm$html$Html$Attributes$style, 'position', 'relative')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					htmlAttrs,
+					_Utils_ap(
+						below,
+						_Utils_ap(
+							_List_fromArray(
+								[chart]),
+							above)))
+				]));
+	});
+var $author$project$Chart$Attributes$lowest = F2(
+	function (v, edit) {
+		return $author$project$Internal$Helpers$Attribute(
+			function (b) {
+				return _Utils_update(
+					b,
+					{
+						min: A3(edit, v, b.min, b.dataMin)
+					});
+			});
+	});
+var $author$project$Chart$Attributes$orLower = F3(
+	function (least, real, _v0) {
+		return (_Utils_cmp(real, least) > 0) ? least : real;
+	});
+var $author$project$Chart$definePlane = F2(
+	function (config, elements) {
+		var width = A2($elm$core$Basics$max, 1, (config.width - config.padding.left) - config.padding.right);
+		var toLimit = F5(
+			function (length, marginMin, marginMax, min, max) {
+				return {dataMax: max, dataMin: min, length: length, marginMax: marginMax, marginMin: marginMin, max: max, min: min};
+			});
+		var height = A2($elm$core$Basics$max, 1, (config.height - config.padding.bottom) - config.padding.top);
+		var fixSingles = function (bs) {
+			return _Utils_eq(bs.min, bs.max) ? _Utils_update(
+				bs,
+				{max: bs.min + 10}) : bs;
+		};
+		var collectLimits = F2(
+			function (el, acc) {
+				switch (el.$) {
+					case 'Indexed':
+						return acc;
+					case 'SeriesElement':
+						var lims = el.a;
+						return _Utils_ap(acc, lims);
+					case 'BarsElement':
+						var lims = el.a;
+						return _Utils_ap(acc, lims);
+					case 'CustomElement':
+						var item = el.a;
+						return _Utils_ap(
+							acc,
+							_List_fromArray(
+								[
+									$author$project$Internal$Item$getLimits(item)
+								]));
+					case 'AxisElement':
+						return acc;
+					case 'TicksElement':
+						return acc;
+					case 'TickElement':
+						return acc;
+					case 'LabelsElement':
+						return acc;
+					case 'LabelElement':
+						return acc;
+					case 'GridElement':
+						return acc;
+					case 'SubElements':
+						return acc;
+					case 'ListOfElements':
+						var subs = el.a;
+						return A3($elm$core$List$foldl, collectLimits, acc, subs);
+					case 'ScaleElement':
+						return acc;
+					case 'SvgElement':
+						return acc;
+					default:
+						return acc;
+				}
+			});
+		var limits_ = function (pos) {
+			return function (_v3) {
+				var x = _v3.x;
+				var y = _v3.y;
+				return {
+					x: fixSingles(x),
+					y: fixSingles(y)
+				};
+			}(
+				{
+					x: A5(toLimit, width, config.margin.left, config.margin.right, pos.x1, pos.x2),
+					y: A5(toLimit, height, config.margin.top, config.margin.bottom, pos.y1, pos.y2)
+				});
+		}(
+			A2(
+				$author$project$Internal$Coordinates$foldPosition,
+				$elm$core$Basics$identity,
+				A3($elm$core$List$foldl, collectLimits, _List_Nil, elements)));
+		var calcRange = function () {
+			var _v2 = config.range;
+			if (!_v2.b) {
+				return limits_.x;
+			} else {
+				var some = _v2;
+				return A2($author$project$Internal$Helpers$apply, some, limits_.x);
+			}
+		}();
+		var calcDomain = function () {
+			var _v1 = config.domain;
+			if (!_v1.b) {
+				return A2(
+					$author$project$Internal$Helpers$apply,
+					_List_fromArray(
+						[
+							A2($author$project$Chart$Attributes$lowest, 0, $author$project$Chart$Attributes$orLower)
+						]),
+					limits_.y);
+			} else {
+				var some = _v1;
+				return A2($author$project$Internal$Helpers$apply, some, limits_.y);
+			}
+		}();
+		var unpadded = {x: calcRange, y: calcDomain};
+		var scalePadX = $author$project$Internal$Coordinates$scaleCartesianX(unpadded);
+		var xMax = calcRange.max + scalePadX(config.padding.right);
+		var xMin = calcRange.min - scalePadX(config.padding.left);
+		var scalePadY = $author$project$Internal$Coordinates$scaleCartesianY(unpadded);
+		var yMax = calcDomain.max + scalePadY(config.padding.top);
+		var yMin = calcDomain.min - scalePadY(config.padding.bottom);
+		return {
+			x: _Utils_update(
+				calcRange,
+				{
+					length: config.width,
+					max: A2($elm$core$Basics$max, xMin, xMax),
+					min: A2($elm$core$Basics$min, xMin, xMax)
+				}),
+			y: _Utils_update(
+				calcDomain,
+				{
+					length: config.height,
+					max: A2($elm$core$Basics$max, yMin, yMax),
+					min: A2($elm$core$Basics$min, yMin, yMax)
+				})
+		};
+	});
+var $author$project$Chart$getItems = function (elements) {
+	var toItems = F2(
+		function (el, acc) {
+			switch (el.$) {
+				case 'Indexed':
+					return acc;
+				case 'SeriesElement':
+					var items = el.b;
+					return _Utils_ap(acc, items);
+				case 'BarsElement':
+					var items = el.b;
+					return _Utils_ap(acc, items);
+				case 'CustomElement':
+					var item = el.a;
+					return _Utils_ap(
+						acc,
+						_List_fromArray(
+							[item]));
+				case 'AxisElement':
+					var func = el.a;
+					return acc;
+				case 'TicksElement':
+					return acc;
+				case 'TickElement':
+					return acc;
+				case 'LabelsElement':
+					return acc;
+				case 'LabelElement':
+					return acc;
+				case 'GridElement':
+					return acc;
+				case 'SubElements':
+					return acc;
+				case 'ListOfElements':
+					var subs = el.a;
+					return A3($elm$core$List$foldl, toItems, acc, subs);
+				case 'ScaleElement':
+					var items = el.b;
+					return _Utils_ap(acc, items);
+				case 'SvgElement':
+					return acc;
+				default:
+					return acc;
+			}
+		});
+	return A3($elm$core$List$foldl, toItems, _List_Nil, elements);
+};
+var $author$project$Chart$getLegends = function (elements) {
+	var toLegends = F2(
+		function (el, acc) {
+			switch (el.$) {
+				case 'Indexed':
+					return acc;
+				case 'SeriesElement':
+					var legends = el.c;
+					return _Utils_ap(acc, legends);
+				case 'BarsElement':
+					var legends = el.c;
+					return _Utils_ap(acc, legends);
+				case 'CustomElement':
+					return acc;
+				case 'AxisElement':
+					return acc;
+				case 'TicksElement':
+					return acc;
+				case 'TickElement':
+					return acc;
+				case 'LabelsElement':
+					return acc;
+				case 'LabelElement':
+					return acc;
+				case 'GridElement':
+					return acc;
+				case 'SubElements':
+					return acc;
+				case 'ListOfElements':
+					var subs = el.a;
+					return A3($elm$core$List$foldl, toLegends, acc, subs);
+				case 'ScaleElement':
+					var legends = el.c;
+					return _Utils_ap(acc, legends);
+				case 'SvgElement':
+					return acc;
+				default:
+					return acc;
+			}
+		});
+	return A3($elm$core$List$foldl, toLegends, _List_Nil, elements);
+};
+var $author$project$Chart$TickValues = F4(
+	function (xAxis, yAxis, xs, ys) {
+		return {xAxis: xAxis, xs: xs, yAxis: yAxis, ys: ys};
+	});
+var $author$project$Chart$getTickValues = F3(
+	function (plane, items, elements) {
+		var toValues = F2(
+			function (el, acc) {
+				switch (el.$) {
+					case 'Indexed':
+						return acc;
+					case 'SeriesElement':
+						return acc;
+					case 'BarsElement':
+						var func = el.d;
+						return A2(func, plane, acc);
+					case 'CustomElement':
+						return acc;
+					case 'AxisElement':
+						var func = el.a;
+						return A2(func, plane, acc);
+					case 'TicksElement':
+						var func = el.a;
+						return A2(func, plane, acc);
+					case 'TickElement':
+						var toC = el.a;
+						var func = el.b;
+						return A3(
+							func,
+							plane,
+							toC(plane),
+							acc);
+					case 'LabelsElement':
+						var toC = el.a;
+						var func = el.b;
+						return A3(
+							func,
+							plane,
+							toC(plane),
+							acc);
+					case 'LabelElement':
+						var toC = el.a;
+						var func = el.b;
+						return A3(
+							func,
+							plane,
+							toC(plane),
+							acc);
+					case 'SubElements':
+						var func = el.a;
+						return A3(
+							$elm$core$List$foldl,
+							toValues,
+							acc,
+							A2(func, plane, items));
+					case 'GridElement':
+						return acc;
+					case 'ListOfElements':
+						var subs = el.a;
+						return A3($elm$core$List$foldl, toValues, acc, subs);
+					case 'ScaleElement':
+						return acc;
+					case 'SvgElement':
+						return acc;
+					default:
+						return acc;
+				}
+			});
+		return A3(
+			$elm$core$List$foldl,
+			toValues,
+			A4($author$project$Chart$TickValues, _List_Nil, _List_Nil, _List_Nil, _List_Nil),
+			elements);
+	});
 var $author$project$Chart$viewElements = F6(
 	function (containerConfig, plane, tickValues, allItems, allLegends, elements) {
 		var viewOne = F2(
@@ -19764,19 +19776,7 @@ var $author$project$Chart$viewElements = F6(
 var $author$project$Chart$chart = F2(
 	function (edits, unindexedElements) {
 		var indexedElements = $author$project$Chart$addIndexes(unindexedElements);
-		var elements = function () {
-			var isGrid = function (el) {
-				if (el.$ === 'GridElement') {
-					return true;
-				} else {
-					return false;
-				}
-			};
-			return A2($elm$core$List$any, isGrid, indexedElements) ? indexedElements : A2(
-				$elm$core$List$cons,
-				$author$project$Chart$grid(_List_Nil),
-				indexedElements);
-		}();
+		var elements = $author$project$Chart$addGridIfNone(indexedElements);
 		var items = $author$project$Chart$getItems(elements);
 		var toEvent = function (_v2) {
 			var event_ = _v2.a;
@@ -33317,7 +33317,8 @@ var $author$project$Chart$ScaleElement = F4(
 	});
 var $author$project$Chart$scale = F2(
 	function (attrs, unindexedElements) {
-		var elements = $author$project$Chart$addIndexes(unindexedElements);
+		var indexedElements = $author$project$Chart$addIndexes(unindexedElements);
+		var elements = $author$project$Chart$addGridIfNone(indexedElements);
 		var items = $author$project$Chart$getItems(elements);
 		var legends = $author$project$Chart$getLegends(elements);
 		var config = A2(
@@ -33358,13 +33359,65 @@ var $author$project$Examples$LineCharts$MultipleScales$view = function (model) {
 		_List_fromArray(
 			[
 				$author$project$Chart$xLabels(_List_Nil),
-				$author$project$Chart$yLabels(
-				_List_fromArray(
-					[$author$project$Chart$Attributes$withGrid])),
-				$author$project$Chart$yAxis(
+				$author$project$Chart$yLabels(_List_Nil),
+				$author$project$Chart$yAxis(_List_Nil),
+				A2(
+				$author$project$Chart$scale,
+				_List_Nil,
 				_List_fromArray(
 					[
-						$author$project$Chart$Attributes$color($author$project$Chart$Attributes$pink)
+						A3(
+						$author$project$Chart$series,
+						function ($) {
+							return $.x;
+						},
+						_List_fromArray(
+							[
+								A3(
+								$author$project$Chart$interpolated,
+								function ($) {
+									return $.z;
+								},
+								_List_Nil,
+								_List_fromArray(
+									[
+										$author$project$Chart$Attributes$cross,
+										$author$project$Chart$Attributes$border('white'),
+										$author$project$Chart$Attributes$borderWidth(2)
+									]))
+							]),
+						$author$project$Examples$LineCharts$MultipleScales$data),
+						$author$project$Chart$yLabels(
+						_List_fromArray(
+							[
+								$author$project$Chart$Attributes$withGrid,
+								$author$project$Chart$Attributes$pinned(
+								function ($) {
+									return $.max;
+								}),
+								$author$project$Chart$Attributes$flip
+							])),
+						$author$project$Chart$yAxis(
+						_List_fromArray(
+							[
+								$author$project$Chart$Attributes$pinned(
+								function ($) {
+									return $.max;
+								}),
+								$author$project$Chart$Attributes$color($author$project$Chart$Attributes$blue)
+							])),
+						$author$project$Chart$yTicks(
+						_List_fromArray(
+							[
+								$author$project$Chart$Attributes$pinned(
+								function ($) {
+									return $.max;
+								}),
+								$author$project$Chart$Attributes$withGrid
+							])),
+						$author$project$Chart$xTicks(
+						_List_fromArray(
+							[$author$project$Chart$Attributes$withGrid]))
 					])),
 				A3(
 				$author$project$Chart$series,
@@ -33383,53 +33436,13 @@ var $author$project$Examples$LineCharts$MultipleScales$view = function (model) {
 								$author$project$Chart$Attributes$color($author$project$Chart$Attributes$pink)
 							]),
 						_List_fromArray(
-							[$author$project$Chart$Attributes$circle]))
-					]),
-				$author$project$Examples$LineCharts$MultipleScales$data),
-				A2(
-				$author$project$Chart$scale,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A3(
-						$author$project$Chart$series,
-						function ($) {
-							return $.x;
-						},
-						_List_fromArray(
 							[
-								A3(
-								$author$project$Chart$interpolated,
-								function ($) {
-									return $.z;
-								},
-								_List_fromArray(
-									[
-										$author$project$Chart$Attributes$color($author$project$Chart$Attributes$blue)
-									]),
-								_List_fromArray(
-									[$author$project$Chart$Attributes$circle]))
-							]),
-						$author$project$Examples$LineCharts$MultipleScales$data),
-						$author$project$Chart$yLabels(
-						_List_fromArray(
-							[
-								$author$project$Chart$Attributes$pinned(
-								function ($) {
-									return $.max;
-								}),
-								$author$project$Chart$Attributes$flip
-							])),
-						$author$project$Chart$yAxis(
-						_List_fromArray(
-							[
-								$author$project$Chart$Attributes$pinned(
-								function ($) {
-									return $.max;
-								}),
-								$author$project$Chart$Attributes$color($author$project$Chart$Attributes$blue)
+								$author$project$Chart$Attributes$cross,
+								$author$project$Chart$Attributes$border('white'),
+								$author$project$Chart$Attributes$borderWidth(2)
 							]))
-					]))
+					]),
+				$author$project$Examples$LineCharts$MultipleScales$data)
 			]));
 };
 var $author$project$Examples$LineCharts$Pattern$Datum = F7(
@@ -35760,7 +35773,7 @@ var $author$project$Examples$LineCharts$Labels$largeCode = '\nimport Html as H\n
 var $author$project$Examples$LineCharts$Legends$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [  ] [ CA.cross, CA.borderWidth 2, CA.border "white" ]\n            |> C.named "Cats"\n        , C.interpolated .z [  ] [ CA.cross, CA.borderWidth 2, CA.border "white" ]\n            |> C.named "Fish"\n        ]\n        data\n    , C.legendsAt .min .max\n        [ CA.column\n        , CA.moveRight 15\n        , CA.spacing 5\n        ]\n        [ CA.width 20 ]\n    ]\n  ';
 var $author$project$Examples$LineCharts$Missing$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolatedMaybe .y [ CA.stepped ] []\n        ]\n        data\n    ]\n\n\ntype alias Datum =\n  { x : Float\n  , y : Maybe Float\n  , z : Maybe Float\n  }\n\ndata : List Datum\ndata =\n  [ Datum 1  (Just 2) (Just 1)\n  , Datum 2  (Just 3) (Just 2)\n  , Datum 3  (Just 4) (Just 3)\n  , Datum 4  Nothing (Just 4)\n  , Datum 5  (Just 2) (Just 3)\n  , Datum 6  (Just 4) (Just 1)\n  , Datum 7  (Just 5) (Just 2)\n  , Datum 8  (Just 6) Nothing\n  , Datum 9  (Just 5) (Just 4)\n  , Datum 10 (Just 4) (Just 3)\n  ]\n\n\n  ';
 var $author$project$Examples$LineCharts$Montone$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [ CA.monotone ] []\n        , C.interpolated .z [ CA.monotone ] []\n        ]\n        data\n    ]\n  ';
-var $author$project$Examples$LineCharts$MultipleScales$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 10, left = 30, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.yAxis [ CA.color CA.pink ]\n    , C.series .x\n        [ C.interpolated .y [ CA.color CA.pink ] [ CA.circle ]\n        ]\n        data\n    , C.scale \n        []\n        [ C.series .x [ C.interpolated .z [ CA.color CA.blue ] [ CA.circle ] ] data\n        , C.yLabels [ CA.pinned .max, CA.flip ]\n        , C.yAxis [ CA.pinned .max, CA.color CA.blue ]\n        ]\n    ]\n  ';
+var $author$project$Examples$LineCharts$MultipleScales$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 10, left = 30, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.yLabels []\n    , C.yAxis []\n    , C.scale \n        []\n        [ C.series .x [ C.interpolated .z [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ] data\n        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip ]\n        , C.yAxis [ CA.pinned .max, CA.color CA.blue ]\n        , C.yTicks [ CA.pinned .max, CA.withGrid ]\n        , C.xTicks [ CA.withGrid ]\n        ]\n    , C.series .x\n        [ C.interpolated .y [ CA.color CA.pink ] [ CA.cross, CA.border "white", CA.borderWidth 2 ]\n        ]\n        data\n    ]\n\n\ntype alias Datum =\n  { x : Float\n  , y : Float\n  , z : Float\n  }\n\ndata : List Datum\ndata =\n  [ Datum 1  2  120\n  , Datum 2  10 50\n  , Datum 3  5  100\n  ]\n\n  ';
 var $author$project$Examples$LineCharts$Pattern$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.stacked\n          [ C.interpolated .y [ CA.striped [ CA.width 3, CA.spacing 4, CA.rotate 90 ] ] []\n          , C.interpolated .z [ CA.dotted [ CA.width 3, CA.spacing 4 ] ] []\n          ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Stacked$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.stacked\n          [ C.interpolated .y [] []\n          , C.interpolated .z [] []\n          ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Stepped$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [ CA.stepped ] []\n        , C.interpolated .z [ CA.stepped ] []\n        ]\n        data\n    ]\n\n\ntype alias Datum =\n  { x : Float\n  , y : Float\n  , z : Float\n  }\n\ndata : List Datum\ndata =\n  [ Datum 1  2 1\n  , Datum 2  3 2\n  , Datum 3  4 3\n  , Datum 4  3 4\n  , Datum 5  2 3\n  , Datum 6  4 1\n  , Datum 7  5 2\n  , Datum 8  6 3\n  , Datum 9  5 4\n  , Datum 10 4 3\n  ]\n\n\n  ';
@@ -36088,7 +36101,7 @@ var $author$project$Examples$LineCharts$Labels$smallCode = '\n  C.chart\n    [ C
 var $author$project$Examples$LineCharts$Legends$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [  ] [ CA.cross, CA.borderWidth 2, CA.border "white" ]\n            |> C.named "Cats"\n        , C.interpolated .z [  ] [ CA.cross, CA.borderWidth 2, CA.border "white" ]\n            |> C.named "Fish"\n        ]\n        data\n    , C.legendsAt .min .max\n        [ CA.column\n        , CA.moveRight 15\n        , CA.spacing 5\n        ]\n        [ CA.width 20 ]\n    ]\n  ';
 var $author$project$Examples$LineCharts$Missing$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolatedMaybe .y [ CA.stepped ] []\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Montone$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [ CA.monotone ] []\n        , C.interpolated .z [ CA.monotone ] []\n        ]\n        data\n    ]\n  ';
-var $author$project$Examples$LineCharts$MultipleScales$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 10, left = 30, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.yAxis [ CA.color CA.pink ]\n    , C.series .x\n        [ C.interpolated .y [ CA.color CA.pink ] [ CA.circle ]\n        ]\n        data\n    , C.scale \n        []\n        [ C.series .x [ C.interpolated .z [ CA.color CA.blue ] [ CA.circle ] ] data\n        , C.yLabels [ CA.pinned .max, CA.flip ]\n        , C.yAxis [ CA.pinned .max, CA.color CA.blue ]\n        ]\n    ]\n  ';
+var $author$project$Examples$LineCharts$MultipleScales$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 10, left = 30, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.yLabels []\n    , C.yAxis []\n    , C.scale \n        []\n        [ C.series .x [ C.interpolated .z [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ] data\n        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip ]\n        , C.yAxis [ CA.pinned .max, CA.color CA.blue ]\n        , C.yTicks [ CA.pinned .max, CA.withGrid ]\n        , C.xTicks [ CA.withGrid ]\n        ]\n    , C.series .x\n        [ C.interpolated .y [ CA.color CA.pink ] [ CA.cross, CA.border "white", CA.borderWidth 2 ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Pattern$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.stacked\n          [ C.interpolated .y [ CA.striped [ CA.width 3, CA.spacing 4, CA.rotate 90 ] ] []\n          , C.interpolated .z [ CA.dotted [ CA.width 3, CA.spacing 4 ] ] []\n          ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Stacked$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.stacked\n          [ C.interpolated .y [] []\n          , C.interpolated .z [] []\n          ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Stepped$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [ CA.stepped ] []\n        , C.interpolated .z [ CA.stepped ] []\n        ]\n        data\n    ]\n  ';

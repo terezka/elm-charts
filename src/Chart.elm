@@ -269,12 +269,7 @@ chart edits unindexedElements =
         addIndexes unindexedElements
 
       elements =
-        let isGrid el =
-              case el of
-                GridElement _ -> True
-                _ -> False
-        in
-        if List.any isGrid indexedElements then indexedElements else grid [] :: indexedElements
+        addGridIfNone indexedElements
 
       plane =
         definePlane config elements
@@ -476,6 +471,18 @@ addIndexes =
   List.foldl toIndexedElements ( [], 0 ) >> Tuple.first
 
 
+addGridIfNone : List (Element data msg) -> List (Element data msg)
+addGridIfNone elements =
+  let isGrid el =
+        case el of
+          GridElement _ -> True
+          _ -> False
+  in
+  if List.any isGrid elements 
+    then elements 
+    else grid [] :: elements
+
+
 getItems : List (Element data msg) -> List (CI.One data CI.Any)
 getItems elements =
   let toItems el acc =
@@ -548,7 +555,7 @@ getTickValues plane items elements =
           SubElements func          -> List.foldl toValues acc (func plane items)
           GridElement _             -> acc
           ListOfElements subs       -> List.foldl toValues acc subs
-          ScaleElement els _ _ _    -> List.foldl toValues acc els
+          ScaleElement _ _ _ _      -> acc
           SvgElement _              -> acc
           HtmlElement _             -> acc
   in
@@ -559,7 +566,7 @@ viewElements : Container data msg -> C.Plane -> TickValues -> List (CI.One data 
 viewElements containerConfig plane tickValues allItems allLegends elements =
   let viewOne el ( before, chart_, after ) =
         case el of
-          Indexed _                 -> ( before,chart_, after )
+          Indexed _                 -> ( before, chart_, after )
           SeriesElement _ _ _ view  -> ( before, view plane :: chart_, after )
           BarsElement _ _ _ _ view  -> ( before, view plane :: chart_, after )
           CustomElement _ view      -> ( before, view plane :: chart_, after )
@@ -601,8 +608,11 @@ scale attrs unindexedElements =
           , domain = []
           }
 
-      elements =
+      indexedElements =
         addIndexes unindexedElements
+
+      elements =
+        addGridIfNone indexedElements
 
       items =
         getItems elements
