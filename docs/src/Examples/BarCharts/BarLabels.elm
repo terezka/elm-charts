@@ -20,7 +20,7 @@ view model =
     [ C.xLabels []
     , C.yLabels [ CA.withGrid ]
     , C.bars []
-        [ C.bar .q [ CA.moveDown 15 ]
+        [ C.bar .q []
         , C.bar .p []
         ]
         data
@@ -89,7 +89,7 @@ smallCode =
     [ C.xLabels []
     , C.yLabels [ CA.withGrid ]
     , C.bars []
-        [ C.bar .q [ CA.moveDown 15 ]
+        [ C.bar .q []
         , C.bar .p []
         ]
         data
@@ -119,7 +119,7 @@ view model =
     [ C.xLabels []
     , C.yLabels [ CA.withGrid ]
     , C.bars []
-        [ C.bar .q [ CA.moveDown 15 ]
+        [ C.bar .q []
         , C.bar .p []
         ]
         data

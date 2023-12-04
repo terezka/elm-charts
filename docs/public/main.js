@@ -16112,14 +16112,18 @@ var $mdgriffith$elm_ui$Element$spacingXY = F2(
 				x,
 				y));
 	});
-var $author$project$Internal$Svg$End = {$: 'End'};
-var $author$project$Chart$Attributes$alignRight = function (config) {
-	return _Utils_update(
-		config,
-		{
-			anchor: $elm$core$Maybe$Just($author$project$Internal$Svg$End)
-		});
+var $author$project$Internal$Helpers$Attribute = function (a) {
+	return {$: 'Attribute', a: a};
 };
+var $author$project$Internal$Svg$End = {$: 'End'};
+var $author$project$Chart$Attributes$alignRight = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{
+				anchor: $elm$core$Maybe$Just($author$project$Internal$Svg$End)
+			});
+	});
 var $author$project$Internal$Property$NotStacked = function (a) {
 	return {$: 'NotStacked', a: a};
 };
@@ -16167,12 +16171,13 @@ var $author$project$Internal$Many$apply = F2(
 	});
 var $author$project$Chart$Item$apply = $author$project$Internal$Many$apply;
 var $author$project$Internal$Helpers$apply = F2(
-	function (funcs, _default) {
+	function (attrs, _default) {
 		var apply_ = F2(
-			function (f, a) {
+			function (_v0, a) {
+				var f = _v0.a;
 				return f(a);
 			});
-		return A3($elm$core$List$foldl, apply_, _default, funcs);
+		return A3($elm$core$List$foldl, apply_, _default, attrs);
 	});
 var $author$project$Internal$Many$Remodel = F2(
 	function (a, b) {
@@ -16460,32 +16465,40 @@ var $author$project$Internal$Legend$BarLegend = F2(
 	function (a, b) {
 		return {$: 'BarLegend', a: a, b: b};
 	});
-var $author$project$Chart$Attributes$border = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{border: v});
-	});
-var $author$project$Chart$Attributes$color = F2(
-	function (v, config) {
-		return (v === '') ? config : _Utils_update(
-			config,
-			{color: v});
-	});
+var $author$project$Chart$Attributes$border = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{border: v});
+		});
+};
+var $author$project$Chart$Attributes$color = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return (v === '') ? config : _Utils_update(
+				config,
+				{color: v});
+		});
+};
 var $author$project$Internal$Helpers$pink = '#ea60df';
 var $author$project$Internal$Svg$defaultBar = {attrs: _List_Nil, border: 'white', borderWidth: 0, color: $author$project$Internal$Helpers$pink, design: $elm$core$Maybe$Nothing, highlight: 0, highlightColor: '', highlightWidth: 10, opacity: 1, roundBottom: 0, roundTop: 0};
-var $author$project$Chart$Attributes$roundBottom = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{roundBottom: v});
-	});
-var $author$project$Chart$Attributes$roundTop = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{roundTop: v});
-	});
+var $author$project$Chart$Attributes$roundBottom = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{roundBottom: v});
+		});
+};
+var $author$project$Chart$Attributes$roundTop = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{roundTop: v});
+		});
+};
 var $author$project$Internal$Property$toConfigs = function (property) {
 	if (property.$ === 'NotStacked') {
 		var config = property.a;
@@ -16849,14 +16862,6 @@ var $author$project$Internal$Coordinates$scaleCartesianY = F2(
 		return (value * $author$project$Internal$Coordinates$range(plane.y)) / $author$project$Internal$Coordinates$innerHeight(plane);
 	});
 var $elm$svg$Svg$Attributes$strokeOpacity = _VirtualDom_attribute('stroke-opacity');
-var $author$project$Internal$Svg$apply = F2(
-	function (funcs, _default) {
-		var apply_ = F2(
-			function (f, a) {
-				return f(a);
-			});
-		return A3($elm$core$List$foldl, apply_, _default, funcs);
-	});
 var $elm$svg$Svg$circle = $elm$svg$Svg$trustedNode('circle');
 var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
 var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
@@ -16943,7 +16948,7 @@ var $author$project$Internal$Svg$toPattern = F2(
 				case 'Striped':
 					var edits = design.a;
 					var config = A2(
-						$author$project$Internal$Svg$apply,
+						$author$project$Internal$Helpers$apply,
 						edits,
 						{color: defaultColor, rotate: 45, spacing: 4, width: 3});
 					var theId = toPatternId(
@@ -16978,7 +16983,7 @@ var $author$project$Internal$Svg$toPattern = F2(
 				case 'Dotted':
 					var edits = design.a;
 					var config = A2(
-						$author$project$Internal$Svg$apply,
+						$author$project$Internal$Helpers$apply,
 						edits,
 						{color: defaultColor, rotate: 45, spacing: 4, width: 3});
 					var theId = toPatternId(
@@ -18045,17 +18050,20 @@ var $author$project$Chart$binLabels = F2(
 						]);
 				}));
 	});
-var $author$project$Chart$Attributes$borderWidth = F2(
-	function (v, config) {
+var $author$project$Chart$Attributes$borderWidth = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{borderWidth: v});
+		});
+};
+var $author$project$Chart$Attributes$break = $author$project$Internal$Helpers$Attribute(
+	function (config) {
 		return _Utils_update(
 			config,
-			{borderWidth: v});
+			{_break: true});
 	});
-var $author$project$Chart$Attributes$break = function (config) {
-	return _Utils_update(
-		config,
-		{_break: true});
-};
 var $author$project$Internal$Svg$Event = F2(
 	function (name, handler) {
 		return {handler: handler, name: name};
@@ -18308,12 +18316,15 @@ var $author$project$Internal$Svg$container = F5(
 							above)))
 				]));
 	});
-var $author$project$Chart$Attributes$lowest = F3(
-	function (v, edit, b) {
-		return _Utils_update(
-			b,
-			{
-				min: A3(edit, v, b.min, b.dataMin)
+var $author$project$Chart$Attributes$lowest = F2(
+	function (v, edit) {
+		return $author$project$Internal$Helpers$Attribute(
+			function (b) {
+				return _Utils_update(
+					b,
+					{
+						min: A3(edit, v, b.min, b.dataMin)
+					});
 			});
 	});
 var $author$project$Chart$Attributes$orLower = F3(
@@ -18399,30 +18410,22 @@ var $author$project$Chart$definePlane = F2(
 				return limits_.x;
 			} else {
 				var some = _v2;
-				return A3(
-					$elm$core$List$foldl,
-					F2(
-						function (f, b) {
-							return f(b);
-						}),
-					limits_.x,
-					some);
+				return A2($author$project$Internal$Helpers$apply, some, limits_.x);
 			}
 		}();
 		var calcDomain = function () {
 			var _v1 = config.domain;
 			if (!_v1.b) {
-				return A3($author$project$Chart$Attributes$lowest, 0, $author$project$Chart$Attributes$orLower, limits_.y);
+				return A2(
+					$author$project$Internal$Helpers$apply,
+					_List_fromArray(
+						[
+							A2($author$project$Chart$Attributes$lowest, 0, $author$project$Chart$Attributes$orLower)
+						]),
+					limits_.y);
 			} else {
 				var some = _v1;
-				return A3(
-					$elm$core$List$foldl,
-					F2(
-						function (f, b) {
-							return f(b);
-						}),
-					limits_.y,
-					some);
+				return A2($author$project$Internal$Helpers$apply, some, limits_.y);
 			}
 		}();
 		var unpadded = {x: calcRange, y: calcDomain};
@@ -18609,20 +18612,23 @@ var $author$project$Chart$GridElement = function (a) {
 	return {$: 'GridElement', a: a};
 };
 var $author$project$Internal$Svg$Circle = {$: 'Circle'};
-var $author$project$Chart$Attributes$circle = function (config) {
-	return _Utils_update(
-		config,
-		{
-			shape: $elm$core$Maybe$Just($author$project$Internal$Svg$Circle)
-		});
-};
-var $author$project$Internal$Helpers$darkGray = 'rgb(200 200 200)';
-var $author$project$Chart$Attributes$dashed = F2(
-	function (value, config) {
+var $author$project$Chart$Attributes$circle = $author$project$Internal$Helpers$Attribute(
+	function (config) {
 		return _Utils_update(
 			config,
-			{dashed: value});
+			{
+				shape: $elm$core$Maybe$Just($author$project$Internal$Svg$Circle)
+			});
 	});
+var $author$project$Internal$Helpers$darkGray = 'rgb(200 200 200)';
+var $author$project$Chart$Attributes$dashed = function (value) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{dashed: value});
+		});
+};
 var $author$project$Internal$Svg$defaultDot = {border: '', borderWidth: 0, color: $author$project$Internal$Helpers$pink, hideOverflow: false, highlight: 0, highlightColor: '', highlightWidth: 5, opacity: 1, shape: $elm$core$Maybe$Nothing, size: 6};
 var $author$project$Internal$Svg$isWithinPlane = F3(
 	function (plane, x, y) {
@@ -19397,34 +19403,42 @@ var $elm$core$List$member = F2(
 			},
 			xs);
 	});
-var $author$project$Chart$Attributes$size = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{size: v});
-	});
-var $author$project$Chart$Attributes$width = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{width: v});
-	});
-var $author$project$Chart$Attributes$x1 = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{
-				x1: $elm$core$Maybe$Just(v)
-			});
-	});
-var $author$project$Chart$Attributes$y1 = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{
-				y1: $elm$core$Maybe$Just(v)
-			});
-	});
+var $author$project$Chart$Attributes$size = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{size: v});
+		});
+};
+var $author$project$Chart$Attributes$width = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{width: v});
+		});
+};
+var $author$project$Chart$Attributes$x1 = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{
+					x1: $elm$core$Maybe$Just(v)
+				});
+		});
+};
+var $author$project$Chart$Attributes$y1 = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{
+					y1: $elm$core$Maybe$Just(v)
+				});
+		});
+};
 var $author$project$Chart$grid = function (edits) {
 	var config = A2(
 		$author$project$Internal$Helpers$apply,
@@ -19836,11 +19850,12 @@ var $author$project$Chart$eachStack = function (func) {
 						is));
 			}));
 };
-var $author$project$Chart$Attributes$flip = function (config) {
-	return _Utils_update(
-		config,
-		{flip: true});
-};
+var $author$project$Chart$Attributes$flip = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{flip: true});
+	});
 var $author$project$Chart$Item$getData = $author$project$Internal$Item$getDatum;
 var $author$project$Chart$Item$getMembers = $author$project$Internal$Many$getMembers;
 var $author$project$Internal$Coordinates$top = function (pos) {
@@ -19857,12 +19872,14 @@ var $author$project$Internal$Item$getY = function (_v0) {
 	return meta.y;
 };
 var $author$project$Chart$Item$getY = $author$project$Internal$Item$getY;
-var $author$project$Chart$Attributes$height = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{height: v});
-	});
+var $author$project$Chart$Attributes$height = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{height: v});
+		});
+};
 var $author$project$Chart$Svg$label = F2(
 	function (plane, edits) {
 		return A2(
@@ -19883,65 +19900,84 @@ var $author$project$Chart$line = function (attrs) {
 			return A2($author$project$Chart$Svg$line, p, attrs);
 		});
 };
-var $author$project$Chart$Attributes$margin = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{margin: v});
-	});
-var $author$project$Chart$Attributes$moveDown = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{yOff: config.yOff + v});
-	});
-var $author$project$Chart$Attributes$moveLeft = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{xOff: config.xOff - v});
-	});
-var $author$project$Chart$Attributes$moveRight = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{xOff: config.xOff + v});
-	});
-var $author$project$Chart$Attributes$moveUp = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{yOff: config.yOff - v});
-	});
-var $author$project$Chart$Attributes$noArrow = function (config) {
-	return _Utils_update(
-		config,
-		{arrow: false});
+var $author$project$Chart$Attributes$margin = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{margin: v});
+		});
 };
-var $author$project$Chart$Attributes$opacity = F2(
-	function (v, config) {
+var $author$project$Chart$Attributes$moveDown = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{yOff: config.yOff + v});
+		});
+};
+var $author$project$Chart$Attributes$moveLeft = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{xOff: config.xOff - v});
+		});
+};
+var $author$project$Chart$Attributes$moveRight = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{xOff: config.xOff + v});
+		});
+};
+var $author$project$Chart$Attributes$moveUp = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{yOff: config.yOff - v});
+		});
+};
+var $author$project$Chart$Attributes$noArrow = $author$project$Internal$Helpers$Attribute(
+	function (config) {
 		return _Utils_update(
 			config,
-			{opacity: v});
+			{arrow: false});
 	});
-var $author$project$Chart$Attributes$padding = F2(
-	function (value, config) {
-		return _Utils_update(
-			config,
-			{padding: value});
-	});
-var $author$project$Chart$Attributes$rotate = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{rotate: config.rotate + v});
-	});
-var $author$project$Chart$Attributes$spacing = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{spacing: v});
-	});
+var $author$project$Chart$Attributes$opacity = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{opacity: v});
+		});
+};
+var $author$project$Chart$Attributes$padding = function (value) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{padding: value});
+		});
+};
+var $author$project$Chart$Attributes$rotate = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{rotate: config.rotate + v});
+		});
+};
+var $author$project$Chart$Attributes$spacing = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{spacing: v});
+		});
+};
 var $author$project$Internal$Property$Stacked = function (a) {
 	return {$: 'Stacked', a: a};
 };
@@ -19998,39 +20034,48 @@ var $author$project$Internal$Property$stacked = function (properties) {
 		A3(stack, configs, _List_Nil, _List_Nil));
 };
 var $author$project$Chart$stacked = $author$project$Internal$Property$stacked;
-var $author$project$Chart$Attributes$tickDirection = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{tickDirection: v});
-	});
-var $author$project$Chart$Attributes$tickLength = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{tickLength: v});
-	});
-var $author$project$Chart$Attributes$withGrid = function (config) {
-	return _Utils_update(
-		config,
-		{grid: true});
+var $author$project$Chart$Attributes$tickDirection = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{tickDirection: v});
+		});
 };
-var $author$project$Chart$Attributes$x2 = F2(
-	function (v, config) {
+var $author$project$Chart$Attributes$tickLength = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{tickLength: v});
+		});
+};
+var $author$project$Chart$Attributes$withGrid = $author$project$Internal$Helpers$Attribute(
+	function (config) {
 		return _Utils_update(
 			config,
-			{
-				x2: $elm$core$Maybe$Just(v)
-			});
+			{grid: true});
 	});
-var $author$project$Chart$Attributes$x2Svg = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{
-				x2Svg: $elm$core$Maybe$Just(v)
-			});
-	});
+var $author$project$Chart$Attributes$x2 = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{
+					x2: $elm$core$Maybe$Just(v)
+				});
+		});
+};
+var $author$project$Chart$Attributes$x2Svg = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{
+					x2Svg: $elm$core$Maybe$Just(v)
+				});
+		});
+};
 var $author$project$Chart$AxisElement = F2(
 	function (a, b) {
 		return {$: 'AxisElement', a: a, b: b};
@@ -20094,14 +20139,7 @@ var $author$project$Chart$xAxis = function (edits) {
 		$author$project$Chart$AxisElement,
 		addTickValues,
 		function (p) {
-			var xLimit = A3(
-				$elm$core$List$foldl,
-				F2(
-					function (f, x) {
-						return f(x);
-					}),
-				p.x,
-				config.limits);
+			var xLimit = A2($author$project$Internal$Helpers$apply, config.limits, p.x);
 			return A2(
 				$elm$svg$Svg$g,
 				_List_fromArray(
@@ -20138,22 +20176,26 @@ var $author$project$Chart$xAxis = function (edits) {
 					]));
 		});
 };
-var $author$project$Chart$Attributes$y2 = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{
-				y2: $elm$core$Maybe$Just(v)
-			});
-	});
-var $author$project$Chart$Attributes$y2Svg = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{
-				y2Svg: $elm$core$Maybe$Just(v)
-			});
-	});
+var $author$project$Chart$Attributes$y2 = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{
+					y2: $elm$core$Maybe$Just(v)
+				});
+		});
+};
+var $author$project$Chart$Attributes$y2Svg = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{
+					y2Svg: $elm$core$Maybe$Just(v)
+				});
+		});
+};
 var $author$project$Internal$Svg$Floats = {$: 'Floats'};
 var $author$project$Chart$LabelsElement = F3(
 	function (a, b, c) {
@@ -22620,14 +22662,7 @@ var $author$project$Chart$yLabels = function (edits) {
 				config.amount,
 				config.generate,
 				config.format,
-				A3(
-					$elm$core$List$foldl,
-					F2(
-						function (f, y) {
-							return f(y);
-						}),
-					p.y,
-					config.limits));
+				A2($author$project$Internal$Helpers$apply, config.limits, p.y));
 		});
 	var toTickValues = F3(
 		function (p, config, ts) {
@@ -23749,14 +23784,7 @@ var $author$project$Chart$xLabels = function (edits) {
 				config.amount,
 				config.generate,
 				config.format,
-				A3(
-					$elm$core$List$foldl,
-					F2(
-						function (f, x) {
-							return f(x);
-						}),
-					p.x,
-					config.limits));
+				A2($author$project$Internal$Helpers$apply, config.limits, p.x));
 		});
 	var toTickValues = F3(
 		function (p, config, ts) {
@@ -24250,16 +24278,18 @@ var $author$project$Examples$BarCharts$DataDependent$data = _List_fromArray(
 var $author$project$Internal$Svg$Striped = function (a) {
 	return {$: 'Striped', a: a};
 };
-var $author$project$Chart$Attributes$striped = F2(
-	function (attrs_, config) {
-		return _Utils_update(
-			config,
-			{
-				design: $elm$core$Maybe$Just(
-					$author$project$Internal$Svg$Striped(attrs_)),
-				opacity: (!config.opacity) ? 1 : config.opacity
-			});
-	});
+var $author$project$Chart$Attributes$striped = function (attrs_) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{
+					design: $elm$core$Maybe$Just(
+						$author$project$Internal$Svg$Striped(attrs_)),
+					opacity: (!config.opacity) ? 1 : config.opacity
+				});
+		});
+};
 var $author$project$Internal$Property$variation = F2(
 	function (newVariation, property) {
 		var update = function (config) {
@@ -24349,16 +24379,18 @@ var $author$project$Examples$BarCharts$Gradient$data = _List_fromArray(
 var $author$project$Internal$Svg$Gradient = function (a) {
 	return {$: 'Gradient', a: a};
 };
-var $author$project$Chart$Attributes$gradient = F2(
-	function (colors, config) {
-		return _Utils_update(
-			config,
-			{
-				design: $elm$core$Maybe$Just(
-					$author$project$Internal$Svg$Gradient(colors)),
-				opacity: (!config.opacity) ? 1 : config.opacity
-			});
-	});
+var $author$project$Chart$Attributes$gradient = function (colors) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{
+					design: $elm$core$Maybe$Just(
+						$author$project$Internal$Svg$Gradient(colors)),
+					opacity: (!config.opacity) ? 1 : config.opacity
+				});
+		});
+};
 var $author$project$Chart$Attributes$pink = $author$project$Internal$Helpers$pink;
 var $author$project$Chart$Attributes$purple = $author$project$Internal$Helpers$purple;
 var $author$project$Examples$BarCharts$Gradient$view = function (model) {
@@ -24543,12 +24575,14 @@ var $author$project$Internal$Events$getNearest = function (grouping) {
 			}));
 };
 var $author$project$Chart$Events$getNearest = $author$project$Internal$Events$getNearest;
-var $author$project$Chart$Attributes$highlight = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{highlight: v});
-	});
+var $author$project$Chart$Attributes$highlight = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{highlight: v});
+		});
+};
 var $author$project$Internal$Events$getCoords = $author$project$Internal$Events$Decoder(
 	F3(
 		function (_v0, plane, searched) {
@@ -24569,16 +24603,19 @@ var $author$project$Chart$Events$map = $author$project$Internal$Events$map;
 var $author$project$Internal$Events$Event = function (a) {
 	return {$: 'Event', a: a};
 };
-var $author$project$Internal$Events$on = F3(
-	function (name, decoder, config) {
-		return _Utils_update(
-			config,
-			{
-				events: A2(
-					$elm$core$List$cons,
-					$author$project$Internal$Events$Event(
-						{decoder: decoder, name: name}),
-					config.events)
+var $author$project$Internal$Events$on = F2(
+	function (name, decoder) {
+		return $author$project$Internal$Helpers$Attribute(
+			function (config) {
+				return _Utils_update(
+					config,
+					{
+						events: A2(
+							$elm$core$List$cons,
+							$author$project$Internal$Events$Event(
+								{decoder: decoder, name: name}),
+							config.events)
+					});
 			});
 	});
 var $author$project$Chart$Events$on = $author$project$Internal$Events$on;
@@ -24919,14 +24956,16 @@ var $author$project$Examples$BarCharts$Histogram$data = _List_fromArray(
 var $author$project$Internal$Svg$Times = function (a) {
 	return {$: 'Times', a: a};
 };
-var $author$project$Chart$Attributes$times = F2(
-	function (zone, config) {
-		return _Utils_update(
-			config,
-			{
-				generate: $author$project$Internal$Svg$Times(zone)
-			});
-	});
+var $author$project$Chart$Attributes$times = function (zone) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{
+					generate: $author$project$Internal$Svg$Times(zone)
+				});
+		});
+};
 var $elm$time$Time$Zone = F2(
 	function (a, b) {
 		return {$: 'Zone', a: a, b: b};
@@ -24977,11 +25016,12 @@ var $author$project$Examples$BarCharts$Histogram$view = function (model) {
 			]));
 };
 var $author$project$Internal$Svg$Column = {$: 'Column'};
-var $author$project$Chart$Attributes$column = function (config) {
-	return _Utils_update(
-		config,
-		{alignment: $author$project$Internal$Svg$Column});
-};
+var $author$project$Chart$Attributes$column = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{alignment: $author$project$Internal$Svg$Column});
+	});
 var $author$project$Examples$BarCharts$Legends$Datum = F8(
 	function (x, x1, y, z, v, w, p, q) {
 		return {p: p, q: q, v: v, w: w, x: x, x1: x1, y: y, z: z};
@@ -25837,13 +25877,14 @@ var $author$project$Internal$Svg$lineLegend = F3(
 				]));
 	});
 var $author$project$Internal$Svg$Linear = {$: 'Linear'};
-var $author$project$Chart$Attributes$linear = function (config) {
-	return _Utils_update(
-		config,
-		{
-			method: $elm$core$Maybe$Just($author$project$Internal$Svg$Linear)
-		});
-};
+var $author$project$Chart$Attributes$linear = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{
+				method: $elm$core$Maybe$Just($author$project$Internal$Svg$Linear)
+			});
+	});
 var $author$project$Chart$Svg$lineLegend = F3(
 	function (edits, interAttrsOrg, dotAttrsOrg) {
 		var interpolationConfigOrg = A2($author$project$Internal$Helpers$apply, interAttrsOrg, $author$project$Internal$Svg$defaultInterpolation);
@@ -25906,12 +25947,14 @@ var $author$project$Chart$Svg$lineLegend = F3(
 			A2($author$project$Internal$Helpers$apply, interAttrs, $author$project$Internal$Svg$defaultInterpolation),
 			A2($author$project$Internal$Helpers$apply, dotAttrs, $author$project$Internal$Svg$defaultDot));
 	});
-var $author$project$Chart$Attributes$title = F2(
-	function (value, config) {
-		return _Utils_update(
-			config,
-			{title: value});
-	});
+var $author$project$Chart$Attributes$title = function (value) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{title: value});
+		});
+};
 var $author$project$Chart$legendsAt = F4(
 	function (toX, toY, attrs, children) {
 		return $author$project$Chart$HtmlElement(
@@ -26148,16 +26191,18 @@ var $author$project$Examples$BarCharts$Pattern$data = _List_fromArray(
 var $author$project$Internal$Svg$Dotted = function (a) {
 	return {$: 'Dotted', a: a};
 };
-var $author$project$Chart$Attributes$dotted = F2(
-	function (attrs_, config) {
-		return _Utils_update(
-			config,
-			{
-				design: $elm$core$Maybe$Just(
-					$author$project$Internal$Svg$Dotted(attrs_)),
-				opacity: (!config.opacity) ? 1 : config.opacity
-			});
-	});
+var $author$project$Chart$Attributes$dotted = function (attrs_) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{
+					design: $elm$core$Maybe$Just(
+						$author$project$Internal$Svg$Dotted(attrs_)),
+					opacity: (!config.opacity) ? 1 : config.opacity
+				});
+		});
+};
 var $author$project$Examples$BarCharts$Pattern$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -26647,11 +26692,12 @@ var $author$project$Examples$BarCharts$Ungroup$data = _List_fromArray(
 		A8($author$project$Examples$BarCharts$Ungroup$Datum, 2.0, 3.0, 4.0, 3.2, 4.8, 5.4, 7.2, 8.3),
 		A8($author$project$Examples$BarCharts$Ungroup$Datum, 3.0, 4.0, 5.0, 3.0, 4.1, 5.5, 7.9, 8.1)
 	]);
-var $author$project$Chart$Attributes$ungroup = function (config) {
-	return _Utils_update(
-		config,
-		{grouped: false});
-};
+var $author$project$Chart$Attributes$ungroup = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{grouped: false});
+	});
 var $author$project$Examples$BarCharts$Ungroup$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -26746,22 +26792,26 @@ var $author$project$Examples$BarCharts$VariableWidth$view = function (model) {
 				$author$project$Examples$BarCharts$VariableWidth$data)
 			]));
 };
-var $author$project$Chart$Attributes$amount = F2(
-	function (value, config) {
-		return _Utils_update(
-			config,
-			{amount: value});
-	});
+var $author$project$Chart$Attributes$amount = function (value) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{amount: value});
+		});
+};
 var $author$project$Chart$TicksElement = F2(
 	function (a, b) {
 		return {$: 'TicksElement', a: a, b: b};
 	});
-var $author$project$Chart$Attributes$length = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{length: v});
-	});
+var $author$project$Chart$Attributes$length = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{length: v});
+		});
+};
 var $author$project$Internal$Svg$defaultTick = {attrs: _List_Nil, color: 'rgb(210, 210, 210)', length: 5, width: 1};
 var $author$project$Internal$Svg$tick = F4(
 	function (plane, config, isX, point) {
@@ -26817,14 +26867,7 @@ var $author$project$Chart$xTicks = function (edits) {
 				config.amount,
 				config.generate,
 				$elm$core$Maybe$Nothing,
-				A3(
-					$elm$core$List$foldl,
-					F2(
-						function (f, x) {
-							return f(x);
-						}),
-					p.x,
-					config.limits)));
+				A2($author$project$Internal$Helpers$apply, config.limits, p.x)));
 	};
 	var addTickValues = F2(
 		function (p, ts) {
@@ -26975,14 +27018,7 @@ var $author$project$Chart$yAxis = function (edits) {
 		$author$project$Chart$AxisElement,
 		addTickValues,
 		function (p) {
-			var yLimit = A3(
-				$elm$core$List$foldl,
-				F2(
-					function (f, y) {
-						return f(y);
-					}),
-				p.y,
-				config.limits);
+			var yLimit = A2($author$project$Internal$Helpers$apply, config.limits, p.y);
 			return A2(
 				$elm$svg$Svg$g,
 				_List_fromArray(
@@ -27047,14 +27083,7 @@ var $author$project$Chart$yTicks = function (edits) {
 				config.amount,
 				config.generate,
 				$elm$core$Maybe$Nothing,
-				A3(
-					$elm$core$List$foldl,
-					F2(
-						function (f, y) {
-							return f(y);
-						}),
-					p.y,
-					config.limits)));
+				A2($author$project$Internal$Helpers$apply, config.limits, p.y)));
 	};
 	var addTickValues = F2(
 		function (p, ts) {
@@ -27162,18 +27191,23 @@ var $author$project$Examples$Frame$Arbitrary$view = function (model) {
 					]))
 			]));
 };
-var $author$project$Chart$Attributes$domain = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{domain: v});
-	});
-var $author$project$Chart$Attributes$highest = F3(
-	function (v, edit, b) {
-		return _Utils_update(
-			b,
-			{
-				max: A3(edit, v, b.max, b.dataMax)
+var $author$project$Chart$Attributes$domain = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{domain: v});
+		});
+};
+var $author$project$Chart$Attributes$highest = F2(
+	function (v, edit) {
+		return $author$project$Internal$Helpers$Attribute(
+			function (b) {
+				return _Utils_update(
+					b,
+					{
+						max: A3(edit, v, b.max, b.dataMax)
+					});
 			});
 	});
 var $author$project$Chart$interpolated = F2(
@@ -27186,27 +27220,32 @@ var $author$project$Chart$interpolated = F2(
 					[$author$project$Chart$Attributes$linear]),
 				inter));
 	});
-var $author$project$Chart$Attributes$likeData = function (b) {
-	return _Utils_update(
-		b,
-		{max: b.dataMax, min: b.dataMin});
-};
-var $author$project$Chart$Attributes$limits = F2(
-	function (value, config) {
+var $author$project$Chart$Attributes$likeData = $author$project$Internal$Helpers$Attribute(
+	function (b) {
 		return _Utils_update(
-			config,
-			{limits: value});
+			b,
+			{max: b.dataMax, min: b.dataMin});
 	});
+var $author$project$Chart$Attributes$limits = function (value) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{limits: value});
+		});
+};
 var $author$project$Chart$Attributes$orHigher = F3(
 	function (most, real, _v0) {
 		return (_Utils_cmp(real, most) < 0) ? most : real;
 	});
-var $author$project$Chart$Attributes$range = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{range: v});
-	});
+var $author$project$Chart$Attributes$range = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{range: v});
+		});
+};
 var $author$project$Chart$SeriesElement = F4(
 	function (a, b, c, d) {
 		return {$: 'SeriesElement', a: a, b: b, c: c, d: d};
@@ -27215,6 +27254,7 @@ var $author$project$Internal$Legend$LineLegend = F3(
 	function (a, b, c) {
 		return {$: 'LineLegend', a: a, b: b, c: c};
 	});
+var $author$project$Internal$Helpers$noChange = $author$project$Internal$Helpers$Attribute($elm$core$Basics$identity);
 var $author$project$Internal$Legend$toDotLegends = F2(
 	function (elIndex, properties) {
 		var toInterConfig = function (attrs) {
@@ -27237,7 +27277,7 @@ var $author$project$Internal$Legend$toDotLegends = F2(
 					[
 						$author$project$Chart$Attributes$color(interConfig.color),
 						$author$project$Chart$Attributes$border(interConfig.color),
-						_Utils_eq(interConfig.method, $elm$core$Maybe$Nothing) ? $author$project$Chart$Attributes$circle : $elm$core$Basics$identity
+						$author$project$Internal$Helpers$noChange
 					]);
 				var dotAttrs = _Utils_ap(defaultAttrs, prop.presentation);
 				return A3(
@@ -27294,7 +27334,7 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 					[
 						$author$project$Chart$Attributes$color(interpolationConfig.color),
 						$author$project$Chart$Attributes$border(interpolationConfig.color),
-						_Utils_eq(interpolationConfig.method, $elm$core$Maybe$Nothing) ? $author$project$Chart$Attributes$circle : $elm$core$Basics$identity
+						_Utils_eq(interpolationConfig.method, $elm$core$Maybe$Nothing) ? $author$project$Chart$Attributes$circle : $author$project$Internal$Helpers$noChange
 					]);
 				var dotAttrs = _Utils_ap(
 					defaultAttrs,
@@ -27590,12 +27630,14 @@ var $author$project$Examples$Frame$AxisLength$view = function (model) {
 					[$author$project$Chart$Attributes$withGrid]))
 			]));
 };
-var $author$project$Chart$Attributes$htmlAttrs = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{htmlAttrs: v});
-	});
+var $author$project$Chart$Attributes$htmlAttrs = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{htmlAttrs: v});
+		});
+};
 var $author$project$Examples$Frame$Background$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -27758,14 +27800,15 @@ var $author$project$Internal$Coordinates$center = function (pos) {
 var $author$project$Internal$Coordinates$pointToPosition = function (point) {
 	return {x1: point.x, x2: point.x, y1: point.y, y2: point.y};
 };
-var $author$project$Chart$Attributes$center = function (config) {
-	return _Utils_update(
-		config,
-		{
-			focal: $elm$core$Maybe$Just(
-				A2($elm$core$Basics$composeR, $author$project$Internal$Coordinates$center, $author$project$Internal$Coordinates$pointToPosition))
-		});
-};
+var $author$project$Chart$Attributes$center = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{
+				focal: $elm$core$Maybe$Just(
+					A2($elm$core$Basics$composeR, $author$project$Internal$Coordinates$center, $author$project$Internal$Coordinates$pointToPosition))
+			});
+	});
 var $author$project$Internal$Item$Custom = {$: 'Custom'};
 var $author$project$Chart$CustomElement = F2(
 	function (a, b) {
@@ -27826,20 +27869,23 @@ var $author$project$Chart$ListOfElements = function (a) {
 	return {$: 'ListOfElements', a: a};
 };
 var $author$project$Chart$list = $author$project$Chart$ListOfElements;
-var $author$project$Chart$Attributes$offset = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{offset: v});
-	});
-var $author$project$Internal$Svg$TopOrBottom = {$: 'TopOrBottom'};
-var $author$project$Chart$Attributes$onTopOrBottom = function (config) {
-	return _Utils_update(
-		config,
-		{
-			direction: $elm$core$Maybe$Just($author$project$Internal$Svg$TopOrBottom)
+var $author$project$Chart$Attributes$offset = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{offset: v});
 		});
 };
+var $author$project$Internal$Svg$TopOrBottom = {$: 'TopOrBottom'};
+var $author$project$Chart$Attributes$onTopOrBottom = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{
+				direction: $elm$core$Maybe$Just($author$project$Internal$Svg$TopOrBottom)
+			});
+	});
 var $author$project$Internal$Svg$defaultRect = {attrs: _List_Nil, border: 'rgba(210, 210, 210, 1)', borderWidth: 1, color: 'rgba(210, 210, 210, 0.5)', hideOverflow: false, opacity: 1, x1: $elm$core$Maybe$Nothing, x2: $elm$core$Maybe$Nothing, y1: $elm$core$Maybe$Nothing, y2: $elm$core$Maybe$Nothing};
 var $author$project$Internal$Svg$rect = F2(
 	function (plane, config) {
@@ -28128,14 +28174,16 @@ var $author$project$Examples$Frame$CustomElements$view = function (model) {
 					}))
 			]));
 };
-var $author$project$Chart$Attributes$format = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{
-				format: $elm$core$Maybe$Just(v)
-			});
-	});
+var $author$project$Chart$Attributes$format = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{
+					format: $elm$core$Maybe$Just(v)
+				});
+		});
+};
 var $author$project$Examples$Frame$CustomFormat$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -28158,14 +28206,16 @@ var $author$project$Examples$Frame$CustomFormat$view = function (model) {
 					]))
 			]));
 };
-var $author$project$Chart$Attributes$fontSize = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{
-				fontSize: $elm$core$Maybe$Just(v)
-			});
-	});
+var $author$project$Chart$Attributes$fontSize = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{
+					fontSize: $elm$core$Maybe$Just(v)
+				});
+		});
+};
 var $author$project$Chart$generate = F5(
 	function (num, gen, limit, attrs, func) {
 		return $author$project$Chart$SubElements(
@@ -28175,26 +28225,25 @@ var $author$project$Chart$generate = F5(
 						$author$project$Chart$Svg$generate,
 						num,
 						gen,
-						A3(
-							$elm$core$List$foldl,
-							F2(
-								function (f, x) {
-									return f(x);
-								}),
-							limit(p),
-							attrs));
+						A2(
+							$author$project$Internal$Helpers$apply,
+							attrs,
+							limit(p)));
 					return A2(
 						$elm$core$List$concatMap,
 						func(p),
 						items);
 				}));
 	});
-var $author$project$Chart$Attributes$x = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{x: v});
-	});
+var $author$project$Chart$Attributes$noChange = $author$project$Internal$Helpers$Attribute($elm$core$Basics$identity);
+var $author$project$Chart$Attributes$x = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{x: v});
+		});
+};
 var $author$project$Chart$LabelElement = F3(
 	function (a, b, c) {
 		return {$: 'LabelElement', a: a, b: b, c: c};
@@ -28267,12 +28316,14 @@ var $author$project$Chart$xLabel = F2(
 						{x: config.x, y: config.y});
 				}));
 	});
-var $author$project$Chart$Attributes$y = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{y: v});
-	});
+var $author$project$Chart$Attributes$y = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{y: v});
+		});
+};
 var $author$project$Examples$Frame$CustomLabels$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -28303,10 +28354,10 @@ var $author$project$Examples$Frame$CustomLabels$view = function (model) {
 									[
 										$author$project$Chart$Attributes$x(num),
 										$author$project$Chart$Attributes$withGrid,
-										isEven ? $elm$core$Basics$identity : $author$project$Chart$Attributes$y(p.y.max),
-										isEven ? $elm$core$Basics$identity : $author$project$Chart$Attributes$moveUp(28),
-										isEven ? $elm$core$Basics$identity : $author$project$Chart$Attributes$fontSize(10),
-										isEven ? $elm$core$Basics$identity : $author$project$Chart$Attributes$color($author$project$Chart$Attributes$blue)
+										isEven ? $author$project$Chart$Attributes$noChange : $author$project$Chart$Attributes$y(p.y.max),
+										isEven ? $author$project$Chart$Attributes$noChange : $author$project$Chart$Attributes$moveUp(28),
+										isEven ? $author$project$Chart$Attributes$noChange : $author$project$Chart$Attributes$fontSize(10),
+										isEven ? $author$project$Chart$Attributes$noChange : $author$project$Chart$Attributes$color($author$project$Chart$Attributes$blue)
 									]),
 								_List_fromArray(
 									[
@@ -28373,11 +28424,12 @@ var $author$project$Examples$Frame$Dimensions$view = function (model) {
 					]))
 			]));
 };
-var $author$project$Chart$Attributes$dotGrid = function (config) {
-	return _Utils_update(
-		config,
-		{dotGrid: true});
-};
+var $author$project$Chart$Attributes$dotGrid = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{dotGrid: true});
+	});
 var $author$project$Examples$Frame$DotGrid$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -28399,13 +28451,16 @@ var $author$project$Examples$Frame$DotGrid$view = function (model) {
 				$author$project$Chart$yLabels(_List_Nil)
 			]));
 };
-var $author$project$Chart$Attributes$ellipsis = F3(
-	function (w, h, config) {
-		return _Utils_update(
-			config,
-			{
-				ellipsis: $elm$core$Maybe$Just(
-					{height: h, width: w})
+var $author$project$Chart$Attributes$ellipsis = F2(
+	function (w, h) {
+		return $author$project$Internal$Helpers$Attribute(
+			function (config) {
+				return _Utils_update(
+					config,
+					{
+						ellipsis: $elm$core$Maybe$Just(
+							{height: h, width: w})
+					});
 			});
 	});
 var $author$project$Examples$Frame$Ellipsis$view = function (model) {
@@ -28471,11 +28526,12 @@ var $author$project$Examples$Frame$GridColor$view = function (model) {
 					[$author$project$Chart$Attributes$withGrid]))
 			]));
 };
-var $author$project$Chart$Attributes$noGrid = function (config) {
-	return _Utils_update(
-		config,
-		{grid: false});
-};
+var $author$project$Chart$Attributes$noGrid = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{grid: false});
+	});
 var $author$project$Examples$Frame$GridFilter$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -28496,13 +28552,14 @@ var $author$project$Examples$Frame$GridFilter$view = function (model) {
 					[$author$project$Chart$Attributes$noGrid]))
 			]));
 };
-var $author$project$Chart$Attributes$alignLeft = function (config) {
-	return _Utils_update(
-		config,
-		{
-			anchor: $elm$core$Maybe$Just($author$project$Internal$Svg$Start)
-		});
-};
+var $author$project$Chart$Attributes$alignLeft = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{
+				anchor: $elm$core$Maybe$Just($author$project$Internal$Svg$Start)
+			});
+	});
 var $author$project$Examples$Frame$LabelWithLine$Datum = F2(
 	function (age, toys) {
 		return {age: age, toys: toys};
@@ -28592,13 +28649,14 @@ var $author$project$Examples$Frame$LabelWithLine$view = function (model) {
 			]));
 };
 var $author$project$Internal$Svg$Cross = {$: 'Cross'};
-var $author$project$Chart$Attributes$cross = function (config) {
-	return _Utils_update(
-		config,
-		{
-			shape: $elm$core$Maybe$Just($author$project$Internal$Svg$Cross)
-		});
-};
+var $author$project$Chart$Attributes$cross = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{
+				shape: $elm$core$Maybe$Just($author$project$Internal$Svg$Cross)
+			});
+	});
 var $author$project$Examples$Frame$Legends$Datum = F7(
 	function (x, y, z, v, w, p, q) {
 		return {p: p, q: q, v: v, w: w, x: x, y: y, z: z};
@@ -28612,17 +28670,20 @@ var $author$project$Examples$Frame$Legends$data = _List_fromArray(
 		A7($author$project$Examples$Frame$Legends$Datum, 5, 6, 3, 5.4, 3.9, 7.6, 8.5),
 		A7($author$project$Examples$Frame$Legends$Datum, 6, 4, 3, 4.5, 5.3, 6.3, 7.0)
 	]);
-var $author$project$Chart$Attributes$pinned = F2(
-	function (value, config) {
+var $author$project$Chart$Attributes$pinned = function (value) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{pinned: value});
+		});
+};
+var $author$project$Chart$Attributes$row = $author$project$Internal$Helpers$Attribute(
+	function (config) {
 		return _Utils_update(
 			config,
-			{pinned: value});
+			{alignment: $author$project$Internal$Svg$Row});
 	});
-var $author$project$Chart$Attributes$row = function (config) {
-	return _Utils_update(
-		config,
-		{alignment: $author$project$Internal$Svg$Row});
-};
 var $author$project$Examples$Frame$Legends$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -28875,11 +28936,12 @@ var $author$project$Examples$Frame$Offset$view = function (model) {
 			]));
 };
 var $author$project$Internal$Svg$Ints = {$: 'Ints'};
-var $author$project$Chart$Attributes$ints = function (config) {
-	return _Utils_update(
-		config,
-		{generate: $author$project$Internal$Svg$Ints});
-};
+var $author$project$Chart$Attributes$ints = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{generate: $author$project$Internal$Svg$Ints});
+	});
 var $author$project$Examples$Frame$OnlyInts$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -29386,21 +29448,23 @@ var $author$project$Examples$Frontpage$BasicBubble$view = function (model) {
 			]));
 };
 var $author$project$Internal$Svg$Monotone = {$: 'Monotone'};
-var $author$project$Chart$Attributes$monotone = function (config) {
-	return _Utils_update(
-		config,
-		{
-			method: $elm$core$Maybe$Just($author$project$Internal$Svg$Monotone)
-		});
-};
+var $author$project$Chart$Attributes$monotone = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{
+				method: $elm$core$Maybe$Just($author$project$Internal$Svg$Monotone)
+			});
+	});
 var $author$project$Internal$Svg$Square = {$: 'Square'};
-var $author$project$Chart$Attributes$square = function (config) {
-	return _Utils_update(
-		config,
-		{
-			shape: $elm$core$Maybe$Just($author$project$Internal$Svg$Square)
-		});
-};
+var $author$project$Chart$Attributes$square = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{
+				shape: $elm$core$Maybe$Just($author$project$Internal$Svg$Square)
+			});
+	});
 var $author$project$Examples$Frontpage$BasicLine$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -29869,12 +29933,14 @@ var $author$project$Examples$Frontpage$Familiar$view = function (model) {
 var $author$project$Examples$Interactivity$Background$OnHover = function (a) {
 	return {$: 'OnHover', a: a};
 };
-var $author$project$Chart$Attributes$background = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{background: v});
-	});
+var $author$project$Chart$Attributes$background = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{background: v});
+		});
+};
 var $author$project$Examples$Interactivity$Background$Datum = F8(
 	function (x, x1, y, z, v, w, p, q) {
 		return {p: p, q: q, v: v, w: w, x: x, x1: x1, y: y, z: z};
@@ -30834,13 +30900,14 @@ var $author$project$Chart$format = function (func) {
 		});
 };
 var $author$project$Internal$Svg$LeftOrRight = {$: 'LeftOrRight'};
-var $author$project$Chart$Attributes$onLeftOrRight = function (config) {
-	return _Utils_update(
-		config,
-		{
-			direction: $elm$core$Maybe$Just($author$project$Internal$Svg$LeftOrRight)
-		});
-};
+var $author$project$Chart$Attributes$onLeftOrRight = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{
+				direction: $elm$core$Maybe$Just($author$project$Internal$Svg$LeftOrRight)
+			});
+	});
 var $author$project$Examples$Interactivity$ChangeUnit$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -31362,18 +31429,19 @@ var $author$project$Examples$Interactivity$Focal$data = _List_fromArray(
 		A8($author$project$Examples$Interactivity$Focal$Datum, 3.0, 0.6, 1.0, 3.2, 4.8, 5.4, 7.2, 8.3),
 		A8($author$project$Examples$Interactivity$Focal$Datum, 4.0, 0.2, 1.2, 3.0, 4.1, 5.5, 7.9, 8.1)
 	]);
-var $author$project$Chart$Attributes$top = function (config) {
-	return _Utils_update(
-		config,
-		{
-			focal: $elm$core$Maybe$Just(
-				function (pos) {
-					return _Utils_update(
-						pos,
-						{y1: pos.y2});
-				})
-		});
-};
+var $author$project$Chart$Attributes$top = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{
+				focal: $elm$core$Maybe$Just(
+					function (pos) {
+						return _Utils_update(
+							pos,
+							{y1: pos.y2});
+					})
+			});
+	});
 var $author$project$Examples$Interactivity$Focal$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -31975,13 +32043,14 @@ var $author$project$Data$Iris$data = _List_fromArray(
 		A5($author$project$Data$Iris$Datum, 5.9, 3.0, 5.1, 1.8, $author$project$Data$Iris$Virginica)
 	]);
 var $author$project$Internal$Svg$Diamond = {$: 'Diamond'};
-var $author$project$Chart$Attributes$diamond = function (config) {
-	return _Utils_update(
-		config,
-		{
-			shape: $elm$core$Maybe$Just($author$project$Internal$Svg$Diamond)
-		});
-};
+var $author$project$Chart$Attributes$diamond = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{
+				shape: $elm$core$Maybe$Just($author$project$Internal$Svg$Diamond)
+			});
+	});
 var $author$project$Examples$Interactivity$Zoom$getCurrentWindow = function (model) {
 	switch (model.$) {
 		case 'NoZoom':
@@ -32226,13 +32295,15 @@ var $author$project$Examples$Interactivity$ZoomAlt$OnMouseUp = F2(
 var $author$project$Examples$Interactivity$ZoomAlt$OnZoomIn = {$: 'OnZoomIn'};
 var $author$project$Examples$Interactivity$ZoomAlt$OnZoomOut = {$: 'OnZoomOut'};
 var $author$project$Examples$Interactivity$ZoomAlt$OnZoomReset = {$: 'OnZoomReset'};
-var $author$project$Chart$Attributes$centerAt = F2(
-	function (v, axis) {
-		var full = axis.max - axis.min;
-		return _Utils_update(
-			axis,
-			{max: v + (full / 2), min: v - (full / 2)});
-	});
+var $author$project$Chart$Attributes$centerAt = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (axis) {
+			var full = axis.max - axis.min;
+			return _Utils_update(
+				axis,
+				{max: v + (full / 2), min: v - (full / 2)});
+		});
+};
 var $author$project$Chart$Attributes$darkGray = $author$project$Internal$Helpers$darkGray;
 var $author$project$Internal$Events$getOffset = $author$project$Internal$Events$Decoder(
 	F3(
@@ -32243,21 +32314,24 @@ var $author$project$Internal$Events$getOffset = $author$project$Internal$Events$
 			};
 		}));
 var $author$project$Chart$Events$getOffset = $author$project$Internal$Events$getOffset;
-var $author$project$Chart$Attributes$hideOverflow = function (config) {
-	return _Utils_update(
-		config,
-		{hideOverflow: true});
-};
-var $elm$html$Html$span = _VirtualDom_node('span');
-var $author$project$Chart$Attributes$zoom = F2(
-	function (per, axis) {
-		var full = axis.max - axis.min;
-		var zoomedFull = full / (A2($elm$core$Basics$max, 1, per) / 100);
-		var off = (full - zoomedFull) / 2;
+var $author$project$Chart$Attributes$hideOverflow = $author$project$Internal$Helpers$Attribute(
+	function (config) {
 		return _Utils_update(
-			axis,
-			{max: axis.max - off, min: axis.min + off});
+			config,
+			{hideOverflow: true});
 	});
+var $elm$html$Html$span = _VirtualDom_node('span');
+var $author$project$Chart$Attributes$zoom = function (per) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (axis) {
+			var full = axis.max - axis.min;
+			var zoomedFull = full / (A2($elm$core$Basics$max, 1, per) / 100);
+			var off = (full - zoomedFull) / 2;
+			return _Utils_update(
+				axis,
+				{max: axis.max - off, min: axis.min + off});
+		});
+};
 var $author$project$Examples$Interactivity$ZoomAlt$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -33084,13 +33158,14 @@ var $author$project$Chart$interpolatedMaybe = F2(
 				inter));
 	});
 var $author$project$Internal$Svg$Stepped = {$: 'Stepped'};
-var $author$project$Chart$Attributes$stepped = function (config) {
-	return _Utils_update(
-		config,
-		{
-			method: $elm$core$Maybe$Just($author$project$Internal$Svg$Stepped)
-		});
-};
+var $author$project$Chart$Attributes$stepped = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{
+				method: $elm$core$Maybe$Just($author$project$Internal$Svg$Stepped)
+			});
+	});
 var $author$project$Examples$LineCharts$Missing$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -34179,21 +34254,23 @@ var $author$project$Examples$ScatterCharts$Shapes$data = _List_fromArray(
 		A7($author$project$Examples$ScatterCharts$Shapes$Datum, 4.0, 1.0, 4.2, 4.5, 5.3, 6.3, 7.0)
 	]);
 var $author$project$Internal$Svg$Plus = {$: 'Plus'};
-var $author$project$Chart$Attributes$plus = function (config) {
-	return _Utils_update(
-		config,
-		{
-			shape: $elm$core$Maybe$Just($author$project$Internal$Svg$Plus)
-		});
-};
+var $author$project$Chart$Attributes$plus = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{
+				shape: $elm$core$Maybe$Just($author$project$Internal$Svg$Plus)
+			});
+	});
 var $author$project$Internal$Svg$Triangle = {$: 'Triangle'};
-var $author$project$Chart$Attributes$triangle = function (config) {
-	return _Utils_update(
-		config,
-		{
-			shape: $elm$core$Maybe$Just($author$project$Internal$Svg$Triangle)
-		});
-};
+var $author$project$Chart$Attributes$triangle = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{
+				shape: $elm$core$Maybe$Just($author$project$Internal$Svg$Triangle)
+			});
+	});
 var $author$project$Examples$ScatterCharts$Shapes$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -35445,7 +35522,7 @@ var $author$project$Examples$Frame$Color$largeCode = '\nimport Html as H\nimport
 var $author$project$Examples$Frame$Coordinates$largeCode = '\nimport Html as H\nimport Html.Attributes as HA\nimport Svg as S\nimport Svg.Attributes as SA\nimport Chart as C\nimport Chart.Attributes as CA\nimport Chart.Svg as CS\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xAxis []\n    , C.xTicks []\n    , C.xLabels []\n    , C.yAxis []\n    , C.yTicks []\n    , C.yLabels []\n\n    , C.svg <| \\p ->\n        let point = { x = 6, y = 4 }\n            pointSvg = CS.fromCartesian p point\n            color = if CS.fromSvg p pointSvg == point then "purple" else "blue"\n        in\n        S.g []\n          [ S.circle\n              [ SA.r "10"\n              , SA.fill color\n              , SA.cx (String.fromFloat pointSvg.x)\n              , SA.cy (String.fromFloat pointSvg.y)\n              ]\n              []\n          ]\n    ]\n  ';
 var $author$project$Examples$Frame$CustomElements$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\nimport Chart.Events as CE\nimport Chart.Item as CI\nimport Chart.Svg as CS\n\n\ntype alias Model =\n  { hovering : List (CI.One { x : Float, y : Float } CI.Any) }\n\n\ninit : Model\ninit =\n  { hovering = [] }\n\n\ntype Msg\n  = OnHover (List (CI.One { x : Float, y : Float } CI.Any))\n\n\nupdate : Msg -> Model -> Model\nupdate msg model =\n  case msg of\n    OnHover hovering ->\n      { model | hovering = hovering }\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CE.onMouseMove OnHover (CE.getNearest CI.any)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xTicks []\n    , C.xLabels []\n    , C.yTicks []\n    , C.yLabels []\n    , C.list <|\n        let heatmapItem index value =\n              let x = toFloat (remainderBy 5 index) * 2\n                  y = toFloat (index // 5) * 2\n                  color =\n                    if value > 8  then "#0E4D64" else\n                    if value > 6  then "#137177" else\n                    if value > 4  then "#188977" else\n                    if value > 2  then "#1D9A6C" else\n                    if value > 0  then "#74C67A" else\n                    if value == 0 then "#99D492" else\n                    "#0A2F51"\n              in\n              C.custom\n                { name = "Temperature"\n                , color = color\n                , position = { x1 = x, x2 = x + 2, y1 = y, y2 = y + 2 }\n                , format = \\coord -> String.fromFloat coord.y ++ " C°"\n                , data = { x = toFloat index, y = value }\n                , render = \\p ->\n                    CS.rect p\n                      [ CA.x1 x\n                      , CA.x2 (x + 2)\n                      , CA.y1 y\n                      , CA.y2 (y + 2)\n                      , CA.color color\n                      , CA.border "white"\n                      ]\n                }\n        in\n        List.indexedMap heatmapItem\n          [ 2, 5, 8, 5, 3\n          , 5, 7, 9, 0, 3\n          , 2, 4, 6, 3, 5\n          , 7, 9, 0, 3, 2\n          , 4, 6, 7, 8, 10\n          ]\n\n    , C.each model.hovering <| \\_ item ->\n        [ C.tooltip item [ CA.center, CA.offset 0, CA.onTopOrBottom ] [] [] ]\n    ]\n  ';
 var $author$project$Examples$Frame$CustomFormat$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xAxis []\n    , C.xLabels [ CA.format (\\x -> String.fromFloat x ++ " C°"), CA.withGrid ]\n    ]\n  ';
-var $author$project$Examples$Frame$CustomLabels$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\nimport Chart.Svg as CS\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xAxis []\n    , C.generate 12 CS.ints .x [] <| \\p num ->\n        let isEven = remainderBy 2 num == 0 in\n        [ C.xLabel\n            [ CA.x (toFloat num)\n            , CA.withGrid\n            , if isEven then identity else CA.y p.y.max\n            , if isEven then identity else CA.moveUp 28\n            , if isEven then identity else CA.fontSize 10\n            , if isEven then identity else CA.color CA.blue\n            ]\n            [ S.text (String.fromInt num ++ "°") ]\n        ]\n    ]\n  ';
+var $author$project$Examples$Frame$CustomLabels$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\nimport Chart.Svg as CS\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xAxis []\n    , C.generate 12 CS.ints .x [] <| \\p num ->\n        let isEven = remainderBy 2 num == 0 in\n        [ C.xLabel\n            [ CA.x (toFloat num)\n            , CA.withGrid\n            , if isEven then CA.noChange else CA.y p.y.max\n            , if isEven then CA.noChange else CA.moveUp 28\n            , if isEven then CA.noChange else CA.fontSize 10\n            , if isEven then CA.noChange else CA.color CA.blue\n            ]\n            [ S.text (String.fromInt num ++ "°") ]\n        ]\n    ]\n  ';
 var $author$project$Examples$Frame$Dimensions$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.range\n        [ CA.lowest 5 CA.orLower\n        , CA.highest 90 CA.orHigher\n        ]\n    , CA.domain\n        [ CA.lowest 5 CA.orLower\n        , CA.highest 100 CA.orHigher\n        ]\n    ]\n    [ C.series .x\n        [ C.interpolated .y [  ] [] ]\n        [ { x = 10, y = 20 }\n        , { x = 80, y = 80 }\n        ]\n    , C.xLabels [ CA.amount 10, CA.withGrid ]\n    , C.yLabels [ CA.amount 10, CA.withGrid ]\n    ]\n  ';
 var $author$project$Examples$Frame$DotGrid$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.grid [ CA.dotGrid ]\n    , C.xAxis []\n    , C.xTicks []\n    , C.xLabels []\n    , C.yAxis []\n    , C.yTicks []\n    , C.yLabels []\n    ]\n  ';
 var $author$project$Examples$Frame$Ellipsis$largeCode = '\nimport Html as H\nimport Html.Attributes as HA\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.margin { top = 10, left = 45, bottom = 30, right = 15 }\n    ]\n    [ C.yAxis [ CA.noArrow ]\n    , C.yTicks []\n    , C.yLabels\n        [ CA.format (\\y -> String.fromFloat y ++ " yyyyyyy")\n        , CA.ellipsis 35 20 -- width: 35, height: 10\n        ]\n\n    , C.xAxis [ CA.noArrow ]\n    , C.xTicks []\n    , C.xLabels\n        [ CA.format (\\x -> String.fromFloat x ++ " xxxxxxx")\n        , CA.ellipsis 35 20\n        ]\n    ]\n  ';
@@ -35770,7 +35847,7 @@ var $author$project$Examples$Frame$Color$smallCode = '\n  C.chart\n    [ CA.heig
 var $author$project$Examples$Frame$Coordinates$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xAxis []\n    , C.xTicks []\n    , C.xLabels []\n    , C.yAxis []\n    , C.yTicks []\n    , C.yLabels []\n\n    , C.svg <| \\p ->\n        let point = { x = 6, y = 4 }\n            pointSvg = CS.fromCartesian p point\n            color = if CS.fromSvg p pointSvg == point then "purple" else "blue"\n        in\n        S.g []\n          [ S.circle\n              [ SA.r "10"\n              , SA.fill color\n              , SA.cx (String.fromFloat pointSvg.x)\n              , SA.cy (String.fromFloat pointSvg.y)\n              ]\n              []\n          ]\n    ]\n  ';
 var $author$project$Examples$Frame$CustomElements$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CE.onMouseMove OnHover (CE.getNearest CI.any)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xTicks []\n    , C.xLabels []\n    , C.yTicks []\n    , C.yLabels []\n    , C.list <|\n        let heatmapItem index value =\n              let x = toFloat (remainderBy 5 index) * 2\n                  y = toFloat (index // 5) * 2\n                  color =\n                    if value > 8  then "#0E4D64" else\n                    if value > 6  then "#137177" else\n                    if value > 4  then "#188977" else\n                    if value > 2  then "#1D9A6C" else\n                    if value > 0  then "#74C67A" else\n                    if value == 0 then "#99D492" else\n                    "#0A2F51"\n              in\n              C.custom\n                { name = "Temperature"\n                , color = color\n                , position = { x1 = x, x2 = x + 2, y1 = y, y2 = y + 2 }\n                , format = \\coord -> String.fromFloat coord.y ++ " C°"\n                , data = { x = toFloat index, y = value }\n                , render = \\p ->\n                    CS.rect p\n                      [ CA.x1 x\n                      , CA.x2 (x + 2)\n                      , CA.y1 y\n                      , CA.y2 (y + 2)\n                      , CA.color color\n                      , CA.border "white"\n                      ]\n                }\n        in\n        List.indexedMap heatmapItem\n          [ 2, 5, 8, 5, 3\n          , 5, 7, 9, 0, 3\n          , 2, 4, 6, 3, 5\n          , 7, 9, 0, 3, 2\n          , 4, 6, 7, 8, 10\n          ]\n\n    , C.each model.hovering <| \\_ item ->\n        [ C.tooltip item [ CA.center, CA.offset 0, CA.onTopOrBottom ] [] [] ]\n    ]\n  ';
 var $author$project$Examples$Frame$CustomFormat$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xAxis []\n    , C.xLabels [ CA.format (\\x -> String.fromFloat x ++ " C°"), CA.withGrid ]\n    ]\n  ';
-var $author$project$Examples$Frame$CustomLabels$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xAxis []\n    , C.generate 12 CS.ints .x [] <| \\p num ->\n        let isEven = remainderBy 2 num == 0 in\n        [ C.xLabel\n            [ CA.x (toFloat num)\n            , CA.withGrid\n            , if isEven then identity else CA.y p.y.max\n            , if isEven then identity else CA.moveUp 28\n            , if isEven then identity else CA.fontSize 10\n            , if isEven then identity else CA.color CA.blue\n            ]\n            [ S.text (String.fromInt num ++ "°") ]\n        ]\n    ]\n  ';
+var $author$project$Examples$Frame$CustomLabels$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xAxis []\n    , C.generate 12 CS.ints .x [] <| \\p num ->\n        let isEven = remainderBy 2 num == 0 in\n        [ C.xLabel\n            [ CA.x (toFloat num)\n            , CA.withGrid\n            , if isEven then CA.noChange else CA.y p.y.max\n            , if isEven then CA.noChange else CA.moveUp 28\n            , if isEven then CA.noChange else CA.fontSize 10\n            , if isEven then CA.noChange else CA.color CA.blue\n            ]\n            [ S.text (String.fromInt num ++ "°") ]\n        ]\n    ]\n  ';
 var $author$project$Examples$Frame$Dimensions$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.range\n        [ CA.lowest 5 CA.orLower\n        , CA.highest 90 CA.orHigher\n        ]\n    , CA.domain\n        [ CA.lowest 5 CA.orLower\n        , CA.highest 100 CA.orHigher\n        ]\n    ]\n    [ C.series .x\n        [ C.interpolated .y [  ] [] ]\n        [ { x = 10, y = 20 }\n        , { x = 80, y = 80 }\n        ]\n    , C.xLabels [ CA.amount 10, CA.withGrid ]\n    , C.yLabels [ CA.amount 10, CA.withGrid ]\n    ]\n  ';
 var $author$project$Examples$Frame$DotGrid$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.grid [ CA.dotGrid ]\n    , C.xAxis []\n    , C.xTicks []\n    , C.xLabels []\n    , C.yAxis []\n    , C.yTicks []\n    , C.yLabels []\n    ]\n  ';
 var $author$project$Examples$Frame$Ellipsis$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.margin { top = 10, left = 45, bottom = 30, right = 15 }\n    ]\n    [ C.yAxis [ CA.noArrow ]\n    , C.yTicks []\n    , C.yLabels\n        [ CA.format (\\y -> String.fromFloat y ++ " yyyyyyy")\n        , CA.ellipsis 35 20 -- width: 35, height: 10\n        ]\n\n    , C.xAxis [ CA.noArrow ]\n    , C.xTicks []\n    , C.xLabels\n        [ CA.format (\\x -> String.fromFloat x ++ " xxxxxxx")\n        , CA.ellipsis 35 20\n        ]\n    ]\n  ';
@@ -40073,11 +40150,12 @@ var $author$project$Charts$Dashboard3$lineData = _List_fromArray(
 		1633046400000,
 		$elm$core$Maybe$Just(83))
 	]);
-var $author$project$Chart$Attributes$uppercase = function (config) {
-	return _Utils_update(
-		config,
-		{uppercase: true});
-};
+var $author$project$Chart$Attributes$uppercase = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{uppercase: true});
+	});
 var $author$project$Charts$Dashboard3$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -40294,19 +40372,22 @@ var $author$project$Charts$Dashboard4$data = _List_fromArray(
 		$elm$core$Maybe$Just(35),
 		'Winston')
 	]);
-var $author$project$Chart$Attributes$highlightWidth = F2(
-	function (v, config) {
-		return _Utils_update(
-			config,
-			{highlightWidth: v});
-	});
-var $author$project$Chart$Attributes$onTop = function (config) {
-	return _Utils_update(
-		config,
-		{
-			direction: $elm$core$Maybe$Just($author$project$Internal$Svg$Top)
+var $author$project$Chart$Attributes$highlightWidth = function (v) {
+	return $author$project$Internal$Helpers$Attribute(
+		function (config) {
+			return _Utils_update(
+				config,
+				{highlightWidth: v});
 		});
 };
+var $author$project$Chart$Attributes$onTop = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{
+				direction: $elm$core$Maybe$Just($author$project$Internal$Svg$Top)
+			});
+	});
 var $author$project$Charts$Dashboard4$colors = $elm$core$Dict$fromList(
 	A2(
 		$elm$core$List$indexedMap,
