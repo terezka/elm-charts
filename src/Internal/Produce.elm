@@ -232,38 +232,38 @@ updateBorder defaultColor product =
 {-| -}
 toDotSeries : Int -> (data -> Float) -> List (Property data S.Interpolation S.Dot) -> List data -> List (M.Many (I.One data S.Dot))
 toDotSeries elIndex toX properties data =
-  let forEachStack property ( absoluteIndex, stackIndex, items ) =
+  let forEachStackSeriesConfig stackSeriesConfig ( absoluteIndex, stackSeriesConfigIndex, items ) =
         let lineItems =
-              case property of 
-                NotStacked lineConfig ->
-                  [ forEachLine False absoluteIndex stackIndex 0 lineConfig ]
+              case stackSeriesConfig of 
+                NotStacked lineSeriesConfig ->
+                  [ forEachLine False absoluteIndex stackSeriesConfigIndex 0 lineSeriesConfig ]
 
-                Stacked lineConfigs ->
-                  List.indexedMap (forEachLine True absoluteIndex stackIndex) lineConfigs
+                Stacked lineSeriesConfigs ->
+                  List.indexedMap (forEachLine True absoluteIndex stackSeriesConfigIndex) lineSeriesConfigs
         in 
         ( absoluteIndex + List.length lineItems
-        , stackIndex + 1
+        , stackSeriesConfigIndex + 1
         , items ++ List.filterMap identity lineItems
         )
 
-      forEachLine isStacked absoluteIndex stackIndex seriesIndex lineConfig =
-        let absoluteIndexNew = absoluteIndex + seriesIndex
+      forEachLine isStacked absoluteIndex stackSeriesConfigIndex lineSeriesConfigIndex lineSeriesConfig =
+        let absoluteIndexNew = absoluteIndex + lineSeriesConfigIndex
             defaultColor = Helpers.toDefaultColor absoluteIndexNew
             defaultOpacity = if isStacked then 0.4 else 0
 
             interpolationAttrs = [ CA.color defaultColor, CA.opacity defaultOpacity ] 
-            interpolationConfig = Helpers.apply (interpolationAttrs ++ lineConfig.interpolation) S.defaultInterpolation 
+            interpolationConfig = Helpers.apply (interpolationAttrs ++ lineSeriesConfig.interpolation) S.defaultInterpolation 
 
-            dotItems = List.indexedMap (forEachDataPoint absoluteIndexNew stackIndex seriesIndex lineConfig interpolationConfig defaultColor defaultOpacity) data
+            dotItems = List.indexedMap (forEachDataPoint absoluteIndexNew stackSeriesConfigIndex lineSeriesConfigIndex lineSeriesConfig interpolationConfig defaultColor defaultOpacity) data
             
             viewSeries plane =
               let toBottom datum =
-                    Maybe.map2 (\y ySum -> ySum - y) (lineConfig.toY datum) (lineConfig.toYSum datum)
+                    Maybe.map2 (\y ySum -> ySum - y) (lineSeriesConfig.toY datum) (lineSeriesConfig.toYSum datum)
               in
               S.g
                 [ SA.class "elm-charts__series" ]
-                [ S.area plane toX (Just toBottom) lineConfig.toYSum interpolationConfig data
-                , S.interpolation plane toX lineConfig.toYSum interpolationConfig data
+                [ S.area plane toX (Just toBottom) lineSeriesConfig.toYSum interpolationConfig data
+                , S.interpolation plane toX lineSeriesConfig.toYSum interpolationConfig data
                 , S.g [ SA.class "elm-charts__dots" ] (List.map (I.toSvg plane) dotItems)
                 ]
         in
@@ -276,12 +276,12 @@ toDotSeries elIndex toX properties data =
             , toHtml = \c -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.toHtml ((\(x, xs) -> x :: xs) c.items)) ]
             }
         
-      forEachDataPoint absoluteIndex stackIndex seriesIndex lineConfig interpolationConfig defaultColor defaultOpacity dataIndex datum =
+      forEachDataPoint absoluteIndex stackSeriesConfigIndex lineSeriesConfigIndex lineSeriesConfig interpolationConfig defaultColor defaultOpacity dataIndex datum =
         let identification =
-              { stackIndex = stackIndex
-              , seriesIndex = seriesIndex
-              , absoluteIndex = absoluteIndex + seriesIndex
-              , dataIndex = dataIndex
+              { stackIndex = stackSeriesConfigIndex -- The number this stack configuration is within the full list of stack configurations. If no stacks, this is equal to seriesIndex.
+              , seriesIndex = lineSeriesConfigIndex -- The number this line configuration is within its stack. If no stacks, this is equal to stackIndex.
+              , absoluteIndex = absoluteIndex       -- The number this line configuration is within the total set of line configurations.
+              , dataIndex = dataIndex               -- The number this data point is within the list of data.
               }
 
             defaultAttrs = 
@@ -292,8 +292,8 @@ toDotSeries elIndex toX properties data =
 
             dotAttrs = 
               defaultAttrs ++ 
-              lineConfig.presentation ++ 
-              lineConfig.variation identification datum
+              lineSeriesConfig.presentation ++ 
+              lineSeriesConfig.variation identification datum
 
             dotConfig = 
               Helpers.apply dotAttrs S.defaultDot 
@@ -301,7 +301,7 @@ toDotSeries elIndex toX properties data =
             radius =
               Maybe.withDefault 0 <| Maybe.map (S.toRadius dotConfig.size) dotConfig.shape
 
-            y = Maybe.withDefault 0 (lineConfig.toYSum datum)
+            y = Maybe.withDefault 0 (lineSeriesConfig.toYSum datum)
             x = toX datum
 
             limits =
@@ -311,12 +311,12 @@ toDotSeries elIndex toX properties data =
         in
         I.Rendered
           { toSvg = \plane _ _ ->
-              case lineConfig.toY datum of
+              case lineSeriesConfig.toY datum of
                 Nothing -> S.text ""
                 Just _ -> S.dot plane .x .y dotConfig { x = x, y = y }
 
           , toHtml = \c -> 
-              [ tooltipRow c.tooltipInfo.color (toDefaultName absoluteIndex c.tooltipInfo.name) (lineConfig.tooltipText datum) ]
+              [ tooltipRow c.tooltipInfo.color (toDefaultName absoluteIndex c.tooltipInfo.name) (lineSeriesConfig.tooltipText datum) ]
 
           , toLimits = \_ -> limits
 
@@ -335,7 +335,7 @@ toDotSeries elIndex toX properties data =
                   , x1 = x
                   , x2 = x
                   , y = y
-                  , isReal = lineConfig.toY datum /= Nothing
+                  , isReal = lineSeriesConfig.toY datum /= Nothing
                   }
               , tooltipInfo =
                   { property = identification.stackIndex
@@ -343,20 +343,20 @@ toDotSeries elIndex toX properties data =
                   , data = identification.dataIndex
                   , index = identification.absoluteIndex
                   , elIndex = elIndex
-                  , name = lineConfig.tooltipName
+                  , name = lineSeriesConfig.tooltipName
                   , color =
                       case dotConfig.color of
                         "white" -> interpolationConfig.color
                         _       -> dotConfig.color
                   , border = dotConfig.border
                   , borderWidth = dotConfig.borderWidth
-                  , formatted = lineConfig.tooltipText datum
+                  , formatted = lineSeriesConfig.tooltipText datum
                   }
               , toAny = I.Dot
               }
           }
   in
-  List.foldl forEachStack ( 0, 0, [] ) properties
+  List.foldl forEachStackSeriesConfig ( 0, 0, [] ) properties
     |> (\(_, _, items) -> items)
 
 

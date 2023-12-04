@@ -17623,13 +17623,7 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 							},
 							values: {
 								datum: bin.datum,
-								isReal: function () {
-									if (y.$ === 'Just') {
-										return true;
-									} else {
-										return false;
-									}
-								}(),
+								isReal: !_Utils_eq(y, $elm$core$Maybe$Nothing),
 								x1: start,
 								x2: end,
 								y: A2($elm$core$Maybe$withDefault, 0, y)
@@ -17654,7 +17648,7 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 							};
 						},
 						toPosition: F2(
-							function (_v6, config) {
+							function (_v5, config) {
 								return {x1: x1, x2: x2, y1: y1, y2: y2};
 							}),
 						toSvg: F3(
@@ -27398,14 +27392,14 @@ var $elm$core$Maybe$map2 = F3(
 var $author$project$Internal$Produce$toDotSeries = F4(
 	function (elIndex, toX, properties, data) {
 		var forEachDataPoint = F9(
-			function (absoluteIndex, stackIndex, seriesIndex, lineConfig, interpolationConfig, defaultColor, defaultOpacity, dataIndex, datum) {
+			function (absoluteIndex, stackSeriesConfigIndex, lineSeriesConfigIndex, lineSeriesConfig, interpolationConfig, defaultColor, defaultOpacity, dataIndex, datum) {
 				var y = A2(
 					$elm$core$Maybe$withDefault,
 					0,
-					lineConfig.toYSum(datum));
+					lineSeriesConfig.toYSum(datum));
 				var x = toX(datum);
 				var limits = {x1: x, x2: x, y1: y, y2: y};
-				var identification = {absoluteIndex: absoluteIndex + seriesIndex, dataIndex: dataIndex, seriesIndex: seriesIndex, stackIndex: stackIndex};
+				var identification = {absoluteIndex: absoluteIndex, dataIndex: dataIndex, seriesIndex: lineSeriesConfigIndex, stackIndex: stackSeriesConfigIndex};
 				var defaultAttrs = _List_fromArray(
 					[
 						$author$project$Chart$Attributes$color(defaultColor),
@@ -27415,8 +27409,8 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 				var dotAttrs = _Utils_ap(
 					defaultAttrs,
 					_Utils_ap(
-						lineConfig.presentation,
-						A2(lineConfig.variation, identification, datum)));
+						lineSeriesConfig.presentation,
+						A2(lineSeriesConfig.variation, identification, datum)));
 				var dotConfig = A2($author$project$Internal$Helpers$apply, dotAttrs, $author$project$Internal$Svg$defaultDot);
 				var radius = A2(
 					$elm$core$Maybe$withDefault,
@@ -27443,16 +27437,16 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 								}(),
 								data: identification.dataIndex,
 								elIndex: elIndex,
-								formatted: lineConfig.tooltipText(datum),
+								formatted: lineSeriesConfig.tooltipText(datum),
 								index: identification.absoluteIndex,
-								name: lineConfig.tooltipName,
+								name: lineSeriesConfig.tooltipName,
 								property: identification.stackIndex,
 								stack: identification.seriesIndex
 							},
 							values: {
 								datum: datum,
 								isReal: !_Utils_eq(
-									lineConfig.toY(datum),
+									lineSeriesConfig.toY(datum),
 									$elm$core$Maybe$Nothing),
 								x1: x,
 								x2: x,
@@ -27466,7 +27460,7 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 									$author$project$Internal$Produce$tooltipRow,
 									c.tooltipInfo.color,
 									A2($author$project$Internal$Produce$toDefaultName, absoluteIndex, c.tooltipInfo.name),
-									lineConfig.tooltipText(datum))
+									lineSeriesConfig.tooltipText(datum))
 								]);
 						},
 						toLimits: function (_v9) {
@@ -27480,7 +27474,7 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 							}),
 						toSvg: F3(
 							function (plane, _v11, _v12) {
-								var _v13 = lineConfig.toY(datum);
+								var _v13 = lineSeriesConfig.toY(datum);
 								if (_v13.$ === 'Nothing') {
 									return $elm$svg$Svg$text('');
 								} else {
@@ -27500,9 +27494,9 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 					});
 			});
 		var forEachLine = F5(
-			function (isStacked, absoluteIndex, stackIndex, seriesIndex, lineConfig) {
+			function (isStacked, absoluteIndex, stackSeriesConfigIndex, lineSeriesConfigIndex, lineSeriesConfig) {
 				var defaultOpacity = isStacked ? 0.4 : 0;
-				var absoluteIndexNew = absoluteIndex + seriesIndex;
+				var absoluteIndexNew = absoluteIndex + lineSeriesConfigIndex;
 				var defaultColor = $author$project$Internal$Helpers$toDefaultColor(absoluteIndexNew);
 				var interpolationAttrs = _List_fromArray(
 					[
@@ -27511,11 +27505,11 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 					]);
 				var interpolationConfig = A2(
 					$author$project$Internal$Helpers$apply,
-					_Utils_ap(interpolationAttrs, lineConfig.interpolation),
+					_Utils_ap(interpolationAttrs, lineSeriesConfig.interpolation),
 					$author$project$Internal$Svg$defaultInterpolation);
 				var dotItems = A2(
 					$elm$core$List$indexedMap,
-					A7(forEachDataPoint, absoluteIndexNew, stackIndex, seriesIndex, lineConfig, interpolationConfig, defaultColor, defaultOpacity),
+					A7(forEachDataPoint, absoluteIndexNew, stackSeriesConfigIndex, lineSeriesConfigIndex, lineSeriesConfig, interpolationConfig, defaultColor, defaultOpacity),
 					data);
 				var viewSeries = function (plane) {
 					var toBottom = function (datum) {
@@ -27525,8 +27519,8 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 								function (y, ySum) {
 									return ySum - y;
 								}),
-							lineConfig.toY(datum),
-							lineConfig.toYSum(datum));
+							lineSeriesConfig.toY(datum),
+							lineSeriesConfig.toYSum(datum));
 					};
 					return A2(
 						$elm$svg$Svg$g,
@@ -27541,10 +27535,10 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 								plane,
 								toX,
 								$elm$core$Maybe$Just(toBottom),
-								lineConfig.toYSum,
+								lineSeriesConfig.toYSum,
 								interpolationConfig,
 								data),
-								A5($author$project$Internal$Svg$interpolation, plane, toX, lineConfig.toYSum, interpolationConfig, data),
+								A5($author$project$Internal$Svg$interpolation, plane, toX, lineSeriesConfig.toYSum, interpolationConfig, data),
 								A2(
 								$elm$svg$Svg$g,
 								_List_fromArray(
@@ -27614,29 +27608,29 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 								});
 						}));
 			});
-		var forEachStack = F2(
-			function (property, _v2) {
+		var forEachStackSeriesConfig = F2(
+			function (stackSeriesConfig, _v2) {
 				var absoluteIndex = _v2.a;
-				var stackIndex = _v2.b;
+				var stackSeriesConfigIndex = _v2.b;
 				var items = _v2.c;
 				var lineItems = function () {
-					if (property.$ === 'NotStacked') {
-						var lineConfig = property.a;
+					if (stackSeriesConfig.$ === 'NotStacked') {
+						var lineSeriesConfig = stackSeriesConfig.a;
 						return _List_fromArray(
 							[
-								A5(forEachLine, false, absoluteIndex, stackIndex, 0, lineConfig)
+								A5(forEachLine, false, absoluteIndex, stackSeriesConfigIndex, 0, lineSeriesConfig)
 							]);
 					} else {
-						var lineConfigs = property.a;
+						var lineSeriesConfigs = stackSeriesConfig.a;
 						return A2(
 							$elm$core$List$indexedMap,
-							A3(forEachLine, true, absoluteIndex, stackIndex),
-							lineConfigs);
+							A3(forEachLine, true, absoluteIndex, stackSeriesConfigIndex),
+							lineSeriesConfigs);
 					}
 				}();
 				return _Utils_Tuple3(
 					absoluteIndex + $elm$core$List$length(lineItems),
-					stackIndex + 1,
+					stackSeriesConfigIndex + 1,
 					_Utils_ap(
 						items,
 						A2($elm$core$List$filterMap, $elm$core$Basics$identity, lineItems)));
@@ -27647,7 +27641,7 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 		}(
 			A3(
 				$elm$core$List$foldl,
-				forEachStack,
+				forEachStackSeriesConfig,
 				_Utils_Tuple3(0, 0, _List_Nil),
 				properties));
 	});
