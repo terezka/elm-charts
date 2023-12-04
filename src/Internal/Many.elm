@@ -26,7 +26,7 @@ getMembers (I.Rendered (x, xs) _) =
 {-| -}
 getMember : Many x -> x
 getMember (I.Rendered (x, xs) _) =
-   x
+  x
 
 
 {-| -}

@@ -52,7 +52,7 @@ toDotLegends elIndex properties =
         let defaultOpacity = if List.length props > 1 then 0.4 else 0
             interAttr = [ CA.color (Helpers.toDefaultColor colorIndex), CA.opacity defaultOpacity ] ++ prop.interpolation
             interConfig = toInterConfig interAttr
-            defaultAttrs = [ CA.color interConfig.color, CA.border interConfig.color, if interConfig.method == Nothing then CA.circle else identity ]
+            defaultAttrs = [ CA.color interConfig.color, CA.border interConfig.color, Helpers.noChange ]
             dotAttrs = defaultAttrs ++ prop.presentation
             defaultName = "Property #" ++ String.fromInt (colorIndex + 1)
         in

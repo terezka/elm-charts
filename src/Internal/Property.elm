@@ -78,7 +78,7 @@ stacked properties =
 
 
 {-| -}
-tooltipText : (Maybe Float -> String) -> Attribute (Property data interpolation presentation)
+tooltipText : (Maybe Float -> String) -> Property data interpolation presentation -> Property data interpolation presentation
 tooltipText newTooltipText property =
   let update config =
         { config | tooltipText = \datum -> newTooltipText (config.toY datum) }
@@ -89,7 +89,7 @@ tooltipText newTooltipText property =
 
 
 {-| -}
-name : String -> Attribute (Property data interpolation presentation)
+name : String -> Property data interpolation presentation -> Property data interpolation presentation
 name newName property =
   let update config =
         { config | tooltipName = Just newName }
@@ -100,7 +100,7 @@ name newName property =
 
 
 {-| -}
-variation : (Identification -> data -> List (Attribute presentation)) -> Attribute (Property data interpolation presentation)
+variation : (Identification -> data -> List (Attribute presentation)) -> Property data interpolation presentation -> Property data interpolation presentation
 variation newVariation property =
   let update config =
         { config | variation = \ids datum -> config.variation ids datum ++ newVariation ids datum }

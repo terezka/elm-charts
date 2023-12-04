@@ -280,7 +280,7 @@ toDotSeries elementIndex toX properties data =
             defaultAttrs = 
               [ CA.color interpolationConfig.color
               , CA.border interpolationConfig.color
-              , if interpolationConfig.method == Nothing then CA.circle else identity 
+              , if interpolationConfig.method == Nothing then CA.circle else Helpers.noChange
               ]
 
             dotAttrs = 

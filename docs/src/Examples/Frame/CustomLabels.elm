@@ -22,10 +22,10 @@ view model =
         [ C.xLabel
             [ CA.x (toFloat num)
             , CA.withGrid
-            , if isEven then identity else CA.y p.y.max
-            , if isEven then identity else CA.moveUp 28
-            , if isEven then identity else CA.fontSize 10
-            , if isEven then identity else CA.color CA.blue
+            , if isEven then CA.noChange else CA.y p.y.max
+            , if isEven then CA.noChange else CA.moveUp 28
+            , if isEven then CA.noChange else CA.fontSize 10
+            , if isEven then CA.noChange else CA.color CA.blue
             ]
             [ S.text (String.fromInt num ++ "°") ]
         ]
@@ -73,10 +73,10 @@ smallCode =
         [ C.xLabel
             [ CA.x (toFloat num)
             , CA.withGrid
-            , if isEven then identity else CA.y p.y.max
-            , if isEven then identity else CA.moveUp 28
-            , if isEven then identity else CA.fontSize 10
-            , if isEven then identity else CA.color CA.blue
+            , if isEven then CA.noChange else CA.y p.y.max
+            , if isEven then CA.noChange else CA.moveUp 28
+            , if isEven then CA.noChange else CA.fontSize 10
+            , if isEven then CA.noChange else CA.color CA.blue
             ]
             [ S.text (String.fromInt num ++ "°") ]
         ]
@@ -106,10 +106,10 @@ view model =
         [ C.xLabel
             [ CA.x (toFloat num)
             , CA.withGrid
-            , if isEven then identity else CA.y p.y.max
-            , if isEven then identity else CA.moveUp 28
-            , if isEven then identity else CA.fontSize 10
-            , if isEven then identity else CA.color CA.blue
+            , if isEven then CA.noChange else CA.y p.y.max
+            , if isEven then CA.noChange else CA.moveUp 28
+            , if isEven then CA.noChange else CA.fontSize 10
+            , if isEven then CA.noChange else CA.color CA.blue
             ]
             [ S.text (String.fromInt num ++ "°") ]
         ]

@@ -155,11 +155,11 @@ import Internal.Item as Item
 import Internal.Produce as Produce
 import Internal.Legend as Legend
 import Internal.Many as Many
-import Internal.Helpers as Helpers
+import Internal.Helpers as Helpers exposing (Attribute)
 import Internal.Svg as IS
 import Internal.Events as IE
 import Chart.Svg as CS
-import Chart.Attributes as CA exposing (Attribute)
+import Chart.Attributes as CA 
 import Chart.Events as CE
 import Chart.Item as CI
 
@@ -413,12 +413,12 @@ definePlane config elements =
       calcRange =
         case config.range of
           [] -> limits_.x
-          some -> List.foldl (\f b -> f b) limits_.x some
+          some -> Helpers.apply some limits_.x 
 
       calcDomain =
         case config.domain of
-          [] -> CA.lowest 0 CA.orLower limits_.y
-          some -> List.foldl (\f b -> f b) limits_.y some
+          [] -> Helpers.apply [CA.lowest 0 CA.orLower] limits_.y
+          some -> Helpers.apply some limits_.y
 
       unpadded =
         { x = calcRange
@@ -705,7 +705,7 @@ xAxis edits =
         { ts | yAxis = config.pinned p.y :: ts.yAxis }
   in
   AxisElement addTickValues <| \p ->
-    let xLimit = List.foldl (\f x -> f x) p.x config.limits in
+    let xLimit = Helpers.apply config.limits p.x in
     S.g
       [ SA.class "elm-charts__x-axis" ]
       [ CS.line p
@@ -744,7 +744,7 @@ yAxis edits =
         { ts | xAxis = config.pinned p.x :: ts.xAxis }
   in
   AxisElement addTickValues <| \p ->
-    let yLimit = List.foldl (\f y -> f y) p.y config.limits in
+    let yLimit = Helpers.apply config.limits p.y in
     S.g
       [ SA.class "elm-charts__y-axis" ]
       [ CS.line p
@@ -831,7 +831,7 @@ xTicks edits =
           }
 
       toTicks p =
-        List.foldl (\f x -> f x) p.x config.limits
+        Helpers.apply config.limits p.x 
           |> generateValues config.amount config.generate Nothing
           |> List.map .value
 
@@ -872,7 +872,7 @@ yTicks edits =
           }
 
       toTicks p =
-        List.foldl (\f y -> f y) p.y config.limits
+        Helpers.apply config.limits p.y 
           |> generateValues config.amount config.generate Nothing
           |> List.map .value
 
@@ -999,7 +999,7 @@ xLabels edits =
           }
 
       toTicks p config =
-        List.foldl (\f x -> f x) p.x config.limits
+        Helpers.apply config.limits p.x
           |> generateValues config.amount config.generate config.format
 
       toTickValues p config ts =
@@ -1057,7 +1057,7 @@ yLabels edits =
           }
 
       toTicks p config =
-        List.foldl (\f y -> f y) p.y config.limits
+        Helpers.apply config.limits p.y 
           |> generateValues config.amount config.generate config.format
 
       toTickValues p config ts =
@@ -2697,7 +2697,7 @@ See [live example](https://www.elm-charts.org/documentation/navigation/custom-la
 generate : Int -> CS.Generator a -> (C.Plane -> C.Axis) -> List (Attribute C.Axis) -> (C.Plane -> a -> List (Element data msg)) -> Element data msg
 generate num gen limit attrs func =
   SubElements <| \p _ ->
-    let items = CS.generate num gen (List.foldl (\f x -> f x) (limit p) attrs) in
+    let items = CS.generate num gen (Helpers.apply attrs (limit p)) in
     List.concatMap (func p) items
 
 

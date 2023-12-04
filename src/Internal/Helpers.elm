@@ -5,14 +5,19 @@ import Dict exposing (Dict)
 
 
 {-| -}
-type alias Attribute c =
-  c -> c
+type Attribute c =
+  Attribute (c -> c)
 
 
-apply : List (a -> a) -> a -> a
-apply funcs default =
-  let apply_ f a = f a in
-  List.foldl apply_ default funcs
+apply : List (Attribute a) -> a -> a
+apply attrs default =
+  let apply_ (Attribute f) a = f a in
+  List.foldl apply_ default attrs
+
+
+noChange : Attribute x
+noChange =
+  Attribute identity 
 
 
 withSurround : List a -> (Int -> Maybe a -> a -> Maybe a -> b) -> List b

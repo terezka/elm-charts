@@ -6,6 +6,13 @@ module Internal.Item exposing
   , getIdentification
   )
 
+
+{-| An item is anything rendered on the chart which should be able to be found again later. 
+You can think of is as a kind of virtual dom for the chart. You cannot search the chart for things
+once they are rendered, so we need to store a map of all the things to be able to find them.
+-}
+
+
 import Html as H exposing (Html)
 import Html.Attributes as HA
 import Svg as S exposing (Svg)

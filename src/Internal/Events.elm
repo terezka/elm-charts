@@ -6,17 +6,18 @@ import Html.Attributes as HA
 import Svg as S exposing (Svg)
 import Svg.Attributes as SA
 import Internal.Coordinates as C exposing (Point, Position, Plane)
-import Chart.Attributes as CA exposing (Attribute)
+import Chart.Attributes as CA
 import Internal.Svg as CS
 import Internal.Item as I
-import Internal.Helpers as Helpers
+import Internal.Helpers as Helpers exposing (Attribute(..))
 import Internal.Many as M
 
 
 
 on : String -> Decoder data msg -> Attribute { x | events : List (Event data msg) }
-on name decoder config =
-  { config | events = Event { name = name, decoder = decoder } :: config.events }
+on name decoder =
+  Attribute <| \config ->
+    { config | events = Event { name = name, decoder = decoder } :: config.events }
 
 
 
