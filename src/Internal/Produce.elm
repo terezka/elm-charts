@@ -139,7 +139,7 @@ toBarSeries elementIndex barsAttrs properties data =
           }
   in
   Helpers.withSurround data (toBin barsConfig) |> \bins ->
-    List.foldl (forEachStackSeriesConfig bins) ( 0, 0, [] ) properties
+    List.foldl (forEachStackSeriesConfig bins) ( elementIndex, 0, [] ) properties
       |> (\(_, _, items) -> items)
 
 
@@ -341,7 +341,7 @@ toDotSeries elementIndex toX properties data =
               ]
           }
   in
-  List.foldl forEachStackSeriesConfig ( 0, 0, [] ) properties
+  List.foldl forEachStackSeriesConfig ( elementIndex, 0, [] ) properties
     |> (\(_, _, items) -> items)
 
 
