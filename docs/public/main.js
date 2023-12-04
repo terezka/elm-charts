@@ -18438,8 +18438,7 @@ var $author$project$Chart$definePlane = F2(
 						var subs = el.a;
 						return A3($elm$core$List$foldl, collectLimits, acc, subs);
 					case 'ScaleElement':
-						var els = el.a;
-						return A3($elm$core$List$foldl, collectLimits, acc, els);
+						return acc;
 					case 'SvgElement':
 						return acc;
 					default:

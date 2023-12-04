@@ -388,7 +388,7 @@ definePlane config elements =
           GridElement _ -> acc
           SubElements _ -> acc
           ListOfElements subs -> List.foldl collectLimits acc subs
-          ScaleElement els _ _ _ -> List.foldl collectLimits acc els
+          ScaleElement _ _ _ _ -> acc
           SvgElement _ -> acc
           HtmlElement _ -> acc
 
