@@ -1459,7 +1459,7 @@ grid edits =
 
 -}
 type alias Property data inter deco =
-  P.Property data String inter deco
+  P.Property data inter deco
 
 
 {-| Specify the configuration of a bar. The first argument will determine the height of
@@ -1521,7 +1521,7 @@ Explore live examples for the following attributes:
 -}
 bar : (data -> Float) -> List (Attribute CS.Bar) -> Property data inter CS.Bar
 bar y =
-  P.property (y >> Just) []
+  P.notStacked (y >> Just) []
 
 
 {-| Same as `bar`, but allows for missing data.
@@ -1538,7 +1538,7 @@ bar y =
 -}
 barMaybe : (data -> Maybe Float) -> List (Attribute CS.Bar) -> Property data inter CS.Bar
 barMaybe y =
-  P.property y []
+  P.notStacked y []
 
 
 {-| Specify the configuration of a set of dots. The first argument will determine the y value of
@@ -1584,7 +1584,7 @@ Explore live examples for the following attributes:
 -}
 scatter : (data -> Float) -> List (Attribute CS.Dot) -> Property data inter CS.Dot
 scatter y =
-  P.property (y >> Just) []
+  P.notStacked (y >> Just) []
 
 
 {-| Same as `scatter`, but allows for missing data.
@@ -1601,7 +1601,7 @@ scatter y =
 -}
 scatterMaybe : (data -> Maybe Float) -> List (Attribute CS.Dot) -> Property data inter CS.Dot
 scatterMaybe y =
-  P.property y []
+  P.notStacked y []
 
 
 {-| Specify the configuration of a interpolated series (a line). The first argument will determine
@@ -1661,7 +1661,7 @@ Explore live examples for the following attributes:
 -}
 interpolated : (data -> Float) -> List (Attribute CS.Interpolation) -> List (Attribute CS.Dot) -> Property data CS.Interpolation CS.Dot
 interpolated y inter =
-  P.property (y >> Just) ([ CA.linear ] ++ inter)
+  P.notStacked (y >> Just) ([ CA.linear ] ++ inter)
 
 
 {-| Same as `interpolated`, but allows for missing data.
@@ -1681,7 +1681,7 @@ See live example of [missing data in line chart](https://www.elm-charts.org/docu
 -}
 interpolatedMaybe : (data -> Maybe Float) -> List (Attribute CS.Interpolation) -> List (Attribute CS.Dot) -> Property data CS.Interpolation CS.Dot
 interpolatedMaybe y inter =
-  P.property y ([ CA.linear ] ++ inter)
+  P.notStacked y ([ CA.linear ] ++ inter)
 
 
 {-| Name a bar, scatter, or interpolated series. This name will show up
@@ -1703,7 +1703,7 @@ See [live example](https://www.elm-charts.org/documentation/interactivity/change
 -}
 named : String -> Property data inter deco -> Property data inter deco
 named name =
-  P.meta name
+  P.name name
 
 
 {-| Easily format the value which shows up by default in your tooltip if you add one. You
@@ -1714,7 +1714,7 @@ See [live example](https://www.elm-charts.org/documentation/interactivity/change
 -}
 format : (Float -> String) -> Property data inter deco -> Property data inter deco
 format func =
-  P.format <| \v ->
+  P.tooltipText <| \v ->
     case v of
       Just v_ -> func v_
       Nothing -> "N/A"
@@ -1725,7 +1725,7 @@ format func =
 -}
 formatMaybe : (Maybe Float -> String) -> Property data inter deco -> Property data inter deco
 formatMaybe =
-  P.format
+  P.tooltipText
 
 
 {-| Change the style of your bars or dots based on the index of its data point
@@ -1747,7 +1747,7 @@ See [live example](https://www.elm-charts.org/documentation/scatter-charts/data-
 -}
 variation : (Int -> data -> List (Attribute deco)) -> Property data inter deco -> Property data inter deco
 variation func =
-  P.variation <| \_ _ index _ datum -> func index datum
+  P.variation <| \ids datum -> func ids.dataIndex datum
 
 
 {-| Change the style of your bars or dots based on whether it is a member
@@ -1771,13 +1771,13 @@ See [live example](https://www.elm-charts.org/documentation/interactivity/change
 -}
 amongst : List (CI.One data x) -> (data -> List (Attribute deco)) -> Property data inter deco -> Property data inter deco
 amongst inQuestion func =
-  P.variation <| \p s i meta d ->
+  P.variation <| \ids datum ->
     let check product =
-          if Item.getPropertyIndex product == p &&
-             Item.getStackIndex product == s &&
-             Item.getDataIndex product == i &&
-             Item.getDatum product == d
-          then func d else []
+          if Item.getPropertyIndex product == ids.stackIndex &&
+             Item.getStackIndex product == ids.seriesIndex &&
+             Item.getDataIndex product == ids.dataIndex &&
+             Item.getDatum product == datum
+          then func datum else []
     in
     List.concatMap check inQuestion
 

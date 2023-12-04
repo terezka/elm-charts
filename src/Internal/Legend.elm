@@ -19,7 +19,7 @@ type Legend
   | LineLegend String (List (CA.Attribute S.Interpolation)) (List (CA.Attribute S.Dot))
 
 
-toBarLegends : Int -> List (CA.Attribute (Produce.Bars data)) -> List (Property data String () S.Bar) -> List Legend
+toBarLegends : Int -> List (CA.Attribute (Produce.Bars data)) -> List (Property data () S.Bar) -> List Legend
 toBarLegends elIndex barsAttrs properties =
   let barsConfig =
         Helpers.apply barsAttrs Produce.defaultBars
@@ -32,31 +32,31 @@ toBarLegends elIndex barsAttrs properties =
             defaultColor = Helpers.toDefaultColor colorIndex
             rounding = max barsConfig.roundTop barsConfig.roundBottom
             defaultAttrs = [ CA.roundTop rounding, CA.roundBottom rounding, CA.color defaultColor, CA.border defaultColor ]
-            attrsOrg = defaultAttrs ++ prop.attrs
+            attrsOrg = defaultAttrs ++ prop.presentation
             productOrg = toBarConfig attrsOrg
             attrs = if productOrg.border == defaultColor then attrsOrg ++ [ CA.border productOrg.color ] else attrsOrg
         in
-        BarLegend (Maybe.withDefault defaultName prop.meta) attrs
+        BarLegend (Maybe.withDefault defaultName prop.tooltipName) attrs
   in
   List.concatMap P.toConfigs properties
     |> List.indexedMap (\propIndex -> toBarLegend (elIndex + propIndex))
 
 
 
-toDotLegends : Int ->  List (Property data String S.Interpolation S.Dot) -> List Legend
+toDotLegends : Int ->  List (Property data S.Interpolation S.Dot) -> List Legend
 toDotLegends elIndex properties =
   let toInterConfig attrs =
         Helpers.apply attrs S.defaultInterpolation
 
       toDotLegend props prop colorIndex =
         let defaultOpacity = if List.length props > 1 then 0.4 else 0
-            interAttr = [ CA.color (Helpers.toDefaultColor colorIndex), CA.opacity defaultOpacity ] ++ prop.inter
+            interAttr = [ CA.color (Helpers.toDefaultColor colorIndex), CA.opacity defaultOpacity ] ++ prop.interpolation
             interConfig = toInterConfig interAttr
             defaultAttrs = [ CA.color interConfig.color, CA.border interConfig.color, if interConfig.method == Nothing then CA.circle else identity ]
-            dotAttrs = defaultAttrs ++ prop.attrs
+            dotAttrs = defaultAttrs ++ prop.presentation
             defaultName = "Property #" ++ String.fromInt (colorIndex + 1)
         in
-        LineLegend (Maybe.withDefault defaultName prop.meta) interAttr dotAttrs
+        LineLegend (Maybe.withDefault defaultName prop.tooltipName) interAttr dotAttrs
   in
   List.map P.toConfigs properties
     |> List.concatMap (\ps -> List.map (toDotLegend ps) ps)

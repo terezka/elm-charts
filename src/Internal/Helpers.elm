@@ -27,9 +27,9 @@ withSurround all func =
 
 
 withFirst : List a -> (a -> List a -> b) -> Maybe b 
-withFirst xs func of 
+withFirst xs func =
   case xs of 
-    x : rest -> Just (func x xs)
+    x :: rest -> Just (func x xs)
     [] -> Nothing
     
 

@@ -30,8 +30,8 @@ type alias Identification =
 
 
 {-| -}
-property : (data -> Maybe Float) -> List (Attribute interpolation) -> List (Attribute presentation) -> Property data interpolation presentation
-property toY interpolation presentation =
+notStacked : (data -> Maybe Float) -> List (Attribute interpolation) -> List (Attribute presentation) -> Property data interpolation presentation
+notStacked toY interpolation presentation =
   NotStacked
     { toY = toY
     , toYSum = toY
@@ -44,6 +44,36 @@ property toY interpolation presentation =
           |> Maybe.map String.fromFloat
           |> Maybe.withDefault "N/A"
     }
+
+
+{-| -}
+stacked : List (Property data interpolation presentation) -> Property data interpolation presentation
+stacked properties =
+  let configs =
+        -- You cannot have a stack inside a stack. Collapse them if this is the case.
+        List.concatMap toConfigs (List.reverse properties)
+
+      stack : List (Config data interpolation presentation) -> List (data -> Maybe Float) -> List (Config data interpolation presentation) -> List (Config data interpolation presentation)
+      stack list toYs result =
+        -- Collect toY functions of properties below the current property in stack.
+        -- Use these to create toYSum, which produces the stacked y value for the current property.
+        -- TODO move this to .Produce
+        case list of
+          config :: rest ->
+            let toYs_ = config.toY :: toYs in
+            stack rest toYs_ ({ config | toYSum = toYSum toYs_ } :: result)
+
+          [] ->
+            result
+
+      toYSum toYs datum =
+        let yValues = List.filterMap (\toY -> toY datum) toYs 
+            isYValueMissing = List.length yValues /= List.length toYs
+        in
+         -- If any value in the stack is missing, we cannot show it for this data point.
+        if isYValueMissing then Nothing else Just (List.sum yValues)
+  in
+  Stacked (stack configs [] [])
 
 
 {-| -}
@@ -61,7 +91,7 @@ tooltipText newTooltipText property =
 name : String -> Attribute (Property data interpolation presentation)
 name newName property =
   let update config =
-        { config | name = Just newName }
+        { config | tooltipName = Just newName }
   in
   case property of
     NotStacked config -> NotStacked (update config)
@@ -79,31 +109,11 @@ variation newVariation property =
     Stacked configs -> Stacked (List.map update configs)
 
 
+toConfigs : Property data interpolation presentation -> List (Config data interpolation presentation)
+toConfigs property =
+  case property of
+    NotStacked config -> [config]
+    Stacked configs -> configs
 
-{-| -}
-stacked : List (Property data interpolation presentation) -> Property data interpolation presentation
-stacked properties =
-  let configs =
-        -- You cannot have a stack inside a stack. Collapse them if this is the case.
-        List.concatMap toConfigs (List.reverse properties)
+      
 
-      stack : List (Config data interpolation presentation) -> List (data -> Maybe Float) -> List (Config data interpolation presentation)
-      stack list toYs result =
-        -- Collect toY functions of properties below the current property in stack.
-        -- Use these to create toYSum, which produces the stacked y value for the current property.
-        case list of
-          config :: rest ->
-            let toYs_ = config.toY :: toYs in
-            stack rest toYs_ ({ config | toYSum = toYSum toYs_ } :: result)
-
-          [] ->
-            result
-
-      toYSum toYs datum =
-        let yValues = List.filterMap (\toY -> toY datum) toYs 
-            isYValueMissing = List.length yValues /= List.length toYs
-        in
-         -- If any value in the stack is missing, we cannot show it for this data point.
-        if isYValueMissing then Nothing else Just (List.sum yValues)
-  in
-  Stacked (stack configs [] [])
