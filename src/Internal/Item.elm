@@ -1,4 +1,17 @@
-module Internal.Item exposing (..)
+module Internal.Item exposing 
+  ( Rendered(..), One, Any(..)
+  , render, tooltip, getPosition, getLimits
+  , getColor, getName, getDatum, getX1, getX2, getY, isReal
+  , generalize, map, isDot, isBar, getX, getTooltipValue, getSize, isSame, filterMap
+  , getIdentification
+  )
+
+
+{-| An item is anything rendered on the chart which should be able to be found again later. 
+You can think of is as a kind of virtual dom for the chart. You cannot search the chart for things
+once they are rendered, so we need to store a map of all the things to be able to find them.
+-}
+
 
 import Html as H exposing (Html)
 import Html.Attributes as HA
@@ -9,24 +22,31 @@ import Dict exposing (Dict)
 import Internal.Property as P exposing (Property)
 import Internal.Svg as S
 import Internal.Helpers as Helpers
+import Internal.Property exposing (Identification)
 
 
-type Rendered a =
-  Rendered
-    { config : a
-    , toLimits : a -> Position
-    , toPosition : Plane -> a -> Position
-    , toSvg : Plane -> a -> Position -> Svg Never
-    , toHtml : a -> List (Html Never)
+type Rendered meta =
+  Rendered meta
+    { limits : Position
+    , toPosition : Plane -> Position
+    , render : Plane -> Position -> Svg Never
+    , tooltip : () -> List (Html Never)
     }
 
 
 {-| -}
 type alias One data x =
   Rendered
-    { product : x
-    , tooltipInfo : TooltipInfo
-    , values : Values data
+    { presentation : x
+    , color : String
+    , datum : data
+    , x1 : Float
+    , x2 : Float
+    , y : Float
+    , isReal : Bool
+    , tooltipText : String
+    , name : Maybe String
+    , identification : Identification
     , toAny : x -> Any
     }
 
@@ -38,57 +58,32 @@ type Any
   | Custom
 
 
-{-| -}
-type alias TooltipInfo =
-  { property : Int
-  , stack : Int
-  , data : Int
-  , index : Int
-  , elIndex : Int
-  , name : Maybe String
-  , color : String
-  , border : String
-  , borderWidth : Float
-  , formatted : String
-  }
-
-
-{-| -}
-type alias Values data =
-  { datum : data
-  , x1 : Float
-  , x2 : Float
-  , y : Float
-  , isReal : Bool
-  }
-
-
 
 -- ITEM
 
 
 {-| -}
-toSvg : Plane -> Rendered x -> Svg Never
-toSvg plane (Rendered item) =
-  item.toSvg plane item.config (item.toPosition plane item.config)
+render : Plane -> Rendered x -> Svg Never
+render plane (Rendered _ item) =
+  item.render plane (item.toPosition plane)
 
 
 {-| -}
-toHtml : Rendered x -> List (Html Never)
-toHtml (Rendered item) =
-  item.toHtml item.config
+tooltip : Rendered x -> List (Html Never)
+tooltip (Rendered _ item) =
+  item.tooltip ()
 
 
 {-| -}
 getPosition : Plane -> Rendered x -> Position
-getPosition plane (Rendered item) =
-  item.toPosition plane item.config
+getPosition plane (Rendered _ item) =
+  item.toPosition plane
 
 
 {-| -}
 getLimits : Rendered x -> Position
-getLimits (Rendered item) =
-  item.toLimits item.config
+getLimits (Rendered _ item) =
+  item.limits
 
 
 
@@ -97,152 +92,117 @@ getLimits (Rendered item) =
 
 {-| -}
 getColor : One data x -> String
-getColor (Rendered item) =
-  item.config.tooltipInfo.color
+getColor (Rendered meta _) =
+  meta.color
 
 
 {-| -}
 getName : One data x -> String
-getName (Rendered item) =
-  case item.config.tooltipInfo.name of
+getName (Rendered meta _) =
+  case meta.name of
     Just name -> name
-    Nothing -> "Property #" ++ String.fromInt (item.config.tooltipInfo.index + 1)
+    Nothing -> "Property #" ++ String.fromInt (meta.identification.absoluteIndex + 1)
 
 
 {-| -}
 getDatum : One data x -> data
-getDatum (Rendered item) =
-  item.config.values.datum
+getDatum (Rendered meta _) =
+  meta.datum
 
 
 {-| -}
 getX : One data x -> Float
-getX (Rendered item) =
-  item.config.values.x1
+getX (Rendered meta _) =
+  meta.x1
 
 
 {-| -}
 getX1 : One data x -> Float
-getX1 (Rendered item) =
-  item.config.values.x1
+getX1 (Rendered meta _) =
+  meta.x1
 
 
 {-| -}
 getX2 : One data x -> Float
-getX2 (Rendered item) =
-  item.config.values.x2
+getX2 (Rendered meta _) =
+  meta.x2
 
 
 {-| -}
 getY : One data x -> Float
-getY (Rendered item) =
-  item.config.values.y
+getY (Rendered meta _) =
+  meta.y
 
 
 {-| -}
 isReal : One data x -> Bool
-isReal (Rendered item) =
-  item.config.values.isReal
+isReal (Rendered meta _) =
+  meta.isReal
 
 
 {-| -}
-getElIndex : One data x -> Int
-getElIndex (Rendered item) =
-  item.config.tooltipInfo.elIndex
-
-
-{-| -}
-getPropertyIndex : One data x -> Int
-getPropertyIndex (Rendered item) =
-  item.config.tooltipInfo.property
-
-
-{-| -}
-getStackIndex : One data x -> Int
-getStackIndex (Rendered item) =
-  item.config.tooltipInfo.stack
-
-
-{-| -}
-getDataIndex : One data x -> Int
-getDataIndex (Rendered item) =
-  item.config.tooltipInfo.data
+getIdentification : One data x -> Identification
+getIdentification (Rendered meta _) =
+  meta.identification
 
 
 {-| -}
 getTooltipValue : One data x -> String
-getTooltipValue (Rendered item) =
-  item.config.tooltipInfo.formatted
-
-
-{-| -}
-getGeneral : One data x -> One data Any
-getGeneral (Rendered item) =
-  generalize item.config.toAny (Rendered item)
+getTooltipValue (Rendered meta _) =
+  meta.tooltipText
 
 
 {-| -}
 getSize : One data S.Dot -> Float
-getSize (Rendered item) =
-  item.config.product.size
+getSize (Rendered meta _) =
+  meta.presentation.size
 
 
 {-| -}
 isSame : One data x -> One data x -> Bool
 isSame a b =
-  getPropertyIndex a == getPropertyIndex b &&
-  getStackIndex a == getStackIndex b &&
-  getDataIndex a == getDataIndex b &&
-  getElIndex a == getElIndex b
+  getIdentification a == getIdentification b
 
 
 {-| -}
 map : (a -> b) -> One a x -> One b x
-map func (Rendered item) =
-  Rendered
-    { toLimits = \_ -> item.toLimits item.config
-    , toPosition = \plane _ -> item.toPosition plane item.config
-    , toSvg = \plane _ _ -> toSvg plane (Rendered item)
-    , toHtml = \_ -> toHtml (Rendered item)
-    , config =
-        { product = item.config.product
-        , values =
-            { datum = func item.config.values.datum
-            , x1 = item.config.values.x1
-            , x2 = item.config.values.x2
-            , y = item.config.values.y
-            , isReal = item.config.values.isReal
-            }
-        , tooltipInfo = item.config.tooltipInfo
-        , toAny = item.config.toAny
-        }
+map func (Rendered meta item) =
+  Rendered 
+    { presentation = meta.presentation
+    , color = meta.color
+    , datum = func meta.datum
+    , x1 = meta.x1
+    , x2 = meta.x2
+    , y = meta.y
+    , isReal = meta.isReal
+    , tooltipText = meta.tooltipText
+    , name = meta.name
+    , identification = meta.identification
+    , toAny = meta.toAny
     }
+    item
 
 
 {-| -}
 filterMap : (a -> Maybe b) -> List (One a x) -> List (One b x)
 filterMap func =
-  List.filterMap <| \(Rendered item) ->
-    case func item.config.values.datum of
+  List.filterMap <| \(Rendered meta item) ->
+    case func meta.datum of
       Just b ->
         Rendered
-          { toLimits = \_ -> item.toLimits item.config
-          , toPosition = \plane _ -> item.toPosition plane item.config
-          , toSvg = \plane _ _ -> toSvg plane (Rendered item)
-          , toHtml = \_ -> toHtml (Rendered item)
-          , config =
-              { product = item.config.product
-              , values =
-                  { datum = b
-                  , x1 = item.config.values.x1
-                  , x2 = item.config.values.x2
-                  , y = item.config.values.y
-                  , isReal = item.config.values.isReal
-                  }
-              , tooltipInfo = item.config.tooltipInfo
-              , toAny = item.config.toAny
-              }
+          { presentation = meta.presentation
+          , color = meta.color
+          , datum = b
+          , x1 = meta.x1
+          , x2 = meta.x2
+          , y = meta.y
+          , isReal = meta.isReal
+          , tooltipText = meta.tooltipText
+          , name = meta.name
+          , identification = meta.identification
+          , toAny = meta.toAny
           }
+          item
           |> Just
 
       Nothing ->
@@ -253,39 +213,42 @@ filterMap func =
 -- GENERALIZATION
 
 
-generalize : (x -> Any) -> One data x -> One data Any
-generalize toAny (Rendered item) =
-   -- TODO make sure changes are reflected in rendering
+generalize : One data x -> One data Any
+generalize (Rendered meta item) =
   Rendered
-    { toLimits = \_ -> item.toLimits item.config
-    , toPosition = \plane _ -> item.toPosition plane item.config
-    , toSvg = \plane _ _ -> toSvg plane (Rendered item)
-    , toHtml = \c -> toHtml (Rendered item)
-    , config =
-        { product = toAny item.config.product
-        , values = item.config.values
-        , tooltipInfo = item.config.tooltipInfo
-        , toAny = identity
-        }
+    { presentation = meta.toAny meta.presentation
+      , color = meta.color
+    , datum = meta.datum
+    , x1 = meta.x1
+    , x2 = meta.x2
+    , y = meta.y
+    , isReal = meta.isReal
+    , tooltipText = meta.tooltipText
+    , name = meta.name
+    , identification = meta.identification
+    , toAny = identity
     }
+    item
 
 
 isBar : One data Any -> Maybe (One data S.Bar)
-isBar (Rendered item) =
-  case item.config.product of
+isBar (Rendered meta item) =
+  case meta.presentation of
     Bar bar ->
       Rendered
-        { toLimits = \_ -> item.toLimits item.config
-        , toPosition = \plane _ -> item.toPosition plane item.config
-        , toSvg = \plane config -> S.bar plane config.product
-        , toHtml = \c -> item.toHtml item.config
-        , config =
-            { product = bar
-            , values = item.config.values
-            , tooltipInfo = item.config.tooltipInfo
-            , toAny = Bar
-            }
+        { presentation = bar
+        , color = meta.color
+        , datum = meta.datum
+        , x1 = meta.x1
+        , x2 = meta.x2
+        , y = meta.y
+        , isReal = meta.isReal
+        , tooltipText = meta.tooltipText
+        , name = meta.name
+        , identification = meta.identification
+        , toAny = Bar
         }
+        item
         |> Just
 
     _ ->
@@ -293,24 +256,23 @@ isBar (Rendered item) =
 
 
 isDot : One data Any -> Maybe (One data S.Dot)
-isDot (Rendered item) =
-  case item.config.product of
+isDot (Rendered meta item) =
+  case meta.presentation of
     Dot dot ->
       Rendered
-        { toLimits = \_ -> item.toLimits item.config
-        , toPosition = \plane _ -> item.toPosition plane item.config
-        , toSvg = \plane config pos ->
-            if config.values.isReal
-            then S.dot plane .x .y config.product { x = config.values.x1, y = config.values.y }
-            else S.text ""
-        , toHtml = \c -> item.toHtml item.config
-        , config =
-            { product = dot
-            , values = item.config.values
-            , tooltipInfo = item.config.tooltipInfo
-            , toAny = Dot
-            }
+        { presentation = dot
+        , color = meta.color
+        , datum = meta.datum
+        , x1 = meta.x1
+        , x2 = meta.x2
+        , y = meta.y
+        , isReal = meta.isReal
+        , tooltipText = meta.tooltipText
+        , name = meta.name
+        , identification = meta.identification
+        , toAny = Dot
         }
+        item
         |> Just
 
     _ ->

@@ -1785,7 +1785,7 @@ toPattern defaultColor design =
         case design of
           Striped edits ->
             let config =
-                  apply edits
+                  Helpers.apply edits
                     { color = defaultColor
                     , width = 3
                     , spacing = 4
@@ -1816,7 +1816,7 @@ toPattern defaultColor design =
 
           Dotted edits ->
             let config =
-                  apply edits
+                  Helpers.apply edits
                     { color = defaultColor
                     , width = 3
                     , spacing = 4
@@ -1889,12 +1889,6 @@ last list =
 closestToZero : Plane -> Float
 closestToZero plane =
   clamp plane.y.min plane.y.max 0
-
-
-apply : List (a -> a) -> a -> a
-apply funcs default =
-  let apply_ f a = f a in
-  List.foldl apply_ default funcs
 
 
 isWithinPlane : Plane -> Float -> Float -> Bool

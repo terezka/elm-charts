@@ -25,7 +25,7 @@ import Html.Attributes as HA
 import Svg as S exposing (Svg)
 import Svg.Attributes as SA
 import Internal.Coordinates as C exposing (Point, Position, Plane)
-import Chart.Attributes as CA exposing (Attribute)
+import Chart.Attributes as CA
 import Chart.Item as I
 import Internal.Svg as CS
 import Internal.Helpers as Helpers
@@ -40,7 +40,7 @@ import Internal.Events as IE
 {-| An attribute for adding events.
 -}
 type alias Attribute x data msg =
-  { x | events : List (Event data msg) } -> { x | events : List (Event data msg) }
+  Helpers.Attribute { x | events : List (Event data msg) }
 
 
 {-| Add a click event handler.
