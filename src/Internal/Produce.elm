@@ -285,8 +285,8 @@ toDotSeries elIndex toX properties data =
               }
 
             defaultAttrs = 
-              [ CA.color defaultColor
-              , CA.border defaultColor
+              [ CA.color interpolationConfig.color
+              , CA.border interpolationConfig.color
               , if interpolationConfig.method == Nothing then CA.circle else identity 
               ]
 
@@ -296,7 +296,7 @@ toDotSeries elIndex toX properties data =
               lineSeriesConfig.variation identification datum
 
             dotConfig = 
-              Helpers.apply dotAttrs S.defaultDot 
+              Helpers.apply dotAttrs S.defaultDot
 
             radius =
               Maybe.withDefault 0 <| Maybe.map (S.toRadius dotConfig.size) dotConfig.shape

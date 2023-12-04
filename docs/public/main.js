@@ -27402,8 +27402,8 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 				var identification = {absoluteIndex: absoluteIndex, dataIndex: dataIndex, seriesIndex: lineSeriesConfigIndex, stackIndex: stackSeriesConfigIndex};
 				var defaultAttrs = _List_fromArray(
 					[
-						$author$project$Chart$Attributes$color(defaultColor),
-						$author$project$Chart$Attributes$border(defaultColor),
+						$author$project$Chart$Attributes$color(interpolationConfig.color),
+						$author$project$Chart$Attributes$border(interpolationConfig.color),
 						_Utils_eq(interpolationConfig.method, $elm$core$Maybe$Nothing) ? $author$project$Chart$Attributes$circle : $elm$core$Basics$identity
 					]);
 				var dotAttrs = _Utils_ap(
