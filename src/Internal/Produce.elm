@@ -50,18 +50,18 @@ toBarSeries elementIndex barsAttrs properties data =
         let seriesItems =
               case stackSeriesConfig of 
                 NotStacked barSeriesConfig ->
-                  [ forEachBar bins absoluteIndex stackSeriesConfigIndex 1 0 barSeriesConfig ]
+                  [ forEachBarSeriesConfig bins absoluteIndex stackSeriesConfigIndex 1 0 barSeriesConfig ]
 
                 Stacked barSeriesConfigs ->
                   let numOfBarsInStack = List.length barSeriesConfigs in
-                  List.indexedMap (forEachBar bins absoluteIndex stackSeriesConfigIndex numOfBarsInStack) barSeriesConfigs
+                  List.indexedMap (forEachBarSeriesConfig bins absoluteIndex stackSeriesConfigIndex numOfBarsInStack) barSeriesConfigs
         in 
         ( absoluteIndex + List.length seriesItems
         , stackSeriesConfigIndex + 1
         , items ++ List.filterMap identity seriesItems
         )
 
-      forEachBar bins absoluteIndex stackSeriesConfigIndex numOfBarsInStack barSeriesConfigIndex barSeriesConfig =
+      forEachBarSeriesConfig bins absoluteIndex stackSeriesConfigIndex numOfBarsInStack barSeriesConfigIndex barSeriesConfig =
         let absoluteIndexNew = absoluteIndex + barSeriesConfigIndex
             items = List.indexedMap (forEachDataPoint absoluteIndexNew stackSeriesConfigIndex barSeriesConfigIndex numOfBarsInStack barSeriesConfig) bins 
         in
