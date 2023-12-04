@@ -16472,6 +16472,7 @@ var $author$project$Internal$Many$getGenerals = function (group_) {
 		$author$project$Internal$Many$getMembers(group_));
 };
 var $author$project$Chart$Item$getLimits = $author$project$Internal$Item$getLimits;
+var $elm$core$Debug$log = _Debug_log;
 var $author$project$Internal$Item$map = F2(
 	function (func, _v0) {
 		var item = _v0.a;
@@ -17355,7 +17356,6 @@ var $author$project$Internal$Svg$bar = F3(
 					]));
 		}
 	});
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Internal$Produce$toBin = F5(
 	function (barsConfig, index, prevM, curr, nextM) {
 		var _v0 = _Utils_Tuple2(barsConfig.x1, barsConfig.x2);
@@ -17484,7 +17484,7 @@ var $author$project$Internal$Helpers$withFirst = F2(
 			var x = xs.a;
 			var rest = xs.b;
 			return $elm$core$Maybe$Just(
-				A2(func, x, xs));
+				A2(func, x, rest));
 		} else {
 			return $elm$core$Maybe$Nothing;
 		}
@@ -17540,7 +17540,7 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 	function (elIndex, barsAttrs, properties, data) {
 		var barsConfig = A2($author$project$Internal$Helpers$apply, barsAttrs, $author$project$Internal$Produce$defaultBars);
 		var numOfStacks = barsConfig.grouped ? $elm$core$List$length(properties) : 1;
-		var forEachBar = F7(
+		var forEachDataPoint = F7(
 			function (absoluteIndex, stackIndex, seriesIndex, numOfSeries, series, dataIndex, bin) {
 				var ySum = series.toYSum(bin.datum);
 				var y = series.toY(bin.datum);
@@ -17584,10 +17584,10 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 						{border: p.color}) : p;
 				}(
 					function (p) {
-						var _v11 = p.design;
-						if (((_v11.$ === 'Just') && (_v11.a.$ === 'Gradient')) && _v11.a.a.b) {
-							var _v12 = _v11.a.a;
-							var color = _v12.a;
+						var _v10 = p.design;
+						if (((_v10.$ === 'Just') && (_v10.a.$ === 'Gradient')) && _v10.a.a.b) {
+							var _v11 = _v10.a.a;
+							var color = _v11.a;
 							return _Utils_eq(p.color, defaultColor) ? _Utils_update(
 								p,
 								{color: color}) : p;
@@ -17645,7 +17645,7 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 							};
 						},
 						toPosition: F2(
-							function (_v10, config) {
+							function (_v9, config) {
 								return {x1: x1, x2: x2, y1: y1, y2: y2};
 							}),
 						toSvg: F3(
@@ -17654,20 +17654,16 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 							})
 					});
 			});
-		var forEachSeries = F6(
+		var forEachBarSeries = F6(
 			function (bins, absoluteIndex, stackIndex, numOfSeries, seriesIndex, series) {
 				var absoluteIndexNew = absoluteIndex + seriesIndex;
-				var barItems = A2(
+				var items = A2(
 					$elm$core$List$indexedMap,
-					A5(forEachBar, absoluteIndexNew, stackIndex, seriesIndex, numOfSeries, series),
+					A5(forEachDataPoint, absoluteIndexNew, stackIndex, seriesIndex, numOfSeries, series),
 					bins);
-				var _v3 = A2(
-					$elm$core$Debug$log,
-					'here',
-					$elm$core$List$length(barItems));
 				return A2(
 					$author$project$Internal$Helpers$withFirst,
-					barItems,
+					items,
 					F2(
 						function (first, rest) {
 							return $author$project$Internal$Item$Rendered(
@@ -17687,9 +17683,9 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 												A2(
 													$elm$core$List$concatMap,
 													$author$project$Internal$Item$toHtml,
-													function (_v4) {
-														var x = _v4.a;
-														var xs = _v4.b;
+													function (_v3) {
+														var x = _v3.a;
+														var xs = _v3.b;
 														return A2($elm$core$List$cons, x, xs);
 													}(c.items)))
 											]);
@@ -17698,9 +17694,9 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 										return A2(
 											$author$project$Internal$Coordinates$foldPosition,
 											$author$project$Internal$Item$getLimits,
-											function (_v5) {
-												var x = _v5.a;
-												var xs = _v5.b;
+											function (_v4) {
+												var x = _v4.a;
+												var xs = _v4.b;
 												return A2($elm$core$List$cons, x, xs);
 											}(c.items));
 									},
@@ -17709,14 +17705,14 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 											return A2(
 												$author$project$Internal$Coordinates$foldPosition,
 												$author$project$Internal$Item$getPosition(plane),
-												function (_v6) {
-													var x = _v6.a;
-													var xs = _v6.b;
+												function (_v5) {
+													var x = _v5.a;
+													var xs = _v5.b;
 													return A2($elm$core$List$cons, x, xs);
 												}(c.items));
 										}),
 									toSvg: F3(
-										function (plane, c, _v7) {
+										function (plane, c, _v6) {
 											return A2(
 												$elm$svg$Svg$g,
 												_List_fromArray(
@@ -17726,33 +17722,33 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 												A2(
 													$elm$core$List$map,
 													$author$project$Internal$Item$toSvg(plane),
-													function (_v8) {
-														var x = _v8.a;
-														var xs = _v8.b;
+													function (_v7) {
+														var x = _v7.a;
+														var xs = _v7.b;
 														return A2($elm$core$List$cons, x, xs);
 													}(c.items)));
 										})
 								});
 						}));
 			});
-		var forEachStack = F3(
-			function (bins, property, _v2) {
+		var forEachStackSeries = F3(
+			function (bins, stackSeries, _v2) {
 				var absoluteIndex = _v2.a;
 				var stackIndex = _v2.b;
 				var items = _v2.c;
 				var seriesItems = function () {
-					if (property.$ === 'NotStacked') {
-						var config = property.a;
+					if (stackSeries.$ === 'NotStacked') {
+						var config = stackSeries.a;
 						return _List_fromArray(
 							[
-								A6(forEachSeries, bins, absoluteIndex, stackIndex, 1, 0, config)
+								A6(forEachBarSeries, bins, absoluteIndex, stackIndex, 1, 0, config)
 							]);
 					} else {
-						var configs = property.a;
+						var configs = stackSeries.a;
 						var numOfSeries = $elm$core$List$length(configs);
 						return A2(
 							$elm$core$List$indexedMap,
-							A4(forEachSeries, bins, absoluteIndex, stackIndex, numOfSeries),
+							A4(forEachBarSeries, bins, absoluteIndex, stackIndex, numOfSeries),
 							configs);
 					}
 				}();
@@ -17770,7 +17766,7 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 			}(
 				A3(
 					$elm$core$List$foldl,
-					forEachStack(bins),
+					forEachStackSeries(bins),
 					_Utils_Tuple3(0, 0, _List_Nil),
 					properties));
 		}(
@@ -17811,6 +17807,10 @@ var $author$project$Chart$barsMap = F4(
 										bins) : _List_Nil)
 							});
 					});
+				var _v0 = A2(
+					$elm$core$Debug$log,
+					'items',
+					$elm$core$List$length(items));
 				return _Utils_Tuple2(
 					A5(
 						$author$project$Chart$BarsElement,
@@ -20020,31 +20020,6 @@ var $author$project$Chart$Attributes$moveUp = F2(
 			config,
 			{yOff: config.yOff - v});
 	});
-var $author$project$Internal$Property$Stacked = function (a) {
-	return {$: 'Stacked', a: a};
-};
-var $author$project$Internal$Property$name = F2(
-	function (newName, property) {
-		var update = function (config) {
-			return _Utils_update(
-				config,
-				{
-					tooltipName: $elm$core$Maybe$Just(newName)
-				});
-		};
-		if (property.$ === 'NotStacked') {
-			var config = property.a;
-			return $author$project$Internal$Property$NotStacked(
-				update(config));
-		} else {
-			var configs = property.a;
-			return $author$project$Internal$Property$Stacked(
-				A2($elm$core$List$map, update, configs));
-		}
-	});
-var $author$project$Chart$named = function (name) {
-	return $author$project$Internal$Property$name(name);
-};
 var $author$project$Chart$Attributes$noArrow = function (config) {
 	return _Utils_update(
 		config,
@@ -20074,6 +20049,9 @@ var $author$project$Chart$Attributes$spacing = F2(
 			config,
 			{spacing: v});
 	});
+var $author$project$Internal$Property$Stacked = function (a) {
+	return {$: 'Stacked', a: a};
+};
 var $elm$core$List$sum = function (numbers) {
 	return A3($elm$core$List$foldl, $elm$core$Basics$add, 0, numbers);
 };
@@ -22867,18 +22845,15 @@ var $author$project$Charts$Terminology$view = A2(
 					_List_fromArray(
 						[
 							A2(
-							$author$project$Chart$named,
-							'Here',
-							A2(
-								$author$project$Chart$bar,
-								function ($) {
-									return $.a;
-								},
-								_List_fromArray(
-									[
-										$author$project$Chart$Attributes$opacity(0.8),
-										$author$project$Chart$Attributes$borderWidth(1)
-									]))),
+							$author$project$Chart$bar,
+							function ($) {
+								return $.a;
+							},
+							_List_fromArray(
+								[
+									$author$project$Chart$Attributes$opacity(0.8),
+									$author$project$Chart$Attributes$borderWidth(1)
+								])),
 							A2(
 							$author$project$Chart$bar,
 							function ($) {
@@ -26097,6 +26072,28 @@ var $author$project$Chart$legendsAt = F4(
 						A2($elm$core$List$map, viewLegend, legends_));
 				}));
 	});
+var $author$project$Internal$Property$name = F2(
+	function (newName, property) {
+		var update = function (config) {
+			return _Utils_update(
+				config,
+				{
+					tooltipName: $elm$core$Maybe$Just(newName)
+				});
+		};
+		if (property.$ === 'NotStacked') {
+			var config = property.a;
+			return $author$project$Internal$Property$NotStacked(
+				update(config));
+		} else {
+			var configs = property.a;
+			return $author$project$Internal$Property$Stacked(
+				A2($elm$core$List$map, update, configs));
+		}
+	});
+var $author$project$Chart$named = function (name) {
+	return $author$project$Internal$Property$name(name);
+};
 var $author$project$Examples$BarCharts$Legends$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,

@@ -46,26 +46,26 @@ toBarSeries elIndex barsAttrs properties data =
   let barsConfig = Helpers.apply barsAttrs defaultBars
       numOfStacks = if barsConfig.grouped then toFloat (List.length properties) else 1
 
-      forEachStack bins property ( absoluteIndex, stackIndex, items ) =
+      forEachStackSeries bins stackSeries ( absoluteIndex, stackIndex, items ) =
         let seriesItems =
-              case property of 
+              case stackSeries of 
                 NotStacked config ->
-                  [ forEachSeries bins absoluteIndex stackIndex 1 0 config ]
+                  [ forEachBarSeries bins absoluteIndex stackIndex 1 0 config ]
 
                 Stacked configs ->
                   let numOfSeries = List.length configs in
-                  List.indexedMap (forEachSeries bins absoluteIndex stackIndex numOfSeries) configs
+                  List.indexedMap (forEachBarSeries bins absoluteIndex stackIndex numOfSeries) configs
         in 
         ( absoluteIndex + List.length seriesItems
         , stackIndex + 1
         , items ++ List.filterMap identity seriesItems
         )
 
-      forEachSeries bins absoluteIndex stackIndex numOfSeries seriesIndex series =
+      forEachBarSeries bins absoluteIndex stackIndex numOfSeries seriesIndex series =
         let absoluteIndexNew = absoluteIndex + seriesIndex
-            barItems = List.indexedMap (forEachBar absoluteIndexNew stackIndex seriesIndex numOfSeries series) bins 
+            items = List.indexedMap (forEachDataPoint absoluteIndexNew stackIndex seriesIndex numOfSeries series) bins 
         in
-        Helpers.withFirst barItems <| \first rest ->
+        Helpers.withFirst items <| \first rest ->
           I.Rendered
             { config = { items = ( first, rest ) }
             , toLimits = \c -> Coord.foldPosition I.getLimits ((\(x, xs) -> x :: xs) c.items)
@@ -74,7 +74,7 @@ toBarSeries elIndex barsAttrs properties data =
             , toHtml = \c -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.toHtml ((\(x, xs) -> x :: xs) c.items)) ]
             }
 
-      forEachBar absoluteIndex stackIndex seriesIndex numOfSeries series dataIndex bin =
+      forEachDataPoint absoluteIndex stackIndex seriesIndex numOfSeries series dataIndex bin =
         let identification =
               { stackIndex = stackIndex
               , seriesIndex = seriesIndex
@@ -152,7 +152,7 @@ toBarSeries elIndex barsAttrs properties data =
           }
   in
   Helpers.withSurround data (toBin barsConfig) |> \bins ->
-    List.foldl (forEachStack bins) ( 0, 0, [] ) properties
+    List.foldl (forEachStackSeries bins) ( 0, 0, [] ) properties
       |> (\(_, _, items) -> items)
 
 
