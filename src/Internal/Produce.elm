@@ -123,10 +123,7 @@ toBarSeries elIndex barsAttrs properties data =
                   , x1 = start
                   , x2 = end
                   , y = Maybe.withDefault 0 y
-                  , isReal =
-                      case y of
-                        Just _ -> True
-                        Nothing -> False
+                  , isReal = y /= Nothing
                   }
               , tooltipInfo =
                   { property = ids.stackIndex
