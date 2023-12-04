@@ -16472,7 +16472,6 @@ var $author$project$Internal$Many$getGenerals = function (group_) {
 		$author$project$Internal$Many$getMembers(group_));
 };
 var $author$project$Chart$Item$getLimits = $author$project$Internal$Item$getLimits;
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Internal$Item$map = F2(
 	function (func, _v0) {
 		var item = _v0.a;
@@ -17478,6 +17477,25 @@ var $author$project$Internal$Produce$tooltipRow = F3(
 						]))
 				]));
 	});
+var $author$project$Internal$Produce$updateBorder = F2(
+	function (defaultColor, product) {
+		return _Utils_eq(product.border, defaultColor) ? _Utils_update(
+			product,
+			{border: product.color}) : product;
+	});
+var $author$project$Internal$Produce$updateColorIfGradientIsSet = F2(
+	function (defaultColor, product) {
+		var _v0 = product.design;
+		if (((_v0.$ === 'Just') && (_v0.a.$ === 'Gradient')) && _v0.a.a.b) {
+			var _v1 = _v0.a.a;
+			var first = _v1.a;
+			return _Utils_eq(product.color, defaultColor) ? _Utils_update(
+				product,
+				{color: first}) : product;
+		} else {
+			return product;
+		}
+	});
 var $author$project$Internal$Helpers$withFirst = F2(
 	function (xs, func) {
 		if (xs.b) {
@@ -17541,76 +17559,67 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 		var barsConfig = A2($author$project$Internal$Helpers$apply, barsAttrs, $author$project$Internal$Produce$defaultBars);
 		var numOfStacks = barsConfig.grouped ? $elm$core$List$length(properties) : 1;
 		var forEachDataPoint = F7(
-			function (absoluteIndex, stackIndex, seriesIndex, numOfSeries, series, dataIndex, bin) {
-				var ySum = series.toYSum(bin.datum);
-				var y = series.toY(bin.datum);
+			function (absoluteIndex, stackSeriesConfigIndex, barSeriesConfigIndex, numOfBarsInStack, barSeriesConfig, dataIndex, bin) {
+				var ySum = barSeriesConfig.toYSum(bin.datum);
+				var y = barSeriesConfig.toY(bin.datum);
 				var start = bin.start;
-				var minY = (numOfSeries > 1) ? $elm$core$Basics$max(0) : $elm$core$Basics$identity;
+				var minY = (numOfBarsInStack > 1) ? $elm$core$Basics$max(0) : $elm$core$Basics$identity;
 				var y1 = minY(
 					A2($elm$core$Maybe$withDefault, 0, ySum) - A2($elm$core$Maybe$withDefault, 0, y));
 				var y2 = minY(
 					A2($elm$core$Maybe$withDefault, 0, ySum));
-				var isTop = !seriesIndex;
-				var isSingle = numOfSeries === 1;
-				var roundTop = (isSingle || isTop) ? barsConfig.roundTop : 0;
-				var isBottom = _Utils_eq(seriesIndex, numOfSeries - 1);
+				var isSingle = numOfBarsInStack === 1;
+				var ids = {absoluteIndex: absoluteIndex, dataIndex: dataIndex, seriesIndex: barSeriesConfigIndex, stackIndex: stackSeriesConfigIndex};
+				var isBottom = _Utils_eq(ids.seriesIndex, numOfBarsInStack - 1);
 				var roundBottom = (isSingle || isBottom) ? barsConfig.roundBottom : 0;
-				var identification = {absoluteIndex: absoluteIndex, dataIndex: dataIndex, seriesIndex: seriesIndex, stackIndex: stackIndex};
+				var isTop = !ids.seriesIndex;
+				var roundTop = (isSingle || isTop) ? barsConfig.roundTop : 0;
 				var end = bin.end;
 				var length = end - start;
 				var margin = length * barsConfig.margin;
 				var spacing = length * barsConfig.spacing;
 				var width = ((length - (margin * 2)) - ((numOfStacks - 1) * spacing)) / numOfStacks;
-				var offset = barsConfig.grouped ? ((stackIndex * width) + (stackIndex * spacing)) : 0;
+				var offset = barsConfig.grouped ? ((ids.stackIndex * width) + (ids.stackIndex * spacing)) : 0;
 				var x1 = (start + margin) + offset;
 				var x2 = ((start + margin) + offset) + width;
-				var defaultColor = $author$project$Internal$Helpers$toDefaultColor(identification.absoluteIndex);
-				var defaultAttrs = _List_fromArray(
+				var defaultColor = $author$project$Internal$Helpers$toDefaultColor(ids.absoluteIndex);
+				var basicAttributes = _List_fromArray(
 					[
 						$author$project$Chart$Attributes$roundTop(roundTop),
 						$author$project$Chart$Attributes$roundBottom(roundBottom),
 						$author$project$Chart$Attributes$color(defaultColor),
 						$author$project$Chart$Attributes$border(defaultColor)
 					]);
-				var attrs = _Utils_ap(
-					defaultAttrs,
-					_Utils_ap(
-						series.presentation,
-						A2(series.variation, identification, bin.datum)));
-				var productOrg = A2($author$project$Internal$Helpers$apply, attrs, $author$project$Internal$Svg$defaultBar);
-				var product = function (p) {
-					return _Utils_eq(p.border, defaultColor) ? _Utils_update(
-						p,
-						{border: p.color}) : p;
-				}(
-					function (p) {
-						var _v10 = p.design;
-						if (((_v10.$ === 'Just') && (_v10.a.$ === 'Gradient')) && _v10.a.a.b) {
-							var _v11 = _v10.a.a;
-							var color = _v11.a;
-							return _Utils_eq(p.color, defaultColor) ? _Utils_update(
-								p,
-								{color: color}) : p;
-						} else {
-							return p;
-						}
-					}(productOrg));
+				var barPresentationConfig = A2(
+					$author$project$Internal$Produce$updateBorder,
+					defaultColor,
+					A2(
+						$author$project$Internal$Produce$updateColorIfGradientIsSet,
+						defaultColor,
+						A2(
+							$author$project$Internal$Helpers$apply,
+							_Utils_ap(
+								basicAttributes,
+								_Utils_ap(
+									barSeriesConfig.presentation,
+									A2(barSeriesConfig.variation, ids, bin.datum))),
+							$author$project$Internal$Svg$defaultBar)));
 				return $author$project$Internal$Item$Rendered(
 					{
 						config: {
-							product: product,
+							product: barPresentationConfig,
 							toAny: $author$project$Internal$Item$Bar,
 							tooltipInfo: {
-								border: product.border,
-								borderWidth: product.borderWidth,
-								color: product.color,
-								data: identification.dataIndex,
+								border: barPresentationConfig.border,
+								borderWidth: barPresentationConfig.borderWidth,
+								color: barPresentationConfig.color,
+								data: ids.dataIndex,
 								elIndex: elIndex,
-								formatted: series.tooltipText(bin.datum),
-								index: identification.absoluteIndex,
-								name: series.tooltipName,
-								property: identification.stackIndex,
-								stack: identification.seriesIndex
+								formatted: barSeriesConfig.tooltipText(bin.datum),
+								index: ids.absoluteIndex,
+								name: barSeriesConfig.tooltipName,
+								property: ids.stackIndex,
+								stack: ids.seriesIndex
 							},
 							values: {
 								datum: bin.datum,
@@ -17633,7 +17642,7 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 									$author$project$Internal$Produce$tooltipRow,
 									c.tooltipInfo.color,
 									A2($author$project$Internal$Produce$toDefaultName, absoluteIndex, c.tooltipInfo.name),
-									series.tooltipText(bin.datum))
+									barSeriesConfig.tooltipText(bin.datum))
 								]);
 						},
 						toLimits: function (config) {
@@ -17645,27 +17654,32 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 							};
 						},
 						toPosition: F2(
-							function (_v9, config) {
+							function (_v6, config) {
 								return {x1: x1, x2: x2, y1: y1, y2: y2};
 							}),
 						toSvg: F3(
 							function (plane, config, position) {
-								return A3($author$project$Internal$Svg$bar, plane, product, position);
+								return A3($author$project$Internal$Svg$bar, plane, barPresentationConfig, position);
 							})
 					});
 			});
-		var forEachBarSeries = F6(
-			function (bins, absoluteIndex, stackIndex, numOfSeries, seriesIndex, series) {
-				var absoluteIndexNew = absoluteIndex + seriesIndex;
+		var forEachBar = F6(
+			function (bins, absoluteIndex, stackSeriesConfigIndex, numOfBarsInStack, barSeriesConfigIndex, barSeriesConfig) {
+				var absoluteIndexNew = absoluteIndex + barSeriesConfigIndex;
 				var items = A2(
 					$elm$core$List$indexedMap,
-					A5(forEachDataPoint, absoluteIndexNew, stackIndex, seriesIndex, numOfSeries, series),
+					A5(forEachDataPoint, absoluteIndexNew, stackSeriesConfigIndex, barSeriesConfigIndex, numOfBarsInStack, barSeriesConfig),
 					bins);
 				return A2(
 					$author$project$Internal$Helpers$withFirst,
 					items,
 					F2(
 						function (first, rest) {
+							var collapse = function (_v4) {
+								var x = _v4.a;
+								var xs = _v4.b;
+								return A2($elm$core$List$cons, x, xs);
+							};
 							return $author$project$Internal$Item$Rendered(
 								{
 									config: {
@@ -17683,36 +17697,24 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 												A2(
 													$elm$core$List$concatMap,
 													$author$project$Internal$Item$toHtml,
-													function (_v3) {
-														var x = _v3.a;
-														var xs = _v3.b;
-														return A2($elm$core$List$cons, x, xs);
-													}(c.items)))
+													collapse(c.items)))
 											]);
 									},
 									toLimits: function (c) {
 										return A2(
 											$author$project$Internal$Coordinates$foldPosition,
 											$author$project$Internal$Item$getLimits,
-											function (_v4) {
-												var x = _v4.a;
-												var xs = _v4.b;
-												return A2($elm$core$List$cons, x, xs);
-											}(c.items));
+											collapse(c.items));
 									},
 									toPosition: F2(
 										function (plane, c) {
 											return A2(
 												$author$project$Internal$Coordinates$foldPosition,
 												$author$project$Internal$Item$getPosition(plane),
-												function (_v5) {
-													var x = _v5.a;
-													var xs = _v5.b;
-													return A2($elm$core$List$cons, x, xs);
-												}(c.items));
+												collapse(c.items));
 										}),
 									toSvg: F3(
-										function (plane, c, _v6) {
+										function (plane, c, _v3) {
 											return A2(
 												$elm$svg$Svg$g,
 												_List_fromArray(
@@ -17722,39 +17724,35 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 												A2(
 													$elm$core$List$map,
 													$author$project$Internal$Item$toSvg(plane),
-													function (_v7) {
-														var x = _v7.a;
-														var xs = _v7.b;
-														return A2($elm$core$List$cons, x, xs);
-													}(c.items)));
+													collapse(c.items)));
 										})
 								});
 						}));
 			});
-		var forEachStackSeries = F3(
-			function (bins, stackSeries, _v2) {
+		var forEachStackSeriesConfig = F3(
+			function (bins, stackSeriesConfig, _v2) {
 				var absoluteIndex = _v2.a;
-				var stackIndex = _v2.b;
+				var stackSeriesConfigIndex = _v2.b;
 				var items = _v2.c;
 				var seriesItems = function () {
-					if (stackSeries.$ === 'NotStacked') {
-						var config = stackSeries.a;
+					if (stackSeriesConfig.$ === 'NotStacked') {
+						var barSeriesConfig = stackSeriesConfig.a;
 						return _List_fromArray(
 							[
-								A6(forEachBarSeries, bins, absoluteIndex, stackIndex, 1, 0, config)
+								A6(forEachBar, bins, absoluteIndex, stackSeriesConfigIndex, 1, 0, barSeriesConfig)
 							]);
 					} else {
-						var configs = stackSeries.a;
-						var numOfSeries = $elm$core$List$length(configs);
+						var barSeriesConfigs = stackSeriesConfig.a;
+						var numOfBarsInStack = $elm$core$List$length(barSeriesConfigs);
 						return A2(
 							$elm$core$List$indexedMap,
-							A4(forEachBarSeries, bins, absoluteIndex, stackIndex, numOfSeries),
-							configs);
+							A4(forEachBar, bins, absoluteIndex, stackSeriesConfigIndex, numOfBarsInStack),
+							barSeriesConfigs);
 					}
 				}();
 				return _Utils_Tuple3(
 					absoluteIndex + $elm$core$List$length(seriesItems),
-					stackIndex + 1,
+					stackSeriesConfigIndex + 1,
 					_Utils_ap(
 						items,
 						A2($elm$core$List$filterMap, $elm$core$Basics$identity, seriesItems)));
@@ -17766,7 +17764,7 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 			}(
 				A3(
 					$elm$core$List$foldl,
-					forEachStackSeries(bins),
+					forEachStackSeriesConfig(bins),
 					_Utils_Tuple3(0, 0, _List_Nil),
 					properties));
 		}(
@@ -17807,10 +17805,6 @@ var $author$project$Chart$barsMap = F4(
 										bins) : _List_Nil)
 							});
 					});
-				var _v0 = A2(
-					$elm$core$Debug$log,
-					'items',
-					$elm$core$List$length(items));
 				return _Utils_Tuple2(
 					A5(
 						$author$project$Chart$BarsElement,

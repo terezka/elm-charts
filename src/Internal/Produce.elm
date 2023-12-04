@@ -46,81 +46,78 @@ toBarSeries elIndex barsAttrs properties data =
   let barsConfig = Helpers.apply barsAttrs defaultBars
       numOfStacks = if barsConfig.grouped then toFloat (List.length properties) else 1
 
-      forEachStack bins stackSeries ( absoluteIndex, stackIndex, items ) =
+      forEachStackSeriesConfig bins stackSeriesConfig ( absoluteIndex, stackSeriesConfigIndex, items ) =
         let seriesItems =
-              case stackSeries of 
-                NotStacked config ->
-                  [ forEachBar bins absoluteIndex stackIndex 1 0 config ]
+              case stackSeriesConfig of 
+                NotStacked barSeriesConfig ->
+                  [ forEachBar bins absoluteIndex stackSeriesConfigIndex 1 0 barSeriesConfig ]
 
-                Stacked configs ->
-                  let numOfSeries = List.length configs in
-                  List.indexedMap (forEachBar bins absoluteIndex stackIndex numOfSeries) configs
+                Stacked barSeriesConfigs ->
+                  let numOfBarsInStack = List.length barSeriesConfigs in
+                  List.indexedMap (forEachBar bins absoluteIndex stackSeriesConfigIndex numOfBarsInStack) barSeriesConfigs
         in 
         ( absoluteIndex + List.length seriesItems
-        , stackIndex + 1
+        , stackSeriesConfigIndex + 1
         , items ++ List.filterMap identity seriesItems
         )
 
-      forEachBar bins absoluteIndex stackIndex numOfSeries seriesIndex series =
-        let absoluteIndexNew = absoluteIndex + seriesIndex
-            items = List.indexedMap (forEachDataPoint absoluteIndexNew stackIndex seriesIndex numOfSeries series) bins 
+      forEachBar bins absoluteIndex stackSeriesConfigIndex numOfBarsInStack barSeriesConfigIndex barSeriesConfig =
+        let absoluteIndexNew = absoluteIndex + barSeriesConfigIndex
+            items = List.indexedMap (forEachDataPoint absoluteIndexNew stackSeriesConfigIndex barSeriesConfigIndex numOfBarsInStack barSeriesConfig) bins 
         in
         Helpers.withFirst items <| \first rest ->
+          let collapse (x, xs) = x :: xs in
           I.Rendered
             { config = { items = ( first, rest ) }
-            , toLimits = \c -> Coord.foldPosition I.getLimits ((\(x, xs) -> x :: xs) c.items)
-            , toPosition = \plane c -> Coord.foldPosition (I.getPosition plane) ((\(x, xs) -> x :: xs) c.items)
-            , toSvg = \plane c _ -> S.g [ SA.class "elm-charts__series" ] (List.map (I.toSvg plane) ((\(x, xs) -> x :: xs) c.items))
-            , toHtml = \c -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.toHtml ((\(x, xs) -> x :: xs) c.items)) ]
+            , toLimits = \c -> Coord.foldPosition I.getLimits (collapse c.items)
+            , toPosition = \plane c -> Coord.foldPosition (I.getPosition plane) (collapse c.items)
+            , toSvg = \plane c _ -> S.g [ SA.class "elm-charts__series" ] (List.map (I.toSvg plane) (collapse c.items))
+            , toHtml = \c -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.toHtml (collapse c.items)) ]
             }
 
-      forEachDataPoint absoluteIndex stackIndex seriesIndex numOfSeries series dataIndex bin =
-        let identification =
-              { stackIndex = stackIndex
-              , seriesIndex = seriesIndex
-              , absoluteIndex = absoluteIndex
-              , dataIndex = dataIndex
+      forEachDataPoint absoluteIndex stackSeriesConfigIndex barSeriesConfigIndex numOfBarsInStack barSeriesConfig dataIndex bin =
+        let ids =
+              { stackIndex = stackSeriesConfigIndex -- The number this stack configuration is within the full list of stack configurations. If no stacks, this is equal to seriesIndex.
+              , seriesIndex = barSeriesConfigIndex  -- The number this bar configuration is within its stack. If no stacks, this is equal to stackIndex.
+              , absoluteIndex = absoluteIndex       -- The number this bar configuration is within the total set of bar configurations.
+              , dataIndex = dataIndex               -- The number this data point is within the list of data.
               }
 
             start = bin.start
             end = bin.end
-            ySum = series.toYSum bin.datum
-            y = series.toY bin.datum
+            ySum = barSeriesConfig.toYSum bin.datum
+            y = barSeriesConfig.toY bin.datum
 
             length = end - start
             margin = length * barsConfig.margin
             spacing = length * barsConfig.spacing
             width = (length - margin * 2 - (numOfStacks - 1) * spacing) / numOfStacks
-            offset = if barsConfig.grouped then toFloat stackIndex * width + toFloat stackIndex * spacing else 0
+            offset = if barsConfig.grouped then toFloat ids.stackIndex * width + toFloat ids.stackIndex * spacing else 0
 
             x1 = start + margin + offset
             x2 = start + margin + offset + width
-            minY = if numOfSeries > 1 then max 0 else identity
-            y1 = minY <| Maybe.withDefault 0 ySum - Maybe.withDefault 0 y
-            y2 = minY <| Maybe.withDefault 0 ySum
+            minY = if numOfBarsInStack > 1 then max 0 else identity
+            y1 = minY (Maybe.withDefault 0 ySum - Maybe.withDefault 0 y)
+            y2 = minY (Maybe.withDefault 0 ySum)
 
-            isTop = seriesIndex == 0
-            isBottom = seriesIndex == numOfSeries - 1
-            isSingle = numOfSeries == 1
+            isTop = ids.seriesIndex == 0
+            isBottom = ids.seriesIndex == numOfBarsInStack - 1
+            isSingle = numOfBarsInStack == 1
 
             roundTop = if isSingle || isTop then barsConfig.roundTop else 0
             roundBottom = if isSingle || isBottom then barsConfig.roundBottom else 0
 
-            defaultColor = Helpers.toDefaultColor identification.absoluteIndex
-            defaultAttrs = [ CA.roundTop roundTop, CA.roundBottom roundBottom, CA.color defaultColor, CA.border defaultColor ]
-            attrs = defaultAttrs ++ series.presentation ++ series.variation identification bin.datum
-            productOrg = Helpers.apply attrs S.defaultBar
-            product =
-              productOrg
-                |> (\p ->
-                     case p.design of
-                      Just (S.Gradient (color :: _)) -> if p.color == defaultColor then { p | color = color } else p
-                      _ -> p)
-                |> (\p -> if p.border == defaultColor then { p | border = p.color } else p)
+            defaultColor = Helpers.toDefaultColor ids.absoluteIndex
+            basicAttributes = [ CA.roundTop roundTop, CA.roundBottom roundBottom, CA.color defaultColor, CA.border defaultColor ]
+
+            barPresentationConfig = 
+              Helpers.apply (basicAttributes ++ barSeriesConfig.presentation ++ barSeriesConfig.variation ids bin.datum) S.defaultBar
+                |> updateColorIfGradientIsSet defaultColor
+                |> updateBorder defaultColor
         in
         I.Rendered
           { config =
-              { product = product
+              { product = barPresentationConfig
               , values =
                   { datum = bin.datum
                   , x1 = start
@@ -132,27 +129,27 @@ toBarSeries elIndex barsAttrs properties data =
                         Nothing -> False
                   }
               , tooltipInfo =
-                  { property = identification.stackIndex
-                  , stack = identification.seriesIndex
-                  , data = identification.dataIndex
-                  , index = identification.absoluteIndex
+                  { property = ids.stackIndex
+                  , stack = ids.seriesIndex
+                  , data = ids.dataIndex
+                  , index = ids.absoluteIndex
                   , elIndex = elIndex
-                  , name = series.tooltipName
-                  , color = product.color
-                  , border = product.border
-                  , borderWidth = product.borderWidth
-                  , formatted = series.tooltipText bin.datum
+                  , name = barSeriesConfig.tooltipName
+                  , color = barPresentationConfig.color
+                  , border = barPresentationConfig.border
+                  , borderWidth = barPresentationConfig.borderWidth
+                  , formatted = barSeriesConfig.tooltipText bin.datum
                   }
               , toAny = I.Bar
               }
           , toLimits = \config -> { x1 = x1, x2 = x2, y1 = min y1 y2, y2 = max y1 y2 }
           , toPosition = \_ config -> { x1 = x1, x2 = x2, y1 = y1, y2 = y2 }
-          , toSvg = \plane config position -> S.bar plane product position
-          , toHtml = \c -> [ tooltipRow c.tooltipInfo.color (toDefaultName absoluteIndex c.tooltipInfo.name) (series.tooltipText bin.datum) ]
+          , toSvg = \plane config position -> S.bar plane barPresentationConfig position
+          , toHtml = \c -> [ tooltipRow c.tooltipInfo.color (toDefaultName absoluteIndex c.tooltipInfo.name) (barSeriesConfig.tooltipText bin.datum) ]
           }
   in
   Helpers.withSurround data (toBin barsConfig) |> \bins ->
-    List.foldl (forEachStack bins) ( 0, 0, [] ) properties
+    List.foldl (forEachStackSeriesConfig bins) ( 0, 0, [] ) properties
       |> (\(_, _, items) -> items)
 
 
@@ -210,6 +207,25 @@ toBin barsConfig index prevM curr nextM =
       , start = toX1 curr
       , end = toX2 curr 
       }
+
+
+updateColorIfGradientIsSet : String -> S.Bar -> S.Bar
+updateColorIfGradientIsSet defaultColor product =
+  case product.design of
+    Just (S.Gradient (first :: _)) -> 
+      if product.color == defaultColor 
+        then { product | color = first } 
+        else product
+
+    _ ->
+      product
+
+
+updateBorder : String -> S.Bar -> S.Bar
+updateBorder defaultColor product =
+  if product.border == defaultColor 
+    then { product | border = product.color } 
+    else product
 
 
 
