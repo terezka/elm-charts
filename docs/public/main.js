@@ -25947,6 +25947,7 @@ var $author$project$Chart$Attributes$linear = $author$project$Internal$Helpers$A
 				method: $elm$core$Maybe$Just($author$project$Internal$Svg$Linear)
 			});
 	});
+var $elm$core$Debug$log = _Debug_log;
 var $author$project$Chart$Svg$lineLegend = F3(
 	function (edits, interAttrsOrg, dotAttrsOrg) {
 		var interpolationConfigOrg = A2($author$project$Internal$Helpers$apply, interAttrsOrg, $author$project$Internal$Svg$defaultInterpolation);
@@ -25957,7 +25958,10 @@ var $author$project$Chart$Svg$lineLegend = F3(
 				{width: 10});
 		};
 		var _v0 = function () {
-			var _v1 = _Utils_Tuple2(interpolationConfigOrg.method, dotConfigOrg.shape);
+			var _v1 = A2(
+				$elm$core$Debug$log,
+				'inter',
+				_Utils_Tuple2(interpolationConfigOrg.method, dotConfigOrg.shape));
 			if (_v1.a.$ === 'Just') {
 				if (_v1.b.$ === 'Nothing') {
 					var _v2 = _v1.b;
@@ -27346,7 +27350,7 @@ var $author$project$Internal$Legend$toDotLegends = F2(
 					[
 						$author$project$Chart$Attributes$color(interConfig.color),
 						$author$project$Chart$Attributes$border(interConfig.color),
-						$author$project$Internal$Helpers$noChange
+						_Utils_eq(interConfig.method, $elm$core$Maybe$Nothing) ? $author$project$Chart$Attributes$circle : $author$project$Internal$Helpers$noChange
 					]);
 				var dotAttrs = _Utils_ap(defaultAttrs, prop.presentation);
 				return A3(
