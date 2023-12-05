@@ -5568,7 +5568,7 @@ var $author$project$Examples$BarCharts$Highlight$meta = {category: 'Bar charts',
 var $author$project$Examples$BarCharts$Histogram$meta = {category: 'Bar charts', categoryOrder: 1, description: 'Make a histogram (control x value).', name: 'Histogram', order: 2};
 var $author$project$Examples$BarCharts$Legends$meta = {category: 'Bar charts', categoryOrder: 1, description: 'Add legends to bar chart.', name: 'Legends', order: 16};
 var $author$project$Examples$BarCharts$Margin$meta = {category: 'Bar charts', categoryOrder: 1, description: 'Change margins around bin.', name: 'Margin', order: 6};
-var $author$project$Examples$BarCharts$MultipleScales$meta = {category: 'Bar charts', categoryOrder: 3, description: 'Bars with different y axes.', name: 'Multiple Scales', order: 17};
+var $author$project$Examples$BarCharts$MultipleScales$meta = {category: 'Bar charts', categoryOrder: 3, description: 'Bars with different y axes.', name: 'Multiple Scales', order: 21};
 var $author$project$Examples$BarCharts$Opacity$meta = {category: 'Bar charts', categoryOrder: 1, description: 'Change opacity of bar.', name: 'Opacity', order: 10};
 var $author$project$Examples$BarCharts$Pattern$meta = {category: 'Bar charts', categoryOrder: 1, description: 'Change pattern of bar.', name: 'Pattern', order: 11};
 var $author$project$Examples$BarCharts$Spacing$meta = {category: 'Bar charts', categoryOrder: 1, description: 'Remove or add spacing between bars.', name: 'Spacing', order: 5};
@@ -6510,7 +6510,7 @@ var $author$project$Examples$BarCharts$Highlight$init = {hovering: _List_Nil};
 var $author$project$Examples$BarCharts$Histogram$init = _Utils_Tuple0;
 var $author$project$Examples$BarCharts$Legends$init = _Utils_Tuple0;
 var $author$project$Examples$BarCharts$Margin$init = _Utils_Tuple0;
-var $author$project$Examples$BarCharts$MultipleScales$init = _Utils_Tuple0;
+var $author$project$Examples$BarCharts$MultipleScales$init = {hovering: _List_Nil};
 var $author$project$Examples$BarCharts$Opacity$init = _Utils_Tuple0;
 var $author$project$Examples$BarCharts$Pattern$init = _Utils_Tuple0;
 var $author$project$Examples$BarCharts$Spacing$init = _Utils_Tuple0;
@@ -7602,7 +7602,10 @@ var $author$project$Examples$BarCharts$Margin$update = F2(
 	});
 var $author$project$Examples$BarCharts$MultipleScales$update = F2(
 	function (msg, model) {
-		return model;
+		var hovering = msg.a;
+		return _Utils_update(
+			model,
+			{hovering: hovering});
 	});
 var $author$project$Examples$BarCharts$Opacity$update = F2(
 	function (msg, model) {
@@ -26207,6 +26210,9 @@ var $author$project$Examples$BarCharts$Margin$view = function (model) {
 				$author$project$Examples$BarCharts$Margin$data)
 			]));
 };
+var $author$project$Examples$BarCharts$MultipleScales$OnHover = function (a) {
+	return {$: 'OnHover', a: a};
+};
 var $author$project$Examples$BarCharts$MultipleScales$Datum = F3(
 	function (x, y, z) {
 		return {x: x, y: y, z: z};
@@ -26217,6 +26223,13 @@ var $author$project$Examples$BarCharts$MultipleScales$data = _List_fromArray(
 		A3($author$project$Examples$BarCharts$MultipleScales$Datum, 2, 10, 50),
 		A3($author$project$Examples$BarCharts$MultipleScales$Datum, 3, 5, 100)
 	]);
+var $author$project$Internal$Svg$Ints = {$: 'Ints'};
+var $author$project$Chart$Attributes$ints = $author$project$Internal$Helpers$Attribute(
+	function (config) {
+		return _Utils_update(
+			config,
+			{generate: $author$project$Internal$Svg$Ints});
+	});
 var $author$project$Chart$Attributes$pinned = function (value) {
 	return $author$project$Internal$Helpers$Attribute(
 		function (config) {
@@ -26225,6 +26238,32 @@ var $author$project$Chart$Attributes$pinned = function (value) {
 				{pinned: value});
 		});
 };
+var $author$project$Internal$Many$sameX = function () {
+	var fullVertialPosition = F2(
+		function (plane, item) {
+			return function (pos) {
+				return _Utils_update(
+					pos,
+					{y1: plane.y.min, y2: plane.y.max});
+			}(
+				A2($author$project$Internal$Item$getPosition, plane, item));
+		});
+	return A2(
+		$author$project$Internal$Many$Remodel,
+		fullVertialPosition,
+		$author$project$Internal$Many$groupingHelp(
+			{
+				edits: $elm$core$Basics$identity,
+				equality: F2(
+					function (a, b) {
+						return _Utils_eq(a.x1, b.x1) && _Utils_eq(a.x2, b.x2);
+					}),
+				shared: function (config) {
+					return {x1: config.x1, x2: config.x2};
+				}
+			}));
+}();
+var $author$project$Chart$Item$sameX = $author$project$Internal$Many$sameX;
 var $author$project$Chart$ScaleElement = F4(
 	function (a, b, c, d) {
 		return {$: 'ScaleElement', a: a, b: b, c: c, d: d};
@@ -26270,11 +26309,20 @@ var $author$project$Examples$BarCharts$MultipleScales$view = function (model) {
 				$author$project$Chart$Attributes$height(300),
 				$author$project$Chart$Attributes$width(300),
 				$author$project$Chart$Attributes$padding(
-				{bottom: 0, left: 30, right: 30, top: 0})
+				{bottom: 0, left: 30, right: 30, top: 0}),
+				A2(
+				$author$project$Chart$Events$onMouseMove,
+				$author$project$Examples$BarCharts$MultipleScales$OnHover,
+				$author$project$Chart$Events$getNearest(
+					A2($author$project$Chart$Item$andThen, $author$project$Chart$Item$sameX, $author$project$Chart$Item$bars))),
+				$author$project$Chart$Events$onMouseLeave(
+				$author$project$Examples$BarCharts$MultipleScales$OnHover(_List_Nil))
 			]),
 		_List_fromArray(
 			[
-				$author$project$Chart$xLabels(_List_Nil),
+				$author$project$Chart$xLabels(
+				_List_fromArray(
+					[$author$project$Chart$Attributes$ints])),
 				$author$project$Chart$xAxis(
 				_List_fromArray(
 					[$author$project$Chart$Attributes$noArrow])),
@@ -26330,7 +26378,17 @@ var $author$project$Examples$BarCharts$MultipleScales$view = function (model) {
 								$author$project$Chart$Attributes$flip,
 								$author$project$Chart$Attributes$color($author$project$Chart$Attributes$pink)
 							]))
-					]))
+					])),
+				A2(
+				$author$project$Chart$each,
+				model.hovering,
+				F2(
+					function (p, item) {
+						return _List_fromArray(
+							[
+								A4($author$project$Chart$tooltip, item, _List_Nil, _List_Nil, _List_Nil)
+							]);
+					}))
 			]));
 };
 var $author$project$Examples$BarCharts$Opacity$Datum = F8(
@@ -29131,13 +29189,6 @@ var $author$project$Examples$Frame$Offset$view = function (model) {
 					]))
 			]));
 };
-var $author$project$Internal$Svg$Ints = {$: 'Ints'};
-var $author$project$Chart$Attributes$ints = $author$project$Internal$Helpers$Attribute(
-	function (config) {
-		return _Utils_update(
-			config,
-			{generate: $author$project$Internal$Svg$Ints});
-	});
 var $author$project$Examples$Frame$OnlyInts$view = function (model) {
 	return A2(
 		$author$project$Chart$chart,
@@ -35933,7 +35984,7 @@ var $author$project$Examples$BarCharts$Highlight$largeCode = '\nimport Html as H
 var $author$project$Examples$BarCharts$Histogram$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\nimport Time\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels [ CA.times Time.utc ]\n    , C.yLabels [ CA.withGrid ]\n    , C.bars\n        [ CA.x1 .start\n        , CA.x2 .end\n        , CA.margin 0.02\n        ]\n        [ C.bar .y [] ]\n        data\n    ]\n  ';
 var $author$project$Examples$BarCharts$Legends$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.bars [ CA.roundTop 0.3 ]\n        [ C.bar .z []\n            |> C.named "Cats"\n        , C.bar .y [ CA.striped [] ]\n            |> C.named "Fish"\n        ]\n        data\n    , C.legendsAt .max .max\n        [ CA.column\n        , CA.moveLeft 15\n        , CA.alignRight\n        , CA.spacing 5\n        ]\n        []\n    ]\n  ';
 var $author$project$Examples$BarCharts$Margin$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.bars\n        [ CA.margin 0.4 ] -- Number is percentage of bin width\n        [ C.bar .y []\n        , C.bar .z []\n        ]\n        data\n    ]\n  ';
-var $author$project$Examples$BarCharts$MultipleScales$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\nimport Svg as S\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, left = 30, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.xAxis [ CA.noArrow ]\n    , C.yLabels [ CA.color CA.purple ]\n    , C.bars [ CA.margin 0.45 ] [ C.bar .z [] ] data\n    , C.scale\n        [] \n        [ C.bars [] [ C.bar .x [ CA.opacity 0.5 ] ] data\n        , C.yLabels [ CA.pinned .max, CA.flip, CA.color CA.pink ]\n        ]\n    ]\n\n\ntype alias Datum =\n  { x : Float\n  , y : Float\n  , z : Float\n  }\n\ndata : List Datum\ndata =\n  [ Datum 1 2  120\n  , Datum 2 10 50\n  , Datum 3 5  100\n  ]\n\n  ';
+var $author$project$Examples$BarCharts$MultipleScales$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\nimport Chart.Item as CI\nimport Chart.Events as CE\nimport Svg as S\n\n\ntype alias Model =\n  { hovering : List (CI.Many Datum CI.Bar) }\n\n\ninit : Model\ninit =\n  { hovering = [] }\n\n\ntype Msg\n  = OnHover (List (CI.Many Datum CI.Bar))\n\n\nupdate : Msg -> Model -> Model\nupdate msg model =\n  case msg of\n    OnHover hovering ->\n      { model | hovering = hovering }\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, left = 30, right = 30, bottom = 0 }\n    , CE.onMouseMove OnHover (CI.bars |> CI.andThen CI.sameX |> CE.getNearest)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels [ CA.ints ]\n    , C.xAxis [ CA.noArrow ]\n    , C.yLabels [ CA.color CA.purple ]\n    , C.bars [ CA.margin 0.45 ] [ C.bar .z [] ] data\n    , C.scale\n        [] \n        [ C.bars [] [ C.bar .x [ CA.opacity 0.5 ] ] data\n        , C.yLabels [ CA.pinned .max, CA.flip, CA.color CA.pink ]\n        ]\n    , C.each model.hovering <| \\p item ->\n        [ C.tooltip item [] [] [] ]\n    ]\n\n\ntype alias Datum =\n  { x : Float\n  , y : Float\n  , z : Float\n  }\n\ndata : List Datum\ndata =\n  [ Datum 1 2  120\n  , Datum 2 10 50\n  , Datum 3 5  100\n  ]\n\n  ';
 var $author$project$Examples$BarCharts$Opacity$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.bars\n        []\n        [ C.bar .y [ CA.opacity 0.5 ]\n        , C.bar .z []\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$BarCharts$Pattern$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.bars []\n        [ C.bar .y [ CA.striped [ CA.spacing 6 ] ]\n        , C.bar .z [ CA.dotted [ CA.rotate 45 ] ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$BarCharts$Spacing$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.bars\n        [ CA.spacing 0 ] -- Number is percentage of bin width\n        [ C.bar .y []\n        , C.bar .z []\n        ]\n        data\n    ]\n  ';
@@ -36267,7 +36318,7 @@ var $author$project$Examples$BarCharts$Highlight$smallCode = '\n  C.chart\n    [
 var $author$project$Examples$BarCharts$Histogram$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels [ CA.times Time.utc ]\n    , C.yLabels [ CA.withGrid ]\n    , C.bars\n        [ CA.x1 .start\n        , CA.x2 .end\n        , CA.margin 0.02\n        ]\n        [ C.bar .y [] ]\n        data\n    ]\n  ';
 var $author$project$Examples$BarCharts$Legends$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.bars [ CA.roundTop 0.3 ]\n        [ C.bar .z []\n            |> C.named "Cats"\n        , C.bar .y [ CA.striped [] ]\n            |> C.named "Fish"\n        ]\n        data\n    , C.legendsAt .max .max\n        [ CA.column\n        , CA.moveLeft 15\n        , CA.alignRight\n        , CA.spacing 5\n        ]\n        []\n    ]\n  ';
 var $author$project$Examples$BarCharts$Margin$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.bars\n        [ CA.margin 0.4 ] -- Number is percentage of bin width\n        [ C.bar .y []\n        , C.bar .z []\n        ]\n        data\n    ]\n  ';
-var $author$project$Examples$BarCharts$MultipleScales$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, left = 30, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.xAxis [ CA.noArrow ]\n    , C.yLabels [ CA.color CA.purple ]\n    , C.bars [ CA.margin 0.45 ] [ C.bar .z [] ] data\n    , C.scale\n        [] \n        [ C.bars [] [ C.bar .x [ CA.opacity 0.5 ] ] data\n        , C.yLabels [ CA.pinned .max, CA.flip, CA.color CA.pink ]\n        ]\n    ]\n  ';
+var $author$project$Examples$BarCharts$MultipleScales$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, left = 30, right = 30, bottom = 0 }\n    , CE.onMouseMove OnHover (CI.bars |> CI.andThen CI.sameX |> CE.getNearest)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels [ CA.ints ]\n    , C.xAxis [ CA.noArrow ]\n    , C.yLabels [ CA.color CA.purple ]\n    , C.bars [ CA.margin 0.45 ] [ C.bar .z [] ] data\n    , C.scale\n        [] \n        [ C.bars [] [ C.bar .x [ CA.opacity 0.5 ] ] data\n        , C.yLabels [ CA.pinned .max, CA.flip, CA.color CA.pink ]\n        ]\n    , C.each model.hovering <| \\p item ->\n        [ C.tooltip item [] [] [] ]\n    ]\n  ';
 var $author$project$Examples$BarCharts$Opacity$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.bars\n        []\n        [ C.bar .y [ CA.opacity 0.5 ]\n        , C.bar .z []\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$BarCharts$Pattern$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.bars []\n        [ C.bar .y [ CA.striped [ CA.spacing 6 ] ]\n        , C.bar .z [ CA.dotted [ CA.rotate 45 ] ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$BarCharts$Spacing$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.bars\n        [ CA.spacing 0 ] -- Number is percentage of bin width\n        [ C.bar .y []\n        , C.bar .z []\n        ]\n        data\n    ]\n  ';
