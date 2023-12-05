@@ -4,6 +4,7 @@ module Examples.LineCharts.MultipleScales exposing (..)
 import Html as H
 import Chart as C
 import Chart.Attributes as CA
+import Svg as S
 
 
 view : Model -> H.Html Msg
@@ -12,23 +13,23 @@ view model =
   C.chart
     [ CA.height 300
     , CA.width 300
-    , CA.padding { top = 10, left = 30, right = 30, bottom = 0 }
+    , CA.padding { top = 0, left = 30, right = 30, bottom = 0 }
     ]
     [ C.xLabels []
-    , C.yLabels []
-    , C.yAxis []
     , C.scale 
         []
         [ C.series .x [ C.interpolated .z [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ] data
-        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip ]
-        , C.yAxis [ CA.pinned .max, CA.color CA.blue ]
+        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.purple ]
+        , C.yAxis [ CA.pinned .max ]
         , C.yTicks [ CA.pinned .max, CA.withGrid ]
         , C.xTicks [ CA.withGrid ]
         ]
     , C.series .x
-        [ C.interpolated .y [ CA.color CA.pink ] [ CA.cross, CA.border "white", CA.borderWidth 2 ]
+        [ C.interpolated .y [] [ CA.cross, CA.border "white", CA.borderWidth 2 ]
         ]
         data
+    , C.yLabels [ CA.color CA.mint ]
+    , C.yAxis []
     ]
 {-| @SMALL END -}
 
@@ -41,9 +42,9 @@ type alias Datum =
 
 data : List Datum
 data =
-  [ Datum 1  2  120
-  , Datum 2  10 50
-  , Datum 3  5  100
+  [ Datum 1 2  120
+  , Datum 2 10 50
+  , Datum 3 5  100
   ]
 
 {-| @LARGE END -}

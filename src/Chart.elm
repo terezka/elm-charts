@@ -27,6 +27,8 @@ module Chart exposing
   )
 
 
+-- TODO fix interpolation in scatter legends!!!!!
+
 {-| **Make sure to check out the many examples at [elm-charts.org](https://www.elm-charts.org/documentation).**
 
 The configuration of this charting library mirrors the pattern of HTML elements

@@ -108,13 +108,14 @@ import Examples.ScatterCharts.Colors as Example97
 import Examples.ScatterCharts.Shapes as Example98
 import Examples.ScatterCharts.Tooltip as Example99
 import Examples.ScatterCharts.Highlight as Example100
-import Examples.ScatterCharts.DataDependent as Example101
-import Examples.ScatterCharts.Borders as Example102
-import Examples.ScatterCharts.Labels as Example103
-import Examples.ScatterCharts.Opacity as Example104
-import Examples.ScatterCharts.Sizes as Example105
-import Examples.ScatterCharts.Legends as Example106
-import Examples.ScatterCharts.Basic as Example107
+import Examples.ScatterCharts.MultipleScales as Example101
+import Examples.ScatterCharts.DataDependent as Example102
+import Examples.ScatterCharts.Borders as Example103
+import Examples.ScatterCharts.Labels as Example104
+import Examples.ScatterCharts.Opacity as Example105
+import Examples.ScatterCharts.Sizes as Example106
+import Examples.ScatterCharts.Legends as Example107
+import Examples.ScatterCharts.Basic as Example108
 
 
 type Id
@@ -219,6 +220,7 @@ type Id
   | ScatterCharts__Shapes
   | ScatterCharts__Tooltip
   | ScatterCharts__Highlight
+  | ScatterCharts__MultipleScales
   | ScatterCharts__DataDependent
   | ScatterCharts__Borders
   | ScatterCharts__Labels
@@ -337,6 +339,7 @@ type alias Model =
   , example105 : Example105.Model
   , example106 : Example106.Model
   , example107 : Example107.Model
+  , example108 : Example108.Model
   }
 
 
@@ -449,6 +452,7 @@ init =
   , example105 = Example105.init
   , example106 = Example106.init
   , example107 = Example107.init
+  , example108 = Example108.init
   }
 
 
@@ -561,6 +565,7 @@ type Msg
   | ExampleMsg105 Example105.Msg
   | ExampleMsg106 Example106.Msg
   | ExampleMsg107 Example107.Msg
+  | ExampleMsg108 Example108.Msg
 
 
 update msg model =
@@ -673,6 +678,7 @@ update msg model =
     ExampleMsg105 sub -> { model | example105 = Example105.update sub model.example105 }
     ExampleMsg106 sub -> { model | example106 = Example106.update sub model.example106 }
     ExampleMsg107 sub -> { model | example107 = Example107.update sub model.example107 }
+    ExampleMsg108 sub -> { model | example108 = Example108.update sub model.example108 }
 
 
 view model chosen =
@@ -778,13 +784,14 @@ view model chosen =
     ScatterCharts__Shapes -> Html.map ExampleMsg98 (Example98.view model.example98)
     ScatterCharts__Tooltip -> Html.map ExampleMsg99 (Example99.view model.example99)
     ScatterCharts__Highlight -> Html.map ExampleMsg100 (Example100.view model.example100)
-    ScatterCharts__DataDependent -> Html.map ExampleMsg101 (Example101.view model.example101)
-    ScatterCharts__Borders -> Html.map ExampleMsg102 (Example102.view model.example102)
-    ScatterCharts__Labels -> Html.map ExampleMsg103 (Example103.view model.example103)
-    ScatterCharts__Opacity -> Html.map ExampleMsg104 (Example104.view model.example104)
-    ScatterCharts__Sizes -> Html.map ExampleMsg105 (Example105.view model.example105)
-    ScatterCharts__Legends -> Html.map ExampleMsg106 (Example106.view model.example106)
-    ScatterCharts__Basic -> Html.map ExampleMsg107 (Example107.view model.example107)
+    ScatterCharts__MultipleScales -> Html.map ExampleMsg101 (Example101.view model.example101)
+    ScatterCharts__DataDependent -> Html.map ExampleMsg102 (Example102.view model.example102)
+    ScatterCharts__Borders -> Html.map ExampleMsg103 (Example103.view model.example103)
+    ScatterCharts__Labels -> Html.map ExampleMsg104 (Example104.view model.example104)
+    ScatterCharts__Opacity -> Html.map ExampleMsg105 (Example105.view model.example105)
+    ScatterCharts__Sizes -> Html.map ExampleMsg106 (Example106.view model.example106)
+    ScatterCharts__Legends -> Html.map ExampleMsg107 (Example107.view model.example107)
+    ScatterCharts__Basic -> Html.map ExampleMsg108 (Example108.view model.example108)
 
 
 smallCode : Id -> String
@@ -891,13 +898,14 @@ smallCode chosen =
     ScatterCharts__Shapes -> Example98.smallCode
     ScatterCharts__Tooltip -> Example99.smallCode
     ScatterCharts__Highlight -> Example100.smallCode
-    ScatterCharts__DataDependent -> Example101.smallCode
-    ScatterCharts__Borders -> Example102.smallCode
-    ScatterCharts__Labels -> Example103.smallCode
-    ScatterCharts__Opacity -> Example104.smallCode
-    ScatterCharts__Sizes -> Example105.smallCode
-    ScatterCharts__Legends -> Example106.smallCode
-    ScatterCharts__Basic -> Example107.smallCode
+    ScatterCharts__MultipleScales -> Example101.smallCode
+    ScatterCharts__DataDependent -> Example102.smallCode
+    ScatterCharts__Borders -> Example103.smallCode
+    ScatterCharts__Labels -> Example104.smallCode
+    ScatterCharts__Opacity -> Example105.smallCode
+    ScatterCharts__Sizes -> Example106.smallCode
+    ScatterCharts__Legends -> Example107.smallCode
+    ScatterCharts__Basic -> Example108.smallCode
 
 
 largeCode : Id -> String
@@ -1004,13 +1012,14 @@ largeCode chosen =
     ScatterCharts__Shapes -> Example98.largeCode
     ScatterCharts__Tooltip -> Example99.largeCode
     ScatterCharts__Highlight -> Example100.largeCode
-    ScatterCharts__DataDependent -> Example101.largeCode
-    ScatterCharts__Borders -> Example102.largeCode
-    ScatterCharts__Labels -> Example103.largeCode
-    ScatterCharts__Opacity -> Example104.largeCode
-    ScatterCharts__Sizes -> Example105.largeCode
-    ScatterCharts__Legends -> Example106.largeCode
-    ScatterCharts__Basic -> Example107.largeCode
+    ScatterCharts__MultipleScales -> Example101.largeCode
+    ScatterCharts__DataDependent -> Example102.largeCode
+    ScatterCharts__Borders -> Example103.largeCode
+    ScatterCharts__Labels -> Example104.largeCode
+    ScatterCharts__Opacity -> Example105.largeCode
+    ScatterCharts__Sizes -> Example106.largeCode
+    ScatterCharts__Legends -> Example107.largeCode
+    ScatterCharts__Basic -> Example108.largeCode
 
 
 name : Id -> String
@@ -1117,6 +1126,7 @@ name chosen =
     ScatterCharts__Shapes -> "Examples.ScatterCharts.Shapes"
     ScatterCharts__Tooltip -> "Examples.ScatterCharts.Tooltip"
     ScatterCharts__Highlight -> "Examples.ScatterCharts.Highlight"
+    ScatterCharts__MultipleScales -> "Examples.ScatterCharts.MultipleScales"
     ScatterCharts__DataDependent -> "Examples.ScatterCharts.DataDependent"
     ScatterCharts__Borders -> "Examples.ScatterCharts.Borders"
     ScatterCharts__Labels -> "Examples.ScatterCharts.Labels"
@@ -1229,13 +1239,14 @@ meta chosen =
     ScatterCharts__Shapes -> Example98.meta
     ScatterCharts__Tooltip -> Example99.meta
     ScatterCharts__Highlight -> Example100.meta
-    ScatterCharts__DataDependent -> Example101.meta
-    ScatterCharts__Borders -> Example102.meta
-    ScatterCharts__Labels -> Example103.meta
-    ScatterCharts__Opacity -> Example104.meta
-    ScatterCharts__Sizes -> Example105.meta
-    ScatterCharts__Legends -> Example106.meta
-    ScatterCharts__Basic -> Example107.meta
+    ScatterCharts__MultipleScales -> Example101.meta
+    ScatterCharts__DataDependent -> Example102.meta
+    ScatterCharts__Borders -> Example103.meta
+    ScatterCharts__Labels -> Example104.meta
+    ScatterCharts__Opacity -> Example105.meta
+    ScatterCharts__Sizes -> Example106.meta
+    ScatterCharts__Legends -> Example107.meta
+    ScatterCharts__Basic -> Example108.meta
 
 
 all : List Id
@@ -1341,6 +1352,7 @@ all =
   , ScatterCharts__Shapes
   , ScatterCharts__Tooltip
   , ScatterCharts__Highlight
+  , ScatterCharts__MultipleScales
   , ScatterCharts__DataDependent
   , ScatterCharts__Borders
   , ScatterCharts__Labels
