@@ -19,14 +19,14 @@ view model =
     , C.scale 
         []
         [ C.series .x [ C.interpolated .z [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ] data
-        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.purple ]
+        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip ]
         , C.yAxis [ CA.pinned .max ]
         , C.xTicks [ CA.withGrid ]
         ]
     , C.series .x
-        [ C.interpolated .y [ CA.color CA.blue ] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ]
+        [ C.interpolated .y [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ]
         data
-    , C.yLabels [ CA.color CA.blue ]
+    , C.yLabels []
     , C.yAxis []
     ]
 {-| @SMALL END -}

@@ -267,8 +267,8 @@ chart edits unindexedElements =
           , htmlAttrs = []
           }
 
-      indexedElements =
-        addIndexes unindexedElements
+      ( indexedElements, _ ) =
+        addIndexes 0 unindexedElements
 
       elements =
         addGridIfNone indexedElements
@@ -456,8 +456,8 @@ definePlane config elements =
   }
 
 
-addIndexes : List (Element data msg) -> List (Element data msg)
-addIndexes =
+addIndexes : Int -> List (Element data msg) -> ( List (Element data msg), Int )
+addIndexes startIndex =
   let toIndexedElements element ( allElements, index ) =
         case element of
           Indexed func ->
@@ -470,7 +470,7 @@ addIndexes =
           _ ->
             ( allElements ++ [ element ], index )
   in
-  List.foldl toIndexedElements ( [], 0 ) >> Tuple.first
+  List.foldl toIndexedElements ( [], startIndex )
 
 
 addGridIfNone : List (Element data msg) -> List (Element data msg)
@@ -604,25 +604,25 @@ type alias Scale =
 
 scale : List (Attribute Scale) -> List (Element data msg) -> Element data msg
 scale attrs unindexedElements =
-  let config = 
-        Helpers.apply attrs
-          { range = []
-          , domain = []
-          }
-
-      indexedElements =
-        addIndexes unindexedElements
-
-      elements =
-        addGridIfNone indexedElements
-
-      items =
-        getItems elements
-
-      legends =
-        getLegends elements
-  in
   Indexed <| \index ->
+    let config = 
+          Helpers.apply attrs
+            { range = []
+            , domain = []
+            }
+
+        ( indexedElements, newIndex ) =
+          addIndexes index unindexedElements
+
+        elements =
+          addGridIfNone indexedElements
+
+        items =
+          getItems elements
+
+        legends =
+          getLegends elements
+    in
     ( ScaleElement elements items legends <| \containerConfig ->
         let container =
               { padding = containerConfig.padding
@@ -643,7 +643,7 @@ scale attrs unindexedElements =
               viewElements containerConfig plane tickValues items legends elements
         in
         ( beforeEls, chartEls, afterEls )
-    , index + List.length elements
+    , newIndex
     )
   
 

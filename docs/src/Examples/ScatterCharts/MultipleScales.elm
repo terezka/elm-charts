@@ -26,8 +26,7 @@ view model =
         , C.yAxis [ CA.pinned .max ]
         ]
     , C.series .x
-        [ C.scatter .w [ CA.cross, CA.borderWidth 3, CA.color CA.orange, CA.border "white", CA.size 12 ]
-        ]
+        [ C.scatter .w [ CA.cross, CA.borderWidth 3, CA.color CA.orange, CA.border "white", CA.size 12 ] ]
         data
     ]
 
@@ -108,8 +107,7 @@ smallCode =
         , C.yAxis [ CA.pinned .max ]
         ]
     , C.series .x
-        [ C.scatter .w [ CA.cross, CA.borderWidth 3, CA.color CA.orange, CA.border "white", CA.size 12 ]
-        ]
+        [ C.scatter .w [ CA.cross, CA.borderWidth 3, CA.color CA.orange, CA.border "white", CA.size 12 ] ]
         data
     ]
   """
@@ -141,8 +139,7 @@ view model =
         , C.yAxis [ CA.pinned .max ]
         ]
     , C.series .x
-        [ C.scatter .w [ CA.cross, CA.borderWidth 3, CA.color CA.orange, CA.border "white", CA.size 12 ]
-        ]
+        [ C.scatter .w [ CA.cross, CA.borderWidth 3, CA.color CA.orange, CA.border "white", CA.size 12 ] ]
         data
     ]
 
