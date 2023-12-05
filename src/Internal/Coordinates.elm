@@ -174,6 +174,25 @@ toId plane =
 -- TRANSLATION
 
 
+convertPos : Plane -> Plane -> Position -> Position
+convertPos topLevel plane pos =
+  { x1 = convertX topLevel plane pos.x1
+  , x2 = convertX topLevel plane pos.x2
+  , y1 = convertY topLevel plane pos.y1
+  , y2 = convertY topLevel plane pos.y2
+  }
+
+
+convertX : Plane -> Plane -> Float -> Float
+convertX topLevel plane x =
+  topLevel.x.min + (topLevel.x.max - topLevel.x.min) * (x / (plane.x.max - plane.x.min))
+
+
+convertY : Plane -> Plane -> Float -> Float
+convertY topLevel plane y =
+  topLevel.y.min + (topLevel.y.max - topLevel.y.min) * (y / (plane.y.max - plane.y.min))
+
+
 {-| For scaling a cartesian value to a SVG value. Note that this will _not_
   return a coordinate on the plane, but the scaled value.
 -}
