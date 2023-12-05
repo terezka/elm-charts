@@ -69,7 +69,7 @@ toBarSeries elementIndex barsAttrs properties data =
           I.Rendered ( first, rest )
             { limits = Coord.foldPosition I.getLimits items
             , toPosition = \plane -> Coord.foldPosition (I.getPosition plane) items
-            , render = \plane _ -> S.g [ SA.class "elm-charts__series" ] (List.map (I.render plane) items)
+            , render = \plane -> S.g [ SA.class "elm-charts__series" ] (List.map (I.render plane) items)
             , tooltip = \() -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.tooltip items) ]
             }
 
@@ -113,6 +113,9 @@ toBarSeries elementIndex barsAttrs properties data =
               Helpers.apply (basicAttributes ++ barSeriesConfig.presentation ++ barSeriesConfig.variation identification bin.datum) S.defaultBar
                 |> updateColorIfGradientIsSet defaultColor
                 |> updateBorder defaultColor
+
+            position =
+              { x1 = x1, x2 = x2, y1 = y1, y2 = y2 }
         in
         I.Rendered
           { presentation = barPresentationConfig
@@ -128,8 +131,8 @@ toBarSeries elementIndex barsAttrs properties data =
           , toAny = I.Bar
           }
           { limits = { x1 = x1, x2 = x2, y1 = min y1 y2, y2 = max y1 y2 }
-          , toPosition = \_ -> { x1 = x1, x2 = x2, y1 = y1, y2 = y2 }
-          , render = \plane position -> S.bar plane barPresentationConfig position
+          , toPosition = \_ -> position
+          , render = \plane -> S.bar plane barPresentationConfig position
           , tooltip = \() -> 
               [ tooltipRow 
                   barPresentationConfig.color 
@@ -262,7 +265,7 @@ toDotSeries elementIndex toX properties data =
         in
         Helpers.withFirst dotItems <| \first rest ->
           I.Rendered ( first, rest )
-            { render = \plane _ -> viewSeries plane
+            { render = \plane -> viewSeries plane
             , limits = Coord.foldPosition I.getLimits dotItems
             , toPosition = \plane -> Coord.foldPosition (I.getPosition plane) dotItems
             , tooltip = \() -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.tooltip dotItems) ]
@@ -329,7 +332,7 @@ toDotSeries elementIndex toX properties data =
               , y1 = y - radiusY, y2 = y + radiusY
               }
 
-          , render = \plane _ ->
+          , render = \plane ->
               case lineSeriesConfig.toY datum of
                 Nothing -> S.text ""
                 Just _ -> S.dot plane .x .y dotConfig { x = x, y = y }

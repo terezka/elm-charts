@@ -192,7 +192,7 @@ toGroup first rest =
   I.Rendered ( first, rest )
     { limits = Coord.foldPosition I.getLimits all
     , toPosition = \plane -> Coord.foldPosition (I.getPosition plane) all
-    , render = \plane _ -> S.g [ SA.class "elm-charts__group" ] (List.map (I.render plane) all)
+    , render = \plane -> S.g [ SA.class "elm-charts__group" ] (List.map (I.render plane) all)
     , tooltip = \c -> [ H.table [] (List.concatMap I.tooltip all) ]
     }
 

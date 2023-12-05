@@ -29,7 +29,7 @@ type Rendered meta =
   Rendered meta
     { limits : Position
     , toPosition : Plane -> Position
-    , render : Plane -> Position -> Svg Never
+    , render : Plane -> Svg Never
     , tooltip : () -> List (Html Never)
     }
 
@@ -65,7 +65,7 @@ type Any
 {-| -}
 render : Plane -> Rendered x -> Svg Never
 render plane (Rendered _ item) =
-  item.render plane (item.toPosition plane)
+  item.render plane
 
 
 {-| -}

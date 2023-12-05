@@ -2538,7 +2538,7 @@ custom config =
             }
             { limits = config.position
             , toPosition = \_ -> config.position
-            , render = \plane position -> config.render plane
+            , render = \plane -> config.render plane
             , tooltip = \() -> [ Produce.tooltipRow config.color config.name (config.format config.data) ]
             }
     in
