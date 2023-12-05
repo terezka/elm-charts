@@ -25947,7 +25947,6 @@ var $author$project$Chart$Attributes$linear = $author$project$Internal$Helpers$A
 				method: $elm$core$Maybe$Just($author$project$Internal$Svg$Linear)
 			});
 	});
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Chart$Svg$lineLegend = F3(
 	function (edits, interAttrsOrg, dotAttrsOrg) {
 		var interpolationConfigOrg = A2($author$project$Internal$Helpers$apply, interAttrsOrg, $author$project$Internal$Svg$defaultInterpolation);
@@ -25958,10 +25957,7 @@ var $author$project$Chart$Svg$lineLegend = F3(
 				{width: 10});
 		};
 		var _v0 = function () {
-			var _v1 = A2(
-				$elm$core$Debug$log,
-				'inter',
-				_Utils_Tuple2(interpolationConfigOrg.method, dotConfigOrg.shape));
+			var _v1 = _Utils_Tuple2(interpolationConfigOrg.method, dotConfigOrg.shape);
 			if (_v1.a.$ === 'Just') {
 				if (_v1.b.$ === 'Nothing') {
 					var _v2 = _v1.b;
@@ -27286,15 +27282,11 @@ var $author$project$Chart$interpolated = F2(
 					[$author$project$Chart$Attributes$linear]),
 				inter));
 	});
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Chart$Attributes$likeData = $author$project$Internal$Helpers$Attribute(
 	function (b) {
 		return _Utils_update(
 			b,
-			{
-				max: b.dataMax,
-				min: A2($elm$core$Debug$log, 'here', b.dataMin)
-			});
+			{max: b.dataMax, min: b.dataMin});
 	});
 var $author$project$Chart$Attributes$limits = function (value) {
 	return $author$project$Internal$Helpers$Attribute(
@@ -27328,10 +27320,7 @@ var $author$project$Internal$Helpers$noChange = $author$project$Internal$Helpers
 var $author$project$Internal$Legend$toDotLegends = F2(
 	function (elIndex, properties) {
 		var toInterConfig = function (attrs) {
-			return A2(
-				$elm$core$Debug$log,
-				'here',
-				A2($author$project$Internal$Helpers$apply, attrs, $author$project$Internal$Svg$defaultInterpolation));
+			return A2($author$project$Internal$Helpers$apply, attrs, $author$project$Internal$Svg$defaultInterpolation);
 		};
 		var toDotLegend = F3(
 			function (props, prop, colorIndex) {
@@ -33339,8 +33328,6 @@ var $author$project$Examples$LineCharts$MultipleScales$data = _List_fromArray(
 		A3($author$project$Examples$LineCharts$MultipleScales$Datum, 2, 10, 50),
 		A3($author$project$Examples$LineCharts$MultipleScales$Datum, 3, 5, 100)
 	]);
-var $author$project$Internal$Helpers$mint = '#6df0d2';
-var $author$project$Chart$Attributes$mint = $author$project$Internal$Helpers$mint;
 var $author$project$Chart$ScaleElement = F4(
 	function (a, b, c, d) {
 		return {$: 'ScaleElement', a: a, b: b, c: c, d: d};
@@ -33434,15 +33421,6 @@ var $author$project$Examples$LineCharts$MultipleScales$view = function (model) {
 									return $.max;
 								})
 							])),
-						$author$project$Chart$yTicks(
-						_List_fromArray(
-							[
-								$author$project$Chart$Attributes$pinned(
-								function ($) {
-									return $.max;
-								}),
-								$author$project$Chart$Attributes$withGrid
-							])),
 						$author$project$Chart$xTicks(
 						_List_fromArray(
 							[$author$project$Chart$Attributes$withGrid]))
@@ -33459,7 +33437,10 @@ var $author$project$Examples$LineCharts$MultipleScales$view = function (model) {
 						function ($) {
 							return $.y;
 						},
-						_List_Nil,
+						_List_fromArray(
+							[
+								$author$project$Chart$Attributes$color($author$project$Chart$Attributes$blue)
+							]),
 						_List_fromArray(
 							[
 								$author$project$Chart$Attributes$cross,
@@ -33471,7 +33452,7 @@ var $author$project$Examples$LineCharts$MultipleScales$view = function (model) {
 				$author$project$Chart$yLabels(
 				_List_fromArray(
 					[
-						$author$project$Chart$Attributes$color($author$project$Chart$Attributes$mint)
+						$author$project$Chart$Attributes$color($author$project$Chart$Attributes$blue)
 					])),
 				$author$project$Chart$yAxis(_List_Nil)
 			]));
@@ -34416,7 +34397,7 @@ var $author$project$Examples$ScatterCharts$MultipleScales$view = function (model
 				$author$project$Chart$Attributes$height(300),
 				$author$project$Chart$Attributes$width(300),
 				$author$project$Chart$Attributes$padding(
-				{bottom: 0, left: 0, right: 30, top: 10})
+				{bottom: 0, left: 10, right: 30, top: 10})
 			]),
 		_List_fromArray(
 			[
@@ -34424,9 +34405,20 @@ var $author$project$Examples$ScatterCharts$MultipleScales$view = function (model
 				$author$project$Chart$yLabels(
 				_List_fromArray(
 					[
+						$author$project$Chart$Attributes$pinned(
+						function ($) {
+							return $.min;
+						}),
 						$author$project$Chart$Attributes$color($author$project$Chart$Attributes$orange)
 					])),
-				$author$project$Chart$yAxis(_List_Nil),
+				$author$project$Chart$yAxis(
+				_List_fromArray(
+					[
+						$author$project$Chart$Attributes$pinned(
+						function ($) {
+							return $.min;
+						})
+					])),
 				A2(
 				$author$project$Chart$scale,
 				_List_fromArray(
@@ -34451,11 +34443,11 @@ var $author$project$Examples$ScatterCharts$MultipleScales$view = function (model
 								},
 								_List_fromArray(
 									[
-										$author$project$Chart$Attributes$circle,
-										$author$project$Chart$Attributes$opacity(0.2),
-										$author$project$Chart$Attributes$borderWidth(1),
+										$author$project$Chart$Attributes$cross,
+										$author$project$Chart$Attributes$borderWidth(3),
 										$author$project$Chart$Attributes$color($author$project$Chart$Attributes$pink),
-										$author$project$Chart$Attributes$border($author$project$Chart$Attributes$pink)
+										$author$project$Chart$Attributes$border('white'),
+										$author$project$Chart$Attributes$size(12)
 									]))
 							]),
 						$author$project$Examples$ScatterCharts$MultipleScales$data),
@@ -34493,10 +34485,11 @@ var $author$project$Examples$ScatterCharts$MultipleScales$view = function (model
 						},
 						_List_fromArray(
 							[
-								$author$project$Chart$Attributes$opacity(0.2),
-								$author$project$Chart$Attributes$borderWidth(1),
+								$author$project$Chart$Attributes$cross,
+								$author$project$Chart$Attributes$borderWidth(3),
 								$author$project$Chart$Attributes$color($author$project$Chart$Attributes$orange),
-								$author$project$Chart$Attributes$border($author$project$Chart$Attributes$orange)
+								$author$project$Chart$Attributes$border('white'),
+								$author$project$Chart$Attributes$size(12)
 							]))
 					]),
 				$author$project$Examples$ScatterCharts$MultipleScales$data)
@@ -35920,7 +35913,7 @@ var $author$project$Examples$LineCharts$Labels$largeCode = '\nimport Html as H\n
 var $author$project$Examples$LineCharts$Legends$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [  ] [ CA.cross, CA.borderWidth 2, CA.border "white" ]\n            |> C.named "Cats"\n        , C.interpolated .z [  ] [ CA.cross, CA.borderWidth 2, CA.border "white" ]\n            |> C.named "Fish"\n        ]\n        data\n    , C.legendsAt .min .max\n        [ CA.column\n        , CA.moveRight 15\n        , CA.spacing 5\n        ]\n        [ CA.width 20 ]\n    ]\n  ';
 var $author$project$Examples$LineCharts$Missing$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolatedMaybe .y [ CA.stepped ] []\n        ]\n        data\n    ]\n\n\ntype alias Datum =\n  { x : Float\n  , y : Maybe Float\n  , z : Maybe Float\n  }\n\ndata : List Datum\ndata =\n  [ Datum 1  (Just 2) (Just 1)\n  , Datum 2  (Just 3) (Just 2)\n  , Datum 3  (Just 4) (Just 3)\n  , Datum 4  Nothing (Just 4)\n  , Datum 5  (Just 2) (Just 3)\n  , Datum 6  (Just 4) (Just 1)\n  , Datum 7  (Just 5) (Just 2)\n  , Datum 8  (Just 6) Nothing\n  , Datum 9  (Just 5) (Just 4)\n  , Datum 10 (Just 4) (Just 3)\n  ]\n\n\n  ';
 var $author$project$Examples$LineCharts$Montone$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [ CA.monotone ] []\n        , C.interpolated .z [ CA.monotone ] []\n        ]\n        data\n    ]\n  ';
-var $author$project$Examples$LineCharts$MultipleScales$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\nimport Svg as S\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, left = 30, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.scale \n        []\n        [ C.series .x [ C.interpolated .z [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ] data\n        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.purple ]\n        , C.yAxis [ CA.pinned .max ]\n        , C.yTicks [ CA.pinned .max, CA.withGrid ]\n        , C.xTicks [ CA.withGrid ]\n        ]\n    , C.series .x\n        [ C.interpolated .y [] [ CA.cross, CA.border "white", CA.borderWidth 2 ]\n        ]\n        data\n    , C.yLabels [ CA.color CA.mint ]\n    , C.yAxis []\n    ]\n\n\ntype alias Datum =\n  { x : Float\n  , y : Float\n  , z : Float\n  }\n\ndata : List Datum\ndata =\n  [ Datum 1 2  120\n  , Datum 2 10 50\n  , Datum 3 5  100\n  ]\n\n  ';
+var $author$project$Examples$LineCharts$MultipleScales$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\nimport Svg as S\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, left = 30, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.scale \n        []\n        [ C.series .x [ C.interpolated .z [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ] data\n        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.purple ]\n        , C.yAxis [ CA.pinned .max ]\n        , C.xTicks [ CA.withGrid ]\n        ]\n    , C.series .x\n        [ C.interpolated .y [ CA.color CA.blue ] [ CA.cross, CA.border "white", CA.borderWidth 2 ]\n        ]\n        data\n    , C.yLabels [ CA.color CA.blue ]\n    , C.yAxis []\n    ]\n\n\ntype alias Datum =\n  { x : Float\n  , y : Float\n  , z : Float\n  }\n\ndata : List Datum\ndata =\n  [ Datum 1 2  120\n  , Datum 2 10 50\n  , Datum 3 5  100\n  ]\n\n  ';
 var $author$project$Examples$LineCharts$Pattern$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.stacked\n          [ C.interpolated .y [ CA.striped [ CA.width 3, CA.spacing 4, CA.rotate 90 ] ] []\n          , C.interpolated .z [ CA.dotted [ CA.width 3, CA.spacing 4 ] ] []\n          ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Stacked$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.stacked\n          [ C.interpolated .y [] []\n          , C.interpolated .z [] []\n          ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Stepped$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [ CA.stepped ] []\n        , C.interpolated .z [ CA.stepped ] []\n        ]\n        data\n    ]\n\n\ntype alias Datum =\n  { x : Float\n  , y : Float\n  , z : Float\n  }\n\ndata : List Datum\ndata =\n  [ Datum 1  2 1\n  , Datum 2  3 2\n  , Datum 3  4 3\n  , Datum 4  3 4\n  , Datum 5  2 3\n  , Datum 6  4 1\n  , Datum 7  5 2\n  , Datum 8  6 3\n  , Datum 9  5 4\n  , Datum 10 4 3\n  ]\n\n\n  ';
@@ -35934,7 +35927,7 @@ var $author$project$Examples$ScatterCharts$DataDependent$largeCode = '\nimport H
 var $author$project$Examples$ScatterCharts$Highlight$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, bottom = 0, left = 15, right = 15 }\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y []\n        , C.scatter .z [ CA.highlight 0.4 ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$ScatterCharts$Labels$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\nimport Chart.Events as CE\nimport Chart.Item as CI\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, bottom = 0, left = 30, right = 10 }\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y [ CA.opacity 0.2, CA.borderWidth 1 ]\n            |> C.variation (\\i d -> [ CA.size (d.w * 30) ])\n        ]\n        data\n\n    , C.eachDot <| \\p dot ->\n        [ C.label\n            [ CA.moveDown 4, CA.color (CI.getColor dot) ]\n            [ S.text (String.fromFloat (CI.getData dot).w) ]\n            (CI.getCenter p dot)\n        ]\n    ]\n  ';
 var $author$project$Examples$ScatterCharts$Legends$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\nimport Svg as S\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y []\n        , C.scatter .z []\n        ]\n        data\n    , C.legendsAt .max .max\n        [ CA.column\n        , CA.moveLeft 2\n        , CA.spacing 0\n        , CA.alignRight\n        ]\n        [ CA.spacing 5\n        ]\n    ]\n  ';
-var $author$project$Examples$ScatterCharts$MultipleScales$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\nimport Svg as S\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 10, left = 0, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.color CA.orange ]\n    , C.yAxis []\n    , C.scale \n        [ CA.domain [ CA.likeData ] ]\n        [ C.series .x [ C.scatter .q [ CA.circle, CA.opacity 0.2, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink ] ] data\n        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.pink ]\n        , C.yAxis [ CA.pinned .max ]\n        ]\n    , C.series .x\n        [ C.scatter .w [ CA.opacity 0.2, CA.borderWidth 1, CA.color CA.orange, CA.border CA.orange ]\n        ]\n        data\n    ]\n\n\ntype alias Datum =\n  { x : Float\n  , y : Float\n  , z : Float\n  , v : Float\n  , w : Float\n  , p : Float\n  , q : Float\n  }\n\n\ndata : List Datum\ndata =\n  [ Datum 0.1 2.0 4.0 4.6 690 7.3 80.0\n  , Datum 0.2 3.0 4.2 5.2 620 7.0 60.7\n  , Datum 0.8 4.0 4.6 5.5 520 7.2 80.1\n  , Datum 1.0 2.0 4.2 5.3 570 6.2 70.8\n  , Datum 1.2 5.0 3.5 4.9 590 6.7 80.2\n  , Datum 2.0 2.0 3.2 4.8 540 7.2 80.3\n  , Datum 2.3 1.0 4.3 5.3 510 7.8 70.1\n  , Datum 2.8 3.0 2.9 5.4 390 7.6 90.5\n  , Datum 3.0 2.0 3.6 5.8 460 6.5 60.9\n  , Datum 4.0 1.0 4.2 4.5 530 6.3 70.0\n  ]\n\n  ';
+var $author$project$Examples$ScatterCharts$MultipleScales$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\nimport Svg as S\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 10, left = 10, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.pinned .min, CA.color CA.orange ]\n    , C.yAxis [ CA.pinned .min ]\n    , C.scale \n        [ CA.domain [ CA.likeData ] ]\n        [ C.series .x [ C.scatter .q [ CA.cross, CA.borderWidth 3, CA.color CA.pink, CA.border "white", CA.size 12 ] ] data\n        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.pink ]\n        , C.yAxis [ CA.pinned .max ]\n        ]\n    , C.series .x\n        [ C.scatter .w [ CA.cross, CA.borderWidth 3, CA.color CA.orange, CA.border "white", CA.size 12 ]\n        ]\n        data\n    ]\n\n\ntype alias Datum =\n  { x : Float\n  , y : Float\n  , z : Float\n  , v : Float\n  , w : Float\n  , p : Float\n  , q : Float\n  }\n\n\ndata : List Datum\ndata =\n  [ Datum 0.1 2.0 4.0 4.6 690 7.3 80.0\n  , Datum 0.2 3.0 4.2 5.2 620 7.0 60.7\n  , Datum 0.8 4.0 4.6 5.5 520 7.2 80.1\n  , Datum 1.0 2.0 4.2 5.3 570 6.2 70.8\n  , Datum 1.2 5.0 3.5 4.9 590 6.7 80.2\n  , Datum 2.0 2.0 3.2 4.8 540 7.2 80.3\n  , Datum 2.3 1.0 4.3 5.3 510 7.8 70.1\n  , Datum 2.8 3.0 2.9 5.4 390 7.6 90.5\n  , Datum 3.0 2.0 3.6 5.8 460 6.5 60.9\n  , Datum 4.0 1.0 4.2 4.5 530 6.3 70.0\n  ]\n\n  ';
 var $author$project$Examples$ScatterCharts$Opacity$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\nimport Svg as S\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y [ CA.opacity 0.1, CA.borderWidth 1 ]\n        , C.scatter .z [ CA.opacity 0.1, CA.borderWidth 1 ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$ScatterCharts$Shapes$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y [ CA.plus ]\n        , C.scatter .z [ CA.square ]\n        , C.scatter .w [ CA.triangle ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$ScatterCharts$Sizes$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y [ CA.size 14 ]\n        , C.scatter .z [ CA.size 3 ]\n        ]\n        data\n    ]\n  ';
@@ -36251,7 +36244,7 @@ var $author$project$Examples$LineCharts$Labels$smallCode = '\n  C.chart\n    [ C
 var $author$project$Examples$LineCharts$Legends$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [  ] [ CA.cross, CA.borderWidth 2, CA.border "white" ]\n            |> C.named "Cats"\n        , C.interpolated .z [  ] [ CA.cross, CA.borderWidth 2, CA.border "white" ]\n            |> C.named "Fish"\n        ]\n        data\n    , C.legendsAt .min .max\n        [ CA.column\n        , CA.moveRight 15\n        , CA.spacing 5\n        ]\n        [ CA.width 20 ]\n    ]\n  ';
 var $author$project$Examples$LineCharts$Missing$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolatedMaybe .y [ CA.stepped ] []\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Montone$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [ CA.monotone ] []\n        , C.interpolated .z [ CA.monotone ] []\n        ]\n        data\n    ]\n  ';
-var $author$project$Examples$LineCharts$MultipleScales$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, left = 30, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.scale \n        []\n        [ C.series .x [ C.interpolated .z [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ] data\n        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.purple ]\n        , C.yAxis [ CA.pinned .max ]\n        , C.yTicks [ CA.pinned .max, CA.withGrid ]\n        , C.xTicks [ CA.withGrid ]\n        ]\n    , C.series .x\n        [ C.interpolated .y [] [ CA.cross, CA.border "white", CA.borderWidth 2 ]\n        ]\n        data\n    , C.yLabels [ CA.color CA.mint ]\n    , C.yAxis []\n    ]\n  ';
+var $author$project$Examples$LineCharts$MultipleScales$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, left = 30, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.scale \n        []\n        [ C.series .x [ C.interpolated .z [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ] data\n        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.purple ]\n        , C.yAxis [ CA.pinned .max ]\n        , C.xTicks [ CA.withGrid ]\n        ]\n    , C.series .x\n        [ C.interpolated .y [ CA.color CA.blue ] [ CA.cross, CA.border "white", CA.borderWidth 2 ]\n        ]\n        data\n    , C.yLabels [ CA.color CA.blue ]\n    , C.yAxis []\n    ]\n  ';
 var $author$project$Examples$LineCharts$Pattern$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.stacked\n          [ C.interpolated .y [ CA.striped [ CA.width 3, CA.spacing 4, CA.rotate 90 ] ] []\n          , C.interpolated .z [ CA.dotted [ CA.width 3, CA.spacing 4 ] ] []\n          ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Stacked$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.stacked\n          [ C.interpolated .y [] []\n          , C.interpolated .z [] []\n          ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$LineCharts$Stepped$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.interpolated .y [ CA.stepped ] []\n        , C.interpolated .z [ CA.stepped ] []\n        ]\n        data\n    ]\n  ';
@@ -36265,7 +36258,7 @@ var $author$project$Examples$ScatterCharts$DataDependent$smallCode = '\n  C.char
 var $author$project$Examples$ScatterCharts$Highlight$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, bottom = 0, left = 15, right = 15 }\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y []\n        , C.scatter .z [ CA.highlight 0.4 ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$ScatterCharts$Labels$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, bottom = 0, left = 30, right = 10 }\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y [ CA.opacity 0.2, CA.borderWidth 1 ]\n            |> C.variation (\\i d -> [ CA.size (d.w * 30) ])\n        ]\n        data\n\n    , C.eachDot <| \\p dot ->\n        [ C.label\n            [ CA.moveDown 4, CA.color (CI.getColor dot) ]\n            [ S.text (String.fromFloat (CI.getData dot).w) ]\n            (CI.getCenter p dot)\n        ]\n    ]\n  ';
 var $author$project$Examples$ScatterCharts$Legends$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y []\n        , C.scatter .z []\n        ]\n        data\n    , C.legendsAt .max .max\n        [ CA.column\n        , CA.moveLeft 2\n        , CA.spacing 0\n        , CA.alignRight\n        ]\n        [ CA.spacing 5\n        ]\n    ]\n  ';
-var $author$project$Examples$ScatterCharts$MultipleScales$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 10, left = 0, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.color CA.orange ]\n    , C.yAxis []\n    , C.scale \n        [ CA.domain [ CA.likeData ] ]\n        [ C.series .x [ C.scatter .q [ CA.circle, CA.opacity 0.2, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink ] ] data\n        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.pink ]\n        , C.yAxis [ CA.pinned .max ]\n        ]\n    , C.series .x\n        [ C.scatter .w [ CA.opacity 0.2, CA.borderWidth 1, CA.color CA.orange, CA.border CA.orange ]\n        ]\n        data\n    ]\n  ';
+var $author$project$Examples$ScatterCharts$MultipleScales$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 10, left = 10, right = 30, bottom = 0 }\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.pinned .min, CA.color CA.orange ]\n    , C.yAxis [ CA.pinned .min ]\n    , C.scale \n        [ CA.domain [ CA.likeData ] ]\n        [ C.series .x [ C.scatter .q [ CA.cross, CA.borderWidth 3, CA.color CA.pink, CA.border "white", CA.size 12 ] ] data\n        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.pink ]\n        , C.yAxis [ CA.pinned .max ]\n        ]\n    , C.series .x\n        [ C.scatter .w [ CA.cross, CA.borderWidth 3, CA.color CA.orange, CA.border "white", CA.size 12 ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$ScatterCharts$Opacity$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y [ CA.opacity 0.1, CA.borderWidth 1 ]\n        , C.scatter .z [ CA.opacity 0.1, CA.borderWidth 1 ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$ScatterCharts$Shapes$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y [ CA.plus ]\n        , C.scatter .z [ CA.square ]\n        , C.scatter .w [ CA.triangle ]\n        ]\n        data\n    ]\n  ';
 var $author$project$Examples$ScatterCharts$Sizes$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y [ CA.size 14 ]\n        , C.scatter .z [ CA.size 3 ]\n        ]\n        data\n    ]\n  ';

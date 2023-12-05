@@ -14,19 +14,19 @@ view model =
   C.chart
     [ CA.height 300
     , CA.width 300
-    , CA.padding { top = 10, left = 0, right = 30, bottom = 0 }
+    , CA.padding { top = 10, left = 10, right = 30, bottom = 0 }
     ]
     [ C.xLabels []
-    , C.yLabels [ CA.color CA.orange ]
-    , C.yAxis []
+    , C.yLabels [ CA.pinned .min, CA.color CA.orange ]
+    , C.yAxis [ CA.pinned .min ]
     , C.scale 
         [ CA.domain [ CA.likeData ] ]
-        [ C.series .x [ C.scatter .q [ CA.circle, CA.opacity 0.2, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink ] ] data
+        [ C.series .x [ C.scatter .q [ CA.cross, CA.borderWidth 3, CA.color CA.pink, CA.border "white", CA.size 12 ] ] data
         , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.pink ]
         , C.yAxis [ CA.pinned .max ]
         ]
     , C.series .x
-        [ C.scatter .w [ CA.opacity 0.2, CA.borderWidth 1, CA.color CA.orange, CA.border CA.orange ]
+        [ C.scatter .w [ CA.cross, CA.borderWidth 3, CA.color CA.orange, CA.border "white", CA.size 12 ]
         ]
         data
     ]
@@ -96,19 +96,19 @@ smallCode =
   C.chart
     [ CA.height 300
     , CA.width 300
-    , CA.padding { top = 10, left = 0, right = 30, bottom = 0 }
+    , CA.padding { top = 10, left = 10, right = 30, bottom = 0 }
     ]
     [ C.xLabels []
-    , C.yLabels [ CA.color CA.orange ]
-    , C.yAxis []
+    , C.yLabels [ CA.pinned .min, CA.color CA.orange ]
+    , C.yAxis [ CA.pinned .min ]
     , C.scale 
         [ CA.domain [ CA.likeData ] ]
-        [ C.series .x [ C.scatter .q [ CA.circle, CA.opacity 0.2, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink ] ] data
+        [ C.series .x [ C.scatter .q [ CA.cross, CA.borderWidth 3, CA.color CA.pink, CA.border "white", CA.size 12 ] ] data
         , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.pink ]
         , C.yAxis [ CA.pinned .max ]
         ]
     , C.series .x
-        [ C.scatter .w [ CA.opacity 0.2, CA.borderWidth 1, CA.color CA.orange, CA.border CA.orange ]
+        [ C.scatter .w [ CA.cross, CA.borderWidth 3, CA.color CA.orange, CA.border "white", CA.size 12 ]
         ]
         data
     ]
@@ -129,19 +129,19 @@ view model =
   C.chart
     [ CA.height 300
     , CA.width 300
-    , CA.padding { top = 10, left = 0, right = 30, bottom = 0 }
+    , CA.padding { top = 10, left = 10, right = 30, bottom = 0 }
     ]
     [ C.xLabels []
-    , C.yLabels [ CA.color CA.orange ]
-    , C.yAxis []
+    , C.yLabels [ CA.pinned .min, CA.color CA.orange ]
+    , C.yAxis [ CA.pinned .min ]
     , C.scale 
         [ CA.domain [ CA.likeData ] ]
-        [ C.series .x [ C.scatter .q [ CA.circle, CA.opacity 0.2, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink ] ] data
+        [ C.series .x [ C.scatter .q [ CA.cross, CA.borderWidth 3, CA.color CA.pink, CA.border "white", CA.size 12 ] ] data
         , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.pink ]
         , C.yAxis [ CA.pinned .max ]
         ]
     , C.series .x
-        [ C.scatter .w [ CA.opacity 0.2, CA.borderWidth 1, CA.color CA.orange, CA.border CA.orange ]
+        [ C.scatter .w [ CA.cross, CA.borderWidth 3, CA.color CA.orange, CA.border "white", CA.size 12 ]
         ]
         data
     ]
