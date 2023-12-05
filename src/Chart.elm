@@ -602,6 +602,47 @@ type alias Scale =
   }
 
 
+{-| Use a different scale within a chart.
+
+    C.chart
+      []
+      [ C.xLabels []
+      , C.yLabels []
+      , C.series .year [ C.scatter .income [] ] data1
+      , C.scale
+          [] 
+          [ C.series .year [ C.scatter .yearsOfEducation [] ] data2 
+          , C.yLabels [ CA.pinned .max, CA.flip ]
+          ]
+      ]
+
+Customizations:
+
+    C.scale
+      [ -- Control the range and domain of your chart.
+        -- Your range and domain is by default set to the limits of
+        -- your data, but you can change them like this:
+        CA.range
+          [ CA.lowest -5 CA.orLower
+              -- Makes sure that your x-axis begins at -5 or lower, no matter
+              -- what your data is like.
+          , CA.highest 10 CA.orHigher
+              -- Makes sure that your x-axis ends at 10 or higher, no matter
+              -- what your data is like.
+          ]
+      , CA.domain
+          [ CA.lowest 0 CA.exactly ]
+              -- Makes sure that your y-axis begins at exactly 0, no matter
+              -- what your data is like.
+      ]
+
+Explore live examples with multiple scales:
+- [Scatter chart](https://www.elm-charts.org/documentation/scatter-charts/multiple-scales)
+- [Line chart](https://www.elm-charts.org/documentation/scatter-charts/multiple-scales)
+- [Bar chart](https://www.elm-charts.org/documentation/bar-charts/multiple-scales)
+
+
+-}
 scale : List (Attribute Scale) -> List (Element data msg) -> Element data msg
 scale attrs unindexedElements =
   Indexed <| \index ->

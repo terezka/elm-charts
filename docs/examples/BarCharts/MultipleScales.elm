@@ -1,4 +1,4 @@
-module Examples.LineCharts.MultipleScales exposing (..)
+module Examples.BarCharts.MultipleScales exposing (..)
 
 {-| @LARGE -}
 import Html as H
@@ -16,18 +16,14 @@ view model =
     , CA.padding { top = 0, left = 30, right = 30, bottom = 0 }
     ]
     [ C.xLabels []
-    , C.scale 
-        []
-        [ C.series .x [ C.interpolated .z [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ] data
-        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip ]
-        , C.yAxis [ CA.pinned .max ]
-        , C.xTicks [ CA.withGrid ]
+    , C.xAxis [ CA.noArrow ]
+    , C.yLabels [ CA.color CA.purple ]
+    , C.bars [ CA.margin 0.45 ] [ C.bar .z [] ] data
+    , C.scale
+        [] 
+        [ C.bars [] [ C.bar .x [ CA.opacity 0.5 ] ] data
+        , C.yLabels [ CA.pinned .max, CA.flip, CA.color CA.pink ]
         ]
-    , C.series .x
-        [ C.interpolated .y [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ]
-        data
-    , C.yLabels []
-    , C.yAxis []
     ]
 {-| @SMALL END -}
 
@@ -49,10 +45,10 @@ data =
 
 
 meta =
-  { category = "Line charts"
+  { category = "Bar charts"
   , categoryOrder = 3
   , name = "Multiple Scales"
-  , description = "Lines with different y axes."
+  , description = "Bars with different y axes."
   , order = 17
   }
 

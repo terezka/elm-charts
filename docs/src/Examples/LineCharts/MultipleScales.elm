@@ -51,7 +51,7 @@ meta =
   { category = "Line charts"
   , categoryOrder = 3
   , name = "Multiple Scales"
-  , description = "Lines on different scales."
+  , description = "Lines with different y axes."
   , order = 17
   }
 
