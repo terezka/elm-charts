@@ -15,7 +15,7 @@ view model =
   C.chart
     [ CA.height 300
     , CA.width 300
-    , CA.padding { top = 0, bottom = 0, left = 0, right = 0 }
+    , CA.padding { top = 0, bottom = 0, left = 30, right = 10 }
     ]
     [ C.xLabels [ CA.withGrid ]
     , C.yLabels [ CA.withGrid ]
@@ -29,7 +29,7 @@ view model =
         [ C.label
             [ CA.moveDown 4, CA.color (CI.getColor dot) ]
             [ S.text (String.fromFloat (CI.getData dot).w) ]
-            ( Debug.log "center" <| CI.getCenter p dot)
+            (CI.getCenter p dot)
         ]
     ]
 {-| @SMALL END -}
