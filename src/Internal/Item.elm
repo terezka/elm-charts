@@ -1,9 +1,10 @@
 module Internal.Item exposing 
   ( Rendered(..), One, Any(..)
-  , render, tooltip, getPosition, getLimits
+  , render, tooltip, getPosition, getPositionIn, getLimits, getLimitsIn
   , getColor, getName, getDatum, getX1, getX2, getY, isReal
   , generalize, map, isDot, isBar, getX, getTooltipValue, getSize, isSame, filterMap
   , getIdentification
+  , getLocalPlane
   )
 
 
@@ -28,8 +29,9 @@ import Internal.Property exposing (Identification)
 type Rendered meta =
   Rendered meta
     { limits : Position
-    , toPosition : Plane -> Position
-    , render : Plane -> Svg Never
+    , position : Position
+    , localPlane : Plane
+    , render : () -> Svg Never
     , tooltip : () -> List (Html Never)
     }
 
@@ -63,9 +65,9 @@ type Any
 
 
 {-| -}
-render : Plane -> Rendered x -> Svg Never
-render plane (Rendered _ item) =
-  item.render plane
+render : Rendered x -> Svg Never
+render (Rendered _ item) =
+  item.render ()
 
 
 {-| -}
@@ -75,15 +77,39 @@ tooltip (Rendered _ item) =
 
 
 {-| -}
-getPosition : Plane -> Rendered x -> Position
-getPosition plane (Rendered _ item) =
-  item.toPosition plane
+getPosition : Rendered x -> Position
+getPosition (Rendered _ item) =
+  item.position
+
+
+{-| -}
+getPositionIn : Plane -> Rendered x -> Position
+getPositionIn plane (Rendered _ item) =
+  let _ = Debug.log "plane" (plane)
+      _ = Debug.log "localPlane" (item.localPlane)
+      _ = Debug.log "equal" (plane == item.localPlane)
+      _ = Debug.log "pos" item.position
+      _ = Debug.log "con" (Coord.convertPos plane item.localPlane item.position)
+  in
+  Coord.convertPos plane item.localPlane item.position
 
 
 {-| -}
 getLimits : Rendered x -> Position
 getLimits (Rendered _ item) =
   item.limits
+
+
+{-| -}
+getLimitsIn : Plane -> Rendered x -> Position
+getLimitsIn plane (Rendered _ item) =
+  Coord.convertPos plane item.localPlane item.limits
+
+
+{-| -}
+getLocalPlane : Rendered x -> Plane
+getLocalPlane (Rendered _ item) =
+  item.localPlane
 
 
 
@@ -217,7 +243,7 @@ generalize : One data x -> One data Any
 generalize (Rendered meta item) =
   Rendered
     { presentation = meta.toAny meta.presentation
-      , color = meta.color
+    , color = meta.color
     , datum = meta.datum
     , x1 = meta.x1
     , x2 = meta.x2

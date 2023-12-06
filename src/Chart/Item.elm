@@ -94,61 +94,61 @@ getTooltip =
 {-| -}
 getCenter : Plane -> Item x -> Point
 getCenter p =
-  I.getPosition p >> C.center
+  I.getPositionIn p >> C.center
 
 
 {-| -}
 getLeft : Plane -> Item x -> Point
 getLeft p =
-  I.getPosition p >> C.left
+  I.getPositionIn p >> C.left
 
 
 {-| -}
 getRight : Plane -> Item x -> Point
 getRight p =
-  I.getPosition p >> C.right
+  I.getPositionIn p >> C.right
 
 
 {-| -}
 getTop : Plane -> Item x -> Point
 getTop p =
-  I.getPosition p >> C.top
+  I.getPositionIn p >> C.top
 
 
 {-| -}
 getTopLeft : Plane -> Item x -> Point
 getTopLeft p =
-  I.getPosition p >> C.topLeft
+  I.getPositionIn p >> C.topLeft
 
 
 {-| -}
 getTopRight : Plane -> Item x -> Point
 getTopRight p =
-  I.getPosition p >> C.topRight
+  I.getPositionIn p >> C.topRight
 
 
 {-| -}
 getBottom : Plane -> Item x -> Point
 getBottom p =
-  I.getPosition p >> C.bottom
+  I.getPositionIn p >> C.bottom
 
 
 {-| -}
 getBottomLeft : Plane -> Item x -> Point
 getBottomLeft p =
-  I.getPosition p >> C.bottomLeft
+  I.getPositionIn p >> C.bottomLeft
 
 
 {-| -}
 getBottomRight : Plane -> Item x -> Point
 getBottomRight p =
-  I.getPosition p >> C.bottomRight
+  I.getPositionIn p >> C.bottomRight
 
 
 {-| -}
 getPosition : Plane -> Item x -> Position
 getPosition =
-  I.getPosition
+  I.getPositionIn
 
 
 {-| In a few cases, a rendered item's "position" and "limits" aren't the same.

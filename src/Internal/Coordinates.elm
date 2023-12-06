@@ -14,6 +14,9 @@ type alias Position =
   , y2 : Float
   }
 
+type alias Limits =
+  Position
+
 
 {-| -}
 center : Position -> Point
@@ -185,12 +188,12 @@ convertPos topLevel plane pos =
 
 convertX : Plane -> Plane -> Float -> Float
 convertX topLevel plane x =
-  topLevel.x.min + (topLevel.x.max - topLevel.x.min) * (x / (plane.x.max - plane.x.min))
+  (range topLevel.x) * (x / (range plane.x))
 
 
 convertY : Plane -> Plane -> Float -> Float
 convertY topLevel plane y =
-  topLevel.y.min + (topLevel.y.max - topLevel.y.min) * (y / (plane.y.max - plane.y.min))
+  (range topLevel.y) * (y / (range plane.y))
 
 
 {-| For scaling a cartesian value to a SVG value. Note that this will _not_

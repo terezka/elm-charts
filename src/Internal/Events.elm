@@ -60,7 +60,7 @@ getNearest : M.Remodel (I.One data I.Any) (I.Rendered result) -> Decoder data (L
 getNearest (M.Remodel toPos _ as grouping) =
   Decoder <| \items plane ->
     let groups = M.apply grouping items in
-    CS.getNearest (toPos plane) groups plane
+    CS.getNearest toPos groups plane
 
 
 {-| -}
@@ -68,7 +68,7 @@ getWithin : Float -> M.Remodel (I.One data I.Any) (I.Rendered result) -> Decoder
 getWithin radius (M.Remodel toPos _ as grouping) =
   Decoder <| \items plane ->
     let groups = M.apply grouping items in
-    CS.getWithin radius (toPos plane) groups plane
+    CS.getWithin radius toPos groups plane
 
 
 {-| -}
@@ -76,7 +76,7 @@ getNearestX : M.Remodel (I.One data I.Any) (I.Rendered result) -> Decoder data (
 getNearestX (M.Remodel toPos _ as grouping) =
   Decoder <| \items plane ->
     let groups = M.apply grouping items in
-    CS.getNearestX (toPos plane) groups plane
+    CS.getNearestX toPos groups plane
 
 
 {-| -}
@@ -84,7 +84,7 @@ getWithinX : Float -> M.Remodel (I.One data I.Any) (I.Rendered result) -> Decode
 getWithinX radius (M.Remodel toPos _ as grouping) =
   Decoder <| \items plane ->
     let groups = M.apply grouping items in
-    CS.getWithinX radius (toPos plane) groups plane
+    CS.getWithinX radius toPos groups plane
 
 
 {-| -}

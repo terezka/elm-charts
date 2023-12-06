@@ -15,7 +15,7 @@ view model =
   C.chart
     [ CA.height 300
     , CA.width 300
-    , CA.padding { top = 0, bottom = 0, left = 30, right = 10 }
+    , CA.padding { top = 0, bottom = 0, left = 0, right = 0 }
     ]
     [ C.xLabels [ CA.withGrid ]
     , C.yLabels [ CA.withGrid ]
@@ -29,7 +29,7 @@ view model =
         [ C.label
             [ CA.moveDown 4, CA.color (CI.getColor dot) ]
             [ S.text (String.fromFloat (CI.getData dot).w) ]
-            (CI.getCenter p dot)
+            ( Debug.log "center" <| CI.getCenter p dot)
         ]
     ]
 {-| @SMALL END -}
@@ -76,15 +76,15 @@ type alias Datum =
 
 data : List Datum
 data =
-  [ Datum 0.6 2.0 4.0 4.6 6.9 7.3 8.0
-  , Datum 0.7 3.0 4.2 5.2 6.2 7.0 8.7
-  , Datum 0.8 4.0 4.6 5.5 5.2 7.2 8.1
-  , Datum 1.0 2.0 4.2 5.3 5.7 6.2 7.8
-  , Datum 1.2 5.0 3.5 4.9 5.9 6.7 8.2
-  , Datum 2.0 2.0 3.2 4.8 5.4 7.2 8.3
-  , Datum 2.3 1.0 4.3 5.3 5.1 7.8 7.1
-  , Datum 2.8 3.0 2.9 5.4 3.9 7.6 8.5
-  , Datum 3.0 2.0 3.6 5.8 4.6 6.5 6.9
-  , Datum 4.0 1.0 4.2 4.5 5.3 6.3 7.0
+  [ Datum 6 20 4.0 4.6 6.9 7.3 8.0
+  , Datum 7 30 4.2 5.2 6.2 7.0 8.7
+  , Datum 8 40 4.6 5.5 5.2 7.2 8.1
+  , Datum 10 20 4.2 5.3 5.7 6.2 7.8
+  , Datum 12 50 3.5 4.9 5.9 6.7 8.2
+  , Datum 20 20 3.2 4.8 5.4 7.2 8.3
+  , Datum 23 10 4.3 5.3 5.1 7.8 7.1
+  , Datum 28 30 2.9 5.4 3.9 7.6 8.5
+  , Datum 30 20 3.6 5.8 4.6 6.5 6.9
+  , Datum 40 10 4.2 4.5 5.3 6.3 7.0
   ]
 
