@@ -375,7 +375,7 @@ toDotSeries elementIndex toX properties data =
         )
   in
   List.foldl forEachStackSeriesConfig ( elementIndex, 0, ([],\_ -> []) ) properties
-    |> (\(newElementIndex, _, (limits,items)) -> ( newElementIndex, Debug.log "limits" limits, items))
+    |> (\(newElementIndex, _, (limits,items)) -> ( newElementIndex, limits, items))
 
 
 

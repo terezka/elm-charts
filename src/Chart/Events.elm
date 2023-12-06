@@ -1,7 +1,7 @@
 module Chart.Events exposing
   ( Attribute, Event
   , onMouseMove, onMouseLeave, onMouseUp, onMouseDown, onClick, onDoubleClick, on
-  , Decoder, Point, getCoords, getSvgCoords, getNearest, getNearestX, getWithin, getWithinX, getOffset
+  , Decoder, Point, getCoords, getSvgCoords, getNearest, getNearestX, getWithin, getWithinX, getAllWithin, getOffset
   , map, map2, map3, map4
   )
 
@@ -236,6 +236,11 @@ to filter down what items or groups of items you will be searching for.
 getWithinX : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
 getWithinX =
   IE.getWithinX
+
+
+getAllWithin : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
+getAllWithin =
+  IE.getAllWithin
 
 
 

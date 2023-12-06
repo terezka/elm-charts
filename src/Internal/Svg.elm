@@ -5,7 +5,7 @@ import Html.Attributes as HA
 import Svg as S exposing (Svg)
 import Svg.Attributes as SA
 import Svg.Events as SE
-import Internal.Coordinates as Coord
+import Internal.Coordinates as Coord exposing (neutralPlane)
 import Internal.Commands as C exposing (..)
 import Internal.Interpolation as Interpolation
 import Intervals as I
@@ -1583,6 +1583,18 @@ getWithin radius toPosition items plane searched =
 
 
 {-| -}
+getAllWithin : Float -> (a -> Position) -> List a -> Plane -> Point -> List a
+getAllWithin radius toPosition items plane searched =
+    let toPoint i =
+          closestPoint (toPosition i) searched
+
+        keepIfEligible item =
+          withinRadius plane radius searched (toPoint item)
+    in
+    List.filter keepIfEligible items
+  
+
+{-| -}
 getNearestX : (a -> Position) -> List a -> Plane -> Point -> List a
 getNearestX toPosition items plane searched =
     getNearestXHelp toPosition items plane searched
@@ -1675,7 +1687,18 @@ closestPoint pos searched =
 
 withinRadius : Plane -> Float -> Point -> Point -> Bool
 withinRadius plane radius searched point =
-    distanceSquared plane searched point <= radius ^ 2
+  let radiusX = (Coord.range Coord.neutralPlane.x) * radius / plane.x.length -- TODO move out so not recomputed
+      radiusY = (Coord.range Coord.neutralPlane.y) * radius / plane.y.length
+      result = distanceSquared plane searched point <= (radiusX ^ 2 + radiusY ^ 2)
+      _ = Debug.log "x" (distanceX plane searched point)
+      _ = Debug.log "y" (distanceY plane searched point)
+      _ = Debug.log "r" radius
+      _ = Debug.log "rangex" (Coord.range plane.x)
+      _ = Debug.log "rangey" (Coord.range plane.y)
+      _ = Debug.log "rx" radiusX
+      _ = Debug.log "ry" radiusY
+  in
+  distanceSquared plane searched point <= (radiusX ^ 2 + radiusY ^ 2)
 
 
 withinRadiusX : Plane -> Float -> Point -> Point -> Bool

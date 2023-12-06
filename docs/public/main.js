@@ -27683,7 +27683,6 @@ var $author$project$Internal$Coordinates$Point = F2(
 	function (x, y) {
 		return {x: x, y: y};
 	});
-var $elm$core$Debug$log = _Debug_log;
 var $elm$core$Maybe$map2 = F3(
 	function (func, ma, mb) {
 		if (ma.$ === 'Nothing') {
@@ -27939,10 +27938,7 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 			var _v2 = _v1.c;
 			var limits = _v2.a;
 			var items = _v2.b;
-			return _Utils_Tuple3(
-				newElementIndex,
-				A2($elm$core$Debug$log, 'limits', limits),
-				items);
+			return _Utils_Tuple3(newElementIndex, limits, items);
 		}(
 			A3(
 				$elm$core$List$foldl,
@@ -32033,23 +32029,89 @@ var $author$project$Chart$Attributes$borderOpacity = function (v) {
 				{borderOpacity: v});
 		});
 };
-var $author$project$Examples$Interactivity$MultipleScales$Datum = F7(
-	function (x, y, z, v, w, p, q) {
-		return {p: p, q: q, v: v, w: w, x: x, y: y, z: z};
+var $author$project$Examples$Interactivity$MultipleScales$Datum = F3(
+	function (x, y, z) {
+		return {x: x, y: y, z: z};
 	});
 var $author$project$Examples$Interactivity$MultipleScales$data = _List_fromArray(
 	[
-		A7($author$project$Examples$Interactivity$MultipleScales$Datum, 0.1, 2.0, 4.0, 4.6, 690, 7.3, 95),
-		A7($author$project$Examples$Interactivity$MultipleScales$Datum, 0.2, 3.0, 4.2, 5.2, 620, 7.0, 67),
-		A7($author$project$Examples$Interactivity$MultipleScales$Datum, 0.8, 4.0, 4.6, 5.5, 520, 7.2, 81),
-		A7($author$project$Examples$Interactivity$MultipleScales$Datum, 1.0, 2.0, 4.2, 5.3, 570, 6.2, 78),
-		A7($author$project$Examples$Interactivity$MultipleScales$Datum, 1.2, 5.0, 3.5, 4.9, 590, 6.7, 82),
-		A7($author$project$Examples$Interactivity$MultipleScales$Datum, 2.0, 2.0, 3.2, 4.8, 345, 7.2, 81),
-		A7($author$project$Examples$Interactivity$MultipleScales$Datum, 2.3, 1.0, 4.3, 5.3, 510, 7.8, 71),
-		A7($author$project$Examples$Interactivity$MultipleScales$Datum, 2.8, 3.0, 2.9, 5.4, 390, 7.6, 95),
-		A7($author$project$Examples$Interactivity$MultipleScales$Datum, 3.0, 2.0, 3.6, 5.8, 460, 6.5, 69),
-		A7($author$project$Examples$Interactivity$MultipleScales$Datum, 4.0, 1.0, 4.2, 4.5, 530, 6.3, 70)
+		A3($author$project$Examples$Interactivity$MultipleScales$Datum, 0.1, 690, 95),
+		A3($author$project$Examples$Interactivity$MultipleScales$Datum, 0.2, 620, 67),
+		A3($author$project$Examples$Interactivity$MultipleScales$Datum, 0.8, 520, 81),
+		A3($author$project$Examples$Interactivity$MultipleScales$Datum, 1.0, 570, 78),
+		A3($author$project$Examples$Interactivity$MultipleScales$Datum, 1.2, 590, 82),
+		A3($author$project$Examples$Interactivity$MultipleScales$Datum, 2.0, 345, 81),
+		A3($author$project$Examples$Interactivity$MultipleScales$Datum, 2.3, 510, 71),
+		A3($author$project$Examples$Interactivity$MultipleScales$Datum, 2.8, 390, 95),
+		A3($author$project$Examples$Interactivity$MultipleScales$Datum, 3.0, 460, 69),
+		A3($author$project$Examples$Interactivity$MultipleScales$Datum, 4.0, 530, 70)
 	]);
+var $elm$core$Debug$log = _Debug_log;
+var $author$project$Internal$Svg$withinRadius = F4(
+	function (plane, radius, searched, point) {
+		var radiusY = ($author$project$Internal$Coordinates$range($author$project$Internal$Coordinates$neutralPlane.y) * radius) / plane.y.length;
+		var radiusX = ($author$project$Internal$Coordinates$range($author$project$Internal$Coordinates$neutralPlane.x) * radius) / plane.x.length;
+		var result = _Utils_cmp(
+			A3($author$project$Internal$Svg$distanceSquared, plane, searched, point),
+			A2($elm$core$Basics$pow, radiusX, 2) + A2($elm$core$Basics$pow, radiusY, 2)) < 1;
+		var _v0 = A2(
+			$elm$core$Debug$log,
+			'x',
+			A3($author$project$Internal$Svg$distanceX, plane, searched, point));
+		var _v1 = A2(
+			$elm$core$Debug$log,
+			'y',
+			A3($author$project$Internal$Svg$distanceY, plane, searched, point));
+		var _v2 = A2($elm$core$Debug$log, 'r', radius);
+		var _v3 = A2(
+			$elm$core$Debug$log,
+			'rangex',
+			$author$project$Internal$Coordinates$range(plane.x));
+		var _v4 = A2(
+			$elm$core$Debug$log,
+			'rangey',
+			$author$project$Internal$Coordinates$range(plane.y));
+		var _v5 = A2($elm$core$Debug$log, 'rx', radiusX);
+		var _v6 = A2($elm$core$Debug$log, 'ry', radiusY);
+		return _Utils_cmp(
+			A3($author$project$Internal$Svg$distanceSquared, plane, searched, point),
+			A2($elm$core$Basics$pow, radiusX, 2) + A2($elm$core$Basics$pow, radiusY, 2)) < 1;
+	});
+var $author$project$Internal$Svg$getAllWithin = F5(
+	function (radius, toPosition, items, plane, searched) {
+		var toPoint = function (i) {
+			return A2(
+				$author$project$Internal$Svg$closestPoint,
+				toPosition(i),
+				searched);
+		};
+		var keepIfEligible = function (item) {
+			return A4(
+				$author$project$Internal$Svg$withinRadius,
+				plane,
+				radius,
+				searched,
+				toPoint(item));
+		};
+		return A2($elm$core$List$filter, keepIfEligible, items);
+	});
+var $author$project$Internal$Events$getAllWithin = F2(
+	function (radius, grouping) {
+		var toPos = grouping.a;
+		return $author$project$Internal$Events$Decoder(
+			F3(
+				function (items, plane, searched) {
+					var groups = A2($author$project$Internal$Many$apply, grouping, items);
+					return A5(
+						$author$project$Internal$Svg$getAllWithin,
+						radius,
+						toPos,
+						groups,
+						plane,
+						A3($author$project$Internal$Coordinates$convertPoint, $author$project$Internal$Coordinates$neutralPlane, plane, searched));
+				}));
+	});
+var $author$project$Chart$Events$getAllWithin = $author$project$Internal$Events$getAllWithin;
 var $author$project$Chart$Item$getTooltip = $author$project$Internal$Item$tooltip;
 var $author$project$Chart$Attributes$onTop = $author$project$Internal$Helpers$Attribute(
 	function (config) {
@@ -32067,11 +32129,13 @@ var $author$project$Examples$Interactivity$MultipleScales$view = function (model
 				$author$project$Chart$Attributes$height(300),
 				$author$project$Chart$Attributes$width(300),
 				$author$project$Chart$Attributes$padding(
-				{bottom: 10, left: 20, right: 20, top: 10}),
+				{bottom: 0, left: 0, right: 0, top: 0}),
+				$author$project$Chart$Attributes$margin(
+				{bottom: 0, left: 0, right: 0, top: 0}),
 				A2(
 				$author$project$Chart$Events$onMouseMove,
 				$author$project$Examples$Interactivity$MultipleScales$OnHover,
-				$author$project$Chart$Events$getNearest($author$project$Chart$Item$dots)),
+				A2($author$project$Chart$Events$getAllWithin, 3, $author$project$Chart$Item$dots)),
 				$author$project$Chart$Events$onMouseLeave(
 				$author$project$Examples$Interactivity$MultipleScales$OnHover(_List_Nil))
 			]),
@@ -32115,7 +32179,7 @@ var $author$project$Examples$Interactivity$MultipleScales$view = function (model
 								A2(
 								$author$project$Chart$scatter,
 								function ($) {
-									return $.q;
+									return $.z;
 								},
 								_List_fromArray(
 									[
@@ -32159,7 +32223,7 @@ var $author$project$Examples$Interactivity$MultipleScales$view = function (model
 						A2(
 						$author$project$Chart$scatter,
 						function ($) {
-							return $.w;
+							return $.y;
 						},
 						_List_fromArray(
 							[
@@ -36406,7 +36470,7 @@ var $author$project$Examples$Interactivity$DoubleSearch$largeCode = '\nimport Ht
 var $author$project$Examples$Interactivity$FilterSearch$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\nimport Chart.Events as CE\nimport Chart.Item as CI\n\n\ntype alias Model =\n  { hovering : List (CI.Many Datum CI.Dot) }\n\n\ninit : Model\ninit =\n  { hovering = [] }\n\n\ntype Msg\n  = OnHover (List (CI.Many Datum CI.Dot))\n\n\nupdate : Msg -> Model -> Model\nupdate msg model =\n  case msg of\n    OnHover hovering ->\n      { model | hovering = hovering }\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, bottom = 0, left = 10, right = 10 }\n    , CI.dots\n        |> CI.andThen CI.stacks\n        |> CE.getNearest\n        |> CE.onMouseMove OnHover\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid, CA.pinned .min ]\n    , C.series .x\n        [ C.stacked\n          [ C.interpolated .p [  ] [ CA.circle ]\n          , C.interpolated .q [  ] [ CA.circle ]\n          ]\n        ]\n        data\n    , C.bars [ CA.x1 .x1, CA.x2 .x2 ]\n        [ C.bar .z [ CA.color CA.purple ]\n        ]\n        data\n    , C.each model.hovering <| \\p item ->\n        [ C.tooltip item [] [] [] ]\n    ]\n  ';
 var $author$project$Examples$Interactivity$Focal$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\nimport Chart.Events as CE\nimport Chart.Item as CI\n\n\ntype alias Model =\n  { hovering : List (CI.One Datum CI.Bar) }\n\n\ninit : Model\ninit =\n  { hovering = [] }\n\n\ntype Msg\n  = OnHover (List (CI.One Datum CI.Bar))\n\n\nupdate : Msg -> Model -> Model\nupdate msg model =\n  case msg of\n    OnHover hovering ->\n      { model | hovering = hovering }\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CE.onMouseMove OnHover (CE.getNearest CI.bars)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.bars []\n        [ C.bar .y [ CA.opacity 0.6, CA.borderWidth 1, CA.color CA.green ]\n        , C.bar .z [ CA.opacity 0.6, CA.borderWidth 1, CA.color CA.blue ]\n        ]\n        data\n    , C.each model.hovering <| \\p item ->\n        [ C.tooltip item [ CA.onLeftOrRight, CA.top ] [] []\n        ]\n    ]\n  ';
 var $author$project$Examples$Interactivity$Multiple$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\nimport Chart.Events as CE\nimport Chart.Item as CI\n\n\ntype alias Model =\n  { hovering : List (CI.One Datum CI.Any) }\n\n\ninit : Model\ninit =\n  { hovering = [] }\n\n\ntype Msg\n  = OnHover (List (CI.One Datum CI.Any))\n\n\nupdate : Msg -> Model -> Model\nupdate msg model =\n  case msg of\n    OnHover hovering ->\n      { model | hovering = hovering }\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CE.onMouseMove OnHover (CE.getNearest CI.any)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n\n    , C.bars\n        [ CA.x1 .x1\n        , CA.x2 .x2\n        ]\n        [ C.bar .z [ CA.opacity 0.3, CA.borderWidth 1 ]\n        ]\n        data\n\n    , C.series .x\n        [ C.interpolated .p [] []\n        , C.interpolated .q [] []\n        ]\n        data\n\n    , C.each model.hovering <| \\p item ->\n        [ C.tooltip item [] [] [] ]\n    ]\n  ';
-var $author$project$Examples$Interactivity$MultipleScales$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\nimport Chart.Item as CI\nimport Chart.Events as CE\nimport Svg as S\n\n\ntype alias Model =\n  { hovering : List (CI.One Datum CI.Dot) }\n\n\ninit : Model\ninit =\n  { hovering = [] }\n\n\ntype Msg\n  = OnHover (List (CI.One Datum CI.Dot))\n\n\nupdate : Msg -> Model -> Model\nupdate msg model =\n  case msg of\n    OnHover hovering ->\n      { model | hovering = hovering }\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 10, left = 20, right = 20, bottom = 10 }\n    , CE.onMouseMove OnHover (CE.getNearest CI.dots)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.pinned .min, CA.color CA.pink ]\n    , C.yAxis [ CA.pinned .min ]\n    , C.scale \n        [ CA.domain [ CA.likeData ] ]\n        [ C.series .x [ C.scatter .q [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 12 ] ] data\n        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.blue ]\n        , C.yAxis [ CA.pinned .max ]\n        ]\n    , C.series .x\n        [ C.scatter .w [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 12 ] ]\n        data\n    , C.withPlane <| \\p ->\n        case model.hovering of \n          first :: rest -> \n            [ C.tooltip first [ CA.onTop ] [] (List.concatMap CI.getTooltip model.hovering) ]\n\n          [] ->\n            []\n    ]\n\n\ntype alias Datum =\n  { x : Float\n  , y : Float\n  , z : Float\n  , v : Float\n  , w : Float\n  , p : Float\n  , q : Float\n  }\n\n\ndata : List Datum\ndata =\n  [ Datum 0.1 2.0 4.0 4.6 690 7.3 95\n  , Datum 0.2 3.0 4.2 5.2 620 7.0 67\n  , Datum 0.8 4.0 4.6 5.5 520 7.2 81\n  , Datum 1.0 2.0 4.2 5.3 570 6.2 78\n  , Datum 1.2 5.0 3.5 4.9 590 6.7 82\n  , Datum 2.0 2.0 3.2 4.8 345 7.2 81\n  , Datum 2.3 1.0 4.3 5.3 510 7.8 71\n  , Datum 2.8 3.0 2.9 5.4 390 7.6 95\n  , Datum 3.0 2.0 3.6 5.8 460 6.5 69\n  , Datum 4.0 1.0 4.2 4.5 530 6.3 70\n  ]\n\n  ';
+var $author$project$Examples$Interactivity$MultipleScales$largeCode = '\nimport Html as H\nimport Chart as C\nimport Chart.Attributes as CA\nimport Chart.Item as CI\nimport Chart.Events as CE\nimport Svg as S\n\n\ntype alias Model =\n  { hovering : List (CI.One Datum CI.Dot) }\n\n\ninit : Model\ninit =\n  { hovering = [] }\n\n\ntype Msg\n  = OnHover (List (CI.One Datum CI.Dot))\n\n\nupdate : Msg -> Model -> Model\nupdate msg model =\n  case msg of\n    OnHover hovering ->\n      { model | hovering = hovering }\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, left = 0, right = 0, bottom = 0 }\n    , CA.margin { top = 0, left = 0, right = 0, bottom = 0 }\n    , CE.onMouseMove OnHover (CE.getAllWithin 3 CI.dots)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.pinned .min, CA.color CA.pink ]\n    , C.yAxis [ CA.pinned .min ]\n    , C.scale \n        [ CA.domain [ CA.likeData ] ]\n        [ C.series .x [ C.scatter .z [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 12 ] ] data\n        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.blue ]\n        , C.yAxis [ CA.pinned .max ]\n        ]\n    , C.series .x\n        [ C.scatter .y [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 12 ] ]\n        data\n    , C.withPlane <| \\p ->\n        case model.hovering of \n          first :: rest -> \n            [ C.tooltip first [ CA.onTop ] [] (List.concatMap CI.getTooltip model.hovering) ]\n\n          [] ->\n            []\n    ]\n\n\ntype alias Datum =\n  { x : Float\n  , y : Float\n  , z : Float\n  }\n\n\ndata : List Datum\ndata =\n  [ Datum 0.1 690 95\n  , Datum 0.2 620 67\n  , Datum 0.8 520 81\n  , Datum 1.0 570 78\n  , Datum 1.2 590 82\n  , Datum 2.0 345 81\n  , Datum 2.3 510 71\n  , Datum 2.8 390 95\n  , Datum 3.0 460 69\n  , Datum 4.0 530 70\n  ]\n\n  ';
 var $author$project$Examples$Interactivity$NoArrow$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\nimport Chart.Events as CE\nimport Chart.Item as CI\n\n\ntype alias Model =\n  { hovering : List (CI.One Datum CI.Dot) }\n\n\ninit : Model\ninit =\n  { hovering = [] }\n\n\ntype Msg\n  = OnHover (List (CI.One Datum CI.Dot))\n\n\nupdate : Msg -> Model -> Model\nupdate msg model =\n  case msg of\n    OnHover hovering ->\n      { model | hovering = hovering }\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CE.onMouseMove OnHover (CE.getNearest CI.dots)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y [ CA.color "white", CA.size 20, CA.borderWidth 2 ]\n        , C.scatter .z [ CA.color "white", CA.size 20, CA.borderWidth 2 ]\n        ]\n        data\n    , C.each model.hovering <| \\p item ->\n        [ C.tooltip item [ CA.noArrow ] [] [] ]\n    ]\n  ';
 var $author$project$Examples$Interactivity$Offset$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\nimport Chart.Events as CE\nimport Chart.Item as CI\n\n\ntype alias Model =\n  { hovering : List (CI.One Datum CI.Dot) }\n\n\ninit : Model\ninit =\n  { hovering = [] }\n\n\ntype Msg\n  = OnHover (List (CI.One Datum CI.Dot))\n\n\nupdate : Msg -> Model -> Model\nupdate msg model =\n  case msg of\n    OnHover hovering ->\n      { model | hovering = hovering }\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CE.onMouseMove OnHover (CE.getNearest CI.dots)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y [ CA.size 60, CA.opacity 0.3, CA.borderWidth 1 ]\n        , C.scatter .z [ CA.size 50, CA.opacity 0.3, CA.borderWidth 1 ]\n        ]\n        data\n    , C.each model.hovering <| \\p item ->\n        [ C.tooltip item [ CA.offset 0 ] [] [] ]\n    ]\n  ';
 var $author$project$Examples$Interactivity$TrickyTooltip$largeCode = '\nimport Html as H\nimport Svg as S\nimport Chart as C\nimport Chart.Attributes as CA\nimport Chart.Events as CE\nimport Chart.Item as CI\n\n\ntype alias Model =\n  { hovering : List (CI.Many Datum CI.Bar) }\n\n\ninit : Model\ninit =\n  { hovering = [] }\n\n\ntype Msg\n  = OnHover (List (CI.Many Datum CI.Bar))\n\n\nupdate : Msg -> Model -> Model\nupdate msg model =\n  case msg of\n    OnHover hovering ->\n      { model | hovering = hovering }\n\n\nview : Model -> H.Html Msg\nview model =\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, bottom = 0, left = 10, right = 10 }\n    , CI.bars\n        |> CI.andThen CI.bins\n        |> CE.getNearest\n        |> CE.onMouseMove OnHover\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.yLabels [ CA.withGrid, CA.pinned .min ]\n    , C.xLabels []\n    , C.bars\n        []\n        [ C.bar .w []\n        , C.stacked\n            [ C.bar .p []\n            , C.bar .q []\n            ]\n        ]\n        data\n    , C.each model.hovering <| \\p bin ->\n        let stacks = CI.apply CI.stacks (CI.getMembers bin)\n            toTooltip stack = C.tooltip stack [ CA.onLeftOrRight ] [] []\n        in\n        List.map toTooltip stacks\n    ]\n  ';
@@ -36743,7 +36807,7 @@ var $author$project$Examples$Interactivity$DoubleSearch$smallCode = '\n  C.chart
 var $author$project$Examples$Interactivity$FilterSearch$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, bottom = 0, left = 10, right = 10 }\n    , CI.dots\n        |> CI.andThen CI.stacks\n        |> CE.getNearest\n        |> CE.onMouseMove OnHover\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid, CA.pinned .min ]\n    , C.series .x\n        [ C.stacked\n          [ C.interpolated .p [  ] [ CA.circle ]\n          , C.interpolated .q [  ] [ CA.circle ]\n          ]\n        ]\n        data\n    , C.bars [ CA.x1 .x1, CA.x2 .x2 ]\n        [ C.bar .z [ CA.color CA.purple ]\n        ]\n        data\n    , C.each model.hovering <| \\p item ->\n        [ C.tooltip item [] [] [] ]\n    ]\n  ';
 var $author$project$Examples$Interactivity$Focal$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CE.onMouseMove OnHover (CE.getNearest CI.bars)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n    , C.bars []\n        [ C.bar .y [ CA.opacity 0.6, CA.borderWidth 1, CA.color CA.green ]\n        , C.bar .z [ CA.opacity 0.6, CA.borderWidth 1, CA.color CA.blue ]\n        ]\n        data\n    , C.each model.hovering <| \\p item ->\n        [ C.tooltip item [ CA.onLeftOrRight, CA.top ] [] []\n        ]\n    ]\n  ';
 var $author$project$Examples$Interactivity$Multiple$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CE.onMouseMove OnHover (CE.getNearest CI.any)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.withGrid ]\n\n    , C.bars\n        [ CA.x1 .x1\n        , CA.x2 .x2\n        ]\n        [ C.bar .z [ CA.opacity 0.3, CA.borderWidth 1 ]\n        ]\n        data\n\n    , C.series .x\n        [ C.interpolated .p [] []\n        , C.interpolated .q [] []\n        ]\n        data\n\n    , C.each model.hovering <| \\p item ->\n        [ C.tooltip item [] [] [] ]\n    ]\n  ';
-var $author$project$Examples$Interactivity$MultipleScales$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 10, left = 20, right = 20, bottom = 10 }\n    , CE.onMouseMove OnHover (CE.getNearest CI.dots)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.pinned .min, CA.color CA.pink ]\n    , C.yAxis [ CA.pinned .min ]\n    , C.scale \n        [ CA.domain [ CA.likeData ] ]\n        [ C.series .x [ C.scatter .q [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 12 ] ] data\n        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.blue ]\n        , C.yAxis [ CA.pinned .max ]\n        ]\n    , C.series .x\n        [ C.scatter .w [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 12 ] ]\n        data\n    , C.withPlane <| \\p ->\n        case model.hovering of \n          first :: rest -> \n            [ C.tooltip first [ CA.onTop ] [] (List.concatMap CI.getTooltip model.hovering) ]\n\n          [] ->\n            []\n    ]\n  ';
+var $author$project$Examples$Interactivity$MultipleScales$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, left = 0, right = 0, bottom = 0 }\n    , CA.margin { top = 0, left = 0, right = 0, bottom = 0 }\n    , CE.onMouseMove OnHover (CE.getAllWithin 3 CI.dots)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels []\n    , C.yLabels [ CA.pinned .min, CA.color CA.pink ]\n    , C.yAxis [ CA.pinned .min ]\n    , C.scale \n        [ CA.domain [ CA.likeData ] ]\n        [ C.series .x [ C.scatter .z [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 12 ] ] data\n        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.blue ]\n        , C.yAxis [ CA.pinned .max ]\n        ]\n    , C.series .x\n        [ C.scatter .y [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 12 ] ]\n        data\n    , C.withPlane <| \\p ->\n        case model.hovering of \n          first :: rest -> \n            [ C.tooltip first [ CA.onTop ] [] (List.concatMap CI.getTooltip model.hovering) ]\n\n          [] ->\n            []\n    ]\n  ';
 var $author$project$Examples$Interactivity$NoArrow$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CE.onMouseMove OnHover (CE.getNearest CI.dots)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y [ CA.color "white", CA.size 20, CA.borderWidth 2 ]\n        , C.scatter .z [ CA.color "white", CA.size 20, CA.borderWidth 2 ]\n        ]\n        data\n    , C.each model.hovering <| \\p item ->\n        [ C.tooltip item [ CA.noArrow ] [] [] ]\n    ]\n  ';
 var $author$project$Examples$Interactivity$Offset$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CE.onMouseMove OnHover (CE.getNearest CI.dots)\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.xLabels [ CA.withGrid ]\n    , C.yLabels [ CA.withGrid ]\n    , C.series .x\n        [ C.scatter .y [ CA.size 60, CA.opacity 0.3, CA.borderWidth 1 ]\n        , C.scatter .z [ CA.size 50, CA.opacity 0.3, CA.borderWidth 1 ]\n        ]\n        data\n    , C.each model.hovering <| \\p item ->\n        [ C.tooltip item [ CA.offset 0 ] [] [] ]\n    ]\n  ';
 var $author$project$Examples$Interactivity$TrickyTooltip$smallCode = '\n  C.chart\n    [ CA.height 300\n    , CA.width 300\n    , CA.padding { top = 0, bottom = 0, left = 10, right = 10 }\n    , CI.bars\n        |> CI.andThen CI.bins\n        |> CE.getNearest\n        |> CE.onMouseMove OnHover\n    , CE.onMouseLeave (OnHover [])\n    ]\n    [ C.yLabels [ CA.withGrid, CA.pinned .min ]\n    , C.xLabels []\n    , C.bars\n        []\n        [ C.bar .w []\n        , C.stacked\n            [ C.bar .p []\n            , C.bar .q []\n            ]\n        ]\n        data\n    , C.each model.hovering <| \\p bin ->\n        let stacks = CI.apply CI.stacks (CI.getMembers bin)\n            toTooltip stack = C.tooltip stack [ CA.onLeftOrRight ] [] []\n        in\n        List.map toTooltip stacks\n    ]\n  ';
@@ -40478,10 +40542,15 @@ var $author$project$Internal$Svg$getNearestX = F4(
 var $author$project$Internal$Events$getNearestX = function (grouping) {
 	var toPos = grouping.a;
 	return $author$project$Internal$Events$Decoder(
-		F2(
-			function (items, plane) {
+		F3(
+			function (items, plane, searched) {
 				var groups = A2($author$project$Internal$Many$apply, grouping, items);
-				return A3($author$project$Internal$Svg$getNearestX, toPos, groups, plane);
+				return A4(
+					$author$project$Internal$Svg$getNearestX,
+					toPos,
+					groups,
+					plane,
+					A3($author$project$Internal$Coordinates$convertPoint, $author$project$Internal$Coordinates$neutralPlane, plane, searched));
 			}));
 };
 var $author$project$Chart$Events$getNearestX = $author$project$Internal$Events$getNearestX;
@@ -40512,10 +40581,16 @@ var $author$project$Internal$Events$getWithinX = F2(
 	function (radius, grouping) {
 		var toPos = grouping.a;
 		return $author$project$Internal$Events$Decoder(
-			F2(
-				function (items, plane) {
+			F3(
+				function (items, plane, searched) {
 					var groups = A2($author$project$Internal$Many$apply, grouping, items);
-					return A4($author$project$Internal$Svg$getWithinX, radius, toPos, groups, plane);
+					return A5(
+						$author$project$Internal$Svg$getWithinX,
+						radius,
+						toPos,
+						groups,
+						plane,
+						A3($author$project$Internal$Coordinates$convertPoint, $author$project$Internal$Coordinates$neutralPlane, plane, searched));
 				}));
 	});
 var $author$project$Chart$Events$getWithinX = $author$project$Internal$Events$getWithinX;

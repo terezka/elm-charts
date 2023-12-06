@@ -36,8 +36,9 @@ view model =
   C.chart
     [ CA.height 300
     , CA.width 300
-    , CA.padding { top = 10, left = 20, right = 20, bottom = 10 }
-    , CE.onMouseMove OnHover (CE.getNearest CI.dots)
+    , CA.padding { top = 0, left = 0, right = 0, bottom = 0 }
+    , CA.margin { top = 0, left = 0, right = 0, bottom = 0 }
+    , CE.onMouseMove OnHover (CE.getAllWithin 3 CI.dots)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.xLabels []
@@ -45,12 +46,12 @@ view model =
     , C.yAxis [ CA.pinned .min ]
     , C.scale 
         [ CA.domain [ CA.likeData ] ]
-        [ C.series .x [ C.scatter .q [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 12 ] ] data
+        [ C.series .x [ C.scatter .z [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 12 ] ] data
         , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.blue ]
         , C.yAxis [ CA.pinned .max ]
         ]
     , C.series .x
-        [ C.scatter .w [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 12 ] ]
+        [ C.scatter .y [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 12 ] ]
         data
     , C.withPlane <| \p ->
         case model.hovering of 
@@ -66,25 +67,21 @@ type alias Datum =
   { x : Float
   , y : Float
   , z : Float
-  , v : Float
-  , w : Float
-  , p : Float
-  , q : Float
   }
 
 
 data : List Datum
 data =
-  [ Datum 0.1 2.0 4.0 4.6 690 7.3 95
-  , Datum 0.2 3.0 4.2 5.2 620 7.0 67
-  , Datum 0.8 4.0 4.6 5.5 520 7.2 81
-  , Datum 1.0 2.0 4.2 5.3 570 6.2 78
-  , Datum 1.2 5.0 3.5 4.9 590 6.7 82
-  , Datum 2.0 2.0 3.2 4.8 345 7.2 81
-  , Datum 2.3 1.0 4.3 5.3 510 7.8 71
-  , Datum 2.8 3.0 2.9 5.4 390 7.6 95
-  , Datum 3.0 2.0 3.6 5.8 460 6.5 69
-  , Datum 4.0 1.0 4.2 4.5 530 6.3 70
+  [ Datum 0.1 690 95
+  , Datum 0.2 620 67
+  , Datum 0.8 520 81
+  , Datum 1.0 570 78
+  , Datum 1.2 590 82
+  , Datum 2.0 345 81
+  , Datum 2.3 510 71
+  , Datum 2.8 390 95
+  , Datum 3.0 460 69
+  , Datum 4.0 530 70
   ]
 
 
@@ -105,8 +102,9 @@ smallCode =
   C.chart
     [ CA.height 300
     , CA.width 300
-    , CA.padding { top = 10, left = 20, right = 20, bottom = 10 }
-    , CE.onMouseMove OnHover (CE.getNearest CI.dots)
+    , CA.padding { top = 0, left = 0, right = 0, bottom = 0 }
+    , CA.margin { top = 0, left = 0, right = 0, bottom = 0 }
+    , CE.onMouseMove OnHover (CE.getAllWithin 3 CI.dots)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.xLabels []
@@ -114,12 +112,12 @@ smallCode =
     , C.yAxis [ CA.pinned .min ]
     , C.scale 
         [ CA.domain [ CA.likeData ] ]
-        [ C.series .x [ C.scatter .q [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 12 ] ] data
+        [ C.series .x [ C.scatter .z [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 12 ] ] data
         , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.blue ]
         , C.yAxis [ CA.pinned .max ]
         ]
     , C.series .x
-        [ C.scatter .w [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 12 ] ]
+        [ C.scatter .y [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 12 ] ]
         data
     , C.withPlane <| \\p ->
         case model.hovering of 
@@ -168,8 +166,9 @@ view model =
   C.chart
     [ CA.height 300
     , CA.width 300
-    , CA.padding { top = 10, left = 20, right = 20, bottom = 10 }
-    , CE.onMouseMove OnHover (CE.getNearest CI.dots)
+    , CA.padding { top = 0, left = 0, right = 0, bottom = 0 }
+    , CA.margin { top = 0, left = 0, right = 0, bottom = 0 }
+    , CE.onMouseMove OnHover (CE.getAllWithin 3 CI.dots)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.xLabels []
@@ -177,12 +176,12 @@ view model =
     , C.yAxis [ CA.pinned .min ]
     , C.scale 
         [ CA.domain [ CA.likeData ] ]
-        [ C.series .x [ C.scatter .q [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 12 ] ] data
+        [ C.series .x [ C.scatter .z [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 12 ] ] data
         , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.blue ]
         , C.yAxis [ CA.pinned .max ]
         ]
     , C.series .x
-        [ C.scatter .w [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 12 ] ]
+        [ C.scatter .y [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 12 ] ]
         data
     , C.withPlane <| \\p ->
         case model.hovering of 
@@ -198,25 +197,21 @@ type alias Datum =
   { x : Float
   , y : Float
   , z : Float
-  , v : Float
-  , w : Float
-  , p : Float
-  , q : Float
   }
 
 
 data : List Datum
 data =
-  [ Datum 0.1 2.0 4.0 4.6 690 7.3 95
-  , Datum 0.2 3.0 4.2 5.2 620 7.0 67
-  , Datum 0.8 4.0 4.6 5.5 520 7.2 81
-  , Datum 1.0 2.0 4.2 5.3 570 6.2 78
-  , Datum 1.2 5.0 3.5 4.9 590 6.7 82
-  , Datum 2.0 2.0 3.2 4.8 345 7.2 81
-  , Datum 2.3 1.0 4.3 5.3 510 7.8 71
-  , Datum 2.8 3.0 2.9 5.4 390 7.6 95
-  , Datum 3.0 2.0 3.6 5.8 460 6.5 69
-  , Datum 4.0 1.0 4.2 4.5 530 6.3 70
+  [ Datum 0.1 690 95
+  , Datum 0.2 620 67
+  , Datum 0.8 520 81
+  , Datum 1.0 570 78
+  , Datum 1.2 590 82
+  , Datum 2.0 345 81
+  , Datum 2.3 510 71
+  , Datum 2.8 390 95
+  , Datum 3.0 460 69
+  , Datum 4.0 530 70
   ]
 
   """

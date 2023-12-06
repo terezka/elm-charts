@@ -4,7 +4,7 @@ module Internal.Item exposing
   , getColor, getName, getDatum, getX1, getX2, getY, isReal
   , generalize, map, isDot, isBar, getX, getTooltipValue, getSize, isSame, filterMap
   , getIdentification
-  , getLocalPlane, getNeutral
+  , getLocalPlane, getNeutral, covert
   )
 
 
@@ -113,6 +113,18 @@ getNeutral (Rendered meta item) =
     { limits = Coord.convertPos Coord.neutralPlane item.localPlane item.limits
     , position = Coord.convertPos Coord.neutralPlane item.localPlane item.position
     , localPlane = Coord.neutralPlane
+    , render = item.render
+    , tooltip = item.tooltip
+    }
+
+
+{-| -}
+covert : Plane -> Rendered x -> Rendered x
+covert plane (Rendered meta item) =
+  Rendered meta
+    { limits = Coord.convertPos plane item.localPlane item.limits
+    , position = Coord.convertPos plane item.localPlane item.position
+    , localPlane = plane
     , render = item.render
     , tooltip = item.tooltip
     }
