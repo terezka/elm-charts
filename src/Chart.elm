@@ -27,7 +27,7 @@ module Chart exposing
   )
 
 
--- TODO fix interpolation in scatter legends!!!!!
+-- TODO use toplevel scale as neutral plane
 
 {-| **Make sure to check out the many examples at [elm-charts.org](https://www.elm-charts.org/documentation).**
 
