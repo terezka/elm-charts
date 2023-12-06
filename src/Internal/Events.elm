@@ -58,9 +58,9 @@ getSvgCoords =
 {-| -}
 getNearest : M.Remodel (I.One data I.Any) (I.Rendered result) -> Decoder data (List (I.Rendered result))
 getNearest (M.Remodel toPos _ as grouping) =
-  Decoder <| \items plane ->
+  Decoder <| \items plane searched ->
     let groups = M.apply grouping items in
-    CS.getNearest toPos groups plane
+    CS.getNearest toPos groups plane (C.convertPoint C.neutralPlane plane searched)
 
 
 {-| -}

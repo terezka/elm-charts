@@ -1237,6 +1237,7 @@ type alias Dot =
   , size : Float
   , border : String
   , borderWidth : Float
+  , borderOpacity : Float
   , highlight : Float
   , highlightWidth : Float
   , highlightColor : String
@@ -1261,6 +1262,7 @@ defaultDot =
   , size = 6
   , border = ""
   , borderWidth = 0
+  , borderOpacity = 1
   , highlight = 0
   , highlightWidth = 5
   , highlightColor = ""
@@ -1283,6 +1285,7 @@ dot plane toX toY config datum_ =
       styleAttrs =
         [ SA.stroke (if config.border == "" then config.color else config.border)
         , SA.strokeWidth (String.fromFloat config.borderWidth)
+        , SA.strokeOpacity (String.fromFloat config.borderOpacity)
         , SA.fillOpacity (String.fromFloat config.opacity)
         , SA.fill config.color
         , SA.class "elm-charts__dot"
@@ -1645,12 +1648,12 @@ getNearestXHelp toPosition items plane searched =
 
 distanceX : Plane -> Point -> Point -> Float
 distanceX plane searched point =
-    abs <| Coord.toSVGX plane point.x - Coord.toSVGX plane searched.x
+    abs <| point.x - searched.x
 
 
 distanceY : Plane -> Point -> Point -> Float
 distanceY plane searched point =
-    abs <| Coord.toSVGY plane point.y - Coord.toSVGY plane searched.y
+    abs <| point.y - searched.y
 
 
 distanceSquared : Plane -> Point -> Point -> Float
@@ -1687,7 +1690,7 @@ keepOne toPosition =
           Nothing -> [ one ]
           Just other ->
             if toPosition other == toPosition one then
-              other :: acc
+              one :: acc
             else if toArea other > toArea one then
               [ one ]
             else
@@ -1697,7 +1700,7 @@ keepOne toPosition =
         toPosition a |> \pos ->
           (pos.x1 - pos.x2) * (pos.y1 - pos.y2)
   in
-  List.foldr func []
+  List.foldr func [] >> List.reverse
 
 
 {-| -}
@@ -1893,7 +1896,7 @@ closestToZero plane =
 
 isWithinPlane : Plane -> Float -> Float -> Bool
 isWithinPlane plane x y =
-  clamp plane.x.min plane.x.max x == x && clamp plane.y.min plane.y.max y == y
+  clamp plane.x.min plane.x.max x == x && clamp plane.y.min plane.y.max y == y -- TODO account for float error
 
 
 

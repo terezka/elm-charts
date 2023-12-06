@@ -24,7 +24,7 @@ module Chart.Attributes exposing
   , hideOverflow
 
   -- DECORATION
-  , border, borderWidth, color, opacity, highlight, highlightWidth, highlightColor, background, noArrow, rotate
+  , border, borderWidth, borderOpacity, color, opacity, highlight, highlightWidth, highlightColor, background, noArrow, rotate
   , striped, dotted, gradient
 
   -- BAR
@@ -613,6 +613,13 @@ opacity : Float -> Attribute { a | opacity : Float }
 opacity v =
   Attribute <| \config ->
     { config | opacity = v }
+
+
+{-| -}
+borderOpacity : Float -> Attribute { a | borderOpacity : Float }
+borderOpacity v =
+  Attribute <| \config ->
+    { config | borderOpacity = v }
 
 
 {-| -}

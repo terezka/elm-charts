@@ -4,7 +4,7 @@ module Internal.Item exposing
   , getColor, getName, getDatum, getX1, getX2, getY, isReal
   , generalize, map, isDot, isBar, getX, getTooltipValue, getSize, isSame, filterMap
   , getIdentification
-  , getLocalPlane
+  , getLocalPlane, getNeutral
   )
 
 
@@ -85,12 +85,6 @@ getPosition (Rendered _ item) =
 {-| -}
 getPositionIn : Plane -> Rendered x -> Position
 getPositionIn plane (Rendered _ item) =
-  let _ = Debug.log "plane" (plane)
-      _ = Debug.log "localPlane" (item.localPlane)
-      _ = Debug.log "equal" (plane == item.localPlane)
-      _ = Debug.log "pos" item.position
-      _ = Debug.log "con" (Coord.convertPos plane item.localPlane item.position)
-  in
   Coord.convertPos plane item.localPlane item.position
 
 
@@ -110,6 +104,18 @@ getLimitsIn plane (Rendered _ item) =
 getLocalPlane : Rendered x -> Plane
 getLocalPlane (Rendered _ item) =
   item.localPlane
+
+
+{-| -}
+getNeutral : Rendered x -> Rendered x
+getNeutral (Rendered meta item) =
+  Rendered meta
+    { limits = Coord.convertPos Coord.neutralPlane item.localPlane item.limits
+    , position = Coord.convertPos Coord.neutralPlane item.localPlane item.position
+    , localPlane = Coord.neutralPlane
+    , render = item.render
+    , tooltip = item.tooltip
+    }
 
 
 

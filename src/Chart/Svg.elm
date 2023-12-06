@@ -389,6 +389,7 @@ type alias Dot =
   , size : Float
   , border : String
   , borderWidth : Float
+  , borderOpacity : Float
   , highlight : Float
   , highlightWidth : Float
   , highlightColor : String

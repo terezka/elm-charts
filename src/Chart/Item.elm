@@ -345,7 +345,7 @@ type alias Remodel a b =
 
 
 {-| Apply a remodelling. -}
-apply : Remodel a b -> List a -> List b
+apply : Remodel (Item a) b -> List (Item a) -> List b
 apply =
   M.apply
 

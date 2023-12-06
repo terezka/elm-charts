@@ -147,6 +147,13 @@ type alias Limit =
   }
 
 
+neutralPlane : Plane
+neutralPlane =
+  Plane 
+    (Axis 100 0 0 0 100 0 100) 
+    (Axis 100 0 0 0 100 0 100)
+
+
 
 -- ID
 
@@ -177,6 +184,7 @@ toId plane =
 -- TRANSLATION
 
 
+{-| -}
 convertPos : Plane -> Plane -> Position -> Position
 convertPos topLevel plane pos =
   { x1 = convertX topLevel plane pos.x1
@@ -186,14 +194,24 @@ convertPos topLevel plane pos =
   }
 
 
+{-| -}
+convertPoint : Plane -> Plane -> Point -> Point
+convertPoint topLevel plane pos =
+  { x = convertX topLevel plane pos.x
+  , y = convertY topLevel plane pos.y
+  }
+
+
+{-| -}
 convertX : Plane -> Plane -> Float -> Float
 convertX topLevel plane x =
-  (range topLevel.x) * (x / (range plane.x))
+  topLevel.x.min + (range topLevel.x) * ((x - plane.x.min) / (range plane.x))
 
 
+{-| -}
 convertY : Plane -> Plane -> Float -> Float
 convertY topLevel plane y =
-  (range topLevel.y) * (y / (range plane.y))
+  topLevel.y.min + (range topLevel.y) * ((y - plane.y.min) / (range plane.y))
 
 
 {-| For scaling a cartesian value to a SVG value. Note that this will _not_

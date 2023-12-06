@@ -353,8 +353,8 @@ toDotSeries elementIndex toX properties data =
               }
               { limits = limits
               , position =
-                  let radiusX = 0 -- Coord.scaleCartesianX localPlane radius
-                      radiusY = 0 -- Coord.scaleCartesianY localPlane radius
+                  let radiusX = Coord.scaleCartesianX localPlane radius
+                      radiusY = Coord.scaleCartesianY localPlane radius
                   in
                   { x1 = x - radiusX, x2 = x + radiusX
                   , y1 = y - radiusY, y2 = y + radiusY
