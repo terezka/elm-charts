@@ -69,6 +69,13 @@ getNearest errorMargin (M.Remodel toPos _ as grouping) =
     CS.getNearest errorMargin toPos groups plane searched
 
 
+getNearestAndSurrounding : Float -> M.Remodel (I.One data I.Any) (I.Rendered result) -> Decoder data (List (I.Rendered result), List (I.Rendered result))
+getNearestAndSurrounding errorMargin (M.Remodel toPos _ as grouping) =
+  Decoder <| \items plane searched ->
+    let groups = M.apply grouping items in
+    CS.getNearestAndSurrounding errorMargin toPos groups plane searched
+
+
 {-| -}
 getWithin : Float -> M.Remodel (I.One data I.Any) (I.Rendered result) -> Decoder data (List (I.Rendered result))
 getWithin errorMargin (M.Remodel toPos _ as grouping) =

@@ -176,7 +176,7 @@ viewContent model =
           |> E.html
           |> E.map OnExampleMsg
           |> E.el
-              [ E.width (E.fill |> E.maximum 320 |> E.minimum 300)
+              [ E.width (E.px 300)
               , E.height E.fill
               , if isCenter then E.centerX else E.alignTop
               , E.alignTop

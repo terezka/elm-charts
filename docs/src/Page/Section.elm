@@ -139,7 +139,7 @@ view model =
                 , E.paddingXY 0 20
                 ]
                 [ E.el [ F.size 24 ] (E.text "Terminology")
-                , E.el [ E.width E.fill, E.height E.fill ] (E.html Charts.Terminology.view)
+                , E.el [ E.width E.fill, E.height E.fill ] (E.html <| Charts.Terminology.view ())
                 , E.el [ F.size 24 ] (E.text "Examples")
                 ]
 

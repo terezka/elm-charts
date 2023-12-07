@@ -1565,21 +1565,38 @@ positionHtml plane x y xOff yOff attrs content =
 
 {-| -}
 getNearest : Float -> (a -> Position) -> List a -> Plane -> Point -> List a
-getNearest errorMargin toPosition items plane searched =
-  let radius =
-          getSvgRadius plane errorMargin
-  in
+getNearest radius toPosition items plane searched =
   getNearestHelp toPosition radius items plane searched
+
+
+getNearestAndSurrounding : Float -> (a -> Position) -> List a -> Plane -> Point -> (List a, List a)
+getNearestAndSurrounding radius toPosition items plane searched =
+  let toPoint i =
+        closestPoint (toPosition i) searched
+
+      distance a b =
+        distanceSquared plane a (toPoint b)
+
+      keepIfEligible =
+        withinRadius plane radius
+
+      closest =
+        getNearestHelp toPosition radius items plane searched
+  in
+  case closest of 
+    first :: rest ->
+      let nearest = toPoint first in
+      ( closest, List.filter (keepIfEligible nearest << toPoint) items )
+
+    [] -> 
+      ([], [])
 
 
 {-| -}
 getWithin : Float -> (a -> Position) -> List a -> Plane -> Point -> List a
-getWithin errorMargin toPosition items plane searched =
+getWithin radius toPosition items plane searched =
     let toPoint i =
           closestPoint (toPosition i) searched
-
-        radius =
-          getSvgRadius plane errorMargin
 
         keepIfEligible closest =
           withinRadius plane radius searched (toPoint closest)
@@ -1590,21 +1607,15 @@ getWithin errorMargin toPosition items plane searched =
 
 {-| -}
 getNearestX : Float -> (a -> Position) -> List a -> Plane -> Point -> List a
-getNearestX errorMargin toPosition items plane searched =
-  let radius =
-          getSvgRadius plane errorMargin
-  in
+getNearestX radius toPosition items plane searched =
   getNearestXHelp toPosition radius items plane searched
 
 
 {-| -}
 getWithinX : Float -> (a -> Position) -> List a -> Plane -> Point -> List a
-getWithinX errorMargin toPosition items plane searched =
+getWithinX radius toPosition items plane searched =
     let toPoint i =
           closestPoint (toPosition i) searched
-
-        radius =
-          getSvgRadius plane errorMargin
 
         keepIfEligible =
           withinRadiusX plane radius searched << toPoint
@@ -1613,7 +1624,7 @@ getWithinX errorMargin toPosition items plane searched =
       |> List.filter keepIfEligible
 
 
-getNearestHelp : (a -> Position) -> Point -> List a -> Plane -> Point -> List a
+getNearestHelp : (a -> Position) -> Float -> List a -> Plane -> Point -> List a
 getNearestHelp toPosition radius items plane searched =
   let toPoint i =
         closestPoint (toPosition i) searched
@@ -1621,28 +1632,24 @@ getNearestHelp toPosition radius items plane searched =
       distance item =
         distanceSquared plane searched (toPoint item)
 
-      isSurrounding closest item =
-        distanceSquared plane (toPoint closest) (toPoint item) <= (radius.x ^ 2 + radius.y ^ 2)
-
       getClosest item allClosest =
-        let dis = distance item in
-        case allClosest of
-          Just ( ( closest, closestDis ), surrounding ) ->
-            if closestDis > dis then 
-              Just ( ( item, dis ), List.filter (isSurrounding item) (closest :: surrounding) ) 
-            else
-              Just ( ( closest, closestDis ), if isSurrounding closest item then item :: surrounding else surrounding ) 
+        case List.head allClosest of
+          Just closest ->
+            if toPoint closest == toPoint item then 
+              item :: allClosest
+            else if distance closest > distance item then 
+              [ item ]
+            else 
+              allClosest
 
           Nothing ->
-            Just ( ( item, dis ), [])
+            [item]
   in
-  List.foldl getClosest Nothing items
-    |> Maybe.map (\((c, _), s) -> c :: s)
-    |> Maybe.withDefault []
-    --|> keepOne toPosition
+  List.foldl getClosest [] items
+    |> keepOne toPosition
 
 
-getNearestXHelp : (a -> Position) -> Point -> List a -> Plane -> Point -> List a
+getNearestXHelp : (a -> Position) -> Float -> List a -> Plane -> Point -> List a
 getNearestXHelp toPosition radius items plane searched =
   let toPoint i =
         closestPoint (toPosition i) searched
@@ -1650,35 +1657,31 @@ getNearestXHelp toPosition radius items plane searched =
       distance item =
         distanceX plane searched (toPoint item)
 
-      isSurrounding closest item =
-        distanceX plane (toPoint closest) (toPoint item) <= radius.x
-
       getClosest item allClosest =
-        let dis = distance item in
-        case allClosest of
-          Just ( ( closest, closestDis ), surrounding ) ->
-            if closestDis > dis then 
-              Just ( ( item, dis ), List.filter (isSurrounding item) (closest :: surrounding) ) 
-            else
-              Just ( ( closest, closestDis ), if isSurrounding closest item then item :: surrounding else surrounding ) 
+        case List.head allClosest of
+          Just closest ->
+            if toPoint closest == toPoint item then 
+              item :: allClosest
+            else if distance closest > distance item then 
+              [ item ]
+            else 
+              allClosest
 
           Nothing ->
-            Just ( ( item, dis ), [])
+            [item]
   in
-  List.foldl getClosest Nothing items
-    |> Maybe.map (\((c, _), s) -> c :: s)
-    |> Maybe.withDefault []
-    --|> keepOne toPosition
+  List.foldl getClosest [] items
+    |> keepOne toPosition
 
 
 distanceX : Plane -> Point -> Point -> Float
 distanceX plane searched point =
-    abs <| point.x - searched.x
+    abs <| Coord.toSVGX plane point.x - Coord.toSVGX plane searched.x
 
 
 distanceY : Plane -> Point -> Point -> Float
 distanceY plane searched point =
-    abs <| point.y - searched.y
+    abs <| Coord.toSVGY plane point.y - Coord.toSVGY plane searched.y
 
 
 distanceSquared : Plane -> Point -> Point -> Float
@@ -1688,7 +1691,7 @@ distanceSquared plane searched point =
     -- compare distances with eachother the squared distance will suffice.
     -- Possible future gotcha: Don't use this function when adding the
     -- resulting distances together since a^2 + b^2 != (a + b)^2.
-    distanceX plane searched point ^ 2 + distanceY plane searched point ^ 2
+    sqrt <| distanceX plane searched point ^ 2 + distanceY plane searched point ^ 2
 
 
 closestPoint : Position -> Point -> Point
@@ -1698,29 +1701,14 @@ closestPoint pos searched =
   }
 
 
-getSvgRadiusX : Plane -> Float -> Float
-getSvgRadiusX plane radius = 
-  (Coord.range plane.x) * radius / plane.x.length
-
-
-getSvgRadiusY : Plane -> Float -> Float
-getSvgRadiusY plane radius = 
-  (Coord.range plane.y) * radius / plane.y.length
-
-
-getSvgRadius : Plane -> Float -> Point
-getSvgRadius plane radius =
-  Point (getSvgRadiusX plane radius) (getSvgRadiusY plane radius)
-
-
-withinRadius : Plane -> Point -> Point -> Point -> Bool
+withinRadius : Plane -> Float -> Point -> Point -> Bool
 withinRadius plane radius searched point =
-  distanceSquared plane searched point <= (radius.x ^ 2 + radius.y ^ 2)
+  distanceSquared plane searched point <= radius
 
 
-withinRadiusX : Plane -> Point -> Point -> Point -> Bool
+withinRadiusX : Plane -> Float -> Point -> Point -> Bool
 withinRadiusX plane radius searched point =
-    distanceX plane searched point <= radius.x
+  distanceX plane searched point <= radius
 
 
 keepOne : (a -> Position) -> List a -> List a

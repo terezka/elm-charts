@@ -15,28 +15,29 @@ import Svg.Attributes as SA
 
 type alias Model =
   { coords : Maybe CE.Point
-  , hovering : List (CI.One Datum CI.Dot) 
+  , closest : List (CI.One Datum CI.Dot) 
+  , surrounding : List (CI.One Datum CI.Dot)
   }
 
 
 init : Model
 init =
-  { coords = Nothing, hovering = [] }
+  { coords = Nothing, closest = [], surrounding = [] }
 
 
 type Msg
-  = OnMouseMove CE.Point (List (CI.One Datum CI.Dot))
+  = OnMouseMove CE.Point (List (CI.One Datum CI.Dot), List (CI.One Datum CI.Dot))
   | OnMouseLeave
 
 
 update : Msg -> Model -> Model
 update msg model =
   case msg of
-    OnMouseMove coords hovering ->
-      { model | coords = Just coords, hovering = hovering }
+    OnMouseMove coords (closest, surrounding) ->
+      { model | coords = Just coords, closest = closest, surrounding = surrounding }
 
     OnMouseLeave ->
-      { model | coords = Nothing, hovering = [] }
+      { model | coords = Nothing, closest = [], surrounding = [] }
 
 
 view : Model -> H.Html Msg
@@ -49,10 +50,8 @@ view model =
     , CE.on "mousemove" <|
         CE.map2 OnMouseMove
           CE.getCoords
-          (CE.getNearest 50 CI.dots)
+          (CE.getNearestAndSurrounding 50 CI.dots)
     , CE.onMouseLeave OnMouseLeave
-    , CA.range [ CA.window 0 100 ]
-    , CA.domain [ CA.window 0 100 ] 
     ]
     [ C.xLabels []
     , C.yLabels [ CA.pinned .min, CA.color CA.pink ]
@@ -75,28 +74,28 @@ view model =
         Nothing ->
           C.none
     , C.scale 
-        [ CA.range [ CA.window 0 100 ]
-        , CA.domain [ CA.window 0 100 ] 
-        ]
+        []
         [ C.series .x 
-            [ C.scatter .z [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 1 ] 
-                |> C.amongst model.hovering (\d -> [ CA.highlight 0.1 ])
+            [ C.scatter .z [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 12 ] 
+                |> C.amongst model.closest (\d -> [ CA.highlight 0.1, CA.opacity 0.5 ])
+                |> C.amongst model.surrounding (\d -> [ CA.highlight 0.1 ])
             ] data
         , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.blue ]
         , C.yAxis [ CA.pinned .max ]
         ]
     , C.series .x
-        [ C.scatter .y [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 1 ] 
-            |> C.amongst model.hovering (\d -> [ CA.highlight 0.1 ])
+        [ C.scatter .y [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 12 ] 
+            |> C.amongst model.closest (\d -> [ CA.highlight 0.1, CA.opacity 0.5 ])
+            |> C.amongst model.surrounding (\d -> [ CA.highlight 0.1 ])
         ]
         data
-    --, C.withPlane <| \p ->
-    --    case model.hovering of 
-    --      first :: rest -> 
-    --        [ C.tooltip first [ CA.onTop ] [] (List.concatMap CI.getTooltip model.hovering) ]
+    , C.withPlane <| \p ->
+        case model.closest of 
+          first :: rest -> 
+            [ C.tooltip first [ CA.onTop ] [] (List.concatMap CI.getTooltip model.closest) ]
 
-    --      [] ->
-    --        []
+          [] ->
+            []
     ]
 
 
@@ -109,18 +108,17 @@ type alias Datum =
 
 data : List Datum
 data =
-  [ Datum 11 90 95
-  , Datum 12 20 67
-  , Datum 18 20 81
-  , Datum 10 70 78
-  , Datum 22 90 82
-  , Datum 10 45 81
-  , Datum 33 10 71
-  , Datum 18 90 95
-  , Datum 40 60 69
-  , Datum 10 30 70
+  [ Datum 0.1 690 95
+  , Datum 0.2 620 67
+  , Datum 0.8 520 81
+  , Datum 1.0 570 78
+  , Datum 1.2 590 82
+  , Datum 2.0 345 81
+  , Datum 2.3 510 70
+  , Datum 2.8 390 95
+  , Datum 3.0 460 69
+  , Datum 4.0 530 70
   ]
-
 
 
 
@@ -144,10 +142,8 @@ smallCode =
     , CE.on "mousemove" <|
         CE.map2 OnMouseMove
           CE.getCoords
-          (CE.getNearest 50 CI.dots)
+          (CE.getNearestAndSurrounding 50 CI.dots)
     , CE.onMouseLeave OnMouseLeave
-    , CA.range [ CA.window 0 100 ]
-    , CA.domain [ CA.window 0 100 ] 
     ]
     [ C.xLabels []
     , C.yLabels [ CA.pinned .min, CA.color CA.pink ]
@@ -170,28 +166,28 @@ smallCode =
         Nothing ->
           C.none
     , C.scale 
-        [ CA.range [ CA.window 0 100 ]
-        , CA.domain [ CA.window 0 100 ] 
-        ]
+        []
         [ C.series .x 
-            [ C.scatter .z [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 1 ] 
-                |> C.amongst model.hovering (\\d -> [ CA.highlight 0.1 ])
+            [ C.scatter .z [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 12 ] 
+                |> C.amongst model.closest (\\d -> [ CA.highlight 0.1, CA.opacity 0.5 ])
+                |> C.amongst model.surrounding (\\d -> [ CA.highlight 0.1 ])
             ] data
         , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.blue ]
         , C.yAxis [ CA.pinned .max ]
         ]
     , C.series .x
-        [ C.scatter .y [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 1 ] 
-            |> C.amongst model.hovering (\\d -> [ CA.highlight 0.1 ])
+        [ C.scatter .y [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 12 ] 
+            |> C.amongst model.closest (\\d -> [ CA.highlight 0.1, CA.opacity 0.5 ])
+            |> C.amongst model.surrounding (\\d -> [ CA.highlight 0.1 ])
         ]
         data
-    --, C.withPlane <| \\p ->
-    --    case model.hovering of 
-    --      first :: rest -> 
-    --        [ C.tooltip first [ CA.onTop ] [] (List.concatMap CI.getTooltip model.hovering) ]
+    , C.withPlane <| \\p ->
+        case model.closest of 
+          first :: rest -> 
+            [ C.tooltip first [ CA.onTop ] [] (List.concatMap CI.getTooltip model.closest) ]
 
-    --      [] ->
-    --        []
+          [] ->
+            []
     ]
   """
 
@@ -211,28 +207,29 @@ import Svg.Attributes as SA
 
 type alias Model =
   { coords : Maybe CE.Point
-  , hovering : List (CI.One Datum CI.Dot) 
+  , closest : List (CI.One Datum CI.Dot) 
+  , surrounding : List (CI.One Datum CI.Dot)
   }
 
 
 init : Model
 init =
-  { coords = Nothing, hovering = [] }
+  { coords = Nothing, closest = [], surrounding = [] }
 
 
 type Msg
-  = OnMouseMove CE.Point (List (CI.One Datum CI.Dot))
+  = OnMouseMove CE.Point (List (CI.One Datum CI.Dot), List (CI.One Datum CI.Dot))
   | OnMouseLeave
 
 
 update : Msg -> Model -> Model
 update msg model =
   case msg of
-    OnMouseMove coords hovering ->
-      { model | coords = Just coords, hovering = hovering }
+    OnMouseMove coords (closest, surrounding) ->
+      { model | coords = Just coords, closest = closest, surrounding = surrounding }
 
     OnMouseLeave ->
-      { model | coords = Nothing, hovering = [] }
+      { model | coords = Nothing, closest = [], surrounding = [] }
 
 
 view : Model -> H.Html Msg
@@ -245,10 +242,8 @@ view model =
     , CE.on "mousemove" <|
         CE.map2 OnMouseMove
           CE.getCoords
-          (CE.getNearest 50 CI.dots)
+          (CE.getNearestAndSurrounding 50 CI.dots)
     , CE.onMouseLeave OnMouseLeave
-    , CA.range [ CA.window 0 100 ]
-    , CA.domain [ CA.window 0 100 ] 
     ]
     [ C.xLabels []
     , C.yLabels [ CA.pinned .min, CA.color CA.pink ]
@@ -271,28 +266,28 @@ view model =
         Nothing ->
           C.none
     , C.scale 
-        [ CA.range [ CA.window 0 100 ]
-        , CA.domain [ CA.window 0 100 ] 
-        ]
+        []
         [ C.series .x 
-            [ C.scatter .z [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 1 ] 
-                |> C.amongst model.hovering (\\d -> [ CA.highlight 0.1 ])
+            [ C.scatter .z [ CA.circle, CA.borderWidth 1, CA.color CA.blue, CA.border CA.blue, CA.opacity 0.2, CA.borderOpacity 0.7, CA.size 12 ] 
+                |> C.amongst model.closest (\\d -> [ CA.highlight 0.1, CA.opacity 0.5 ])
+                |> C.amongst model.surrounding (\\d -> [ CA.highlight 0.1 ])
             ] data
         , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.blue ]
         , C.yAxis [ CA.pinned .max ]
         ]
     , C.series .x
-        [ C.scatter .y [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 1 ] 
-            |> C.amongst model.hovering (\\d -> [ CA.highlight 0.1 ])
+        [ C.scatter .y [ CA.circle, CA.borderWidth 1, CA.color CA.pink, CA.border CA.pink, CA.borderOpacity 0.7, CA.opacity 0.2, CA.size 12 ] 
+            |> C.amongst model.closest (\\d -> [ CA.highlight 0.1, CA.opacity 0.5 ])
+            |> C.amongst model.surrounding (\\d -> [ CA.highlight 0.1 ])
         ]
         data
-    --, C.withPlane <| \\p ->
-    --    case model.hovering of 
-    --      first :: rest -> 
-    --        [ C.tooltip first [ CA.onTop ] [] (List.concatMap CI.getTooltip model.hovering) ]
+    , C.withPlane <| \\p ->
+        case model.closest of 
+          first :: rest -> 
+            [ C.tooltip first [ CA.onTop ] [] (List.concatMap CI.getTooltip model.closest) ]
 
-    --      [] ->
-    --        []
+          [] ->
+            []
     ]
 
 
@@ -305,16 +300,15 @@ type alias Datum =
 
 data : List Datum
 data =
-  [ Datum 11 90 95
-  , Datum 12 20 67
-  , Datum 18 20 81
-  , Datum 10 70 78
-  , Datum 22 90 82
-  , Datum 10 45 81
-  , Datum 33 10 71
-  , Datum 18 90 95
-  , Datum 40 60 69
-  , Datum 10 30 70
+  [ Datum 0.1 690 95
+  , Datum 0.2 620 67
+  , Datum 0.8 520 81
+  , Datum 1.0 570 78
+  , Datum 1.2 590 82
+  , Datum 2.0 345 81
+  , Datum 2.3 510 70
+  , Datum 2.8 390 95
+  , Datum 3.0 460 69
+  , Datum 4.0 530 70
   ]
-
   """

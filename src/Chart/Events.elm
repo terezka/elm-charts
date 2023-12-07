@@ -1,7 +1,7 @@
 module Chart.Events exposing
   ( Attribute, Event
   , onMouseMove, onMouseLeave, onMouseUp, onMouseDown, onClick, onDoubleClick, on
-  , Decoder, Point, getCoords, getSvgCoords, getNearest, getNearestX, getWithin, getWithinX, getOffset, getCustom
+  , Decoder, Point, getCoords, getSvgCoords, getNearest, getNearestX, getWithin, getWithinX, getOffset, getCustom, getNearestAndSurrounding
   , map, map2, map3, map4
   )
 
@@ -220,6 +220,11 @@ See example at [elm-charts.org](https://www.elm-charts.org/documentation/interac
 getNearest : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
 getNearest =
   IE.getNearest
+
+
+getNearestAndSurrounding : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result), List (I.Item result))
+getNearestAndSurrounding =
+  IE.getNearestAndSurrounding
 
 
 {-| Decode to get the nearest item within certain radius to the event. Use the `Remodel` functions in `Chart.Item`
