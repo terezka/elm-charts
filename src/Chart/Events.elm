@@ -1,7 +1,7 @@
 module Chart.Events exposing
   ( Attribute, Event
   , onMouseMove, onMouseLeave, onMouseUp, onMouseDown, onClick, onDoubleClick, on
-  , Decoder, Point, getCoords, getSvgCoords, getNearest, getNearestX, getWithin, getWithinX, getOffset
+  , Decoder, Point, getCoords, getSvgCoords, getNearest, getNearestX, getWithin, getWithinX, getOffset, getCustom
   , map, map2, map3, map4
   )
 
@@ -159,6 +159,15 @@ getSvgCoords =
 getOffset : Decoder data Point
 getOffset =
   IE.getOffset
+
+
+{-| Using the list of chart items, then top level scale, and the event point, produce
+your own event decoder.
+
+-}
+getCustom : (List (I.One data I.Any) -> Plane -> Point -> msg) -> Decoder data msg
+getCustom =
+  IE.getCustom
 
 
 

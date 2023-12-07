@@ -34,6 +34,12 @@ type Decoder data msg =
 
 
 {-| -}
+getCustom : (List (I.One data I.Any) -> Plane -> Point -> msg) -> Decoder data msg
+getCustom func =
+  Decoder func
+
+
+{-| -}
 getCoords : Decoder data Point
 getCoords =
   Decoder <| \_ plane searched -> searched
