@@ -9,8 +9,8 @@ import Chart.Attributes as CA exposing (..)
 import Time exposing (utc)
 
 
-viewChart : Html Msg
-viewChart =
+view : Model -> Html Msg
+view _ =
   chart
     [ height 350
     , width 570
@@ -27,9 +27,6 @@ viewChart =
         data
     ]
 
-view : Model -> Html Msg
-view model =
-  viewChart
 
 
 meta =
@@ -93,8 +90,8 @@ import Chart.Attributes as CA exposing (..)
 import Time exposing (utc)
 
 
-viewChart : Html Msg
-viewChart =
+view : Model -> Html Msg
+view _ =
   chart
     [ height 350
     , width 570
@@ -122,8 +119,8 @@ import Chart.Attributes as CA exposing (..)
 import Time exposing (utc)
 
 
-viewChart : Html Msg
-viewChart =
+view : Model -> Html Msg
+view _ =
   chart
     [ height 350
     , width 570

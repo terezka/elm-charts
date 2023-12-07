@@ -13,8 +13,8 @@ import Chart.Svg as CS
 
 
 
-view : H.Html msg
-view =
+view : () -> H.Html msg
+view _ =
   C.chart
     [ CA.height 350
     , CA.width 1000
