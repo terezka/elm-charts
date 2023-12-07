@@ -1618,26 +1618,28 @@ getNearestHelp toPosition radius items plane searched =
   let toPoint i =
         closestPoint (toPosition i) searched
 
-      distanceSquared_ =
-          distanceSquared plane searched
+      distance item =
+        distanceSquared plane searched (toPoint item)
 
-      compare a b =
-        if radius.x == 0 && radius.y == 0 
-          then a == b 
-          else withinRadius plane radius a b
+      isSurrounding closest item =
+        distanceSquared plane (toPoint closest) (toPoint item) <= (radius.x ^ 2 + radius.y ^ 2)
 
       getClosest item allClosest =
-        case List.head allClosest of
-          Just closest ->
-            if compare (toPoint closest) (toPoint item) then item :: allClosest
-            else if distanceSquared_ (toPoint closest) > distanceSquared_ (toPoint item) then [ item ]
-            else allClosest
+        let dis = distance item in
+        case allClosest of
+          Just ( ( closest, closestDis ), surrounding ) ->
+            if closestDis > dis then 
+              Just ( ( item, dis ), List.filter (isSurrounding item) (closest :: surrounding) ) 
+            else
+              Just ( ( closest, closestDis ), if isSurrounding closest item then item :: surrounding else surrounding ) 
 
           Nothing ->
-            [ item ]
+            Just ( ( item, dis ), [])
   in
-  List.foldl getClosest [] items
-    |> keepOne toPosition
+  List.foldl getClosest Nothing items
+    |> Maybe.map (\((c, _), s) -> c :: s)
+    |> Maybe.withDefault []
+    --|> keepOne toPosition
 
 
 getNearestXHelp : (a -> Position) -> Point -> List a -> Plane -> Point -> List a
@@ -1645,25 +1647,28 @@ getNearestXHelp toPosition radius items plane searched =
   let toPoint i =
         closestPoint (toPosition i) searched
 
-      distanceX_ =
-          distanceX plane searched
+      distance item =
+        distanceX plane searched (toPoint item)
 
-      compare a b =
-        if radius.x == 0 then a.x == b.x 
-          else withinRadiusX plane radius a b
+      isSurrounding closest item =
+        distanceX plane (toPoint closest) (toPoint item) <= radius.x
 
       getClosest item allClosest =
-        case List.head allClosest of
-          Just closest ->
-              if compare (toPoint closest)(toPoint item) then item :: allClosest
-              else if distanceX_ (toPoint closest) > distanceX_ (toPoint item) then [ item ]
-              else allClosest
+        let dis = distance item in
+        case allClosest of
+          Just ( ( closest, closestDis ), surrounding ) ->
+            if closestDis > dis then 
+              Just ( ( item, dis ), List.filter (isSurrounding item) (closest :: surrounding) ) 
+            else
+              Just ( ( closest, closestDis ), if isSurrounding closest item then item :: surrounding else surrounding ) 
 
           Nothing ->
-            [ item ]
+            Just ( ( item, dis ), [])
   in
-  List.foldl getClosest [] items
-    |> keepOne toPosition
+  List.foldl getClosest Nothing items
+    |> Maybe.map (\((c, _), s) -> c :: s)
+    |> Maybe.withDefault []
+    --|> keepOne toPosition
 
 
 distanceX : Plane -> Point -> Point -> Float
