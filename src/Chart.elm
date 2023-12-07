@@ -28,7 +28,7 @@ module Chart exposing
 
 
 -- TODO use toplevel scale as neutral plane
--- TODO add acceptable error range to events
+-- TODO update getNearest docs with error margin arg
 
 {-| **Make sure to check out the many examples at [elm-charts.org](https://www.elm-charts.org/documentation).**
 

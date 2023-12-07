@@ -56,44 +56,35 @@ getSvgCoords =
 
 
 {-| -}
-getNearest : M.Remodel (I.One data I.Any) (I.Rendered result) -> Decoder data (List (I.Rendered result))
-getNearest (M.Remodel toPos _ as grouping) =
+getNearest : Float -> M.Remodel (I.One data I.Any) (I.Rendered result) -> Decoder data (List (I.Rendered result))
+getNearest errorMargin (M.Remodel toPos _ as grouping) =
   Decoder <| \items plane searched ->
-    --let groups = List.map (I.covert plane) (M.apply grouping items) in
     let groups = M.apply grouping items in
-    CS.getNearest toPos groups plane (C.convertPoint C.neutralPlane plane searched)
+    CS.getNearest errorMargin toPos groups plane (C.convertPoint C.neutralPlane plane searched)
 
 
 {-| -}
 getWithin : Float -> M.Remodel (I.One data I.Any) (I.Rendered result) -> Decoder data (List (I.Rendered result))
-getWithin radius (M.Remodel toPos _ as grouping) =
+getWithin errorMargin (M.Remodel toPos _ as grouping) =
   Decoder <| \items plane searched ->
     let groups = M.apply grouping items in
-    CS.getWithin radius toPos groups plane (C.convertPoint C.neutralPlane plane searched)
+    CS.getWithin errorMargin toPos groups plane (C.convertPoint C.neutralPlane plane searched)
 
 
 {-| -}
-getAllWithin : Float -> M.Remodel (I.One data I.Any) (I.Rendered result) -> Decoder data (List (I.Rendered result))
-getAllWithin radius (M.Remodel toPos _ as grouping) =
+getNearestX : Float -> M.Remodel (I.One data I.Any) (I.Rendered result) -> Decoder data (List (I.Rendered result))
+getNearestX errorMargin (M.Remodel toPos _ as grouping) =
   Decoder <| \items plane searched ->
     let groups = M.apply grouping items in
-    CS.getAllWithin radius toPos groups plane (C.convertPoint C.neutralPlane plane searched)
-
-
-{-| -}
-getNearestX : M.Remodel (I.One data I.Any) (I.Rendered result) -> Decoder data (List (I.Rendered result))
-getNearestX (M.Remodel toPos _ as grouping) =
-  Decoder <| \items plane searched ->
-    let groups = M.apply grouping items in
-    CS.getNearestX toPos groups plane (C.convertPoint C.neutralPlane plane searched)
+    CS.getNearestX errorMargin toPos groups plane (C.convertPoint C.neutralPlane plane searched)
 
 
 {-| -}
 getWithinX : Float -> M.Remodel (I.One data I.Any) (I.Rendered result) -> Decoder data (List (I.Rendered result))
-getWithinX radius (M.Remodel toPos _ as grouping) =
+getWithinX errorMargin (M.Remodel toPos _ as grouping) =
   Decoder <| \items plane searched ->
     let groups = M.apply grouping items in
-    CS.getWithinX radius toPos groups plane (C.convertPoint C.neutralPlane plane searched)
+    CS.getWithinX errorMargin toPos groups plane (C.convertPoint C.neutralPlane plane searched)
 
 
 {-| -}

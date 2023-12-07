@@ -465,7 +465,7 @@ positionHtml =
       ]
 
 -}
-getNearest : (a -> Position) -> List a -> Plane -> Point -> List a
+getNearest : Float -> (a -> Position) -> List a -> Plane -> Point -> List a
 getNearest =
   Internal.Svg.getNearest
 
@@ -481,7 +481,7 @@ getWithin =
 {-| Like `getNearest`, but only searches x coordinates.
 
 -}
-getNearestX : (a -> Position) -> List a -> Plane -> Point -> List a
+getNearestX : Float -> (a -> Position) -> List a -> Plane -> Point -> List a
 getNearestX =
   Internal.Svg.getNearestX
 

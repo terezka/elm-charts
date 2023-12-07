@@ -57,7 +57,7 @@ view model =
     , CA.margin { top = 5, bottom = 10, left = 10, right = 0 }
     , CA.padding { top = 15, bottom = 10, left = 15, right = 15 }
     , CA.domain [ CA.likeData ]
-    , CE.onMouseMove OnHover (CE.getNearest CI.dots)
+    , CE.onMouseMove OnHover (CE.getNearest 0 CI.dots)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.grid [ CA.dashed [ 5, 5 ] ]

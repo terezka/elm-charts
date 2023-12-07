@@ -37,7 +37,7 @@ view model =
   C.chart
     [ CA.height 300
     , CA.width 300
-    , CE.onMouseMove OnHover (CE.getNearest CI.any)
+    , CE.onMouseMove OnHover (CE.getNearest 0 CI.any)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.xTicks []
@@ -103,7 +103,7 @@ smallCode =
   C.chart
     [ CA.height 300
     , CA.width 300
-    , CE.onMouseMove OnHover (CE.getNearest CI.any)
+    , CE.onMouseMove OnHover (CE.getNearest 0 CI.any)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.xTicks []
@@ -191,7 +191,7 @@ view model =
   C.chart
     [ CA.height 300
     , CA.width 300
-    , CE.onMouseMove OnHover (CE.getNearest CI.any)
+    , CE.onMouseMove OnHover (CE.getNearest 0 CI.any)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.xTicks []

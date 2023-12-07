@@ -38,7 +38,7 @@ view model =
     , CA.padding { top = 0, bottom = 0, left = 10, right = 10 }
     , CI.dots
         |> CI.andThen CI.stacks
-        |> CE.getNearest
+        |> CE.getNearest 0
         |> CE.onMouseMove OnHover
     , CE.onMouseLeave (OnHover [])
     ]
@@ -46,8 +46,8 @@ view model =
     , C.yLabels [ CA.withGrid, CA.pinned .min ]
     , C.series .x
         [ C.stacked
-          [ C.interpolated .p [  ] [ CA.circle ]
-          , C.interpolated .q [  ] [ CA.circle ]
+          [ C.interpolated .p [] [ CA.circle ]
+          , C.interpolated .q [] [ CA.circle ]
           ]
         ]
         data

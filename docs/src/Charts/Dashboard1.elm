@@ -61,7 +61,7 @@ view model =
     , CA.padding { top = 10, bottom = 0, left = 0, right = 35 }
     , CE.on "mousemove" <|
         CE.map2 OnHover
-          (CE.getNearestX CI.dots)
+          (CE.getNearestX 0 CI.dots)
           (CE.getWithinX 8 <| CI.andThen CI.bins CI.bars)
     , CE.onMouseLeave (OnHover [] [])
     ]

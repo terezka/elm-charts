@@ -37,7 +37,7 @@ view model =
     , CA.width 300
     , CA.padding { top = 0, left = 0, right = 0, bottom = 0 }
     , CA.margin { top = 0, left = 0, right = 0, bottom = 0 }
-    , CE.onMouseMove OnHover (CE.getAllWithin 5 CI.dots)
+    , CE.onMouseMove OnHover (CE.getNearest 5 CI.dots)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.xLabels []

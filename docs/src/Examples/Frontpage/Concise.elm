@@ -39,7 +39,7 @@ view model =
     [ CA.height 300
     , CA.width 500
     , CA.margin { top = 10, left = 40, right = 0, bottom = 25 }
-    , CE.onMouseMove OnHover (CE.getNearest CI.stacks)
+    , CE.onMouseMove OnHover (CE.getNearest 0 CI.stacks)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.yLabels [ CA.withGrid, CA.format (\y -> String.fromFloat y ++ "M")]
@@ -152,7 +152,7 @@ smallCode =
     [ CA.height 300
     , CA.width 500
     , CA.margin { top = 10, left = 40, right = 0, bottom = 25 }
-    , CE.onMouseMove OnHover (CE.getNearest CI.stacks)
+    , CE.onMouseMove OnHover (CE.getNearest 0 CI.stacks)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.yLabels [ CA.withGrid, CA.format (\\y -> String.fromFloat y ++ "M")]
@@ -261,7 +261,7 @@ view model =
     [ CA.height 300
     , CA.width 500
     , CA.margin { top = 10, left = 40, right = 0, bottom = 25 }
-    , CE.onMouseMove OnHover (CE.getNearest CI.stacks)
+    , CE.onMouseMove OnHover (CE.getNearest 0 CI.stacks)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.yLabels [ CA.withGrid, CA.format (\\y -> String.fromFloat y ++ "M")]

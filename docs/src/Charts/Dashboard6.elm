@@ -53,7 +53,7 @@ view model =
     [ CA.height 300
     , CA.width 500
     , CA.margin { top = 0, bottom = 15, left = 20, right = 0 }
-    , CE.onMouseMove OnHover (CE.getNearestX CI.bars)
+    , CE.onMouseMove OnHover (CE.getNearestX 0 CI.bars)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.grid []

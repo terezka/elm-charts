@@ -36,7 +36,7 @@ view model =
   C.chart
     [ CA.height 300
     , CA.width 300
-    , CE.onMouseMove OnHover (CE.getNearest CI.bins)
+    , CE.onMouseMove OnHover (CE.getNearest 0 CI.bins)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.xLabels []
@@ -89,7 +89,7 @@ smallCode =
   C.chart
     [ CA.height 300
     , CA.width 300
-    , CE.onMouseMove OnHover (CE.getNearest CI.bins)
+    , CE.onMouseMove OnHover (CE.getNearest 0 CI.bins)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.xLabels []
@@ -141,7 +141,7 @@ view model =
   C.chart
     [ CA.height 300
     , CA.width 300
-    , CE.onMouseMove OnHover (CE.getNearest CI.bins)
+    , CE.onMouseMove OnHover (CE.getNearest 0 CI.bins)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.xLabels []

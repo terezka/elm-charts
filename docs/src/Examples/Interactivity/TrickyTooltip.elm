@@ -39,7 +39,7 @@ view model =
     , CA.padding { top = 0, bottom = 0, left = 10, right = 10 }
     , CI.bars
         |> CI.andThen CI.bins
-        |> CE.getNearest
+        |> CE.getNearest 0
         |> CE.onMouseMove OnHover
     , CE.onMouseLeave (OnHover [])
     ]
@@ -103,7 +103,7 @@ smallCode =
     , CA.padding { top = 0, bottom = 0, left = 10, right = 10 }
     , CI.bars
         |> CI.andThen CI.bins
-        |> CE.getNearest
+        |> CE.getNearest 0
         |> CE.onMouseMove OnHover
     , CE.onMouseLeave (OnHover [])
     ]
@@ -166,7 +166,7 @@ view model =
     , CA.padding { top = 0, bottom = 0, left = 10, right = 10 }
     , CI.bars
         |> CI.andThen CI.bins
-        |> CE.getNearest
+        |> CE.getNearest 0
         |> CE.onMouseMove OnHover
     , CE.onMouseLeave (OnHover [])
     ]
