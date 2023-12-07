@@ -17175,6 +17175,23 @@ var $author$project$Internal$Svg$bar = F3(
 					]));
 		}
 	});
+var $author$project$Internal$Coordinates$convertX = F3(
+	function (topLevel, plane, x) {
+		return topLevel.x.min + ($author$project$Internal$Coordinates$range(topLevel.x) * ((x - plane.x.min) / $author$project$Internal$Coordinates$range(plane.x)));
+	});
+var $author$project$Internal$Coordinates$convertY = F3(
+	function (topLevel, plane, y) {
+		return topLevel.y.min + ($author$project$Internal$Coordinates$range(topLevel.y) * ((y - plane.y.min) / $author$project$Internal$Coordinates$range(plane.y)));
+	});
+var $author$project$Internal$Coordinates$convertPos = F3(
+	function (topLevel, plane, pos) {
+		return {
+			x1: A3($author$project$Internal$Coordinates$convertX, topLevel, plane, pos.x1),
+			x2: A3($author$project$Internal$Coordinates$convertX, topLevel, plane, pos.x2),
+			y1: A3($author$project$Internal$Coordinates$convertY, topLevel, plane, pos.y1),
+			y2: A3($author$project$Internal$Coordinates$convertY, topLevel, plane, pos.y2)
+		};
+	});
 var $author$project$Internal$Item$getLimits = function (_v0) {
 	var item = _v0.b;
 	return item.limits;
@@ -17463,106 +17480,116 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 							$author$project$Internal$Svg$defaultBar)));
 				return _Utils_Tuple2(
 					limits,
-					function (localPlane) {
-						return A2(
-							$author$project$Internal$Item$Rendered,
-							{
-								color: barPresentationConfig.color,
-								datum: bin.datum,
-								identification: identification,
-								isReal: !_Utils_eq(y, $elm$core$Maybe$Nothing),
-								name: barSeriesConfig.tooltipName,
-								presentation: $author$project$Internal$Item$Bar(barPresentationConfig),
-								toAny: $elm$core$Basics$identity,
-								tooltipText: barSeriesConfig.tooltipText(bin.datum),
-								x1: start,
-								x2: end,
-								y: A2($elm$core$Maybe$withDefault, 0, y)
-							},
-							{
-								limits: limits,
-								localPlane: localPlane,
-								position: position,
-								render: function (_v10) {
-									return A3($author$project$Internal$Svg$bar, localPlane, barPresentationConfig, position);
+					F2(
+						function (topLevel, localPlane) {
+							return A2(
+								$author$project$Internal$Item$Rendered,
+								{
+									color: barPresentationConfig.color,
+									datum: bin.datum,
+									identification: identification,
+									isReal: !_Utils_eq(y, $elm$core$Maybe$Nothing),
+									name: barSeriesConfig.tooltipName,
+									presentation: $author$project$Internal$Item$Bar(barPresentationConfig),
+									toAny: $elm$core$Basics$identity,
+									tooltipText: barSeriesConfig.tooltipText(bin.datum),
+									x1: start,
+									x2: end,
+									y: A2($elm$core$Maybe$withDefault, 0, y)
 								},
-								tooltip: function (_v11) {
-									return _List_fromArray(
-										[
-											A3(
-											$author$project$Internal$Produce$tooltipRow,
-											barPresentationConfig.color,
-											A2($author$project$Internal$Produce$toDefaultName, identification, barSeriesConfig.tooltipName),
-											barSeriesConfig.tooltipText(bin.datum))
-										]);
-								}
-							});
-					});
+								{
+									limits: limits,
+									limitsTop: A3($author$project$Internal$Coordinates$convertPos, topLevel, localPlane, limits),
+									localPlane: localPlane,
+									planeTop: topLevel,
+									position: position,
+									positionTop: A3($author$project$Internal$Coordinates$convertPos, topLevel, localPlane, position),
+									render: function (_v11) {
+										return A3($author$project$Internal$Svg$bar, localPlane, barPresentationConfig, position);
+									},
+									tooltip: function (_v12) {
+										return _List_fromArray(
+											[
+												A3(
+												$author$project$Internal$Produce$tooltipRow,
+												barPresentationConfig.color,
+												A2($author$project$Internal$Produce$toDefaultName, identification, barSeriesConfig.tooltipName),
+												barSeriesConfig.tooltipText(bin.datum))
+											]);
+									}
+								});
+						}));
 			});
 		var forEachBarSeriesConfig = F6(
 			function (bins, absoluteIndex, stackSeriesConfigIndex, numOfBarsInStack, barSeriesConfigIndex, barSeriesConfig) {
 				var absoluteIndexNew = absoluteIndex + barSeriesConfigIndex;
-				var _v7 = $elm$core$List$unzip(
+				var _v8 = $elm$core$List$unzip(
 					A2(
 						$elm$core$List$indexedMap,
 						A5(forEachDataPoint, absoluteIndexNew, stackSeriesConfigIndex, barSeriesConfigIndex, numOfBarsInStack, barSeriesConfig),
 						bins));
-				var limits = _v7.a;
-				var toBarItems = _v7.b;
+				var limits = _v8.a;
+				var toBarItems = _v8.b;
 				return _Utils_Tuple2(
 					limits,
-					function (localPlane) {
-						var barItems = A2(
-							$elm$core$List$map,
-							function (i) {
-								return i(localPlane);
-							},
-							toBarItems);
-						return A2(
-							$author$project$Internal$Helpers$withFirst,
-							barItems,
-							F2(
-								function (first, rest) {
-									return A2(
-										$author$project$Internal$Item$Rendered,
-										_Utils_Tuple2(first, rest),
-										{
-											limits: A2($author$project$Internal$Coordinates$foldPosition, $author$project$Internal$Item$getLimits, barItems),
-											localPlane: localPlane,
-											position: A2($author$project$Internal$Coordinates$foldPosition, $author$project$Internal$Item$getPosition, barItems),
-											render: function (_v8) {
-												return A2(
-													$elm$svg$Svg$g,
-													_List_fromArray(
-														[
-															$elm$svg$Svg$Attributes$class('elm-charts__series')
-														]),
-													A2($elm$core$List$map, $author$project$Internal$Item$render, barItems));
-											},
-											tooltip: function (_v9) {
-												return _List_fromArray(
-													[
-														A2(
-														$elm$html$Html$table,
+					F2(
+						function (topLevel, localPlane) {
+							var barItems = A2(
+								$elm$core$List$map,
+								function (i) {
+									return A2(i, topLevel, localPlane);
+								},
+								toBarItems);
+							return A2(
+								$author$project$Internal$Helpers$withFirst,
+								barItems,
+								F2(
+									function (first, rest) {
+										var groupPosition = A2($author$project$Internal$Coordinates$foldPosition, $author$project$Internal$Item$getPosition, barItems);
+										var groupLimits = A2($author$project$Internal$Coordinates$foldPosition, $author$project$Internal$Item$getLimits, barItems);
+										return A2(
+											$author$project$Internal$Item$Rendered,
+											_Utils_Tuple2(first, rest),
+											{
+												limits: groupLimits,
+												limitsTop: A3($author$project$Internal$Coordinates$convertPos, topLevel, localPlane, groupLimits),
+												localPlane: localPlane,
+												planeTop: topLevel,
+												position: groupPosition,
+												positionTop: A3($author$project$Internal$Coordinates$convertPos, topLevel, localPlane, groupPosition),
+												render: function (_v9) {
+													return A2(
+														$elm$svg$Svg$g,
 														_List_fromArray(
 															[
-																A2($elm$html$Html$Attributes$style, 'margin', '0')
+																$elm$svg$Svg$Attributes$class('elm-charts__series')
 															]),
-														A2($elm$core$List$concatMap, $author$project$Internal$Item$tooltip, barItems))
-													]);
-											}
-										});
-								}));
-					});
+														A2($elm$core$List$map, $author$project$Internal$Item$render, barItems));
+												},
+												tooltip: function (_v10) {
+													return _List_fromArray(
+														[
+															A2(
+															$elm$html$Html$table,
+															_List_fromArray(
+																[
+																	A2($elm$html$Html$Attributes$style, 'margin', '0')
+																]),
+															A2($elm$core$List$concatMap, $author$project$Internal$Item$tooltip, barItems))
+														]);
+												}
+											});
+									}));
+						}));
 			});
 		var forEachStackSeriesConfig = F3(
-			function (bins, stackSeriesConfig, _v5) {
-				var absoluteIndex = _v5.a;
-				var stackSeriesConfigIndex = _v5.b;
-				var _v6 = _v5.c;
-				var limits = _v6.a;
-				var items = _v6.b;
-				var _v3 = $elm$core$List$unzip(
+			function (bins, stackSeriesConfig, _v6) {
+				var absoluteIndex = _v6.a;
+				var stackSeriesConfigIndex = _v6.b;
+				var _v7 = _v6.c;
+				var limits = _v7.a;
+				var items = _v7.b;
+				var _v4 = $elm$core$List$unzip(
 					function () {
 						if (stackSeriesConfig.$ === 'NotStacked') {
 							var barSeriesConfig = stackSeriesConfig.a;
@@ -17579,8 +17606,8 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 								barSeriesConfigs);
 						}
 					}());
-				var newLimits = _v3.a;
-				var seriesItems = _v3.b;
+				var newLimits = _v4.a;
+				var seriesItems = _v4.b;
 				return _Utils_Tuple3(
 					absoluteIndex + $elm$core$List$length(seriesItems),
 					stackSeriesConfigIndex + 1,
@@ -17588,26 +17615,27 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 						_Utils_ap(
 							limits,
 							$elm$core$List$concat(newLimits)),
-						function (localPlane) {
-							return _Utils_ap(
-								items(localPlane),
-								A2(
-									$elm$core$List$filterMap,
-									$elm$core$Basics$identity,
+						F2(
+							function (topLevel, localPlane) {
+								return _Utils_ap(
+									A2(items, topLevel, localPlane),
 									A2(
-										$elm$core$List$map,
-										function (i) {
-											return i(localPlane);
-										},
-										seriesItems)));
-						}));
+										$elm$core$List$filterMap,
+										$elm$core$Basics$identity,
+										A2(
+											$elm$core$List$map,
+											function (i) {
+												return A2(i, topLevel, localPlane);
+											},
+											seriesItems)));
+							})));
 			});
 		return function (bins) {
-			return function (_v1) {
-				var newElementIndex = _v1.a;
-				var _v2 = _v1.c;
-				var limits = _v2.a;
-				var items = _v2.b;
+			return function (_v2) {
+				var newElementIndex = _v2.a;
+				var _v3 = _v2.c;
+				var limits = _v3.a;
+				var items = _v3.b;
 				return _Utils_Tuple3(newElementIndex, limits, items);
 			}(
 				A3(
@@ -17618,9 +17646,10 @@ var $author$project$Internal$Produce$toBarSeries = F4(
 						0,
 						_Utils_Tuple2(
 							_List_Nil,
-							function (_v0) {
-								return _List_Nil;
-							})),
+							F2(
+								function (_v0, _v1) {
+									return _List_Nil;
+								}))),
 					properties));
 		}(
 			A2(
@@ -17639,16 +17668,17 @@ var $author$project$Chart$barsMap = F4(
 					var newElementIndex = _v1.a;
 					var limits = _v1.b;
 					var items = _v1.c;
-					var toItems = function (localPlane) {
-						return A2(
-							$elm$core$List$concatMap,
-							A2(
-								$elm$core$Basics$composeR,
-								$author$project$Internal$Many$getMembers,
-								$elm$core$List$map(
-									$author$project$Internal$Item$map(mapData))),
-							items(localPlane));
-					};
+					var toItems = F2(
+						function (topLevel, localPlane) {
+							return A2(
+								$elm$core$List$concatMap,
+								A2(
+									$elm$core$Basics$composeR,
+									$author$project$Internal$Many$getMembers,
+									$elm$core$List$map(
+										$author$project$Internal$Item$map(mapData))),
+								A2(items, topLevel, localPlane));
+						});
 					var toTicks = F2(
 						function (plane, acc) {
 							return _Utils_update(
@@ -17672,21 +17702,22 @@ var $author$project$Chart$barsMap = F4(
 							toItems,
 							legends,
 							toTicks,
-							function (plane) {
-								return A2(
-									$elm$svg$Svg$map,
-									$elm$core$Basics$never,
-									A2(
-										$elm$svg$Svg$g,
-										_List_fromArray(
-											[
-												$elm$svg$Svg$Attributes$class('elm-charts__bar-series')
-											]),
+							F2(
+								function (topLevel, plane) {
+									return A2(
+										$elm$svg$Svg$map,
+										$elm$core$Basics$never,
 										A2(
-											$elm$core$List$map,
-											$author$project$Internal$Item$render,
-											items(plane))));
-							}),
+											$elm$svg$Svg$g,
+											_List_fromArray(
+												[
+													$elm$svg$Svg$Attributes$class('elm-charts__bar-series')
+												]),
+											A2(
+												$elm$core$List$map,
+												$author$project$Internal$Item$render,
+												A2(items, topLevel, plane))));
+								})),
 						newElementIndex);
 				}));
 	});
@@ -17713,6 +17744,10 @@ var $author$project$Internal$Many$andThen = F2(
 			});
 	});
 var $author$project$Chart$Item$andThen = $author$project$Internal$Many$andThen;
+var $author$project$Internal$Item$getTopLevelPosition = function (_v0) {
+	var item = _v0.b;
+	return item.positionTop;
+};
 var $author$project$Internal$Item$isBar = function (_v0) {
 	var meta = _v0.a;
 	var item = _v0.b;
@@ -17730,7 +17765,7 @@ var $author$project$Internal$Item$isBar = function (_v0) {
 };
 var $author$project$Internal$Many$bars = A2(
 	$author$project$Internal$Many$Remodel,
-	$author$project$Internal$Item$getPosition,
+	$author$project$Internal$Item$getTopLevelPosition,
 	$elm$core$List$filterMap($author$project$Internal$Item$isBar));
 var $author$project$Chart$Item$bars = $author$project$Internal$Many$bars;
 var $author$project$Internal$Many$editLimits = F2(
@@ -17800,20 +17835,30 @@ var $author$project$Internal$Helpers$gatherWith = F2(
 			});
 		return A2(helper, list, _List_Nil);
 	});
-var $author$project$Internal$Item$getLocalPlane = function (_v0) {
+var $author$project$Internal$Item$getTopLevelLimits = function (_v0) {
 	var item = _v0.b;
-	return item.localPlane;
+	return item.limitsTop;
+};
+var $author$project$Internal$Item$getTopLevelPlane = function (_v0) {
+	var item = _v0.b;
+	return item.planeTop;
 };
 var $author$project$Internal$Many$toGroup = F2(
 	function (first, rest) {
+		var plane = $author$project$Internal$Item$getTopLevelPlane(first);
 		var all = A2($elm$core$List$cons, first, rest);
+		var limits = A2($author$project$Internal$Coordinates$foldPosition, $author$project$Internal$Item$getTopLevelLimits, all);
+		var position = A2($author$project$Internal$Coordinates$foldPosition, $author$project$Internal$Item$getTopLevelPosition, all);
 		return A2(
 			$author$project$Internal$Item$Rendered,
 			_Utils_Tuple2(first, rest),
 			{
-				limits: A2($author$project$Internal$Coordinates$foldPosition, $author$project$Internal$Item$getLimits, all),
-				localPlane: $author$project$Internal$Item$getLocalPlane(first),
-				position: A2($author$project$Internal$Coordinates$foldPosition, $author$project$Internal$Item$getPosition, all),
+				limits: limits,
+				limitsTop: limits,
+				localPlane: plane,
+				planeTop: plane,
+				position: position,
+				positionTop: position,
 				render: function (_v0) {
 					return A2(
 						$elm$svg$Svg$g,
@@ -17890,23 +17935,6 @@ var $author$project$Internal$Svg$defaultLabel = {anchor: $elm$core$Maybe$Nothing
 var $author$project$Internal$Coordinates$bottom = function (pos) {
 	return {x: pos.x1 + ((pos.x2 - pos.x1) / 2), y: pos.y1};
 };
-var $author$project$Internal$Coordinates$convertX = F3(
-	function (topLevel, plane, x) {
-		return topLevel.x.min + ($author$project$Internal$Coordinates$range(topLevel.x) * ((x - plane.x.min) / $author$project$Internal$Coordinates$range(plane.x)));
-	});
-var $author$project$Internal$Coordinates$convertY = F3(
-	function (topLevel, plane, y) {
-		return topLevel.y.min + ($author$project$Internal$Coordinates$range(topLevel.y) * ((y - plane.y.min) / $author$project$Internal$Coordinates$range(plane.y)));
-	});
-var $author$project$Internal$Coordinates$convertPos = F3(
-	function (topLevel, plane, pos) {
-		return {
-			x1: A3($author$project$Internal$Coordinates$convertX, topLevel, plane, pos.x1),
-			x2: A3($author$project$Internal$Coordinates$convertX, topLevel, plane, pos.x2),
-			y1: A3($author$project$Internal$Coordinates$convertY, topLevel, plane, pos.y1),
-			y2: A3($author$project$Internal$Coordinates$convertY, topLevel, plane, pos.y2)
-		};
-	});
 var $author$project$Internal$Item$getPositionIn = F2(
 	function (plane, _v0) {
 		var item = _v0.b;
@@ -17922,36 +17950,10 @@ var $author$project$Chart$defaultLabel = {anchor: $author$project$Internal$Svg$d
 var $author$project$Chart$SubElements = function (a) {
 	return {$: 'SubElements', a: a};
 };
-var $author$project$Internal$Item$covert = F2(
-	function (plane, _v0) {
-		var meta = _v0.a;
-		var item = _v0.b;
-		return A2(
-			$author$project$Internal$Item$Rendered,
-			meta,
-			{
-				limits: A3($author$project$Internal$Coordinates$convertPos, plane, item.localPlane, item.limits),
-				localPlane: plane,
-				position: A3($author$project$Internal$Coordinates$convertPos, plane, item.localPlane, item.position),
-				render: item.render,
-				tooltip: item.tooltip
-			});
-	});
 var $author$project$Internal$Many$apply = F2(
 	function (_v0, items) {
 		var func = _v0.b;
-		if (items.b) {
-			var _v2 = items.a;
-			var first = _v2.b;
-			var rest = items.b;
-			return func(
-				A2(
-					$elm$core$List$map,
-					$author$project$Internal$Item$covert(first.localPlane),
-					items));
-		} else {
-			return func(_List_Nil);
-		}
+		return func(items);
 	});
 var $author$project$Chart$Item$apply = $author$project$Internal$Many$apply;
 var $author$project$Chart$eachCustom = F2(
@@ -19591,8 +19593,8 @@ var $author$project$Chart$definePlane = F2(
 				})
 		};
 	});
-var $author$project$Chart$getItems = F2(
-	function (plane, elements) {
+var $author$project$Chart$getItems = F3(
+	function (topLevel, plane, elements) {
 		var toItems = F2(
 			function (el, acc) {
 				switch (el.$) {
@@ -19602,19 +19604,19 @@ var $author$project$Chart$getItems = F2(
 						var item = el.b;
 						return _Utils_ap(
 							acc,
-							item(plane));
+							A2(item, topLevel, plane));
 					case 'BarsElement':
 						var item = el.b;
 						return _Utils_ap(
 							acc,
-							item(plane));
+							A2(item, topLevel, plane));
 					case 'CustomElement':
 						var item = el.b;
 						return _Utils_ap(
 							acc,
 							_List_fromArray(
 								[
-									item(plane)
+									A2(item, topLevel, plane)
 								]));
 					case 'AxisElement':
 						var func = el.a;
@@ -19636,7 +19638,9 @@ var $author$project$Chart$getItems = F2(
 						return A3($elm$core$List$foldl, toItems, acc, subs);
 					case 'ScaleElement':
 						var items = el.b;
-						return _Utils_ap(acc, items);
+						return _Utils_ap(
+							acc,
+							items(topLevel));
 					case 'SvgElement':
 						return acc;
 					default:
@@ -19761,8 +19765,8 @@ var $author$project$Chart$getTickValues = F3(
 			A4($author$project$Chart$TickValues, _List_Nil, _List_Nil, _List_Nil, _List_Nil),
 			elements);
 	});
-var $author$project$Chart$viewElements = F5(
-	function (plane, tickValues, allItems, allLegends, elements) {
+var $author$project$Chart$viewElements = F6(
+	function (topLevel, plane, tickValues, allItems, allLegends, elements) {
 		var viewOne = F2(
 			function (el, _v0) {
 				var before = _v0.a;
@@ -19777,7 +19781,7 @@ var $author$project$Chart$viewElements = F5(
 							before,
 							A2(
 								$elm$core$List$cons,
-								view(plane),
+								A2(view, topLevel, plane),
 								chart_),
 							after);
 					case 'BarsElement':
@@ -19786,7 +19790,7 @@ var $author$project$Chart$viewElements = F5(
 							before,
 							A2(
 								$elm$core$List$cons,
-								view(plane),
+								A2(view, topLevel, plane),
 								chart_),
 							after);
 					case 'CustomElement':
@@ -19795,7 +19799,7 @@ var $author$project$Chart$viewElements = F5(
 							before,
 							A2(
 								$elm$core$List$cons,
-								view(plane),
+								A2(view, topLevel, plane),
 								chart_),
 							after);
 					case 'AxisElement':
@@ -19879,14 +19883,17 @@ var $author$project$Chart$viewElements = F5(
 							_Utils_Tuple3(before, chart_, after),
 							els);
 					case 'ScaleElement':
-						var _v2 = el.d;
-						var b = _v2.a;
-						var c = _v2.b;
-						var e = _v2.c;
-						return _Utils_Tuple3(
-							_Utils_ap(b, before),
-							_Utils_ap(c, chart_),
-							_Utils_ap(e, after));
+						var view = el.d;
+						return function (_v2) {
+							var b = _v2.a;
+							var c = _v2.b;
+							var e = _v2.c;
+							return _Utils_Tuple3(
+								_Utils_ap(b, before),
+								_Utils_ap(c, chart_),
+								_Utils_ap(e, after));
+						}(
+							view(topLevel));
 					case 'SvgElement':
 						var view = el.a;
 						return _Utils_Tuple3(
@@ -19942,7 +19949,7 @@ var $author$project$Chart$chart = F2(
 		var elements = $author$project$Chart$addGridIfNone(indexedElements);
 		var legends = $author$project$Chart$getLegends(elements);
 		var plane = A2($author$project$Chart$definePlane, planeConfig, elements);
-		var items = A2($author$project$Chart$getItems, plane, elements);
+		var items = A3($author$project$Chart$getItems, plane, plane, elements);
 		var toEvent = function (_v3) {
 			var event_ = _v3.a;
 			var _v2 = event_.decoder;
@@ -19953,7 +19960,7 @@ var $author$project$Chart$chart = F2(
 				decoder(items));
 		};
 		var tickValues = A3($author$project$Chart$getTickValues, plane, items, elements);
-		var _v1 = A5($author$project$Chart$viewElements, plane, tickValues, items, legends, elements);
+		var _v1 = A6($author$project$Chart$viewElements, plane, plane, tickValues, items, legends, elements);
 		var beforeEls = _v1.a;
 		var chartEls = _v1.b;
 		var afterEls = _v1.c;
@@ -19987,7 +19994,7 @@ var $author$project$Internal$Item$isReal = function (_v0) {
 };
 var $author$project$Internal$Many$real = A2(
 	$author$project$Internal$Many$Remodel,
-	$author$project$Internal$Item$getPosition,
+	$author$project$Internal$Item$getTopLevelPosition,
 	$elm$core$List$filter($author$project$Internal$Item$isReal));
 var $author$project$Chart$Item$real = $author$project$Internal$Many$real;
 var $author$project$Chart$eachBar = function (func) {
@@ -20003,7 +20010,7 @@ var $author$project$Chart$eachBar = function (func) {
 						is));
 			}));
 };
-var $author$project$Internal$Many$any = A2($author$project$Internal$Many$Remodel, $author$project$Internal$Item$getPosition, $elm$core$Basics$identity);
+var $author$project$Internal$Many$any = A2($author$project$Internal$Many$Remodel, $author$project$Internal$Item$getTopLevelPosition, $elm$core$Basics$identity);
 var $author$project$Chart$Item$any = $author$project$Internal$Many$any;
 var $author$project$Internal$Many$stacks = A2(
 	$author$project$Internal$Many$Remodel,
@@ -24671,13 +24678,6 @@ var $author$project$Chart$each = F2(
 var $author$project$Internal$Events$Decoder = function (a) {
 	return {$: 'Decoder', a: a};
 };
-var $author$project$Internal$Coordinates$convertPoint = F3(
-	function (topLevel, plane, pos) {
-		return {
-			x: A3($author$project$Internal$Coordinates$convertX, topLevel, plane, pos.x),
-			y: A3($author$project$Internal$Coordinates$convertY, topLevel, plane, pos.y)
-		};
-	});
 var $author$project$Internal$Svg$closestPoint = F2(
 	function (pos, searched) {
 		return {
@@ -24695,16 +24695,14 @@ var $author$project$Internal$Svg$distanceY = F3(
 	});
 var $author$project$Internal$Svg$distanceSquared = F3(
 	function (plane, searched, point) {
-		return $elm$core$Basics$sqrt(
-			A2(
-				$elm$core$Basics$pow,
-				A3($author$project$Internal$Svg$distanceX, plane, searched, point),
-				2) + A2(
-				$elm$core$Basics$pow,
-				A3($author$project$Internal$Svg$distanceY, plane, searched, point),
-				2));
+		return A2(
+			$elm$core$Basics$pow,
+			A3($author$project$Internal$Svg$distanceX, plane, searched, point),
+			2) + A2(
+			$elm$core$Basics$pow,
+			A3($author$project$Internal$Svg$distanceY, plane, searched, point),
+			2);
 	});
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Internal$Svg$getNearestHelp = F5(
 	function (toPosition, radius, items, plane, searched) {
 		var toPoint = function (i) {
@@ -24721,8 +24719,7 @@ var $author$project$Internal$Svg$getNearestHelp = F5(
 						plane,
 						toPoint(closest),
 						toPoint(item)),
-					$elm$core$Basics$sqrt(
-						A2($elm$core$Basics$pow, radius.x, 2) + A2($elm$core$Basics$pow, radius.y, 2))) < 1;
+					A2($elm$core$Basics$pow, radius.x, 2) + A2($elm$core$Basics$pow, radius.y, 2)) < 1;
 			});
 		var distance = function (item) {
 			return A3(
@@ -24735,11 +24732,11 @@ var $author$project$Internal$Svg$getNearestHelp = F5(
 			function (item, allClosest) {
 				var dis = distance(item);
 				if (allClosest.$ === 'Just') {
-					var _v7 = allClosest.a;
-					var _v8 = _v7.a;
-					var closest = _v8.a;
-					var closestDis = _v8.b;
-					var surrounding = _v7.b;
+					var _v3 = allClosest.a;
+					var _v4 = _v3.a;
+					var closest = _v4.a;
+					var closestDis = _v4.b;
+					var surrounding = _v3.b;
 					return (_Utils_cmp(closestDis, dis) > 0) ? $elm$core$Maybe$Just(
 						_Utils_Tuple2(
 							_Utils_Tuple2(item, dis),
@@ -24757,85 +24754,43 @@ var $author$project$Internal$Svg$getNearestHelp = F5(
 							_List_Nil));
 				}
 			});
-		var _v0 = A2(
-			$elm$core$Debug$log,
-			'max',
-			$elm$core$Basics$sqrt(
-				A2($elm$core$Basics$pow, radius.x, 2) + A2($elm$core$Basics$pow, radius.y, 2)));
 		return A2(
 			$elm$core$Maybe$withDefault,
 			_List_Nil,
 			A2(
 				$elm$core$Maybe$map,
-				function (_v4) {
-					var _v5 = _v4.a;
-					var c = _v5.a;
-					var s = _v4.b;
+				function (_v0) {
+					var _v1 = _v0.a;
+					var c = _v1.a;
+					var s = _v0.b;
 					return A2($elm$core$List$cons, c, s);
 				},
-				A2(
-					$elm$core$Maybe$map,
-					function (_v1) {
-						var _v2 = _v1.a;
-						var c = _v2.a;
-						var dis = _v2.b;
-						var s = _v1.b;
-						var _v3 = A2(
-							$elm$core$Debug$log,
-							'here',
-							_Utils_Tuple3(
-								toPoint(c),
-								dis,
-								A2(
-									$elm$core$List$map,
-									function (r) {
-										return _Utils_Tuple2(
-											toPoint(r),
-											distance(r));
-									},
-									s)));
-						return _Utils_Tuple2(
-							_Utils_Tuple2(c, dis),
-							s);
-					},
-					A3($elm$core$List$foldl, getClosest, $elm$core$Maybe$Nothing, items))));
+				A3($elm$core$List$foldl, getClosest, $elm$core$Maybe$Nothing, items)));
 	});
 var $author$project$Internal$Svg$Point = F2(
 	function (x, y) {
 		return {x: x, y: y};
 	});
-var $author$project$Internal$Svg$getNeutralRadiusX = F2(
+var $author$project$Internal$Svg$getSvgRadiusX = F2(
 	function (plane, radius) {
 		return ($author$project$Internal$Coordinates$range(plane.x) * radius) / plane.x.length;
 	});
-var $author$project$Internal$Svg$getNeutralRadiusY = F2(
+var $author$project$Internal$Svg$getSvgRadiusY = F2(
 	function (plane, radius) {
 		return ($author$project$Internal$Coordinates$range(plane.y) * radius) / plane.y.length;
 	});
-var $author$project$Internal$Svg$getNeutralRadius = F2(
+var $author$project$Internal$Svg$getSvgRadius = F2(
 	function (plane, radius) {
 		return A2(
 			$author$project$Internal$Svg$Point,
-			A2($author$project$Internal$Svg$getNeutralRadiusX, plane, radius),
-			A2($author$project$Internal$Svg$getNeutralRadiusY, plane, radius));
+			A2($author$project$Internal$Svg$getSvgRadiusX, plane, radius),
+			A2($author$project$Internal$Svg$getSvgRadiusY, plane, radius));
 	});
 var $author$project$Internal$Svg$getNearest = F5(
 	function (errorMargin, toPosition, items, plane, searched) {
-		var radius = A2($author$project$Internal$Svg$getNeutralRadius, plane, errorMargin);
+		var radius = A2($author$project$Internal$Svg$getSvgRadius, plane, errorMargin);
 		return A5($author$project$Internal$Svg$getNearestHelp, toPosition, radius, items, plane, searched);
 	});
-var $author$project$Internal$Coordinates$Axis = F7(
-	function (length, marginMin, marginMax, dataMin, dataMax, min, max) {
-		return {dataMax: dataMax, dataMin: dataMin, length: length, marginMax: marginMax, marginMin: marginMin, max: max, min: min};
-	});
-var $author$project$Internal$Coordinates$Plane = F2(
-	function (x, y) {
-		return {x: x, y: y};
-	});
-var $author$project$Internal$Coordinates$neutralPlane = A2(
-	$author$project$Internal$Coordinates$Plane,
-	A7($author$project$Internal$Coordinates$Axis, 100, 0, 0, 0, 100, 0, 100),
-	A7($author$project$Internal$Coordinates$Axis, 100, 0, 0, 0, 100, 0, 100));
 var $author$project$Internal$Events$getNearest = F2(
 	function (errorMargin, grouping) {
 		var toPos = grouping.a;
@@ -24843,13 +24798,7 @@ var $author$project$Internal$Events$getNearest = F2(
 			F3(
 				function (items, plane, searched) {
 					var groups = A2($author$project$Internal$Many$apply, grouping, items);
-					return A5(
-						$author$project$Internal$Svg$getNearest,
-						errorMargin,
-						toPos,
-						groups,
-						plane,
-						A3($author$project$Internal$Coordinates$convertPoint, $author$project$Internal$Coordinates$neutralPlane, plane, searched));
+					return A5($author$project$Internal$Svg$getNearest, errorMargin, toPos, groups, plane, searched);
 				}));
 	});
 var $author$project$Chart$Events$getNearest = $author$project$Internal$Events$getNearest;
@@ -25316,6 +25265,10 @@ var $author$project$Examples$BarCharts$Legends$data = _List_fromArray(
 		A8($author$project$Examples$BarCharts$Legends$Datum, 3.0, 0.6, 1.0, 3.2, 4.8, 5.4, 7.2, 8.3),
 		A8($author$project$Examples$BarCharts$Legends$Datum, 4.0, 0.2, 1.2, 3.0, 4.1, 5.5, 7.9, 8.1)
 	]);
+var $author$project$Internal$Coordinates$Axis = F7(
+	function (length, marginMin, marginMax, dataMin, dataMax, min, max) {
+		return {dataMax: dataMax, dataMin: dataMin, length: length, marginMax: marginMax, marginMin: marginMin, max: max, min: min};
+	});
 var $author$project$Internal$Svg$defaultContainer = {
 	attrs: _List_fromArray(
 		[
@@ -26432,14 +26385,14 @@ var $author$project$Chart$Attributes$pinned = function (value) {
 		});
 };
 var $author$project$Internal$Many$sameX = function () {
-	var fullVertialPosition = function (_v0) {
-		var meta = _v0.a;
-		var item = _v0.b;
+	var fullVertialPosition = function (item) {
+		var plane = $author$project$Internal$Item$getTopLevelPlane(item);
 		return function (pos) {
 			return _Utils_update(
 				pos,
-				{y1: item.localPlane.y.min, y2: item.localPlane.y.max});
-		}(item.position);
+				{y1: plane.y.min, y2: plane.y.max});
+		}(
+			$author$project$Internal$Item$getTopLevelPosition(item));
 	};
 	return A2(
 		$author$project$Internal$Many$Remodel,
@@ -26477,19 +26430,20 @@ var $author$project$Chart$scale = F2(
 					var elements = $author$project$Chart$addGridIfNone(indexedElements);
 					var legends = $author$project$Chart$getLegends(elements);
 					var plane = A2($author$project$Chart$definePlane, planeConfig, elements);
-					var items = A2($author$project$Chart$getItems, plane, elements);
-					var tickValues = A3($author$project$Chart$getTickValues, plane, items, elements);
-					var _v1 = A5($author$project$Chart$viewElements, plane, tickValues, items, legends, elements);
-					var beforeEls = _v1.a;
-					var chartEls = _v1.b;
-					var afterEls = _v1.c;
+					var toItems = function (topLevel) {
+						return A3($author$project$Chart$getItems, topLevel, plane, elements);
+					};
 					return _Utils_Tuple2(
 						A4(
 							$author$project$Chart$ScaleElement,
 							elements,
-							items,
+							toItems,
 							legends,
-							_Utils_Tuple3(beforeEls, chartEls, afterEls)),
+							function (topLevel) {
+								var items = toItems(topLevel);
+								var tickValues = A3($author$project$Chart$getTickValues, plane, items, elements);
+								return A6($author$project$Chart$viewElements, topLevel, plane, tickValues, items, legends, elements);
+							}),
 						newIndex);
 				}));
 	});
@@ -27814,62 +27768,65 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 				var tooltipTextColor = (dotConfig.color === 'white') ? ((dotConfig.border === 'white') ? interpolationConfig.color : dotConfig.border) : dotConfig.color;
 				return _Utils_Tuple2(
 					limits,
-					function (localPlane) {
-						return A2(
-							$author$project$Internal$Item$Rendered,
-							{
-								color: tooltipTextColor,
-								datum: datum,
-								identification: identification,
-								isReal: !_Utils_eq(
-									lineSeriesConfig.toY(datum),
-									$elm$core$Maybe$Nothing),
-								name: lineSeriesConfig.tooltipName,
-								presentation: $author$project$Internal$Item$Dot(dotConfig),
-								toAny: $elm$core$Basics$identity,
-								tooltipText: lineSeriesConfig.tooltipText(datum),
-								x1: x,
-								x2: x,
-								y: y
-							},
-							{
-								limits: limits,
-								localPlane: localPlane,
-								position: function () {
-									var radiusY = A2($author$project$Internal$Coordinates$scaleCartesianY, localPlane, radius);
-									var radiusX = A2($author$project$Internal$Coordinates$scaleCartesianX, localPlane, radius);
-									return {x1: x - radiusX, x2: x + radiusX, y1: y - radiusY, y2: y + radiusY};
-								}(),
-								render: function (_v10) {
-									var _v11 = lineSeriesConfig.toY(datum);
-									if (_v11.$ === 'Nothing') {
-										return $elm$svg$Svg$text('');
-									} else {
-										return A5(
-											$author$project$Internal$Svg$dot,
-											localPlane,
-											function ($) {
-												return $.x;
-											},
-											function ($) {
-												return $.y;
-											},
-											dotConfig,
-											A2($author$project$Internal$Coordinates$Point, x, y));
-									}
+					F2(
+						function (topLevel, localPlane) {
+							var radiusY = A2($author$project$Internal$Coordinates$scaleCartesianY, localPlane, radius);
+							var radiusX = A2($author$project$Internal$Coordinates$scaleCartesianX, localPlane, radius);
+							var position = {x1: x - radiusX, x2: x + radiusX, y1: y - radiusY, y2: y + radiusY};
+							return A2(
+								$author$project$Internal$Item$Rendered,
+								{
+									color: tooltipTextColor,
+									datum: datum,
+									identification: identification,
+									isReal: !_Utils_eq(
+										lineSeriesConfig.toY(datum),
+										$elm$core$Maybe$Nothing),
+									name: lineSeriesConfig.tooltipName,
+									presentation: $author$project$Internal$Item$Dot(dotConfig),
+									toAny: $elm$core$Basics$identity,
+									tooltipText: lineSeriesConfig.tooltipText(datum),
+									x1: x,
+									x2: x,
+									y: y
 								},
-								tooltip: function (_v12) {
-									return _List_fromArray(
-										[
-											A3(
-											$author$project$Internal$Produce$tooltipRow,
-											tooltipTextColor,
-											A2($author$project$Internal$Produce$toDefaultName, identification, lineSeriesConfig.tooltipName),
-											lineSeriesConfig.tooltipText(datum))
-										]);
-								}
-							});
-					});
+								{
+									limits: limits,
+									limitsTop: A3($author$project$Internal$Coordinates$convertPos, topLevel, localPlane, limits),
+									localPlane: localPlane,
+									planeTop: topLevel,
+									position: position,
+									positionTop: A3($author$project$Internal$Coordinates$convertPos, topLevel, localPlane, position),
+									render: function (_v11) {
+										var _v12 = lineSeriesConfig.toY(datum);
+										if (_v12.$ === 'Nothing') {
+											return $elm$svg$Svg$text('');
+										} else {
+											return A5(
+												$author$project$Internal$Svg$dot,
+												localPlane,
+												function ($) {
+													return $.x;
+												},
+												function ($) {
+													return $.y;
+												},
+												dotConfig,
+												A2($author$project$Internal$Coordinates$Point, x, y));
+										}
+									},
+									tooltip: function (_v13) {
+										return _List_fromArray(
+											[
+												A3(
+												$author$project$Internal$Produce$tooltipRow,
+												tooltipTextColor,
+												A2($author$project$Internal$Produce$toDefaultName, identification, lineSeriesConfig.tooltipName),
+												lineSeriesConfig.tooltipText(datum))
+											]);
+									}
+								});
+						}));
 			});
 		var forEachLine = F5(
 			function (isStacked, absoluteIndex, stackSeriesConfigIndex, lineSeriesConfigIndex, lineSeriesConfig) {
@@ -27923,61 +27880,67 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 									A2($elm$core$List$map, $author$project$Internal$Item$render, dotItems))
 								]));
 					});
-				var _v7 = $elm$core$List$unzip(
+				var _v8 = $elm$core$List$unzip(
 					A2(
 						$elm$core$List$indexedMap,
 						A7(forEachDataPoint, absoluteIndexNew, stackSeriesConfigIndex, lineSeriesConfigIndex, lineSeriesConfig, interpolationConfig, defaultColor, defaultOpacity),
 						data));
-				var limits = _v7.a;
-				var toDotItems = _v7.b;
+				var limits = _v8.a;
+				var toDotItems = _v8.b;
 				return _Utils_Tuple2(
 					limits,
-					function (localPlane) {
-						var dotItems = A2(
-							$elm$core$List$map,
-							function (i) {
-								return i(localPlane);
-							},
-							toDotItems);
-						return A2(
-							$author$project$Internal$Helpers$withFirst,
-							dotItems,
-							F2(
-								function (first, rest) {
-									return A2(
-										$author$project$Internal$Item$Rendered,
-										_Utils_Tuple2(first, rest),
-										{
-											limits: A2($author$project$Internal$Coordinates$foldPosition, $author$project$Internal$Item$getLimits, dotItems),
-											localPlane: localPlane,
-											position: A2($author$project$Internal$Coordinates$foldPosition, $author$project$Internal$Item$getPosition, dotItems),
-											render: function (_v8) {
-												return A2(viewSeries, localPlane, dotItems);
-											},
-											tooltip: function (_v9) {
-												return _List_fromArray(
-													[
-														A2(
-														$elm$html$Html$table,
-														_List_fromArray(
-															[
-																A2($elm$html$Html$Attributes$style, 'margin', '0')
-															]),
-														A2($elm$core$List$concatMap, $author$project$Internal$Item$tooltip, dotItems))
-													]);
-											}
-										});
-								}));
-					});
+					F2(
+						function (topLevel, localPlane) {
+							var dotItems = A2(
+								$elm$core$List$map,
+								function (i) {
+									return A2(i, topLevel, localPlane);
+								},
+								toDotItems);
+							return A2(
+								$author$project$Internal$Helpers$withFirst,
+								dotItems,
+								F2(
+									function (first, rest) {
+										var groupPosition = A2($author$project$Internal$Coordinates$foldPosition, $author$project$Internal$Item$getPosition, dotItems);
+										var groupLimits = A2($author$project$Internal$Coordinates$foldPosition, $author$project$Internal$Item$getLimits, dotItems);
+										return A2(
+											$author$project$Internal$Item$Rendered,
+											_Utils_Tuple2(first, rest),
+											{
+												limits: groupLimits,
+												limitsTop: A3($author$project$Internal$Coordinates$convertPos, topLevel, localPlane, groupLimits),
+												localPlane: localPlane,
+												planeTop: topLevel,
+												position: groupPosition,
+												positionTop: A3($author$project$Internal$Coordinates$convertPos, topLevel, localPlane, groupPosition),
+												render: function (_v9) {
+													return A2(viewSeries, localPlane, dotItems);
+												},
+												tooltip: function (_v10) {
+													return _List_fromArray(
+														[
+															A2(
+															$elm$html$Html$table,
+															_List_fromArray(
+																[
+																	A2($elm$html$Html$Attributes$style, 'margin', '0')
+																]),
+															A2($elm$core$List$concatMap, $author$project$Internal$Item$tooltip, dotItems))
+														]);
+												}
+											});
+									}));
+						}));
 			});
 		var forEachStackSeriesConfig = F2(
-			function (stackSeriesConfig, _v5) {
-				var absoluteIndex = _v5.a;
-				var stackSeriesConfigIndex = _v5.b;
-				var _v6 = _v5.c;
-				var limits = _v6.a;
-				var items = _v6.b;
-				var _v3 = $elm$core$List$unzip(
+			function (stackSeriesConfig, _v6) {
+				var absoluteIndex = _v6.a;
+				var stackSeriesConfigIndex = _v6.b;
+				var _v7 = _v6.c;
+				var limits = _v7.a;
+				var items = _v7.b;
+				var _v4 = $elm$core$List$unzip(
 					function () {
 						if (stackSeriesConfig.$ === 'NotStacked') {
 							var lineSeriesConfig = stackSeriesConfig.a;
@@ -27993,8 +27956,8 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 								lineSeriesConfigs);
 						}
 					}());
-				var newLimits = _v3.a;
-				var lineItems = _v3.b;
+				var newLimits = _v4.a;
+				var lineItems = _v4.b;
 				return _Utils_Tuple3(
 					absoluteIndex + $elm$core$List$length(lineItems),
 					stackSeriesConfigIndex + 1,
@@ -28002,25 +27965,26 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 						_Utils_ap(
 							limits,
 							$elm$core$List$concat(newLimits)),
-						function (localPlane) {
-							return _Utils_ap(
-								items(localPlane),
-								A2(
-									$elm$core$List$filterMap,
-									$elm$core$Basics$identity,
+						F2(
+							function (topLevel, localPlane) {
+								return _Utils_ap(
+									A2(items, topLevel, localPlane),
 									A2(
-										$elm$core$List$map,
-										function (i) {
-											return i(localPlane);
-										},
-										lineItems)));
-						}));
+										$elm$core$List$filterMap,
+										$elm$core$Basics$identity,
+										A2(
+											$elm$core$List$map,
+											function (i) {
+												return A2(i, topLevel, localPlane);
+											},
+											lineItems)));
+							})));
 			});
-		return function (_v1) {
-			var newElementIndex = _v1.a;
-			var _v2 = _v1.c;
-			var limits = _v2.a;
-			var items = _v2.b;
+		return function (_v2) {
+			var newElementIndex = _v2.a;
+			var _v3 = _v2.c;
+			var limits = _v3.a;
+			var items = _v3.b;
 			return _Utils_Tuple3(newElementIndex, limits, items);
 		}(
 			A3(
@@ -28031,9 +27995,10 @@ var $author$project$Internal$Produce$toDotSeries = F4(
 					0,
 					_Utils_Tuple2(
 						_List_Nil,
-						function (_v0) {
-							return _List_Nil;
-						})),
+						F2(
+							function (_v0, _v1) {
+								return _List_Nil;
+							}))),
 				properties));
 	});
 var $author$project$Chart$seriesMap = F4(
@@ -28046,37 +28011,39 @@ var $author$project$Chart$seriesMap = F4(
 					var newElementIndex = _v1.a;
 					var limits = _v1.b;
 					var items = _v1.c;
-					var toItems = function (localPlane) {
-						return A2(
-							$elm$core$List$concatMap,
-							A2(
-								$elm$core$Basics$composeR,
-								$author$project$Internal$Many$getMembers,
-								$elm$core$List$map(
-									$author$project$Internal$Item$map(mapData))),
-							items(localPlane));
-					};
+					var toItems = F2(
+						function (topLevel, localPlane) {
+							return A2(
+								$elm$core$List$concatMap,
+								A2(
+									$elm$core$Basics$composeR,
+									$author$project$Internal$Many$getMembers,
+									$elm$core$List$map(
+										$author$project$Internal$Item$map(mapData))),
+								A2(items, topLevel, localPlane));
+						});
 					return _Utils_Tuple2(
 						A4(
 							$author$project$Chart$SeriesElement,
 							A2($author$project$Internal$Coordinates$foldPosition, $elm$core$Basics$identity, limits),
 							toItems,
 							legends,
-							function (p) {
-								return A2(
-									$elm$svg$Svg$map,
-									$elm$core$Basics$never,
-									A2(
-										$elm$svg$Svg$g,
-										_List_fromArray(
-											[
-												$elm$svg$Svg$Attributes$class('elm-charts__dot-series')
-											]),
+							F2(
+								function (topLevel, p) {
+									return A2(
+										$elm$svg$Svg$map,
+										$elm$core$Basics$never,
 										A2(
-											$elm$core$List$map,
-											$author$project$Internal$Item$render,
-											items(p))));
-							}),
+											$elm$svg$Svg$g,
+											_List_fromArray(
+												[
+													$elm$svg$Svg$Attributes$class('elm-charts__dot-series')
+												]),
+											A2(
+												$elm$core$List$map,
+												$author$project$Internal$Item$render,
+												A2(items, topLevel, p))));
+								})),
 						newElementIndex);
 				}));
 	});
@@ -28327,53 +28294,58 @@ var $author$project$Chart$custom = function (config) {
 	return $author$project$Chart$Indexed(
 		F2(
 			function (_v0, elIndex) {
-				var item = function (plane) {
-					return A2(
-						$author$project$Internal$Item$Rendered,
-						{
-							color: config.color,
-							datum: config.data,
-							identification: {absoluteIndex: -1, dataIndex: -1, elementIndex: elIndex, seriesIndex: -1, stackIndex: -1},
-							isReal: true,
-							name: $elm$core$Maybe$Just(config.name),
-							presentation: $author$project$Internal$Item$Custom,
-							toAny: $elm$core$Basics$always($author$project$Internal$Item$Custom),
-							tooltipText: config.format(config.data),
-							x1: config.position.x1,
-							x2: config.position.x2,
-							y: config.position.y2
-						},
-						{
-							limits: config.position,
-							localPlane: plane,
-							position: config.position,
-							render: function (_v1) {
-								return config.render(plane);
+				var item = F2(
+					function (topLevel, plane) {
+						return A2(
+							$author$project$Internal$Item$Rendered,
+							{
+								color: config.color,
+								datum: config.data,
+								identification: {absoluteIndex: -1, dataIndex: -1, elementIndex: elIndex, seriesIndex: -1, stackIndex: -1},
+								isReal: true,
+								name: $elm$core$Maybe$Just(config.name),
+								presentation: $author$project$Internal$Item$Custom,
+								toAny: $elm$core$Basics$always($author$project$Internal$Item$Custom),
+								tooltipText: config.format(config.data),
+								x1: config.position.x1,
+								x2: config.position.x2,
+								y: config.position.y2
 							},
-							tooltip: function (_v2) {
-								return _List_fromArray(
-									[
-										A3(
-										$author$project$Internal$Produce$tooltipRow,
-										config.color,
-										config.name,
-										config.format(config.data))
-									]);
-							}
-						});
-				};
+							{
+								limits: config.position,
+								limitsTop: A3($author$project$Internal$Coordinates$convertPos, topLevel, plane, config.position),
+								localPlane: plane,
+								planeTop: topLevel,
+								position: config.position,
+								positionTop: A3($author$project$Internal$Coordinates$convertPos, topLevel, plane, config.position),
+								render: function (_v1) {
+									return config.render(plane);
+								},
+								tooltip: function (_v2) {
+									return _List_fromArray(
+										[
+											A3(
+											$author$project$Internal$Produce$tooltipRow,
+											config.color,
+											config.name,
+											config.format(config.data))
+										]);
+								}
+							});
+					});
 				return _Utils_Tuple2(
 					A3(
 						$author$project$Chart$CustomElement,
 						config.position,
 						item,
-						function (p) {
-							return A2(
-								$elm$svg$Svg$map,
-								$elm$core$Basics$never,
-								$author$project$Internal$Item$render(
-									item(p)));
-						}),
+						F2(
+							function (topLevel, p) {
+								return A2(
+									$elm$svg$Svg$map,
+									$elm$core$Basics$never,
+									$author$project$Internal$Item$render(
+										A2(item, topLevel, p)));
+							})),
 					elIndex + 1);
 			}));
 };
@@ -30800,7 +30772,7 @@ var $author$project$Internal$Many$dots = function () {
 	var centerPosition = function (item) {
 		return $author$project$Internal$Many$fromPoint(
 			$author$project$Internal$Coordinates$center(
-				$author$project$Internal$Item$getPosition(item)));
+				$author$project$Internal$Item$getTopLevelPosition(item)));
 	};
 	return A2(
 		$author$project$Internal$Many$Remodel,
@@ -40638,7 +40610,7 @@ var $author$project$Internal$Svg$getNearestXHelp = F5(
 	});
 var $author$project$Internal$Svg$getNearestX = F5(
 	function (errorMargin, toPosition, items, plane, searched) {
-		var radius = A2($author$project$Internal$Svg$getNeutralRadius, plane, errorMargin);
+		var radius = A2($author$project$Internal$Svg$getSvgRadius, plane, errorMargin);
 		return A5($author$project$Internal$Svg$getNearestXHelp, toPosition, radius, items, plane, searched);
 	});
 var $author$project$Internal$Events$getNearestX = F2(
@@ -40648,13 +40620,7 @@ var $author$project$Internal$Events$getNearestX = F2(
 			F3(
 				function (items, plane, searched) {
 					var groups = A2($author$project$Internal$Many$apply, grouping, items);
-					return A5(
-						$author$project$Internal$Svg$getNearestX,
-						errorMargin,
-						toPos,
-						groups,
-						plane,
-						A3($author$project$Internal$Coordinates$convertPoint, $author$project$Internal$Coordinates$neutralPlane, plane, searched));
+					return A5($author$project$Internal$Svg$getNearestX, errorMargin, toPos, groups, plane, searched);
 				}));
 	});
 var $author$project$Chart$Events$getNearestX = $author$project$Internal$Events$getNearestX;
@@ -40673,7 +40639,7 @@ var $author$project$Internal$Svg$getWithinX = F5(
 				toPosition(i),
 				searched);
 		};
-		var radius = A2($author$project$Internal$Svg$getNeutralRadius, plane, errorMargin);
+		var radius = A2($author$project$Internal$Svg$getSvgRadius, plane, errorMargin);
 		var keepIfEligible = A2(
 			$elm$core$Basics$composeL,
 			A3($author$project$Internal$Svg$withinRadiusX, plane, radius, searched),
@@ -40690,13 +40656,7 @@ var $author$project$Internal$Events$getWithinX = F2(
 			F3(
 				function (items, plane, searched) {
 					var groups = A2($author$project$Internal$Many$apply, grouping, items);
-					return A5(
-						$author$project$Internal$Svg$getWithinX,
-						errorMargin,
-						toPos,
-						groups,
-						plane,
-						A3($author$project$Internal$Coordinates$convertPoint, $author$project$Internal$Coordinates$neutralPlane, plane, searched));
+					return A5($author$project$Internal$Svg$getWithinX, errorMargin, toPos, groups, plane, searched);
 				}));
 	});
 var $author$project$Chart$Events$getWithinX = $author$project$Internal$Events$getWithinX;

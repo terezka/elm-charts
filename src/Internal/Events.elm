@@ -66,7 +66,7 @@ getNearest : Float -> M.Remodel (I.One data I.Any) (I.Rendered result) -> Decode
 getNearest errorMargin (M.Remodel toPos _ as grouping) =
   Decoder <| \items plane searched ->
     let groups = M.apply grouping items in
-    CS.getNearest errorMargin toPos groups plane (C.convertPoint C.neutralPlane plane searched)
+    CS.getNearest errorMargin toPos groups plane searched
 
 
 {-| -}
@@ -74,7 +74,7 @@ getWithin : Float -> M.Remodel (I.One data I.Any) (I.Rendered result) -> Decoder
 getWithin errorMargin (M.Remodel toPos _ as grouping) =
   Decoder <| \items plane searched ->
     let groups = M.apply grouping items in
-    CS.getWithin errorMargin toPos groups plane (C.convertPoint C.neutralPlane plane searched)
+    CS.getWithin errorMargin toPos groups plane searched
 
 
 {-| -}
@@ -82,7 +82,7 @@ getNearestX : Float -> M.Remodel (I.One data I.Any) (I.Rendered result) -> Decod
 getNearestX errorMargin (M.Remodel toPos _ as grouping) =
   Decoder <| \items plane searched ->
     let groups = M.apply grouping items in
-    CS.getNearestX errorMargin toPos groups plane (C.convertPoint C.neutralPlane plane searched)
+    CS.getNearestX errorMargin toPos groups plane searched
 
 
 {-| -}
@@ -90,7 +90,7 @@ getWithinX : Float -> M.Remodel (I.One data I.Any) (I.Rendered result) -> Decode
 getWithinX errorMargin (M.Remodel toPos _ as grouping) =
   Decoder <| \items plane searched ->
     let groups = M.apply grouping items in
-    CS.getWithinX errorMargin toPos groups plane (C.convertPoint C.neutralPlane plane searched)
+    CS.getWithinX errorMargin toPos groups plane searched
 
 
 {-| -}

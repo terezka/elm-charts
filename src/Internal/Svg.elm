@@ -5,7 +5,7 @@ import Html.Attributes as HA
 import Svg as S exposing (Svg)
 import Svg.Attributes as SA
 import Svg.Events as SE
-import Internal.Coordinates as Coord exposing (neutralPlane)
+import Internal.Coordinates as Coord
 import Internal.Commands as C exposing (..)
 import Internal.Interpolation as Interpolation
 import Intervals as I
@@ -1700,12 +1700,12 @@ closestPoint pos searched =
 
 getSvgRadiusX : Plane -> Float -> Float
 getSvgRadiusX plane radius = 
-  (Coord.range Coord.neutralPlane.x) * radius / plane.x.length
+  (Coord.range plane.x) * radius / plane.x.length
 
 
 getSvgRadiusY : Plane -> Float -> Float
 getSvgRadiusY plane radius = 
-  (Coord.range Coord.neutralPlane.y) * radius / plane.y.length
+  (Coord.range plane.y) * radius / plane.y.length
 
 
 getSvgRadius : Plane -> Float -> Point

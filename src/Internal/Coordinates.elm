@@ -147,13 +147,6 @@ type alias Limit =
   }
 
 
-neutralPlane : Plane
-neutralPlane =
-  Plane 
-    (Axis 100 0 0 0 100 0 100) 
-    (Axis 100 0 0 0 100 0 100)
-
-
 
 -- ID
 
