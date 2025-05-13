@@ -134,6 +134,7 @@ type alias Axis =
   , dataMax : Float
   , min : Float
   , max : Float
+  , flip : Bool
   }
 
 
@@ -179,12 +180,14 @@ toId plane =
 -}
 scaleSVGX : Plane -> Float -> Float
 scaleSVGX plane value =
-  value * (innerWidth plane) / (range plane.x)
+  let range_ = range plane.x in
+  (if plane.x.flip then range_ - value else value) * (innerWidth plane) / range_
 
 
 scaleSVGY : Plane -> Float -> Float
 scaleSVGY plane value =
-  value * (innerHeight plane) / (range plane.y)
+  let range_ = range plane.y in
+  (if plane.y.flip then range_ - value else value) * (innerHeight plane) / range_
 
 
 {-| Translate a SVG x-coordinate to its cartesian x-coordinate.
@@ -223,14 +226,18 @@ scaleCartesian axis value =
 -}
 toCartesianX : Plane -> Float -> Float
 toCartesianX plane value =
-  scaleCartesianX plane (value - plane.x.marginMin) + plane.x.min
+  if plane.x.flip
+    then range plane.x - scaleCartesianX plane (value - plane.x.marginMin) + plane.x.min
+    else scaleCartesianX plane (value - plane.x.marginMin) + plane.x.min
 
 
 {-| Translate a cartesian y-coordinate to its SVG y-coordinate.
 -}
 toCartesianY : Plane -> Float -> Float
 toCartesianY plane value =
-  range plane.y - scaleCartesianY plane (value - plane.y.marginMin) + plane.y.min
+  if plane.y.flip
+    then scaleCartesianY plane (value - plane.y.marginMin) + plane.y.min
+    else range plane.y - scaleCartesianY plane (value - plane.y.marginMin) + plane.y.min
 
 
 
@@ -256,4 +263,3 @@ innerHeight plane =
 innerLength : Axis -> Float
 innerLength axis =
   max 1 (axis.length - axis.marginMin - axis.marginMax)
-
