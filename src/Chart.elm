@@ -1,5 +1,5 @@
 module Chart exposing
-  ( chart
+  ( chart, chartAndPlane
 
   , Element, bars, series, seriesMap, barsMap
   , list, custom
@@ -245,6 +245,12 @@ Explore live examples for the following attributes:
 -}
 chart : List (Attribute (Container data msg)) -> List (Element data msg) -> H.Html msg
 chart edits unindexedElements =
+  Tuple.first (chartAndPlane edits unindexedElements)
+
+
+{-| Like chart, except it also returns the plane generated from the data in the chart. -}
+chartAndPlane : List (Attribute (Container data msg)) -> List (Element data msg) -> ( H.Html msg, Plane )
+chartAndPlane edits unindexedElements =
   let config =
         Helpers.apply edits
           { width = 300
@@ -302,7 +308,7 @@ chart edits unindexedElements =
         let (IE.Decoder decoder) = event_.decoder in
         IS.Event event_.name (decoder items)
   in
-  IS.container plane
+  ( IS.container plane
     { attrs = config.attrs
     , htmlAttrs = config.htmlAttrs
     , responsive = config.responsive
@@ -311,6 +317,8 @@ chart edits unindexedElements =
     beforeEls
     chartEls
     afterEls
+  , plane
+  )
 
 
 
