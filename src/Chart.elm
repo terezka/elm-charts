@@ -74,7 +74,7 @@ In the examples throughout the documentation, I will assume the imports:
 
 
 # The frame
-@docs chart
+@docs chart, chartAndPlane
 @docs Element
 
 # Chart elements
