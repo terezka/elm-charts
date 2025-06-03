@@ -46,8 +46,8 @@ view model =
     , CA.width 300
     , CE.on "mousemove" <|
         CE.map2 OnHover
-          (CE.getNearest 0 CI.dots)
-          (CE.getNearest 0 CI.bars)
+          (CE.getNearest CI.dots)
+          (CE.getNearest CI.bars)
     , CE.onMouseLeave
         (OnHover [] [])
     ]

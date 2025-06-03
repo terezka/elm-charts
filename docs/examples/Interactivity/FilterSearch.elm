@@ -38,7 +38,7 @@ view model =
     , CA.padding { top = 0, bottom = 0, left = 10, right = 10 }
     , CI.dots
         |> CI.andThen CI.stacks
-        |> CE.getNearest 0
+        |> CE.getNearest
         |> CE.onMouseMove OnHover
     , CE.onMouseLeave (OnHover [])
     ]

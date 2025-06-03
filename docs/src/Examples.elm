@@ -81,7 +81,7 @@ import Examples.Interactivity.Offset as Example70
 import Examples.Interactivity.DoubleSearch as Example71
 import Examples.Interactivity.ChangeUnit as Example72
 import Examples.Interactivity.Focal as Example73
-import Examples.Interactivity.GetNearestAndSurrounding as Example74
+import Examples.Interactivity.GetNearestAndNearby as Example74
 import Examples.LineCharts.Area as Example75
 import Examples.LineCharts.Gradient as Example76
 import Examples.LineCharts.Width as Example77
@@ -196,7 +196,7 @@ type Id
   | Interactivity__DoubleSearch
   | Interactivity__ChangeUnit
   | Interactivity__Focal
-  | Interactivity__GetNearestAndSurrounding
+  | Interactivity__GetNearestAndNearby
   | LineCharts__Area
   | LineCharts__Gradient
   | LineCharts__Width
@@ -775,7 +775,7 @@ view model chosen =
     Interactivity__DoubleSearch -> Html.map ExampleMsg71 (Example71.view model.example71)
     Interactivity__ChangeUnit -> Html.map ExampleMsg72 (Example72.view model.example72)
     Interactivity__Focal -> Html.map ExampleMsg73 (Example73.view model.example73)
-    Interactivity__GetNearestAndSurrounding -> Html.map ExampleMsg74 (Example74.view model.example74)
+    Interactivity__GetNearestAndNearby -> Html.map ExampleMsg74 (Example74.view model.example74)
     LineCharts__Area -> Html.map ExampleMsg75 (Example75.view model.example75)
     LineCharts__Gradient -> Html.map ExampleMsg76 (Example76.view model.example76)
     LineCharts__Width -> Html.map ExampleMsg77 (Example77.view model.example77)
@@ -892,7 +892,7 @@ smallCode chosen =
     Interactivity__DoubleSearch -> Example71.smallCode
     Interactivity__ChangeUnit -> Example72.smallCode
     Interactivity__Focal -> Example73.smallCode
-    Interactivity__GetNearestAndSurrounding -> Example74.smallCode
+    Interactivity__GetNearestAndNearby -> Example74.smallCode
     LineCharts__Area -> Example75.smallCode
     LineCharts__Gradient -> Example76.smallCode
     LineCharts__Width -> Example77.smallCode
@@ -1009,7 +1009,7 @@ largeCode chosen =
     Interactivity__DoubleSearch -> Example71.largeCode
     Interactivity__ChangeUnit -> Example72.largeCode
     Interactivity__Focal -> Example73.largeCode
-    Interactivity__GetNearestAndSurrounding -> Example74.largeCode
+    Interactivity__GetNearestAndNearby -> Example74.largeCode
     LineCharts__Area -> Example75.largeCode
     LineCharts__Gradient -> Example76.largeCode
     LineCharts__Width -> Example77.largeCode
@@ -1126,7 +1126,7 @@ name chosen =
     Interactivity__DoubleSearch -> "Examples.Interactivity.DoubleSearch"
     Interactivity__ChangeUnit -> "Examples.Interactivity.ChangeUnit"
     Interactivity__Focal -> "Examples.Interactivity.Focal"
-    Interactivity__GetNearestAndSurrounding -> "Examples.Interactivity.GetNearestAndSurrounding"
+    Interactivity__GetNearestAndNearby -> "Examples.Interactivity.GetNearestAndNearby"
     LineCharts__Area -> "Examples.LineCharts.Area"
     LineCharts__Gradient -> "Examples.LineCharts.Gradient"
     LineCharts__Width -> "Examples.LineCharts.Width"
@@ -1242,7 +1242,7 @@ meta chosen =
     Interactivity__DoubleSearch -> Example71.meta
     Interactivity__ChangeUnit -> Example72.meta
     Interactivity__Focal -> Example73.meta
-    Interactivity__GetNearestAndSurrounding -> Example74.meta
+    Interactivity__GetNearestAndNearby -> Example74.meta
     LineCharts__Area -> Example75.meta
     LineCharts__Gradient -> Example76.meta
     LineCharts__Width -> Example77.meta
@@ -1358,7 +1358,7 @@ all =
   , Interactivity__DoubleSearch
   , Interactivity__ChangeUnit
   , Interactivity__Focal
-  , Interactivity__GetNearestAndSurrounding
+  , Interactivity__GetNearestAndNearby
   , LineCharts__Area
   , LineCharts__Gradient
   , LineCharts__Width

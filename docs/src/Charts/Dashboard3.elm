@@ -54,7 +54,7 @@ view model =
     , CA.width 225
     , CA.margin { top = 0, bottom = 18, left = 0, right = 0 }
     , CA.padding { top = 10, bottom = 0, left = 8, right = 0 }
-    , CE.onMouseMove OnHover (CE.getNearestX 0 CI.dots)
+    , CE.onMouseMove OnHover (CE.getNearestX CI.dots)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.xLabels [ CA.times Time.utc, CA.uppercase, CA.fontSize 9, CA.amount 10 ]

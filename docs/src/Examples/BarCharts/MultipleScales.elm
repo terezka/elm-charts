@@ -37,7 +37,7 @@ view model =
     [ CA.height 300
     , CA.width 300
     , CA.padding { top = 0, left = 30, right = 30, bottom = 0 }
-    , CE.onMouseMove OnHover (CI.bars |> CI.andThen CI.sameX |> CE.getNearest 0)
+    , CE.onMouseMove OnHover (CI.bars |> CI.andThen CI.sameX |> CE.getNearest)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.xLabels [ CA.ints ]
@@ -90,7 +90,7 @@ smallCode =
     [ CA.height 300
     , CA.width 300
     , CA.padding { top = 0, left = 30, right = 30, bottom = 0 }
-    , CE.onMouseMove OnHover (CI.bars |> CI.andThen CI.sameX |> CE.getNearest 0)
+    , CE.onMouseMove OnHover (CI.bars |> CI.andThen CI.sameX |> CE.getNearest)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.xLabels [ CA.ints ]
@@ -145,7 +145,7 @@ view model =
     [ CA.height 300
     , CA.width 300
     , CA.padding { top = 0, left = 30, right = 30, bottom = 0 }
-    , CE.onMouseMove OnHover (CI.bars |> CI.andThen CI.sameX |> CE.getNearest 0)
+    , CE.onMouseMove OnHover (CI.bars |> CI.andThen CI.sameX |> CE.getNearest)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.xLabels [ CA.ints ]

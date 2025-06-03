@@ -1564,32 +1564,21 @@ positionHtml plane x y xOff yOff attrs content =
 
 
 {-| -}
-getNearest : Float -> (a -> Position) -> List a -> Plane -> Point -> List a
-getNearest radius toPosition items plane searched =
-  getNearestHelp toPosition radius items plane searched
+getNearest : (a -> Position) -> List a -> Plane -> Point -> List a
+getNearest =
+  getNearestHelp
 
 
-getNearestAndSurrounding : Float -> (a -> Position) -> List a -> Plane -> Point -> (List a, List a)
-getNearestAndSurrounding radius toPosition items plane searched =
-  let toPoint i =
-        closestPoint (toPosition i) searched
+{-| -}
+getNearestX : (a -> Position) -> List a -> Plane -> Point -> List a
+getNearestX =
+  getNearestXHelp
 
-      distance a b =
-        distanceSquared plane a (toPoint b)
 
-      keepIfEligible =
-        withinRadius plane radius
 
-      closest =
-        getNearestHelp toPosition radius items plane searched
-  in
-  case closest of 
-    first :: rest ->
-      let nearest = toPoint first in
-      ( closest, List.filter (keepIfEligible nearest << toPoint) items )
-
-    [] -> 
-      ([], [])
+getNearestAndNearby : Float -> (a -> Position) -> List a -> Plane -> Point -> ( List a, List a )
+getNearestAndNearby =
+  getNearestAndNearbyHelp
 
 
 {-| -}
@@ -1601,14 +1590,8 @@ getWithin radius toPosition items plane searched =
         keepIfEligible closest =
           withinRadius plane radius searched (toPoint closest)
     in
-    getNearestHelp toPosition radius items plane searched
+    getNearestHelp toPosition items plane searched
       |> List.filter keepIfEligible
-
-
-{-| -}
-getNearestX : Float -> (a -> Position) -> List a -> Plane -> Point -> List a
-getNearestX radius toPosition items plane searched =
-  getNearestXHelp toPosition radius items plane searched
 
 
 {-| -}
@@ -1620,12 +1603,12 @@ getWithinX radius toPosition items plane searched =
         keepIfEligible =
           withinRadiusX plane radius searched << toPoint
     in
-    getNearestXHelp toPosition radius items plane searched
+    getNearestXHelp toPosition items plane searched
       |> List.filter keepIfEligible
 
 
-getNearestHelp : (a -> Position) -> Float -> List a -> Plane -> Point -> List a
-getNearestHelp toPosition radius items plane searched =
+getNearestHelp : (a -> Position) -> List a -> Plane -> Point -> List a
+getNearestHelp toPosition items plane searched =
   let toPoint i =
         closestPoint (toPosition i) searched
 
@@ -1649,8 +1632,8 @@ getNearestHelp toPosition radius items plane searched =
     |> keepOne toPosition
 
 
-getNearestXHelp : (a -> Position) -> Float -> List a -> Plane -> Point -> List a
-getNearestXHelp toPosition radius items plane searched =
+getNearestXHelp : (a -> Position) -> List a -> Plane -> Point -> List a
+getNearestXHelp toPosition items plane searched =
   let toPoint i =
         closestPoint (toPosition i) searched
 
@@ -1672,6 +1655,35 @@ getNearestXHelp toPosition radius items plane searched =
   in
   List.foldl getClosest [] items
     |> keepOne toPosition
+
+
+getNearestAndNearbyHelp : Float -> (a -> Position) -> List a -> Plane -> Point -> ( List a, List a )
+getNearestAndNearbyHelp radius toPosition items plane searched =
+  let toPoint i =
+        closestPoint (toPosition i) searched
+
+      distance item =
+        distanceSquared plane searched (toPoint item)
+
+      getClosest item acc =
+        let dis = distance item in
+        case acc of
+          Just ( ( nearest, nearestDis ), equals, nearby ) ->
+            if toPoint nearest == toPoint item then 
+              Just ( ( nearest, nearestDis ), item :: equals, nearby )
+            else if nearestDis > dis then 
+              Just ( ( item, dis ), [], List.filter (withinRadius plane radius (toPoint item) << toPoint) (nearest :: nearby) )
+            else if withinRadius plane radius (toPoint nearest) (toPoint item) then
+              Just ( ( nearest, nearestDis ), [], item :: nearby )
+            else
+              acc
+
+          Nothing ->
+            Just ( ( item, dis ), [], [] )
+  in
+  List.foldl getClosest Nothing items
+    |> Maybe.map (\(( nearest, _), equals, nearby ) -> ( nearest :: equals, nearby ))
+    |> Maybe.withDefault ([], [])
 
 
 distanceX : Plane -> Point -> Point -> Float

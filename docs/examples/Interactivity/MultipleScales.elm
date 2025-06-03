@@ -49,29 +49,12 @@ view model =
     , CE.on "mousemove" <|
         CE.map2 OnMouseMove
           CE.getCoords
-          (CE.getNearestAndSurrounding 50 CI.dots)
+          (CE.getNearestAndNearby 10 CI.dots)
     , CE.onMouseLeave OnMouseLeave
     ]
     [ C.xLabels []
     , C.yLabels [ CA.pinned .min, CA.color CA.pink ]
     , C.yAxis [ CA.pinned .min ]
-    , case model.coords of
-        Just coords ->
-          C.svg <| \p ->
-            let pointSvg = CS.fromCartesian p coords in
-            S.g []
-              [ S.circle
-                  [ SA.r "50"
-                  , SA.fill "#EEE"
-                  , SA.fillOpacity "0.5"
-                  , SA.cx (String.fromFloat pointSvg.x)
-                  , SA.cy (String.fromFloat pointSvg.y)
-                  ]
-                  []
-              ]
-
-        Nothing ->
-          C.none
     , C.scale 
         []
         [ C.series .x 
@@ -108,16 +91,16 @@ type alias Datum =
 
 data : List Datum
 data =
-  [ Datum 0.1 690 95
-  , Datum 0.2 620 67
+  [ Datum 0.1 600 100
+  , Datum 0.2 520 67
   , Datum 0.8 520 81
-  , Datum 1.0 570 78
+  , Datum 1.0 300 50
   , Datum 1.2 590 82
   , Datum 2.0 345 81
   , Datum 2.3 510 70
   , Datum 2.8 390 95
   , Datum 3.0 460 69
-  , Datum 4.0 530 70
+  , Datum 4.0 500 70
   ]
 {-| @LARGE END -}
 
