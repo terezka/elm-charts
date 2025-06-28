@@ -5634,14 +5634,14 @@ var $elm$core$Basics$negate = function (n) {
 };
 var $author$project$Examples$Interactivity$Coordinates$meta = {category: 'Interactivity', categoryOrder: 5, description: 'Get the hovered coordinates.', name: 'Basic coordinates', order: -1};
 var $author$project$Examples$Interactivity$Direction$meta = {category: 'Interactivity', categoryOrder: 5, description: 'Change direction of tooltip.', name: 'Direction', order: 8};
-var $author$project$Examples$Interactivity$DoubleSearch$meta = {category: 'Interactivity', categoryOrder: 5, description: 'Add more than one search.', name: 'Multiple tooltips', order: 17};
+var $author$project$Examples$Interactivity$DoubleSearch$meta = {category: 'Interactivity', categoryOrder: 5, description: 'Add more than one search.', name: 'Multiple tooltips', order: 17.5};
 var $author$project$Examples$Interactivity$FilterSearch$meta = {category: 'Interactivity', categoryOrder: 5, description: 'Narrow down tooltip item search.', name: 'Filter item search', order: 15};
 var $author$project$Examples$Interactivity$Focal$meta = {category: 'Interactivity', categoryOrder: 5, description: 'Determine where tooltip is placed in relation to item.', name: 'Set focal point', order: 11};
 var $author$project$Examples$Interactivity$GetAllWithin$meta = {category: 'Interactivity', categoryOrder: 3, description: 'Find all items within a certain radius.', name: 'Get all within', order: 17};
 var $author$project$Examples$Interactivity$GetNearestAndNearby$meta = {category: 'Interactivity', categoryOrder: 3, description: 'Find nearest item and those within a certain range of it.', name: 'Get nearest and nearby', order: 17};
 var $author$project$Examples$Interactivity$GetWithin$meta = {category: 'Interactivity', categoryOrder: 3, description: 'Find nearest item within a certain radius.', name: 'Get nearest within', order: 17};
 var $author$project$Examples$Interactivity$Multiple$meta = {category: 'Interactivity', categoryOrder: 5, description: 'Add a tooltip for bars and series.', name: 'Mixed chart types', order: 13};
-var $author$project$Examples$Interactivity$MultipleScales$meta = {category: 'Interactivity', categoryOrder: 3, description: 'Tooltips on different scales.', name: 'Multiple Scales', order: 17};
+var $author$project$Examples$Interactivity$MultipleScales$meta = {category: 'Interactivity', categoryOrder: 3, description: 'Tooltips on different scales.', name: 'Multiple Scales', order: 17.6};
 var $author$project$Examples$Interactivity$NoArrow$meta = {category: 'Interactivity', categoryOrder: 5, description: 'Don\'t add pointer to tooltip.', name: 'Remove pointer', order: 8};
 var $author$project$Examples$Interactivity$Offset$meta = {category: 'Interactivity', categoryOrder: 5, description: 'Change distance of tooltip to item.', name: 'Edit offset', order: 9};
 var $author$project$Examples$Interactivity$TrickyTooltip$meta = {category: 'Interactivity', categoryOrder: 5, description: 'Add tooltip for each stack in hovered bin.', name: 'Multiple tooltips for single group', order: 20};

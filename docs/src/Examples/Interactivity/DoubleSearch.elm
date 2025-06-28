@@ -90,7 +90,7 @@ meta =
   , categoryOrder = 5
   , name = "Multiple tooltips"
   , description = "Add more than one search."
-  , order = 17
+  , order = 17.5
   }
 
 

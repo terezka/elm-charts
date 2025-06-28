@@ -111,5 +111,5 @@ meta =
   , categoryOrder = 3
   , name = "Multiple Scales"
   , description = "Tooltips on different scales."
-  , order = 17
+  , order = 17.6
   }
