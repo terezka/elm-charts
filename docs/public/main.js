@@ -24769,14 +24769,13 @@ var $author$project$Internal$Svg$distanceY = F3(
 	});
 var $author$project$Internal$Svg$distanceSquared = F3(
 	function (plane, searched, point) {
-		return $elm$core$Basics$sqrt(
-			A2(
-				$elm$core$Basics$pow,
-				A3($author$project$Internal$Svg$distanceX, plane, searched, point),
-				2) + A2(
-				$elm$core$Basics$pow,
-				A3($author$project$Internal$Svg$distanceY, plane, searched, point),
-				2));
+		return A2(
+			$elm$core$Basics$pow,
+			A3($author$project$Internal$Svg$distanceX, plane, searched, point),
+			2) + A2(
+			$elm$core$Basics$pow,
+			A3($author$project$Internal$Svg$distanceY, plane, searched, point),
+			2);
 	});
 var $author$project$Internal$Svg$keepOne = function (toPosition) {
 	var toArea = function (a) {
@@ -32105,14 +32104,13 @@ var $author$project$Internal$Svg$distanceSquaredPos = F3(
 			$elm$core$Basics$min,
 			disX2X2,
 			A2($elm$core$Basics$min, disX1X1, disX2X1));
-		return $elm$core$Basics$sqrt(
-			A2($elm$core$Basics$pow, minDisX, 2) + A2($elm$core$Basics$pow, minDisY, 2));
+		return A2($elm$core$Basics$pow, minDisX, 2) + A2($elm$core$Basics$pow, minDisY, 2);
 	});
 var $author$project$Internal$Svg$withinRadiusPos = F4(
 	function (plane, radius, a, b) {
 		return _Utils_cmp(
 			A3($author$project$Internal$Svg$distanceSquaredPos, plane, a, b),
-			radius) < 1;
+			A2($elm$core$Basics$pow, radius, 2)) < 1;
 	});
 var $author$project$Internal$Svg$getNearestAndNearby = F6(
 	function (radius, toPosition, items, oldPlane, plane, searched) {
@@ -32340,7 +32338,7 @@ var $author$project$Internal$Svg$withinRadius = F4(
 	function (plane, radius, searched, point) {
 		return _Utils_cmp(
 			A3($author$project$Internal$Svg$distanceSquared, plane, searched, point),
-			radius) < 1;
+			A2($elm$core$Basics$pow, radius, 2)) < 1;
 	});
 var $author$project$Internal$Svg$getNearestWithin = F6(
 	function (radius, toPosition, items, oldPlane, plane, searched) {

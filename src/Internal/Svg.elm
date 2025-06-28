@@ -1713,7 +1713,7 @@ distanceSquared plane searched point =
     -- compare distances with eachother the squared distance will suffice.
     -- Possible future gotcha: Don't use this function when adding the
     -- resulting distances together since a^2 + b^2 != (a + b)^2.
-    sqrt <| distanceX plane searched point ^ 2 + distanceY plane searched point ^ 2
+     (distanceX plane searched point ^ 2 + distanceY plane searched point ^ 2)
 
 
 closestPoint : Position -> Point -> Point
@@ -1725,7 +1725,8 @@ closestPoint pos searched =
 
 withinRadius : Plane -> Float -> Point -> Point -> Bool
 withinRadius plane radius searched point =
-  distanceSquared plane searched point <= radius
+  -- Radius is powered. See note at distanceSquared
+  distanceSquared plane searched point <= radius ^ 2
 
 
 withinRadiusX : Plane -> Float -> Point -> Point -> Bool
@@ -1747,12 +1748,14 @@ distanceSquaredPos plane a b =
       disY2Y2 = disY a.y2 b.y2
       minDisY = min disY2Y2 (min disY1Y1 disY2Y1)
   in
-  sqrt (minDisX ^ 2 + minDisY ^ 2)
+  -- This is not squared like it should. See note at distanceSquared
+  minDisX ^ 2 + minDisY ^ 2
 
 
 withinRadiusPos : Plane -> Float -> Position -> Position -> Bool
 withinRadiusPos plane radius a b =
-  distanceSquaredPos plane a b <= radius
+  -- Radius is powered. See note at distanceSquared
+  distanceSquaredPos plane a b <= radius ^ 2
 
 
 keepOne : (a -> Position) -> List a -> List a
