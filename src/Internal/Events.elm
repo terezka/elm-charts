@@ -104,6 +104,13 @@ getNearestWithinX radius (M.Remodel toPos _ as grouping) =
     CS.getNearestWithinX radius toPos groups oldPlane plane searched
 
 
+getAllWithin : Float -> M.Remodel (I.One data I.Any) (I.Rendered result) -> Decoder data (List (I.Rendered result))
+getAllWithin radius (M.Remodel toPos _ as grouping) =
+  Decoder <| \items oldPlane plane searched ->
+    let groups = M.apply grouping items in
+    CS.getAllWithin radius toPos groups oldPlane plane searched
+
+
 {-| -}
 map : (a -> msg) -> Decoder data a -> Decoder data msg
 map f (Decoder a) =

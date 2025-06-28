@@ -1,7 +1,7 @@
 module Chart.Events exposing
   ( Attribute, Event
   , onMouseMove, onMouseLeave, onMouseUp, onMouseDown, onClick, onDoubleClick, on
-  , Decoder, Point, getCoords, getSvgCoords, getNearest, getNearestX, getNearestWithin, getNearestWithinX, getNearestAndNearby, getOffset, getCustom
+  , Decoder, Point, getCoords, getSvgCoords, getNearest, getNearestX, getNearestWithin, getNearestWithinX, getAllWithin, getNearestAndNearby, getOffset, getCustom
   , map, map2, map3, map4
   )
 
@@ -14,7 +14,7 @@ module Chart.Events exposing
 
 ## Decoders
 @docs Decoder, Point
-@docs getNearest, getNearestX, getNearestWithin, getNearestWithinX
+@docs getNearest, getNearestX, getNearestWithin, getNearestWithinX, getAllWithin
 @docs getCoords, getSvgCoords, getOffset
 @docs map, map2, map3, map4
 
@@ -256,6 +256,14 @@ getNearestWithinX : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Dec
 getNearestWithinX =
   IE.getNearestWithinX
 
+
+{-| Find all items within the specified radius.Use the `Remodel` functions in `Chart.Item`
+to filter down what items or groups of items you will be searching for.
+
+-}
+getAllWithin : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
+getAllWithin =
+  IE.getAllWithin
 
 
 

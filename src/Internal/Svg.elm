@@ -1604,8 +1604,8 @@ getAllWithin radius toPosition items oldPlane plane searched =
         scaledRadius =
           Coord.scaleRadius oldPlane plane radius
 
-        keepIfEligible closest =
-          withinRadius plane scaledRadius searched (toPoint closest)
+        keepIfEligible item =
+          withinRadius plane scaledRadius searched (toPoint item)
     in
     List.filter keepIfEligible items
 
@@ -1692,7 +1692,11 @@ getNearestAndNearby radius toPosition items oldPlane plane searched =
         withinRadiusPositions plane scaledRadius pos (toPosition item)
   in
   List.foldl getClosest Nothing items
-    |> Maybe.map (\{ nearest, equals, others }-> ( nearest :: equals, List.filter (isNearby (toPosition nearest)) others ))
+    |> Maybe.map (\{ nearest, equals, others } ->
+          ( nearest :: equals
+          , List.filter (isNearby (toPosition nearest)) others
+          )
+        )
     |> Maybe.withDefault ([], [])
 
 
@@ -1707,39 +1711,13 @@ closestPoint pos searched =
   }
 
 
-distanceX : Plane -> Point -> Point -> Float
-distanceX plane searched point =
-    abs <| Coord.toSVGX plane point.x - Coord.toSVGX plane searched.x
-
-
-distanceY : Plane -> Point -> Point -> Float
-distanceY plane searched point =
-    abs <| Coord.toSVGY plane point.y - Coord.toSVGY plane searched.y
-
-
-distancePoints : Plane -> Point -> Point -> Float
-distancePoints plane searched point =
-    -- True distance calculation requries the relatively expensive
-    -- squareroot operation, but when we only need a metric to
-    -- compare distances with eachother the squared distance will suffice.
-    -- Possible future gotcha: Don't use this function when adding the
-    -- resulting distances together since a^2 + b^2 != (a + b)^2.
-     (distanceX plane searched point ^ 2 + distanceY plane searched point ^ 2)
-
-
-withinRadius : Plane -> Float -> Point -> Point -> Bool
-withinRadius plane radius searched point =
-  -- Radius is powered. See note at distancePoints
-  distancePoints plane searched point <= radius ^ 2
-
-
-withinRadiusX : Plane -> Float -> Point -> Point -> Bool
-withinRadiusX plane radius searched point =
-  distanceX plane searched point <= radius
-
-
 distancePositions : Plane -> Position -> Position -> Float
 distancePositions plane a b =
+  -- True distance calculation requries the relatively expensive
+  -- squareroot operation, but when we only need a metric to
+  -- compare distances with eachother the squared distance will suffice.
+  -- Possible future gotcha: Don't use this function when adding the
+  -- resulting distances together since a^2 + b^2 != (a + b)^2.
   let disX k l = distanceX plane (Point k 0) (Point l 0)
       disX1X1 = disX a.x1 b.x1
       disX2X1 = disX a.x2 b.x1
@@ -1752,14 +1730,40 @@ distancePositions plane a b =
       disY2Y2 = disY a.y2 b.y2
       minDisY = min disY2Y2 (min disY1Y1 disY2Y1)
   in
-  -- This is not squared like it should. See note at distancePoints
   minDisX ^ 2 + minDisY ^ 2
+
+
+distancePoints : Plane -> Point -> Point -> Float
+distancePoints plane searched point =
+  -- This is not squared like it should. See note at distancePositions
+  distanceX plane searched point ^ 2 + distanceY plane searched point ^ 2
 
 
 withinRadiusPositions : Plane -> Float -> Position -> Position -> Bool
 withinRadiusPositions plane radius a b =
-  -- Radius is powered. See note at distancePoints
+  -- Radius is powered due to lack of squaring in distancePositions
   distancePositions plane a b <= radius ^ 2
+
+
+withinRadius : Plane -> Float -> Point -> Point -> Bool
+withinRadius plane radius searched point =
+  -- Radius is powered due to lack of squaring in distancePoints
+  distancePoints plane searched point <= radius ^ 2
+
+
+withinRadiusX : Plane -> Float -> Point -> Point -> Bool
+withinRadiusX plane radius searched point =
+  distanceX plane searched point <= radius
+
+
+distanceX : Plane -> Point -> Point -> Float
+distanceX plane searched point =
+    abs <| Coord.toSVGX plane point.x - Coord.toSVGX plane searched.x
+
+
+distanceY : Plane -> Point -> Point -> Float
+distanceY plane searched point =
+    abs <| Coord.toSVGY plane point.y - Coord.toSVGY plane searched.y
 
 
 keepOne : (a -> Position) -> List a -> List a
