@@ -226,7 +226,12 @@ getNearest =
   IE.getNearest
 
 
-{-| -}
+{-| Find the nearest item and collect all other items around that item within the specified radius.
+Use the `Remodel` functions in `Chart.Item` to filter down what items or groups of items you will be searching for.
+
+    CE.onMouseMove OnHover (CE.getNearestAndNearby 10 CI.dots)
+
+-}
 getNearestAndNearby : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result), List (I.Item result))
 getNearestAndNearby =
   IE.getNearestAndNearby
@@ -234,6 +239,8 @@ getNearestAndNearby =
 
 {-| Decode to get the nearest item within certain radius to the event. Use the `Remodel` functions in `Chart.Item`
 to filter down what items or groups of items you will be searching for.
+
+    CE.onMouseMove OnHover (CE.getNearestWithin 10 CI.dots)
 
 -}
 getNearestWithin : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
@@ -243,6 +250,12 @@ getNearestWithin =
 
 {-| Like `getNearest`, but only takes x coordiante into account. Use the `Remodel` functions in `Chart.Item`
 to filter down what items or groups of items you will be searching for.
+
+    CE.onMouseMove OnHover (CE.getNearestX CI.dots)
+
+Note: This use to return just one item unless coordinates were identical. This has been updated to
+return all items with same x coordinates as the closest item found.
+
 -}
 getNearestX : I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
 getNearestX =
@@ -251,14 +264,19 @@ getNearestX =
 
 {-| Like `getNearestWithin`, but only takes x coordiante into account. Use the `Remodel` functions in `Chart.Item`
 to filter down what items or groups of items you will be searching for.
+
+    CE.onMouseMove OnHover (CE.getNearestWithinX 10 CI.dots)
+
 -}
 getNearestWithinX : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
 getNearestWithinX =
   IE.getNearestWithinX
 
 
-{-| Find all items within the specified radius.Use the `Remodel` functions in `Chart.Item`
+{-| Find all items within the specified radius. Use the `Remodel` functions in `Chart.Item`
 to filter down what items or groups of items you will be searching for.
+
+    CE.onMouseMove OnHover (CE.getAllWithin 10 CI.dots)
 
 -}
 getAllWithin : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
