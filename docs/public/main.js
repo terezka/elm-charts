@@ -32288,46 +32288,6 @@ var $author$project$Examples$Interactivity$GetNearestAndNearby$data = _List_from
 		A2($author$project$Examples$Interactivity$GetNearestAndNearby$Datum, 9, 9),
 		A2($author$project$Examples$Interactivity$GetNearestAndNearby$Datum, 10, 10)
 	]);
-var $author$project$Internal$Svg$distancePositions = F3(
-	function (plane, a, b) {
-		var disY = F2(
-			function (k, l) {
-				return A3(
-					$author$project$Internal$Svg$distanceY,
-					plane,
-					A2($author$project$Internal$Svg$Point, 0, k),
-					A2($author$project$Internal$Svg$Point, 0, l));
-			});
-		var disY1Y1 = A2(disY, a.y1, b.y1);
-		var disY2Y1 = A2(disY, a.y2, b.y1);
-		var disY2Y2 = A2(disY, a.y2, b.y2);
-		var minDisY = A2(
-			$elm$core$Basics$min,
-			disY2Y2,
-			A2($elm$core$Basics$min, disY1Y1, disY2Y1));
-		var disX = F2(
-			function (k, l) {
-				return A3(
-					$author$project$Internal$Svg$distanceX,
-					plane,
-					A2($author$project$Internal$Svg$Point, k, 0),
-					A2($author$project$Internal$Svg$Point, l, 0));
-			});
-		var disX1X1 = A2(disX, a.x1, b.x1);
-		var disX2X1 = A2(disX, a.x2, b.x1);
-		var disX2X2 = A2(disX, a.x2, b.x2);
-		var minDisX = A2(
-			$elm$core$Basics$min,
-			disX2X2,
-			A2($elm$core$Basics$min, disX1X1, disX2X1));
-		return A2($elm$core$Basics$pow, minDisX, 2) + A2($elm$core$Basics$pow, minDisY, 2);
-	});
-var $author$project$Internal$Svg$withinRadiusPositions = F4(
-	function (plane, radius, a, b) {
-		return _Utils_cmp(
-			A3($author$project$Internal$Svg$distancePositions, plane, a, b),
-			A2($elm$core$Basics$pow, radius, 2)) < 1;
-	});
 var $author$project$Internal$Svg$getNearestAndNearby = F6(
 	function (radius, toPosition, items, oldPlane, plane, searched) {
 		var toPoint = function (i) {
@@ -32338,13 +32298,16 @@ var $author$project$Internal$Svg$getNearestAndNearby = F6(
 		};
 		var scaledRadius = A3($author$project$Internal$Coordinates$scaleRadius, oldPlane, plane, radius);
 		var isNearby = F2(
-			function (pos, item) {
+			function (nearest, item) {
 				return A4(
-					$author$project$Internal$Svg$withinRadiusPositions,
+					$author$project$Internal$Svg$withinRadius,
 					plane,
 					scaledRadius,
-					pos,
-					toPosition(item));
+					nearest,
+					A2(
+						$author$project$Internal$Svg$closestPoint,
+						toPosition(item),
+						nearest));
 			});
 		var distance = function (item) {
 			return A3(
@@ -32403,7 +32366,8 @@ var $author$project$Internal$Svg$getNearestAndNearby = F6(
 						A2(
 							$elm$core$List$filter,
 							isNearby(
-								toPosition(nearest)),
+								$author$project$Internal$Coordinates$center(
+									toPosition(nearest))),
 							others));
 				},
 				A3($elm$core$List$foldl, getClosest, $elm$core$Maybe$Nothing, items)));

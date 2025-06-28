@@ -103,6 +103,7 @@ data =
   , Datum 4   4
   , Datum 4   5
   , Datum 4   5
+  , Datum 4   5
   , Datum 4.5 5
   , Datum 5   5.5
   , Datum 5   6.5

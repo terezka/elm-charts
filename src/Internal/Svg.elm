@@ -1688,13 +1688,13 @@ getNearestAndNearby radius toPosition items oldPlane plane searched =
           Nothing ->
             Just { nearest = item, nearestDis = dis, equals = [], others = [] }
 
-      isNearby pos item =
-        withinRadiusPositions plane scaledRadius pos (toPosition item)
+      isNearby nearest item =
+        withinRadius plane scaledRadius nearest (closestPoint (toPosition item) nearest)
   in
   List.foldl getClosest Nothing items
     |> Maybe.map (\{ nearest, equals, others } ->
           ( nearest :: equals
-          , List.filter (isNearby (toPosition nearest)) others
+          , List.filter (isNearby (Coord.center <| toPosition nearest)) others
           )
         )
     |> Maybe.withDefault ([], [])
@@ -1711,38 +1711,14 @@ closestPoint pos searched =
   }
 
 
-distancePositions : Plane -> Position -> Position -> Float
-distancePositions plane a b =
+distancePoints : Plane -> Point -> Point -> Float
+distancePoints plane searched point =
   -- True distance calculation requries the relatively expensive
   -- squareroot operation, but when we only need a metric to
   -- compare distances with eachother the squared distance will suffice.
   -- Possible future gotcha: Don't use this function when adding the
   -- resulting distances together since a^2 + b^2 != (a + b)^2.
-  let disX k l = distanceX plane (Point k 0) (Point l 0)
-      disX1X1 = disX a.x1 b.x1
-      disX2X1 = disX a.x2 b.x1
-      disX2X2 = disX a.x2 b.x2
-      minDisX = min disX2X2 (min disX1X1 disX2X1)
-
-      disY k l = distanceY plane (Point 0 k) (Point 0 l)
-      disY1Y1 = disY a.y1 b.y1
-      disY2Y1 = disY a.y2 b.y1
-      disY2Y2 = disY a.y2 b.y2
-      minDisY = min disY2Y2 (min disY1Y1 disY2Y1)
-  in
-  minDisX ^ 2 + minDisY ^ 2
-
-
-distancePoints : Plane -> Point -> Point -> Float
-distancePoints plane searched point =
-  -- This is not squared like it should. See note at distancePositions
   distanceX plane searched point ^ 2 + distanceY plane searched point ^ 2
-
-
-withinRadiusPositions : Plane -> Float -> Position -> Position -> Bool
-withinRadiusPositions plane radius a b =
-  -- Radius is powered due to lack of squaring in distancePositions
-  distancePositions plane a b <= radius ^ 2
 
 
 withinRadius : Plane -> Float -> Point -> Point -> Bool
