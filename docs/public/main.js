@@ -16211,7 +16211,6 @@ var $author$project$Page$Administration$view = function (model) {
 												item('Heat maps charts'),
 												item('Horizontal bar charts'),
 												item('Logarithmic scales'),
-												item('Multiple scales'),
 												item('Relative stacked bars'),
 												item('Further improvements of automatic \"nice\" ticks'),
 												item('Pie charts'),
