@@ -3,7 +3,7 @@
     "name": "terezka/elm-charts",
     "summary": "SVG charts components in Elm.",
     "license": "BSD-3-Clause",
-    "version": "3.0.0",
+    "version": "4.0.0",
     "exposed-modules": [
         "Chart.Attributes",
         "Chart.Events",
@@ -19,8 +19,8 @@
         "elm/json": "1.0.0 <= v < 2.0.0",
         "elm/svg": "1.0.1 <= v < 2.0.0",
         "elm/time": "1.0.0 <= v < 2.0.0",
-        "ryannhg/date-format": "2.3.0 <= v < 3.0.0",
-        "terezka/intervals": "2.0.1 <= v < 3.0.0"
+        "ryan-haskell/date-format": "1.0.0 <= v < 2.0.0",
+        "terezka/intervals": "2.0.2 <= v < 3.0.0"
     },
     "test-dependencies": {
         "elm-explorations/test": "2.2.0 <= v < 3.0.0"

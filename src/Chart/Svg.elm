@@ -575,6 +575,7 @@ type alias Axis =
   , dataMax : Float
   , min : Float
   , max : Float
+  , flip : Bool
   }
 
 

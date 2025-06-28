@@ -614,8 +614,8 @@ defaultLineLegend =
 barLegend : Legend msg -> Bar ->  Html msg
 barLegend config barConfig =
   let fakePlane =
-        { x = Coord.Axis config.width 0 0 0 10 0 10
-        , y = Coord.Axis config.height 0 0 0 10 0 10
+        { x = Coord.Axis config.width 0 0 0 10 0 10 False -- TODO check
+        , y = Coord.Axis config.height 0 0 0 10 0 10 False -- TODO check
         }
 
       fontStyle =
@@ -650,8 +650,8 @@ lineLegend config interConfig dotConfig =
         if interConfig.opacity == 0 then topMargin else 0
 
       fakePlane =
-        { x = Coord.Axis config.width 0 0 0 10 0 10
-        , y = Coord.Axis config.height 0 0 0 10 0 10
+        { x = Coord.Axis config.width 0 0 0 10 0 10 False -- TODO check
+        , y = Coord.Axis config.height 0 0 0 10 0 10 False -- TODO check
         }
 
       fontStyle =

@@ -1,5 +1,5 @@
 module Chart exposing
-  ( chart
+  ( chart, chartAndPlane
 
   , Element, bars, series, seriesMap, barsMap
   , list, custom
@@ -250,6 +250,12 @@ Explore live examples for the following attributes:
 -}
 chart : List (Attribute (Container data msg)) -> List (Element data msg) -> H.Html msg
 chart edits unindexedElements =
+  Tuple.first (chartAndPlane edits unindexedElements)
+
+
+{-| Like chart, except it also returns the plane generated from the data in the chart. -}
+chartAndPlane : List (Attribute (Container data msg)) -> List (Element data msg) -> ( H.Html msg, C.Plane )
+chartAndPlane edits unindexedElements =
   let config =
         Helpers.apply edits
           { width = 300
@@ -298,7 +304,7 @@ chart edits unindexedElements =
         let (IE.Decoder decoder) = event_.decoder in
         IS.Event event_.name (decoder items)
   in
-  IS.container plane
+  ( IS.container plane
     { attrs = config.attrs
     , htmlAttrs = config.htmlAttrs
     , responsive = config.responsive
@@ -307,6 +313,8 @@ chart edits unindexedElements =
     beforeEls
     chartEls
     afterEls
+  , plane
+  )
 
 
 
@@ -418,6 +426,7 @@ definePlane config elements =
         , max = max
         , dataMin = min
         , dataMax = max
+        , flip = False
         }
 
       fixSingles bs =
@@ -444,11 +453,11 @@ definePlane config elements =
       scalePadY =
         C.scaleCartesianY unpadded
 
-      xMin = calcRange.min - scalePadX config.padding.left
-      xMax = calcRange.max + scalePadX config.padding.right
+      xMin = calcRange.min - scalePadX (if calcRange.flip then config.padding.right else config.padding.left)
+      xMax = calcRange.max + scalePadX (if calcRange.flip then config.padding.left else config.padding.right)
 
-      yMin = calcDomain.min - scalePadY config.padding.bottom
-      yMax = calcDomain.max + scalePadY config.padding.top
+      yMin = calcDomain.min - scalePadY (if calcDomain.flip then config.padding.top else config.padding.bottom)
+      yMax = calcDomain.max + scalePadY (if calcDomain.flip then config.padding.bottom else config.padding.top)
   in
   { x =
       { calcRange
@@ -863,7 +872,9 @@ xAxis edits =
           ]
       , if config.arrow then
           CS.arrow p
-            [ CA.color config.color ]
+            [ CA.color config.color
+            , if p.x.flip then CA.rotate 180 else CA.rotate 0
+            ]
             { x = xLimit.max
             , y = config.pinned p.y
             }
@@ -901,7 +912,10 @@ yAxis edits =
           , CA.y2 (min p.y.max yLimit.max)
           ]
       , if config.arrow then
-          CS.arrow p [ CA.color config.color, CA.rotate -90 ]
+          CS.arrow p
+            [ CA.color config.color
+            , if p.y.flip then CA.rotate 90 else CA.rotate -90
+            ]
             { x = config.pinned p.x
             , y = yLimit.max
             }
