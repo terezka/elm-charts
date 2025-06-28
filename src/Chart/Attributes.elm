@@ -90,7 +90,7 @@ below are only guiding.
 @docs hideOverflow
 
 ## Decoration
-@docs border, borderWidth, color, opacity, highlight, highlightWidth, highlightColor, background, noArrow, rotate
+@docs border, borderWidth, borderOpacity, color, opacity, highlight, highlightWidth, highlightColor, background, noArrow, rotate
 @docs striped, dotted, gradient
 
 ## Bar

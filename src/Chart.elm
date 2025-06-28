@@ -704,9 +704,6 @@ scale attrs unindexedElements =
         viewElements topLevel plane tickValues items legends elements
     , newIndex
     )
-  
-
-
 
 
 

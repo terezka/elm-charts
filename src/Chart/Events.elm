@@ -1,7 +1,8 @@
 module Chart.Events exposing
   ( Attribute, Event
   , onMouseMove, onMouseLeave, onMouseUp, onMouseDown, onClick, onDoubleClick, on
-  , Decoder, Point, getCoords, getSvgCoords, getNearest, getNearestX, getNearestWithin, getNearestWithinX, getAllWithin, getNearestAndNearby, getOffset, getCustom
+  , Decoder, Point, getSvgCoords, getNearest, getNearestX, getNearestWithin, getNearestWithinX, getAllWithin, getNearestAndNearby
+  , getCoords, getOffset, getCustom
   , map, map2, map3, map4
   )
 
@@ -14,8 +15,8 @@ module Chart.Events exposing
 
 ## Decoders
 @docs Decoder, Point
-@docs getNearest, getNearestX, getNearestWithin, getNearestWithinX, getAllWithin
 @docs getCoords, getSvgCoords, getOffset
+@docs getNearest, getNearestX, getNearestWithin, getNearestWithinX, getAllWithin, getNearestAndNearby, getCustom
 @docs map, map2, map3, map4
 
 -}
