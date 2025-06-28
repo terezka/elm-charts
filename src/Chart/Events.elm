@@ -1,7 +1,7 @@
 module Chart.Events exposing
   ( Attribute, Event
   , onMouseMove, onMouseLeave, onMouseUp, onMouseDown, onClick, onDoubleClick, on
-  , Decoder, Point, getCoords, getSvgCoords, getNearest, getNearestX, getWithin, getWithinX, getNearestAndNearby, getOffset, getCustom
+  , Decoder, Point, getCoords, getSvgCoords, getNearest, getNearestX, getNearestWithin, getNearestWithinX, getNearestAndNearby, getOffset, getCustom
   , map, map2, map3, map4
   )
 
@@ -14,7 +14,7 @@ module Chart.Events exposing
 
 ## Decoders
 @docs Decoder, Point
-@docs getNearest, getNearestX, getWithin, getWithinX
+@docs getNearest, getNearestX, getNearestWithin, getNearestWithinX
 @docs getCoords, getSvgCoords, getOffset
 @docs map, map2, map3, map4
 
@@ -164,8 +164,12 @@ getOffset =
 {-| Using the list of chart items, then top level scale, and the event point, produce
 your own event decoder.
 
+Note that this has two planes. The first is the plane as calculated from
+configuration and data. The second is the plane with adjusted height
+and width as gathered from JS event. See Internal.Svg.decoder.
+
 -}
-getCustom : (List (I.One data I.Any) -> Plane -> Point -> msg) -> Decoder data msg
+getCustom : (List (I.One data I.Any) -> Plane -> Plane -> Point -> msg) -> Decoder data msg
 getCustom =
   IE.getCustom
 
@@ -232,9 +236,9 @@ getNearestAndNearby =
 to filter down what items or groups of items you will be searching for.
 
 -}
-getWithin : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
-getWithin =
-  IE.getWithin
+getNearestWithin : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
+getNearestWithin =
+  IE.getNearestWithin
 
 
 {-| Like `getNearest`, but only takes x coordiante into account. Use the `Remodel` functions in `Chart.Item`
@@ -245,12 +249,12 @@ getNearestX =
   IE.getNearestX
 
 
-{-| Like `getWithin`, but only takes x coordiante into account. Use the `Remodel` functions in `Chart.Item`
+{-| Like `getNearestWithin`, but only takes x coordiante into account. Use the `Remodel` functions in `Chart.Item`
 to filter down what items or groups of items you will be searching for.
 -}
-getWithinX : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
-getWithinX =
-  IE.getWithinX
+getNearestWithinX : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
+getNearestWithinX =
+  IE.getNearestWithinX
 
 
 

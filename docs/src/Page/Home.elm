@@ -205,21 +205,6 @@ view model =
                   , E.paddingXY 0 40
                   ]
                   (List.map (viewFeature model.window) (features model))
-
-          , E.column
-              [ E.paddingXY 40 60
-              , F.center
-              , E.width E.fill
-              , E.centerX 
-              , E.spacing 60
-              ]
-              [ E.paragraph [ F.size 32, F.center ] [ E.text "Sponsored by"]
-              , E.link 
-                  [ E.centerX ] 
-                  { url = "https://www.bairesdev.com/sponsoring-open-source-projects/"
-                  , label = E.image [ E.width (E.maximum 230 E.fill) ] { src = "baires-dev.png", description = "BairesDev" }
-                  }
-              ]
           ]
     }
 

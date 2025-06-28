@@ -22,5 +22,7 @@
         "ryannhg/date-format": "2.3.0 <= v < 3.0.0",
         "terezka/intervals": "2.0.1 <= v < 3.0.0"
     },
-    "test-dependencies": {}
+    "test-dependencies": {
+        "elm-explorations/test": "2.2.0 <= v < 3.0.0"
+    }
 }

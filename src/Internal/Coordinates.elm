@@ -267,6 +267,19 @@ toCartesianY plane value =
 
 
 
+-- FOR EVENT HANDLER
+
+
+{-| Height/width can change be different if chart is places to fit inside box.
+
+Note that this does not currently do any attempt to make up for a change in
+chart ratio.
+-}
+scaleRadius : Plane -> Plane -> Float -> Float
+scaleRadius old new radius =
+  radius * (innerWidth new / innerWidth old)
+
+
 -- INTERNAL HELPERS
 
 

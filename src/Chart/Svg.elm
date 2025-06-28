@@ -23,7 +23,7 @@ module Chart.Svg exposing
   , lengthInCartesianX, lengthInCartesianY
   , hideOverflow
 
-  , getNearest, getNearestX, getWithin, getWithinX
+  , getNearest, getNearestX, getNearestWithin, getNearestWithinX
   )
 
 {-| Render plain SVG chart elements!
@@ -100,7 +100,7 @@ You can see what attributes are applicable given their configuration record.
 @docs hideOverflow
 
 # Searching
-@docs getNearest, getNearestX, getWithin, getWithinX
+@docs getNearest, getNearestX, getNearestWithin, getNearestWithinX
 
 -}
 
@@ -466,37 +466,38 @@ positionHtml =
 
 -}
 getNearest : (a -> Position) -> List a -> Plane -> Point -> List a
-getNearest =
-  Internal.Svg.getNearest
+getNearest toPos items plane point =
+  Internal.Svg.getNearest toPos items plane plane point
 
 
+{-| -}
 getNearestAndNearby : Float -> (a -> Position) -> List a -> Plane -> Point -> (List a, List a)
-getNearestAndNearby =
-  Internal.Svg.getNearestAndNearby
+getNearestAndNearby radius toPos items plane point =
+  Internal.Svg.getNearestAndNearby radius toPos items plane plane point
 
 
 {-| Like `getNearest`, but include searched radius in first argument.
 
 -}
-getWithin : Float -> (a -> Position) -> List a -> Plane -> Point -> List a
-getWithin =
-  Internal.Svg.getWithin
+getNearestWithin : Float -> (a -> Position) -> List a -> Plane -> Point -> List a
+getNearestWithin radius toPos items plane point =
+  Internal.Svg.getNearestWithin radius toPos items plane plane point
 
 
 {-| Like `getNearest`, but only searches x coordinates.
 
 -}
 getNearestX : (a -> Position) -> List a -> Plane -> Point -> List a
-getNearestX =
-  Internal.Svg.getNearestX
+getNearestX toPos items plane point =
+  Internal.Svg.getNearestX toPos items plane plane point
 
 
-{-| Like `getWithin`, but only searches x coordinates.
+{-| Like `getNearestWithin`, but only searches x coordinates.
 
 -}
-getWithinX : Float -> (a -> Position) -> List a -> Plane -> Point -> List a
-getWithinX =
-  Internal.Svg.getWithinX
+getNearestWithinX : Float -> (a -> Position) -> List a -> Plane -> Point -> List a
+getNearestWithinX radius toPos items plane point =
+  Internal.Svg.getNearestWithinX radius toPos items plane plane point
 
 
 

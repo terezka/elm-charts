@@ -52,7 +52,7 @@ view model =
   C.chart
     [ CA.height 135
     , CA.width 225
-    , CE.onMouseMove OnHover (CE.getNearest CI.dots)
+    , CE.onMouseMove OnHover (CE.getNearestX CI.dots)
     , CE.onMouseLeave (OnHover [])
     ]
     [ C.series .x

@@ -33,7 +33,7 @@ type alias Container msg =
 {-| -}
 type alias Event msg =
   { name : String
-  , handler : Plane -> Point -> msg
+  , handler : Plane -> Plane -> Point -> msg
   }
 
 
@@ -1564,51 +1564,55 @@ positionHtml plane x y xOff yOff attrs content =
 
 
 {-| -}
-getNearest : (a -> Position) -> List a -> Plane -> Point -> List a
-getNearest =
-  getNearestHelp
-
-
-{-| -}
-getNearestX : (a -> Position) -> List a -> Plane -> Point -> List a
-getNearestX =
-  getNearestXHelp
-
-
-
-getNearestAndNearby : Float -> (a -> Position) -> List a -> Plane -> Point -> ( List a, List a )
-getNearestAndNearby =
-  getNearestAndNearbyHelp
-
-
-{-| -}
-getWithin : Float -> (a -> Position) -> List a -> Plane -> Point -> List a
-getWithin radius toPosition items plane searched =
+getNearestWithin : Float -> (a -> Position) -> List a -> Plane -> Plane -> Point -> List a
+getNearestWithin radius toPosition items oldPlane plane searched =
     let toPoint i =
           closestPoint (toPosition i) searched
+
+        scaledRadius =
+          Coord.scaleRadius oldPlane plane radius
 
         keepIfEligible closest =
-          withinRadius plane radius searched (toPoint closest)
+          withinRadius plane scaledRadius searched (toPoint closest)
     in
-    getNearestHelp toPosition items plane searched
+    getNearest toPosition items oldPlane plane searched
       |> List.filter keepIfEligible
 
 
 {-| -}
-getWithinX : Float -> (a -> Position) -> List a -> Plane -> Point -> List a
-getWithinX radius toPosition items plane searched =
+getNearestWithinX : Float -> (a -> Position) -> List a -> Plane -> Plane -> Point -> List a
+getNearestWithinX radius toPosition items oldPlane plane searched =
     let toPoint i =
           closestPoint (toPosition i) searched
 
+        scaledRadius =
+          Coord.scaleRadius oldPlane plane radius
+
         keepIfEligible =
-          withinRadiusX plane radius searched << toPoint
+          withinRadiusX plane scaledRadius searched << toPoint
     in
-    getNearestXHelp toPosition items plane searched
+    getNearestX toPosition items oldPlane plane searched
       |> List.filter keepIfEligible
 
 
-getNearestHelp : (a -> Position) -> List a -> Plane -> Point -> List a
-getNearestHelp toPosition items plane searched =
+{-| -}
+getAllWithin : Float -> (a -> Position) -> List a -> Plane -> Plane -> Point -> List a
+getAllWithin radius toPosition items oldPlane plane searched =
+    let toPoint i =
+          closestPoint (toPosition i) searched
+
+        scaledRadius =
+          Coord.scaleRadius oldPlane plane radius
+
+        keepIfEligible closest =
+          withinRadius plane scaledRadius searched (toPoint closest)
+    in
+    List.filter keepIfEligible items
+
+
+{-| -}
+getNearest : (a -> Position) -> List a -> Plane -> Plane -> Point -> List a
+getNearest toPosition items _ plane searched =
   let toPoint i =
         closestPoint (toPosition i) searched
 
@@ -1632,8 +1636,9 @@ getNearestHelp toPosition items plane searched =
     |> keepOne toPosition
 
 
-getNearestXHelp : (a -> Position) -> List a -> Plane -> Point -> List a
-getNearestXHelp toPosition items plane searched =
+{-| -}
+getNearestX : (a -> Position) -> List a -> Plane -> Plane -> Point -> List a
+getNearestX toPosition items _ plane searched =
   let toPoint i =
         closestPoint (toPosition i) searched
 
@@ -1657,10 +1662,14 @@ getNearestXHelp toPosition items plane searched =
     |> keepOne toPosition
 
 
-getNearestAndNearbyHelp : Float -> (a -> Position) -> List a -> Plane -> Point -> ( List a, List a )
-getNearestAndNearbyHelp radius toPosition items plane searched =
+{-| -}
+getNearestAndNearby : Float -> (a -> Position) -> List a -> Plane ->  Plane -> Point -> ( List a, List a )
+getNearestAndNearby radius toPosition items oldPlane plane searched =
   let toPoint i =
         closestPoint (toPosition i) searched
+
+      scaledRadius =
+          Coord.scaleRadius oldPlane plane radius
 
       distance item =
         distanceSquared plane searched (toPoint item)
@@ -1668,21 +1677,22 @@ getNearestAndNearbyHelp radius toPosition items plane searched =
       getClosest item acc =
         let dis = distance item in
         case acc of
-          Just ( ( nearest, nearestDis ), equals, nearby ) ->
-            if toPoint nearest == toPoint item then 
-              Just ( ( nearest, nearestDis ), item :: equals, nearby )
-            else if nearestDis > dis then 
-              Just ( ( item, dis ), [], List.filter (withinRadius plane radius (toPoint item) << toPoint) (nearest :: nearby) )
-            else if withinRadius plane radius (toPoint nearest) (toPoint item) then
-              Just ( ( nearest, nearestDis ), [], item :: nearby )
+          Just ({ nearest, nearestDis, equals, others } as acc_) ->
+            if toPoint nearest == toPoint item then
+              Just { acc_ | equals = item :: equals }
+            else if nearestDis > dis then
+              Just { nearest = item, nearestDis = dis, equals = [], others = nearest :: equals ++ others }
             else
-              acc
+              Just { acc_ | others = item :: others }
 
           Nothing ->
-            Just ( ( item, dis ), [], [] )
+            Just { nearest = item, nearestDis = dis, equals = [], others = [] }
+
+      isNearby pos item =
+        withinRadiusPos plane scaledRadius pos (toPosition item)
   in
   List.foldl getClosest Nothing items
-    |> Maybe.map (\(( nearest, _), equals, nearby ) -> ( nearest :: equals, nearby ))
+    |> Maybe.map (\{ nearest, equals, others }-> ( nearest :: equals, List.filter (isNearby (toPosition nearest)) others ))
     |> Maybe.withDefault ([], [])
 
 
@@ -1723,6 +1733,28 @@ withinRadiusX plane radius searched point =
   distanceX plane searched point <= radius
 
 
+distanceSquaredPos : Plane -> Position -> Position -> Float
+distanceSquaredPos plane a b =
+  let disX k l = distanceX plane (Point k 0) (Point l 0)
+      disX1X1 = disX a.x1 b.x1
+      disX2X1 = disX a.x2 b.x1
+      disX2X2 = disX a.x2 b.x2
+      minDisX = min disX2X2 (min disX1X1 disX2X1)
+
+      disY k l = distanceY plane (Point 0 k) (Point 0 l)
+      disY1Y1 = disY a.y1 b.y1
+      disY2Y1 = disY a.y2 b.y1
+      disY2Y2 = disY a.y2 b.y2
+      minDisY = min disY2Y2 (min disY1Y1 disY2Y1)
+  in
+  sqrt (minDisX ^ 2 + minDisY ^ 2)
+
+
+withinRadiusPos : Plane -> Float -> Position -> Position -> Bool
+withinRadiusPos plane radius a b =
+  distanceSquaredPos plane a b <= radius
+
+
 keepOne : (a -> Position) -> List a -> List a
 keepOne toPosition =
   let func one acc =
@@ -1744,7 +1776,7 @@ keepOne toPosition =
 
 
 {-| -}
-decoder : Plane -> (Plane -> Point -> msg) -> Json.Decoder msg
+decoder : Plane -> (Plane -> Plane -> Point -> msg) -> Json.Decoder msg
 decoder plane toMsg =
   let
     handle mouseX mouseY box =
@@ -1776,7 +1808,7 @@ decoder plane toMsg =
             , y = mouseY - box.top
             }
       in
-      toMsg newPlane searched
+      toMsg plane newPlane searched
   in
   Json.map3 handle
     (Json.field "pageX" Json.float)

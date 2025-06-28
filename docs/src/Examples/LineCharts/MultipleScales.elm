@@ -20,14 +20,14 @@ view model =
     , C.scale 
         []
         [ C.series .x [ C.interpolated .z [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ] data
-        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip ]
+        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.purple ]
         , C.yAxis [ CA.pinned .max ]
         , C.xTicks [ CA.withGrid ]
         ]
     , C.series .x
         [ C.interpolated .y [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ]
         data
-    , C.yLabels []
+    , C.yLabels [ CA.color CA.pink ]
     , C.yAxis []
     ]
 
@@ -90,14 +90,14 @@ smallCode =
     , C.scale 
         []
         [ C.series .x [ C.interpolated .z [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ] data
-        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip ]
+        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.purple ]
         , C.yAxis [ CA.pinned .max ]
         , C.xTicks [ CA.withGrid ]
         ]
     , C.series .x
         [ C.interpolated .y [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ]
         data
-    , C.yLabels []
+    , C.yLabels [ CA.color CA.pink ]
     , C.yAxis []
     ]
   """
@@ -123,14 +123,14 @@ view model =
     , C.scale 
         []
         [ C.series .x [ C.interpolated .z [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ] data
-        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip ]
+        , C.yLabels [ CA.withGrid, CA.pinned .max, CA.flip, CA.color CA.purple ]
         , C.yAxis [ CA.pinned .max ]
         , C.xTicks [ CA.withGrid ]
         ]
     , C.series .x
         [ C.interpolated .y [] [ CA.cross, CA.border "white", CA.borderWidth 2 ] ]
         data
-    , C.yLabels []
+    , C.yLabels [ CA.color CA.pink ]
     , C.yAxis []
     ]
 

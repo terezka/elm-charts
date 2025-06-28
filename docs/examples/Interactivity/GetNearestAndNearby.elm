@@ -60,7 +60,8 @@ view model =
     , case model.closest of
         item :: _ ->
           C.svg <| \p ->
-            let pointSvg = CS.fromCartesian p { x = (CI.getLimits item).x1, y = (CI.getLimits item).y1 }
+            let pointSvg =
+                  CS.fromCartesian p { x = CI.getX item, y = CI.getY item }
             in
             S.g []
               [ S.circle

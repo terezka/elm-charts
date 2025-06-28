@@ -3,14 +3,13 @@ module Tests exposing (..)
 import Test exposing (..)
 import Test.Html.Query as Query
 import Test.Html.Selector as Selector
-import Expect
-import Fuzz exposing (Fuzzer, list, int, float, tuple, string, map)
+import Expect exposing (FloatingPointTolerance(..))
+import Fuzz exposing (Fuzzer, list, int, float, niceFloat, string, map)
 import Html exposing (Html, div)
 import Svg exposing (Svg, svg)
 import Svg.Attributes
-import Svg.Coordinates as Coordinates exposing (..)
-import Svg.Chart exposing (..)
-import Svg.Tiles exposing (..)
+import Internal.Coordinates as Coordinates exposing (..)
+import Internal.Svg as CS
 
 
 coordinates : Test
@@ -32,117 +31,98 @@ coordinates =
     --
     , test "toSVGX with lower margin" <|
         \() ->
-          expectFloat 20 (toSVGX { defaultPlane | x = updateMarginLower defaultPlane.x 10 } 1)
+          expectFloat 10 (toSVGX { defaultPlane | x = updateMarginMax defaultPlane.x 10 } 1)
     , test "toSVGX with upper margin" <|
         \() ->
-          expectFloat 10 (toSVGX { defaultPlane | x = updateMarginUpper defaultPlane.x 10 } 1)
+          expectFloat 20 (toSVGX { defaultPlane | x = updateMarginMin defaultPlane.x 10 } 1)
     --
     , test "toSVGY with lower margin" <|
         \() ->
-          expectFloat 90 (toSVGY { defaultPlane | y = updateMarginLower defaultPlane.y 10 } 1)
+          expectFloat 90 (toSVGY { defaultPlane | y = updateMarginMax defaultPlane.y 10 } 1)
     , test "toSVGY with upper margin" <|
         \() ->
-          expectFloat 100 (toSVGY { defaultPlane | y = updateMarginUpper defaultPlane.y 10 } 1)
+          expectFloat 100 (toSVGY { defaultPlane | y = updateMarginMin defaultPlane.y 10 } 1)
     --
     , test "toCartesianY with lower margin" <|
         \() ->
-          expectFloat 1 (toCartesianY { defaultPlane | y = updateMarginLower defaultPlane.y 10 } 90)
+          expectFloat 1 (toCartesianY { defaultPlane | y = updateMarginMax defaultPlane.y 10 } 90)
     , test "toCartesianY with upper margin" <|
         \() ->
-          expectFloat 1 (toCartesianY { defaultPlane | y = updateMarginUpper defaultPlane.y 10 } 100)
+          expectFloat 1 (toCartesianY { defaultPlane | y = updateMarginMin defaultPlane.y 10 } 100)
     --
     , test "Length should default to 1" <|
         \() ->
           expectFloat 0.9 (toSVGY { defaultPlane | y = updatelength defaultPlane.y 0 } 1)
-    , fuzz float "x-coordinate produced should always be a number" <|
+    , fuzz niceFloat "x-coordinate produced should always be a number" <|
         \number ->
           toSVGX defaultPlane number
             |> isNaN
-            |> Expect.false "Coordinate should always be a number!"
-    , fuzz float "y-coordinate produced should always be a number" <|
+            |> Expect.equal False
+    , fuzz niceFloat "y-coordinate produced should always be a number" <|
         \number ->
           toSVGY defaultPlane number
             |> isNaN
-            |> Expect.false "Coordinate should always be a number!"
+            |> Expect.equal False
+    , testEventFilters
     ]
 
 
-plots : Test
-plots =
-  describe "Plots"
-    -- TODO: These doesn't have to be fuzz tests.
-    [ fuzz randomPoints "User can set stroke for lines" <|
-        \points ->
-            case points of
-              [] ->
-                Expect.pass
+testEventFilters : Test
+testEventFilters =
+  let plane =
+        { defaultPlane
+          | x = updatelength defaultPlane.x 100
+          , y = updatelength defaultPlane.y 100
+        }
+  in
+  describe "Event filters"
+    [ test "distanceSquaredPos: x diff" <|
+        \() ->
+          CS.distanceSquaredPos plane (toPosition 5 5) (toPosition 6 5)
+            |> expectFloat 10
+    , test "distanceSquaredPos: y diff" <|
+        \() ->
+          CS.distanceSquaredPos plane (toPosition 5 5) (toPosition 5 6)
+            |> expectFloat 10
+    , test "distanceSquaredPos: x and y diff" <|
+        \() ->
+          CS.distanceSquaredPos plane (toPosition 5 5) (toPosition 6 6)
+            |> expectFloat 14.14213
 
-              actualPoints ->
-                wrapSvg [ monotone (planeFromPoints actualPoints) .x .y [ Svg.Attributes.stroke "red" ] (always clear) actualPoints ]
-                  |> Query.fromHtml
-                  |> Query.find [ Selector.tag "path" ]
-                  |> Query.has [ Selector.attribute (Svg.Attributes.stroke "red") ]
-    , fuzz randomPoints "User can set fill for areas" <|
-        \points ->
-            case points of
-              [] ->
-                Expect.pass
-
-              actualPoints ->
-                wrapSvg [ monotoneArea (planeFromPoints actualPoints) .x .y [ Svg.Attributes.fill "red" ] (always clear) actualPoints ]
-                  |> Query.fromHtml
-                  |> Query.find [ Selector.tag "path" ]
-                  |> Query.has [ Selector.attribute (Svg.Attributes.fill "red") ]
+    , test "distanceSquaredPos: x and y diff 2" <|
+        \() ->
+          CS.distanceSquaredPos plane (toPosition 5.5 5) (toPosition 6.5 5.5)
+            |> expectFloat 11.18033
     ]
 
 
-maps : Test
-maps =
-  describe "Maps"
-    [ test "tileWidth" <|
-        \() ->
-          Expect.equal 30 (tileWidth 300 10)
-    , test "tileHeight" <|
-        \() ->
-          Expect.equal 30 (tileHeight 300 10 100)
-    , test "tileXCoord" <|
-        \() ->
-          Expect.equal 60 (tileXCoord 30 10 2)
-    , test "tileYCoord" <|
-        \() ->
-          Expect.equal 60 (tileYCoord 30 10 22)
-    ]
-
+toPosition : Float -> Float -> Position
+toPosition x y =
+  Position x x y y
 
 
 -- HELPERS
 
 
-wrapSvg : List (Svg msg) -> Html msg
-wrapSvg children =
-  div [] [ svg [] children ]
-
-
-randomPoints : Fuzzer (List Point)
-randomPoints =
-  list (map (\( x, y ) -> Point x y) (tuple (float, float)))
-
-
 planeFromPoints : List Point -> Plane
 planeFromPoints points =
   { x =
-    { marginLower = 10
-    , marginUpper = 10
-    , length = 300
-    , min = minimum [.x] points
-    , max = maximum [.x] points
+    { length = 300
+    , marginMin = 10
+    , marginMax = 10
+    , dataMin = Maybe.withDefault 0 (List.minimum <| List.map .x points)
+    , dataMax = Maybe.withDefault 10 (List.maximum <| List.map .x points)
+    , min = Maybe.withDefault 0 (List.minimum <| List.map .x points)
+    , max = Maybe.withDefault 10 (List.maximum <| List.map .x points)
     }
   , y =
-    { marginLower = 10
-    , marginUpper = 10
-    , length = 300
-    , min = minimum [.y] points
-    , max = maximum [.y] points
+    { length = 300
+    , marginMin = 10
+    , marginMax = 10
+    , dataMin = Maybe.withDefault 0 (List.minimum <| List.map .y points)
+    , dataMax = Maybe.withDefault 10 (List.maximum <| List.map .y points)
+    , min = Maybe.withDefault 0 (List.minimum <| List.map .y points)
+    , max = Maybe.withDefault 10 (List.maximum <| List.map .y points)
     }
   }
 
@@ -156,22 +136,24 @@ defaultPlane =
 
 defaultAxis : Axis
 defaultAxis =
-  { marginLower = 0
-  , marginUpper = 0
-  , length = 110
+  { length = 110
+  , marginMin = 0
+  , marginMax = 0
+  , dataMin = 0
+  , dataMax = 10
   , min = 0
   , max = 10
   }
 
 
-updateMarginLower : Axis -> Float -> Axis
-updateMarginLower config marginLower =
-  { config | marginLower = marginLower }
+updateMarginMax : Axis -> Float -> Axis
+updateMarginMax config val =
+  { config | marginMax = val }
 
 
-updateMarginUpper : Axis -> Float -> Axis
-updateMarginUpper config marginUpper =
-  { config | marginUpper = marginUpper }
+updateMarginMin : Axis -> Float -> Axis
+updateMarginMin config val =
+  { config | marginMin = val }
 
 
 updatelength : Axis -> Float -> Axis
@@ -185,4 +167,4 @@ type alias Point =
 
 expectFloat : Float -> Float -> Expect.Expectation
 expectFloat =
-  Expect.within (Expect.Absolute 0.1)
+  Expect.within (Expect.Absolute 0.0001)
