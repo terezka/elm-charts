@@ -1,4 +1,4 @@
-module Tests exposing (..)
+module Coordinates exposing (..)
 
 import Test exposing (..)
 import Test.Html.Query as Query
@@ -63,68 +63,11 @@ coordinates =
           toSVGY defaultPlane number
             |> isNaN
             |> Expect.equal False
-    , testEventFilters
     ]
 
-
-testEventFilters : Test
-testEventFilters =
-  let plane =
-        { defaultPlane
-          | x = updatelength defaultPlane.x 100
-          , y = updatelength defaultPlane.y 100
-        }
-  in
-  describe "Event filters"
-    [ test "distanceSquaredPos: x diff" <|
-        \() ->
-          CS.distanceSquaredPos plane (toPosition 5 5) (toPosition 6 5)
-            |> expectFloat 10
-    , test "distanceSquaredPos: y diff" <|
-        \() ->
-          CS.distanceSquaredPos plane (toPosition 5 5) (toPosition 5 6)
-            |> expectFloat 10
-    , test "distanceSquaredPos: x and y diff" <|
-        \() ->
-          CS.distanceSquaredPos plane (toPosition 5 5) (toPosition 6 6)
-            |> expectFloat 14.14213
-
-    , test "distanceSquaredPos: x and y diff 2" <|
-        \() ->
-          CS.distanceSquaredPos plane (toPosition 5.5 5) (toPosition 6.5 5.5)
-            |> expectFloat 11.18033
-    ]
-
-
-toPosition : Float -> Float -> Position
-toPosition x y =
-  Position x x y y
 
 
 -- HELPERS
-
-
-planeFromPoints : List Point -> Plane
-planeFromPoints points =
-  { x =
-    { length = 300
-    , marginMin = 10
-    , marginMax = 10
-    , dataMin = Maybe.withDefault 0 (List.minimum <| List.map .x points)
-    , dataMax = Maybe.withDefault 10 (List.maximum <| List.map .x points)
-    , min = Maybe.withDefault 0 (List.minimum <| List.map .x points)
-    , max = Maybe.withDefault 10 (List.maximum <| List.map .x points)
-    }
-  , y =
-    { length = 300
-    , marginMin = 10
-    , marginMax = 10
-    , dataMin = Maybe.withDefault 0 (List.minimum <| List.map .y points)
-    , dataMax = Maybe.withDefault 10 (List.maximum <| List.map .y points)
-    , min = Maybe.withDefault 0 (List.minimum <| List.map .y points)
-    , max = Maybe.withDefault 10 (List.maximum <| List.map .y points)
-    }
-  }
 
 
 defaultPlane : Plane

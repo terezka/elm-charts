@@ -1617,7 +1617,7 @@ getNearest toPosition items _ plane searched =
         closestPoint (toPosition i) searched
 
       distance item =
-        distanceSquared plane searched (toPoint item)
+        distancePoints plane searched (toPoint item)
 
       getClosest item allClosest =
         case List.head allClosest of
@@ -1672,7 +1672,7 @@ getNearestAndNearby radius toPosition items oldPlane plane searched =
           Coord.scaleRadius oldPlane plane radius
 
       distance item =
-        distanceSquared plane searched (toPoint item)
+        distancePoints plane searched (toPoint item)
 
       getClosest item acc =
         let dis = distance item in
@@ -1689,11 +1689,22 @@ getNearestAndNearby radius toPosition items oldPlane plane searched =
             Just { nearest = item, nearestDis = dis, equals = [], others = [] }
 
       isNearby pos item =
-        withinRadiusPos plane scaledRadius pos (toPosition item)
+        withinRadiusPositions plane scaledRadius pos (toPosition item)
   in
   List.foldl getClosest Nothing items
     |> Maybe.map (\{ nearest, equals, others }-> ( nearest :: equals, List.filter (isNearby (toPosition nearest)) others ))
     |> Maybe.withDefault ([], [])
+
+
+
+-- EVENTS / DISTANCE HELPERS
+
+
+closestPoint : Position -> Point -> Point
+closestPoint pos searched =
+  { x = clamp pos.x1 pos.x2 searched.x
+  , y = clamp pos.y1 pos.y2 searched.y
+  }
 
 
 distanceX : Plane -> Point -> Point -> Float
@@ -1706,8 +1717,8 @@ distanceY plane searched point =
     abs <| Coord.toSVGY plane point.y - Coord.toSVGY plane searched.y
 
 
-distanceSquared : Plane -> Point -> Point -> Float
-distanceSquared plane searched point =
+distancePoints : Plane -> Point -> Point -> Float
+distancePoints plane searched point =
     -- True distance calculation requries the relatively expensive
     -- squareroot operation, but when we only need a metric to
     -- compare distances with eachother the squared distance will suffice.
@@ -1716,17 +1727,10 @@ distanceSquared plane searched point =
      (distanceX plane searched point ^ 2 + distanceY plane searched point ^ 2)
 
 
-closestPoint : Position -> Point -> Point
-closestPoint pos searched =
-  { x = clamp pos.x1 pos.x2 searched.x
-  , y = clamp pos.y1 pos.y2 searched.y
-  }
-
-
 withinRadius : Plane -> Float -> Point -> Point -> Bool
 withinRadius plane radius searched point =
-  -- Radius is powered. See note at distanceSquared
-  distanceSquared plane searched point <= radius ^ 2
+  -- Radius is powered. See note at distancePoints
+  distancePoints plane searched point <= radius ^ 2
 
 
 withinRadiusX : Plane -> Float -> Point -> Point -> Bool
@@ -1734,8 +1738,8 @@ withinRadiusX plane radius searched point =
   distanceX plane searched point <= radius
 
 
-distanceSquaredPos : Plane -> Position -> Position -> Float
-distanceSquaredPos plane a b =
+distancePositions : Plane -> Position -> Position -> Float
+distancePositions plane a b =
   let disX k l = distanceX plane (Point k 0) (Point l 0)
       disX1X1 = disX a.x1 b.x1
       disX2X1 = disX a.x2 b.x1
@@ -1748,14 +1752,14 @@ distanceSquaredPos plane a b =
       disY2Y2 = disY a.y2 b.y2
       minDisY = min disY2Y2 (min disY1Y1 disY2Y1)
   in
-  -- This is not squared like it should. See note at distanceSquared
+  -- This is not squared like it should. See note at distancePoints
   minDisX ^ 2 + minDisY ^ 2
 
 
-withinRadiusPos : Plane -> Float -> Position -> Position -> Bool
-withinRadiusPos plane radius a b =
-  -- Radius is powered. See note at distanceSquared
-  distanceSquaredPos plane a b <= radius ^ 2
+withinRadiusPositions : Plane -> Float -> Position -> Position -> Bool
+withinRadiusPositions plane radius a b =
+  -- Radius is powered. See note at distancePoints
+  distancePositions plane a b <= radius ^ 2
 
 
 keepOne : (a -> Position) -> List a -> List a
@@ -1776,6 +1780,10 @@ keepOne toPosition =
           (pos.x1 - pos.x2) * (pos.y1 - pos.y2)
   in
   List.foldr func [] >> List.reverse
+
+
+
+-- EVENTS / DECODER
 
 
 {-| -}
