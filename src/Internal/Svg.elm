@@ -1648,8 +1648,8 @@ getNearestX toPosition items _ plane searched =
       getClosest item allClosest =
         case List.head allClosest of
           Just closest ->
-            if toPoint closest == toPoint item then 
-              item :: allClosest
+            if (toPoint closest).x == (toPoint item).x then
+              (item :: allClosest)
             else if distance closest > distance item then 
               [ item ]
             else 
@@ -1659,7 +1659,7 @@ getNearestX toPosition items _ plane searched =
             [item]
   in
   List.foldl getClosest [] items
-    |> keepOne toPosition
+    |> List.reverse
 
 
 {-| -}
