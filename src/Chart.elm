@@ -26,11 +26,6 @@ module Chart exposing
   , binned
   )
 
-
--- TODO use toplevel scale as neutral plane
--- TODO update getNearest docs with error margin arg
--- TODO Make sure width is right ( 300 -> 320)
-
 {-| **Make sure to check out the many examples at [elm-charts.org](https://www.elm-charts.org/documentation).**
 
 The configuration of this charting library mirrors the pattern of HTML elements
