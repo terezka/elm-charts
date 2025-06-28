@@ -50,6 +50,20 @@ coordinates =
         \() ->
           expectFloat 1 (toCartesianY { defaultPlane | y = updateMarginMin defaultPlane.y 10 } 100)
     --
+    , test "toSVGX flipped min" <|
+        \() ->
+          expectFloat 110 (toSVGX { defaultPlane | x = flipAxis defaultPlane.x } 0)
+    , test "toSVGX flipped max" <|
+        \() ->
+          expectFloat 0 (toSVGX { defaultPlane | x = flipAxis defaultPlane.x } 10)
+    --
+    , test "toSVGY flipped min" <|
+        \() ->
+          expectFloat 0 (toSVGY { defaultPlane | y = flipAxis defaultPlane.y } 0)
+    , test "toSVGY flipped max" <|
+        \() ->
+          expectFloat 110 (toSVGY { defaultPlane | y = flipAxis defaultPlane.y } 10)
+    --
     , test "Length should default to 1" <|
         \() ->
           expectFloat 0.9 (toSVGY { defaultPlane | y = updatelength defaultPlane.y 0 } 1)
@@ -114,6 +128,7 @@ defaultAxis =
   , dataMax = 10
   , min = 0
   , max = 10
+  , flip = False
   }
 
 
@@ -147,6 +162,11 @@ updateMarginMin config val =
 updatelength : Axis -> Float -> Axis
 updatelength config length =
   { config | length = length }
+
+
+flipAxis : Axis -> Axis
+flipAxis config =
+  { config | flip = not config.flip }
 
 
 type alias Point =

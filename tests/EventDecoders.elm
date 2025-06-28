@@ -142,6 +142,7 @@ planeFromPoints points =
     , dataMax = Maybe.withDefault 10 (List.maximum <| List.map .x points)
     , min = Maybe.withDefault 0 (List.minimum <| List.map .x points)
     , max = Maybe.withDefault 10 (List.maximum <| List.map .x points)
+    , flip = False
     }
   , y =
     { length = 300
@@ -151,6 +152,7 @@ planeFromPoints points =
     , dataMax = Maybe.withDefault 10 (List.maximum <| List.map .y points)
     , min = Maybe.withDefault 0 (List.minimum <| List.map .y points)
     , max = Maybe.withDefault 10 (List.maximum <| List.map .y points)
+    , flip = False
     }
   }
 
@@ -171,6 +173,7 @@ defaultAxis =
   , dataMax = 10
   , min = 0
   , max = 10
+  , flip = False
   }
 
 
