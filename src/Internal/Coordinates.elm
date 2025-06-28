@@ -174,7 +174,7 @@ toId plane =
 
 
 
--- TRANSLATION
+-- TRANSLATION (ONE PLANE TO ANOTHER)
 
 
 {-| -}
@@ -205,6 +205,10 @@ convertX topLevel plane x =
 convertY : Plane -> Plane -> Float -> Float
 convertY topLevel plane y =
   topLevel.y.min + (range topLevel.y) * ((y - plane.y.min) / (range plane.y))
+
+
+
+-- TRANSLATION (SVG / CARTESIAN)
 
 
 {-| For scaling a cartesian value to a SVG value. Note that this will _not_
