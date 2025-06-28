@@ -67,7 +67,35 @@ coordinates =
 
 
 
+planeToPlane : Test
+planeToPlane =
+  describe "Plane to plane translation"
+    [ test "convertPos" <|
+        \() ->
+          convertPos otherPlane defaultPlane (toPosition 8 5)
+            |> Expect.equal (toPosition 80 50)
+    , test "convertPos negative" <|
+        \() ->
+          convertPos otherPlane defaultPlane (toPosition -8 -5)
+            |> Expect.equal (toPosition -80 -50)
+    , test "convertPos reverse planes" <|
+        \() ->
+          convertPos defaultPlane otherPlane (toPosition 8 5)
+            |> Expect.equal (toPosition 0.8 0.5)
+    , test "convertPoint" <|
+        \() ->
+          convertPoint otherPlane defaultPlane (Point 8 5)
+            |> Expect.equal (Point 80 50)
+    ]
+
+
+
 -- HELPERS
+
+
+toPosition : Float -> Float -> Position
+toPosition x y =
+  Position x x y y
 
 
 defaultPlane : Plane
@@ -86,6 +114,23 @@ defaultAxis =
   , dataMax = 10
   , min = 0
   , max = 10
+  }
+
+
+otherPlane : Plane
+otherPlane =
+  { x = otherAxis
+  , y = otherAxis
+  }
+
+
+otherAxis : Axis
+otherAxis =
+  { defaultAxis
+  | dataMin = 0
+  , dataMax = 100
+  , min = 0
+  , max = 100
   }
 
 
