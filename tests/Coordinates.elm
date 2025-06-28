@@ -10,6 +10,7 @@ import Svg exposing (Svg, svg)
 import Svg.Attributes
 import Internal.Coordinates as Coordinates exposing (..)
 import Internal.Svg as CS
+import Shared exposing (..)
 
 
 coordinates : Test
@@ -52,17 +53,17 @@ coordinates =
     --
     , test "toSVGX flipped min" <|
         \() ->
-          expectFloat 110 (toSVGX { defaultPlane | x = flipAxis defaultPlane.x } 0)
+          expectFloat 110 (toSVGX flippedXPlane 0)
     , test "toSVGX flipped max" <|
         \() ->
-          expectFloat 0 (toSVGX { defaultPlane | x = flipAxis defaultPlane.x } 10)
+          expectFloat 0 (toSVGX flippedXPlane 10)
     --
     , test "toSVGY flipped min" <|
         \() ->
-          expectFloat 0 (toSVGY { defaultPlane | y = flipAxis defaultPlane.y } 0)
+          expectFloat 0 (toSVGY flippedYPlane 0)
     , test "toSVGY flipped max" <|
         \() ->
-          expectFloat 110 (toSVGY { defaultPlane | y = flipAxis defaultPlane.y } 10)
+          expectFloat 110 (toSVGY flippedYPlane 10)
     --
     , test "Length should default to 1" <|
         \() ->
@@ -78,7 +79,6 @@ coordinates =
             |> isNaN
             |> Expect.equal False
     ]
-
 
 
 planeToPlane : Test
@@ -103,76 +103,3 @@ planeToPlane =
     ]
 
 
-
--- HELPERS
-
-
-toPosition : Float -> Float -> Position
-toPosition x y =
-  Position x x y y
-
-
-defaultPlane : Plane
-defaultPlane =
-  { x = defaultAxis
-  , y = defaultAxis
-  }
-
-
-defaultAxis : Axis
-defaultAxis =
-  { length = 110
-  , marginMin = 0
-  , marginMax = 0
-  , dataMin = 0
-  , dataMax = 10
-  , min = 0
-  , max = 10
-  , flip = False
-  }
-
-
-otherPlane : Plane
-otherPlane =
-  { x = otherAxis
-  , y = otherAxis
-  }
-
-
-otherAxis : Axis
-otherAxis =
-  { defaultAxis
-  | dataMin = 0
-  , dataMax = 100
-  , min = 0
-  , max = 100
-  }
-
-
-updateMarginMax : Axis -> Float -> Axis
-updateMarginMax config val =
-  { config | marginMax = val }
-
-
-updateMarginMin : Axis -> Float -> Axis
-updateMarginMin config val =
-  { config | marginMin = val }
-
-
-updatelength : Axis -> Float -> Axis
-updatelength config length =
-  { config | length = length }
-
-
-flipAxis : Axis -> Axis
-flipAxis config =
-  { config | flip = not config.flip }
-
-
-type alias Point =
-  { x : Float, y : Float }
-
-
-expectFloat : Float -> Float -> Expect.Expectation
-expectFloat =
-  Expect.within (Expect.Absolute 0.0001)
