@@ -53,7 +53,7 @@ You can see what attributes are applicable given their configuration record.
 # Line
 @docs Line, line
 
-# Rectangels
+# Rectangles
 @docs Rect, rect
 
 # Arrows
