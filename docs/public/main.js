@@ -19491,41 +19491,37 @@ var $author$project$Internal$Svg$container = F5(
 				event.name,
 				A2($author$project$Internal$Svg$decoder, plane, event.handler));
 		};
-		var svgAttrsSize = config.responsive ? _List_fromArray(
-			[
-				$elm$svg$Svg$Attributes$viewBox(
-				'0 0 ' + ($elm$core$String$fromFloat(plane.x.length) + (' ' + $elm$core$String$fromFloat(plane.y.length)))),
-				A2($elm$html$Html$Attributes$style, 'display', 'block')
-			]) : _List_fromArray(
-			[
-				$elm$svg$Svg$Attributes$width(
-				$elm$core$String$fromFloat(plane.x.length)),
-				$elm$svg$Svg$Attributes$height(
-				$elm$core$String$fromFloat(plane.y.length)),
-				A2($elm$html$Html$Attributes$style, 'display', 'block')
-			]);
-		var htmlAttrsSize = config.responsive ? _List_fromArray(
+		var svgAttrsSize = function () {
+			var _v0 = config.viewport;
+			if (_v0.$ === 'Just') {
+				var viewport = _v0.a;
+				return _List_fromArray(
+					[
+						$elm$svg$Svg$Attributes$viewBox(
+						'0 0 ' + ($elm$core$String$fromInt(viewport.width) + (' ' + $elm$core$String$fromInt(viewport.height)))),
+						A2($elm$html$Html$Attributes$style, 'display', 'block')
+					]);
+			} else {
+				return _List_fromArray(
+					[
+						$elm$svg$Svg$Attributes$viewBox(
+						'0 0 ' + ($elm$core$String$fromFloat(plane.x.length) + (' ' + $elm$core$String$fromFloat(plane.y.length)))),
+						A2($elm$html$Html$Attributes$style, 'display', 'block')
+					]);
+			}
+		}();
+		var htmlAttrsSize = _List_fromArray(
 			[
 				A2($elm$html$Html$Attributes$style, 'width', '100%'),
 				A2($elm$html$Html$Attributes$style, 'height', '100%')
-			]) : _List_fromArray(
-			[
-				A2(
-				$elm$html$Html$Attributes$style,
-				'width',
-				$elm$core$String$fromFloat(plane.x.length) + 'px'),
-				A2(
-				$elm$html$Html$Attributes$style,
-				'height',
-				$elm$core$String$fromFloat(plane.y.length) + 'px')
 			]);
-		var htmlAttrsDef = _List_fromArray(
+		var htmlAttrsDefault = _List_fromArray(
 			[
 				$elm$html$Html$Attributes$class('elm-charts__container-inner')
 			]);
 		var htmlAttrs = _Utils_ap(
-			config.htmlAttrs,
-			_Utils_ap(htmlAttrsDef, htmlAttrsSize));
+			htmlAttrsDefault,
+			_Utils_ap(htmlAttrsSize, config.htmlAttrs));
 		var chartPosition = _List_fromArray(
 			[
 				$elm$svg$Svg$Attributes$x(
@@ -19670,9 +19666,9 @@ var $author$project$Chart$definePlane = F2(
 				}
 			});
 		var limits_ = function (pos) {
-			return function (_v3) {
-				var x = _v3.x;
-				var y = _v3.y;
+			return function (_v5) {
+				var x = _v5.x;
+				var y = _v5.y;
 				return {
 					x: fixSingles(x),
 					y: fixSingles(y)
@@ -19688,17 +19684,17 @@ var $author$project$Chart$definePlane = F2(
 				$elm$core$Basics$identity,
 				A3($elm$core$List$foldl, collectLimits, _List_Nil, elements)));
 		var calcRange = function () {
-			var _v2 = config.range;
-			if (!_v2.b) {
+			var _v4 = config.range;
+			if (!_v4.b) {
 				return limits_.x;
 			} else {
-				var some = _v2;
+				var some = _v4;
 				return A2($author$project$Internal$Helpers$apply, some, limits_.x);
 			}
 		}();
 		var calcDomain = function () {
-			var _v1 = config.domain;
-			if (!_v1.b) {
+			var _v3 = config.domain;
+			if (!_v3.b) {
 				return A2(
 					$author$project$Internal$Helpers$apply,
 					_List_fromArray(
@@ -19707,7 +19703,7 @@ var $author$project$Chart$definePlane = F2(
 						]),
 					limits_.y);
 			} else {
-				var some = _v1;
+				var some = _v3;
 				return A2($author$project$Internal$Helpers$apply, some, limits_.y);
 			}
 		}();
@@ -19722,18 +19718,29 @@ var $author$project$Chart$definePlane = F2(
 			calcDomain.flip ? config.padding.bottom : config.padding.top);
 		var yMin = calcDomain.min - scalePadY(
 			calcDomain.flip ? config.padding.top : config.padding.bottom);
+		var _v1 = function () {
+			var _v2 = config.viewport;
+			if (_v2.$ === 'Just') {
+				var vp = _v2.a;
+				return _Utils_Tuple2(vp.width / config.width, vp.height / config.height);
+			} else {
+				return _Utils_Tuple2(1, 1);
+			}
+		}();
+		var ratioX = _v1.a;
+		var ratioY = _v1.b;
 		return {
 			x: _Utils_update(
 				calcRange,
 				{
-					length: config.width,
+					length: config.width * ratioX,
 					max: A2($elm$core$Basics$max, xMin, xMax),
 					min: A2($elm$core$Basics$min, xMin, xMax)
 				}),
 			y: _Utils_update(
 				calcDomain,
 				{
-					length: config.height,
+					length: config.height * ratioY,
 					max: A2($elm$core$Basics$max, yMin, yMax),
 					min: A2($elm$core$Basics$min, yMin, yMax)
 				})
@@ -20086,10 +20093,10 @@ var $author$project$Chart$chartAndPlane = F2(
 				margin: {bottom: 0, left: 0, right: 0, top: 0},
 				padding: {bottom: 0, left: 0, right: 0, top: 0},
 				range: _List_Nil,
-				responsive: true,
+				viewport: $elm$core$Maybe$Nothing,
 				width: 300
 			});
-		var planeConfig = {domain: config.domain, height: config.height, margin: config.margin, padding: config.padding, range: config.range, width: config.width};
+		var planeConfig = {domain: config.domain, height: config.height, margin: config.margin, padding: config.padding, range: config.range, viewport: config.viewport, width: config.width};
 		var _v0 = A3($author$project$Chart$addIndexes, planeConfig, 0, unindexedElements);
 		var indexedElements = _v0.a;
 		var elements = $author$project$Chart$addGridIfNone(indexedElements);
@@ -20118,7 +20125,7 @@ var $author$project$Chart$chartAndPlane = F2(
 					attrs: config.attrs,
 					events: A2($elm$core$List$map, toEvent, config.events),
 					htmlAttrs: config.htmlAttrs,
-					responsive: config.responsive
+					viewport: config.viewport
 				},
 				beforeEls,
 				chartEls,
@@ -25428,15 +25435,6 @@ var $author$project$Internal$Coordinates$Axis = F8(
 	function (length, marginMin, marginMax, dataMin, dataMax, min, max, flip) {
 		return {dataMax: dataMax, dataMin: dataMin, flip: flip, length: length, marginMax: marginMax, marginMin: marginMin, max: max, min: min};
 	});
-var $author$project$Internal$Svg$defaultContainer = {
-	attrs: _List_fromArray(
-		[
-			$elm$svg$Svg$Attributes$style('overflow: visible;')
-		]),
-	events: _List_Nil,
-	htmlAttrs: _List_Nil,
-	responsive: true
-};
 var $author$project$Internal$Svg$barLegend = F2(
 	function (config, barConfig) {
 		var fontStyle = function () {
@@ -25467,13 +25465,15 @@ var $author$project$Internal$Svg$barLegend = F2(
 				config.htmlAttrs),
 			_List_fromArray(
 				[
-					A5(
-					$author$project$Internal$Svg$container,
-					fakePlane,
-					_Utils_update(
-						$author$project$Internal$Svg$defaultContainer,
-						{responsive: false}),
-					_List_Nil,
+					A2(
+					$elm$svg$Svg$svg,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$width(
+							$elm$core$String$fromFloat(config.width)),
+							$elm$svg$Svg$Attributes$height(
+							$elm$core$String$fromFloat(config.height))
+						]),
 					_List_fromArray(
 						[
 							A3(
@@ -25481,8 +25481,7 @@ var $author$project$Internal$Svg$barLegend = F2(
 							fakePlane,
 							barConfig,
 							{x1: 0, x2: 10, y1: 0, y2: 10})
-						]),
-					_List_Nil),
+						])),
 					A2(
 					$elm$html$Html$div,
 					_List_fromArray(
@@ -25491,7 +25490,8 @@ var $author$project$Internal$Svg$barLegend = F2(
 							A2(
 							$elm$html$Html$Attributes$style,
 							'margin-left',
-							$elm$core$String$fromFloat(config.spacing) + 'px')
+							$elm$core$String$fromFloat(config.spacing) + 'px'),
+							$elm$html$Html$Attributes$class('elm-charts__legend__label')
 						]),
 					_List_fromArray(
 						[
@@ -26192,13 +26192,15 @@ var $author$project$Internal$Svg$lineLegend = F3(
 				config.htmlAttrs),
 			_List_fromArray(
 				[
-					A5(
-					$author$project$Internal$Svg$container,
-					fakePlane,
-					_Utils_update(
-						$author$project$Internal$Svg$defaultContainer,
-						{responsive: false}),
-					_List_Nil,
+					A2(
+					$elm$svg$Svg$svg,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$width(
+							$elm$core$String$fromFloat(config.width)),
+							$elm$svg$Svg$Attributes$height(
+							$elm$core$String$fromFloat(config.height))
+						]),
 					_List_fromArray(
 						[
 							A5(
@@ -26249,8 +26251,7 @@ var $author$project$Internal$Svg$lineLegend = F3(
 							},
 							dotConfig,
 							A2($author$project$Internal$Svg$Point, 5, 5))
-						]),
-					_List_Nil),
+						])),
 					A2(
 					$elm$html$Html$div,
 					_List_fromArray(
@@ -26259,7 +26260,8 @@ var $author$project$Internal$Svg$lineLegend = F3(
 							A2(
 							$elm$html$Html$Attributes$style,
 							'margin-left',
-							$elm$core$String$fromFloat(config.spacing) + 'px')
+							$elm$core$String$fromFloat(config.spacing) + 'px'),
+							$elm$html$Html$Attributes$class('elm-charts__legend__label')
 						]),
 					_List_fromArray(
 						[
@@ -26586,7 +26588,7 @@ var $author$project$Chart$scale = F2(
 						$author$project$Internal$Helpers$apply,
 						attrs,
 						{domain: _List_Nil, range: _List_Nil});
-					var planeConfig = {domain: config.domain, height: parentPlaneConfig.height, margin: parentPlaneConfig.margin, padding: parentPlaneConfig.padding, range: config.range, width: parentPlaneConfig.width};
+					var planeConfig = {domain: config.domain, height: parentPlaneConfig.height, margin: parentPlaneConfig.margin, padding: parentPlaneConfig.padding, range: config.range, viewport: parentPlaneConfig.viewport, width: parentPlaneConfig.width};
 					var _v0 = A3($author$project$Chart$addIndexes, planeConfig, index, unindexedElements);
 					var indexedElements = _v0.a;
 					var newIndex = _v0.b;
