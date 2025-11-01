@@ -26,7 +26,6 @@ type alias Container msg =
   { attrs : List (S.Attribute msg)
   , htmlAttrs : List (H.Attribute msg)
   , viewport : Maybe { width : Int, height : Int }
-  , responsive : Bool
   , events : List (Event msg)
   }
 
@@ -43,7 +42,6 @@ defaultContainer =
   { attrs = [ SA.style "overflow: visible;" ]
   , htmlAttrs = []
   , viewport = Nothing
-  , responsive = True
   , events = []
   }
 
@@ -54,14 +52,9 @@ container plane config below chartEls above =
         [ HA.class "elm-charts__container-inner" ]
 
       htmlAttrsSize =
-        if config.responsive then
-          [ HA.style "width" "100%"
-          , HA.style "height" "100%"
-          ]
-        else
-          [ HA.style "width" (String.fromFloat plane.x.length ++ "px")
-          , HA.style "height" (String.fromFloat plane.y.length ++ "px")
-          ]
+        [ HA.style "width" "100%"
+        , HA.style "height" "100%"
+        ]
 
       htmlAttrs =
         htmlAttrsDefault ++ htmlAttrsSize ++ config.htmlAttrs
@@ -628,9 +621,11 @@ barLegend config barConfig =
     , HA.style "display" "flex"
     , HA.style "align-items" "center"
     ] ++ config.htmlAttrs)
-    [ container fakePlane { defaultContainer | responsive = False } []
+    [ S.svg
+        [ SA.width (String.fromFloat config.width)
+        , SA.height (String.fromFloat config.height)
+        ]
         [ bar fakePlane barConfig { x1 = 0, y1 = 0, x2 = 10, y2 = 10 } ]
-        []
     , H.div
         [ fontStyle
         , HA.style "margin-left" (String.fromFloat config.spacing ++ "px")
@@ -665,12 +660,14 @@ lineLegend config interConfig dotConfig =
     , HA.style "display" "flex"
     , HA.style "align-items" "center"
     ] ++ config.htmlAttrs)
-    [ container fakePlane { defaultContainer | responsive = False } []
+    [ S.svg
+        [ SA.width (String.fromFloat config.width)
+        , SA.height (String.fromFloat config.height)
+        ]
         [ interpolation fakePlane .x (.y >> Just) interConfig [ Point 0 5, Point 10 5 ]
         , area fakePlane .x Nothing (.y >> Just) interConfig [ Point 0 5, Point 10 5 ]
         , dot fakePlane .x .y dotConfig (Point 5 5)
         ]
-        []
     , H.div
         [ fontStyle
         , HA.style "margin-left" (String.fromFloat config.spacing ++ "px")
