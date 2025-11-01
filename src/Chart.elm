@@ -176,7 +176,6 @@ type alias Container data msg =
   , margin : Box
   , padding : Box
   , viewport : Maybe Viewport
-  , responsive : Bool
   , range : List (Attribute C.Axis)
   , domain : List (Attribute C.Axis)
   , events : List (CE.Event data msg)
@@ -276,7 +275,6 @@ chartAndPlane edits unindexedElements =
           , margin = { top = 0, bottom = 0, left = 0, right = 0 }
           , padding = { top = 0, bottom = 0, left = 0, right = 0 }
           , viewport = Nothing
-          , responsive = True
           , range = []
           , domain = []
           , events = []
@@ -322,7 +320,6 @@ chartAndPlane edits unindexedElements =
   ( IS.container plane
     { attrs = config.attrs
     , htmlAttrs = config.htmlAttrs
-    , responsive = config.responsive
     , viewport = config.viewport
     , events = List.map toEvent config.events
     }
