@@ -634,6 +634,7 @@ barLegend config barConfig =
     , H.div
         [ fontStyle
         , HA.style "margin-left" (String.fromFloat config.spacing ++ "px")
+        , HA.class "elm-charts__legend__label"
         ]
         [ H.text config.title ]
     ]
@@ -673,6 +674,7 @@ lineLegend config interConfig dotConfig =
     , H.div
         [ fontStyle
         , HA.style "margin-left" (String.fromFloat config.spacing ++ "px")
+        , HA.class "elm-charts__legend__label"
         ]
         [ H.text config.title ]
     ]
