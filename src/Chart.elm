@@ -813,6 +813,7 @@ type alias Axis =
   , arrow : Bool
   , color : String
   , width : Float
+  , attrs : List (S.Attribute Never)
   }
 
 
@@ -836,6 +837,8 @@ the styling options:
               ]
               -- Change from where to where you line goes.
               -- The example will make a line where x1 = 2 to x2 = 8
+
+          , CA.attrs [ SA.class "some-class" ] -- Add custom attributes
           ]
       ]
 
@@ -855,6 +858,7 @@ xAxis edits =
           , color = ""
           , arrow = True
           , width = 1
+          , attrs = []
           }
 
       addTickValues p ts =
@@ -870,6 +874,7 @@ xAxis edits =
           , CA.y1 (config.pinned p.y)
           , CA.x1 (max p.x.min xLimit.min)
           , CA.x2 (min p.x.max xLimit.max)
+          , CA.attrs config.attrs
           ]
       , if config.arrow then
           CS.arrow p
@@ -896,6 +901,7 @@ yAxis edits =
           , color = ""
           , arrow = True
           , width = 1
+          , attrs = []
           }
 
       addTickValues p ts =
@@ -911,6 +917,7 @@ yAxis edits =
           , CA.x1 (config.pinned p.x)
           , CA.y1 (max p.y.min yLimit.min)
           , CA.y2 (min p.y.max yLimit.max)
+          , CA.attrs config.attrs
           ]
       , if config.arrow then
           CS.arrow p
