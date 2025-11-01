@@ -167,7 +167,8 @@ your own event decoder.
 
 Note that this has two planes. The first is the plane as calculated from
 configuration and data. The second is the plane with adjusted height
-and width as gathered from JS event. See Internal.Svg.decoder.
+and width as gathered from JS event. See
+[Internal.Svg.decoder](https://github.com/terezka/elm-charts/blob/master/src/Internal/Svg.elm#L1770) to see implementation.
 
 -}
 getCustom : (List (I.One data I.Any) -> Plane -> Plane -> Point -> msg) -> Decoder data msg
