@@ -175,6 +175,7 @@ type alias Container data msg =
   , height : Float
   , margin : Box
   , padding : Box
+  , viewport : Maybe Viewport
   , responsive : Bool
   , range : List (Attribute C.Axis)
   , domain : List (Attribute C.Axis)
@@ -182,6 +183,10 @@ type alias Container data msg =
   , htmlAttrs : List (H.Attribute msg)
   , attrs : List (S.Attribute msg)
   }
+
+
+type alias Viewport =
+  { width : Int, height : Int }
 
 
 type alias Box =
@@ -227,6 +232,10 @@ the `chart` element.
                 -- Makes sure that your y-axis begins at exactly 0, no matter
                 -- what your data is like.
 
+
+        , CA.viewport { width = model.window.width, height = model.window.height }
+            -- Make your chart scale with particular viewport.
+
         -- Add event triggers to your chart. Learn more about these in
         -- the `Chart.Events` module.
         , CE.onMouseMove OnHovering (CE.getNearest CI.bars)
@@ -266,6 +275,7 @@ chartAndPlane edits unindexedElements =
           , height = 300
           , margin = { top = 0, bottom = 0, left = 0, right = 0 }
           , padding = { top = 0, bottom = 0, left = 0, right = 0 }
+          , viewport = Nothing
           , responsive = True
           , range = []
           , domain = []
@@ -279,6 +289,7 @@ chartAndPlane edits unindexedElements =
         , margin = config.margin
         , range = config.range
         , domain = config.domain
+        , viewport = config.viewport
         , width = config.width
         , height = config.height
         }
@@ -312,6 +323,7 @@ chartAndPlane edits unindexedElements =
     { attrs = config.attrs
     , htmlAttrs = config.htmlAttrs
     , responsive = config.responsive
+    , viewport = config.viewport
     , events = List.map toEvent config.events
     }
     beforeEls
@@ -385,6 +397,7 @@ type alias PlaneConfig =
   , margin : Box
   , range : List (Attribute C.Axis)
   , domain : List (Attribute C.Axis)
+  , viewport : Maybe Viewport
   , width : Float
   , height : Float 
   }
@@ -462,16 +475,24 @@ definePlane config elements =
 
       yMin = calcDomain.min - scalePadY (if calcDomain.flip then config.padding.top else config.padding.bottom)
       yMax = calcDomain.max + scalePadY (if calcDomain.flip then config.padding.bottom else config.padding.top)
+
+      ( ratioX, ratioY ) =
+        case config.viewport of
+          Just vp ->
+            ( (toFloat vp.width) / config.width, (toFloat vp.height) / config.height )
+
+          Nothing ->
+            ( 1, 1 )
   in
   { x =
       { calcRange
-      | length = config.width
+      | length = config.width * ratioX
       , min = min xMin xMax
       , max = max xMin xMax
       }
   , y =
       { calcDomain
-      | length = config.height
+      | length = config.height * ratioY
       , min = min yMin yMax
       , max = max yMin yMax
       }
@@ -679,6 +700,7 @@ scale attrs unindexedElements =
           , margin = parentPlaneConfig.margin
           , range = config.range
           , domain = config.domain
+          , viewport = parentPlaneConfig.viewport
           , width = parentPlaneConfig.width
           , height = parentPlaneConfig.height
           }
