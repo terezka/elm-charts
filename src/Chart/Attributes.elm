@@ -2,7 +2,7 @@ module Chart.Attributes exposing
   ( Attribute
 
   -- CONTAINER
-  , width, height, attrs, htmlAttrs, events, margin, padding
+  , width, height, attrs, htmlAttrs, events, margin, padding, viewport
 
   -- LIMITS
   , range, domain, limits
@@ -375,6 +375,12 @@ padding : x -> Attribute { a | padding : x }
 padding value =
   Attribute <| \config ->
     { config | padding = value }
+
+
+viewport : { x | width : Int, height : Int } -> Attribute { a | viewport : Maybe { width : Int, height : Int } }
+viewport vp =
+  Attribute <| \config ->
+    { config | viewport = Just { width = vp.width, height = vp.height } }
 
 
 {-| -}

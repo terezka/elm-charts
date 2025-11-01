@@ -25,6 +25,7 @@ import Internal.Helpers as Helpers
 type alias Container msg =
   { attrs : List (S.Attribute msg)
   , htmlAttrs : List (H.Attribute msg)
+  , viewport : Maybe { width : Int, height : Int }
   , responsive : Bool
   , events : List (Event msg)
   }
@@ -41,6 +42,7 @@ defaultContainer : Container msg
 defaultContainer =
   { attrs = [ SA.style "overflow: visible;" ]
   , htmlAttrs = []
+  , viewport = Nothing
   , responsive = True
   , events = []
   }
@@ -48,11 +50,8 @@ defaultContainer =
 
 container : Plane -> Container msg -> List (Html msg) -> List (Svg msg) -> List (Html msg) -> Html msg
 container plane config below chartEls above =
-  -- TODO seperate plane from container size
-  -- TODO preserveAspectRatio?
-  let htmlAttrsDef =
-        [ HA.class "elm-charts__container-inner"
-        ]
+  let htmlAttrsDefault =
+        [ HA.class "elm-charts__container-inner" ]
 
       htmlAttrsSize =
         if config.responsive then
@@ -65,7 +64,7 @@ container plane config below chartEls above =
           ]
 
       htmlAttrs =
-        config.htmlAttrs ++ htmlAttrsDef ++ htmlAttrsSize
+        htmlAttrsDefault ++ htmlAttrsSize ++ config.htmlAttrs
 
       chart =
         S.svg
@@ -73,15 +72,16 @@ container plane config below chartEls above =
           ([clipPathDefs] ++ chartEls ++ [catcher])
 
       svgAttrsSize =
-        if config.responsive then
-          [ SA.viewBox ("0 0 " ++ String.fromFloat plane.x.length ++ " " ++ String.fromFloat plane.y.length)
-          , HA.style "display" "block"
-          ]
-        else
-          [ SA.width (String.fromFloat plane.x.length)
-          , SA.height (String.fromFloat plane.y.length)
-          , HA.style "display" "block"
-          ]
+        case config.viewport of
+          Just viewport ->
+            [ SA.viewBox ("0 0 " ++ String.fromInt viewport.width ++ " " ++ String.fromInt viewport.height)
+            , HA.style "display" "block"
+            ]
+
+          Nothing ->
+            [ SA.viewBox ("0 0 " ++ String.fromFloat plane.x.length ++ " " ++ String.fromFloat plane.y.length)
+            , HA.style "display" "block"
+            ]
 
       catcher =
         S.rect (chartPosition ++ List.map toEvent config.events) []
