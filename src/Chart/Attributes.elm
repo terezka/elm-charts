@@ -2,7 +2,7 @@ module Chart.Attributes exposing
   ( Attribute
 
   -- CONTAINER
-  , width, height, attrs, htmlAttrs, events, margin, padding, viewport
+  , width, height, viewport, attrs, htmlAttrs, events, margin, padding
 
   -- LIMITS
   , range, domain, limits
@@ -68,7 +68,7 @@ below are only guiding.
 @docs Attribute
 
 ## Container
-@docs width, height, attrs, htmlAttrs, events, margin, padding
+@docs width, height, viewport, attrs, htmlAttrs, events, margin, padding
 
 ## Limits
 @docs range, domain, limits
