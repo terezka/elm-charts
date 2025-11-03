@@ -377,6 +377,9 @@ padding value =
     { config | padding = value }
 
 
+{-| Let chart scale to provided viewport. Use in combination with e.g.
+[`Browser.Dom.getViewportOf`](https://package.elm-lang.org/packages/elm/browser/latest/Browser-Dom#getViewportOf).
+-}
 viewport : { x | width : Int, height : Int } -> Attribute { a | viewport : Maybe { width : Int, height : Int } }
 viewport vp =
   Attribute <| \config ->
